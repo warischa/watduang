@@ -1,0 +1,61 @@
+# gh282 bisect, 2026-10-20. Instrument: each commit's OWN scripts/play-screen-fit-probe.mjs, ROUTES_ONLY=pinocchio-luck,
+# 390x844 vertical worst. good <64px, bad >=64px, unmeasurable = skip (none occurred). One run per step.
+# Each 390 line is the wrapper's digest of the probe's own row: worst px, its press, every screen p<press>:<px>,
+# in-page WebGL (gl), fallback mouth visible, document scrollHeight/clientHeight, start of the visible text.
+=== c8c4f93 2026-10-04 fix(gate): gh#250 the home art scans count against the manifest and bind each card to its game
+390x844 err=- worst=14px press=1 scroll=14(documentElement) clip=4(div.css-mouth) | screens p0:4 p1:14 p2:4 | gl=null mouth=true dlg=[] deScrollH=858/844 text="ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบ"
+VERDICT c8c4f93 good 14px
+=== f52298c 2026-10-15 merge(gh#264): worktree-agent-ac89c15615d7c0c21
+390x844 err=- worst=112px press=0 scroll=112(documentElement) clip=4(div.css-mouth) | screens p0:112 p1:4 p2:14 p3:4 | gl=null mouth=true dlg=[] deScrollH=956/844 text="ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรีย"
+VERDICT f52298c bad 112px
+=== 821c9dc 2026-10-15 merge(gh#264): dice-loser on the shared player screen
+390x844 err=- worst=14px press=1 scroll=14(documentElement) clip=4(div.css-mouth) | screens p0:4 p1:14 p2:4 | gl=null mouth=true dlg=[] deScrollH=858/844 text="ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบ"
+VERDICT 821c9dc good 14px
+=== a3b0d0a 2026-10-15 merge(gh#264): short-stick on the shared player screen
+390x844 err=- worst=112px press=0 scroll=112(documentElement) clip=4(div.css-mouth) | screens p0:112 p1:4 p2:14 p3:4 | gl=null mouth=true dlg=[] deScrollH=956/844 text="ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรีย"
+VERDICT a3b0d0a bad 112px
+=== 15160c8 2026-10-15 merge(gh#264): bangkok-drift on the shared player screen
+390x844 err=- worst=14px press=1 scroll=14(documentElement) clip=4(div.css-mouth) | screens p0:4 p1:14 p2:4 | gl=null mouth=true dlg=[] deScrollH=858/844 text="ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบ"
+VERDICT 15160c8 good 14px
+=== 2e8108a 2026-10-15 merge(gh#264): pinocchio-luck on the shared player screen
+390x844 err=- worst=112px press=0 scroll=112(documentElement) clip=4(div.css-mouth) | screens p0:112 p1:4 p2:14 p3:4 | gl=null mouth=true dlg=[] deScrollH=956/844 text="ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรีย"
+VERDICT 2e8108a bad 112px
+=== 500d0a7 2026-10-15 merge(gh#264): how-close-is-near on the shared player screen
+390x844 err=- worst=14px press=1 scroll=14(documentElement) clip=4(div.css-mouth) | screens p0:4 p1:14 p2:4 | gl=null mouth=true dlg=[] deScrollH=858/844 text="ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบ"
+VERDICT 500d0a7 good 14px
+=== 469980e 2026-10-15 feat(gh#264): pinocchio-luck on the shared player screen
+390x844 err=- worst=112px press=0 scroll=112(documentElement) clip=4(div.css-mouth) | screens p0:112 p1:4 p2:14 p3:4 | gl=null mouth=true dlg=[] deScrollH=956/844 text="ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรีย"
+VERDICT 469980e bad 112px
+
+# git bisect log:
+# bad: [f9237d486b1548a14612dc93529abcf9f07bf9bf] test(gh#277 gh#269): browser leg for the shared screen's painted face and the render hold
+# good: [8354f164493dc1394084d02b20d3cdda0df74e5e] gh#182: the owner ruling of 2026-09-15 on seven rows, and a count correction
+git bisect start 'f9237d4' '8354f16'
+# good: [c8c4f93ba66a2e170d68ac537156e3c629b11066] fix(gate): gh#250 the home art scans count against the manifest and bind each card to its game
+git bisect good c8c4f93ba66a2e170d68ac537156e3c629b11066
+# bad: [f52298c842d20f7128ea1dc3edfd90ef41213ccd] merge(gh#264): worktree-agent-ac89c15615d7c0c21
+git bisect bad f52298c842d20f7128ea1dc3edfd90ef41213ccd
+# good: [821c9dc9e642de787282dacf0318304c8a26755e] merge(gh#264): dice-loser on the shared player screen
+git bisect good 821c9dc9e642de787282dacf0318304c8a26755e
+# bad: [a3b0d0ae28789c204e1e9d5ccc2980105dc4629d] merge(gh#264): short-stick on the shared player screen
+git bisect bad a3b0d0ae28789c204e1e9d5ccc2980105dc4629d
+# good: [15160c82f376594619d83eb724f316034ff0d7de] merge(gh#264): bangkok-drift on the shared player screen
+git bisect good 15160c82f376594619d83eb724f316034ff0d7de
+# bad: [2e8108a487f7d7bddd4c83e26eacda1861b12bf3] merge(gh#264): pinocchio-luck on the shared player screen
+git bisect bad 2e8108a487f7d7bddd4c83e26eacda1861b12bf3
+# good: [500d0a7c60804c926c01e985fd586da585d27f26] merge(gh#264): how-close-is-near on the shared player screen
+git bisect good 500d0a7c60804c926c01e985fd586da585d27f26
+# bad: [469980ef61fadd22df0e8d04c7c3c7f18ffa2304] feat(gh#264): pinocchio-luck on the shared player screen
+git bisect bad 469980ef61fadd22df0e8d04c7c3c7f18ffa2304
+# first bad commit: [469980ef61fadd22df0e8d04c7c3c7f18ffa2304] feat(gh#264): pinocchio-luck on the shared player screen
+
+# Boundary re-measured, n=2 each, same instrument. The probe and driver are byte-identical across it:
+# 'git diff 00715c8 469980e -- scripts/play-screen-fit-probe.mjs scripts/driver.mjs' prints nothing.
+== 00715c8-old-1
+390x844 err=- worst=14px press=1 scroll=14(documentElement) clip=4(div.css-mouth) | screens p0:4 p1:14 p2:4 | gl=null mouth=true dlg=[] deScrollH=858/844 text="ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบ"
+== 00715c8-old-2
+390x844 err=- worst=14px press=1 scroll=14(documentElement) clip=4(div.css-mouth) | screens p0:4 p1:14 p2:4 | gl=null mouth=true dlg=[] deScrollH=858/844 text="ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบ"
+== 469980e-old-1
+390x844 err=- worst=112px press=0 scroll=112(documentElement) clip=4(div.css-mouth) | screens p0:112 p1:4 p2:14 p3:4 | gl=null mouth=true dlg=[] deScrollH=956/844 text="ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรีย"
+== 469980e-old-2
+390x844 err=- worst=112px press=0 scroll=112(documentElement) clip=4(div.css-mouth) | screens p0:112 p1:4 p2:14 p3:4 | gl=null mouth=true dlg=[] deScrollH=956/844 text="ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรีย"

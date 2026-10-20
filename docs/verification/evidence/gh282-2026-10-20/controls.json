@@ -1,0 +1,3211 @@
+{
+ "ticket": "gh#282",
+ "measuredOn": "2026-10-20, this Mac, one headless Chrome (--headless --disable-gpu --no-sandbox, the ci-probes.sh lane flags) on CDP 9611, npx serve@14 on 4611, ROUTES_ONLY=pinocchio-luck, CI=1",
+ "lane": "in-page WebGL read on every measured screen: null (no-WebGL fallback puppet, the same lane the 2026-09-15 ruling measured: its reason names div.css-mouth)",
+ "table390": [
+  {
+   "build": "00715c8",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 00715c8)",
+   "run": 1,
+   "px390": 14,
+   "press": 1,
+   "playerScreen": false,
+   "error": null
+  },
+  {
+   "build": "00715c8",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 00715c8)",
+   "run": 2,
+   "px390": 14,
+   "press": 1,
+   "playerScreen": false,
+   "error": null
+  },
+  {
+   "build": "15160c8",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 15160c8)",
+   "run": 1,
+   "px390": 14,
+   "press": 1,
+   "playerScreen": false,
+   "error": null
+  },
+  {
+   "build": "2e8108a",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 2e8108a)",
+   "run": 1,
+   "px390": 112,
+   "press": 0,
+   "playerScreen": true,
+   "error": null
+  },
+  {
+   "build": "469980e",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 469980e)",
+   "run": 1,
+   "px390": 112,
+   "press": 0,
+   "playerScreen": true,
+   "error": null
+  },
+  {
+   "build": "469980e",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 469980e)",
+   "run": 2,
+   "px390": 112,
+   "press": 0,
+   "playerScreen": true,
+   "error": null
+  },
+  {
+   "build": "500d0a7",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 500d0a7)",
+   "run": 1,
+   "px390": 14,
+   "press": 1,
+   "playerScreen": false,
+   "error": null
+  },
+  {
+   "build": "821c9dc",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 821c9dc)",
+   "run": 1,
+   "px390": 14,
+   "press": 1,
+   "playerScreen": false,
+   "error": null
+  },
+  {
+   "build": "8354f16",
+   "probe": "probe from 8cd8d37",
+   "run": 1,
+   "px390": null,
+   "press": null,
+   "playerScreen": null,
+   "error": "the player screen never finished opening within 15000ms: <html> never carried data-player-screen, so the shared screen never mounted. A fresh read taken now would describe a page mid-boot, not the screen a device opens on (gh#264)"
+  },
+  {
+   "build": "8354f16",
+   "probe": "probe from 8cd8d37",
+   "run": 2,
+   "px390": null,
+   "press": null,
+   "playerScreen": null,
+   "error": "the player screen never finished opening within 15000ms: <html> never carried data-player-screen, so the shared screen never mounted. A fresh read taken now would describe a page mid-boot, not the screen a device opens on (gh#264)"
+  },
+  {
+   "build": "8354f16",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 8354f16)",
+   "run": 1,
+   "px390": 14,
+   "press": 1,
+   "playerScreen": "not read by this probe version",
+   "error": null
+  },
+  {
+   "build": "8354f16",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 8354f16)",
+   "run": 2,
+   "px390": 14,
+   "press": 1,
+   "playerScreen": "not read by this probe version",
+   "error": null
+  },
+  {
+   "build": "a3b0d0a",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at a3b0d0a)",
+   "run": 1,
+   "px390": 112,
+   "press": 0,
+   "playerScreen": true,
+   "error": null
+  },
+  {
+   "build": "c8c4f93",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at c8c4f93)",
+   "run": 1,
+   "px390": 14,
+   "press": 1,
+   "playerScreen": "not read by this probe version",
+   "error": null
+  },
+  {
+   "build": "f52298c",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at f52298c)",
+   "run": 1,
+   "px390": 112,
+   "press": 0,
+   "playerScreen": true,
+   "error": null
+  },
+  {
+   "build": "f9237d4",
+   "probe": "probe from 8cd8d37",
+   "run": 1,
+   "px390": 114,
+   "press": 0,
+   "playerScreen": true,
+   "error": null
+  },
+  {
+   "build": "f9237d4",
+   "probe": "probe from 8cd8d37",
+   "run": 2,
+   "px390": 114,
+   "press": 0,
+   "playerScreen": true,
+   "error": null
+  },
+  {
+   "build": "f9237d4",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at f9237d4)",
+   "run": 1,
+   "px390": 114,
+   "press": 0,
+   "playerScreen": true,
+   "error": null
+  },
+  {
+   "build": "f9237d4",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at f9237d4)",
+   "run": 2,
+   "px390": 114,
+   "press": 0,
+   "playerScreen": true,
+   "error": null
+  }
+ ],
+ "runs": [
+  {
+   "build": "00715c8",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 00715c8)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 107,
+     "worstPress": 1,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 1,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 26,
+       "scrollPx": 26,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 14,
+     "worstPress": 1,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 1,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQBBY | 1 / 3 | ถ"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 92",
+        "section#stageFrame top 92 h 388",
+        "div.panel-wrap top 468 h 376"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ✓ | จมูกเท่าเดิม "
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 4,
+     "worstPress": 0,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "00715c8",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 00715c8)",
+   "run": 2,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 107,
+     "worstPress": 1,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 1,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 14,
+     "worstPress": 1,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 1,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQCCZ | 1 / 3 | ถ"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 136",
+        "section#stageFrame top 136 h 388",
+        "div.panel-wrap top 513 h 331"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ! | โป๊ะแตก! จมูก"
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 4,
+     "worstPress": 0,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "15160c8",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 15160c8)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 107,
+     "worstPress": 1,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 1,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 26,
+       "scrollPx": 26,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 14,
+     "worstPress": 1,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 1,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQBBY | 1 / 3 | ถ"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 136",
+        "section#stageFrame top 136 h 388",
+        "div.panel-wrap top 513 h 331"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ! | โป๊ะแตก! จมูก"
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 17,
+     "worstPress": 2,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 17,
+       "scrollPx": 17,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "2e8108a",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 2e8108a)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 212,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 212,
+       "scrollPx": 212,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 26,
+       "scrollPx": 26,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 112,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 112,
+       "scrollPx": 112,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 956,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "main#app.no-webgl top 0 h 956",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 514"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ตอบคำถามคนละข้อ ตอบผิด"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 2,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQBBY | 1 / 3 | ถ"
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 136",
+        "section#stageFrame top 136 h 388",
+        "div.panel-wrap top 513 h 331"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ! | โป๊ะแตก! จมูก"
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 116,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 116,
+       "scrollPx": 116,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 17,
+       "scrollPx": 17,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "469980e",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 469980e)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 212,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 212,
+       "scrollPx": 212,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 112,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 112,
+       "scrollPx": 112,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 956,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "main#app.no-webgl top 0 h 956",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 514"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ตอบคำถามคนละข้อ ตอบผิด"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 2,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQCCZ | 1 / 3 | ถ"
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 92",
+        "section#stageFrame top 92 h 388",
+        "div.panel-wrap top 468 h 376"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ✓ | จมูกเท่าเดิม "
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 116,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 116,
+       "scrollPx": 116,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "469980e",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 469980e)",
+   "run": 2,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 212,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 212,
+       "scrollPx": 212,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 112,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 112,
+       "scrollPx": 112,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 956,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "main#app.no-webgl top 0 h 956",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 514"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ตอบคำถามคนละข้อ ตอบผิด"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 2,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQBBY | 1 / 3 | ถ"
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 92",
+        "section#stageFrame top 92 h 388",
+        "div.panel-wrap top 468 h 376"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ✓ | จมูกเท่าเดิม "
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 116,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 116,
+       "scrollPx": 116,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 17,
+       "scrollPx": 17,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "500d0a7",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 500d0a7)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 107,
+     "worstPress": 1,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 1,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 26,
+       "scrollPx": 26,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 14,
+     "worstPress": 1,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 1,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQBBY | 1 / 3 | ถ"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 92",
+        "section#stageFrame top 92 h 388",
+        "div.panel-wrap top 468 h 376"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ✓ | จมูกเท่าเดิม "
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 4,
+     "worstPress": 0,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "821c9dc",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 821c9dc)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 107,
+     "worstPress": 1,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 1,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 14,
+     "worstPress": 1,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 1,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQBBY | 1 / 3 | ถ"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 136",
+        "section#stageFrame top 136 h 388",
+        "div.panel-wrap top 513 h 331"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ! | โป๊ะแตก! จมูก"
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 4,
+     "worstPress": 0,
+     "worstIsPlayerScreen": false,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "8354f16",
+   "probe": "probe from 8cd8d37",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": "the player screen never finished opening within 15000ms: <html> never carried data-player-screen, so the shared screen never mounted. A fresh read taken now would describe a page mid-boot, not the screen a device opens on (gh#264)",
+     "worstPx": null,
+     "worstPress": null,
+     "worstIsPlayerScreen": null,
+     "screens": []
+    },
+    {
+     "vp": "390x844",
+     "error": "the player screen never finished opening within 15000ms: <html> never carried data-player-screen, so the shared screen never mounted. A fresh read taken now would describe a page mid-boot, not the screen a device opens on (gh#264)",
+     "worstPx": null,
+     "worstPress": null,
+     "worstIsPlayerScreen": null,
+     "screens": []
+    },
+    {
+     "vp": "1440x900",
+     "error": "the player screen never finished opening within 15000ms: <html> never carried data-player-screen, so the shared screen never mounted. A fresh read taken now would describe a page mid-boot, not the screen a device opens on (gh#264)",
+     "worstPx": null,
+     "worstPress": null,
+     "worstIsPlayerScreen": null,
+     "screens": []
+    }
+   ]
+  },
+  {
+   "build": "8354f16",
+   "probe": "probe from 8cd8d37",
+   "run": 2,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": "the player screen never finished opening within 15000ms: <html> never carried data-player-screen, so the shared screen never mounted. A fresh read taken now would describe a page mid-boot, not the screen a device opens on (gh#264)",
+     "worstPx": null,
+     "worstPress": null,
+     "worstIsPlayerScreen": null,
+     "screens": []
+    },
+    {
+     "vp": "390x844",
+     "error": "the player screen never finished opening within 15000ms: <html> never carried data-player-screen, so the shared screen never mounted. A fresh read taken now would describe a page mid-boot, not the screen a device opens on (gh#264)",
+     "worstPx": null,
+     "worstPress": null,
+     "worstIsPlayerScreen": null,
+     "screens": []
+    },
+    {
+     "vp": "1440x900",
+     "error": "the player screen never finished opening within 15000ms: <html> never carried data-player-screen, so the shared screen never mounted. A fresh read taken now would describe a page mid-boot, not the screen a device opens on (gh#264)",
+     "worstPx": null,
+     "worstPress": null,
+     "worstIsPlayerScreen": null,
+     "screens": []
+    }
+   ]
+  },
+  {
+   "build": "8354f16",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 8354f16)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 107,
+     "worstPress": 1,
+     "worstIsPlayerScreen": "not read by this probe version",
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 1,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 14,
+     "worstPress": 1,
+     "worstIsPlayerScreen": "not read by this probe version",
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version",
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 1,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version",
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQCCZ | 1 / 3 | ถ"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version",
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 136",
+        "section#stageFrame top 136 h 388",
+        "div.panel-wrap top 513 h 331"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ! | โป๊ะแตก! จมูก"
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 4,
+     "worstPress": 0,
+     "worstIsPlayerScreen": "not read by this probe version",
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "8354f16",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at 8354f16)",
+   "run": 2,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 107,
+     "worstPress": 1,
+     "worstIsPlayerScreen": "not read by this probe version",
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 1,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 14,
+     "worstPress": 1,
+     "worstIsPlayerScreen": "not read by this probe version",
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version",
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 1,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version",
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQAAX | 1 / 3 | ถ"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version",
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 136",
+        "section#stageFrame top 136 h 388",
+        "div.panel-wrap top 513 h 331"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ! | โป๊ะแตก! จมูก"
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 17,
+     "worstPress": 2,
+     "worstIsPlayerScreen": "not read by this probe version",
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 2,
+       "overflowPx": 17,
+       "scrollPx": 17,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "a3b0d0a",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at a3b0d0a)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 212,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 212,
+       "scrollPx": 212,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 26,
+       "scrollPx": 26,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 112,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 112,
+       "scrollPx": 112,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 956,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "main#app.no-webgl top 0 h 956",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 514"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ตอบคำถามคนละข้อ ตอบผิด"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 2,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQAAX | 1 / 3 | ถ"
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 136",
+        "section#stageFrame top 136 h 388",
+        "div.panel-wrap top 513 h 331"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ! | โป๊ะแตก! จมูก"
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 116,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 116,
+       "scrollPx": 116,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "c8c4f93",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at c8c4f93)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 107,
+     "worstPress": 1,
+     "worstIsPlayerScreen": "not read by this probe version",
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 1,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 14,
+     "worstPress": 1,
+     "worstIsPlayerScreen": "not read by this probe version",
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version",
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 1,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version",
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQBBY | 1 / 3 | ถ"
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version",
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 136",
+        "section#stageFrame top 136 h 388",
+        "div.panel-wrap top 513 h 331"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ! | โป๊ะแตก! จมูก"
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 17,
+     "worstPress": 2,
+     "worstIsPlayerScreen": "not read by this probe version",
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      },
+      {
+       "press": 2,
+       "overflowPx": 17,
+       "scrollPx": 17,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": "not read by this probe version"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "f52298c",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at f52298c)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 212,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 212,
+       "scrollPx": 212,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 112,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 112,
+       "scrollPx": 112,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 956,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "main#app.no-webgl top 0 h 956",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 514"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ตอบคำถามคนละข้อ ตอบผิด"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 2,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQAAX | 1 / 3 | ถ"
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 136",
+        "section#stageFrame top 136 h 388",
+        "div.panel-wrap top 513 h 331"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ! | โป๊ะแตก! จมูก"
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 116,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 116,
+       "scrollPx": 116,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "f9237d4",
+   "probe": "probe from 8cd8d37",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 214,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 214,
+       "scrollPx": 214,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 114,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 114,
+       "scrollPx": 114,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true,
+       "inPageWebgl": "null",
+       "cssMouthVisible": false,
+       "documentScrollHeight": 958,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "main#app.no-webgl top 0 h 958",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 516"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ตอบคำถามคนละข้อ ตอบผิด"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 2,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQAAX | 1 / 3 | ถ"
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 92",
+        "section#stageFrame top 92 h 388",
+        "div.panel-wrap top 468 h 376"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ✓ | จมูกเท่าเดิม "
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 118,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 118,
+       "scrollPx": 118,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "f9237d4",
+   "probe": "probe from 8cd8d37",
+   "run": 2,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 214,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 214,
+       "scrollPx": 214,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 114,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 114,
+       "scrollPx": 114,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true,
+       "inPageWebgl": "null",
+       "cssMouthVisible": false,
+       "documentScrollHeight": 958,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "main#app.no-webgl top 0 h 958",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 516"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ตอบคำถามคนละข้อ ตอบผิด"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 2,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQBBY | 1 / 3 | ถ"
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 136",
+        "section#stageFrame top 136 h 388",
+        "div.panel-wrap top 513 h 331"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ! | โป๊ะแตก! จมูก"
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 118,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 118,
+       "scrollPx": 118,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "f9237d4",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at f9237d4)",
+   "run": 1,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 214,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 214,
+       "scrollPx": 214,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 114,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 114,
+       "scrollPx": 114,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true,
+       "inPageWebgl": "null",
+       "cssMouthVisible": false,
+       "documentScrollHeight": 958,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "main#app.no-webgl top 0 h 958",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 516"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ตอบคำถามคนละข้อ ตอบผิด"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 2,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQAAX | 1 / 3 | ถ"
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 92",
+        "section#stageFrame top 92 h 388",
+        "div.panel-wrap top 468 h 376"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ✓ | จมูกเท่าเดิม "
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 118,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 118,
+       "scrollPx": 118,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "build": "f9237d4",
+   "probe": "own probe (scripts/play-screen-fit-probe.mjs at f9237d4)",
+   "run": 2,
+   "rows": [
+    {
+     "vp": "320x568",
+     "error": null,
+     "worstPx": 214,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 214,
+       "scrollPx": 214,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 7,
+       "scrollPx": 7,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 107,
+       "scrollPx": 107,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 26,
+       "scrollPx": 26,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    },
+    {
+     "vp": "390x844",
+     "error": null,
+     "worstPx": 114,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 114,
+       "scrollPx": 114,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true,
+       "inPageWebgl": "null",
+       "cssMouthVisible": false,
+       "documentScrollHeight": 958,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "main#app.no-webgl top 0 h 958",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 516"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | ตั้งวง | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ตอบคำถามคนละข้อ ตอบผิด"
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 97",
+        "section#stageFrame top 97 h 388",
+        "div.panel-wrap top 474 h 370"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ส่งเครื่องให้คนนี"
+      },
+      {
+       "press": 2,
+       "overflowPx": 14,
+       "scrollPx": 14,
+       "scrollFrom": "documentElement",
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 858,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 858",
+        "header.topbar top 0 h 66",
+        "section#stageFrame top 66 h 388",
+        "div.panel-wrap top 442 h 416"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | QQAAX | 1 / 3 | ถ"
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false,
+       "inPageWebgl": "null",
+       "cssMouthVisible": true,
+       "documentScrollHeight": 844,
+       "documentClientHeight": 844,
+       "topLevelBoxes": [
+        "button#play-exit top 6 h 44",
+        "button#play-edit-players top 56 h 44",
+        "main#app.no-webgl top 0 h 844",
+        "header.topbar top 0 h 92",
+        "section#stageFrame top 92 h 388",
+        "div.panel-wrap top 468 h 376"
+       ],
+       "visibleText": "ย | พิน็อคคิอวย | รอบ 1 · 1/3 | ♪ | อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย | ✓ | จมูกเท่าเดิม "
+      }
+     ]
+    },
+    {
+     "vp": "1440x900",
+     "error": null,
+     "worstPx": 118,
+     "worstPress": 0,
+     "worstIsPlayerScreen": true,
+     "screens": [
+      {
+       "press": 0,
+       "overflowPx": 118,
+       "scrollPx": 118,
+       "scrollFrom": "documentElement",
+       "clippedPx": 0,
+       "clipFrom": null,
+       "playerScreen": true
+      },
+      {
+       "press": 1,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 2,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      },
+      {
+       "press": 3,
+       "overflowPx": 4,
+       "scrollPx": 0,
+       "scrollFrom": null,
+       "clippedPx": 4,
+       "clipFrom": "div.css-mouth",
+       "playerScreen": false
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

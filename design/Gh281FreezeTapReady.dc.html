@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    /* The route's own Thai face, the self-hosted Sarabun subset from src/styles/fonts.css (400 and 700, a request for 800/900
+       takes the 700 face). Same files, same weights, pointed at from this board with a relative path so the prompt wraps here
+       exactly where it wraps on the page. The board is design source and is never referenced at runtime. */
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    /* gh#281 proposal sheet, not a page. gh#268's 56px top band (PlayTopBand variant B) pushes freeze-tap's pass
+       screen down, and the ready button #playerReadyBtn no longer fits at 320 x 568. Every frame below is the pass
+       screen on its TALLEST draw (SYMBOL_STAR, prompt copied verbatim from the route's TRIGGER_CONDITIONS; box 3's
+       measurement puts draws 7 and 8 at the same height). The frames are NOT wireframes: the route's own markup and its
+       own CSS values are replayed under the `.ft` scope so the fit is real, and each value says where it came from.
+       Sheet annotations are English and monospace; every Thai string inside a frame is copied verbatim from the route
+       (main.js, markup.html, src/shell/PlayExit.astro). Invented Thai: 0. */
+    .row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .row .why { margin: 0 0 22px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1240px; }
+    .cands { display: grid; grid-template-columns: repeat(4, 320px); gap: 26px; align-items: start; }
+    .cand { display: flex; flex-direction: column; gap: 8px; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; min-height: 70px; }
+    .note { font: 12px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c; }
+
+    /* ONE FRAME = one 320 x 568 viewport. position: relative stands in for the viewport the shell's fixed controls
+       are anchored to. The band is the one gh#268 shipped: 56px, ground #14142b, in the shell. */
+    .frame { position: relative; overflow: hidden; box-sizing: border-box; width: 320px; height: 568px; box-shadow: 0 0 0 1px #14142b; background: #070c14; }
+    .frame .band { position: absolute; left: 0; right: 0; top: 0; height: 56px; background: #14142b; z-index: 299; }
+    /* Shell controls, values from src/shell/PlayExit.astro: disc and pill fill rgba(0,0,0,0.6), 1px ring
+       rgba(255,255,255,0.35), white glyph; X 44 x 44 at 6/6 with a 20px glyph; pill 44px tall at left 56 / top 6 with
+       padding-inline 14, 14px label, radius 22. */
+    .frame .ctl-x, .frame .ctl-edit { position: absolute; z-index: 300; display: grid; place-items: center; box-sizing: border-box; border: 0; background: rgba(0,0,0,0.6); box-shadow: 0 0 0 1px rgba(255,255,255,0.35); color: #fff; line-height: 1; margin: 0; padding: 0; }
+    .frame .ctl-x { left: 6px; top: 6px; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; }
+    .frame .ctl-edit { left: 56px; top: 6px; height: 44px; padding-inline: 14px; border-radius: 22px; font-size: 14px; white-space: nowrap; font-family: inherit; }
+    .frame .dim { position: absolute; right: 8px; top: 20px; z-index: 300; font: 600 10px/1 ui-monospace, Menlo, monospace; color: #ffcc00; }
+    /* The viewport of the route: #app is `calc(100dvh - var(--play-band))` tall (overrides.css, gh#268), i.e. 512px
+       here, and starts below the band because the shell pads <body> by --play-band. */
+    .frame .app { position: absolute; left: 0; right: 0; top: 56px; bottom: 0; }
+
+    /* ------------------------------------------------------------------------------------------------
+       THE ROUTE, replayed. Every rule below is copied from src/play/freeze-tap/style.css (S) or overrides.css (O),
+       scoped under `.ft`, at the <=639px phone breakpoint this frame is at. Where a later route rule overrides an
+       earlier one (O over S) only the winning value is written. */
+    .ft { --text-main: #f8fafc; --text-muted: #94a3b8; --border-card: rgba(255,255,255,0.12); --primary: #38bdf8; --primary-glow: rgba(56,189,248,0.35); --gold: #f59e0b;
+          --font-ui: -apple-system, BlinkMacSystemFont, "Sarabun", "Kanit", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+          font-family: var(--font-ui); color: var(--text-main); }
+    .ft *, .ft *::before, .ft *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    .ft .app { display: flex; flex-direction: column; overflow: hidden; background: radial-gradient(circle at 50% 20%, #172554 0%, #070c14 75%); } /* S #app */
+    .ft header { position: relative; z-index: 20; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(7,12,20,0.75); border-bottom: 1px solid var(--border-card); flex: none; } /* S header */
+    .ft .header-left, .ft .header-right { display: flex; align-items: center; gap: 8px; } /* S */
+    .ft .brand-title { font-size: 1.15rem; font-weight: 900; letter-spacing: 1px; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 6px; } /* S */
+    .ft .header-left .brand-title { margin-inline-start: 60px; } /* O: clearance for the X, as shipped */
+    .ft .icon-btn { background: rgba(255,255,255,0.08); border: 1px solid var(--border-card); color: var(--text-main); border-radius: 10px; padding: 8px 12px; font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-inline-size: 44px; min-block-size: 44px; } /* S + O 44px floor; no font-family, so buttons keep the UA font exactly as the route does */
+    .ft main { position: relative; z-index: 15; flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 16px; padding-block: 8px; } /* S main; O gh#182 pass block: padding-block 8 */
+    .ft .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 9999px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; padding-block: 3px; } /* S + O gh#182 */
+    .ft .badge-primary { background: rgba(56,189,248,0.15); color: var(--primary); border: 1px solid rgba(56,189,248,0.3); } /* S */
+    .ft .btn-primary { background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: none; border-radius: 14px; padding: 16px 24px; font-size: 1.15rem; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 4px 18px var(--primary-glow); display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; } /* S; O's !important 16px 24px / 1.15rem beats main.js's inline 20px / 1.35rem */
+    .ft .pass-container { max-width: 460px; margin: auto; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; } /* S, gap 8 from O */
+    .ft .pass-player-card { background: rgba(15,23,42,0.95); border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; padding: 12px 20px; width: 100%; box-shadow: 0 12px 40px rgba(0,0,0,0.5); } /* S + O padding-block 12 */
+    .ft .pass-lead { color: var(--text-muted); font-size: 1.05rem; font-weight: 700; } /* main.js inline style of "ส่งโทรศัพท์ให้" */
+    .ft .player-name-huge { font-size: 2.8rem; font-weight: 900; letter-spacing: -0.5px; color: #fff; margin: 2px 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5); } /* S + O margin-block 2 */
+    .ft .player-name-huge .emo { font-size: 2.4rem; } /* main.js inline */
+    .ft .pass-condition-box { margin-top: 4px; padding: 8px 18px; border-radius: 16px; background: rgba(15,23,42,0.95); border: 2px solid var(--primary); box-shadow: 0 0 20px var(--primary-glow); display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; } /* S + O */
+    .ft .pass-target-badge { display: inline-flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 50%; font-size: 1.6rem; font-weight: 900; box-shadow: 0 0 15px rgba(255,255,255,0.25); border: 2px solid rgba(255,255,255,0.4); margin-bottom: 4px; } /* S */
+    .ft .pass-condition-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--gold); letter-spacing: 0.5px; } /* S */
+    .ft .pass-condition-prompt { font-size: 1.25rem; font-weight: 900; color: #fff; line-height: 1.35; } /* S */
+    .ft .pass-condition-warn { font-size: 0.85rem; font-weight: 700; color: #fca5a5; background: rgba(239,68,68,0.15); padding: 4px 10px; border-radius: 9999px; border: 1px solid rgba(239,68,68,0.25); } /* S */
+    .ft .pass-hint { font-size: 0.95rem; color: var(--text-muted); } /* main.js inline */
+
+    /* ------------------------------------------------------------------------------------------------
+       CANDIDATES. Each is a delta on the replay above. A value is "route" when it already exists in the route's CSS
+       or the shell, "canvas" when it is a 44px tap floor or a 6/8px step the canvas already uses, "NEW" otherwise,
+       and the README lists every NEW one with why. */
+
+    /* A - SQUEEZE. Nothing removed, nothing moved: spacing and type steps trimmed on the pass screen only. */
+    .ft.v-a header { padding-block: 4px; }                                  /* NEW 4 (was 12): the 44px icon floor stays, so the header drops 69 -> 53 */
+    .ft.v-a .pass-container { gap: 6px; }                                   /* NEW 6 (was 8): the 6px step the shell controls already use */
+    .ft.v-a .pass-player-card { padding-block: 8px; }                       /* route: 8 is main's own padding-block */
+    .ft.v-a .player-name-huge { font-size: 2.2rem; margin-block: 0; }       /* NEW 2.2rem (was 2.8rem) */
+    .ft.v-a .player-name-huge .emo { font-size: 2rem; }                     /* NEW 2rem (was 2.4rem) */
+    .ft.v-a .pass-condition-box { margin-top: 2px; padding-block: 6px; gap: 2px; } /* NEW 2 / 6 / 2 */
+    .ft.v-a .pass-target-badge { width: 44px; height: 44px; font-size: 1.3rem; margin-bottom: 0; } /* canvas: 44 is the tap floor; NEW 1.3rem glyph */
+    .ft.v-a .pass-condition-prompt { font-size: 1.1rem; line-height: 1.3; } /* NEW 1.1rem (was 1.25rem), line-height 1.3 (was 1.35) */
+
+    /* B - RESTRUCTURE. Sizes stay as shipped; the header sheds its second row of padding and the screen's stacked pieces
+       move side by side. The turn badge joins the lead line, and the target badge sits left of the prompt. */
+    .ft.v-b header { padding-block: 6px; }                                  /* NEW 6 (was 12) */
+    .ft.v-b .pass-container { gap: 6px; }                                   /* NEW 6 */
+    .ft.v-b .turn-slot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .ft.v-b .pass-condition-box { display: grid; grid-template-columns: 44px 1fr; column-gap: 12px; row-gap: 3px; align-items: center; text-align: start; }
+    .ft.v-b .pass-condition-title { grid-column: 1 / -1; text-align: center; }
+    .ft.v-b .pass-target-badge { width: 44px; height: 44px; font-size: 1.3rem; margin-bottom: 0; grid-row: 2 / span 1; } /* canvas: 44 tap floor */
+    .ft.v-b .pass-condition-prompt { text-align: start; }
+    .ft.v-b .pass-condition-warn { grid-column: 1 / -1; justify-self: center; }
+
+    /* C - PIN. No size changes at all: the ready button is pinned to the bottom of the route's own scrolling column, so
+       it is fully visible on every draw and every font by construction, and the card scrolls under it. */
+    .ft.v-c .pass-container { position: relative; }
+    .ft.v-c #ready-pin { position: sticky; bottom: 0; width: 100%; padding-top: 0; }  /* NEW: position sticky, bottom 0 (main's own padding-block 8 stays under it) */
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #ffffff; color: #14142b;">
+
+  <div style="padding: 32px 40px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#281 · freeze-tap pass screen at 320 x 568 under the 56px band · ready button fully visible on every draw</div>
+    <div style="margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">Owner picks one of A, B, C before any src change. The first frame is the control: the layout shipped today under the band, button partly off screen. Every frame is the tallest draw, SYMBOL_STAR, four players, first seat. Pending owner approval; no code until then.</div>
+  </div>
+
+  <div class="row">
+    <h2>320 x 568 · pass screen, tallest draw · today (control), then A, B, C</h2>
+    <p class="why">Fit rule, same in every frame: the button's top is at or below the band's bottom (y = 56) and its bottom is at or above the viewport's bottom (y = 568). The yellow dimension in the band of the control frame is the shipped band, not a new one. Annotation tags are not part of any design.</p>
+    <div class="cands">
+
+      <div class="cand">
+        <span class="tag">TODAY (control) · layout as shipped + band<br>button runs past the viewport bottom</span>
+        <div class="frame ft v-today" data-frame="today" data-draw="SYMBOL_STAR">
+          <div class="band"></div><div class="dim">band 56px</div>
+          <div class="app">
+            <header><div class="header-left"><span class="brand-title">💥 มือลั่น!</span></div><div class="header-right"><button class="icon-btn" type="button">🔊</button><button class="icon-btn" type="button">↺ ตั้งค่า</button></div></header>
+            <main data-main><div class="pass-container">
+              <div class="badge badge-primary" data-turn>ตาที่ 1 จาก 4</div>
+              <div class="pass-player-card">
+                <div class="pass-lead">ส่งโทรศัพท์ให้</div>
+                <div class="player-name-huge" style="color: #FF6B35;"><span class="emo">🐱</span> แมวส้ม</div>
+                <div class="pass-condition-box" data-cond-box style="border-color: #f59e0b;">
+                  <div class="pass-condition-title">🎯 เงื่อนไขที่ต้องกดในรอบนี้</div>
+                  <div class="pass-target-badge" data-target style="background-color: #f59e0b;">★</div>
+                  <div class="pass-condition-prompt" data-prompt>แตะเฉพาะเมื่อสัญลักษณ์กลายเป็นรูปดาว ★</div>
+                  <div class="pass-condition-warn">⚠️ สัญญาณหลอกจะโผล่มากวน ห้ามแตะก่อนสัญญาณจริง!</div>
+                </div>
+              </div>
+              <div class="pass-hint">กด <strong>พร้อมแล้ว</strong> เมื่อจับโทรศัพท์ถนัดมือ</div>
+              <div id="ready-pin"><button class="btn-primary" data-ready="playerReadyBtn" type="button">⚡ พร้อมแล้ว (เริ่มตาของคุณ)</button></div>
+            </div></main>
+          </div>
+          <button class="ctl-x" type="button">✕</button><button class="ctl-edit" type="button">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+      <div class="cand">
+        <span class="tag">A · SQUEEZE · nothing removed or moved<br>header padding, card padding, name, badge, prompt sizes trimmed</span>
+        <div class="frame ft v-a" data-frame="A" data-draw="SYMBOL_STAR">
+          <div class="band"></div>
+          <div class="app">
+            <header><div class="header-left"><span class="brand-title">💥 มือลั่น!</span></div><div class="header-right"><button class="icon-btn" type="button">🔊</button><button class="icon-btn" type="button">↺ ตั้งค่า</button></div></header>
+            <main data-main><div class="pass-container">
+              <div class="badge badge-primary" data-turn>ตาที่ 1 จาก 4</div>
+              <div class="pass-player-card">
+                <div class="pass-lead">ส่งโทรศัพท์ให้</div>
+                <div class="player-name-huge" style="color: #FF6B35;"><span class="emo">🐱</span> แมวส้ม</div>
+                <div class="pass-condition-box" data-cond-box style="border-color: #f59e0b;">
+                  <div class="pass-condition-title">🎯 เงื่อนไขที่ต้องกดในรอบนี้</div>
+                  <div class="pass-target-badge" data-target style="background-color: #f59e0b;">★</div>
+                  <div class="pass-condition-prompt" data-prompt>แตะเฉพาะเมื่อสัญลักษณ์กลายเป็นรูปดาว ★</div>
+                  <div class="pass-condition-warn">⚠️ สัญญาณหลอกจะโผล่มากวน ห้ามแตะก่อนสัญญาณจริง!</div>
+                </div>
+              </div>
+              <div class="pass-hint">กด <strong>พร้อมแล้ว</strong> เมื่อจับโทรศัพท์ถนัดมือ</div>
+              <div id="ready-pin"><button class="btn-primary" data-ready="playerReadyBtn" type="button">⚡ พร้อมแล้ว (เริ่มตาของคุณ)</button></div>
+            </div></main>
+          </div>
+          <button class="ctl-x" type="button">✕</button><button class="ctl-edit" type="button">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+      <div class="cand">
+        <span class="tag">B · RESTRUCTURE · sizes as shipped<br>turn badge joins the lead line, target badge beside the prompt</span>
+        <div class="frame ft v-b" data-frame="B" data-draw="SYMBOL_STAR">
+          <div class="band"></div>
+          <div class="app">
+            <header><div class="header-left"><span class="brand-title">💥 มือลั่น!</span></div><div class="header-right"><button class="icon-btn" type="button">🔊</button><button class="icon-btn" type="button">↺ ตั้งค่า</button></div></header>
+            <main data-main><div class="pass-container">
+              <div class="pass-player-card">
+                <div class="turn-slot"><div class="badge badge-primary" data-turn>ตาที่ 1 จาก 4</div><div class="pass-lead">ส่งโทรศัพท์ให้</div></div>
+                <div class="player-name-huge" style="color: #FF6B35;"><span class="emo">🐱</span> แมวส้ม</div>
+                <div class="pass-condition-box" data-cond-box style="border-color: #f59e0b;">
+                  <div class="pass-condition-title">🎯 เงื่อนไขที่ต้องกดในรอบนี้</div>
+                  <div class="pass-target-badge" data-target style="background-color: #f59e0b;">★</div>
+                  <div class="pass-condition-prompt" data-prompt>แตะเฉพาะเมื่อสัญลักษณ์กลายเป็นรูปดาว ★</div>
+                  <div class="pass-condition-warn">⚠️ สัญญาณหลอกจะโผล่มากวน ห้ามแตะก่อนสัญญาณจริง!</div>
+                </div>
+              </div>
+              <div class="pass-hint">กด <strong>พร้อมแล้ว</strong> เมื่อจับโทรศัพท์ถนัดมือ</div>
+              <div id="ready-pin"><button class="btn-primary" data-ready="playerReadyBtn" type="button">⚡ พร้อมแล้ว (เริ่มตาของคุณ)</button></div>
+            </div></main>
+          </div>
+          <button class="ctl-x" type="button">✕</button><button class="ctl-edit" type="button">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+      <div class="cand">
+        <span class="tag">C · PIN · no size changes<br>ready button sticks to the bottom of the scrolling column; the card scrolls under it</span>
+        <div class="frame ft v-c" data-frame="C" data-draw="SYMBOL_STAR">
+          <div class="band"></div>
+          <div class="app">
+            <header><div class="header-left"><span class="brand-title">💥 มือลั่น!</span></div><div class="header-right"><button class="icon-btn" type="button">🔊</button><button class="icon-btn" type="button">↺ ตั้งค่า</button></div></header>
+            <main data-main><div class="pass-container">
+              <div class="badge badge-primary" data-turn>ตาที่ 1 จาก 4</div>
+              <div class="pass-player-card">
+                <div class="pass-lead">ส่งโทรศัพท์ให้</div>
+                <div class="player-name-huge" style="color: #FF6B35;"><span class="emo">🐱</span> แมวส้ม</div>
+                <div class="pass-condition-box" data-cond-box style="border-color: #f59e0b;">
+                  <div class="pass-condition-title">🎯 เงื่อนไขที่ต้องกดในรอบนี้</div>
+                  <div class="pass-target-badge" data-target style="background-color: #f59e0b;">★</div>
+                  <div class="pass-condition-prompt" data-prompt>แตะเฉพาะเมื่อสัญลักษณ์กลายเป็นรูปดาว ★</div>
+                  <div class="pass-condition-warn">⚠️ สัญญาณหลอกจะโผล่มากวน ห้ามแตะก่อนสัญญาณจริง!</div>
+                </div>
+              </div>
+              <div class="pass-hint">กด <strong>พร้อมแล้ว</strong> เมื่อจับโทรศัพท์ถนัดมือ</div>
+              <div id="ready-pin"><button class="btn-primary" data-ready="playerReadyBtn" type="button">⚡ พร้อมแล้ว (เริ่มตาของคุณ)</button></div>
+            </div></main>
+          </div>
+          <button class="ctl-x" type="button">✕</button><button class="ctl-edit" type="button">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="padding: 24px 40px 40px; font: 12px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c;">
+    Value sources: band, X and pill are the shipped gh#268 shell (src/shell/PlayExit.astro, PlayTopBand variant B). Every route value in the replay is from src/play/freeze-tap/style.css or overrides.css at the phone breakpoint; the font is the route's own --font-ui stack, not a canvas font, because the prompt's wrap IS the variable here. Thai copy is verbatim from main.js and markup.html. Player count 4 and the first seat (แมวส้ม) are the route's own defaults. Not drawn: the sudden-death turn badge and long typed names, which wrap more than the defaults. Invented Thai: 0.
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

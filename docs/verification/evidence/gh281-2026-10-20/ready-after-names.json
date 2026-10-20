@@ -1,0 +1,209 @@
+{
+  "n": 9,
+  "seed": "names",
+  "vp": "320x568",
+  "band": 56,
+  "note": "one load per forced draw of TRIGGER_CONDITIONS; visibleBelowBand = px of the button between the band bottom and the viewport bottom; pass = top>=band && bottom<=568 && centre hit",
+  "minVisibleBelowBand": 60,
+  "allPass": true,
+  "rows": [
+    {
+      "draw": 0,
+      "v": 0.05555555555555555,
+      "forced": 0.05555555555555555,
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#ruleReadyBtn:clicked"
+      ],
+      "found": true,
+      "top": 474.859375,
+      "bottom": 534.859375,
+      "height": 60,
+      "centreY": 504.859375,
+      "centreHitsButton": true,
+      "centreHit": "BUTTON#playerReadyBtn",
+      "disabled": false,
+      "innerHeight": 568,
+      "innerWidth": 320,
+      "docScroll": 0,
+      "visibleBelowBand": 60,
+      "pass": true
+    },
+    {
+      "draw": 1,
+      "v": 0.16666666666666666,
+      "forced": 0.16666666666666666,
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#ruleReadyBtn:clicked"
+      ],
+      "found": true,
+      "top": 474.859375,
+      "bottom": 534.859375,
+      "height": 60,
+      "centreY": 504.859375,
+      "centreHitsButton": true,
+      "centreHit": "BUTTON#playerReadyBtn",
+      "disabled": false,
+      "innerHeight": 568,
+      "innerWidth": 320,
+      "docScroll": 0,
+      "visibleBelowBand": 60,
+      "pass": true
+    },
+    {
+      "draw": 2,
+      "v": 0.2777777777777778,
+      "forced": 0.2777777777777778,
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#ruleReadyBtn:clicked"
+      ],
+      "found": true,
+      "top": 474.859375,
+      "bottom": 534.859375,
+      "height": 60,
+      "centreY": 504.859375,
+      "centreHitsButton": true,
+      "centreHit": "BUTTON#playerReadyBtn",
+      "disabled": false,
+      "innerHeight": 568,
+      "innerWidth": 320,
+      "docScroll": 0,
+      "visibleBelowBand": 60,
+      "pass": true
+    },
+    {
+      "draw": 3,
+      "v": 0.3888888888888889,
+      "forced": 0.3888888888888889,
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#ruleReadyBtn:clicked"
+      ],
+      "found": true,
+      "top": 474.859375,
+      "bottom": 534.859375,
+      "height": 60,
+      "centreY": 504.859375,
+      "centreHitsButton": true,
+      "centreHit": "BUTTON#playerReadyBtn",
+      "disabled": false,
+      "innerHeight": 568,
+      "innerWidth": 320,
+      "docScroll": 0,
+      "visibleBelowBand": 60,
+      "pass": true
+    },
+    {
+      "draw": 4,
+      "v": 0.5,
+      "forced": 0.5,
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#ruleReadyBtn:clicked"
+      ],
+      "found": true,
+      "top": 474.859375,
+      "bottom": 534.859375,
+      "height": 60,
+      "centreY": 504.859375,
+      "centreHitsButton": true,
+      "centreHit": "BUTTON#playerReadyBtn",
+      "disabled": false,
+      "innerHeight": 568,
+      "innerWidth": 320,
+      "docScroll": 0,
+      "visibleBelowBand": 60,
+      "pass": true
+    },
+    {
+      "draw": 5,
+      "v": 0.6111111111111112,
+      "forced": 0.6111111111111112,
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#ruleReadyBtn:clicked"
+      ],
+      "found": true,
+      "top": 474.859375,
+      "bottom": 534.859375,
+      "height": 60,
+      "centreY": 504.859375,
+      "centreHitsButton": true,
+      "centreHit": "BUTTON#playerReadyBtn",
+      "disabled": false,
+      "innerHeight": 568,
+      "innerWidth": 320,
+      "docScroll": 0,
+      "visibleBelowBand": 60,
+      "pass": true
+    },
+    {
+      "draw": 6,
+      "v": 0.7222222222222222,
+      "forced": 0.7222222222222222,
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#ruleReadyBtn:clicked"
+      ],
+      "found": true,
+      "top": 474.859375,
+      "bottom": 534.859375,
+      "height": 60,
+      "centreY": 504.859375,
+      "centreHitsButton": true,
+      "centreHit": "BUTTON#playerReadyBtn",
+      "disabled": false,
+      "innerHeight": 568,
+      "innerWidth": 320,
+      "docScroll": 0,
+      "visibleBelowBand": 60,
+      "pass": true
+    },
+    {
+      "draw": 7,
+      "v": 0.8333333333333334,
+      "forced": 0.8333333333333334,
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#ruleReadyBtn:clicked"
+      ],
+      "found": true,
+      "top": 474.859375,
+      "bottom": 534.859375,
+      "height": 60,
+      "centreY": 504.859375,
+      "centreHitsButton": true,
+      "centreHit": "BUTTON#playerReadyBtn",
+      "disabled": false,
+      "innerHeight": 568,
+      "innerWidth": 320,
+      "docScroll": 0,
+      "visibleBelowBand": 60,
+      "pass": true
+    },
+    {
+      "draw": 8,
+      "v": 0.9444444444444444,
+      "forced": 0.9444444444444444,
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#ruleReadyBtn:clicked"
+      ],
+      "found": true,
+      "top": 474.859375,
+      "bottom": 534.859375,
+      "height": 60,
+      "centreY": 504.859375,
+      "centreHitsButton": true,
+      "centreHit": "BUTTON#playerReadyBtn",
+      "disabled": false,
+      "innerHeight": 568,
+      "innerWidth": 320,
+      "docScroll": 0,
+      "visibleBelowBand": 60,
+      "pass": true
+    }
+  ]
+}

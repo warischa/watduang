@@ -1,0 +1,322 @@
+TAP version 13
+# Subtest: the walk produces rows and both sets are non-empty (no vacuous pass)
+ok 1 - the walk produces rows and both sets are non-empty (no vacuous pass)
+  ---
+  duration_ms: 0.797333
+  type: 'test'
+  ...
+# Subtest: every route x viewport row is classified by exactly one set (probe check i)
+ok 2 - every route x viewport row is classified by exactly one set (probe check i)
+  ---
+  duration_ms: 0.303833
+  type: 'test'
+  ...
+# Subtest: no pin is stale — every pinned key is a row the walk produces (probe check ii, and its only home)
+ok 3 - no pin is stale — every pinned key is a row the walk produces (probe check ii, and its only home)
+  ---
+  duration_ms: 0.074375
+  type: 'test'
+  ...
+# Subtest: DECLARED_SCROLLER is a closed table: every computed overflow-x value is exempt or gated, never neither
+ok 4 - DECLARED_SCROLLER is a closed table: every computed overflow-x value is exempt or gated, never neither
+  ---
+  duration_ms: 0.086334
+  type: 'test'
+  ...
+# Subtest: the horizontal classifier counts unreachable spill and exempts designed scrollers (gh\#202 behaviour)
+ok 5 - the horizontal classifier counts unreachable spill and exempts designed scrollers (gh\#202 behaviour)
+  ---
+  duration_ms: 0.51925
+  type: 'test'
+  ...
+# Subtest: the sideways gate reds a clip on a row whose vertical overflow is already excused (gh\#202 behaviour)
+ok 6 - the sideways gate reds a clip on a row whose vertical overflow is already excused (gh\#202 behaviour)
+  ---
+  duration_ms: 0.146084
+  type: 'test'
+  ...
+# Subtest: every recorded exception reason parses back to its recorded px, on both axes
+ok 7 - every recorded exception reason parses back to its recorded px, on both axes
+  ---
+  duration_ms: 0.230541
+  type: 'test'
+  ...
+# Subtest: the composition gate names a desktop route that produced no reading (gh\#203 behaviour)
+ok 8 - the composition gate names a desktop route that produced no reading (gh\#203 behaviour)
+  ---
+  duration_ms: 0.106625
+  type: 'test'
+  ...
+# Subtest: the composition gate is scoped to the desktop viewport and passes a complete run
+ok 9 - the composition gate is scoped to the desktop viewport and passes a complete run
+  ---
+  duration_ms: 0.28025
+  type: 'test'
+  ...
+# Subtest: the reason gate accepts exactly the three recorded classes and reds on everything else (gh\#182)
+ok 10 - the reason gate accepts exactly the three recorded classes and reds on everything else (gh\#182)
+  ---
+  duration_ms: 0.381708
+  type: 'test'
+  ...
+# Subtest: a not-a-defect claim must hold at EVERY viewport, as the consistency check on its cited ruling (gh\#182)
+ok 11 - a not-a-defect claim must hold at EVERY viewport, as the consistency check on its cited ruling (gh\#182)
+  ---
+  duration_ms: 0.225584
+  type: 'test'
+  ...
+# Subtest: a not-a-defect row must NAME a mechanism, not merely contain the substring (gh\#182)
+ok 12 - a not-a-defect row must NAME a mechanism, not merely contain the substring (gh\#182)
+  ---
+  duration_ms: 0.09175
+  type: 'test'
+  ...
+# Subtest: a not-a-defect row must cite the owner ruling that licenses it, invariance alone is not a proof (gh\#182)
+ok 13 - a not-a-defect row must cite the owner ruling that licenses it, invariance alone is not a proof (gh\#182)
+  ---
+  duration_ms: 0.126042
+  type: 'test'
+  ...
+# Subtest: the UNCLASSIFIED advice is true about all three reason classes (gh\#182)
+ok 14 - the UNCLASSIFIED advice is true about all three reason classes (gh\#182)
+  ---
+  duration_ms: 0.075583
+  type: 'test'
+  ...
+# Subtest: the six cannon-flag and power-meter rows are owner-ruling rows recorded at their measured px (2026-10-20)
+ok 15 - the six cannon-flag and power-meter rows are owner-ruling rows recorded at their measured px (2026-10-20)
+  ---
+  duration_ms: 0.069041
+  type: 'test'
+  ...
+# Subtest: the per-screen formatter reports every measured screen with its identity and measurements (variable-cardinality)
+ok 16 - the per-screen formatter reports every measured screen with its identity and measurements (variable-cardinality)
+  ---
+  duration_ms: 0.166167
+  type: 'test'
+  ...
+# Subtest: fmtRowReport emits the row summary line followed by every screen line
+ok 17 - fmtRowReport emits the row summary line followed by every screen line
+  ---
+  duration_ms: 0.126958
+  type: 'test'
+  ...
+# Subtest: main does not delete or bypass the per-screen emission
+ok 18 - main does not delete or bypass the per-screen emission
+  ---
+  duration_ms: 1.827584
+  type: 'test'
+  ...
+# Subtest: emission precedes process.exit(1) on a failing row
+ok 19 - emission precedes process.exit(1) on a failing row
+  ---
+  duration_ms: 0.572958
+  type: 'test'
+  ...
+# Subtest: emitRowReports actually emits every row and every screen through its sink
+ok 20 - emitRowReports actually emits every row and every screen through its sink
+  ---
+  duration_ms: 0.075292
+  type: 'test'
+  ...
+# Subtest: a CLI run refuses a measurement fixture, through either channel
+ok 21 - a CLI run refuses a measurement fixture, through either channel
+  ---
+  duration_ms: 154.482
+  type: 'test'
+  ...
+# Subtest: under import the same knob is honoured, so the refusal is conditional on being the entry point
+ok 22 - under import the same knob is honoured, so the refusal is conditional on being the entry point
+  ---
+  duration_ms: 0.2415
+  type: 'test'
+  ...
+# Subtest: a CLI run with no fixture still refuses to report success without measuring
+ok 23 - a CLI run with no fixture still refuses to report success without measuring
+  ---
+  duration_ms: 183.458583
+  type: 'test'
+  ...
+# Subtest: drawValues enumerates every index of the declared array, and its canary separates on growth
+ok 24 - drawValues enumerates every index of the declared array, and its canary separates on growth
+  ---
+  duration_ms: 0.180791
+  type: 'test'
+  ...
+# Subtest: foldVisiblePx reproduces every value the Mac baseline recorded
+ok 25 - foldVisiblePx reproduces every value the Mac baseline recorded
+  ---
+  duration_ms: 0.051417
+  type: 'test'
+  ...
+# Subtest: fmtFold is silent on every shape a control leg can produce
+ok 26 - fmtFold is silent on every shape a control leg can produce
+  ---
+  duration_ms: 0.050208
+  type: 'test'
+  ...
+# Subtest: fmtFold reports one line per read screen and names which side of the fold it is on
+ok 27 - fmtFold reports one line per read screen and names which side of the fold it is on
+  ---
+  duration_ms: 0.071833
+  type: 'test'
+  ...
+# Subtest: the fold read is scoped to the one open route and to the viewport its rule names
+ok 28 - the fold read is scoped to the one open route and to the viewport its rule names
+  ---
+  duration_ms: 0.03125
+  type: 'test'
+  ...
+# Subtest: emitRowReports adds fold lines only for rows that carry a reading
+ok 29 - emitRowReports adds fold lines only for rows that carry a reading
+  ---
+  duration_ms: 0.084833
+  type: 'test'
+  ...
+# Subtest: the player-screen exception lives only on FITS_ROWS rows, and excepts only player-screen measurements
+ok 30 - the player-screen exception lives only on FITS_ROWS rows, and excepts only player-screen measurements
+  ---
+  duration_ms: 0.073833
+  type: 'test'
+  ...
+# Subtest: gh\#264: the settle wait exists and its cap clears the >=5s boot-plus-open a CI runner measured
+ok 31 - gh\#264: the settle wait exists and its cap clears the >=5s boot-plus-open a CI runner measured
+  ---
+  duration_ms: 0.027167
+  type: 'test'
+  ...
+# Subtest: gh\#264: a settled page passes on the first read -- the wait costs nothing when nothing is pending
+ok 32 - gh\#264: a settled page passes on the first read -- the wait costs nothing when nothing is pending
+  ---
+  duration_ms: 0.159292
+  type: 'test'
+  ...
+# Subtest: gh\#264: an open that lands inside the cap is waited for, not read mid-boot
+ok 33 - gh\#264: an open that lands inside the cap is waited for, not read mid-boot
+  ---
+  duration_ms: 0.074
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264: a pending that never clears REDS by name at the cap, and never waits past it
+ok 34 - MUST-RED gh\#264: a pending that never clears REDS by name at the cap, and never waits past it
+  ---
+  duration_ms: 0.197583
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264: a page where the shared screen never mounted REDS too -- an absent pending is not a settled page
+ok 35 - MUST-RED gh\#264: a page where the shared screen never mounted REDS too -- an absent pending is not a settled page
+  ---
+  duration_ms: 0.116709
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264: a read that errors REDS with the error, never reads as settled
+ok 36 - MUST-RED gh\#264: a read that errors REDS with the error, never reads as settled
+  ---
+  duration_ms: 0.063166
+  type: 'test'
+  ...
+# Subtest: gh\#264 r2: the sampler and the read parse, and the text threshold is gone
+ok 37 - gh\#264 r2: the sampler and the read parse, and the text threshold is gone
+  ---
+  duration_ms: 0.137958
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264 r2 (1): an 18-char options menu ("Options / Easy / Start") before the open REDS, naming its leaves
+ok 38 - MUST-RED gh\#264 r2 (1): an 18-char options menu ("Options / Easy / Start") before the open REDS, naming its leaves
+  ---
+  duration_ms: 1.43225
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264 r2: an image or svg before the open REDS -- text is not the only content
+ok 39 - MUST-RED gh\#264 r2: an image or svg before the open REDS -- text is not the only content
+  ---
+  duration_ms: 0.745084
+  type: 'test'
+  ...
+# Subtest: gh\#264 r2 (4): blank (a canvas, empty styled boxes) until the shared screen opens passes
+ok 40 - gh\#264 r2 (4): blank (a canvas, empty styled boxes) until the shared screen opens passes
+  ---
+  duration_ms: 0.511167
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264 r2 (5): a declaration on the play-surface root, or on an ancestor of it or of .ps, REDS
+ok 41 - MUST-RED gh\#264 r2 (5): a declaration on the play-surface root, or on an ancestor of it or of .ps, REDS
+  ---
+  duration_ms: 0.73675
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264 r2 (6): a declared header passes; the same header without its declaration REDS
+ok 42 - MUST-RED gh\#264 r2 (6): a declared header passes; the same header without its declaration REDS
+  ---
+  duration_ms: 0.818041
+  type: 'test'
+  ...
+# Subtest: gh\#264 r1: an intro-first route (screen still closed once settled) is not judged -- its own screen IS first
+ok 43 - gh\#264 r1: an intro-first route (screen still closed once settled) is not judged -- its own screen IS first
+  ---
+  duration_ms: 0.358667
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264 r1: a missing sampler, or an opened screen with no styled sample, REDS -- never reads as clean
+ok 44 - MUST-RED gh\#264 r1: a missing sampler, or an opened screen with no styled sample, REDS -- never reads as clean
+  ---
+  duration_ms: 0.081958
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264: the no-WebGL check reds a page the injection never reached, and passes once it has
+ok 45 - MUST-RED gh\#264: the no-WebGL check reds a page the injection never reached, and passes once it has
+  ---
+  duration_ms: 0.678291
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264: an injection that also takes 2d away, or a check that never ran, reds
+ok 46 - MUST-RED gh\#264: an injection that also takes 2d away, or a check that never ran, reds
+  ---
+  duration_ms: 0.216583
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264: the no-WebGL run reds a missing, doubled or extra route, a row error, an unchecked row, or a run that was not forced
+ok 47 - MUST-RED gh\#264: the no-WebGL run reds a missing, doubled or extra route, a row error, an unchecked row, or a run that was not forced
+  ---
+  duration_ms: 0.764166
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264 REFUTE: rows with valid injection and no first-screen measurement RED -- intro-first is observed, never inferred
+ok 48 - MUST-RED gh\#264 REFUTE: rows with valid injection and no first-screen measurement RED -- intro-first is observed, never inferred
+  ---
+  duration_ms: 0.153625
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264: main() under NO_WEBGL gates on the run-level faults, and refuses to mix with a shard or a control
+ok 49 - MUST-RED gh\#264: main() under NO_WEBGL gates on the run-level faults, and refuses to mix with a shard or a control
+  ---
+  duration_ms: 0.794417
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264 REFUTE: sampler rAF, then a route rAF inserting its board, then the open task -- the board REDS
+ok 50 - MUST-RED gh\#264 REFUTE: sampler rAF, then a route rAF inserting its board, then the open task -- the board REDS
+  ---
+  duration_ms: 0.455125
+  type: 'test'
+  ...
+# Subtest: MUST-RED gh\#264 REFUTE: a board a task leaves standing before the open REDS
+ok 51 - MUST-RED gh\#264 REFUTE: a board a task leaves standing before the open REDS
+  ---
+  duration_ms: 0.190334
+  type: 'test'
+  ...
+# Subtest: gh\#264 REFUTE: a board inserted and removed inside one callback is never counted -- no frame can show it
+ok 52 - gh\#264 REFUTE: a board inserted and removed inside one callback is never counted -- no frame can show it
+  ---
+  duration_ms: 0.145
+  type: 'test'
+  ...
+1..52
+# tests 52
+# suites 0
+# pass 52
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 453.744458

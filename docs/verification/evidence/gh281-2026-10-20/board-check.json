@@ -1,0 +1,483 @@
+{
+ "board": "design/Gh281FreezeTapReady.dc.html",
+ "note": "browser-measured from the board DOM, frame coordinates; pass = button top >= band bottom (56) AND bottom <= viewport (568) AND the button centre is what elementFromPoint hits. today MUST fail (must-red).",
+ "passRule": {
+  "bandBottom": 56,
+  "viewportBottom": 568
+ },
+ "verdict": "candidates pass, today fails",
+ "frames": [
+  {
+   "frame": "today",
+   "draw": "SYMBOL_STAR",
+   "bandBottom": 56,
+   "viewportBottom": 568,
+   "buttonTop": 556,
+   "buttonBottom": 616,
+   "buttonHeight": 60,
+   "visiblePx": 12,
+   "slackBelowPx": -48,
+   "slackAbovePx": 500,
+   "centreHitsButton": false,
+   "mainOverflowPx": 56,
+   "pass": false,
+   "allNineDrawsPass": false,
+   "worstBottomOverNine": 616,
+   "tallestDrawsOverNine": [
+    "SYMBOL_STAR",
+    "SYMBOL_CIRCLE"
+   ]
+  },
+  {
+   "frame": "A",
+   "draw": "SYMBOL_STAR",
+   "bandBottom": 56,
+   "viewportBottom": 568,
+   "buttonTop": 476.86,
+   "buttonBottom": 536.86,
+   "buttonHeight": 60,
+   "visiblePx": 60,
+   "slackBelowPx": 31.14,
+   "slackAbovePx": 420.86,
+   "centreHitsButton": true,
+   "mainOverflowPx": 0,
+   "pass": true,
+   "allNineDrawsPass": true,
+   "worstBottomOverNine": 536.86,
+   "tallestDrawsOverNine": [
+    "COLOR_RED",
+    "COLOR_GREEN",
+    "COLOR_BLUE",
+    "COLOR_YELLOW",
+    "TEXT_TAP",
+    "TEXT_NOW",
+    "TEXT_GO",
+    "SYMBOL_STAR",
+    "SYMBOL_CIRCLE"
+   ]
+  },
+  {
+   "frame": "B",
+   "draw": "SYMBOL_STAR",
+   "bandBottom": 56,
+   "viewportBottom": 568,
+   "buttonTop": 474.5,
+   "buttonBottom": 534.5,
+   "buttonHeight": 60,
+   "visiblePx": 60,
+   "slackBelowPx": 33.5,
+   "slackAbovePx": 418.5,
+   "centreHitsButton": true,
+   "mainOverflowPx": 0,
+   "pass": true,
+   "allNineDrawsPass": true,
+   "worstBottomOverNine": 548,
+   "tallestDrawsOverNine": [
+    "COLOR_YELLOW"
+   ]
+  },
+  {
+   "frame": "C",
+   "draw": "SYMBOL_STAR",
+   "bandBottom": 56,
+   "viewportBottom": 568,
+   "buttonTop": 500,
+   "buttonBottom": 560,
+   "buttonHeight": 60,
+   "visiblePx": 60,
+   "slackBelowPx": 8,
+   "slackAbovePx": 444,
+   "centreHitsButton": true,
+   "mainOverflowPx": 56,
+   "pass": true,
+   "allNineDrawsPass": true,
+   "worstBottomOverNine": 560,
+   "tallestDrawsOverNine": [
+    "COLOR_RED",
+    "COLOR_GREEN",
+    "COLOR_BLUE",
+    "COLOR_YELLOW",
+    "TEXT_TAP",
+    "TEXT_NOW",
+    "TEXT_GO",
+    "SYMBOL_STAR",
+    "SYMBOL_CIRCLE"
+   ]
+  }
+ ],
+ "perDraw": {
+  "today": [
+   {
+    "draw": "COLOR_RED",
+    "top": 529,
+    "bottom": 589,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": false
+   },
+   {
+    "draw": "COLOR_GREEN",
+    "top": 529,
+    "bottom": 589,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": false
+   },
+   {
+    "draw": "COLOR_BLUE",
+    "top": 529,
+    "bottom": 589,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": false
+   },
+   {
+    "draw": "COLOR_YELLOW",
+    "top": 529,
+    "bottom": 589,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": false
+   },
+   {
+    "draw": "TEXT_TAP",
+    "top": 529,
+    "bottom": 589,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": false
+   },
+   {
+    "draw": "TEXT_NOW",
+    "top": 529,
+    "bottom": 589,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": false
+   },
+   {
+    "draw": "TEXT_GO",
+    "top": 529,
+    "bottom": 589,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": false
+   },
+   {
+    "draw": "SYMBOL_STAR",
+    "top": 556,
+    "bottom": 616,
+    "height": 60,
+    "centreHitsButton": false,
+    "pass": false
+   },
+   {
+    "draw": "SYMBOL_CIRCLE",
+    "top": 556,
+    "bottom": 616,
+    "height": 60,
+    "centreHitsButton": false,
+    "pass": false
+   }
+  ],
+  "A": [
+   {
+    "draw": "COLOR_RED",
+    "top": 476.86,
+    "bottom": 536.86,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "COLOR_GREEN",
+    "top": 476.86,
+    "bottom": 536.86,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "COLOR_BLUE",
+    "top": 476.86,
+    "bottom": 536.86,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "COLOR_YELLOW",
+    "top": 476.86,
+    "bottom": 536.86,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "TEXT_TAP",
+    "top": 476.86,
+    "bottom": 536.86,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "TEXT_NOW",
+    "top": 476.86,
+    "bottom": 536.86,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "TEXT_GO",
+    "top": 476.86,
+    "bottom": 536.86,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "SYMBOL_STAR",
+    "top": 476.86,
+    "bottom": 536.86,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "SYMBOL_CIRCLE",
+    "top": 476.86,
+    "bottom": 536.86,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   }
+  ],
+  "B": [
+   {
+    "draw": "COLOR_RED",
+    "top": 474.5,
+    "bottom": 534.5,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "COLOR_GREEN",
+    "top": 474.5,
+    "bottom": 534.5,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "COLOR_BLUE",
+    "top": 474.5,
+    "bottom": 534.5,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "COLOR_YELLOW",
+    "top": 488,
+    "bottom": 548,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "TEXT_TAP",
+    "top": 474.5,
+    "bottom": 534.5,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "TEXT_NOW",
+    "top": 474.5,
+    "bottom": 534.5,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "TEXT_GO",
+    "top": 461,
+    "bottom": 521,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "SYMBOL_STAR",
+    "top": 474.5,
+    "bottom": 534.5,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "SYMBOL_CIRCLE",
+    "top": 474.5,
+    "bottom": 534.5,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   }
+  ],
+  "C": [
+   {
+    "draw": "COLOR_RED",
+    "top": 500,
+    "bottom": 560,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "COLOR_GREEN",
+    "top": 500,
+    "bottom": 560,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "COLOR_BLUE",
+    "top": 500,
+    "bottom": 560,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "COLOR_YELLOW",
+    "top": 500,
+    "bottom": 560,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "TEXT_TAP",
+    "top": 500,
+    "bottom": 560,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "TEXT_NOW",
+    "top": 500,
+    "bottom": 560,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "TEXT_GO",
+    "top": 500,
+    "bottom": 560,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "SYMBOL_STAR",
+    "top": 500,
+    "bottom": 560,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   },
+   {
+    "draw": "SYMBOL_CIRCLE",
+    "top": 500,
+    "bottom": 560,
+    "height": 60,
+    "centreHitsButton": true,
+    "pass": true
+   }
+  ]
+ },
+ "calibrationTodayVsBox3": [
+  {
+   "draw": "COLOR_RED",
+   "boardTop": 529,
+   "boardBottom": 589,
+   "box3Top": 529,
+   "box3Bottom": 589,
+   "deltaBottom": 0
+  },
+  {
+   "draw": "COLOR_GREEN",
+   "boardTop": 529,
+   "boardBottom": 589,
+   "box3Top": 529,
+   "box3Bottom": 589,
+   "deltaBottom": 0
+  },
+  {
+   "draw": "COLOR_BLUE",
+   "boardTop": 529,
+   "boardBottom": 589,
+   "box3Top": 529,
+   "box3Bottom": 589,
+   "deltaBottom": 0
+  },
+  {
+   "draw": "COLOR_YELLOW",
+   "boardTop": 529,
+   "boardBottom": 589,
+   "box3Top": 529,
+   "box3Bottom": 589,
+   "deltaBottom": 0
+  },
+  {
+   "draw": "TEXT_TAP",
+   "boardTop": 529,
+   "boardBottom": 589,
+   "box3Top": 529,
+   "box3Bottom": 589,
+   "deltaBottom": 0
+  },
+  {
+   "draw": "TEXT_NOW",
+   "boardTop": 529,
+   "boardBottom": 589,
+   "box3Top": 529,
+   "box3Bottom": 589,
+   "deltaBottom": 0
+  },
+  {
+   "draw": "TEXT_GO",
+   "boardTop": 529,
+   "boardBottom": 589,
+   "box3Top": 529,
+   "box3Bottom": 589,
+   "deltaBottom": 0
+  },
+  {
+   "draw": "SYMBOL_STAR",
+   "boardTop": 556,
+   "boardBottom": 616,
+   "box3Top": 556,
+   "box3Bottom": 616,
+   "deltaBottom": 0
+  },
+  {
+   "draw": "SYMBOL_CIRCLE",
+   "boardTop": 556,
+   "boardBottom": 616,
+   "box3Top": 556,
+   "box3Bottom": 616,
+   "deltaBottom": 0
+  }
+ ],
+ "consoleLines": [
+  "error: Failed to load resource: net::ERR_FILE_NOT_FOUND file:///Users/waris.c/claude/free-game/design/support.js"
+ ]
+}

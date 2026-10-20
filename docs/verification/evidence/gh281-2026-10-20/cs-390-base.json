@@ -1,0 +1,106 @@
+{
+  "vp": "390x844",
+  "draw": 7,
+  "innerWidth": 390,
+  "out": {
+    "#app header": {
+      "fontSize": "16px",
+      "lineHeight": "normal",
+      "paddingTop": "12px",
+      "paddingBottom": "12px",
+      "marginTop": "0px",
+      "marginBottom": "0px",
+      "width": "390px",
+      "height": "69px",
+      "rowGap": "normal"
+    },
+    ".pass-container": {
+      "fontSize": "16px",
+      "lineHeight": "normal",
+      "paddingTop": "0px",
+      "paddingBottom": "0px",
+      "marginTop": "123.5px",
+      "marginBottom": "123.5px",
+      "width": "358px",
+      "height": "456px",
+      "rowGap": "8px"
+    },
+    ".pass-player-card": {
+      "fontSize": "16px",
+      "lineHeight": "normal",
+      "paddingTop": "12px",
+      "paddingBottom": "12px",
+      "marginTop": "0px",
+      "marginBottom": "0px",
+      "width": "358px",
+      "height": "327px",
+      "rowGap": "normal"
+    },
+    ".player-name-huge": {
+      "fontSize": "44.8px",
+      "lineHeight": "normal",
+      "paddingTop": "0px",
+      "paddingBottom": "0px",
+      "marginTop": "2px",
+      "marginBottom": "2px",
+      "width": "316px",
+      "height": "60px",
+      "rowGap": "normal"
+    },
+    ".player-name-huge > span": {
+      "fontSize": "38.4px",
+      "lineHeight": "normal",
+      "paddingTop": "0px",
+      "paddingBottom": "0px",
+      "marginTop": "0px",
+      "marginBottom": "0px",
+      "width": "auto",
+      "height": "auto",
+      "rowGap": "normal"
+    },
+    ".pass-condition-box": {
+      "fontSize": "16px",
+      "lineHeight": "normal",
+      "paddingTop": "8px",
+      "paddingBottom": "8px",
+      "marginTop": "4px",
+      "marginBottom": "0px",
+      "width": "316px",
+      "height": "213px",
+      "rowGap": "3px"
+    },
+    ".pass-target-badge": {
+      "fontSize": "25.6px",
+      "lineHeight": "normal",
+      "paddingTop": "0px",
+      "paddingBottom": "0px",
+      "marginTop": "0px",
+      "marginBottom": "4px",
+      "width": "54px",
+      "height": "54px",
+      "rowGap": "normal"
+    },
+    ".pass-condition-prompt": {
+      "fontSize": "20px",
+      "lineHeight": "27px",
+      "paddingTop": "0px",
+      "paddingBottom": "0px",
+      "marginTop": "0px",
+      "marginBottom": "0px",
+      "width": "276px",
+      "height": "54px",
+      "rowGap": "normal"
+    },
+    "#playerReadyBtn": {
+      "fontSize": "18.4px",
+      "lineHeight": "normal",
+      "paddingTop": "16px",
+      "paddingBottom": "16px",
+      "marginTop": "0px",
+      "marginBottom": "0px",
+      "width": "358px",
+      "height": "60px",
+      "rowGap": "8px"
+    }
+  }
+}

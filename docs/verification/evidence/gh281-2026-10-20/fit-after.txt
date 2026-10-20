@@ -1,0 +1,20 @@
+::notice::freeze-tap         frame div#app cap    none  screen section#ftPlayers.ft-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [591-849] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no  docs/verification/evidence/203/freeze-tap-1440x900-first-game-screen.png
+NARROWED by ROUTES_ONLY=freeze-tap — 1 of 14 play route(s). This is a debug run, not a gate.
+::notice::freeze-tap         320x568   scrolls YES    37px  clipped     0px  sideways     0px  width-fill    90%  (worst of 4 screen(s) x 9 draw(s): press 0, 20 ink)
+::notice::  screen [press 0]  overflow    37px  scrolls YES    37px  clipped     0px  sideways     0px  width-fill    90%  ink 20
+::notice::  screen [press 1]  overflow    26px  scrolls YES    26px  clipped     0px  sideways     0px  width-fill   100%  ink 9
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 11
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 7
+::notice::  fold [press 2 draw 0.05555555555555555]  #playerReadyBtn  clears the fold  visible   60px of   60px  top   475  bottom   535
+::notice::freeze-tap         390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 4 screen(s) x 9 draw(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 9
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 11
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 7
+::notice::freeze-tap         1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  (worst of 4 screen(s) x 9 draw(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  ink 20
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 9
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 11
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 7
+FIT_SHARD_WALKED clean 0/1 routes=freeze-tap
+OK 3 route/viewport row(s) left the fresh screen; 12 distinct play screen(s) measured across 1 route(s) x 3 viewport(s). 2 row(s) asserted to fit within 8px and 1 row(s) held as recorded exceptions in KNOWN_OVERFLOW (reported, never gated: growth or a 0px reading prints a warning) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all 3 row(s) are asserted to clip no more than 8px horizontally except the 0 in KNOWN_OVERFLOW_X.

@@ -1,0 +1,43 @@
+::notice::cannon-flag        frame div#app-container cap    none  screen section#cf-players.cf-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [582-858] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no  docs/verification/evidence/203/cannon-flag-1440x900-first-game-screen.png
+::notice::power-meter        frame div#app-container cap    none  screen section#pmPlayers.pm-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [527-913] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no  docs/verification/evidence/203/power-meter-1440x900-first-game-screen.png
+NARROWED by ROUTES_ONLY=cannon-flag,power-meter — 2 of 14 play route(s). This is a debug run, not a gate.
+::warning::/game/cannon-flag/play/ at 320x568 measured 20px against a recorded 2px (press 0). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different machine? Fonts, not layout: leave the number alone.
+::warning::/game/power-meter/play/ at 320x568 measured 100px against a recorded 76px (press 4). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different machine? Fonts, not layout: leave the number alone.
+::notice::cannon-flag        320x568   scrolls YES    20px  clipped     0px  sideways     0px  width-fill    90%  (worst of 3 screen(s): press 0, 20 ink)
+::notice::  screen [press 0]  overflow    20px  scrolls YES    20px  clipped     0px  sideways     0px  width-fill    90%  ink 20
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.9%  ink 8
+::notice::  screen [press 2]  overflow     2px  scrolls no      0px  clipped     2px  sideways     0px  width-fill   100%  ink 23
+::notice::cannon-flag        390x844   scrolls no      0px  clipped     2px  sideways     0px  width-fill   100%  (worst of 3 screen(s): press 2, 23 ink)
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  89.2%  ink 8
+::notice::  screen [press 2]  overflow     2px  scrolls no      0px  clipped     2px  sideways     0px  width-fill   100%  ink 23
+::notice::cannon-flag        1440x900  scrolls no      0px  clipped     2px  sideways     0px  width-fill   100%  (worst of 3 screen(s): press 2, 23 ink)
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  ink 20
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  63.5%  ink 8
+::notice::  screen [press 2]  overflow     2px  scrolls no      0px  clipped     2px  sideways     0px  width-fill   100%  ink 23
+::notice::power-meter        320x568   scrolls YES   100px  clipped    76px  sideways     0px  width-fill   100%  (worst of 7 screen(s): press 4, 11 ink)
+::notice::  screen [press 0]  overflow    81px  scrolls YES    81px  clipped    76px  sideways     0px  width-fill    90%  ink 20
+::notice::  screen [press 1]  overflow    81px  scrolls YES    81px  clipped    76px  sideways     0px  width-fill   100%  ink 8
+::notice::  screen [press 2]  overflow    81px  scrolls YES    81px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::  screen [press 3]  overflow    81px  scrolls YES    81px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::  screen [press 4]  overflow   100px  scrolls YES   100px  clipped    76px  sideways     0px  width-fill   100%  ink 11
+::notice::  screen [press 5]  overflow    81px  scrolls YES    81px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::  screen [press 6]  overflow    81px  scrolls YES    81px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::power-meter        390x844   scrolls no      0px  clipped    76px  sideways     0px  width-fill  91.8%  (worst of 7 screen(s): press 0, 20 ink)
+::notice::  screen [press 0]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill  91.8%  ink 20
+::notice::  screen [press 1]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 8
+::notice::  screen [press 2]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::  screen [press 3]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::  screen [press 4]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 11
+::notice::  screen [press 5]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::  screen [press 6]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::power-meter        1440x900  scrolls no      0px  clipped    76px  sideways     0px  width-fill  26.9%  (worst of 7 screen(s): press 0, 20 ink)
+::notice::  screen [press 0]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill  26.9%  ink 20
+::notice::  screen [press 1]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 8
+::notice::  screen [press 2]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::  screen [press 3]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::  screen [press 4]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 11
+::notice::  screen [press 5]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+::notice::  screen [press 6]  overflow    76px  scrolls no      0px  clipped    76px  sideways     0px  width-fill   100%  ink 10
+FIT_SHARD_WALKED clean 0/1 routes=cannon-flag,power-meter
+OK 6 route/viewport row(s) left the fresh screen; 30 distinct play screen(s) measured across 2 route(s) x 3 viewport(s). 0 row(s) asserted to fit within 8px and 6 row(s) held as recorded exceptions in KNOWN_OVERFLOW (reported, never gated: growth or a 0px reading prints a warning) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all 6 row(s) are asserted to clip no more than 8px horizontally except the 0 in KNOWN_OVERFLOW_X.

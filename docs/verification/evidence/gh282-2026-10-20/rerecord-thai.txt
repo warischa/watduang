@@ -1,0 +1,2 @@
+0
+files scanned: 330 · Thai comment lines: 0 · ambiguous: 0 · NOT SCANNED, verbatim third-party lifts (owner ruling 2026-08-29): src/play/bangkok-drift/style.css, src/play/cannon-flag/style.css, src/play/croc-bite/style.css, src/play/cursed-number/style.css, src/play/freeze-tap/style.css, src/play/how-close-is-near/style.css, src/play/one-bomb/style.css, src/play/pinocchio-luck/style.css, src/play/power-meter/style.css, src/play/short-stick/style.css, src/play/wire-snip-panic/style.css, src/play/zero-trigger/style.css · skipped (no analyzer): .json x6, .html x21, .sh x5
