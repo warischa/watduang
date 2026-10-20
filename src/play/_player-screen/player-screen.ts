@@ -629,9 +629,10 @@ let handingOver = 0;
 /** A release landed while a handover was in flight: its arm waits for the last one to settle. */
 let releaseAwaitsHandover = false;
 
-/** The flip to 'free' is a reveal (ADR-0057), and it can land long after the route armed its gameplay
- *  in onStart: a removal the close commits keeps the hold until that write settles, by which time the
- *  route's window has expired. So every release arms every gameplay root here, whoever released.
+/** The flip to 'free' is a reveal (ADR-0057), and it can land long after the route armed its gameplay:
+ *  a removal a route's own close() commits keeps the hold until that write settles, by which time the
+ *  route's window has expired, and another holder (a second mount, a reopen) can outlast a handover.
+ *  So every release arms every gameplay root here, whoever released.
  *  One release gate at a time, as armSurface: an older window's timer would hand controls back while
  *  a newer one is still open.
  *
@@ -740,6 +741,12 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
 
   let state: ScreenState = initialState([], [], range);
   let isOpen = false;
+  /** gh#283: from the start press until its save settles. The start took its player list at the
+   *  press, so every roster edit is inert for that wait: an edit would be lost, and an x would be
+   *  written by the handover's close -- seating a player the roster no longer holds. Each edit's
+   *  handler returns early, and syncControls derives the controls' inert state from this, because a
+   *  rebuild mints live rows and an arm window that ends hands its controls back. */
+  let starting = false;
   let undoTimer: ReturnType<typeof setTimeout> | undefined;
 
   // gh#272: what holds rendering on this mount. Counters, not flags: two opens in flight, or a
@@ -818,10 +825,24 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   };
 
   function syncControls(): void {
-    start.disabled = surfaceHeld || !canStart(state);
-    add.disabled = surfaceHeld || !canAdd(state);
-    dec.disabled = state.mode !== 'first' || state.count <= state.min;
-    inc.disabled = state.mode !== 'first' || state.count >= state.max;
+    start.disabled = surfaceHeld || starting || !canStart(state);
+    add.disabled = surfaceHeld || starting || !canAdd(state);
+    dec.disabled = starting || state.mode !== 'first' || state.count <= state.min;
+    inc.disabled = starting || state.mode !== 'first' || state.count >= state.max;
+    // The row controls are only ever DISABLED here, never enabled: every way out of a start rebuilds
+    // the rows (a refusal renders, a handover closes and the next open loads), so fresh rows carry no
+    // residue. Enabling them here would hand a row back inside a gate's window. The reset is left to
+    // its handler: this function never enables it, and a disable the gate reads as this file's own
+    // would strand it after a refusal. The undo bar needs neither: the press drops its removal and
+    // hides it, and with the x inert nothing raises it again before the save settles.
+    if (starting) {
+      list.querySelectorAll<HTMLButtonElement>('.ps-tick, .ps-rm').forEach((b) => {
+        b.disabled = true;
+      });
+      list.querySelectorAll<HTMLInputElement>('.ps-n').forEach((f) => {
+        f.readOnly = true;
+      });
+    }
   }
 
   function renderLimit(): void {
@@ -857,6 +878,7 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     // from the value the way a label sourced from the name would.
     input.setAttribute('aria-label', `${COPY.seatLabel}${index + 1}`);
     input.addEventListener('input', () => {
+      if (starting) return;
       state = setName(state, index, input.value);
       const now = state.rows[index];
       if (controls && now) nameControls(controls[0], controls[1], displayName(now));
@@ -901,6 +923,7 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
         box.textContent = row.ticked ? '✓' : '';
         tick.append(box);
         tick.addEventListener('click', () => {
+          if (starting) return;
           state = toggleTick(state, index);
           render();
           // The rebuild put a NEW tick under the finger that just tapped the old one: a second
@@ -953,12 +976,22 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
 
   function removeAt(index: number): void {
     const gone = state.rows[index];
-    if (!gone) return;
+    if (!gone || starting) return;
     // One bar at a time: the removal it was holding is final the moment another one replaces it.
     commitRemoval();
     state = removeRow(state, index);
     render();
-    toastText.textContent = `${COPY.undoLead}${displayName(gone)}${COPY.undoTail}`;
+    showUndoBar();
+    // The rows below the removed one moved up under the finger, and the bar appeared: arm both.
+    armSurface();
+  }
+
+  /** The bar for the removal state.undo holds, with its own four seconds. The caller arms: the bar
+   *  appearing is a reveal (ADR-0057). */
+  function showUndoBar(): void {
+    const pending = state.undo;
+    if (!pending) return;
+    toastText.textContent = `${COPY.undoLead}${displayName(pending.row)}${COPY.undoTail}`;
     toast.hidden = false;
     root.classList.add('ps-toasting');
     clearTimeout(undoTimer);
@@ -968,8 +1001,6 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
       hideToast();
       armSurface();
     }, UNDO_MS);
-    // The rows below the removed one moved up under the finger, and the bar appeared: arm both.
-    armSurface();
   }
 
   undo.addEventListener('click', () => {
@@ -980,14 +1011,17 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   });
 
   dec.addEventListener('click', () => {
+    if (starting) return;
     state = setCount(state, state.count - 1);
     render();
   });
   inc.addEventListener('click', () => {
+    if (starting) return;
     state = setCount(state, state.count + 1);
     render();
   });
   add.addEventListener('click', () => {
+    if (starting) return;
     state = addRow(state);
     render();
     const fields = list.querySelectorAll<HTMLInputElement>('.ps-n');
@@ -1002,6 +1036,7 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     armSurface();
   };
   reset.addEventListener('click', () => {
+    if (starting) return;
     resetDialog.showModal();
     armAllButtons(resetDialog);
   });
@@ -1015,6 +1050,7 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   // reveal (ADR-0057), so the close event arms too; the closer is safe to run twice.
   resetDialog.addEventListener('close', closeReset);
   resetConfirm.addEventListener('click', () => {
+    if (starting) return;
     // Rebuild first, close (and arm) last: the arm must be the final word on what is live.
     state = resetNames(state);
     render();
@@ -1028,11 +1064,10 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     render();
   }
 
-  let starting = false;
   start.addEventListener('click', () => {
     if (!isOpen || starting || !canStart(state)) return;
     starting = true;
-    start.disabled = true;
+    syncControls();
     const before = state;
     const ops = opsOf(state);
     state = dropUndo(state); // its removal rides in `ops`
@@ -1089,6 +1124,9 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
         state = initialState(result.roster, playersOf(before).map((p) => p.name), range);
       }
       render();
+      // A refusal wrote nothing, so a removal rebase kept is still pending: it gets its bar back,
+      // or a later close would make it final with no undo shown (ruling 3). Shown before the arm.
+      showUndoBar();
       armSurface();
     });
   });

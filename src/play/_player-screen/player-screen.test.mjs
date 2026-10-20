@@ -918,3 +918,167 @@ test('gh#264: the fit probe waits on the same two attributes this screen writes'
   assert.equal(probe.PLAYER_SCREEN_PENDING_ATTR, ps.PENDING_ATTR);
   assert.notEqual(ps.PENDING_ATTR, ps.SCREEN_ATTR);
 });
+
+// ---- gh#283: nothing on the screen edits the roster while a start save waits ----------------------
+//
+// The start takes its player list when it is pressed, and the save it starts waits on the roster
+// lock. Anything the screen let a player change inside that wait was either lost (the start already
+// took its list) or, for an x, written later by the close the handover makes -- seating a player the
+// roster no longer holds. So from the start press until the save settles, every roster edit is inert.
+
+/** A saved roster on the real screen, start pressed, its save held at the lock. `before` runs first,
+ *  unlocked: another tab's edit the start then meets. */
+async function pendingStart(t, { roster = ['A', 'B', 'C'], before } = {}) {
+  const saved = await savedPage(t, roster);
+  await before?.(saved.page);
+  const held = [];
+  withLocks(t, (_name, fn) => new Promise((resolve) => { held.push(() => resolve(fn())); }));
+  assert.equal(saved.page.part('start').click(), true, 'start was not live -- this case presses nothing');
+  await settle();
+  assert.equal(held.length, 1, 'the start save never reached the lock -- this case holds nothing');
+  const release = async () => {
+    while (held.length) {
+      held.shift()();
+      await settle();
+    }
+  };
+  return { ...saved, release };
+}
+
+test('gh#283: an x pressed while the start save waits -- the round and the saved roster agree on who plays', async (t) => {
+  const { page, names, rm, release } = await pendingStart(t);
+  rm(2);
+  await release();
+  assert.equal(page.calls.started.length, 1, 'precondition: the start went through');
+  assert.deepEqual(page.calls.started[0].map((p) => p.name), names(), 'the round seated a player the saved roster no longer holds');
+});
+
+test('gh#283: every x stays inert while the start save waits -- through a rebuild, its arm window, and a control handed back', async (t) => {
+  const { page, names, release } = await pendingStart(t);
+  const rms = () => page.root.querySelectorAll('.ps-rm');
+  assert.deepEqual(rms().map((b) => b.disabled), [true, true, true], 'the start press left an x live');
+  // A route reopening the screen rebuilds every row, and the reopen's own window then hands back
+  // every control it collected.
+  page.screen.open();
+  await settle();
+  t.mock.timers.tick(401);
+  assert.equal(rms().length, 3, 'precondition: the reopen rebuilt the rows');
+  assert.deepEqual(rms().map((b) => b.disabled), [true, true, true], 'a rebuilt x came back live after its arm window while the start save waits');
+  // Another gate whose window ends hands the control back enabled (the arm gate's stated ceiling).
+  const rm = rms()[0];
+  rm.disabled = false;
+  rm.click();
+  assert.equal(page.part('toast').hidden, true, 'an x handed back live removed a player while the start save waits');
+  assert.equal(page.root.querySelectorAll('.ps-p').length, 3);
+  await release();
+  assert.deepEqual(page.calls.started[0].map((p) => p.name), ['A', 'B', 'C']);
+  assert.deepEqual(names(), ['A', 'B', 'C']);
+});
+
+test('gh#283: tick, rename and add are inert while the start save waits', async (t) => {
+  const { page, names, release } = await pendingStart(t);
+  const tick = page.root.querySelectorAll('.ps-tick')[0];
+  const label = tick.getAttribute('aria-label');
+  assert.equal(tick.disabled, true, 'a tick stayed live while the start save waits');
+  tick.disabled = false;
+  tick.click();
+  assert.equal(page.root.querySelectorAll('.ps-tick')[0].getAttribute('aria-pressed'), 'true', 'a tick toggled while the start save waits');
+  const field = page.root.querySelector('.ps-n');
+  assert.equal(field.readOnly, true, 'a name field took typing while the start save waits');
+  field.value = 'Zed';
+  field.dispatchEvent({ type: 'input' });
+  assert.equal(tick.getAttribute('aria-label'), label, 'a rename reached the screen while the start save waits');
+  const add = page.part('add');
+  assert.equal(add.disabled, true, 'the add row stayed live while the start save waits');
+  add.disabled = false;
+  add.click();
+  assert.equal(page.root.querySelectorAll('.ps-p').length, 3, 'a row was added while the start save waits');
+  await release();
+  assert.deepEqual(names(), ['A', 'B', 'C']);
+  assert.deepEqual(page.calls.started[0].map((p) => p.name), names());
+});
+
+test('gh#283: on a first visit the steppers and the reset are inert while the start save waits', async (t) => {
+  const { page, names, release } = await pendingStart(t, {
+    roster: [],
+    before: (p) => {
+      const f = p.root.querySelector('.ps-n');
+      f.value = 'Typed';
+      f.dispatchEvent({ type: 'input' });
+    },
+  });
+  const count = page.part('count-num').textContent;
+  for (const name of ['inc', 'dec']) {
+    const b = page.part(name);
+    assert.equal(b.disabled, true, `the ${name} stepper stayed live while the start save waits`);
+    b.disabled = false;
+    b.click();
+    assert.equal(page.part('count-num').textContent, count, `the ${name} stepper moved the seat count while the start save waits`);
+  }
+  page.part('reset').click();
+  assert.equal(page.byId('ps-reset-dialog').open, false, 'the reset confirm opened while the start save waits');
+  page.byId('ps-reset-confirm').click();
+  assert.equal(page.root.querySelector('.ps-n').value, 'Typed', 'the reset wiped a typed name while the start save waits');
+  await release();
+  assert.equal(page.calls.started[0][0].name, 'Typed');
+  assert.deepEqual(page.calls.started[0].map((p) => p.name), names());
+});
+
+test('gh#283: a start the roster refuses lifts the freeze -- the x is live again once the window passes', async (t) => {
+  const { page, names, rm, release } = await pendingStart(t, {
+    before: (p) => p.store.applyRosterOps([{ op: 'remove', name: 'C' }], 20), // another tab
+  });
+  await release();
+  assert.equal(page.calls.started.length, 0, 'precondition: the start was refused');
+  t.mock.timers.tick(401);
+  rm(0);
+  assert.equal(page.part('toast').hidden, false, 'the x stayed inert after the refused start');
+  assert.deepEqual(page.root.querySelectorAll('.ps-n').map((f) => f.value), ['B']);
+  assert.deepEqual(names(), ['A', 'B'], 'inside the four seconds nothing is final');
+});
+
+// ---- a refused start keeps the pending x undoable (ADR-0071 ruling 3) -----------------------------
+//
+// The press hides the undo bar because its removal rides in the start's write. A refusal writes
+// nothing, and rebase keeps that removal pending -- so the bar comes back with its four seconds, as a
+// reveal that arms (ADR-0057). Without it, a later close made the removal final with no undo shown.
+
+/** x on C, A renamed to Alpha, then another tab stores Alpha: the start is refused for a collision. */
+async function refusedWithPendingX(t) {
+  const saved = await savedPage(t);
+  const { page } = saved;
+  saved.rm(2);
+  t.mock.timers.tick(401);
+  rename(page, 0, 'Alpha');
+  await page.store.applyRosterOps([{ op: 'add', name: 'Alpha' }], 20); // the other tab
+  assert.equal(page.part('start').click(), true, 'start was not live -- this case presses nothing');
+  await settle();
+  assert.equal(page.calls.started.length, 0, 'precondition: the start was refused');
+  assert.deepEqual(saved.names(), ['A', 'B', 'C', 'Alpha'], 'precondition: the refusal wrote nothing');
+  return saved;
+}
+
+test('a refused start shows the undo bar again for the removal it keeps pending -- armed, and undo still works', async (t) => {
+  const { page, names } = await refusedWithPendingX(t);
+  assert.equal(page.part('toast').hidden, false, 'the refusal kept C\'s removal pending with no undo bar to take it back');
+  assert.equal(page.part('toast-text').textContent, 'เอา C ออกจากวงแล้ว');
+  assert.equal(page.part('undo').disabled, true, 'the bar came back unarmed');
+  t.mock.timers.tick(401);
+  assert.equal(page.part('undo').click(), true, 'the undo never came live');
+  assert.equal(page.part('toast').hidden, true);
+  page.screen.close();
+  await settle();
+  assert.deepEqual(names(), ['A', 'B', 'C', 'Alpha'], 'the close removed a player the undo took back');
+});
+
+test('a refused start gives the kept removal its own four seconds, then makes it final', async (t) => {
+  const { page, names } = await refusedWithPendingX(t);
+  t.mock.timers.tick(page.ps.UNDO_MS - 1);
+  await settle();
+  assert.equal(page.part('toast').hidden, false, 'the undo bar was not up for its four seconds');
+  assert.deepEqual(names(), ['A', 'B', 'C', 'Alpha'], 'inside the four seconds nothing is final');
+  t.mock.timers.tick(1);
+  await settle();
+  assert.equal(page.part('toast').hidden, true, 'the bar outlived its four seconds');
+  assert.deepEqual(names(), ['A', 'B', 'Alpha'], 'the bar ran out and the removal was never written');
+});

@@ -309,25 +309,19 @@ const GAMEPLAY_SURFACE = '<div id="app"><section id="root" hidden></section>'
   + '</section></div>';
 
 test('gh#269: a release that lands after the route armed its gameplay arms that gameplay again', async (t) => {
-  let page;
-  // The route's own arm, as every converted route's onStart makes it.
-  page = await mountScreen(t, {
-    roster: ['A', 'B', 'C'],
-    surface: GAMEPLAY_SURFACE,
-    onStart: () => { armAllButtons(page.byId('play')); },
-  });
+  const page = await mountScreen(t, { roster: ['A', 'B', 'C'], surface: GAMEPLAY_SURFACE });
   await openFully(t, page);
   const go = page.byId('go');
-  assert.equal(go.disabled, false, 'precondition: the gameplay control is live before start');
-  assert.equal(page.part('start').click(), true, 'start was not live -- this case presses nothing');
-  await settle();
-  assert.equal(page.locks.length, 1, 'precondition: the start save is the one request at the lock');
-  // An x pressed while the start save waits: the removal it leaves pending is what the close commits.
+  assert.equal(go.disabled, false, 'precondition: the gameplay control is live before the close');
+  // The late release comes from a route's own close (a home control putting the screen away): an x
+  // leaves a removal pending, the route arms the gameplay it shows, and the close commits that
+  // removal, which keeps the hold until its write settles. gh#283 made the x inert while a start
+  // save waits, so the handover's own close never commits one any more.
   page.root.querySelectorAll('.ps-rm')[0].click();
   assert.equal(page.part('toast').hidden, false, 'precondition: the x left no removal pending');
-  page.locks.shift().grant();
+  armAllButtons(page.byId('play'));
+  page.screen.close();
   await settle();
-  assert.equal(page.live.started.length, 1, 'the start save settled and nobody was handed over');
   assert.equal(page.locks.length, 1, 'the close committed no removal -- nothing delays the release');
   assert.equal(attr(page, ps.RENDER_HOLD_ATTR), 'held', 'precondition: the removal write keeps the gameplay hidden');
   t.mock.timers.tick(QUIET);
