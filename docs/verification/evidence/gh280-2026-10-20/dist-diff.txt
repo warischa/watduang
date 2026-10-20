@@ -1,0 +1,19 @@
+files base=172 new=172
+added (0): []
+removed (0): []
+changed (5):
+  _astro/LeaveConfirm.astro_astro_type_script_index_0_lang.[hash].js
+  _astro/_id_.[hash].css
+  game/daily-fortune/index.html
+  game/love-match/index.html
+  game/siamsi/index.html
+
+Explanations (each verified by reading the raw diff; base = HEAD 58930d8 build, new = working tree build):
+  game/{siamsi,daily-fortune,love-match}/index.html  the only three pages rendered by the [id].astro shell
+      route (GameLayout). Removed: <span id="roster-count" ... hidden>, <p id="write-refused" ... hidden>.
+      The stylesheet and LeaveConfirm script hashes in references differ (next two rows).
+  _astro/_id_.[hash].css  rule `.game-topbar-pill[data-astro-cid]` dropped; the only user was #roster-count.
+  _astro/LeaveConfirm.astro_astro_type_script_index_0_lang.[hash].js  roundLive() no longer reads
+      document.getElementById("player-setup") (always null since gh#273); reduced to the roundStarted latch.
+  No other file differs after normalisation; 0 files added, 0 removed. The remaining /game/<id>/ pages are
+  play routes that do not render GameLayout and are identical after normalisation.

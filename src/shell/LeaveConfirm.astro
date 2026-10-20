@@ -12,8 +12,7 @@ const { gameId } = Astro.props as Props;
     not rendering this component at all — ADR-0015's own reason, "there is no round to lose there".
 
     data-game-id is the predicate's first half, read off this element rather than routed through a
-    second channel: it is what makes "this page carries a game" checkable from the island, the same way
-    #player-setup's copy of it does for the panel (#23).
+    second channel: it is what makes "this page carries a game" checkable from the island (#23).
 
     Every comment here is a JS-style brace comment, never an HTML one: Astro renders an HTML comment
     straight into the built page, which would ship English engineering prose to a Thai-first player.
@@ -53,22 +52,17 @@ const { gameId } = Astro.props as Props;
   // undefined on a mount with no game — there is no round to ask about there (#23, ADR-0015)
   const gameId = leaveDlg.dataset.gameId;
 
-  // "A round was started on this page", in the two shapes a game page comes in:
-  //   party page — #player-setup exists and requestStart sets its `hidden` the moment a round begins,
-  //     so hidden IS the bit (unchanged from #39; the panel is never un-hidden again). ADR-0015 names
-  //     it: "'A round is live' is root.hidden on #player-setup ... That bit means 'this page started a
-  //     round', not 'a round is running now.'"
-  //   solo page — ADR-0040: no panel is rendered at all, so there is no bit to read here. The game
-  //     module is the only thing that knows, and it says so once, with watduang:round-started.
-  // The absence of a panel is NOT the signal, and that was gh#106's defect: `panel === null ||
-  // panel.hidden` armed the guard from first paint on all three [1, 1] pages, and gh#106 states why
-  // that is wrong — "daily-fortune and the current love-match never start one", while siamsi "does
-  // start rounds — startRound runs", with its one-holder fallback name. A fresh reader who touched
-  // nothing was asked about a round that did not exist.
+  // "A round was started on this page" has one source: the game module says so once, with
+  // watduang:round-started. It used to have a second, for party pages: ADR-0015 read it off the
+  // `hidden` bit of the #player-setup panel, which flipped the moment a round began. That panel was
+  // deleted in gh#273 and no page renders it, so the lookup always returned null and was removed here.
+  // The absence of a signal is NOT a round, and that was gh#106's defect: arming the guard from first
+  // paint on the [1, 1] pages asked a fresh reader who touched nothing about a round that did not
+  // exist — "daily-fortune and the current love-match never start one", while siamsi "does start
+  // rounds — startRound runs", with its one-holder fallback name.
   // Keyed on the SIGNAL, never on a list of game ids: a list goes stale the moment a game gains or
-  // loses a round (#97 rewrites siamsi), and a future solo game that starts a round is guarded by
-  // dispatching this event and nothing else. The panel test is an explicit null test, NOT
-  // `panel?.hidden`, which reads undefined on a solo page and would arm every one of them again.
+  // loses a round (#97 rewrites siamsi), and a future game that starts a round is guarded by
+  // dispatching this event and nothing else.
   // LATCHED, not sampled: the predicate is "started", so a finished-round summary must still ask —
   // nothing clears this flag for the life of the page (ADR-0015's accepted ceiling, owner-ruled #39).
   // gh#121 — the event NAME comes from the game-side module that dispatches it
@@ -79,9 +73,7 @@ const { gameId } = Astro.props as Props;
   document.addEventListener(ROUND_STARTED_EVENT, () => { roundStarted = true; });
 
   function roundLive(): boolean {
-    if (roundStarted) return true;
-    const panel = document.getElementById('player-setup');
-    return panel !== null && panel.hidden;
+    return roundStarted;
   }
 
   let pendingHref: string | null = null;

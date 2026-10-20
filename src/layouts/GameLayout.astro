@@ -75,11 +75,6 @@ const howToJsonLd = {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>
         {categories[game.category].label}
       </a>
-      {/* roster pill: the count is the live player count. The game page script filled it from the
-           panel's answer on every start and from the persisted session on load; both writers went with
-           the panel in gh#273, so on every page built today it stays hidden. Text changes never change
-           its height (fixed padding), so the topbar stays put. */}
-      <span id="roster-count" class="game-topbar-pill" hidden>วง 6 คน</span>
     </header>
 
     {/* The entry into a full-screen play route, for the games that have one. A real <a href>, in
@@ -118,14 +113,6 @@ const howToJsonLd = {
       {/* data-players carries the page's declared range to the game page island, which reads it to
            decide whether this page is the solo class — the same dataset channel data-game-id uses. */}
       <div id="stage" data-game-id={game.id} data-players={`${game.players[0]},${game.players[1]}`} style={stageReserveStyle}></div>
-
-      {/* gh#50 — session.ts's write() refuses a stale/superseded write instead of clobbering, and this is
-           the only surface that says so. Text only, no control (ADR-0015, ADR-0020): a button here would be
-           a new tap surface. Outside #stage (ADR-0014) and AFTER it — never before, or a notice appearing
-           mid-round would push #stage's own buttons down under a player's finger (the gh#37/#39/#42 mis-tap
-           family); after the stage it only reflows what is already below. hidden by default; role="alert"
-           announces only once hidden drops, the same ordering the retired setup panel's showError used. */}
-      <p id="write-refused" role="alert" hidden></p>
 
       <PassPhone />
     </div>
@@ -215,17 +202,6 @@ const howToJsonLd = {
 
   .game-topbar a:hover {
     color: var(--color-primary);
-  }
-
-  /* the span is a flex item here, so it is blockified without a display rule — the UA [hidden] rule
-     keeps it display:none when the group is gone, with no author display rule to beat it (the exact
-     failure #39 measured on #leave-confirm) */
-  .game-topbar-pill {
-    font-size: 13px;
-    font-weight: 500;
-    border: 2px solid var(--color-line-strong);
-    border-radius: 999px;
-    padding: 3px 10px;
   }
 
   /* Styled here because this layout is what emits the element (ADR-0036). 44px minimum on both axes:

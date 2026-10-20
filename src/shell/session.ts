@@ -110,9 +110,11 @@ export type WriteRefusal = 'record-gone' | 'other-round' | 'stale-version';
  * a flag whose polarity you have to go and look up.
  *
  * The panel was the only place that knew which of the two happened: requestStart() in PlayerSetup.astro
- * (retired in gh#273) put the question to the player (#resume-choice) or established there was nothing to ask about. It is
- * threaded here from there, through the watduang:start event — session.ts must NOT infer it. See the
- * comment on the id line in write() for the inference that was tried and what it got wrong.
+ * (retired in gh#273) put the question to the player (#resume-choice) or established there was nothing to ask about. It was
+ * threaded here from there, through the watduang:start event, and the page script's listener for that
+ * event called setPlayers with it — panel, event and listener are all gone. The rule outlived them:
+ * session.ts must NOT infer it. See the comment on the id line in write() for the inference that was
+ * tried and what it got wrong.
  *
  * 'same-round' is the default because the safe side is not minting: a writer that omits it can only
  * update a record it already matched against, never displace one. The one caller that relies on the
@@ -130,7 +132,7 @@ export interface ShellSession extends GameSession {
   onWriteRefused: ((reason: WriteRefusal) => void) | null;
   /**
    * The same setPlayers, widened by one optional parameter — and the widening is the boundary. Only a
-   * holder of a ShellSession (the shell: game/[id].astro's watduang:start handler) can say 'new-round'
+   * holder of a ShellSession (the shell; its only caller, the game page's watduang:start handler, was removed in gh#273) can say 'new-round'
    * and mint a fresh identity over the slot. A game holds ctx.session, typed GameSession, whose
    * declaration in games/types.ts has one parameter, so `Expected 1 arguments, but got 2` is what a
    * game gets for trying — the resume path in siamsi.ts cannot displace the round it is resuming even
@@ -148,8 +150,8 @@ export function loadSession(): ShellSession {
    * one. Every write compares it against the record actually in the slot and refuses on a mismatch.
    *
    * Why compare instead of trusting the closure: loadSession() hands out an independent mutable closure
-   * per call — the shell holds one, the mounted game holds another (game/[id].astro builds ctx.session
-   * once) — over a single storage key. clear() cannot invalidate a closure it does not know about, so
+   * per call — the shell held one, the mounted game held another (the game page built ctx.session
+   * once, before gh#273) — over a single storage key. clear() cannot invalidate a closure it does not know about, so
    * after a clear the game's closure is still live and still armed. Press Clear-and-drop-pending-round mid-round
    * and location.reload() is a macrotask away; a tap that lands before unload ran save() through the
    * game's closure and setItem the discarded round straight back. After the reload the panel offered
@@ -383,7 +385,7 @@ export function loadSession(): ShellSession {
     },
     clear(): void {
       // The one write path that had no guard at all (gh#51 F2). clear() is on GameSession, so it is
-      // reachable from the long-lived ctx.session closure game/[id].astro builds once per mount and a
+      // reachable from the long-lived ctx.session closure the game page built once per mount (before gh#273) and a
       // bfcache restore keeps alive: the first game to ship a quit-round button would hand a stale
       // closure the power to delete the round the newer document is playing — gh#49's loss with
       // nothing left to overwrite back. Same compare-and-swap as write(), reported the same way and

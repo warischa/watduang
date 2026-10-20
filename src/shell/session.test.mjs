@@ -56,8 +56,8 @@ test('#23 saveCheckpoint(null) empties the slot for real — a fresh round canno
 
 // Negative control, and the both-ways calibration of slots.size: it reports 1 when a record really is
 // there and 0 when it is not, on the clean path with no racing click. Also pins that setPlayers is
-// still allowed to CREATE the record — the whole flow starts with that write (game/[id].astro fires
-// setPlayers on watduang:start), so a guard that refused it would break every start.
+// still allowed to CREATE the record — the whole flow started with that write (the game page's watduang:start
+// handler, since removed in gh#273, called setPlayers), so a guard that refused it would have broken every start.
 test('negative control: a clean discard with no racing click leaves the slot empty', () => {
   slots.clear();
   const shell = loadSession();
@@ -76,9 +76,9 @@ test('negative control: a clean discard with no racing click leaves the slot emp
 // loadSession() captured at load time, and setPlayers writes that same snapshot back unchanged; the
 // re-read write() does is an identity compare, "is the record in the slot still the one this closure
 // is talking about", and here it is — both closures hold the same record's id, so the guard passes by
-// design and gameB carries gameA's checkpoint back in. What actually keeps this safe is that every start calls
-// loadSession() and setPlayers() back-to-back with nothing in between (game/[id].astro:50-51) — no
-// writer gets a chance to land between a closure's creation and its own setPlayers. The next test
+// design and gameB carries gameA's checkpoint back in. What actually keeps this safe is that every start called
+// loadSession() and setPlayers() back-to-back with nothing in between (the game page's removed
+// watduang:start handler) — no writer got a chance to land between a closure's creation and its own setPlayers. The next test
 // pins what happens when that adjacency is broken.
 test('game B start (setPlayers) preserves game A checkpoint — refutes the ADR-0010 clobber claim', () => {
   slots.clear();
@@ -99,7 +99,7 @@ test('game B start (setPlayers) preserves game A checkpoint — refutes the ADR-
 // one round's own writers disagreeing about its contents, not a discarded round coming back. That is
 // exactly the second question gen answers, and it is the same defect gh#49 met in a browser: same id,
 // older copy. Production still never reaches this ordering (every start calls loadSession() and
-// setPlayers() back-to-back inside one handler, game/[id].astro:50-51), so this pins the guard for the
+// setPlayers() back-to-back inside one handler, the game page's removed watduang:start handler), so this pins the guard for the
 // day that adjacency breaks — it no longer pins a loss.
 test('a checkpoint writer landing between a closure\'s creation and its own setPlayers is refused', () => {
   slots.clear();
@@ -126,7 +126,7 @@ test('a checkpoint writer landing between a closure\'s creation and its own setP
 
 // F1 (ADR-0010, open finding S2026-08-15#2) — the sibling caller 65d3d3c did not cover. siamsi.ts mountInto()
 // is a SECOND setPlayers on the closure the start handler built, and on first mount `await load()`
-// (game/[id].astro:56) separates it from that closure's creation. The panel is live in that gap:
+// (in the game page script, before gh#273) separated it from that closure's creation. The panel is live in that gap:
 // Clear group → requestClear() in PlayerSetup.astro emptied the record through clear() and its
 // location.reload() was a macrotask away, so the module's continuation can land first. Same detector as the test above —
 // slots.size is raw record presence — plus planStart as the symptom the player actually meets.
@@ -138,7 +138,7 @@ test('F1: the resume path\'s late setPlayers must not rebuild a record that was 
   shell.setPlayers(['Alice', 'Bob']);
   shell.saveCheckpoint(midRound(7));
 
-  // watduang:start → game/[id].astro:50-51: one closure, its own setPlayers, back-to-back. It captures
+  // The removed watduang:start handler in the game page: one closure, its own setPlayers, back-to-back. It captures
   // the live checkpoint as its snapshot, which is what a rebuilt record would carry back in.
   const game = loadSession();
   game.setPlayers(['Alice', 'Bob']);
@@ -179,7 +179,7 @@ test('a later setPlayers still updates a record that is still there — refresh-
 
 test('a discard is final — a write racing in through a stale session closure must not resurrect it', () => {
   slots.clear();
-  // The shell creates the record when the round starts (game/[id].astro: setPlayers on watduang:start)
+  // The shell creates the record when the round starts (the game page's removed watduang:start handler called setPlayers)
   loadSession().setPlayers(['Alice', 'Bob']);
   // The mounted game holds its OWN closure — ctx.session is built once, at start, and outlives any clear
   const game = loadSession();
@@ -281,7 +281,7 @@ test('a closure that legitimately created after one discard is stale after the n
 // The closure loaded the record, so it captured that record's id — spending its first setPlayers is
 // irrelevant now, what it holds is an id for a record that no longer exists, and captured-id vs absent
 // is a refusal. Still unreachable in production (src has exactly two setPlayers callers:
-// game/[id].astro:51, sync on the line after its own loadSession() at :50, and siamsi.ts mountInto(), always a
+// the game page's removed watduang:start handler, sync right after its own loadSession(), and siamsi.ts mountInto(), always a
 // SECOND call on that same closure), so this pins the guard for the day a caller lets an await sit
 // between loadSession() and its FIRST setPlayers — the ordering that used to resurrect the round.
 test('a closure whose FIRST setPlayers lands after the discard is refused — its record is gone', () => {
@@ -681,7 +681,7 @@ test('gh#51 F1: a round tapped past the 6h window still saves — its own closur
 
 // ---- gh#51 F2: clear() was the one write path with no guard at all — no identity check, no generation
 // check, removeItem unconditional. It sits on GameSession, so it is reachable from the long-lived
-// ctx.session closure game/[id].astro builds once per mount and a bfcache restore keeps alive: the
+// ctx.session closure the game page built once per mount (before gh#273) and a bfcache restore keeps alive: the
 // first game to ship a quit-round button hands a stale closure the power to delete the round the newer
 // document is playing, which is gh#49's loss with nothing left to overwrite back. It shares write()'s
 // compare-and-swap rather than carrying a copy of it, so the two cannot drift apart.
@@ -730,7 +730,7 @@ test('gh#51 F2: a stale closure cannot clear the round the newer document is pla
 //
 // The discriminator is the start kind the panel sends: requestStart() in PlayerSetup.astro knew which
 // branch the player took — it called saveCheckpoint(null) on the discard branch — and put the answer on
-// the watduang:start event, which game/[id].astro hands to setPlayers. Cited by function name, not by
+// the watduang:start event, which the game page's listener (removed in gh#273) handed to setPlayers. Cited by function name, not by
 // line: the line the first fix quoted here had already moved by the time it was written.
 test('gh#53: a round replaced over the slot is reported as another round, not a newer version', () => {
   slots.clear();
@@ -741,7 +741,7 @@ test('gh#53: a round replaced over the slot is reported as another round, not a 
   round1.saveCheckpoint(midRound(7));
 
   // Start-new-round: the panel discards the live round through its own fresh closure, then dispatches
-  // watduang:start, and game/[id].astro's watduang:start handler builds another fresh closure that
+  // watduang:start, and the game page's watduang:start handler (removed in gh#273) built another fresh closure that
   // starts a DIFFERENT round over the same slot. Round 1 is gone — nobody can resume it any more.
   const panel = loadSession();
   panel.saveCheckpoint(null);
@@ -764,7 +764,7 @@ test('gh#53: a round replaced over the slot is reported as another round, not a 
 
 // The other half, and the reason the fix cannot simply mint on every start: refresh-resume (#20) is a
 // genuine continuation. The player takes the resume branch, so the checkpoint is never cleared;
-// game/[id].astro's closure starts holding the live round and siamsi.ts mountInto() writes that round's own
+// the game page's closure started holding the live round and siamsi.ts mountInto() wrote that round's own
 // roster back. Same round, carried on from another page — which is exactly what 'stale-version' says.
 // Green before the gh#53 change and green after: it is the guard against flipping every cross-page
 // write to 'other-round'.
@@ -780,7 +780,7 @@ test('gh#53 control: a round continued from another page is still reported as a 
   // is the same one, and both setPlayers calls of that path land on it.
   const resumed = loadSession();
   // The two setPlayers calls of the resume path, in production order and with production's kinds: the
-  // watduang:start handler in game/[id].astro passes the panel's answer, and mountInto()'s resume branch
+  // game page's removed watduang:start handler passed the panel's answer, and mountInto()'s resume branch
   // in siamsi.ts passes nothing at all — a game holds a GameSession, which declares one parameter.
   resumed.setPlayers(['Alice', 'Bob'], 'same-round'); // the panel's ticked group
   resumed.setPlayers(['Alice', 'Bob']); // the checkpoint's own roster, written back on resume
@@ -914,7 +914,7 @@ test("gh#56: a resumed checkpoint no longer wears the id another game's round mi
   );
 
   resumed.setPlayers(['Alice', 'Bob']); // mountInto()'s resume branch writing the blob's own roster back
-  // One start, one mint. This is the SAME closure both times — game/[id].astro loads one session, starts
+  // One start, one mint. This is the SAME closure both times — the game page loaded one session, started
   // the round on it and hands it to the game as ctx.session — so the closure has to have taken the
   // hand-over too, not just written it. Left carrying the abandoned round's owner, it reads its own fresh
   // id as another round's and mints a second time here, displacing the round it is in the middle of
