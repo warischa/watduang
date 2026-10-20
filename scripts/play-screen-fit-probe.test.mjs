@@ -371,14 +371,27 @@ test('the UNCLASSIFIED advice is true about all three reason classes (gh#182)', 
   assert.match(UNCLASSIFIED_ADVICE, /never|not available/);
 });
 
-test('the two rows gh#182 proved are not defects are recorded in that class at every viewport (gh#182)', () => {
+// Owner ruling 2026-10-20 (popup, batch S2026-10-20) reclassed these six rows out of 'not a defect':
+// the reserved top band made 320 read a different px than 390 and 1440, so the viewport invariance that
+// class requires no longer holds. Pinned as the NEW final class, each row at the px it was measured at.
+test('the six cannon-flag and power-meter rows are owner-ruling rows recorded at their measured px (2026-10-20)', () => {
+  const MEASURED = {
+    'cannon-flag 320x568': [20, 0],
+    'cannon-flag 390x844': [2, 2],
+    'cannon-flag 1440x900': [2, 2],
+    'power-meter 320x568': [100, 4],
+    'power-meter 390x844': [76, 0],
+    'power-meter 1440x900': [76, 0],
+  };
   for (const route of ['cannon-flag', 'power-meter']) {
     for (const vp of VIEWPORTS) {
       const key = `${route} ${vp.w}x${vp.h}`;
       const reason = KNOWN_OVERFLOW.get(key);
       assert.ok(reason, `${key} left KNOWN_OVERFLOW`);
-      assert.match(reason, /^not a defect \d{4}-\d{2}-\d{2}: /, `${key} still reads "${reason.slice(0, 24)}..."`);
-      assert.match(reason, /mechanism: /, `${key} names no mechanism`);
+      const [px, press] = MEASURED[key];
+      assert.ok(reason.startsWith(`owner ruling 2026-10-20: ${px}px on press ${press} - `), `${key} reads "${reason.slice(0, 48)}..."`);
+      assert.match(reason, /owner ruling 2026-10-20 \(popup, batch S2026-10-20; recorded in SESSION-HANDOFF\.md S2026-10-20#1\)/, `${key} cites no source for the ruling`);
+      assert.match(reason, /Previously: not a defect 2026-09-04: /, `${key} dropped the prior class from its reason`);
     }
   }
   // The tolerance is what a not-a-defect row must never be used to dodge, so it is pinned by value here
