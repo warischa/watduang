@@ -165,4 +165,4 @@ Two local full lanes passed and the main push still went red: croc-bite's fit le
 runner's CPU pressure, which `scripts/ci-probes.sh`'s header predicts and no local lane reproduces. `on:
 push` is unfiltered and every deploy step is gated on `refs/heads/main`, so pushing the batch branch first
 buys the runner's verdict with no deploy and leaves `main` green. For a src batch: push the branch, read its
-run, then the main push.
+run, then the main push. 2026-10-20, skipped and red again: Mac overlay scrollbars hid Linux's 15px one (gh#268).
