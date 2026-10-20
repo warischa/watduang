@@ -289,6 +289,38 @@ export const FITS_ROWS = new Set([
   'bangkok-drift 390x844',
   'bangkok-drift 1440x900',
   'one-bomb 1440x900',
+  // Moved from KNOWN_OVERFLOW 2026-10-20 (gh#284; owner ruling 2026-10-20, popup, batch S2026-10-20#3):
+  // measured, the 174px that row carried was the shared player screen, and its round screen reads 0px,
+  // so the overflow now lives in PLAYER_SCREEN_SCROLLS below. The history that follows is that row's,
+  // kept as written; its closing reason for staying in KNOWN_OVERFLOW no longer holds on this walk.
+  // Added 2026-09-06: one-bomb, the twelfth play route. Never ruled on, so gh#182 open is the only
+  // class available. RE-RECORDED the same day from 23px on press 2, measured on this Mac against a
+  // real dist/: 75px on press 1, identical on three consecutive runs. Only 2px of the difference is
+  // owed to the gh#79 tap floor this route grew in overrides.css — the same build with that block
+  // removed measured 73px on press 1 here, so the 23px was somebody else's machine, or another
+  // screen, and it was never this one's number.
+  // RE-MEASURED 2026-09-06 after the route grew its no-3D DOM board, on three consecutive runs on
+  // this Mac against a real dist/: still 75px, and the NUMBER IS DELIBERATELY UNCHANGED because it
+  // did not move. What moved is the screen behind it — press 1 used to land on a dead unsupported
+  // notice and now lands on a live board — so the row was re-derived rather than carried over.
+  // ATTRIBUTION, measured this time rather than inherited: the board contributes ZERO. The scrolling
+  // box inside it reads 0px of overflow at every seat count, and removing the menu overlay from
+  // layout takes div#app's overflow to 0px on the board screen. All 75px belong to the menu card,
+  // which is 573px tall in a 568px viewport and stays in layout behind the board because
+  // `.menuOverlay.hidden` hides it with visibility, not display. A candidate note in that card was
+  // dropped for the same reason: it added 58px and was itself clipped off the bottom, unread.
+  // RE-MEASURED 2026-09-06 after the menu overlay was made a self-scroller, three consecutive runs on
+  // this Mac against a real dist/: 97px, identical on all three, and the CLIPPED column went 75 -> 0.
+  // The 75px was never a smaller version of this number, so it was re-derived rather than adjusted.
+  // It was 75px of card the phone could not reach at all, measured with the probe's own seed of three
+  // names; what is recorded now is the card's OWN scroll distance, and it varies with the roster the
+  // way the card does - 45px at two names, 97px at three, 142px at four and above, all measured at
+  // 320x568. The two numbers are not comparable and no arithmetic between them means anything: they
+  // are different boxes measured under different alignment, which is why the row reads HIGHER after a
+  // fix that made the screen usable. Why it stays in this map: the probe counts a
+  // self-scroller that fills the viewport as a screen, and this one is `inset: 0`, so the invariant is
+  // still not satisfied even though nothing is unreachable any more.
+  'one-bomb 320x568',
 ]);
 /**
  * gh#264 — the shared player screen (ADR-0071) is a LIST, and the owner ruled 2026-10-15 (popup) that
@@ -302,6 +334,7 @@ export const PLAYER_SCREEN_SCROLLS = new Map([
   ['timebomb 320x568', 'owner ruling 2026-10-20: 71px on press 0 - 71px documentElement overflow on the shared player screen with 3 saved names. RE-RECORDED UPWARD from 15px by the 56px reserved top band of gh#268, measured on the integration run of 2026-10-20 (scripts/run-workflow-gates.sh, this Mac, n=1): the before-band run read 15px and the band build reads 71px, the 56px of the band. The start-button position quoted in the previous reason (bottom 559 of 568) predates the band and was not re-read here; no primary-control fold reading is produced for this route. Previously: owner ruling 2026-10-15: 15px on press 0 - 15px documentElement overflow on the shared player screen with 3 saved names (gh#264 popup). The screen is a list that scrolls by design (board frame 4, design/PlayerSetup.dc.html); measured with the start button bottom at 559 of 568, fully visible. A first visit at 4 rows needs 89px, and this walk never measures that screen: it is the fresh, unseeded one. Play screens of this row stay pinned as fitting.'],
   ['dice-loser 320x568', 'owner ruling 2026-10-20: 70px on press 0 - 70px documentElement overflow on the shared player screen with the seeded names. RE-RECORDED UPWARD from 14px by the 56px reserved top band of gh#268, measured on the integration run of 2026-10-20 (scripts/run-workflow-gates.sh, this Mac, n=1): the unsharded before-band run read 14px and the band build reads 70px, the 56px of the band. The growth is the band, not a regression. Unlike the freeze-tap row no primary-control fold reading is produced for this route, so none is cited. Previously: owner ruling 2026-10-15: 14px on press 0 - 14px documentElement overflow on the shared player screen with the seeded names (gh#264 popup: the shared player screen may scroll), measured on the gh#264 integration run 2026-10-15. The route now opens on the shared list; its own rule picker and play screens stay pinned as fitting.'],
   ['bangkok-drift 320x568', 'owner ruling 2026-10-20: 126px on press 0 - 126px documentElement overflow on the shared player screen with the seeded names. RE-RECORDED UPWARD from 70px by the 56px reserved top band of gh#268, measured on the integration run of 2026-10-20 (scripts/run-workflow-gates.sh, this Mac, n=1): the before-band run read 70px and the band build reads 126px, the 56px of the band. The growth is the band, not a regression. No primary-control fold reading is produced for this route. Previously: owner ruling 2026-10-15: 70px on press 0 - 70px documentElement overflow on the shared player screen with the seeded names (gh#264 popup: the shared player screen may scroll), measured on the gh#264 integration run 2026-10-15. The route keeps its title and long intro above the list (moved byte-identical from its old setup), which is most of the height. Play screens stay pinned as fitting.'],
+  ['one-bomb 320x568', 'owner ruling 2026-10-20: 174px on press 0 - 174px to scroll on the shared player screen with the seeded names (the box that scrolls was not read). Accepted by owner ruling 2026-10-20 (popup, batch S2026-10-20#3), resting on the existing owner ruling 2026-10-15 (gh#264 popup: the shared player screen may scroll). Found by the gh#284 screen-class check: the KNOWN_OVERFLOW row this replaces carried the same 174px, and measured it was the player screen, not a round screen. The round screen reads 0px (press 1 at 320x568), and the 390x844 and 1440x900 rows read 0px on every screen, player screen included. Measured on this Mac 2026-10-20 on the no-WebGL fallback lane (ci-probes.sh flags --headless --disable-gpu --no-sandbox, where this route draws its no-3D DOM board), n=4 identical runs, evidence docs/verification/evidence/gh284-2026-10-20/. NOT MEASURED: the WebGL-live lane the CI runner takes, where the round screen is the 3D board. Play screens of this row stay pinned as fitting. Previously (KNOWN_OVERFLOW): owner ruling 2026-10-20: 174px on the worst screen (press 0 in the probe run) - 174px to scroll, 0px clipped. RE-RECORDED UPWARD from 97px, measured on the integration run of 2026-10-20 (scripts/run-workflow-gates.sh, this Mac, n=1). Only 56px of the growth is the 56px reserved top band of gh#268: the unsharded run on the build before the band read 118px, so 21px of the growth over the old 97px recording predates the band and is NOT the band (not attributed here). The box that scrolls was not re-read this run. No primary-control fold reading is produced for this route: the startPlayBtn visibility quoted in the previous reason is the pre-band Mac reading and has not been re-measured under the band. Previously: owner ruling 2026-09-15: 97px on the worst screen (press 0 in the probe run) - 97px to scroll on div#menuOverlay.menuOverlay, 0px clipped. The owner accepted this screen as it is: the primary control button#startPlayBtn is fully visible at 54px (rect.bottom 532.11 of 568) and the 97px of scroll is consumed by the secondary buttons howToPlayBtn and menuSettingsBtn, measured n=3 at 320x568 in docs/verification/evidence/182-one-bomb-fold-2026-09-15/'],
 ]);
 
 /** The screen a FITS_ROWS row is gated on: its worst screen, minus the player-screen state where
@@ -346,7 +379,7 @@ export const KNOWN_OVERFLOW = new Map([
   // masked in the old 187px reading because press 1 was worse. Not fixed by that change — out of
   // scope there, a different screen and a different control. Closed 2026-09-15 by a second
   // overrides.css block scoped to `.rule-reveal-container`; row moved to FITS_ROWS above.
-  ['how-close-is-near 320x568', 'owner ruling 2026-09-15: 194px on press 4 - 194px to scroll on documentElement. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned.'],
+  ['how-close-is-near 320x568', 'owner ruling 2026-10-20: 60px on press 0 - 60px to scroll on the shared player screen with the seeded names (the worst screen is the player screen, not a round screen; the box that scrolls was not read). Accepted by owner ruling 2026-10-20 (popup, batch S2026-10-20#3), resting on the existing owner ruling 2026-10-15 (gh#264 popup: the shared player screen may scroll). Found by the gh#284 screen-class check: the 2026-09-15 ruling below was made on a round screen, and no round screen reads near its 194px any more. The largest round screen reads 18px on press 5 (presses 1-5 read 3/0/0/0/18px), above the 8px OVERFLOW_TOLERANCE_PX, which is why this row stays in KNOWN_OVERFLOW and does not move to FITS_ROWS. Measured on this Mac 2026-10-20 with the ci-probes.sh lane flags (--headless --disable-gpu --no-sandbox), n=4 identical runs (one unsharded, three with ROUTES_ONLY), evidence docs/verification/evidence/gh284-2026-10-20/. The 2026-09-11 primary-control reading the previous ruling rests on predates the shared player screen and the band and was not repeated here. Previously: owner ruling 2026-09-15: 194px on press 4 - 194px to scroll on documentElement. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned.'],
   // gh#195, 2026-09-03: the NUMBER below does not move, and that is the recorded finding rather than
   // an omission. No layout changed on this route, and re-recording it at this run's 107px would only
   // make the next 136px run warn; 136 stays as the high end of the measured band. What DID change is
@@ -379,37 +412,67 @@ export const KNOWN_OVERFLOW = new Map([
   ['freeze-tap 320x568', 'owner ruling 2026-10-20: 37px on press 0 - 37px to scroll, 0px clipped. RE-RECORDED DOWNWARD from 51px by gh#281: variant A of design/Gh281FreezeTapReady.dc.html (owner approval 2026-10-20, popup, batch S2026-10-20#2) is now in src/play/freeze-tap/overrides.css, and the pass screen (press 2) reads 0px, was 51px. Measured this Mac, n=1 per build, same walk and ROUTES_ONLY=freeze-tap, docs/verification/evidence/gh281-2026-10-20/fit-before.txt vs fit-after.txt: press 0 37px and press 1 26px read identically on the unchanged build, so the worst screen is now press 0, which this change does not touch, and the row stays here rather than in FITS_ROWS. Press 0 is the shared player screen (section#ftPlayers.ft-players.ps in fit-after.txt), which the gh#264 owner ruling of 2026-10-15 lets scroll, as the dice-loser 320x568 row records. PRIMARY CONTROL: playerReadyBtn reads 60 visible px of 60 below the 56px band on every one of the 9 forced draws (top 476.86, bottom 536.86, elementFromPoint at its centre hits it), was 39 of 60 on seven draws and 12 of 60 on two (ready-before.json vs ready-after.json, same directory). Previously: owner ruling 2026-10-20: 51px on press 2 - 51px to scroll, 0px clipped. RE-RECORDED UPWARD from 12px, measured on the integration run of 2026-10-20 (scripts/run-workflow-gates.sh, this Mac, n=1): the unsharded before-band run on the same Mac read 0px, and the band build reads 51px, so the growth is the 56px reserved top band of gh#268 (the 12px being recorded was a CI-runner figure, a different machine). PRIMARY CONTROL, same run: playerReadyBtn reads 17 visible px of 60 (top 551, bottom 611, press 2 draw 0.8333) - partly visible, not 0, so the standing reading of the 2026-09-10 rule (0 visible px violates it, partly visible does not) holds. A partly hidden ready button at 320px under the band is tracked in gh#281. Previously: owner ruling 2026-09-22: 12px on press 1 - 12px to scroll and 0px clipped on the pass screen. REPRODUCED on CI run 35687379298 attempts 1 and 2 of the same commit da75294, both reporting 12px at press 1 while presses 4, 5 and 6 read 0px. This row was in FITS_ROWS from an owner ruling 2026-09-15 whose evidence was 0px on three consecutive dev-machine runs; that instrument graded whichever of the nine TRIGGER_CONDITIONS an unseeded pick drew, and on a dev machine every draw reports the same numbers, so those three runs could not see the tall draw. gh#239 made the probe enumerate every draw and the tallest one overflows. This reason does not itself invoke the 2026-09-10 primary-control rule, and a first version of it wrongly said the fold had never been checked here. It has: on a Mac at c6e75ca, n=12 across both card states, playerReadyBtn reads 60 visible px on every load with the pass-screen container at 0 overflow, recorded under docs/verification/evidence/182-freeze-tap-fold-2026-09-15. MEASURED ON THE RUNNER 2026-09-22, CI run 35694044038, on the very draw that produces this 12px: draw index 7 of 9 won the worst-per-press merge and playerReadyBtn reads 72 visible px of 76, top 496 bottom 572. Partly visible, and the standing reading is that 0 visible px violates the 2026-09-10 rule while partly visible does not, so that rule IS satisfied here on the machine that produces the overflow. The same tree read 60 of 60 on a Mac, which also settles the re-measure 6dbaf71 left owing. This row therefore rests on the same basis as its sibling 320x568 rulings rather than on bare acceptance.'],
   ['short-stick 320x568', 'owner ruling 2026-09-15: 191px on press 0 - 191px to scroll on documentElement. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned.'],
   // Moved from FITS_ROWS 2026-09-02: same self-scroller bound as freeze-tap above.
-  ['wire-snip-panic 320x568', 'owner ruling 2026-09-15: 111px on press 0 - 111px to scroll on div#screen-game.screen.active. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned.'],
+  ['wire-snip-panic 320x568', 'owner ruling 2026-10-20: 67px on press 1 - 67px to scroll on the shared player screen with the seeded names (the worst screen is the player screen, not a round screen; the box that scrolls was not read). Accepted by owner ruling 2026-10-20 (popup, batch S2026-10-20#3), resting on the existing owner ruling 2026-10-15 (gh#264 popup: the shared player screen may scroll). Found by the gh#284 screen-class check: the 2026-09-15 ruling below was made on a round screen (div#screen-game), and no round screen reads near its 111px any more. The largest round screen reads 19px on press 3 (presses 2-4 read 0/19/19px), above the 8px OVERFLOW_TOLERANCE_PX, which is why this row stays in KNOWN_OVERFLOW and does not move to FITS_ROWS. Measured on this Mac 2026-10-20 with the ci-probes.sh lane flags (--headless --disable-gpu --no-sandbox), n=4 identical runs (one unsharded, three with ROUTES_ONLY), evidence docs/verification/evidence/gh284-2026-10-20/. The 2026-09-11 primary-control reading the previous ruling rests on predates the shared player screen and the band and was not repeated here. Previously: owner ruling 2026-09-15: 111px on press 0 - 111px to scroll on div#screen-game.screen.active. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned.'],
   ['zero-trigger 320x568', 'owner ruling 2026-10-20: 143px on press 2 - 143px to scroll, 0px clipped. RE-RECORDED UPWARD from 131px, measured on the integration run of 2026-10-20 (scripts/run-workflow-gates.sh, this Mac, n=1): the before-band run read 131px, and the band build reads 143px on a different screen (press 2 now wins over press 0), so the 56px reserved top band of gh#268 grew the worst screen by 12px, not the full 56px. No primary-control fold reading is produced for this route. Previously: owner ruling 2026-09-15: 131px on press 0 - 131px to scroll on section#screen-game.screen.active. RE-RECORDED UPWARD from 96px, measured this run on this Mac: gh#194 deliberately gives the player strip its real height (flex-shrink:0 in overrides.css), and that height is added to a screen that was already over. The growth is the fix, not a regression — a chip row nobody can see is not a saving. Promotion to FITS_ROWS is not owed here; this row still overflows by design until the 320px play screen is redesigned. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned. This supersedes the preceding clause of this reason: after the 2026-09-15 ruling no redesign is owed here.'],
-  // Added 2026-09-06: one-bomb, the twelfth play route. Never ruled on, so gh#182 open is the only
-  // class available. RE-RECORDED the same day from 23px on press 2, measured on this Mac against a
-  // real dist/: 75px on press 1, identical on three consecutive runs. Only 2px of the difference is
-  // owed to the gh#79 tap floor this route grew in overrides.css — the same build with that block
-  // removed measured 73px on press 1 here, so the 23px was somebody else's machine, or another
-  // screen, and it was never this one's number.
-  // RE-MEASURED 2026-09-06 after the route grew its no-3D DOM board, on three consecutive runs on
-  // this Mac against a real dist/: still 75px, and the NUMBER IS DELIBERATELY UNCHANGED because it
-  // did not move. What moved is the screen behind it — press 1 used to land on a dead unsupported
-  // notice and now lands on a live board — so the row was re-derived rather than carried over.
-  // ATTRIBUTION, measured this time rather than inherited: the board contributes ZERO. The scrolling
-  // box inside it reads 0px of overflow at every seat count, and removing the menu overlay from
-  // layout takes div#app's overflow to 0px on the board screen. All 75px belong to the menu card,
-  // which is 573px tall in a 568px viewport and stays in layout behind the board because
-  // `.menuOverlay.hidden` hides it with visibility, not display. A candidate note in that card was
-  // dropped for the same reason: it added 58px and was itself clipped off the bottom, unread.
-  // RE-MEASURED 2026-09-06 after the menu overlay was made a self-scroller, three consecutive runs on
-  // this Mac against a real dist/: 97px, identical on all three, and the CLIPPED column went 75 -> 0.
-  // The 75px was never a smaller version of this number, so it was re-derived rather than adjusted.
-  // It was 75px of card the phone could not reach at all, measured with the probe's own seed of three
-  // names; what is recorded now is the card's OWN scroll distance, and it varies with the roster the
-  // way the card does - 45px at two names, 97px at three, 142px at four and above, all measured at
-  // 320x568. The two numbers are not comparable and no arithmetic between them means anything: they
-  // are different boxes measured under different alignment, which is why the row reads HIGHER after a
-  // fix that made the screen usable. Why it stays in this map: the probe counts a
-  // self-scroller that fills the viewport as a screen, and this one is `inset: 0`, so the invariant is
-  // still not satisfied even though nothing is unreachable any more.
-  ['one-bomb 320x568', 'owner ruling 2026-10-20: 174px on the worst screen (press 0 in the probe run) - 174px to scroll, 0px clipped. RE-RECORDED UPWARD from 97px, measured on the integration run of 2026-10-20 (scripts/run-workflow-gates.sh, this Mac, n=1). Only 56px of the growth is the 56px reserved top band of gh#268: the unsharded run on the build before the band read 118px, so 21px of the growth over the old 97px recording predates the band and is NOT the band (not attributed here). The box that scrolls was not re-read this run. No primary-control fold reading is produced for this route: the startPlayBtn visibility quoted in the previous reason is the pre-band Mac reading and has not been re-measured under the band. Previously: owner ruling 2026-09-15: 97px on the worst screen (press 0 in the probe run) - 97px to scroll on div#menuOverlay.menuOverlay, 0px clipped. The owner accepted this screen as it is: the primary control button#startPlayBtn is fully visible at 54px (rect.bottom 532.11 of 568) and the 97px of scroll is consumed by the secondary buttons howToPlayBtn and menuSettingsBtn, measured n=3 at 320x568 in docs/verification/evidence/182-one-bomb-fold-2026-09-15/'],
 ]);
+/**
+ * gh#284 — WHICH SCREEN each KNOWN_OVERFLOW ruling was made on, as data beside the map and keyed
+ * identically (a unit test pins the two key sets equal). 'player' = the shared player screen
+ * (ADR-0071), 'round' = any other play screen. A reason's px is one machine's and is never gated, so
+ * without this a row's number can move to a screen nobody ruled on and the run stays green: the
+ * pinocchio-luck rows did exactly that when the route started opening on the shared player screen.
+ *
+ * THE IDENTITY IS THE SCREEN CLASS, NOT THE PRESS INDEX. A press index names an encounter, and
+ * self-timed routes reach a given state on different presses from run to run and machine to machine.
+ * The class is read off the page's own data-player-screen attribute at each measurement, which the
+ * shared player screen writes, so it does not depend on when the walk got there. That is also why the
+ * check covers EVERY row rather than only the press-stable ones: the thing compared does not move with
+ * the press clock, so no row needs to be left out for it.
+ *
+ * Ties are real (some rows read the same px on every press), so the check is a band, not an argmax:
+ * see screenClassMismatches. Values are read off each row's reason: the 'player' rows say their
+ * worst screen is the shared player screen; every other row names a round screen.
+ */
+export const KNOWN_OVERFLOW_SCREEN = new Map([
+  ['cannon-flag 320x568', 'player'],
+  ['cannon-flag 390x844', 'round'],
+  ['cannon-flag 1440x900', 'round'],
+  ['cursed-number 320x568', 'round'],
+  ['cursed-number 390x844', 'round'],
+  ['cursed-number 1440x900', 'round'],
+  ['how-close-is-near 320x568', 'player'],
+  ['pinocchio-luck 320x568', 'player'],
+  ['pinocchio-luck 390x844', 'player'],
+  ['pinocchio-luck 1440x900', 'player'],
+  ['power-meter 320x568', 'round'],
+  ['power-meter 390x844', 'round'],
+  ['power-meter 1440x900', 'round'],
+  ['freeze-tap 320x568', 'player'],
+  ['short-stick 320x568', 'round'],
+  ['wire-snip-panic 320x568', 'player'],
+  ['zero-trigger 320x568', 'round'],
+]);
+/** The class of one measured screen, the same word KNOWN_OVERFLOW_SCREEN declares. */
+export const screenClass = (s) => (s.playerScreen ? 'player' : 'round');
+/**
+ * gh#284 — the KNOWN_OVERFLOW rows whose worst screen is no longer the class their ruling declares.
+ * The band: every screen within OVERFLOW_TOLERANCE_PX of the row's worst overflow is a candidate for
+ * "the worst", and the row passes if ANY candidate carries the declared class. An argmax would red a
+ * row whose screens read equal px on every press on whichever one sorted first. Within-run only: no
+ * recorded px is read, so this is as machine-stable as the class bit itself. Fails closed: a
+ * KNOWN_OVERFLOW row with no declared class has no candidate that can match, and reds.
+ *
+ * Exported with the map as a parameter so scripts/play-screen-fit-probe.test.mjs can replay a saved
+ * run under the class a row carried before a re-record.
+ */
+export const screenClassMismatches = (rows, classes = KNOWN_OVERFLOW_SCREEN) => rows
+  .filter((r) => KNOWN_OVERFLOW.has(rowKey(r)) && r.screens?.length)
+  .map((r) => {
+    const worst = worstOf(r);
+    const band = r.screens.filter((s) => s.overflowPx >= worst.overflowPx - OVERFLOW_TOLERANCE_PX);
+    return { r, key: rowKey(r), declared: classes.get(rowKey(r)), worst, band };
+  })
+  .filter((m) => !m.band.some((s) => screenClass(s) === m.declared));
 /**
  * gh#202 — the HORIZONTAL exemption map, and the reason it is a separate map rather than a column in
  * KNOWN_OVERFLOW above. rowKey is route plus viewport and carries no axis, so one shared map means one
@@ -1808,7 +1871,9 @@ export const fmtScreens = (r) => {
     const ovxPx = Math.round(s.overflowXPx ?? 0);
     const wfill = s.widthFillPct ?? 0;
     const ink = s.inkCount ?? 0;
-    return `  screen [${labelPart}]  overflow ${String(overPx).padStart(5)}px  scrolls ${(scrPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(scrPx).padStart(5)}px  clipped ${String(clpPx).padStart(5)}px  sideways ${String(ovxPx).padStart(5)}px${s.overflowXFrom ? ' by ' + s.overflowXFrom : ''}  width-fill ${String(wfill).padStart(5)}%  ink ${ink}`;
+    // gh#284: the class is printed through the same screenClass the gate reads, so the log shows
+    // exactly what was graded, on the runner as well as here.
+    return `  screen [${labelPart}]  overflow ${String(overPx).padStart(5)}px  scrolls ${(scrPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(scrPx).padStart(5)}px  clipped ${String(clpPx).padStart(5)}px  sideways ${String(ovxPx).padStart(5)}px${s.overflowXFrom ? ' by ' + s.overflowXFrom : ''}  width-fill ${String(wfill).padStart(5)}%  ink ${ink}  class ${screenClass(s)}`;
   });
 };
 
@@ -2092,6 +2157,13 @@ export function main({
   for (const x of knownRegressions) {
     console.warn(`::warning::${x.r.url} at ${x.r.vp} measured ${Math.round(x.w.overflowPx)}px against a recorded ${x.recorded}px (press ${x.w.press}). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different machine? Fonts, not layout: leave the number alone.`);
   }
+  // gh#284 — the GATED companion of (iv). (iv) cannot gate a px, but which CLASS of screen the row's
+  // worst is does not move with the machine, and a row whose worst left the class its ruling names is
+  // grading a screen nobody ruled on. See KNOWN_OVERFLOW_SCREEN for why every row is covered.
+  const classMoved = screenClassMismatches(out.rows);
+  for (const m of classMoved) {
+    console.error(`::error::${m.r.url} at ${m.r.vp}: KNOWN_OVERFLOW_SCREEN declares this row's ruling was made on a ${m.declared ?? '(missing)'} screen, but no screen within ${OVERFLOW_TOLERANCE_PX}px of its worst (${Math.round(m.worst.overflowPx)}px, press ${m.worst.press}) is one: the band holds ${m.band.map((s) => `press ${s.press} ${screenClass(s)} ${Math.round(s.overflowPx)}px`).join(', ')}. The row now grades a screen nobody ruled on. Find which screen moved, then put it to the owner and re-record the reason and its class together — never flip the class alone to make a run pass.`);
+  }
   // (vi) gh#202 — THE HORIZONTAL ANALOGUES OF (iii) AND (iv), and without them KNOWN_OVERFLOW_X is
   // write-only. A passing leg's log is discarded by standalone() in scripts/ci-probes.sh except for
   // lines carrying the warning marker, so the table line for an excepted row never reaches CI: an
@@ -2122,7 +2194,7 @@ export function main({
   // so a failing run retains the evidence in its log instead of discarding it on exit 1.
   emitRowReports(out.rows, emit);
 
-  if (unclassified.length || inBoth.length || regressions.length || sideways.length) process.exit(1);
+  if (unclassified.length || inBoth.length || regressions.length || sideways.length || classMoved.length) process.exit(1);
 
   log(shardWalkedLine(walked));
 
@@ -2134,7 +2206,7 @@ export function main({
   const excepted = out.rows.filter((r) => KNOWN_OVERFLOW.has(rowKey(r))).length;
   const routesCount = out.routesWalked ?? [...new Set(out.rows.map((r) => r.route))].length;
   const vpsCount = out.viewports ?? [...new Set(out.rows.map((r) => r.vp))].length;
-  log(`OK ${out.rows.length} route/viewport row(s) left the fresh screen; ${measured} distinct play screen(s) measured across ${routesCount} route(s) x ${vpsCount} viewport(s). ${asserted} row(s) asserted to fit within ${OVERFLOW_TOLERANCE_PX}px and ${excepted} row(s) held as recorded exceptions in KNOWN_OVERFLOW (reported, never gated: growth or a 0px reading prints a warning) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all ${out.rows.length} row(s) are asserted to clip no more than ${OVERFLOW_TOLERANCE_PX}px horizontally except the ${out.rows.filter((r) => KNOWN_OVERFLOW_X.has(rowKey(r))).length} in KNOWN_OVERFLOW_X.`);
+  log(`OK ${out.rows.length} route/viewport row(s) left the fresh screen; ${measured} distinct play screen(s) measured across ${routesCount} route(s) x ${vpsCount} viewport(s). ${asserted} row(s) asserted to fit within ${OVERFLOW_TOLERANCE_PX}px and ${excepted} row(s) held as recorded exceptions in KNOWN_OVERFLOW (their px reported, never gated: growth or a 0px reading prints a warning; the screen class each ruling names IS gated, gh#284) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all ${out.rows.length} row(s) are asserted to clip no more than ${OVERFLOW_TOLERANCE_PX}px horizontally except the ${out.rows.filter((r) => KNOWN_OVERFLOW_X.has(rowKey(r))).length} in KNOWN_OVERFLOW_X.`);
 }
 
 // Entry point only — driver.mjs imports this module for its default export, and that must not fire

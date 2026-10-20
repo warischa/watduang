@@ -1,0 +1,59 @@
+# gh#284 follow-up run 2/3 2026-10-20T14:36:38Z HEAD=45a5281 + working tree (gh#284 gate diff in scripts/play-screen-fit-probe.mjs); dist/ from the same npm run build as mac-fit-run.txt (no src file newer than dist/index.html)
+# cmd: env BASE=http://localhost:4601 CDP_PORT=9601 CI=1 ROUTES_ONLY=how-close-is-near,wire-snip-panic,one-bomb node scripts/play-screen-fit-probe.mjs  (Chrome --headless --disable-gpu --no-sandbox, ci-probes.sh lane flags = no-WebGL fallback on this Mac; fresh profile per run)
+::notice::how-close-is-near  frame div#appRoot cap    none  screen section#hcPlayers.hc-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [513-927] | p.ps-limit [677-763] | ul.ps-players [510-930] | button.ps-add [510-930] | p.ps-hint [605-835] | button.ps-go [510-930]} in 1 x-range(s)  span 0.292 of 1440px frame  side-by-side no
+::notice::one-bomb           frame div#app cap    none  screen div.menuBox  [first-game-screen press 0]  display flex  tracks 0 (none)  units 3 {div.logoArea [480-960] | section#ob-player-screen.ob-player-screen.ps [510-930] | div.menuBtnCol [480-960]} in 1 x-range(s)  span 0.333 of 1440px frame  side-by-side no
+::notice::wire-snip-panic    frame div#app cap    none  screen section#wspPlayers.wsp-players.ps  [first-game-screen press 1]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [526-914] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no
+NARROWED by ROUTES_ONLY=how-close-is-near,wire-snip-panic,one-bomb — 3 of 14 play route(s). This is a debug run, not a gate.
+::error::/game/how-close-is-near/play/ at 320x568: KNOWN_OVERFLOW_SCREEN declares this row's ruling was made on a round screen, but no screen within 8px of its worst (60px, press 0) is one: the band holds press 0 player 60px. The row now grades a screen nobody ruled on. Find which screen moved, then put it to the owner and re-record the reason and its class together — never flip the class alone to make a run pass.
+::error::/game/one-bomb/play/ at 320x568: KNOWN_OVERFLOW_SCREEN declares this row's ruling was made on a round screen, but no screen within 8px of its worst (174px, press 0) is one: the band holds press 0 player 174px. The row now grades a screen nobody ruled on. Find which screen moved, then put it to the owner and re-record the reason and its class together — never flip the class alone to make a run pass.
+::error::/game/wire-snip-panic/play/ at 320x568: KNOWN_OVERFLOW_SCREEN declares this row's ruling was made on a round screen, but no screen within 8px of its worst (67px, press 1) is one: the band holds press 1 player 67px. The row now grades a screen nobody ruled on. Find which screen moved, then put it to the owner and re-record the reason and its class together — never flip the class alone to make a run pass.
+::notice::how-close-is-near  320x568   scrolls YES    60px  clipped     0px  sideways     0px  width-fill  93.8%  (worst of 6 screen(s): press 0, 20 ink)
+::notice::  screen [press 0]  overflow    60px  scrolls YES    60px  clipped     0px  sideways     0px  width-fill  93.8%  ink 20  class player
+::notice::  screen [press 1]  overflow     3px  scrolls YES     3px  clipped     0px  sideways     0px  width-fill  84.4%  ink 10  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  84.4%  ink 3  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  89.1%  ink 7  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  89.1%  ink 18  class round
+::notice::  screen [press 5]  overflow    18px  scrolls YES    18px  clipped     0px  sideways     0px  width-fill  89.1%  ink 19  class round
+::notice::how-close-is-near  390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill    81%  (worst of 6 screen(s): press 1, 10 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    81%  ink 10  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    81%  ink 3  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.4%  ink 7  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.4%  ink 18  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.4%  ink 19  class round
+::notice::how-close-is-near  1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  29.2%  (worst of 6 screen(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  29.2%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.9%  ink 10  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.9%  ink 3  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.3%  ink 7  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  71.1%  ink 18  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    72%  ink 19  class round
+::notice::one-bomb           320x568   scrolls YES   174px  clipped     0px  sideways     0px  width-fill    92%  (worst of 2 screen(s): press 0, 23 ink)
+::notice::  screen [press 0]  overflow   174px  scrolls YES   174px  clipped     0px  sideways     0px  width-fill    92%  ink 23  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.9%  ink 51  class round
+::notice::one-bomb           390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  (worst of 2 screen(s): press 0, 23 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  ink 23  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  97.4%  ink 51  class round
+::notice::one-bomb           1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  33.3%  (worst of 6 screen(s): press 0, 23 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  33.3%  ink 23  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  98.6%  ink 51  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  98.6%  ink 51  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  98.6%  ink 56  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  98.6%  ink 51  class round
+::notice::  screen [press 6]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  98.6%  ink 51  class round
+::notice::wire-snip-panic    320x568   scrolls YES    67px  clipped     0px  sideways     0px  width-fill    90%  (worst of 4 screen(s): press 1, 20 ink)
+::notice::  screen [press 1]  overflow    67px  scrolls YES    67px  clipped     0px  sideways     0px  width-fill    90%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 14  class round
+::notice::  screen [press 3]  overflow    19px  scrolls YES    19px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::  screen [press 4]  overflow    19px  scrolls YES    19px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::wire-snip-panic    390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 4 screen(s): press 1, 20 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 14  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::wire-snip-panic    1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  (worst of 4 screen(s): press 1, 20 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 14  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 25  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 25  class round
+FIT_RC=1

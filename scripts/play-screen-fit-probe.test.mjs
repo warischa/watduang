@@ -26,6 +26,7 @@
 // do what they say, never that a screen fits.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -57,6 +58,9 @@ import {
   sidewaysOffenders,
   PLAYER_SCREEN_SCROLLS,
   gatedWorstOf,
+  KNOWN_OVERFLOW_SCREEN,
+  screenClass,
+  screenClassMismatches,
 } from './play-screen-fit-probe.mjs';
 
 // A narrowed OR SHARDED run judges pins it never walked, and the stale-pin check below is now the only
@@ -475,8 +479,10 @@ const makeFixture42 = (overrides = {}) => {
         url: `/game/${route}/play/`,
         vp,
         error: null,
+        // gh#284: a row whose ruling names the shared player screen must measure one, or the class
+        // check reds it; the bit is the declared class, as a real walk of such a row reads it.
         screens: [
-          { press: 0, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 90.0, inkCount: 10 },
+          { press: 0, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 90.0, inkCount: 10, playerScreen: KNOWN_OVERFLOW_SCREEN.get(key) === 'player' },
         ],
       };
       if (isDesktop) {
@@ -537,7 +543,8 @@ test('main does not delete or bypass the per-screen emission', () => {
       vp: '320x568',
       error: null,
       screens: [
-        { press: 0, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 85.0, inkCount: 10 },
+        // gh#284: press 0 is the shared player screen, the class freeze-tap 320x568's ruling names.
+        { press: 0, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 85.0, inkCount: 10, playerScreen: true },
         { press: 1, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 92.0, inkCount: 15 },
         { press: 2, overflowPx: 0, scrollPx: 0, clippedPx: 0, overflowXPx: 0, widthFillPct: 97.0, inkCount: 20 },
       ],
@@ -546,19 +553,19 @@ test('main does not delete or bypass the per-screen emission', () => {
 
   const EXPECTED_EMISSIONS = [
     '::notice::croc-bite          320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  (worst of 1 screen(s): press 0, 8 ink) [pinned fits]',
-    '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  ink 8',
+    '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  ink 8  class round',
     '::notice::dice-loser         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  (worst of 2 screen(s): press 0, 12 ink) [pinned fits] [player screen excepted]',
     // [player screen excepted]: dice-loser 320x568 joined PLAYER_SCREEN_SCROLLS under the owner
     // ruling of 2026-10-15 (gh#264). The row is still asserted emitted with every screen.
-    '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  ink 12',
-    '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    94%  ink 16',
+    '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    88%  ink 12  class round',
+    '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    94%  ink 16  class round',
     '::notice::freeze-tap         320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  (worst of 3 screen(s): press 0, 10 ink)',
     // No [pinned fits] suffix: freeze-tap 320x568 left FITS_ROWS for KNOWN_OVERFLOW under the
     // owner ruling of 2026-09-22. The row is still asserted emitted with every screen -- only its
     // classification changed, which is what this line now reflects.
-    '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  ink 10',
-    '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  ink 15',
-    '::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    97%  ink 20',
+    '::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    85%  ink 10  class player',
+    '::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  ink 15  class round',
+    '::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    97%  ink 20  class round',
   ];
 
   const fixture42 = makeFixture42(threeSpecialRows);
@@ -884,7 +891,99 @@ test('the player-screen exception lives only on FITS_ROWS rows, and excepts only
   const play = (px) => ({ press: 1, overflowPx: px, scrollPx: px, clippedPx: 0, widthFillPct: 90, playerScreen: false });
   assert.equal(gatedWorstOf(row([player, play(0)])).overflowPx, 0, 'the player screen alone overflowing is excepted');
   assert.equal(gatedWorstOf(row([player, play(12)])).overflowPx, 12, 'MUST-RED: a play screen that grows still reaches the gate');
-  assert.equal(gatedWorstOf({ ...row([player]), route: 'one-bomb' }).overflowPx, 15, 'MUST-RED: a row with no ruling is not excepted');
+  assert.equal(gatedWorstOf({ ...row([player]), route: 'croc-bite' }).overflowPx, 15, 'MUST-RED: a row with no ruling is not excepted');
+});
+
+// gh#284 — a KNOWN_OVERFLOW row must keep grading the screen CLASS its ruling was made on. The real
+// case is pinocchio-luck 390x844: its ruling measured a round screen, and once the route opened on the
+// shared player screen the row's worst moved there with the run still green. The measurements below
+// are REPLAYED from the gh#282 bisect (controls.json), read out of headless Chrome, not invented.
+test('gh#284: every KNOWN_OVERFLOW row declares its screen class, and no class row is orphaned', () => {
+  assert.deepEqual([...KNOWN_OVERFLOW_SCREEN.keys()].sort(), [...KNOWN_OVERFLOW.keys()].sort(), 'the class map must hold exactly the KNOWN_OVERFLOW keys');
+  for (const [key, cls] of KNOWN_OVERFLOW_SCREEN) assert.ok(cls === 'player' || cls === 'round', `${key}: class must be 'player' or 'round', got ${cls}`);
+});
+
+const GH282_CONTROLS = path.join(path.dirname(fileURLToPath(import.meta.url)), '../docs/verification/evidence/gh282-2026-10-20/controls.json');
+// One recorded 390x844 row from the bisect, wrapped into the shape the gate consumes. Fields the
+// digest did not keep are zeroed; worstOf's tie-break reads widthFillPct, so it must be a number.
+const gh282Row = (build) => {
+  const run = JSON.parse(fs.readFileSync(GH282_CONTROLS, 'utf8')).runs.find((r) => r.build === build && r.probe.startsWith('own probe') && r.run === 1);
+  const rec = run.rows.find((x) => x.vp === '390x844');
+  return {
+    route: 'pinocchio-luck', url: '/game/pinocchio-luck/play/', vp: '390x844', error: null,
+    screens: rec.screens.map((s) => ({ press: s.press, overflowPx: s.overflowPx, scrollPx: s.scrollPx, clippedPx: s.clippedPx, playerScreen: s.playerScreen, overflowXPx: 0, widthFillPct: 0, inkCount: 0 })),
+  };
+};
+const withClass = (key, cls) => new Map([...KNOWN_OVERFLOW_SCREEN, [key, cls]]);
+const PIN390 = 'pinocchio-luck 390x844';
+
+test('MUST-RED gh#284: pinocchio-luck 390x844 ruled on a round screen reds on the build that moved its worst to the player screen', () => {
+  const moved = gh282Row('f9237d4');
+  // Precondition, so a changed artifact reds here instead of passing vacuously.
+  assert.deepEqual(moved.screens.map((s) => `${s.press}:${s.overflowPx}:${screenClass(s)}`), ['0:114:player', '1:4:round', '2:14:round', '3:4:round']);
+  const red = screenClassMismatches([moved], withClass(PIN390, 'round'));
+  assert.equal(red.length, 1, 'the pre-re-record class (round) must red on the f9237d4 measurement');
+  assert.equal(red[0].key, PIN390);
+  // Control leg: the class the row carries now passes the same measurement.
+  assert.deepEqual(screenClassMismatches([moved], withClass(PIN390, 'player')), [], 'declared player passes the player-screen worst');
+  // Positive control from the build before the move: the ruling's own round screen passes as round.
+  const before = gh282Row('00715c8');
+  assert.deepEqual(before.screens.map((s) => `${s.press}:${s.overflowPx}:${screenClass(s)}`), ['0:4:round', '1:14:round', '2:4:round']);
+  assert.deepEqual(screenClassMismatches([before], withClass(PIN390, 'round')), [], 'the ruling\'s own build passes as round');
+});
+
+test('MUST-RED gh#284: the class check is a band within OVERFLOW_TOLERANCE_PX, so a tie never reds and a clear loser does', () => {
+  const key = 'power-meter 390x844';
+  const row = (screens) => ({ route: 'power-meter', vp: '390x844', url: '/game/power-meter/play/', screens });
+  const sc = (press, px, playerScreen) => ({ press, overflowPx: px, scrollPx: 0, clippedPx: px, playerScreen, overflowXPx: 0, widthFillPct: 90, inkCount: 1 });
+  const player = withClass(key, 'player');
+  assert.deepEqual(screenClassMismatches([row([sc(0, 76, false), sc(1, 76, true)])], player), [], 'an exact tie with the declared class on the non-worst screen passes');
+  assert.deepEqual(screenClassMismatches([row([sc(0, 76, false), sc(1, 76 - OVERFLOW_TOLERANCE_PX, true)])], player), [], 'a declared screen exactly OVERFLOW_TOLERANCE_PX below the worst is inside the band');
+  assert.equal(screenClassMismatches([row([sc(0, 76, false), sc(1, 76 - OVERFLOW_TOLERANCE_PX - 1, true)])], player).length, 1, 'one px outside the band reds');
+  assert.equal(screenClassMismatches([row([sc(0, 76, false)])], player).length, 1, 'a row that never measured its declared class reds');
+  // Fail closed: a KNOWN_OVERFLOW row with no declared class reds rather than skipping.
+  const none = new Map(KNOWN_OVERFLOW_SCREEN);
+  none.delete(key);
+  assert.equal(screenClassMismatches([row([sc(0, 76, false), sc(1, 76, true)])], none).length, 1, 'an undeclared row reds');
+});
+
+test('MUST-RED gh#284: main() reds through the production fixture channel and prints each screen\'s class', () => {
+  const run = (cls) => {
+    const saved = KNOWN_OVERFLOW_SCREEN.get(PIN390);
+    KNOWN_OVERFLOW_SCREEN.set(PIN390, cls);
+    process.env.PROBE_OUT_JSON = JSON.stringify({ rows: makeFixture42({ [PIN390]: gh282Row('f9237d4') }) });
+    const errors = [];
+    const emitted = [];
+    let exitCode = null;
+    const origExit = process.exit;
+    const origErr = console.error;
+    const origWarn = console.warn;
+    console.error = (...a) => errors.push(a.join(' '));
+    console.warn = () => {};
+    process.exit = (code) => { exitCode = code; throw new Error(`PROCESS_EXIT_${code}`); };
+    try {
+      main({ emit: (l) => emitted.push(l), log: () => {} });
+    } catch (err) {
+      if (!err.message?.startsWith('PROCESS_EXIT_')) throw err;
+    } finally {
+      process.exit = origExit;
+      console.error = origErr;
+      console.warn = origWarn;
+      delete process.env.PROBE_OUT_JSON;
+      KNOWN_OVERFLOW_SCREEN.set(PIN390, saved);
+    }
+    return { exitCode, errors, emitted };
+  };
+  const red = run('round');
+  assert.equal(red.exitCode, 1, 'the pre-re-record class must exit 1 through main()');
+  assert.ok(red.errors.some((l) => l.startsWith('::error::') && l.includes('/game/pinocchio-luck/play/') && l.includes('390x844')), 'the error must name the row');
+  const ok = run('player');
+  assert.equal(ok.exitCode, null, `the current class must pass: ${ok.errors.join(' | ')}`);
+  // The runner's class must be readable off a CI log: every per-screen line carries it.
+  const lines = ok.emitted.filter((l) => l.startsWith('::notice::  screen ') && l.includes('overflow   114px'));
+  assert.equal(lines.length, 1);
+  assert.match(lines[0], /class player$/);
+  assert.ok(ok.emitted.some((l) => l.startsWith('::notice::  screen [press 2]') && l.includes('overflow    14px') && l.endsWith('class round')));
 });
 
 // gh#264 — the fresh read waits out an unfinished player-screen open, and that wait can FAIL. The
