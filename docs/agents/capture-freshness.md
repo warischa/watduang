@@ -29,7 +29,9 @@ illustrative, not exhaustive:**
 - a game's `resumeFrom()` or its render path
 - the ADR-0008 approved strings
 - a storage-mechanism swap — leaving `sessionStorage`, or moving resume out of the click path
-- **`src/pages/game/[id].astro` and `src/shell/PlayerSetup.astro`** — the actual wire, and never executed by any test
+- **`src/pages/game/[id].astro`** — the shell's wire, and never executed by any test. (`PlayerSetup.astro`, which
+  used to dispatch into it, was deleted in gh#273; party routes now collect players on the shared player
+  screen, `src/play/_player-screen/`, ADR-0071.)
 
 **The general test, which outranks the list: any change to a file the capture's unit twin cites by
 line number re-triggers the capture.** The suite here leans on `.astro` line ordering it cannot run —
@@ -37,7 +39,8 @@ line number re-triggers the capture.** The suite here leans on `.astro` line ord
 `game/[id].astro` ("back-to-back with nothing in between") in several comments (the ADR-0010
 clobber-claim test, the writer-lands-between-closures test, F1's late-setPlayers test, and the
 FIRST-setPlayers-after-discard test) — while `npm test` is `node --test 'src/**/*.test.mjs'`
-and executes no `.astro` at all. It leans on `PlayerSetup.astro` too, but since `9108069` it cites that
+and executes no `.astro` at all. It leaned on `PlayerSetup.astro` too (deleted in gh#273, together with the `watduang:start` listener
+the comments above name), but since `9108069` it cited that
 one by function name (`requestClear()`, `requestStart()`) rather than by line. Do not reintroduce a
 number there: `scripts/added-lineno-citation-check.mjs` now rejects one on any line a push adds.
 Insert one `await` between `[id].astro`'s `loadSession()` and `setPlayers()` calls and
