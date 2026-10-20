@@ -6,30 +6,28 @@
    Every value below was measured in a real 320px viewport
    (Emulation.setDeviceMetricsOverride, CDP 9333) on this build — never calculated. */
 
-/* Clearance for the shell's own chrome. PlayExit renders the exit X and the edit-players pill fixed
-   at the TOP-LEFT (src/shell/PlayExit.astro: X at the safe-area inset, 44px tall; the pill at
-   inset + 50px, also 44px), so together they occupy inset + 94px down the left edge. Measured on
-   this build at 320x640 with a seeded roster: the X landed at 6,6 44x44 on top of the brand block,
-   and the pill at 6,56 75x44 on top of the tier banner, hiding the round indicator entirely.
-   The mockup's own header is a 56px flex row at the top of `#app-container` with the brand at the
-   LEFT, and it does not stick, so a reserve on the container moves everything below both controls
-   and keeps it there at every scroll position. Written with the same safe-area expression PlayExit
-   uses, so the two cannot drift apart by one editing a magic number, and `#app-container` is
-   `height: 100%` under the mockup's global `box-sizing: border-box`, so the reserve eats into the
-   content box instead of pushing the page past the viewport.
-   The full 94px band the other routes reserve was measured here FIRST and rejected on evidence: it
-   pushed `#btn-big-action`, the control every turn of this game is played with, 71px below a 320x640
-   viewport. This reserve is the pill's own height instead, and the rest of the clearance is bought
-   sideways in the rule below — this route has width to spare at the header and no vertical room. */
-#app-container {
-  padding-block-start: calc(max(6px, env(safe-area-inset-top)) + 38px);
+/* gh#268: the shell's top band (src/shell/PlayExit.astro) pads <body>, so the header row already
+   starts below the exit X and the edit-players control; the 38px reserve `#app-container` used to
+   carry for the pill is gone. Padding cannot move what is fixed to the viewport: the result and rules
+   backdrops are pinned at top 0 and 100% tall, so they now start at the band's bottom and end at the
+   viewport's; the effects layer is sized and aimed in viewport coordinates (the window's own width and
+   height), so it keeps its box and is clipped out of the band instead -- moving it would shift every
+   burst a band's height down. */
+.modal-backdrop {
+  inset-block: var(--play-band) 0;
+  block-size: auto;
 }
 
-/* The horizontal half of the same clearance, and the one piece of the mockup this route drops. The
-   header row still sits inside the pill's band (pill 6,56 75x44; header 44-100), so whatever is at
-   the header's LEFT is under the pill. That is the brand block, and it is the one thing in the row
-   with no job here: the page title, the OG card and the menu screen's own heading all name the game
-   already, while the three icon controls beside it are real controls.
+#fx-canvas {
+  clip-path: inset(var(--play-band) 0 0 0);
+}
+
+/* The one piece of the mockup this route drops: the brand block at the header's LEFT. It was dropped
+   when the edit-players pill sat over that corner of the header; the pill now lives in the band
+   (gh#268), so that reason is gone, and bringing the brand back is a separate, measured change. It
+   is also the one thing in the row with no job here: the page title, the OG card and the menu
+   screen's own heading all name the game already, while the three icon controls beside it are real
+   controls.
    Padding the header across instead was measured and rejected: at 320px an 88px inset ran
    `.nav-btn-group` to 366px and put `#btn-home-menu` entirely off-screen at 322-366 (the flex
    default `min-width: auto` on the brand refuses to shrink below its own text), and letting the

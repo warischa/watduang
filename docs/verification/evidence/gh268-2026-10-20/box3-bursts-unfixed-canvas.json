@@ -1,0 +1,110 @@
+{
+  "base": "http://localhost:4632",
+  "vp": "320x568",
+  "unfix": "#particleCanvas, #particle-canvas { top: 0 !important; height: 100% !important; }",
+  "routes": {
+    "freeze-tap": {
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#ruleReadyBtn:clicked",
+        "#playerReadyBtn:clicked"
+      ],
+      "intended": {
+        "x": 160,
+        "y": 347
+      },
+      "what": "false-start tap during WAITING (hazard burst + trauma 1.0, shake on)",
+      "burst": {
+        "particles": 45,
+        "originX": 160.81,
+        "originY": 362.56,
+        "spreadY": 0,
+        "rect": [
+          0.81,
+          49.77,
+          320,
+          512
+        ],
+        "bitmap": [
+          320,
+          568
+        ],
+        "scaleY": 0.9014,
+        "shakeAtFrame": "translate(0.809773px, -6.23058px)"
+      },
+      "dx": 0.81,
+      "dy": 15.56
+    },
+    "power-meter": {
+      "notes": [
+        "[data-ps=start]:clicked",
+        "#btn-primary-action:clicked",
+        "#main-tap-btn:clicked"
+      ],
+      "lock": {
+        "h": 88.1,
+        "clicked": true
+      },
+      "intended": {
+        "x": 160,
+        "y": 227.2
+      },
+      "what": "meter locked >= 800 -> spawnSparkles(innerWidth/2, innerHeight*0.4), trauma on #app-container",
+      "burst": {
+        "particles": 25,
+        "originX": 158.86,
+        "originY": 261.54,
+        "spreadY": 0,
+        "rect": [
+          -1.14,
+          56.73,
+          320,
+          512
+        ],
+        "bitmap": [
+          320,
+          568
+        ],
+        "scaleY": 0.9014,
+        "shakeAtFrame": "translate(-1.13643px, 0.733992px)"
+      },
+      "dx": -1.14,
+      "dy": 34.34
+    },
+    "wire-snip-panic": {
+      "notes": [
+        "#btn-menu-start:clicked",
+        "[data-ps=start]:clicked",
+        "#btn-start-match:clicked",
+        "#btn-trigger-scan:clicked"
+      ],
+      "what": "scan flashes a wire -> spawnSparks at the wire column centre (canvas-relative by design)",
+      "burst": {
+        "particles": 20,
+        "originX": 270.84,
+        "originY": 381.47,
+        "spreadY": 0,
+        "rect": [
+          0,
+          56,
+          320,
+          512
+        ],
+        "bitmap": [
+          320,
+          512
+        ],
+        "scaleY": 1,
+        "shakeAtFrame": ""
+      },
+      "intended": {
+        "x": 270.8359375,
+        "y": 381.46875,
+        "i": "5",
+        "d": 0.004250459533963945
+      },
+      "dx": 0,
+      "dy": 0
+    }
+  }
+}

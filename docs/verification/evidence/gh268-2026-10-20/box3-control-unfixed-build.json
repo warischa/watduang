@@ -1,0 +1,5605 @@
+{
+ "n": 14,
+ "flags": {
+  "base": "http://localhost:4631",
+  "breakBand": false,
+  "hostileCss": null,
+  "bandPx": 56,
+  "phone": "320x568",
+  "desktop": "1280x800"
+ },
+ "pass": false,
+ "redRoutes": [
+  "bangkok-drift",
+  "cannon-flag",
+  "croc-bite",
+  "cursed-number",
+  "dice-loser",
+  "freeze-tap",
+  "how-close-is-near",
+  "one-bomb",
+  "pinocchio-luck",
+  "power-meter",
+  "short-stick",
+  "timebomb",
+  "wire-snip-panic",
+  "zero-trigger"
+ ],
+ "contentRedRoutes": [
+  "bangkok-drift",
+  "cannon-flag",
+  "croc-bite",
+  "cursed-number",
+  "dice-loser",
+  "freeze-tap",
+  "how-close-is-near",
+  "one-bomb",
+  "pinocchio-luck",
+  "power-meter",
+  "short-stick",
+  "timebomb",
+  "wire-snip-panic",
+  "zero-trigger"
+ ],
+ "failures": [
+  "bangkok-drift S1 320x568: no #play-band element",
+  "bangkok-drift S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "bangkok-drift S1 320x568: 1 fixed/sticky route box(es) anchored above the band: main#app (fixed top 0px)",
+  "bangkok-drift S1 320x568: 3 route-content box(es) intersect the band, worst main#app (56px, top 0); section#bd-players (56px, top 0); section#bd-players > h1 (36px, top 20)",
+  "bangkok-drift D1 1280x800: no #play-band element",
+  "bangkok-drift D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "bangkok-drift D1 1280x800: 1 fixed/sticky route box(es) anchored above the band: main#app (fixed top 0px)",
+  "bangkok-drift D1 1280x800: 3 route-content box(es) intersect the band, worst main#app (56px, top 0); section#bd-players (56px, top 0); section#bd-players > h1 (36px, top 20)",
+  "bangkok-drift S2 320x568: no #play-band element",
+  "bangkok-drift S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "bangkok-drift S2 320x568: 1 fixed/sticky route box(es) anchored above the band: main#app (fixed top 0px)",
+  "bangkok-drift S2 320x568: 2 route-content box(es) intersect the band, worst main#app (56px, top 0); section#screen-turn (56px, top 0)",
+  "bangkok-drift S3 320x568: no #play-band element",
+  "bangkok-drift S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "bangkok-drift S3 320x568: 1 fixed/sticky route box(es) anchored above the band: main#app (fixed top 0px)",
+  "bangkok-drift S3 320x568: 9 route-content box(es) intersect the band, worst main#app (56px, top 0); section#screen-drive (56px, top 0); div#stage (56px, top 0)",
+  "cannon-flag S1 320x568: no #play-band element",
+  "cannon-flag S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "cannon-flag S1 320x568: 9 route-content box(es) intersect the band, worst div#app-container (56px, top 0); header#top-nav (52px, top 0); header#top-nav > div.nav-tools (44px, top 3.5)",
+  "cannon-flag D1 1280x800: no #play-band element",
+  "cannon-flag D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "cannon-flag D1 1280x800: 9 route-content box(es) intersect the band, worst div#app-container (56px, top 0); header#top-nav > div.nav-tools (53.5px, top -2.5); button#btn-sound-toggle (53.5px, top -2.5)",
+  "cannon-flag S2 320x568: no #play-band element",
+  "cannon-flag S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "cannon-flag S2 320x568: 9 route-content box(es) intersect the band, worst div#app-container (56px, top 0); header#top-nav (52px, top 0); header#top-nav > div.nav-tools (44px, top 3.5)",
+  "cannon-flag S3 320x568: no #play-band element",
+  "cannon-flag S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "cannon-flag S3 320x568: 11 route-content box(es) intersect the band, worst div#app-container (56px, top 0); header#top-nav (52px, top 0); header#top-nav > div.nav-tools (44px, top 3.5)",
+  "croc-bite S1 320x568: no #play-band element",
+  "croc-bite S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "croc-bite S1 320x568: 5 route-content box(es) intersect the band, worst div#app (56px, top 0); div#canvas-container (56px, top 0); div#ui-root (56px, top 0)",
+  "croc-bite D1 1280x800: no #play-band element",
+  "croc-bite D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "croc-bite D1 1280x800: 5 route-content box(es) intersect the band, worst div#app (56px, top 0); div#canvas-container (56px, top 0); div#ui-root (56px, top 0)",
+  "croc-bite S2 320x568: no #play-band element",
+  "croc-bite S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "croc-bite S2 320x568: 5 route-content box(es) intersect the band, worst div#app (56px, top 0); div#canvas-container (56px, top 0); div#canvas-container > canvas (56px, top 0)",
+  "croc-bite S3 320x568: no #play-band element",
+  "croc-bite S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "croc-bite S3 320x568: 16 route-content box(es) intersect the band, worst div#app (56px, top 0); div#canvas-container (56px, top 0); div#canvas-container > canvas (56px, top 0)",
+  "cursed-number S1 320x568: no #play-band element",
+  "cursed-number S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "cursed-number S1 320x568: 2 fixed/sticky route box(es) anchored above the band: canvas#particlesCanvas (fixed top 0px); div#rulesModal (fixed top 0px, hidden now)",
+  "cursed-number S1 320x568: 2 route-content box(es) intersect the band, worst canvas#particlesCanvas (56px, top 0); div#app (56px, top 0)",
+  "cursed-number D1 1280x800: no #play-band element",
+  "cursed-number D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "cursed-number D1 1280x800: 2 fixed/sticky route box(es) anchored above the band: canvas#particlesCanvas (fixed top 0px); div#rulesModal (fixed top 0px, hidden now)",
+  "cursed-number D1 1280x800: 2 route-content box(es) intersect the band, worst canvas#particlesCanvas (56px, top 0); div#app (56px, top 0)",
+  "cursed-number S2 320x568: no #play-band element",
+  "cursed-number S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "cursed-number S2 320x568: 2 fixed/sticky route box(es) anchored above the band: canvas#particlesCanvas (fixed top 0px); div#rulesModal (fixed top 0px, hidden now)",
+  "cursed-number S2 320x568: 2 route-content box(es) intersect the band, worst canvas#particlesCanvas (56px, top 0); div#app (56px, top 0)",
+  "cursed-number S3 320x568: no #play-band element",
+  "cursed-number S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "cursed-number S3 320x568: 2 fixed/sticky route box(es) anchored above the band: canvas#particlesCanvas (fixed top 0px); div#rulesModal (fixed top 0px, hidden now)",
+  "cursed-number S3 320x568: 2 route-content box(es) intersect the band, worst canvas#particlesCanvas (56px, top 0); div#app (56px, top 0)",
+  "dice-loser S1 320x568: no #play-band element",
+  "dice-loser S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.13,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "dice-loser S1 320x568: 3 route-content box(es) intersect the band, worst div#app (56px, top 0); div#app > header.dl-top (56px, top 0); div#app > header.dl-top > h1.dl-brand (31px, top 20.5)",
+  "dice-loser D1 1280x800: no #play-band element",
+  "dice-loser D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.13,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "dice-loser D1 1280x800: 3 route-content box(es) intersect the band, worst div#app (56px, top 0); div#app > header.dl-top (56px, top 0); div#app > header.dl-top > h1.dl-brand (42px, top 14)",
+  "dice-loser S2 320x568: no #play-band element",
+  "dice-loser S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.13,\"b\":100,\"visible\":true} is not inside the band",
+  "dice-loser S2 320x568: 3 route-content box(es) intersect the band, worst div#app (56px, top 0); div#app > header.dl-top (56px, top 0); div#app > header.dl-top > h1.dl-brand (31px, top 20.5)",
+  "dice-loser S3 320x568: no #play-band element",
+  "dice-loser S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.13,\"b\":100,\"visible\":true} is not inside the band",
+  "dice-loser S3 320x568: 3 route-content box(es) intersect the band, worst div#app (56px, top 0); div#app > header.dl-top (56px, top 0); div#app > header.dl-top > h1.dl-brand (31px, top 20.5)",
+  "freeze-tap S1 320x568: no #play-band element",
+  "freeze-tap S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "freeze-tap S1 320x568: 1 fixed/sticky route box(es) anchored above the band: div#interruptionModal (fixed top 0px, hidden now)",
+  "freeze-tap S1 320x568: 9 route-content box(es) intersect the band, worst div#app (56px, top 0); div#shakeRoot (56px, top 0); canvas#particleCanvas (56px, top 0)",
+  "freeze-tap D1 1280x800: no #play-band element",
+  "freeze-tap D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "freeze-tap D1 1280x800: 1 fixed/sticky route box(es) anchored above the band: div#interruptionModal (fixed top 0px, hidden now)",
+  "freeze-tap D1 1280x800: 9 route-content box(es) intersect the band, worst div#app (56px, top 0); div#shakeRoot (56px, top 0); canvas#particleCanvas (56px, top 0)",
+  "freeze-tap S2 320x568: no #play-band element",
+  "freeze-tap S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "freeze-tap S2 320x568: 1 fixed/sticky route box(es) anchored above the band: div#interruptionModal (fixed top 0px, hidden now)",
+  "freeze-tap S2 320x568: 9 route-content box(es) intersect the band, worst div#app (56px, top 0); div#shakeRoot (56px, top 0); canvas#particleCanvas (56px, top 0)",
+  "freeze-tap S3 320x568: no #play-band element",
+  "freeze-tap S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "freeze-tap S3 320x568: 1 fixed/sticky route box(es) anchored above the band: div#interruptionModal (fixed top 0px, hidden now)",
+  "freeze-tap S3 320x568: 9 route-content box(es) intersect the band, worst div#app (56px, top 0); div#shakeRoot (56px, top 0); canvas#particleCanvas (56px, top 0)",
+  "how-close-is-near S1 320x568: no #play-band element",
+  "how-close-is-near S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "how-close-is-near S1 320x568: 1 fixed/sticky route box(es) anchored above the band: canvas#particlesCanvas (fixed top 0px)",
+  "how-close-is-near S1 320x568: 2 route-content box(es) intersect the band, worst canvas#particlesCanvas (56px, top 0); div#appRoot (56px, top 0)",
+  "how-close-is-near D1 1280x800: no #play-band element",
+  "how-close-is-near D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "how-close-is-near D1 1280x800: 1 fixed/sticky route box(es) anchored above the band: canvas#particlesCanvas (fixed top 0px)",
+  "how-close-is-near D1 1280x800: 2 route-content box(es) intersect the band, worst canvas#particlesCanvas (56px, top 0); div#appRoot (56px, top 0)",
+  "how-close-is-near S2 320x568: no #play-band element",
+  "how-close-is-near S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "how-close-is-near S2 320x568: 1 fixed/sticky route box(es) anchored above the band: canvas#particlesCanvas (fixed top 0px)",
+  "how-close-is-near S2 320x568: 2 route-content box(es) intersect the band, worst canvas#particlesCanvas (56px, top 0); div#appRoot (56px, top 0)",
+  "how-close-is-near S3 320x568: no #play-band element",
+  "how-close-is-near S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "how-close-is-near S3 320x568: 1 fixed/sticky route box(es) anchored above the band: canvas#particlesCanvas (fixed top 0px)",
+  "how-close-is-near S3 320x568: 2 route-content box(es) intersect the band, worst canvas#particlesCanvas (56px, top 0); div#appRoot (56px, top 0)",
+  "one-bomb S1 320x568: no #play-band element",
+  "one-bomb S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "one-bomb S1 320x568: 7 route-content box(es) intersect the band, worst div#app (56px, top 0); canvas#gameCanvas (56px, top 0); div#menuOverlay (56px, top 0)",
+  "one-bomb D1 1280x800: no #play-band element",
+  "one-bomb D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "one-bomb D1 1280x800: 7 route-content box(es) intersect the band, worst div#app (56px, top 0); canvas#gameCanvas (56px, top 0); div#menuOverlay (56px, top 0)",
+  "one-bomb S2 320x568: no #play-band element",
+  "one-bomb S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} is not inside the band",
+  "one-bomb S2 320x568: 17 route-content box(es) intersect the band, worst div#app (56px, top 0); div#ob-board-wrap (56px, top 0); canvas#gameCanvas (56px, top 0)",
+  "pinocchio-luck S1 320x568: no #play-band element",
+  "pinocchio-luck S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":81.31,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "pinocchio-luck S1 320x568: 9 route-content box(es) intersect the band, worst main#app (56px, top 0); main#app > header.topbar (56px, top 0); main#app > header.topbar > div.top-actions (42px, top 14)",
+  "pinocchio-luck D1 1280x800: no #play-band element",
+  "pinocchio-luck D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":81.31,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "pinocchio-luck D1 1280x800: 9 route-content box(es) intersect the band, worst main#app (56px, top 0); main#app > header.topbar (56px, top 0); main#app > header.topbar > div.top-actions (42px, top 14)",
+  "pinocchio-luck S2 320x568: no #play-band element",
+  "pinocchio-luck S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":81.31,\"b\":100,\"visible\":true} is not inside the band",
+  "pinocchio-luck S2 320x568: 9 route-content box(es) intersect the band, worst main#app (56px, top 0); main#app > header.topbar (56px, top 0); main#app > header.topbar > div.top-actions (42px, top 14)",
+  "pinocchio-luck S3 320x568: no #play-band element",
+  "pinocchio-luck S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":81.31,\"b\":100,\"visible\":true} is not inside the band",
+  "pinocchio-luck S3 320x568: 9 route-content box(es) intersect the band, worst main#app (56px, top 0); main#app > header.topbar (56px, top 0); main#app > header.topbar > div.top-actions (42px, top 14)",
+  "power-meter S1 320x568: no #play-band element",
+  "power-meter S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "power-meter S1 320x568: 1 fixed/sticky route box(es) anchored above the band: div#help-modal (fixed top 0px)",
+  "power-meter S1 320x568: 8 route-content box(es) intersect the band, worst div#app-container (56px, top 0); canvas#particle-canvas (56px, top 0); div#app-container > header.top-nav (56px, top 0)",
+  "power-meter D1 1280x800: no #play-band element",
+  "power-meter D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "power-meter D1 1280x800: 1 fixed/sticky route box(es) anchored above the band: div#help-modal (fixed top 0px)",
+  "power-meter D1 1280x800: 8 route-content box(es) intersect the band, worst div#app-container (56px, top 0); canvas#particle-canvas (56px, top 0); div#app-container > header.top-nav (56px, top 0)",
+  "power-meter S2 320x568: no #play-band element",
+  "power-meter S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "power-meter S2 320x568: 1 fixed/sticky route box(es) anchored above the band: div#help-modal (fixed top 0px)",
+  "power-meter S2 320x568: 8 route-content box(es) intersect the band, worst div#app-container (56px, top 0); canvas#particle-canvas (56px, top 0); div#app-container > header.top-nav (56px, top 0)",
+  "power-meter S3 320x568: no #play-band element",
+  "power-meter S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.27,\"b\":100,\"visible\":true} is not inside the band",
+  "power-meter S3 320x568: 1 fixed/sticky route box(es) anchored above the band: div#help-modal (fixed top 0px)",
+  "power-meter S3 320x568: 8 route-content box(es) intersect the band, worst div#app-container (56px, top 0); canvas#particle-canvas (56px, top 0); div#app-container > header.top-nav (56px, top 0)",
+  "short-stick S1 320x568: no #play-band element",
+  "short-stick S1 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80,\"b\":100,\"visible\":true} is not inside the band",
+  "short-stick S1 320x568: 2 fixed/sticky route box(es) anchored above the band: canvas#particle-canvas (fixed top 0px); header#topnav (sticky top 0px)",
+  "short-stick S1 320x568: 6 route-content box(es) intersect the band, worst canvas#particle-canvas (56px, top 0); header#topnav (56px, top 0); header#topnav > div.container (56px, top 0)",
+  "short-stick D1 1280x800: no #play-band element",
+  "short-stick D1 1280x800: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80,\"b\":100,\"visible\":true} is not inside the band",
+  "short-stick D1 1280x800: 2 fixed/sticky route box(es) anchored above the band: canvas#particle-canvas (fixed top 0px); header#topnav (sticky top 0px)",
+  "short-stick D1 1280x800: 6 route-content box(es) intersect the band, worst canvas#particle-canvas (56px, top 0); header#topnav (56px, top 0); header#topnav > div.container (56px, top 0)",
+  "short-stick S2 320x568: no #play-band element",
+  "short-stick S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80,\"b\":100,\"visible\":true} is not inside the band",
+  "short-stick S2 320x568: 2 fixed/sticky route box(es) anchored above the band: canvas#particle-canvas (fixed top 0px); header#topnav (sticky top 0px)",
+  "short-stick S2 320x568: 6 route-content box(es) intersect the band, worst canvas#particle-canvas (56px, top 0); header#topnav (56px, top 0); header#topnav > div.container (56px, top 0)",
+  "short-stick S3 320x568: no #play-band element",
+  "short-stick S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80,\"b\":100,\"visible\":true} is not inside the band",
+  "short-stick S3 320x568: 2 fixed/sticky route box(es) anchored above the band: canvas#particle-canvas (fixed top 0px); header#topnav (sticky top 0px)",
+  "short-stick S3 320x568: 6 route-content box(es) intersect the band, worst canvas#particle-canvas (56px, top 0); header#topnav (56px, top 0); header#topnav > div.container (56px, top 0)",
+  "timebomb S1 320x568: no #play-band element",
+  "timebomb S1 320x568: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.13,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "timebomb S1 320x568: 4 route-content box(es) intersect the band, worst div#app (56px, top 0); header#tb-top (56px, top 0); button#tb-mute (42px, top 14)",
+  "timebomb D1 1280x800: no #play-band element",
+  "timebomb D1 1280x800: edit control {\"present\":true,\"forced\":true,\"l\":6,\"t\":56,\"r\":80.13,\"b\":100,\"visible\":true} (forced read) is not inside the band",
+  "timebomb D1 1280x800: 4 route-content box(es) intersect the band, worst div#app (56px, top 0); header#tb-top (56px, top 0); header#tb-top > h1.tb-brand (42px, top 14)",
+  "timebomb S2 320x568: no #play-band element",
+  "timebomb S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.13,\"b\":100,\"visible\":true} is not inside the band",
+  "timebomb S2 320x568: 4 route-content box(es) intersect the band, worst div#app (56px, top 0); header#tb-top (56px, top 0); button#tb-mute (42px, top 14)",
+  "timebomb S3 320x568: no #play-band element",
+  "timebomb S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.13,\"b\":100,\"visible\":true} is not inside the band",
+  "timebomb S3 320x568: 4 route-content box(es) intersect the band, worst div#app (56px, top 0); header#tb-top (56px, top 0); button#tb-mute (42px, top 14)",
+  "wire-snip-panic S1 320x568: no #play-band element",
+  "wire-snip-panic S1 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} is not inside the band",
+  "wire-snip-panic S1 320x568: 2 route-content box(es) intersect the band, worst div#app (56px, top 0); canvas#particle-canvas (56px, top 0)",
+  "wire-snip-panic D1 1280x800: no #play-band element",
+  "wire-snip-panic D1 1280x800: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} is not inside the band",
+  "wire-snip-panic D1 1280x800: 2 route-content box(es) intersect the band, worst div#app (56px, top 0); canvas#particle-canvas (56px, top 0)",
+  "wire-snip-panic S2 320x568: no #play-band element",
+  "wire-snip-panic S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} is not inside the band",
+  "wire-snip-panic S2 320x568: 2 route-content box(es) intersect the band, worst div#app (56px, top 0); canvas#particle-canvas (56px, top 0)",
+  "wire-snip-panic S3 320x568: no #play-band element",
+  "wire-snip-panic S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} is not inside the band",
+  "wire-snip-panic S3 320x568: 2 route-content box(es) intersect the band, worst div#app (56px, top 0); canvas#particle-canvas (56px, top 0)",
+  "zero-trigger S1 320x568: no #play-band element",
+  "zero-trigger S1 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} is not inside the band",
+  "zero-trigger S1 320x568: 3 fixed/sticky route box(es) anchored above the band: canvas#fx-canvas (fixed top 0px); div#modal-result (fixed top 0px, hidden now); div#modal-rules (fixed top 0px, hidden now)",
+  "zero-trigger S1 320x568: 6 route-content box(es) intersect the band, worst canvas#fx-canvas (56px, top 0); div#app-container (56px, top 0); div#app-container > header (12px, top 44)",
+  "zero-trigger D1 1280x800: no #play-band element",
+  "zero-trigger D1 1280x800: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} is not inside the band",
+  "zero-trigger D1 1280x800: 3 fixed/sticky route box(es) anchored above the band: canvas#fx-canvas (fixed top 0px); div#modal-result (fixed top 0px, hidden now); div#modal-rules (fixed top 0px, hidden now)",
+  "zero-trigger D1 1280x800: 6 route-content box(es) intersect the band, worst canvas#fx-canvas (56px, top 0); div#app-container (56px, top 0); div#app-container > header (12px, top 44)",
+  "zero-trigger S2 320x568: no #play-band element",
+  "zero-trigger S2 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} is not inside the band",
+  "zero-trigger S2 320x568: 3 fixed/sticky route box(es) anchored above the band: canvas#fx-canvas (fixed top 0px); div#modal-result (fixed top 0px, hidden now); div#modal-rules (fixed top 0px, hidden now)",
+  "zero-trigger S2 320x568: 7 route-content box(es) intersect the band, worst canvas#fx-canvas (56px, top 0); div#app-container (56px, top 0); div#app-container > header (12px, top 44)",
+  "zero-trigger S3 320x568: no #play-band element",
+  "zero-trigger S3 320x568: edit control {\"present\":true,\"forced\":false,\"l\":6,\"t\":56,\"r\":80.78,\"b\":100,\"visible\":true} is not inside the band",
+  "zero-trigger S3 320x568: 3 fixed/sticky route box(es) anchored above the band: canvas#fx-canvas (fixed top 0px); div#modal-result (fixed top 0px, hidden now); div#modal-rules (fixed top 0px, hidden now)",
+  "zero-trigger S3 320x568: 7 route-content box(es) intersect the band, worst canvas#fx-canvas (56px, top 0); div#app-container (56px, top 0); div#app-container > header (12px, top 44)"
+ ],
+ "rows": [
+  {
+   "route": "bangkok-drift",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 25,
+   "skippedTiny": 1,
+   "hitCount": 3,
+   "hits": [
+    {
+     "sel": "main#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "section#bd-players",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "section#bd-players > h1",
+     "l": 55.86,
+     "t": 20,
+     "r": 264.14,
+     "b": 66,
+     "overlapPx": 36,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "main#app",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "flex"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "bangkok-drift",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 25,
+   "skippedTiny": 1,
+   "hitCount": 3,
+   "hits": [
+    {
+     "sel": "main#app",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "section#bd-players",
+     "l": 430,
+     "t": 0,
+     "r": 850,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "section#bd-players > h1",
+     "l": 535.86,
+     "t": 20,
+     "r": 744.14,
+     "b": 66,
+     "overlapPx": 36,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "main#app",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "flex"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "bangkok-drift",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 7,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "main#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "section#screen-turn",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "main#app",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "flex"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "bangkok-drift",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#readyBtn:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 12,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "main#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "section#screen-drive",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#stage",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#road",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#overlay",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#stage > div.hud",
+     "l": 12,
+     "t": 12,
+     "r": 308,
+     "b": 35,
+     "overlapPx": 23,
+     "pos": "absolute"
+    },
+    {
+     "sel": "span#hud-name",
+     "l": 12,
+     "t": 12,
+     "r": 31.97,
+     "b": 35,
+     "overlapPx": 23,
+     "pos": "static"
+    },
+    {
+     "sel": "span#hud-dist",
+     "l": 99.69,
+     "t": 12,
+     "r": 139.91,
+     "b": 35,
+     "overlapPx": 23,
+     "pos": "static"
+    },
+    {
+     "sel": "span#hud-speed",
+     "l": 207.63,
+     "t": 12,
+     "r": 308,
+     "b": 35,
+     "overlapPx": 23,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "main#app",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "flex"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "cannon-flag",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 31,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "div#app-container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "header#top-nav",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 52,
+     "overlapPx": 52,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.nav-tools",
+     "l": 152.78,
+     "t": 3.5,
+     "r": 306,
+     "b": 47.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-sound-toggle",
+     "l": 262,
+     "t": 3.5,
+     "r": 306,
+     "b": 47.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.brand-title",
+     "l": 74,
+     "t": 11.5,
+     "r": 141.08,
+     "b": 39.5,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.brand-title > span",
+     "l": 74,
+     "t": 11.5,
+     "r": 95.5,
+     "b": 39.5,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "div#hud-match-seed",
+     "l": 152.78,
+     "t": 13.5,
+     "r": 254,
+     "b": 37.5,
+     "overlapPx": 24,
+     "pos": "static"
+    },
+    {
+     "sel": "main#screen-viewport",
+     "l": 0,
+     "t": 52,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 4,
+     "pos": "relative"
+    },
+    {
+     "sel": "section#cf-players",
+     "l": 0,
+     "t": 52,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 4,
+     "pos": "absolute"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "cannon-flag",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 31,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "div#app-container",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "header#top-nav > div.nav-tools",
+     "l": 1100.78,
+     "t": -2.5,
+     "r": 1266,
+     "b": 53.5,
+     "overlapPx": 53.5,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-sound-toggle",
+     "l": 1210,
+     "t": -2.5,
+     "r": 1266,
+     "b": 53.5,
+     "overlapPx": 53.5,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 52,
+     "overlapPx": 52,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.brand-title",
+     "l": 74,
+     "t": 9.5,
+     "r": 157.75,
+     "b": 41.5,
+     "overlapPx": 32,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.brand-title > span",
+     "l": 74,
+     "t": 9.5,
+     "r": 98.5,
+     "b": 41.5,
+     "overlapPx": 32,
+     "pos": "static"
+    },
+    {
+     "sel": "div#hud-match-seed",
+     "l": 1100.78,
+     "t": 13.5,
+     "r": 1202,
+     "b": 37.5,
+     "overlapPx": 24,
+     "pos": "static"
+    },
+    {
+     "sel": "main#screen-viewport",
+     "l": 0,
+     "t": 52,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 4,
+     "pos": "relative"
+    },
+    {
+     "sel": "section#cf-players",
+     "l": 430,
+     "t": 52,
+     "r": 850,
+     "b": 800,
+     "overlapPx": 4,
+     "pos": "absolute"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "cannon-flag",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 18,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "div#app-container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "header#top-nav",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 52,
+     "overlapPx": 52,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.nav-tools",
+     "l": 145.58,
+     "t": 3.5,
+     "r": 306,
+     "b": 47.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-sound-toggle",
+     "l": 262,
+     "t": 3.5,
+     "r": 306,
+     "b": 47.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.brand-title",
+     "l": 74,
+     "t": 11.5,
+     "r": 141.08,
+     "b": 39.5,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.brand-title > span",
+     "l": 74,
+     "t": 11.5,
+     "r": 95.5,
+     "b": 39.5,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "div#hud-match-seed",
+     "l": 145.58,
+     "t": 13.5,
+     "r": 254,
+     "b": 37.5,
+     "overlapPx": 24,
+     "pos": "static"
+    },
+    {
+     "sel": "main#screen-viewport",
+     "l": 0,
+     "t": 52,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 4,
+     "pos": "relative"
+    },
+    {
+     "sel": "section#screen-pass-device",
+     "l": 0,
+     "t": 52,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 4,
+     "pos": "absolute"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "cannon-flag",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#btn-ready-to-aim:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 42,
+   "skippedTiny": 1,
+   "hitCount": 11,
+   "hits": [
+    {
+     "sel": "div#app-container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "header#top-nav",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 52,
+     "overlapPx": 52,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.nav-tools",
+     "l": 145.58,
+     "t": 3.5,
+     "r": 306,
+     "b": 47.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-sound-toggle",
+     "l": 262,
+     "t": 3.5,
+     "r": 306,
+     "b": 47.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.brand-title",
+     "l": 74,
+     "t": 11.5,
+     "r": 141.08,
+     "b": 39.5,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "header#top-nav > div.brand-title > span",
+     "l": 74,
+     "t": 11.5,
+     "r": 95.5,
+     "b": 39.5,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "div#hud-match-seed",
+     "l": 145.58,
+     "t": 13.5,
+     "r": 254,
+     "b": 37.5,
+     "overlapPx": 24,
+     "pos": "static"
+    },
+    {
+     "sel": "main#screen-viewport",
+     "l": 0,
+     "t": 52,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 4,
+     "pos": "relative"
+    },
+    {
+     "sel": "section#screen-gameplay",
+     "l": 0,
+     "t": 52,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 4,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#canvas-container",
+     "l": 0,
+     "t": 52,
+     "r": 320,
+     "b": 415,
+     "overlapPx": 4,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#game-canvas",
+     "l": 0,
+     "t": 52,
+     "r": 320,
+     "b": 415,
+     "overlapPx": 4,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "croc-bite",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 26,
+   "skippedTiny": 1,
+   "hitCount": 5,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#canvas-container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#ui-root",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "section#croc-players",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "section#croc-players > p.ps-tagline",
+     "l": 50.2,
+     "t": 20,
+     "r": 269.8,
+     "b": 44,
+     "overlapPx": 24,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "croc-bite",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 26,
+   "skippedTiny": 1,
+   "hitCount": 5,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#canvas-container",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#ui-root",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "section#croc-players",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "section#croc-players > p.ps-tagline",
+     "l": 530.2,
+     "t": 20,
+     "r": 749.8,
+     "b": 44,
+     "overlapPx": 24,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "croc-bite",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 23,
+   "skippedTiny": 1,
+   "hitCount": 5,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#canvas-container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#canvas-container > canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#ui-root",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#screen-setup",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "croc-bite",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#btn-start-game:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 46,
+   "skippedTiny": 1,
+   "hitCount": 16,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#canvas-container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#canvas-container > canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#ui-root",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#screen-hud",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#screen-hud > div.hud-top-section",
+     "l": 10,
+     "t": 8,
+     "r": 310,
+     "b": 171,
+     "overlapPx": 48,
+     "pos": "static"
+    },
+    {
+     "sel": "div#screen-hud > div.hud-top-section > div.hud-top-bar",
+     "l": 10,
+     "t": 8,
+     "r": 310,
+     "b": 52,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "div#screen-hud > div.hud-top-section > div.hud-top-bar > div.hud-tools-left",
+     "l": 10,
+     "t": 8,
+     "r": 90,
+     "b": 52,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-hud-home",
+     "l": 10,
+     "t": 8,
+     "r": 46,
+     "b": 52,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-hud-sound",
+     "l": 54,
+     "t": 8,
+     "r": 90,
+     "b": 52,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "div#screen-hud > div.hud-top-section > div.hud-top-bar > div.hud-tools-right",
+     "l": 185.67,
+     "t": 8,
+     "r": 310,
+     "b": 52,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-hud-restart",
+     "l": 185.67,
+     "t": 8,
+     "r": 266,
+     "b": 52,
+     "overlapPx": 44,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "cursed-number",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 33,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#app",
+     "l": 10,
+     "t": 0,
+     "r": 310,
+     "b": 808,
+     "overlapPx": 56,
+     "pos": "relative"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "div#rulesModal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "cursed-number",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 33,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 784,
+     "overlapPx": 56,
+     "pos": "relative"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "div#rulesModal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "cursed-number",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 19,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#app",
+     "l": 10,
+     "t": 0,
+     "r": 310,
+     "b": 483,
+     "overlapPx": 56,
+     "pos": "relative"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "div#rulesModal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "cursed-number",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#startGameBtn:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 32,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#app",
+     "l": 10,
+     "t": 0,
+     "r": 310,
+     "b": 736,
+     "overlapPx": 56,
+     "pos": "relative"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "div#rulesModal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "dice-loser",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.13,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 27,
+   "skippedTiny": 1,
+   "hitCount": 3,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 680.19,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#app > header.dl-top",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 73,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app > header.dl-top > h1.dl-brand",
+     "l": 112.61,
+     "t": 20.5,
+     "r": 207.38,
+     "b": 51.5,
+     "overlapPx": 31,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "dice-loser",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.13,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 27,
+   "skippedTiny": 1,
+   "hitCount": 3,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#app > header.dl-top",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 73,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app > header.dl-top > h1.dl-brand",
+     "l": 574.45,
+     "t": 14,
+     "r": 705.53,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "dice-loser",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.13,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 19,
+   "skippedTiny": 1,
+   "hitCount": 3,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#app > header.dl-top",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 73,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app > header.dl-top > h1.dl-brand",
+     "l": 112.61,
+     "t": 20.5,
+     "r": 207.38,
+     "b": 51.5,
+     "overlapPx": 31,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "dice-loser",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#dl-begin:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.13,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 44,
+   "skippedTiny": 1,
+   "hitCount": 3,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#app > header.dl-top",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 73,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app > header.dl-top > h1.dl-brand",
+     "l": 112.61,
+     "t": 20.5,
+     "r": 207.38,
+     "b": 51.5,
+     "overlapPx": 31,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "freeze-tap",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 32,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#shakeRoot",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "canvas#particleCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#shakeRoot > header",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 69,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-right",
+     "l": 180.88,
+     "t": 12,
+     "r": 304,
+     "b": 56,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#soundToggleBtn",
+     "l": 180.88,
+     "t": 12,
+     "r": 224.88,
+     "b": 56,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#resetAppBtn",
+     "l": 232.88,
+     "t": 12,
+     "r": 304,
+     "b": 56,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-left",
+     "l": 16,
+     "t": 20,
+     "r": 160.23,
+     "b": 48,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-left > span.brand-title",
+     "l": 76,
+     "t": 20,
+     "r": 160.23,
+     "b": 48,
+     "overlapPx": 28,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "div#interruptionModal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "freeze-tap",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 32,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#shakeRoot",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "canvas#particleCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#shakeRoot > header",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 70,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-right",
+     "l": 1129.73,
+     "t": 12,
+     "r": 1264,
+     "b": 57,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#soundToggleBtn",
+     "l": 1129.73,
+     "t": 12,
+     "r": 1176.73,
+     "b": 57,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#resetAppBtn",
+     "l": 1184.73,
+     "t": 12.5,
+     "r": 1264,
+     "b": 56.5,
+     "overlapPx": 43.5,
+     "pos": "static"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-left",
+     "l": 16,
+     "t": 17.5,
+     "r": 180.08,
+     "b": 51.5,
+     "overlapPx": 34,
+     "pos": "static"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-left > span.brand-title",
+     "l": 76,
+     "t": 17.5,
+     "r": 180.08,
+     "b": 51.5,
+     "overlapPx": 34,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "div#interruptionModal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "freeze-tap",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 20,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#shakeRoot",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "canvas#particleCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#shakeRoot > header",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 69,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-right",
+     "l": 180.88,
+     "t": 12,
+     "r": 304,
+     "b": 56,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#soundToggleBtn",
+     "l": 180.88,
+     "t": 12,
+     "r": 224.88,
+     "b": 56,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#resetAppBtn",
+     "l": 232.88,
+     "t": 12,
+     "r": 304,
+     "b": 56,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-left",
+     "l": 16,
+     "t": 20,
+     "r": 160.23,
+     "b": 48,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-left > span.brand-title",
+     "l": 76,
+     "t": 20,
+     "r": 160.23,
+     "b": 48,
+     "overlapPx": 28,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "div#interruptionModal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "freeze-tap",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#ruleReadyBtn:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 24,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#shakeRoot",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "canvas#particleCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#shakeRoot > header",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 69,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-right",
+     "l": 180.88,
+     "t": 12,
+     "r": 304,
+     "b": 56,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#soundToggleBtn",
+     "l": 180.88,
+     "t": 12,
+     "r": 224.88,
+     "b": 56,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#resetAppBtn",
+     "l": 232.88,
+     "t": 12,
+     "r": 304,
+     "b": 56,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-left",
+     "l": 16,
+     "t": 20,
+     "r": 160.23,
+     "b": 48,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "div#shakeRoot > header > div.header-left > span.brand-title",
+     "l": 76,
+     "t": 20,
+     "r": 160.23,
+     "b": 48,
+     "overlapPx": 28,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "div#interruptionModal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "how-close-is-near",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 31,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#appRoot",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 756,
+     "overlapPx": 56,
+     "pos": "relative"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "how-close-is-near",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 32,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#appRoot",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "relative"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "how-close-is-near",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 27,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#appRoot",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 603.41,
+     "overlapPx": 56,
+     "pos": "relative"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "how-close-is-near",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#btnStartGame:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 15,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#appRoot",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particlesCanvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "one-bomb",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 33,
+   "skippedTiny": 1,
+   "hitCount": 7,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#gameCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#menuOverlay",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div.menuBox > div.logoArea > div.gameTitle > span.bombWord",
+     "l": 137.28,
+     "t": 8.34,
+     "r": 282.38,
+     "b": 64.34,
+     "overlapPx": 47.66,
+     "pos": "static"
+    },
+    {
+     "sel": "div#menuOverlay > div.menuBox",
+     "l": 12.8,
+     "t": 16.34,
+     "r": 307.19,
+     "b": 757.93,
+     "overlapPx": 39.66,
+     "pos": "static"
+    },
+    {
+     "sel": "div#menuOverlay > div.menuBox > div.logoArea",
+     "l": 12.8,
+     "t": 16.34,
+     "r": 307.19,
+     "b": 131.93,
+     "overlapPx": 39.66,
+     "pos": "static"
+    },
+    {
+     "sel": "div#menuOverlay > div.menuBox > div.logoArea > div.gameTitle",
+     "l": 12.8,
+     "t": 16.34,
+     "r": 307.19,
+     "b": 97.93,
+     "overlapPx": 39.66,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "one-bomb",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 33,
+   "skippedTiny": 1,
+   "hitCount": 7,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#gameCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#menuOverlay",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div.menuBox > div.logoArea > div.gameTitle > span.bombWord",
+     "l": 599,
+     "t": 5.66,
+     "r": 857.06,
+     "b": 106.66,
+     "overlapPx": 50.34,
+     "pos": "static"
+    },
+    {
+     "sel": "div#menuOverlay > div.menuBox",
+     "l": 400,
+     "t": 19.66,
+     "r": 880,
+     "b": 829.85,
+     "overlapPx": 36.34,
+     "pos": "static"
+    },
+    {
+     "sel": "div#menuOverlay > div.menuBox > div.logoArea",
+     "l": 400,
+     "t": 19.66,
+     "r": 880,
+     "b": 203.85,
+     "overlapPx": 36.34,
+     "pos": "static"
+    },
+    {
+     "sel": "div#menuOverlay > div.menuBox > div.logoArea > div.gameTitle",
+     "l": 400,
+     "t": 19.66,
+     "r": 880,
+     "b": 165.85,
+     "overlapPx": 36.34,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "one-bomb",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 72,
+   "skippedTiny": 1,
+   "hitCount": 17,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#ob-board-wrap",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "canvas#gameCanvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#hud",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#hud > div.topSection",
+     "l": 10,
+     "t": 10,
+     "r": 310,
+     "b": 116,
+     "overlapPx": 46,
+     "pos": "static"
+    },
+    {
+     "sel": "div#hud > div.topSection > div.topBar",
+     "l": 10,
+     "t": 10,
+     "r": 310,
+     "b": 60,
+     "overlapPx": 46,
+     "pos": "static"
+    },
+    {
+     "sel": "div#playerStrip",
+     "l": 112,
+     "t": 10,
+     "r": 131.67,
+     "b": 60,
+     "overlapPx": 46,
+     "pos": "static"
+    },
+    {
+     "sel": "div#hud > div.topSection > div.topBar > div.leftTools",
+     "l": 10,
+     "t": 13,
+     "r": 106,
+     "b": 57,
+     "overlapPx": 43,
+     "pos": "static"
+    },
+    {
+     "sel": "button#homeBtn",
+     "l": 10,
+     "t": 13,
+     "r": 54,
+     "b": 57,
+     "overlapPx": 43,
+     "pos": "static"
+    },
+    {
+     "sel": "button#audioToggleBtn",
+     "l": 62,
+     "t": 13,
+     "r": 106,
+     "b": 57,
+     "overlapPx": 43,
+     "pos": "static"
+    },
+    {
+     "sel": "div#hud > div.topSection > div.topBar > div.rightTools",
+     "l": 137.67,
+     "t": 13,
+     "r": 310,
+     "b": 57,
+     "overlapPx": 43,
+     "pos": "static"
+    },
+    {
+     "sel": "button#newRoundBtn",
+     "l": 137.67,
+     "t": 13,
+     "r": 258,
+     "b": 57,
+     "overlapPx": 43,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "pinocchio-luck",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 81.31,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 37,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "main#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 877.83,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "main#app > header.topbar",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 66,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "main#app > header.topbar > div.top-actions",
+     "l": 211.73,
+     "t": 14,
+     "r": 310,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "static"
+    },
+    {
+     "sel": "button#soundBtn",
+     "l": 266,
+     "t": 14,
+     "r": 310,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand > div.brand-mark",
+     "l": 8.02,
+     "t": 14.02,
+     "r": 51.98,
+     "b": 57.98,
+     "overlapPx": 41.98,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand",
+     "l": 10,
+     "t": 16,
+     "r": 151.28,
+     "b": 56,
+     "overlapPx": 40,
+     "pos": "static"
+    },
+    {
+     "sel": "span#roundTag",
+     "l": 211.73,
+     "t": 22,
+     "r": 260,
+     "b": 50,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > div.curtain-top",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 24,
+     "overlapPx": 24,
+     "pos": "absolute"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand > h1",
+     "l": 56,
+     "t": 27.03,
+     "r": 151.28,
+     "b": 44.95,
+     "overlapPx": 17.92,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "pinocchio-luck",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 81.31,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 37,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "main#app",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 1062,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "main#app > header.topbar",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 66,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "main#app > header.topbar > div.top-actions",
+     "l": 1153.73,
+     "t": 14,
+     "r": 1264,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "static"
+    },
+    {
+     "sel": "button#soundBtn",
+     "l": 1220,
+     "t": 14,
+     "r": 1264,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand > div.brand-mark",
+     "l": 104.02,
+     "t": 14.02,
+     "r": 147.98,
+     "b": 57.98,
+     "overlapPx": 41.98,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand",
+     "l": 106,
+     "t": 16,
+     "r": 281.91,
+     "b": 56,
+     "overlapPx": 40,
+     "pos": "static"
+    },
+    {
+     "sel": "span#roundTag",
+     "l": 1153.73,
+     "t": 22,
+     "r": 1210,
+     "b": 50,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > div.curtain-top",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 24,
+     "overlapPx": 24,
+     "pos": "absolute"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand > h1",
+     "l": 156,
+     "t": 24.16,
+     "r": 281.91,
+     "b": 47.84,
+     "overlapPx": 23.69,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "pinocchio-luck",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 81.31,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 22,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "main#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 574.77,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "main#app > header.topbar",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 66,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "main#app > header.topbar > div.top-actions",
+     "l": 176.59,
+     "t": 14,
+     "r": 310,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "static"
+    },
+    {
+     "sel": "button#soundBtn",
+     "l": 266,
+     "t": 14,
+     "r": 310,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand > div.brand-mark",
+     "l": 8.02,
+     "t": 14.02,
+     "r": 51.98,
+     "b": 57.98,
+     "overlapPx": 41.98,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand",
+     "l": 10,
+     "t": 16,
+     "r": 151.28,
+     "b": 56,
+     "overlapPx": 40,
+     "pos": "static"
+    },
+    {
+     "sel": "span#roundTag",
+     "l": 176.59,
+     "t": 22,
+     "r": 260,
+     "b": 50,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > div.curtain-top",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 24,
+     "overlapPx": 24,
+     "pos": "absolute"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand > h1",
+     "l": 56,
+     "t": 27.03,
+     "r": 151.28,
+     "b": 44.95,
+     "overlapPx": 17.92,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "pinocchio-luck",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#ready:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 81.31,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 31,
+   "skippedTiny": 1,
+   "hitCount": 9,
+   "hits": [
+    {
+     "sel": "main#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 675.27,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "main#app > header.topbar",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 66,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "main#app > header.topbar > div.top-actions",
+     "l": 176.59,
+     "t": 14,
+     "r": 310,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "static"
+    },
+    {
+     "sel": "button#soundBtn",
+     "l": 266,
+     "t": 14,
+     "r": 310,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand > div.brand-mark",
+     "l": 8.02,
+     "t": 14.02,
+     "r": 51.98,
+     "b": 57.98,
+     "overlapPx": 41.98,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand",
+     "l": 10,
+     "t": 16,
+     "r": 151.28,
+     "b": 56,
+     "overlapPx": 40,
+     "pos": "static"
+    },
+    {
+     "sel": "span#roundTag",
+     "l": 176.59,
+     "t": 22,
+     "r": 260,
+     "b": 50,
+     "overlapPx": 28,
+     "pos": "static"
+    },
+    {
+     "sel": "main#app > div.curtain-top",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 24,
+     "overlapPx": 24,
+     "pos": "absolute"
+    },
+    {
+     "sel": "main#app > header.topbar > div.brand > h1",
+     "l": 56,
+     "t": 27.03,
+     "r": 151.28,
+     "b": 44.95,
+     "overlapPx": 17.92,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "power-meter",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 32,
+   "skippedTiny": 1,
+   "hitCount": 8,
+   "hits": [
+    {
+     "sel": "div#app-container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#app-container > header.top-nav",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 56,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.brand-title",
+     "l": 76,
+     "t": 1.08,
+     "r": 206,
+     "b": 53.92,
+     "overlapPx": 52.84,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.nav-controls",
+     "l": 206,
+     "t": 5.5,
+     "r": 304,
+     "b": 49.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-audio-toggle",
+     "l": 206,
+     "t": 5.5,
+     "r": 250,
+     "b": 49.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-help-modal",
+     "l": 260,
+     "t": 5.5,
+     "r": 304,
+     "b": 49.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.brand-title > span",
+     "l": 76,
+     "t": 14.28,
+     "r": 97.5,
+     "b": 40.7,
+     "overlapPx": 26.42,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "div#help-modal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "flex"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "power-meter",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 32,
+   "skippedTiny": 1,
+   "hitCount": 8,
+   "hits": [
+    {
+     "sel": "div#app-container",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#app-container > header.top-nav",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 56,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.nav-controls",
+     "l": 1142,
+     "t": -0.5,
+     "r": 1264,
+     "b": 55.5,
+     "overlapPx": 55.5,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-audio-toggle",
+     "l": 1142,
+     "t": -0.5,
+     "r": 1198,
+     "b": 55.5,
+     "overlapPx": 55.5,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-help-modal",
+     "l": 1208,
+     "t": -0.5,
+     "r": 1264,
+     "b": 55.5,
+     "overlapPx": 55.5,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.brand-title",
+     "l": 76,
+     "t": 10,
+     "r": 262.67,
+     "b": 45,
+     "overlapPx": 35,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.brand-title > span",
+     "l": 76,
+     "t": 10,
+     "r": 101.5,
+     "b": 45,
+     "overlapPx": 35,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "div#help-modal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "flex"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "power-meter",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 18,
+   "skippedTiny": 1,
+   "hitCount": 8,
+   "hits": [
+    {
+     "sel": "div#app-container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#app-container > header.top-nav",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 56,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.brand-title",
+     "l": 76,
+     "t": 1.08,
+     "r": 206,
+     "b": 53.92,
+     "overlapPx": 52.84,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.nav-controls",
+     "l": 206,
+     "t": 5.5,
+     "r": 304,
+     "b": 49.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-audio-toggle",
+     "l": 206,
+     "t": 5.5,
+     "r": 250,
+     "b": 49.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-help-modal",
+     "l": 260,
+     "t": 5.5,
+     "r": 304,
+     "b": 49.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.brand-title > span",
+     "l": 76,
+     "t": 14.28,
+     "r": 97.5,
+     "b": 40.7,
+     "overlapPx": 26.42,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "div#help-modal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "flex"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "power-meter",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#btn-primary-action:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.27,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 37,
+   "skippedTiny": 1,
+   "hitCount": 8,
+   "hits": [
+    {
+     "sel": "div#app-container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    },
+    {
+     "sel": "div#app-container > header.top-nav",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 56,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.brand-title",
+     "l": 76,
+     "t": 1.08,
+     "r": 206,
+     "b": 53.92,
+     "overlapPx": 52.84,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.nav-controls",
+     "l": 206,
+     "t": 5.5,
+     "r": 304,
+     "b": 49.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-audio-toggle",
+     "l": 206,
+     "t": 5.5,
+     "r": 250,
+     "b": 49.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-help-modal",
+     "l": 260,
+     "t": 5.5,
+     "r": 304,
+     "b": 49.5,
+     "overlapPx": 44,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header.top-nav > div.brand-title > span",
+     "l": 76,
+     "t": 14.28,
+     "r": 97.5,
+     "b": 40.7,
+     "overlapPx": 26.42,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "div#help-modal",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "flex"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "short-stick",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 38,
+   "skippedTiny": 0,
+   "hitCount": 6,
+   "hits": [
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "header#topnav",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 57,
+     "overlapPx": 56,
+     "pos": "sticky"
+    },
+    {
+     "sel": "header#topnav > div.container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 56,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "header#topnav > div.container > div.nav-tools",
+     "l": 171.47,
+     "t": 3.75,
+     "r": 304,
+     "b": 52.25,
+     "overlapPx": 48.5,
+     "pos": "static"
+    },
+    {
+     "sel": "button#rules-nav-button",
+     "l": 223.47,
+     "t": 3.75,
+     "r": 304,
+     "b": 52.25,
+     "overlapPx": 48.5,
+     "pos": "static"
+    },
+    {
+     "sel": "button#audio-toggle",
+     "l": 171.47,
+     "t": 6,
+     "r": 215.47,
+     "b": 50,
+     "overlapPx": 44,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particle-canvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "header#topnav",
+     "position": "sticky",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "short-stick",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 38,
+   "skippedTiny": 0,
+   "hitCount": 6,
+   "hits": [
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "header#topnav",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 65,
+     "overlapPx": 56,
+     "pos": "sticky"
+    },
+    {
+     "sel": "header#topnav > div.container",
+     "l": 160,
+     "t": 0,
+     "r": 1120,
+     "b": 64,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "header#topnav > div.container > div.nav-tools",
+     "l": 955.47,
+     "t": 7.75,
+     "r": 1088,
+     "b": 56.25,
+     "overlapPx": 48.25,
+     "pos": "static"
+    },
+    {
+     "sel": "button#rules-nav-button",
+     "l": 1007.47,
+     "t": 7.75,
+     "r": 1088,
+     "b": 56.25,
+     "overlapPx": 48.25,
+     "pos": "static"
+    },
+    {
+     "sel": "button#audio-toggle",
+     "l": 955.47,
+     "t": 10,
+     "r": 999.47,
+     "b": 54,
+     "overlapPx": 44,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particle-canvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "header#topnav",
+     "position": "sticky",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "short-stick",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "#btn-start-setup:clicked",
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 25,
+   "skippedTiny": 0,
+   "hitCount": 6,
+   "hits": [
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "header#topnav",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 57,
+     "overlapPx": 56,
+     "pos": "sticky"
+    },
+    {
+     "sel": "header#topnav > div.container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 56,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "header#topnav > div.container > div.nav-tools",
+     "l": 171.47,
+     "t": 3.75,
+     "r": 304,
+     "b": 52.25,
+     "overlapPx": 48.5,
+     "pos": "static"
+    },
+    {
+     "sel": "button#rules-nav-button",
+     "l": 223.47,
+     "t": 3.75,
+     "r": 304,
+     "b": 52.25,
+     "overlapPx": 48.5,
+     "pos": "static"
+    },
+    {
+     "sel": "button#audio-toggle",
+     "l": 171.47,
+     "t": 6,
+     "r": 215.47,
+     "b": 50,
+     "overlapPx": 44,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particle-canvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "header#topnav",
+     "position": "sticky",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "short-stick",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#btn-begin-game:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 36,
+   "skippedTiny": 1,
+   "hitCount": 6,
+   "hits": [
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "header#topnav",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 57,
+     "overlapPx": 56,
+     "pos": "sticky"
+    },
+    {
+     "sel": "header#topnav > div.container",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 56,
+     "overlapPx": 56,
+     "pos": "static"
+    },
+    {
+     "sel": "header#topnav > div.container > div.nav-tools",
+     "l": 171.47,
+     "t": 3.75,
+     "r": 304,
+     "b": 52.25,
+     "overlapPx": 48.5,
+     "pos": "static"
+    },
+    {
+     "sel": "button#rules-nav-button",
+     "l": 223.47,
+     "t": 3.75,
+     "r": 304,
+     "b": 52.25,
+     "overlapPx": 48.5,
+     "pos": "static"
+    },
+    {
+     "sel": "button#audio-toggle",
+     "l": 171.47,
+     "t": 6,
+     "r": 215.47,
+     "b": 50,
+     "overlapPx": 44,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#particle-canvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "header#topnav",
+     "position": "sticky",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "timebomb",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.13,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 28,
+   "skippedTiny": 1,
+   "hitCount": 4,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 681,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "header#tb-top",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 73,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "button#tb-mute",
+     "l": 270,
+     "t": 14,
+     "r": 314,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "absolute"
+    },
+    {
+     "sel": "header#tb-top > h1.tb-brand",
+     "l": 113.63,
+     "t": 20.5,
+     "r": 206.38,
+     "b": 51.5,
+     "overlapPx": 31,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "timebomb",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "open",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": true,
+    "l": 6,
+    "t": 56,
+    "r": 80.13,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 28,
+   "skippedTiny": 1,
+   "hitCount": 4,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "header#tb-top",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 73,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "header#tb-top > h1.tb-brand",
+     "l": 575.97,
+     "t": 14,
+     "r": 704.02,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "static"
+    },
+    {
+     "sel": "button#tb-mute",
+     "l": 1230,
+     "t": 14,
+     "r": 1274,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "absolute"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "timebomb",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.13,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 9,
+   "skippedTiny": 1,
+   "hitCount": 4,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "header#tb-top",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 73,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "button#tb-mute",
+     "l": 270,
+     "t": 14,
+     "r": 314,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "absolute"
+    },
+    {
+     "sel": "header#tb-top > h1.tb-brand",
+     "l": 113.63,
+     "t": 20.5,
+     "r": 206.38,
+     "b": 51.5,
+     "overlapPx": 31,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "timebomb",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#tb-start:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.13,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 17,
+   "skippedTiny": 1,
+   "hitCount": 4,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "header#tb-top",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 73,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "button#tb-mute",
+     "l": 270,
+     "t": 14,
+     "r": 314,
+     "b": 58,
+     "overlapPx": 42,
+     "pos": "absolute"
+    },
+    {
+     "sel": "header#tb-top > h1.tb-brand",
+     "l": 113.63,
+     "t": 20.5,
+     "r": 206.38,
+     "b": 51.5,
+     "overlapPx": 31,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "wire-snip-panic",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 31,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "wire-snip-panic",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 31,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "absolute"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "wire-snip-panic",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "#btn-menu-start:clicked",
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 32,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "wire-snip-panic",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#btn-start-match:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 116,
+   "skippedTiny": 1,
+   "hitCount": 2,
+   "hits": [
+    {
+     "sel": "div#app",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "canvas#particle-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "absolute"
+    }
+   ],
+   "anchoredAbove": [],
+   "pillForced": false
+  },
+  {
+   "route": "zero-trigger",
+   "state": "S1",
+   "vp": "320x568",
+   "notes": [],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 21,
+   "skippedTiny": 1,
+   "hitCount": 6,
+   "hits": [
+    {
+     "sel": "canvas#fx-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#app-container",
+     "l": 16,
+     "t": 0,
+     "r": 304,
+     "b": 548,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#app-container > header",
+     "l": 16,
+     "t": 44,
+     "r": 304,
+     "b": 100,
+     "overlapPx": 12,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header > div.nav-btn-group",
+     "l": 200,
+     "t": 50,
+     "r": 296,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-audio-toggle",
+     "l": 200,
+     "t": 50,
+     "r": 244,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-open-rules",
+     "l": 252,
+     "t": 50,
+     "r": 296,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#fx-canvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "div#modal-result",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    },
+    {
+     "sel": "div#modal-rules",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "zero-trigger",
+   "state": "D1",
+   "vp": "1280x800",
+   "notes": [],
+   "vw": 1280,
+   "vh": 800,
+   "clientWidth": 1280,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 21,
+   "skippedTiny": 1,
+   "hitCount": 6,
+   "hits": [
+    {
+     "sel": "canvas#fx-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 1280,
+     "b": 800,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#app-container",
+     "l": 16,
+     "t": 0,
+     "r": 1264,
+     "b": 780,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#app-container > header",
+     "l": 16,
+     "t": 44,
+     "r": 1264,
+     "b": 100,
+     "overlapPx": 12,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header > div.nav-btn-group",
+     "l": 1136,
+     "t": 44,
+     "r": 1256,
+     "b": 100,
+     "overlapPx": 12,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-audio-toggle",
+     "l": 1136,
+     "t": 44,
+     "r": 1192,
+     "b": 100,
+     "overlapPx": 12,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-open-rules",
+     "l": 1200,
+     "t": 44,
+     "r": 1256,
+     "b": 100,
+     "overlapPx": 12,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#fx-canvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "div#modal-result",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    },
+    {
+     "sel": "div#modal-rules",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "zero-trigger",
+   "state": "S2",
+   "vp": "320x568",
+   "notes": [
+    "#btn-quick-start:clicked",
+    "[data-ps=start]:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 41,
+   "skippedTiny": 1,
+   "hitCount": 7,
+   "hits": [
+    {
+     "sel": "canvas#fx-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#app-container",
+     "l": 16,
+     "t": 0,
+     "r": 304,
+     "b": 548,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#app-container > header",
+     "l": 16,
+     "t": 44,
+     "r": 304,
+     "b": 100,
+     "overlapPx": 12,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header > div.nav-btn-group",
+     "l": 148,
+     "t": 50,
+     "r": 296,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-audio-toggle",
+     "l": 148,
+     "t": 50,
+     "r": 192,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-open-rules",
+     "l": 200,
+     "t": 50,
+     "r": 244,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-home-menu",
+     "l": 252,
+     "t": 50,
+     "r": 296,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#fx-canvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "div#modal-result",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    },
+    {
+     "sel": "div#modal-rules",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  },
+  {
+   "route": "zero-trigger",
+   "state": "S3",
+   "vp": "320x568",
+   "notes": [
+    "#btn-big-action:clicked"
+   ],
+   "vw": 320,
+   "vh": 568,
+   "clientWidth": 320,
+   "bodyPaddingTop": "0px",
+   "sharedScreenOpen": "closed",
+   "band": {
+    "present": false
+   },
+   "exit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "visible": true
+   },
+   "edit": {
+    "present": true,
+    "forced": false,
+    "l": 6,
+    "t": 56,
+    "r": 80.78,
+    "b": 100,
+    "visible": true
+   },
+   "checked": 40,
+   "skippedTiny": 1,
+   "hitCount": 7,
+   "hits": [
+    {
+     "sel": "canvas#fx-canvas",
+     "l": 0,
+     "t": 0,
+     "r": 320,
+     "b": 568,
+     "overlapPx": 56,
+     "pos": "fixed"
+    },
+    {
+     "sel": "div#app-container",
+     "l": 16,
+     "t": 0,
+     "r": 304,
+     "b": 548,
+     "overlapPx": 56,
+     "pos": "relative"
+    },
+    {
+     "sel": "div#app-container > header",
+     "l": 16,
+     "t": 44,
+     "r": 304,
+     "b": 100,
+     "overlapPx": 12,
+     "pos": "static"
+    },
+    {
+     "sel": "div#app-container > header > div.nav-btn-group",
+     "l": 148,
+     "t": 50,
+     "r": 296,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-audio-toggle",
+     "l": 148,
+     "t": 50,
+     "r": 192,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-open-rules",
+     "l": 200,
+     "t": 50,
+     "r": 244,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    },
+    {
+     "sel": "button#btn-home-menu",
+     "l": 252,
+     "t": 50,
+     "r": 296,
+     "b": 94,
+     "overlapPx": 6,
+     "pos": "static"
+    }
+   ],
+   "anchoredAbove": [
+    {
+     "sel": "canvas#fx-canvas",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "block"
+    },
+    {
+     "sel": "div#modal-result",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    },
+    {
+     "sel": "div#modal-rules",
+     "position": "fixed",
+     "top": "0px",
+     "effectiveTop": 0,
+     "display": "none"
+    }
+   ],
+   "pillForced": false
+  }
+ ]
+}

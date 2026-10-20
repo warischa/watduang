@@ -1,0 +1,223 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    /* gh#268 proposal sheet, not a page. Owner direction 2026-10-18: one reserved top band on every play route, and
+       route content starts below it. Labels are English design annotations; the only Thai is the edit-players control
+       label, copied verbatim from the live control. Route content below the band is a WIREFRAME (dashed grey, the
+       .pending look from HomeShelf320, mockup-only): block order and selector names come from the gh#268 box 1
+       captures, block heights are schematic, so the real fit cost is a code-time measurement (box 3), not drawn here. */
+    .row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .row .why { margin: 0 0 22px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1200px; }
+    .cands { display: grid; grid-template-columns: repeat(4, 320px); gap: 26px; align-items: start; }
+    .cand { display: flex; flex-direction: column; gap: 8px; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; min-height: 52px; }
+
+    /* One frame = one viewport. position: relative stands in for the viewport the live controls are fixed to. */
+    .frame { position: relative; overflow: hidden; box-sizing: border-box; box-shadow: 0 0 0 1px #14142b; background: #fff6e0; }
+
+    /* THE BAND. Ground = canvas D chrome-bar ink (HomeShelf320 top bar). In flow, full width, content starts below it. */
+    .band { position: absolute; left: 0; right: 0; top: 0; height: 106px; background: #14142b; }
+
+    /* The two live controls, values copied from the built controls: disc and pill fill rgba(0,0,0,0.6), 1px ring
+       rgba(255,255,255,0.35), white glyph. X: 44 x 44 at 6/6, 20px glyph. Pill: 44px tall at left 6 / top 56, 14px
+       label, padding-inline 14px, radius 22px. Pill width is set per route to the box measured in box 1. */
+    .ctl-x, .ctl-edit { position: absolute; z-index: 300; display: grid; place-items: center; box-sizing: border-box; border: 0; background: rgba(0,0,0,0.6); box-shadow: 0 0 0 1px rgba(255,255,255,0.35); color: #fff; line-height: 1; }
+    .ctl-x { left: 6px; top: 6px; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; }
+    .ctl-edit { left: 6px; top: 56px; height: 44px; border-radius: 22px; font-size: 14px; white-space: nowrap; font-family: 'Noto Sans Thai', system-ui, sans-serif; }
+    /* Annotation only: the measured control boxes, outlined (same pink as the Gh263 outlines). Never ships. */
+    .show .ctl-x::after, .show .ctl-edit::after { content: ""; position: absolute; inset: -1px; border: 1px dashed #d6336c; border-radius: inherit; }
+
+    .dim { position: absolute; right: 8px; top: 88px; z-index: 300; font: 600 10px/1 ui-monospace, Menlo, monospace; color: #ffcc00; }
+
+    /* Wireframe route content */
+    .content { position: absolute; left: 0; right: 0; bottom: 0; top: 106px; display: flex; flex-direction: column; gap: 6px; padding: 6px; box-sizing: border-box; }
+    .content.flush { top: 0; }
+    .wf { border: 2px dashed #8a87a8; border-radius: 10px; background: #f4f1ff; color: #6c6990; font: 600 9px/1.3 ui-monospace, Menlo, monospace; display: grid; place-items: center; text-align: center; box-sizing: border-box; padding: 2px 4px; }
+    .grow { flex: 1 1 0; min-height: 0; }
+    .cols { display: flex; gap: 6px; }
+    .cols .wf { flex: 1 1 0; }
+    .hot { border-color: #d6336c; }
+
+    .note { font: 12px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c; }
+    .note b { color: #14142b; }
+    .costbox { width: 320px; box-sizing: border-box; border: 2.5px solid #14142b; border-radius: 12px; padding: 14px 16px; background: #fff; font: 12px/1.7 ui-monospace, Menlo, monospace; color: #14142b; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #ffffff; color: #14142b;">
+
+  <div style="padding: 32px 40px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#268 · reserved top band on every play route, for the close X and the edit-players control</div>
+    <div style="margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">Owner direction 2026-10-18. The band is drawn at 320 x 568 over the routes box 1 measured worst, plus one desktop width. Pending owner approval; no code until then.</div>
+  </div>
+
+  <!-- (a) 320: today vs band -->
+  <div class="row">
+    <h2>(a) 320 x 568 · cannon-flag today, then banded; croc-bite and pinocchio-luck banded</h2>
+    <p class="why">Today the edit control covers 100% of cannon-flag's canvas (3267.69 px2), croc-bite's home button is under the X (78.1%), and pinocchio-luck's brand mark is under the X (78.0%). With the band, both controls sit inside it and every route block starts at y = 106. Pink dashed outlines are the measured control boxes (annotation only).</p>
+    <div class="cands">
+
+      <div class="cand">
+        <span class="tag">cannon-flag today (box 1, in round)<br>controls float over content</span>
+        <div class="frame show" data-frame="cannon-flag-today" data-route="cannon-flag" data-banded="no" style="width: 320px; height: 568px;">
+          <div class="content flush" style="padding-top: 6px;">
+            <div class="wf hot" style="height: 44px;">route header row · title, seed, sound</div>
+            <div class="cols" style="height: 96px;"><div class="wf hot">stat card</div><div class="wf">stat card</div><div class="wf">stat card</div></div>
+            <div class="wf grow hot">#game-canvas</div>
+            <div class="wf" style="height: 150px;">aim and fire controls</div>
+          </div>
+          <button class="ctl-x" data-ctl="exit" type="button">✕</button>
+          <button class="ctl-edit" data-ctl="edit" type="button" style="width: 74.27px;">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+      <div class="cand">
+        <span class="tag">cannon-flag with the band<br>band 106px; content starts below</span>
+        <div class="frame show" data-frame="cannon-flag" data-route="cannon-flag" data-banded="yes" style="width: 320px; height: 568px;">
+          <div class="band" data-band></div>
+          <div class="dim">band 106px</div>
+          <div class="content" data-content>
+            <div class="wf" style="height: 40px;">route header row · title, seed, sound</div>
+            <div class="cols" style="height: 80px;"><div class="wf">stat card</div><div class="wf">stat card</div><div class="wf">stat card</div></div>
+            <div class="wf grow">#game-canvas</div>
+            <div class="wf" style="height: 120px;">aim and fire controls</div>
+          </div>
+          <button class="ctl-x" data-ctl="exit" type="button">✕</button>
+          <button class="ctl-edit" data-ctl="edit" type="button" style="width: 74.27px;">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+      <div class="cand">
+        <span class="tag">croc-bite with the band<br>worst close-X overlap today: #btn-hud-home 1512 px2</span>
+        <div class="frame show" data-frame="croc-bite" data-route="croc-bite" data-banded="yes" style="width: 320px; height: 568px;">
+          <div class="band" data-band></div>
+          <div class="content" data-content>
+            <div class="wf" style="height: 44px;">#btn-hud-home · sound · round · restart · settings</div>
+            <div class="wf" style="height: 64px;">#hud-player-strip · player cards</div>
+            <div class="wf" style="height: 26px;">turn chip</div>
+            <div class="wf grow">3D board</div>
+          </div>
+          <button class="ctl-x" data-ctl="exit" type="button">✕</button>
+          <button class="ctl-edit" data-ctl="edit" type="button" style="width: 74.27px;">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+      <div class="cand">
+        <span class="tag">pinocchio-luck with the band<br>close X over .brand-mark in every state today (78.0%)</span>
+        <div class="frame show" data-frame="pinocchio-luck" data-route="pinocchio-luck" data-banded="yes" style="width: 320px; height: 568px;">
+          <div class="band" data-band></div>
+          <div class="content" data-content>
+            <div class="wf" style="height: 44px;">.topbar · .brand-mark, title, round, sound</div>
+            <div class="wf" style="height: 150px;">#stageFrame · canvas#gameCanvas</div>
+            <div class="wf grow">question card and answers</div>
+          </div>
+          <button class="ctl-x" data-ctl="exit" type="button">✕</button>
+          <button class="ctl-edit" data-ctl="edit" type="button" style="width: 75.31px;">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- (b) 320: more routes, the optional shorter band, cost -->
+  <div class="row">
+    <h2>(b) 320 x 568 · one-bomb and bangkok-drift banded, optional 56px variant, and the cost</h2>
+    <p class="why">The band reserves vertical space on every route, in every state, whether or not the edit control is shown. Variant B is optional and moves the pill: it sits beside the X instead of under it, which halves the band. The control's own stylesheet records that beside-the-X was rejected earlier because it sat on the routes' header title; with a band nothing of the route lives under it, so it is offered again here for the owner to refuse or take.</p>
+    <div class="cands">
+
+      <div class="cand">
+        <span class="tag">one-bomb in round with the band<br>X was over #homeBtn, pill over #turnBanner</span>
+        <div class="frame show" data-frame="one-bomb" data-route="one-bomb" data-banded="yes" style="width: 320px; height: 568px;">
+          <div class="band" data-band></div>
+          <div class="content" data-content>
+            <div class="wf" style="height: 44px;">#homeBtn · audio · new round · settings</div>
+            <div class="wf" style="height: 56px;">#turnBanner · avatar, player name</div>
+            <div class="wf grow">board</div>
+          </div>
+          <button class="ctl-x" data-ctl="exit" type="button">✕</button>
+          <button class="ctl-edit" data-ctl="edit" type="button" style="width: 74.78px;">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+      <div class="cand">
+        <span class="tag">bangkok-drift in round with the band<br>X was over #hud-name (23.7%); X only, the pill covered nothing</span>
+        <div class="frame show" data-frame="bangkok-drift" data-route="bangkok-drift" data-banded="yes" style="width: 320px; height: 568px;">
+          <div class="band" data-band></div>
+          <div class="content" data-content>
+            <div class="wf" style="height: 40px;">#hud-name · HUD</div>
+            <div class="wf grow">game view</div>
+          </div>
+          <button class="ctl-x" data-ctl="exit" type="button">✕</button>
+          <button class="ctl-edit" data-ctl="edit" type="button" style="width: 74.27px;">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+      <div class="cand">
+        <span class="tag">B (optional) · cannon-flag, band 56px<br>pill beside the X: left 56, top 6</span>
+        <div class="frame show" data-frame="cannon-flag-B" data-route="cannon-flag" data-banded="B" style="width: 320px; height: 568px;">
+          <div class="band" data-band style="height: 56px;"></div>
+          <div class="dim" style="top: 38px;">band 56px</div>
+          <div class="content" data-content style="top: 56px;">
+            <div class="wf" style="height: 40px;">route header row · title, seed, sound</div>
+            <div class="cols" style="height: 90px;"><div class="wf">stat card</div><div class="wf">stat card</div><div class="wf">stat card</div></div>
+            <div class="wf grow">#game-canvas</div>
+            <div class="wf" style="height: 150px;">aim and fire controls</div>
+          </div>
+          <button class="ctl-x" data-ctl="exit" type="button">✕</button>
+          <button class="ctl-edit" data-ctl="edit" type="button" style="left: 56px; top: 6px; width: 74.27px;">แก้ผู้เล่น</button>
+        </div>
+      </div>
+
+      <div class="cand">
+        <span class="tag">Cost at 320 x 568</span>
+        <div class="costbox">
+          <div><b>A (stacked, drawn in a)</b></div>
+          <div>band 106px = 18.7% of 568</div>
+          <div>route content area 462px (was 568)</div>
+          <div style="margin-top: 8px;"><b>B (side by side)</b></div>
+          <div>band 56px = 9.9% of 568</div>
+          <div>route content area 512px</div>
+          <div style="margin-top: 8px;">Both shrink every route's fit by the band height, in every state. The fit probes re-baseline at code time (gh#268 box 3).</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- (c) desktop -->
+  <div class="row">
+    <h2>(c) Desktop 1280 x 640 · cannon-flag with the band</h2>
+    <p class="why">The controls are fixed top-left at every width, so the band keeps the same 106px height and spans the full width. Route content is centered below it. The band is the same one element at every width, which is what keeps it checkable from the manifest.</p>
+    <div class="frame show" data-frame="cannon-flag-desktop" data-route="cannon-flag" data-banded="yes" style="width: 1280px; height: 640px;">
+      <div class="band" data-band></div>
+      <div class="dim">band 106px</div>
+      <div class="content" data-content style="align-items: center;">
+        <div style="width: 720px; display: flex; flex-direction: column; gap: 6px; height: 100%;">
+          <div class="wf" style="height: 44px;">route header row · title, seed, sound</div>
+          <div class="cols" style="height: 90px;"><div class="wf">stat card</div><div class="wf">stat card</div><div class="wf">stat card</div></div>
+          <div class="wf grow">#game-canvas</div>
+          <div class="wf" style="height: 110px;">aim and fire controls</div>
+        </div>
+      </div>
+      <button class="ctl-x" data-ctl="exit" type="button">✕</button>
+      <button class="ctl-edit" data-ctl="edit" type="button" style="width: 74.27px;">แก้ผู้เล่น</button>
+    </div>
+  </div>
+
+  <div style="padding: 24px 40px 40px; font: 12px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c;">
+    Value sources: band ground #14142b is the chrome-bar ink of HomeShelf320 and HomeShelfDesktop (ADR-0069 palette). Control fills, rings, sizes, radii and offsets are the live control's own values. Wireframe look is the .pending look of HomeShelf320, mockup-only. New value: band height only (106px, 56px in variant B). Invented Thai: 0.
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

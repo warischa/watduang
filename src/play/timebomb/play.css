@@ -52,8 +52,10 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-block-size: 100vh;
-  min-block-size: 100dvh;
+  /* A screenful BELOW the shell's top band (gh#268): the band pads <body> by --play-band, so a full
+     100dvh floor here would make every screen scroll by exactly the band's height. */
+  min-block-size: calc(100vh - var(--play-band));
+  min-block-size: calc(100dvh - var(--play-band));
   background: radial-gradient(circle at 50% 15%, var(--tb-bg-glow) 0%, var(--tb-bg) 70%);
   color: var(--tb-ink);
   font-family: var(--font-sans);
@@ -233,8 +235,8 @@ body {
    roster of ten under a bound would overflow that centring in BOTH directions, putting the first
    rows above scroll position zero where nothing can reach them. */
 #app:has(#tb-stage:not([hidden])) {
-  block-size: 100vh;
-  block-size: 100dvh;
+  block-size: calc(100vh - var(--play-band));
+  block-size: calc(100dvh - var(--play-band));
 }
 
 .tb-canvas[hidden] {

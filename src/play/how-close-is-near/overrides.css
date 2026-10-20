@@ -14,17 +14,13 @@
   display: none !important;
 }
 
-/* Clearance for the shell's own chrome. PlayExit renders the exit X and the edit-players pill fixed at
-   the TOP-LEFT (src/shell/PlayExit.astro: X at inset, 44px tall; pill at inset + 50px, also 44px), so
-   together they occupy inset + 94px down the left edge. This mockup is the first of the ported set to
-   put its own title block at the top LEFT rather than centred, so without this reserve the X lands on
-   the game name. The value is derived from PlayExit's own declared geometry, using the same
-   safe-area expression, so the two cannot drift apart by one editing a magic number.
-
-   Reserved on #appRoot rather than on .app-header so the offset survives the header being
-   re-rendered, and so nothing inside the mockup has to know the chrome exists. */
-#appRoot {
-  padding-block-start: calc(max(6px, env(safe-area-inset-top)) + 94px);
+/* gh#268: the shell's top band (src/shell/PlayExit.astro) pads <body>, so the title block already
+   starts below the exit X and the edit-players control; the 94px reserve #appRoot used to carry is
+   gone. Padding cannot move the particle layer, which is fixed to the viewport and sized and aimed
+   in viewport coordinates (the window's own width and height), so it keeps its box and is clipped
+   out of the band instead -- moving it would shift every burst a band's height down. */
+#particlesCanvas {
+  clip-path: inset(var(--play-band) 0 0 0);
 }
 
 /* The mockup's own icon buttons sit top-RIGHT and are already 44x44 in style.css — no tap-target
@@ -252,4 +248,12 @@
   #appRoot {
     padding-block-end: 6px;
   }
+}
+
+/* gh#268: a screenful BELOW the shell's top band. The band pads <body> by --play-band, so the
+   mockup's full 100dvh floor on #appRoot would make every screen scroll by exactly the band's
+   height. (body's own 100dvh floor is fine: the band's padding sits inside it, border-box.) */
+#appRoot {
+  min-height: calc(100vh - var(--play-band));
+  min-height: calc(100dvh - var(--play-band));
 }

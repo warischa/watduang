@@ -36,3 +36,10 @@
 .bd-players > .muted {
   text-align: center;
 }
+
+/* gh#268: the shared top band (src/shell/PlayExit.astro) pads <body>, but this route's root is fixed
+   to the viewport with `inset: 0`, which padding cannot move. Its top edge moves to the band's
+   bottom instead, so every screen inside it starts below the close X and the edit-players control. */
+#app {
+  inset-block-start: var(--play-band);
+}

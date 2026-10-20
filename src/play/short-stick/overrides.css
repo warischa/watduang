@@ -67,10 +67,19 @@
   min-inline-size: 44px;
 }
 
-/* Room for the two fixed chrome controls PlayExit.astro mounts: the X at the top-left inset, and the
-   edit-players pill 50px below it. Without this the pill lands on each view's own heading block. */
-#app {
-  padding-block-start: 56px;
+/* gh#268: the shell's top band (src/shell/PlayExit.astro) pads <body>, so the topnav and every view
+   already start below the exit X and the edit-players control; the 56px #app used to reserve for the
+   pill is gone. Two boxes padding cannot move. The topnav sticks, and a sticky `top: 0` pins it to
+   the viewport's top edge -- under the band -- the moment the page scrolls, so it sticks at the
+   band's bottom instead. The particle layer is fixed to the viewport and aimed in viewport
+   coordinates (a sparkle spawns at the tap's clientX/clientY), so it keeps its box and is clipped out
+   of the band instead -- moving it would put every sparkle a band's height below the finger. */
+#topnav {
+  top: var(--play-band);
+}
+
+#particle-canvas {
+  clip-path: inset(var(--play-band) 0 0 0);
 }
 
 /* Reduced motion. The mockup ships no prefers-reduced-motion branch at all, so everything below is
@@ -157,7 +166,7 @@
    style.css sets `.view { min-height: calc(100vh - 64px) }`, i.e. it assumes the topnav is the ONLY
    thing outside the view. On this site three boxes are:
      topnav-inner 56px (<=520px) or 64px, + the topnav's 1px border-bottom
-     #app padding-block-start 56px (the PlayExit clearance a few rules above)
+     body padding-block-start 56px (the shell's top band, gh#268)
      body padding-bottom max(24px, safe-area) = 24px
    so the page is always (topnav + 1 + 56 + 24) - 64 taller than the viewport, whatever the content
    does. That predicts 73px at 390x844 (56+1+56+24-64) and 81px at 1440x900 (64+1+56+24-64), and

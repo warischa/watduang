@@ -1,0 +1,2 @@
+OK control: content red on all 14 route(s) with the band mechanism removed
+rc=0 wall=56s

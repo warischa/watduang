@@ -32,15 +32,51 @@
 // same quiet window has passed. A sibling component would have to either import this file's gate or
 // carry a second copy of it, and a second copy of a tap guard is how one of them drifts. One gate now
 // drives a list of controls; each control differs only in what its activation does.
+//
+// THE TOP BAND (gh#268, owner ruling 2026-10-20, board design/PlayTopBand.dc.html, variant B): both
+// controls sit in a reserved strip the route never draws into -- 56px tall at every width, ground
+// #14142b, the X at 6/6 and the pill beside it. It used to be fixed chrome placed with no knowledge
+// of each route's header, and it covered a header, a turn banner or a player card on most routes.
+// ONE mechanism reserves the strip: <body> is padded by the band height (the global block below).
+// In-flow content and every `height: 100%` root then start under the band, because the padding is
+// border-box. What padding cannot move -- a route's own `position: fixed` box anchored to the
+// viewport top -- is moved in that route's overrides.css with the same custom property, and
+// scripts/play-top-band-probe.mjs reds any route content left inside the strip.
 ---
 
+<div id="play-band" aria-hidden="true"></div>
 <a id="play-crawl-home" href="/">กลับหน้าแรก</a>
 <button id="play-exit" type="button" aria-label="ออกจากเกม" disabled>✕</button>
 <!-- Hidden until the shared player screen announces itself closed: open, it is already what the
      control would offer, and with no screen on the page nothing would answer it. -->
 <button id="play-edit-players" type="button" disabled hidden>แก้ผู้เล่น</button>
 
+<style is:global>
+  /* Global, not scoped: the rule is about the page's <body>, which this component does not render.
+     `html > body` and not `body`, so it outranks every route stylesheet's own `body { padding }` and
+     one route's `* { padding: 0 }` whatever order the bundles land in. */
+  :root {
+    --play-band: 56px;
+  }
+
+  html > body {
+    padding-block-start: var(--play-band);
+    box-sizing: border-box;
+  }
+</style>
+
 <style>
+  /* The strip itself. Fixed, full width, under the two controls (300) and over every layer a route
+     declares (highest measured in src/play/**: 200), so nothing a route paints can show through it. */
+  #play-band {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: var(--play-band);
+    z-index: 299;
+    background: #14142b;
+  }
+
   /* The same clip the play routes already use for their live regions (1px box, clip-path, no
      display/visibility change), so the link stays in the served HTML and in the accessibility tree
      while covering no pixel a finger can reach. */
@@ -112,17 +148,15 @@
     cursor: default;
   }
 
-  /* Directly BELOW the X, same left edge (the X is 44px tall from the same inset, so this starts at
-     inset + 50px). Top-LEFT is the corner gh#144 measured as covering no control on any of the three
-     mockups — their own icon buttons are top-RIGHT, and freeze-tap's second one still ends far to the
-     right of this pill at 320px. Beside the X was measured first and rejected on the captures: it
-     covers no control, but it sits on all three mockups' header TITLE. The row under the header is
-     empty on all three. Bottom was rejected outright: all three put their primary action low on the
-     screen, which is where a mid-round tap actually lands. */
+  /* BESIDE the X, same top (the X is 44px wide from the same inset, so this starts at inset + 50px).
+     Beside the X was once rejected because it sat on the routes' header title; with the band, no
+     route content lives in this strip, so the pill no longer needs the row under it (gh#268 variant B,
+     which is what lets the band be 56px instead of 106px). Bottom stays rejected: the routes put their
+     primary action low on the screen, which is where a mid-round tap actually lands. */
   #play-edit-players {
     position: fixed;
-    top: calc(max(6px, env(safe-area-inset-top)) + 50px);
-    left: max(6px, env(safe-area-inset-left));
+    top: max(6px, env(safe-area-inset-top));
+    left: calc(max(6px, env(safe-area-inset-left)) + 50px);
     z-index: 300;
     block-size: 44px;
     padding-inline: 14px;

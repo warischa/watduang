@@ -161,3 +161,9 @@
   --ps-accent: var(--gold-dark);
   --ps-on-accent: var(--ink);
 }
+
+/* gh#268: a screenful BELOW the shell's top band. The band pads <body> by --play-band, so the
+   mockup's full 100svh floor on #app would make every screen scroll by exactly the band's height. */
+#app {
+  min-height: calc(100svh - var(--play-band));
+}

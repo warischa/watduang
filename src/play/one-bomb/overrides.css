@@ -62,6 +62,23 @@
   pointer-events: none;
 }
 
+/* gh#268: the shell's top band pads <body> by --play-band, so #app starts below it, and the lifted
+   100vw x 100vh root gives that height back at its own bottom -- otherwise its last --play-band
+   would sit under html's clip, the bottom HUD bar included. */
+#app {
+  height: calc(100dvh - var(--play-band));
+}
+
+/* ...but the 3D backdrop is drawn for the WINDOW: main.js sizes the bitmap and the projection from
+   innerWidth/innerHeight and frames the board against the HUD bars' viewport rects. Shrunk to the
+   root's box it would render squashed and framed against the wrong edges. So it keeps the window's
+   box: lifted one band height above the root and grown by the same amount. #app is overflow:hidden,
+   so the band-height slice above the root is clipped and never reaches the band. */
+#gameCanvas {
+  top: calc(-1 * var(--play-band));
+  height: calc(100% + var(--play-band));
+}
+
 /* ADR-0051's no-3D board. On the no-3D lane it replaces the dead canvas in the same box the canvas
    occupied; on a live context it sits over the canvas in that same box. Either way the HUD keeps
    sitting over it exactly as it sat over the 3D stage. #app is `overflow: hidden`, so the

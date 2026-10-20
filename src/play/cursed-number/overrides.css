@@ -68,16 +68,20 @@
   min-block-size: 44px;
 }
 
-/* Clearance for the shell's own chrome. PlayExit renders the exit X and the edit-players pill fixed
-   at the TOP-LEFT (src/shell/PlayExit.astro: X at the safe-area inset, 44px tall; the pill at
-   inset + 50px, also 44px), so together they occupy inset + 94px down the left edge. This mockup puts
-   its brand block at the top LEFT inside a full-width pill, so without this reserve the X lands on the
-   game's own name. The value is derived from PlayExit's declared geometry using the same safe-area
-   expression, so the two cannot drift apart by one editing a magic number.
-   The mockup's own shorthand sets `padding: 16px 16px 32px`, so this longhand must come after it --
-   which it does, because play.astro imports style.css first and this file second. */
-.app-wrapper {
-  padding-block-start: calc(max(6px, env(safe-area-inset-top)) + 94px);
+/* gh#268: the shell's top band (src/shell/PlayExit.astro) pads <body>, so the brand block already
+   starts below the exit X and the edit-players control; the 94px reserve this rule used to add on
+   top of the mockup's own padding is gone. What padding cannot move is anything fixed to the
+   viewport. The rules sheet's backdrop is pinned at top 0 and 100% tall: it now starts at the band's
+   bottom and ends at the viewport's. The particle layer is sized and aimed in viewport coordinates
+   (the window's own width and height), so it keeps its box and is clipped out of the band instead --
+   moving it would shift every burst a band's height down and cut its bottom off. */
+.modal-backdrop {
+  inset-block: var(--play-band) 0;
+  block-size: auto;
+}
+
+#particlesCanvas {
+  clip-path: inset(var(--play-band) 0 0 0);
 }
 
 /* Room for the screen shake to move without crossing the viewport. ParticleEngine translates

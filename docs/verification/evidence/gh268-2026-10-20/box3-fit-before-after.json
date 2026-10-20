@@ -1,0 +1,653 @@
+{
+ "tool": "scripts/play-screen-fit-probe.mjs, unsharded, all 14 routes x 3 viewports, one run each",
+ "before": "snapshot a4a4067 build (no band), exit 0",
+ "after": "band build incl. one-bomb/croc-bite root fix and canvas offsets, exit 0",
+ "afterErrors": [],
+ "afterWarnings": [
+  "/game/bangkok-drift/play/ at 320x568: the shared player screen measured 126px (press 0) against PLAYER_SCREEN_SCROLLS's recorded 70px. Same machine? Something grew on the player screen -- r",
+  "/game/dice-loser/play/ at 320x568: the shared player screen measured 70px (press 0) against PLAYER_SCREEN_SCROLLS's recorded 14px. Same machine? Something grew on the player screen -- re-me",
+  "/game/timebomb/play/ at 320x568: the shared player screen measured 71px (press 0) against PLAYER_SCREEN_SCROLLS's recorded 15px. Same machine? Something grew on the player screen -- re-meas",
+  "/game/cannon-flag/play/ at 320x568 measured 20px against a recorded 2px (press 0). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different machin",
+  "/game/freeze-tap/play/ at 320x568 measured 51px against a recorded 12px (press 2). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different machin",
+  "/game/one-bomb/play/ at 320x568 measured 174px against a recorded 97px (press 0). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different machine",
+  "/game/pinocchio-luck/play/ at 320x568 measured 270px against a recorded 136px (press 0). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different ",
+  "/game/pinocchio-luck/play/ at 390x844 measured 170px against a recorded 14px (press 0). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different m",
+  "/game/pinocchio-luck/play/ at 1440x900 measured 174px against a recorded 17px (press 0). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different ",
+  "/game/power-meter/play/ at 320x568 measured 100px against a recorded 76px (press 4). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different mach",
+  "/game/zero-trigger/play/ at 320x568 measured 143px against a recorded 131px (press 2). Same machine as the recording? Then something grew — fix it or re-record with the reason. Different ma",
+  "/game/pinocchio-luck/play/ at 320x568 measured 0px SIDEWAYS, within the 8px tolerance, against KNOWN_OVERFLOW_X \"gh#202 open: 11px on press 0 - the widest offender is an h1, so this is Thai",
+  "/game/pinocchio-luck/play/ at 390x844 measured 0px SIDEWAYS, within the 8px tolerance, against KNOWN_OVERFLOW_X \"gh#202 open: 10px on press 2 - sideways overflow on section#stageFrame. This"
+ ],
+ "rows": [
+  {
+   "row": "bangkok-drift 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "bangkok-drift 320x568",
+   "before": {
+    "scrollPx": 70,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits] [player screen excepted]"
+   },
+   "after": {
+    "scrollPx": 126,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits] [player screen excepted]"
+   }
+  },
+  {
+   "row": "bangkok-drift 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "cannon-flag 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 2,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 2,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "cannon-flag 320x568",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 2,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 20,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "cannon-flag 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 2,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 2,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "croc-bite 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "croc-bite 320x568",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "croc-bite 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "cursed-number 1440x900",
+   "before": {
+    "scrollPx": 63,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 35,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "cursed-number 320x568",
+   "before": {
+    "scrollPx": 689,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 661,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "cursed-number 390x844",
+   "before": {
+    "scrollPx": 317,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 289,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "dice-loser 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "dice-loser 320x568",
+   "before": {
+    "scrollPx": 14,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits] [player screen excepted]"
+   },
+   "after": {
+    "scrollPx": 70,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits] [player screen excepted]"
+   }
+  },
+  {
+   "row": "dice-loser 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "freeze-tap 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "freeze-tap 320x568",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 51,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "freeze-tap 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "how-close-is-near 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "how-close-is-near 320x568",
+   "before": {
+    "scrollPx": 92,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 60,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "how-close-is-near 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "one-bomb 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "one-bomb 320x568",
+   "before": {
+    "scrollPx": 118,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 174,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "one-bomb 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "pinocchio-luck 1440x900",
+   "before": {
+    "scrollPx": 118,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 174,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "pinocchio-luck 320x568",
+   "before": {
+    "scrollPx": 214,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[sideways excepted]"
+   },
+   "after": {
+    "scrollPx": 270,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[sideways excepted]"
+   }
+  },
+  {
+   "row": "pinocchio-luck 390x844",
+   "before": {
+    "scrollPx": 114,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[sideways excepted]"
+   },
+   "after": {
+    "scrollPx": 170,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[sideways excepted]"
+   }
+  },
+  {
+   "row": "power-meter 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 76,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 76,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "power-meter 320x568",
+   "before": {
+    "scrollPx": 81,
+    "clippedPx": 76,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 100,
+    "clippedPx": 76,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "power-meter 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 76,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 76,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "short-stick 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "short-stick 320x568",
+   "before": {
+    "scrollPx": 156,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 156,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "short-stick 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "timebomb 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "timebomb 320x568",
+   "before": {
+    "scrollPx": 15,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits] [player screen excepted]"
+   },
+   "after": {
+    "scrollPx": 71,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits] [player screen excepted]"
+   }
+  },
+  {
+   "row": "timebomb 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "wire-snip-panic 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "wire-snip-panic 320x568",
+   "before": {
+    "scrollPx": 111,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 67,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "wire-snip-panic 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "zero-trigger 1440x900",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  },
+  {
+   "row": "zero-trigger 320x568",
+   "before": {
+    "scrollPx": 131,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   },
+   "after": {
+    "scrollPx": 143,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": ""
+   }
+  },
+  {
+   "row": "zero-trigger 390x844",
+   "before": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   },
+   "after": {
+    "scrollPx": 0,
+    "clippedPx": 0,
+    "sidewaysPx": 0,
+    "sets": "[pinned fits]"
+   }
+  }
+ ]
+}

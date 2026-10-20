@@ -1,0 +1,289 @@
+{
+ "capturedAt": "2026-10-20T02:17:43.170Z",
+ "consoleProblems": [
+  "log.error: Failed to load resource: net::ERR_FILE_NOT_FOUND file:///Users/waris.c/claude/free-game/design/support.js"
+ ],
+ "sheetH": 2721,
+ "fontsLoaded": "Noto Sans Thai 400",
+ "frames": [
+  {
+   "name": "cannon-flag-today",
+   "measuredX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "boardX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "measuredE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "boardE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "bandCoversBoth": false,
+   "contentTop": 6,
+   "contentBelowBand": false,
+   "blocksHitX": 1,
+   "blocksHitE": 1,
+   "label": "แก้ผู้เล่น",
+   "size": "640x1136"
+  },
+  {
+   "name": "cannon-flag",
+   "measuredX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "boardX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "measuredE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "boardE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "bandH": 106,
+   "bandCoversBoth": true,
+   "contentTop": 112,
+   "contentBelowBand": true,
+   "blocksHitX": 0,
+   "blocksHitE": 0,
+   "label": "แก้ผู้เล่น",
+   "size": "640x1136"
+  },
+  {
+   "name": "croc-bite",
+   "measuredX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "boardX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "measuredE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "boardE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "bandH": 106,
+   "bandCoversBoth": true,
+   "contentTop": 112,
+   "contentBelowBand": true,
+   "blocksHitX": 0,
+   "blocksHitE": 0,
+   "label": "แก้ผู้เล่น",
+   "size": "640x1136"
+  },
+  {
+   "name": "pinocchio-luck",
+   "measuredX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "boardX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "measuredE": [
+    6,
+    56,
+    81.31,
+    100
+   ],
+   "boardE": [
+    6,
+    56,
+    81.3,
+    100
+   ],
+   "bandH": 106,
+   "bandCoversBoth": true,
+   "contentTop": 112,
+   "contentBelowBand": true,
+   "blocksHitX": 0,
+   "blocksHitE": 0,
+   "label": "แก้ผู้เล่น",
+   "size": "640x1136"
+  },
+  {
+   "name": "one-bomb",
+   "measuredX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "boardX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "measuredE": [
+    6,
+    56,
+    80.78,
+    100
+   ],
+   "boardE": [
+    6,
+    56,
+    80.77,
+    100
+   ],
+   "bandH": 106,
+   "bandCoversBoth": true,
+   "contentTop": 112,
+   "contentBelowBand": true,
+   "blocksHitX": 0,
+   "blocksHitE": 0,
+   "label": "แก้ผู้เล่น",
+   "size": "640x1136"
+  },
+  {
+   "name": "bangkok-drift",
+   "measuredX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "boardX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "measuredE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "boardE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "bandH": 106,
+   "bandCoversBoth": true,
+   "contentTop": 112,
+   "contentBelowBand": true,
+   "blocksHitX": 0,
+   "blocksHitE": 0,
+   "label": "แก้ผู้เล่น",
+   "size": "640x1136"
+  },
+  {
+   "name": "cannon-flag-B",
+   "measuredX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "boardX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "measuredE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "boardE": [
+    56,
+    6,
+    130.27,
+    50
+   ],
+   "bandH": 56,
+   "bandCoversBoth": true,
+   "contentTop": 62,
+   "contentBelowBand": true,
+   "blocksHitX": 0,
+   "blocksHitE": 0,
+   "label": "แก้ผู้เล่น",
+   "size": "640x1136"
+  },
+  {
+   "name": "cannon-flag-desktop",
+   "measuredX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "boardX": [
+    6,
+    6,
+    50,
+    50
+   ],
+   "measuredE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "boardE": [
+    6,
+    56,
+    80.27,
+    100
+   ],
+   "bandH": 106,
+   "bandCoversBoth": true,
+   "contentTop": 112,
+   "contentBelowBand": true,
+   "blocksHitX": 0,
+   "blocksHitE": 0,
+   "label": "แก้ผู้เล่น",
+   "size": "2560x1280"
+  }
+ ]
+}

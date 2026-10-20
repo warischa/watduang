@@ -200,3 +200,23 @@
 .brand-title {
   margin-inline-start: 60px;
 }
+
+/* gh#268: the shell's top band (src/shell/PlayExit.astro) pads <body>, which starts the 100%-tall
+   #app-container below the exit X and the edit-players control. The help sheet is fixed to the
+   viewport at top 0 and 100% tall, which padding cannot move, so it now starts at the band's bottom
+   and ends at the viewport's. */
+.modal-overlay {
+  inset-block: var(--play-band) 0;
+  block-size: auto;
+}
+
+/* gh#268: the particle layer is drawn for the WINDOW -- main.js sizes the bitmap from
+   innerWidth/innerHeight and places its bursts at fractions of the window. Left at `top: 0;
+   height: 100%` inside the band-shortened #app-container it would start one band height down and
+   be squashed to the container's height. It keeps the window's box instead: lifted one band height
+   above #app-container (its containing block, which starts at the band's bottom) and grown by the
+   same amount; #app-container is overflow:hidden, so the slice above it never reaches the band. */
+#particle-canvas {
+  top: calc(-1 * var(--play-band));
+  height: calc(100% + var(--play-band));
+}

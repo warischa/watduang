@@ -40,9 +40,12 @@
 
 /* 100dvh, not the lifted 100vh. On a mobile browser 100vh is the viewport WITHOUT the retracted
    toolbars, so the root box is taller than what is on screen and the page gains a scroll — and no
-   route on this site may scroll at 320px or 390px. dvh tracks the box the player actually sees. */
+   route on this site may scroll at 320px or 390px. dvh tracks the box the player actually sees.
+   Minus the shell's top band (gh#268): the band pads <body> by --play-band, so a full 100dvh root
+   would push its own bottom --play-band past html's clip. The 3D view sizes from this box
+   (the container's clientHeight), so it follows. */
 #app {
-  height: 100dvh;
+  height: calc(100dvh - var(--play-band));
 }
 
 /* gh#79 44px tap floor. style.css's own 600px breakpoint shrinks .iconBtn to a fixed 36x36 and

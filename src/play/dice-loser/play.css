@@ -49,8 +49,10 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-block-size: 100vh;
-  min-block-size: 100dvh;
+  /* A screenful BELOW the shell's top band (gh#268): the band pads <body> by --play-band, so a full
+     100dvh floor here would make every screen scroll by exactly the band's height. */
+  min-block-size: calc(100vh - var(--play-band));
+  min-block-size: calc(100dvh - var(--play-band));
   background: radial-gradient(circle at 50% 12%, var(--dl-bg-glow) 0%, var(--dl-bg) 70%);
   color: var(--dl-ink);
   font-family: var(--font-sans);

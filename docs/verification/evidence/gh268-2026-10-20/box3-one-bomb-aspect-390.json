@@ -1,0 +1,54 @@
+{
+ "n": 1,
+ "vp": "390x844",
+ "before": {
+  "unfix": "#gameCanvas { top: 0 !important; height: 100% !important; }",
+  "inner": [
+   390,
+   844
+  ],
+  "dpr": 1,
+  "canvasRect": [
+   0,
+   56,
+   390,
+   788
+  ],
+  "appRect": [
+   56,
+   788
+  ],
+  "bitmap": [
+   390,
+   844
+  ],
+  "boxAspect": 0.4949,
+  "bitmapAspect": 0.4621,
+  "verticalSquash": 0.9336
+ },
+ "after": {
+  "unfix": null,
+  "inner": [
+   390,
+   844
+  ],
+  "dpr": 1,
+  "canvasRect": [
+   0,
+   0,
+   390,
+   844
+  ],
+  "appRect": [
+   56,
+   788
+  ],
+  "bitmap": [
+   390,
+   844
+  ],
+  "boxAspect": 0.4621,
+  "bitmapAspect": 0.4621,
+  "verticalSquash": 1
+ }
+}

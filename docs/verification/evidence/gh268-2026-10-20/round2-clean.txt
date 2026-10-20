@@ -1,0 +1,2 @@
+OK 55 screen(s) across 14 route(s): both controls inside the 56px band, no route content intersects it
+rc=0 wall=160s
