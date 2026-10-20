@@ -1,5 +1,5 @@
 <div id="app">
-  <div id="canvas-container"></div>
+  <div id="canvas-container" data-first-screen-root="gameplay"></div>
   <div id="ui-root">
     <div id="game-ui-container">
       <!-- ARIA live region: the round's state read aloud, never painted (ADR-0051). -->
@@ -57,7 +57,7 @@
       <!-- ========================================== -->
       <!-- IN-GAME HUD                                -->
       <!-- ========================================== -->
-      <div id="screen-hud" class="hud-container hidden" role="region" aria-label="แถบสถานะในเกม">
+      <div id="screen-hud" class="hud-container hidden" role="region" aria-label="แถบสถานะในเกม" data-first-screen-root="gameplay">
         <div class="hud-top-section">
           <div class="hud-top-bar">
             <div class="hud-tools-left">
@@ -109,7 +109,7 @@
       <!-- ========================================== -->
       <!-- HOW TO PLAY MODAL                          -->
       <!-- ========================================== -->
-      <div id="modal-how" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="how-title">
+      <div id="modal-how" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="how-title" data-first-screen-root="gameplay">
         <div class="glassPanel modal-box">
           <button class="close-modal-btn" id="btn-close-how" type="button" aria-label="ปิด">×</button>
           <h2 id="how-title">📖 กติกาการเล่น “เข้งับ!”</h2>
@@ -126,7 +126,7 @@
       <!-- ========================================== -->
       <!-- SETTINGS MODAL                             -->
       <!-- ========================================== -->
-      <div id="modal-settings" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div id="modal-settings" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title" data-first-screen-root="gameplay">
         <div class="glassPanel modal-box">
           <button class="close-modal-btn" id="btn-close-settings" type="button" aria-label="ปิด">×</button>
           <h2 id="settings-title">⚙️ ตั้งค่าเกม</h2>
@@ -160,7 +160,7 @@
       <!-- ========================================== -->
       <!-- RESET CONFIRMATION MODAL                   -->
       <!-- ========================================== -->
-      <div id="modal-reset" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-title">
+      <div id="modal-reset" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-title" data-first-screen-root="gameplay">
         <div class="glassPanel modal-box" style="text-align:center">
           <h2 id="reset-title" style="justify-content:center">ต้องการเริ่มใหม่หรือไม่?</h2>
           <p style="margin-bottom:18px">รอบปัจจุบันจะสิ้นสุดลงและสุ่มผู้เล่นเริ่มต้นใหม่ทันที</p>
@@ -174,7 +174,7 @@
       <!-- ========================================== -->
       <!-- ROUND & MATCH RESULT SCREEN                -->
       <!-- ========================================== -->
-      <div id="screen-result" class="ui-screen hidden" role="region" aria-label="ผลการแข่งขัน">
+      <div id="screen-result" class="ui-screen hidden" role="region" aria-label="ผลการแข่งขัน" data-first-screen-root="gameplay">
         <div class="glassPanel result-card-box">
           <div class="result-emoji" id="result-emoji">💥</div>
           <h2 class="result-title" id="result-title">แมวส้ม โดนเข้งับ!</h2>

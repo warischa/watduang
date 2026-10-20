@@ -321,6 +321,23 @@ const game: GameModule = {
   ads: true,
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/pinocchio-luck/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#app': 'container',
+    'div.curtain-top': 'chrome',
+    'header.topbar': 'chrome',
+    '#stageFrame': 'container',
+    'div.stage-spotlight': 'gameplay',
+    '#gameCanvas': 'gameplay',
+    'div.css-puppet': 'gameplay',
+    'div.stage-vignette': 'gameplay',
+    'div.webgl-error': 'chrome',
+    'div.panel-wrap': 'container',
+    '#plPlayers': 'ps-mount',
+    '#panel': 'gameplay',
+    '#announcer': 'chrome',
+  },
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

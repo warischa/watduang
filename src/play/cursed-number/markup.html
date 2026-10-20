@@ -1,5 +1,5 @@
   <!-- Background Embers Canvas -->
-  <canvas id="particlesCanvas" aria-hidden="true"></canvas>
+  <canvas id="particlesCanvas" aria-hidden="true" data-first-screen-root="gameplay"></canvas>
 
   <!-- id="app", not the mockup's own "appWrapper": every play route names its game root with one of
        the ids the shared chrome probes look for (#app here, #appRoot on how-close-is-near), and a
@@ -38,7 +38,7 @@
     <!-- SCREEN 1: THE GAME'S OWN OPTIONS. Shown after the player screen starts (ADR-0071 ruling 1:
          the game's non-player options come after the shared screen, then play). No longer ships
          `active`: the player screen is the first screen now. -->
-    <section class="screen" id="screenSetup">
+    <section class="screen" id="screenSetup" data-first-screen-root="gameplay">
       <div class="card">
         <div class="card-header">
           <h2 class="card-title">👥 แก๊งสัตว์ปาร์ตี้</h2>
@@ -66,7 +66,7 @@
     </section>
 
     <!-- SCREEN 2: TURN HANDOFF -->
-    <section class="screen" id="screenHandoff">
+    <section class="screen" id="screenHandoff" data-first-screen-root="gameplay">
       <!-- Player Carousel Strip -->
       <div class="player-strip" id="handoffPlayerStrip"></div>
 
@@ -94,7 +94,7 @@
     </section>
 
     <!-- SCREEN 3: NUMBER SELECTION (ACTIVE TURN) -->
-    <section class="screen" id="screenSelection">
+    <section class="screen" id="screenSelection" data-first-screen-root="gameplay">
       <!-- Player Carousel Strip -->
       <div class="player-strip" id="selectionPlayerStrip"></div>
 
@@ -179,7 +179,7 @@
     </section>
 
     <!-- SCREEN 4: SAFE RESULT -->
-    <section class="screen" id="screenSafeResult">
+    <section class="screen" id="screenSafeResult" data-first-screen-root="gameplay">
       <!-- Player Carousel Strip -->
       <div class="player-strip" id="safePlayerStrip"></div>
 
@@ -217,7 +217,7 @@
     </section>
 
     <!-- SCREEN 5: FORCED REVEAL (CLIMAX - ONLY 1 NUMBER LEFT) -->
-    <section class="screen" id="screenForcedReveal">
+    <section class="screen" id="screenForcedReveal" data-first-screen-root="gameplay">
       <div class="forced-hero">
         <div class="forced-skull">💀</div>
         <div class="forced-title">เหลือตัวเลขสุดท้ายเพียงตัวเดียว!</div>
@@ -240,7 +240,7 @@
     </section>
 
     <!-- SCREEN 6: RESULT / GAME OVER -->
-    <section class="screen" id="screenGameOver">
+    <section class="screen" id="screenGameOver" data-first-screen-root="gameplay">
       <div class="result-hero">
         <div style="font-size:1.1rem; font-weight:800; color:#fca5a5; text-transform:uppercase; letter-spacing:1px;">
           💥 โดนเลขอาถรรพ์! (CURSED NUMBER)

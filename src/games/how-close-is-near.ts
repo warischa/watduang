@@ -146,6 +146,17 @@ const game: GameModule = {
   ads: true,
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/how-close-is-near/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#particlesCanvas': 'gameplay',
+    '#appRoot': 'container',
+    '#testModal': 'chrome',
+    'header.app-header': 'chrome',
+    '#hc-live': 'chrome',
+    '#hcPlayers': 'ps-mount',
+    '#screenContainer': 'gameplay',
+  },
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

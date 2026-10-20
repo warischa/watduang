@@ -1,0 +1,2134 @@
+{
+ "probe": "player-screen-face-probe",
+ "leg": "hold",
+ "base": "http://localhost:4611",
+ "viewport": "390x844",
+ "chromeFlags": "--headless --disable-gpu --no-sandbox (the ci-probes.sh lane flags; Chrome/155.0.8059.85, macOS, 390x844 mobile emulation; no WebGL context on this machine, read in-page as hold.read.webgl)",
+ "routes": [
+  "bangkok-drift",
+  "cannon-flag",
+  "croc-bite",
+  "cursed-number",
+  "dice-loser",
+  "freeze-tap",
+  "how-close-is-near",
+  "one-bomb",
+  "pinocchio-luck",
+  "power-meter",
+  "short-stick",
+  "timebomb",
+  "wire-snip-panic",
+  "zero-trigger"
+ ],
+ "routeCount": 14,
+ "narrowed": false,
+ "verdict": "GREEN",
+ "problems": [],
+ "rows": [
+  {
+   "route": "bangkok-drift",
+   "declared": [
+    "#screen-turn",
+    "#screen-drive",
+    "#screen-result",
+    "#screen-final"
+   ],
+   "matched": 4,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 4,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "SECTION",
+       "id": "screen-turn",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screen-drive",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screen-result",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screen-final",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#screen-turn",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 4,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "SECTION",
+        "id": "screen-turn",
+        "cls": "screen active",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screen-drive",
+        "cls": "screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screen-result",
+        "cls": "screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screen-final",
+        "cls": "screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#bd-players"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "bd-players",
+     "cls": "bd-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 390,
+     "height": 788
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "screen-turn",
+      "tag": "SECTION"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "bd-players",
+      "cls": "bd-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #bd-players sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #bd-players computes visibility hidden while the player screen is open, not visible",
+      "ps root: #bd-players has an empty box (0x0)"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "cannon-flag",
+   "declared": [
+    "#screen-pass-device",
+    "#screen-gameplay",
+    "#screen-results"
+   ],
+   "matched": 3,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 3,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "SECTION",
+       "id": "screen-pass-device",
+       "cls": "game-screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screen-gameplay",
+       "cls": "game-screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screen-results",
+       "cls": "game-screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#screen-pass-device",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 3,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "SECTION",
+        "id": "screen-pass-device",
+        "cls": "game-screen active",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screen-gameplay",
+        "cls": "game-screen",
+        "visibility": "hidden",
+        "opacity": "0",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screen-results",
+        "cls": "game-screen",
+        "visibility": "hidden",
+        "opacity": "0",
+        "pointerEvents": "none"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#cf-players"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "cf-players",
+     "cls": "cf-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 390,
+     "height": 736
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "screen-pass-device",
+      "tag": "SECTION"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "cf-players",
+      "cls": "cf-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 382,
+      "height": 721
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #cf-players sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #cf-players computes visibility hidden while the player screen is open, not visible"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "croc-bite",
+   "declared": [
+    "#canvas-container",
+    "#screen-hud",
+    "#modal-how",
+    "#modal-settings",
+    "#modal-reset",
+    "#screen-result"
+   ],
+   "matched": 6,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 6,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "DIV",
+       "id": "canvas-container",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "screen-hud",
+       "cls": "hud-container hidden",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "modal-how",
+       "cls": "modal-overlay",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "modal-settings",
+       "cls": "modal-overlay",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "modal-reset",
+       "cls": "modal-overlay",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "screen-result",
+       "cls": "ui-screen hidden",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#canvas-container",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 6,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "DIV",
+        "id": "canvas-container",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "DIV",
+        "id": "screen-hud",
+        "cls": "hud-container hidden",
+        "visibility": "hidden",
+        "opacity": "0",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "DIV",
+        "id": "modal-how",
+        "cls": "modal-overlay",
+        "visibility": "hidden",
+        "opacity": "0",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "DIV",
+        "id": "modal-settings",
+        "cls": "modal-overlay",
+        "visibility": "hidden",
+        "opacity": "0",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "DIV",
+        "id": "modal-reset",
+        "cls": "modal-overlay",
+        "visibility": "hidden",
+        "opacity": "0",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "DIV",
+        "id": "screen-result",
+        "cls": "ui-screen hidden",
+        "visibility": "hidden",
+        "opacity": "0",
+        "pointerEvents": "none"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#croc-players"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "croc-players",
+     "cls": "croc-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 390,
+     "height": 788
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "canvas-container",
+      "tag": "DIV"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "croc-players",
+      "cls": "croc-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 390,
+      "height": 788
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #croc-players sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #croc-players computes visibility hidden while the player screen is open, not visible"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "cursed-number",
+   "declared": [
+    "#particlesCanvas",
+    "#screenSetup",
+    "#screenHandoff",
+    "#screenSelection",
+    "#screenSafeResult",
+    "#screenForcedReveal",
+    "#screenGameOver"
+   ],
+   "matched": 7,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 7,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "CANVAS",
+       "id": "particlesCanvas",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screenSetup",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screenHandoff",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screenSelection",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screenSafeResult",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screenForcedReveal",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screenGameOver",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#particlesCanvas",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 7,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "CANVAS",
+        "id": "particlesCanvas",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screenSetup",
+        "cls": "screen active",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screenHandoff",
+        "cls": "screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screenSelection",
+        "cls": "screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screenSafeResult",
+        "cls": "screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screenForcedReveal",
+        "cls": "screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screenGameOver",
+        "cls": "screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#cnPlayers"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "cnPlayers",
+     "cls": "cn-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 338,
+     "height": 634
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "particlesCanvas",
+      "tag": "CANVAS"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "cnPlayers",
+      "cls": "cn-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #cnPlayers sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #cnPlayers computes visibility hidden while the player screen is open, not visible",
+      "ps root: #cnPlayers has an empty box (0x0)"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "dice-loser",
+   "declared": [
+    "#dl-setup",
+    "#dl-play",
+    "#dl-summary",
+    "#dl-tiebreak",
+    "#dl-final"
+   ],
+   "matched": 5,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 5,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "SECTION",
+       "id": "dl-setup",
+       "cls": "dl-setup",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "dl-play",
+       "cls": "dl-play",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "dl-summary",
+       "cls": "dl-panel",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "dl-tiebreak",
+       "cls": "dl-panel",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "dl-final",
+       "cls": "dl-panel",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#dl-setup",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 5,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "SECTION",
+        "id": "dl-setup",
+        "cls": "dl-setup",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "dl-play",
+        "cls": "dl-play",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "dl-summary",
+        "cls": "dl-panel",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "dl-tiebreak",
+        "cls": "dl-panel",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "dl-final",
+        "cls": "dl-panel",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#dl-players"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "dl-players",
+     "cls": "dl-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 358,
+     "height": 576
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "dl-setup",
+      "tag": "SECTION"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "dl-players",
+      "cls": "dl-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #dl-players sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #dl-players computes visibility hidden while the player screen is open, not visible",
+      "ps root: #dl-players has an empty box (0x0)"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "freeze-tap",
+   "declared": [
+    "#interruptionModal",
+    "#particleCanvas",
+    "#mainContent"
+   ],
+   "matched": 3,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 3,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "CANVAS",
+       "id": "particleCanvas",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "MAIN",
+       "id": "mainContent",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "interruptionModal",
+       "cls": "modal-overlay",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#interruptionModal",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 3,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "CANVAS",
+        "id": "particleCanvas",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "MAIN",
+        "id": "mainContent",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "DIV",
+        "id": "interruptionModal",
+        "cls": "modal-overlay",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#ftPlayers"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "ftPlayers",
+     "cls": "ft-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 390,
+     "height": 719
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "particleCanvas",
+      "tag": "CANVAS"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "ftPlayers",
+      "cls": "ft-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #ftPlayers sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #ftPlayers computes visibility hidden while the player screen is open, not visible",
+      "ps root: #ftPlayers has an empty box (0x0)"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "how-close-is-near",
+   "declared": [
+    "#particlesCanvas",
+    "#screenContainer"
+   ],
+   "matched": 2,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 2,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "CANVAS",
+       "id": "particlesCanvas",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "MAIN",
+       "id": "screenContainer",
+       "cls": "screen-container",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#particlesCanvas",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 2,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "CANVAS",
+        "id": "particlesCanvas",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "MAIN",
+        "id": "screenContainer",
+        "cls": "screen-container",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#hcPlayers"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "hcPlayers",
+     "cls": "hc-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 358,
+     "height": 634
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "particlesCanvas",
+      "tag": "CANVAS"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "hcPlayers",
+      "cls": "hc-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #hcPlayers sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #hcPlayers computes visibility hidden while the player screen is open, not visible",
+      "ps root: #hcPlayers has an empty box (0x0)"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "one-bomb",
+   "declared": [
+    "#gameCanvas",
+    "#hud",
+    "#resultCard",
+    "#toast"
+   ],
+   "matched": 3,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 3,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "DIV",
+       "id": "hud",
+       "cls": "hud hidden",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "resultCard",
+       "cls": "glassPanel resultCard",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "toast",
+       "cls": "toast",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#hud",
+     "firstDeclaredHadId": false,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [
+     {
+      "root": "#gameCanvas",
+      "status": "missing (no WebGL)"
+     }
+    ],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 3,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "DIV",
+        "id": "hud",
+        "cls": "hud",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "DIV",
+        "id": "resultCard",
+        "cls": "glassPanel resultCard",
+        "visibility": "hidden",
+        "opacity": "0",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "DIV",
+        "id": "toast",
+        "cls": "toast",
+        "visibility": "visible",
+        "opacity": "0",
+        "pointerEvents": "none"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#ob-player-screen"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "ob-player-screen",
+     "cls": "ob-player-screen ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 359,
+     "height": 526
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "hud",
+      "tag": "DIV"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "ob-player-screen",
+      "cls": "ob-player-screen ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 370,
+      "height": 526
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #ob-player-screen sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #ob-player-screen computes visibility hidden while the player screen is open, not visible"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "pinocchio-luck",
+   "declared": [
+    "div.stage-spotlight",
+    "#gameCanvas",
+    "div.css-puppet",
+    "div.stage-vignette",
+    "#panel"
+   ],
+   "matched": 5,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 5,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "DIV",
+       "id": null,
+       "cls": "stage-spotlight",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "CANVAS",
+       "id": "gameCanvas",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": null,
+       "cls": "css-puppet",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": null,
+       "cls": "stage-vignette",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "panel",
+       "cls": "panel",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#gameCanvas",
+     "firstDeclaredHadId": false,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 5,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "DIV",
+        "id": null,
+        "cls": "stage-spotlight",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "CANVAS",
+        "id": "gameCanvas",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "DIV",
+        "id": null,
+        "cls": "css-puppet",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "DIV",
+        "id": null,
+        "cls": "stage-vignette",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "SECTION",
+        "id": "panel",
+        "cls": "panel",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#plPlayers"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "plPlayers",
+     "cls": "panel ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 362,
+     "height": 630
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": null,
+      "tag": "DIV"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "plPlayers",
+      "cls": "panel ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 351,
+      "height": 630
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #plPlayers sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #plPlayers computes visibility hidden while the player screen is open, not visible"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "power-meter",
+   "declared": [
+    "#particle-canvas",
+    "#view-root"
+   ],
+   "matched": 2,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 2,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "CANVAS",
+       "id": "particle-canvas",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "MAIN",
+       "id": "view-root",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#particle-canvas",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 2,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "CANVAS",
+        "id": "particle-canvas",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "MAIN",
+        "id": "view-root",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#pmPlayers"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "pmPlayers",
+     "cls": "pm-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 390,
+     "height": 732
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "particle-canvas",
+      "tag": "CANVAS"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "pmPlayers",
+      "cls": "pm-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #pmPlayers sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #pmPlayers computes visibility hidden while the player screen is open, not visible",
+      "ps root: #pmPlayers has an empty box (0x0)"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "short-stick",
+   "declared": [
+    "#particle-canvas",
+    "#short-reveal-dialog",
+    "#view-setup",
+    "#view-draw",
+    "#view-result"
+   ],
+   "matched": 5,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 5,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "CANVAS",
+       "id": "particle-canvas",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "view-setup",
+       "cls": "view section",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "view-draw",
+       "cls": "view section",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "view-result",
+       "cls": "view section",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIALOG",
+       "id": "short-reveal-dialog",
+       "cls": "dialog",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#particle-canvas",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 5,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "CANVAS",
+        "id": "particle-canvas",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "SECTION",
+        "id": "view-setup",
+        "cls": "view section active",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "view-draw",
+        "cls": "view section",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "view-result",
+        "cls": "view section",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "DIALOG",
+        "id": "short-reveal-dialog",
+        "cls": "dialog",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#ssPlayers"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "ssPlayers",
+     "cls": "ss-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 390,
+     "height": 615
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "particle-canvas",
+      "tag": "CANVAS"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "ssPlayers",
+      "cls": "ss-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #ssPlayers sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #ssPlayers computes visibility hidden while the player screen is open, not visible",
+      "ps root: #ssPlayers has an empty box (0x0)"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "timebomb",
+   "declared": [
+    "#tb-canvas",
+    "#tb-stage"
+   ],
+   "matched": 2,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 2,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "CANVAS",
+       "id": "tb-canvas",
+       "cls": "tb-canvas",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "tb-stage",
+       "cls": "tb-stage",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#tb-canvas",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 2,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "CANVAS",
+        "id": "tb-canvas",
+        "cls": "tb-canvas",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "tb-stage",
+        "cls": "stage-screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#tb-setup"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "tb-setup",
+     "cls": "tb-setup ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 358,
+     "height": 574
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "tb-canvas",
+      "tag": "CANVAS"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "tb-setup",
+      "cls": "tb-setup ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #tb-setup sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #tb-setup computes visibility hidden while the player screen is open, not visible",
+      "ps root: #tb-setup has an empty box (0x0)"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "wire-snip-panic",
+   "declared": [
+    "#particle-canvas",
+    "#flash-overlay",
+    "#scissor-tool",
+    "#screen-setup",
+    "#screen-game",
+    "#modal-detonation"
+   ],
+   "matched": 6,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 6,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "CANVAS",
+       "id": "particle-canvas",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "flash-overlay",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "scissor-tool",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "screen-setup",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "screen-game",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "modal-detonation",
+       "cls": "modal-backdrop",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#particle-canvas",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 6,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "CANVAS",
+        "id": "particle-canvas",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "DIV",
+        "id": "flash-overlay",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "0",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "DIV",
+        "id": "scissor-tool",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "DIV",
+        "id": "screen-setup",
+        "cls": "screen active",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "DIV",
+        "id": "screen-game",
+        "cls": "screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "DIV",
+        "id": "modal-detonation",
+        "cls": "modal-backdrop",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#wspPlayers"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "wspPlayers",
+     "cls": "wsp-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 390,
+     "height": 719
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "particle-canvas",
+      "tag": "CANVAS"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "wspPlayers",
+      "cls": "wsp-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #wspPlayers sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #wspPlayers computes visibility hidden while the player screen is open, not visible",
+      "ps root: #wspPlayers has an empty box (0x0)"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  },
+  {
+   "route": "zero-trigger",
+   "declared": [
+    "#fx-canvas",
+    "#modal-result",
+    "#screen-setup",
+    "#screen-game"
+   ],
+   "matched": 4,
+   "error": null,
+   "hold": {
+    "read": {
+     "hold": "held",
+     "count": 4,
+     "webgl": false,
+     "roots": [
+      {
+       "tag": "CANVAS",
+       "id": "fx-canvas",
+       "cls": null,
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screen-setup",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "SECTION",
+       "id": "screen-game",
+       "cls": "screen",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      },
+      {
+       "tag": "DIV",
+       "id": "modal-result",
+       "cls": "modal-backdrop",
+       "visibility": "hidden",
+       "opacity": "0",
+       "pointerEvents": "none"
+      }
+     ]
+    },
+    "faults": [],
+    "hostile": {
+     "root": "#fx-canvas",
+     "firstDeclaredHadId": true,
+     "webgl": false,
+     "visibleUnderLift": "visible",
+     "afterRemoval": "hidden",
+     "miss": null
+    },
+    "missing": [],
+    "afterHandover": {
+     "pressed": true,
+     "hold": "free",
+     "handover": "1",
+     "screen": "closed",
+     "read": {
+      "hold": "free",
+      "count": 4,
+      "webgl": false,
+      "roots": [
+       {
+        "tag": "CANVAS",
+        "id": "fx-canvas",
+        "cls": null,
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "none"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screen-setup",
+        "cls": "screen active",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "SECTION",
+        "id": "screen-game",
+        "cls": "screen",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       },
+       {
+        "tag": "DIV",
+        "id": "modal-result",
+        "cls": "modal-backdrop",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointerEvents": "auto"
+       }
+      ]
+     }
+    }
+   },
+   "psRoot": {
+    "declaredMount": [
+     "#zt-players"
+    ],
+    "read": {
+     "count": 1,
+     "tag": "SECTION",
+     "id": "zt-players",
+     "cls": "zt-players ps",
+     "insideGameplayRoot": false,
+     "visibility": "visible",
+     "opacity": "1",
+     "width": 358,
+     "height": 712
+    },
+    "faults": [],
+    "hostile": {
+     "into": {
+      "id": "fx-canvas",
+      "tag": "CANVAS"
+     },
+     "movedRead": {
+      "count": 1,
+      "tag": "SECTION",
+      "id": "zt-players",
+      "cls": "zt-players ps",
+      "insideGameplayRoot": true,
+      "visibility": "hidden",
+      "opacity": "1",
+      "width": 0,
+      "height": 0
+     },
+     "redOnAncestor": true,
+     "movedFaults": [
+      "ps root: #zt-players sits inside a gameplay root, so the hold hides the screen it waits behind",
+      "ps root: #zt-players computes visibility hidden while the player screen is open, not visible",
+      "ps root: #zt-players has an empty box (0x0)"
+     ],
+     "restored": true,
+     "restoredInsideGameplayRoot": false
+    }
+   }
+  }
+ ]
+}

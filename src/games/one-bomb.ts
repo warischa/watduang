@@ -81,6 +81,19 @@ const game: GameModule = {
   cardArt2x: 'one-bomb-2x.webp',
   ads: true,
   playRoute: '/game/one-bomb/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#app': 'container',
+    '#gameCanvas': 'gameplay',
+    '#hud': 'gameplay',
+    '#menuOverlay': 'pre-open',
+    '#ob-player-screen': 'ps-mount',
+    '#howModal': 'chrome',
+    '#settingsModal': 'chrome',
+    '#resultCard': 'gameplay',
+    '#toast': 'gameplay',
+  },
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

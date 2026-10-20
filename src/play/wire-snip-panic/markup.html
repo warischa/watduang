@@ -5,13 +5,13 @@
     <p id="wsp-live" class="wsp-visually-hidden" role="status" aria-live="polite"></p>
 
     <!-- Particle Canvas for Arcade Spark & Explosion Effects -->
-    <canvas id="particle-canvas"></canvas>
+    <canvas id="particle-canvas" data-first-screen-root="gameplay"></canvas>
     
     <!-- Red Alert Flash on Detonation -->
-    <div id="flash-overlay"></div>
+    <div id="flash-overlay" data-first-screen-root="gameplay"></div>
 
     <!-- Scissor Snip Icon Tool -->
-    <div id="scissor-tool">
+    <div id="scissor-tool" data-first-screen-root="gameplay">
       <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#f3f4f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 2px 6px rgba(0,0,0,0.8));">
         <circle cx="6" cy="6" r="3"></circle>
         <circle cx="6" cy="18" r="3"></circle>
@@ -82,7 +82,7 @@
 
     <!-- SCREEN 2: THE GAME'S OWN OPTIONS. Shown after the player screen starts (ADR-0071 ruling 1:
          the game's non-player options come after the shared screen, then play). -->
-    <div class="screen" id="screen-setup">
+    <div class="screen" id="screen-setup" data-first-screen-root="gameplay">
       <div class="setup-section">
         <div class="setup-title">
           <span>🎯 บทลงโทษคนแพ้</span>
@@ -116,7 +116,7 @@
     </div>
 
     <!-- SCREEN 3: GAMEPLAY -->
-    <div class="screen" id="screen-game">
+    <div class="screen" id="screen-game" data-first-screen-root="gameplay">
       <!-- Player Carousel Strip -->
       <div class="hud-player-strip" id="hud-player-strip">
         <!-- Player Badges Injected by JS -->
@@ -199,7 +199,7 @@
     </div>
 
     <!-- DETONATION / ROUND OVER MODAL -->
-    <div class="modal-backdrop" id="modal-detonation">
+    <div class="modal-backdrop" id="modal-detonation" data-first-screen-root="gameplay">
       <div class="modal-box">
         <div class="detonation-banner">
           <div style="font-size: 14px; font-weight: 800; color: var(--accent); letter-spacing: 1.5px;">💥 ระเบิดทำงาน! (BOMB DETONATED!) 💥</div>

@@ -13,7 +13,7 @@
     <p class="muted">ผลัดกันขับคนละตา ทุกคนได้สนามเดียวกัน<br />ชนก้อนหิน ชนกรวย หรือหลุดถนนคือจบตา<br />หนองน้ำทำรถลื่น เปลือกกล้วยเตะรถออกข้าง แต่ยังไม่จบตา<br />ไปได้ไกลสุดชนะ สั้นสุดโดน</p>
   </section>
 
-  <section id="screen-turn" class="screen">
+  <section id="screen-turn" class="screen" data-first-screen-root="gameplay">
     <p id="turn-count" class="muted"></p>
     <h2>ส่งมือถือให้</h2>
     <p id="turn-name" class="big"></p>
@@ -21,7 +21,7 @@
     <button id="readyBtn" class="btn" type="button">พร้อม ออกตัว!</button>
   </section>
 
-  <section id="screen-drive" class="screen">
+  <section id="screen-drive" class="screen" data-first-screen-root="gameplay">
     <div id="stage">
       <canvas id="road" role="img" aria-label="ถนนมุมมองจากหลังรถแข่งสีแดง มีเส้นขอบฟ้าเมืองกรุงเทพอยู่ไกลๆ และมีก้อนหิน กรวย หนองน้ำ กับเปลือกกล้วยกีดขวางอยู่ข้างหน้า"></canvas>
       <div class="hud"><span id="hud-name"></span><span id="hud-dist">0 ม.</span><span id="hud-speed"></span></div>
@@ -30,14 +30,14 @@
     </div>
   </section>
 
-  <section id="screen-result" class="screen">
+  <section id="screen-result" class="screen" data-first-screen-root="gameplay">
     <h2 id="result-why"></h2>
     <p id="result-name" class="muted"></p>
     <p id="result-dist" class="big"></p>
     <button id="nextBtn" class="btn" type="button" aria-label="ไปต่อ"></button>
   </section>
 
-  <section id="screen-final" class="screen">
+  <section id="screen-final" class="screen" data-first-screen-root="gameplay">
     <h2>ผลรอบนี้</h2>
     <ol id="rank" class="rank"></ol>
     <p id="final-loser" class="big loser-line"></p>

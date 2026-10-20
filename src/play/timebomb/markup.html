@@ -58,12 +58,12 @@
       class="tb-canvas"
       role="img"
       aria-label="ระเบิดลูกกลมพร้อมสายชนวนที่จุดไฟติดอยู่"
-      hidden></canvas>
+      hidden data-first-screen-root="gameplay"></canvas>
     <p id="tb-live" class="tb-visually-hidden" role="status" aria-live="polite"></p>
 
     <!-- The engine mounts here. It replaces the children of this element wholesale on every screen
          change, so nothing static may live inside it. -->
-    <section id="tb-stage" class="tb-stage" hidden></section>
+    <section id="tb-stage" class="tb-stage" hidden data-first-screen-root="gameplay"></section>
     <!-- The reset confirm that sat here (gh#177) moved into the shared player screen with the reset
          control, src/play/_player-screen/PlayerScreen.astro, outside this root for the same reason
          it sat outside #tb-setup: a top-layer dialog under a `hidden` ancestor does not render. -->

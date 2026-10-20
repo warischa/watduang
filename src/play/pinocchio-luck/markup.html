@@ -11,9 +11,9 @@
     </div>
   </header>
   <section id="stageFrame" aria-label="หุ่นไม้จมูกยาวแบบสามมิติ">
-    <div class="stage-spotlight" aria-hidden="true"></div>
-    <canvas id="gameCanvas" aria-hidden="true"></canvas>
-    <div class="css-puppet" aria-hidden="true">
+    <div class="stage-spotlight" aria-hidden="true" data-first-screen-root="gameplay"></div>
+    <canvas id="gameCanvas" aria-hidden="true" data-first-screen-root="gameplay"></canvas>
+    <div class="css-puppet" aria-hidden="true" data-first-screen-root="gameplay">
       <div class="css-hat">
         <div class="css-feather"></div>
       </div>
@@ -24,7 +24,7 @@
       <div class="css-mouth"></div>
       <div class="css-bowtie"></div>
     </div>
-    <div class="stage-vignette"></div>
+    <div class="stage-vignette" data-first-screen-root="gameplay"></div>
     <div class="webgl-error" role="status" data-shows-before-players>อุปกรณ์นี้ไม่รองรับ WebGL — เกมยังเล่นได้ด้วยภาพหุ่นแบบเรียบง่าย</div>
   </section>
   <div class="panel-wrap">
@@ -37,7 +37,7 @@
       <p class="ps-tagline">ตอบคำถามคนละข้อ ตอบผิดจมูกยาว ใครยาวสุดคนนั้นโดน</p>
     </section>
     <!-- The round. Ships hidden: the player screen comes first, and startWithPlayers shows it. -->
-    <section class="panel" id="panel" aria-label="พื้นที่เล่นเกม" hidden></section>
+    <section class="panel" id="panel" aria-label="พื้นที่เล่นเกม" hidden data-first-screen-root="gameplay"></section>
   </div>
   <div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 </main>

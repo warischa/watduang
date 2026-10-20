@@ -1,4 +1,4 @@
-  <canvas id="particle-canvas"></canvas>
+  <canvas id="particle-canvas" data-first-screen-root="gameplay"></canvas>
 
   <!-- Top Navigation -->
   <header class="topnav" id="topnav">
@@ -77,7 +77,7 @@
          (ADR-0071 ruling 1). Its heading asked who is playing and its lead told the players to type
          their names; both went with the name rows in gh#264, because the players screen asks that
          now and the options screen does not. -->
-    <section class="view section" id="view-setup">
+    <section class="view section" id="view-setup" data-first-screen-root="gameplay">
       <div class="container">
         <div style="margin-bottom: 24px;">
           <p class="eyebrow">SETUP MATCH</p>
@@ -157,7 +157,7 @@
     </section>
 
     <!-- VIEW 3: DRAW BOARD -->
-    <section class="view section" id="view-draw">
+    <section class="view section" id="view-draw" data-first-screen-root="gameplay">
       <div class="container draw-layout">
         <!-- Live Odds & Turn Banner -->
         <div class="live-odds-banner">
@@ -199,7 +199,7 @@
     </section>
 
     <!-- VIEW 4: RESULT -->
-    <section class="view section" id="view-result">
+    <section class="view section" id="view-result" data-first-screen-root="gameplay">
       <div class="container result-layout">
         <div class="result-badge-loser">💥</div>
         <p class="eyebrow" style="color:var(--accent);">จบรอบแล้ว!</p>
@@ -247,7 +247,7 @@
   </dialog>
 
   <!-- 2. Short Straw Hazard Reveal Modal -->
-  <dialog class="dialog" id="short-reveal-dialog">
+  <dialog class="dialog" id="short-reveal-dialog" data-first-screen-root="gameplay">
     <div class="dialog-inner" style="text-align:center;">
       <div style="font-size:42px; margin-bottom:8px;">😱</div>
       <p class="eyebrow" style="color:var(--accent);">SHORT STRAW TRIGGERED</p>

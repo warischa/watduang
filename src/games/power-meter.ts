@@ -72,6 +72,19 @@ const game: GameModule = {
   ads: true,
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/power-meter/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#app-container': 'container',
+    '#help-modal': 'chrome',
+    '#tests-modal': 'chrome',
+    '#particle-canvas': 'gameplay',
+    'header.top-nav': 'chrome',
+    '#pmPlayers': 'ps-mount',
+    '#view-root': 'gameplay',
+    '#toast-msg': 'chrome',
+    '#sr-announcer': 'chrome',
+  },
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

@@ -1,0 +1,10 @@
+<!-- first-screen-roots-check fixture (must red): the player-screen mount moved inside the gameplay root. -->
+<div id="app">
+  <header><button id="rules-btn" type="button">Rules</button></header>
+  <section id="board" data-first-screen-root="gameplay" hidden>
+    <p>Round</p>
+    <section id="players" hidden></section>
+  </section>
+  <p id="live" aria-live="polite"></p>
+</div>
+<dialog id="rules"><p>How to play</p></dialog>

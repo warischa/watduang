@@ -1,5 +1,5 @@
   <!-- Canvas FX for screen shake, sparkles, explosions & confetti -->
-  <canvas id="fx-canvas"></canvas>
+  <canvas id="fx-canvas" data-first-screen-root="gameplay"></canvas>
 
   <!-- Toast Notification -->
   <div id="toast-banner">แจ้งเตือน</div>
@@ -64,7 +64,7 @@
     <!-- The game's OWN options since gh#264: shown after the player screen hands its players over
          (ADR-0071 ruling 1). The count badge, the roster rows and their add / random-avatar / reset
          controls that sat here went to the shared player screen. -->
-    <section id="screen-setup" class="screen">
+    <section id="screen-setup" class="screen" data-first-screen-root="gameplay">
       <div class="setup-header-card glass-card">
         <div class="setup-title">
           <span>👥 ตั้งวงเล่น</span>
@@ -97,7 +97,7 @@
     <!-- =========================================
          SCREEN 3: GAMEPLAY SCREEN
          ========================================= -->
-    <section id="screen-game" class="screen">
+    <section id="screen-game" class="screen" data-first-screen-root="gameplay">
       <!-- Tier & Round Banner -->
       <div class="tier-banner glass-card">
         <div id="tier-badge-indicator" class="tier-badge">
@@ -150,7 +150,7 @@
   <!-- =========================================
        MODAL 1: HAZARD EXPLOSION / ROUND RESULT
        ========================================= -->
-  <div id="modal-result" class="modal-backdrop">
+  <div id="modal-result" class="modal-backdrop" data-first-screen-root="gameplay">
     <div class="modal-window">
       <h2 class="modal-title" style="color: var(--danger-glow);">💥 BOOM! โดนระเบิด!</h2>
       

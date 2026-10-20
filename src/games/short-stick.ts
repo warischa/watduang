@@ -277,6 +277,21 @@ const game: GameModule = {
   cardArt2x: 'short-stick-2x.webp',
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/short-stick/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#particle-canvas': 'gameplay',
+    '#topnav': 'chrome',
+    '#app': 'container',
+    '#rules-dialog': 'chrome',
+    '#short-reveal-dialog': 'gameplay',
+    '#leave-dialog': 'chrome',
+    '#view-start': 'pre-open',
+    '#ssPlayers': 'ps-mount',
+    '#view-setup': 'gameplay',
+    '#view-draw': 'gameplay',
+    '#view-result': 'gameplay',
+  },
   // gh#82 — the how-to-play prose below the stage is ad inventory, per issue #13's amendment 8:
   // the decision was no slot on the PLAY SCREEN, never no slot on the page.
   ads: true,

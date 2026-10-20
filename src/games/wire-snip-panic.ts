@@ -82,6 +82,22 @@ const game: GameModule = {
   ads: true,
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/wire-snip-panic/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#app': 'container',
+    '#wsp-live': 'chrome',
+    '#particle-canvas': 'gameplay',
+    '#flash-overlay': 'gameplay',
+    '#scissor-tool': 'gameplay',
+    'header': 'chrome',
+    '#screen-menu': 'pre-open',
+    '#wspPlayers': 'ps-mount',
+    '#screen-setup': 'gameplay',
+    '#screen-game': 'gameplay',
+    '#modal-rules': 'chrome',
+    '#modal-detonation': 'gameplay',
+  },
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

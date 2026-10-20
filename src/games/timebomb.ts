@@ -453,6 +453,17 @@ const game: GameModule = {
   // the play route mounts this same module rather than reimplementing it, so the fuse, the wake lock
   // and the arm gate have one implementation.
   playRoute: '/game/timebomb/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#app': 'container',
+    '#tb-top': 'chrome',
+    'main.tb-main': 'container',
+    '#tb-setup': 'ps-mount',
+    '#tb-canvas': 'gameplay',
+    '#tb-live': 'chrome',
+    '#tb-stage': 'gameplay',
+  },
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

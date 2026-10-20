@@ -195,7 +195,7 @@ test('the shared player screen is mounted into #plPlayers, inside the #app it ar
   assert.match(source, /onStart: startWithPlayers,/);
   assert.ok(MARKUP.indexOf('id="app"') > -1 && MARKUP.indexOf('id="app"') < MARKUP.indexOf('id="plPlayers"'), '#plPlayers must sit inside #app');
   // #panel holds the round; it must not show an empty card over or beside the player screen on load.
-  assert.match(MARKUP, /<section class="panel" id="panel" aria-label="[^"]*" hidden><\/section>/, '#panel no longer ships hidden');
+  assert.match(MARKUP, /<section class="panel" id="panel" aria-label="[^"]*" hidden data-first-screen-root="gameplay"><\/section>/, '#panel no longer ships hidden');
 });
 
 test('the tagline slot carries this game\'s own tagline, byte for byte', () => {

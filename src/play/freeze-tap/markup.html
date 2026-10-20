@@ -1,6 +1,6 @@
 <div id="app">
   <div id="shakeRoot">
-    <canvas id="particleCanvas"></canvas>
+    <canvas id="particleCanvas" data-first-screen-root="gameplay"></canvas>
     
     <!-- Navigation Header -->
     <header data-shows-before-players>
@@ -15,7 +15,7 @@
     </header>
 
     <!-- Main Screen Viewport -->
-    <main id="mainContent"></main>
+    <main id="mainContent" data-first-screen-root="gameplay"></main>
 
     <!-- The shared player screen (ADR-0071, gh#264) mounts here: main.js hands this section to
          mountPlayerScreen as its root, and it is the first thing a load shows. A sibling of
@@ -34,7 +34,7 @@
   </div>
 
   <!-- In-Game Interruption Overlay -->
-  <div id="interruptionModal" class="modal-overlay" style="display: none;">
+  <div id="interruptionModal" class="modal-overlay" style="display: none;" data-first-screen-root="gameplay">
     <div class="modal-dialog" style="text-align: center;">
       <div class="badge badge-warning" style="align-self: center;">⚠️ หน้าจอถูกขัดจังหวะ</div>
       <h2 style="font-size: 1.6rem; font-weight: 900;">หลุดการโฟกัสเกม</h2>

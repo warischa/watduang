@@ -94,6 +94,23 @@
     display: none;
   }
 
+  /* gh#269 (owner DoD amendment 2026-10-20): every route's gameplay is out of sight until this screen
+     hands over. Keyed on the controller's render hold on <html> (RENDER_HOLD_ATTR in player-screen.ts):
+     absent before any script runs and `held` while the screen migrates, opens, is open or saves, so
+     the gameplay is held from first paint and again on every reopen; `free` releases it. Here because
+     every play route renders this component exactly once. The roots are the ones each route declares
+     in its game entry, marked in its markup (scripts/first-screen-roots-check.mjs).
+     visibility, not display, so no measured layout moves; opacity too, because a child can set
+     visibility back to visible but cannot undo an ancestor's opacity; no transition or animation, so
+     the hold is complete on the very first frame. */
+  html:not([data-render-hold='free']) [data-first-screen-root='gameplay'] {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
   /* The host's tagline slot, for a route that has no tagline style of its own. */
   .ps-tagline {
     margin: 0;

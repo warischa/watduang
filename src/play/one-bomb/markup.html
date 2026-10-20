@@ -1,8 +1,8 @@
 <div id="app">
-  <canvas id="gameCanvas" aria-label="One Bomb 3D Game Stage"></canvas>
+  <canvas id="gameCanvas" aria-label="One Bomb 3D Game Stage" data-first-screen-root="gameplay"></canvas>
 
   <!-- Gameplay In-Game HUD -->
-  <div class="hud hidden" id="hud">
+  <div class="hud hidden" id="hud" data-first-screen-root="gameplay">
     <div class="topSection">
       <div class="topBar">
         <div class="leftTools">
@@ -114,7 +114,7 @@
   </div>
 
   <!-- Round / Match Result Card -->
-  <div class="glassPanel resultCard" id="resultCard">
+  <div class="glassPanel resultCard" id="resultCard" data-first-screen-root="gameplay">
     <div class="resultEmoji" id="resultEmoji">💥</div>
     <h2 class="resultTitle" id="resultTitle"></h2>
     <p class="resultDesc" id="resultDesc"></p>
@@ -125,5 +125,5 @@
   </div>
 
   <!-- In-game Notification Toast -->
-  <div class="toast" id="toast">ช่องนี้เปิดไปแล้ว!</div>
+  <div class="toast" id="toast" data-first-screen-root="gameplay">ช่องนี้เปิดไปแล้ว!</div>
 </div>

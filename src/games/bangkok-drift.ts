@@ -77,6 +77,17 @@ const game: GameModule = {
   cardArt2x: 'bangkok-drift-2x.webp',
   ads: true,
   playRoute: '/game/bangkok-drift/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#app': 'container',
+    '#bd-players': 'ps-mount',
+    '#screen-turn': 'gameplay',
+    '#screen-drive': 'gameplay',
+    '#screen-result': 'gameplay',
+    '#screen-final': 'gameplay',
+    '#live': 'chrome',
+  },
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

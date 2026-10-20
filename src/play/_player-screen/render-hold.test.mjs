@@ -50,13 +50,13 @@ async function grantAll(queue) {
 
 /** The real screen on a fresh page, a legacy list seeded so the migration really reaches the lock.
  *  The roster is seeded BEFORE the lock stub goes in, so seeding runs unlocked and queues nothing. */
-async function mountScreen(t, { roster = [], onOpen, onStart } = {}) {
+async function mountScreen(t, { roster = [], onOpen, onStart, surface = SURFACE } = {}) {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   assert.equal(ps.isRenderHeld(), false, 'precondition: a hold leaked out of the previous case');
   const storage = installStorage();
   for (const name of roster) await store.loadRoster().add(name);
   storage.set(LEGACY_KEY, 'not json');
-  const doc = makePage(SURFACE);
+  const doc = makePage(surface);
   globalThis.document = doc;
   globalThis.window = { addEventListener() {}, removeEventListener() {} };
   const locks = withLocks(t);
@@ -282,4 +282,212 @@ test('gh#272: a route that returns a promise is acknowledged when it resolves, n
   resolve();
   await settle();
   assert.equal(attr(page, ps.HANDOVER_ATTR), '1');
+});
+
+// ---- the release is a reveal (gh#269, ADR-0057) ---------------------------------------------------
+//
+// PlayerScreen.astro hides every `data-first-screen-root="gameplay"` root until the hold reads `free`,
+// so the flip to `free` uncovers that gameplay. A route arms its gameplay inside onStart; when the
+// release lands LATER than that arm window -- a removal the close commits keeps the hold until its
+// write settles -- the reveal meets controls whose window expired long ago. The screen arms every
+// gameplay root at the LATER of the flip and the route's handover settling, so no release path
+// depends on its caller, and the route's own gate (built inside onStart, after an await or not) is
+// always built before the release gate and keeps the controls the route disabled for its own reason.
+//
+// Every case that builds a release gate ticks its window out before it ends: a timer still pending
+// at the end would be cancelled by the next case's release arm, under that case's mock clock.
+//
+// ponytail: this file imports the screen before any document exists, so the arm gate's input-stamp
+// seed never attaches here; the gate's timer is the only guard these cases see, and `disabled` (a
+// click on a disabled control dispatches nothing) is the observable they pin.
+
+const { armAllButtons } = await import('../../games/_arm-gate.ts');
+
+const GAMEPLAY_SURFACE = '<div id="app"><section id="root" hidden></section>'
+  + '<section id="play" data-first-screen-root="gameplay">'
+  + '<button id="go" type="button">go</button><button id="keep" type="button">keep</button>'
+  + '</section></div>';
+
+test('gh#269: a release that lands after the route armed its gameplay arms that gameplay again', async (t) => {
+  let page;
+  // The route's own arm, as every converted route's onStart makes it.
+  page = await mountScreen(t, {
+    roster: ['A', 'B', 'C'],
+    surface: GAMEPLAY_SURFACE,
+    onStart: () => { armAllButtons(page.byId('play')); },
+  });
+  await openFully(t, page);
+  const go = page.byId('go');
+  assert.equal(go.disabled, false, 'precondition: the gameplay control is live before start');
+  assert.equal(page.part('start').click(), true, 'start was not live -- this case presses nothing');
+  await settle();
+  assert.equal(page.locks.length, 1, 'precondition: the start save is the one request at the lock');
+  // An x pressed while the start save waits: the removal it leaves pending is what the close commits.
+  page.root.querySelectorAll('.ps-rm')[0].click();
+  assert.equal(page.part('toast').hidden, false, 'precondition: the x left no removal pending');
+  page.locks.shift().grant();
+  await settle();
+  assert.equal(page.live.started.length, 1, 'the start save settled and nobody was handed over');
+  assert.equal(page.locks.length, 1, 'the close committed no removal -- nothing delays the release');
+  assert.equal(attr(page, ps.RENDER_HOLD_ATTR), 'held', 'precondition: the removal write keeps the gameplay hidden');
+  t.mock.timers.tick(QUIET);
+  assert.equal(go.disabled, false, 'precondition: the route\'s own window passed while the gameplay was still hidden');
+  page.locks.shift().grant();
+  await settle();
+  assert.equal(attr(page, ps.RENDER_HOLD_ATTR), 'free', 'precondition: the removal settled and the gameplay is still hidden');
+  page.byId('play').dispatchEvent({ type: 'pointerdown', timeStamp: 1e6 });
+  assert.equal(go.click(), false, 'the release uncovered a live gameplay control: a second contact on it acts');
+  t.mock.timers.tick(QUIET);
+  assert.equal(go.click(), true, 'the gameplay never came back once the window passed');
+});
+
+test('gh#269: the release arm leaves a control the route disabled at handover disabled', async (t) => {
+  let page;
+  page = await mountScreen(t, {
+    surface: GAMEPLAY_SURFACE,
+    onStart: () => {
+      page.byId('keep').disabled = true; // the route's own reason, set before it arms
+      armAllButtons(page.byId('play'));
+    },
+  });
+  await openFully(t, page);
+  await (await startHeld(page))();
+  await settle();
+  assert.equal(attr(page, ps.RENDER_HOLD_ATTR), 'free', 'precondition: the handover released the hold');
+  assert.equal(page.byId('go').disabled, true, 'precondition: the handover armed the gameplay');
+  t.mock.timers.tick(QUIET);
+  assert.equal(page.byId('go').disabled, false, 'the gameplay never came back once the window passed');
+  assert.equal(page.byId('keep').disabled, true, 'a release arm handed back a control the route disabled for its own reason');
+});
+
+/** A promise this file resolves by hand, for an onStart that awaits something before its body. */
+function deferred() {
+  let resolve;
+  const promise = new Promise((r) => { resolve = r; });
+  return { promise, resolve };
+}
+
+/** Runs `fn` with the runner's unhandled-rejection listeners swapped for a recorder (the technique
+ *  of the throwing-onStart case above); returns the messages seen. */
+async function recordRejections(fn) {
+  const runner = process.listeners('unhandledRejection');
+  const seen = [];
+  process.removeAllListeners('unhandledRejection');
+  process.on('unhandledRejection', (e) => seen.push(e.message));
+  try {
+    await fn();
+    await new Promise((resolve) => setImmediate(resolve));
+  } finally {
+    process.removeAllListeners('unhandledRejection');
+    for (const l of runner) process.on('unhandledRejection', l);
+  }
+  return seen;
+}
+
+test('gh#269: an async onStart that disables a control after an await keeps it disabled through the release arm', async (t) => {
+  let page;
+  page = await mountScreen(t, {
+    surface: GAMEPLAY_SURFACE,
+    onStart: async () => {
+      await Promise.resolve();
+      page.byId('keep').disabled = true;
+      armAllButtons(page.byId('play'));
+    },
+  });
+  await openFully(t, page);
+  await (await startHeld(page))();
+  await settle();
+  assert.equal(attr(page, ps.RENDER_HOLD_ATTR), 'free', 'precondition: the handover released the hold');
+  assert.equal(page.byId('go').disabled, true, 'precondition: the handover armed the gameplay');
+  t.mock.timers.tick(QUIET);
+  assert.equal(page.byId('go').disabled, false, 'the gameplay never came back once the window passed');
+  assert.equal(page.byId('keep').disabled, true, 'the release arm ran before the async route took its players and handed its control back');
+});
+
+test('gh#269: a release that lands while onStart is still awaiting arms only once the route has taken its players', async (t) => {
+  const gate = deferred();
+  let page;
+  page = await mountScreen(t, {
+    surface: GAMEPLAY_SURFACE,
+    onStart: async () => {
+      await gate.promise;
+      page.byId('keep').disabled = true;
+      armAllButtons(page.byId('play'));
+    },
+  });
+  await openFully(t, page);
+  await (await startHeld(page))();
+  await settle();
+  assert.equal(attr(page, ps.RENDER_HOLD_ATTR), 'free', 'precondition: the hold released while the route still awaits');
+  assert.equal(attr(page, ps.HANDOVER_ATTR), null, 'precondition: the route has not taken its players yet');
+  gate.resolve();
+  await settle();
+  assert.equal(attr(page, ps.HANDOVER_ATTR), '1', 'precondition: the route took its players');
+  assert.equal(page.byId('go').disabled, true, 'precondition: the handover armed the gameplay');
+  t.mock.timers.tick(QUIET);
+  assert.equal(page.byId('go').disabled, false, 'the gameplay never came back once the window passed');
+  assert.equal(page.byId('keep').disabled, true, 'a release arm built mid-await handed back the control the route disabled');
+});
+
+test('gh#269: a hold raised again before the handover settles waits for ITS release, not the earlier one', async (t) => {
+  const gate = deferred();
+  let page;
+  page = await mountScreen(t, {
+    surface: GAMEPLAY_SURFACE,
+    onStart: async () => {
+      await gate.promise;
+      page.byId('keep').disabled = true;
+      armAllButtons(page.byId('play'));
+    },
+  });
+  await openFully(t, page);
+  await (await startHeld(page))();
+  await settle();
+  assert.equal(attr(page, ps.RENDER_HOLD_ATTR), 'free', 'precondition: the first release landed');
+  // The hold comes back while the route still awaits. A second mount's migration raises it with no
+  // surface arm of its own, which keeps this case about the release arm alone.
+  globalThis.localStorage.setItem(LEGACY_KEY, 'not json');
+  const otherRoot = page.doc.createElement('section');
+  page.doc.body.append(otherRoot);
+  ps.mountPlayerScreen({ root: otherRoot, range: [2, 10], onStart() {}, roundActive: () => false, abortRound() {} });
+  assert.equal(attr(page, ps.RENDER_HOLD_ATTR), 'held', 'precondition: the second mount held again');
+  assert.ok(page.locks.length > 0, 'precondition: the second migration waits at the lock');
+  gate.resolve();
+  await settle();
+  assert.equal(attr(page, ps.HANDOVER_ATTR), '1', 'precondition: the route took its players under the new hold');
+  await grantAll(page.locks);
+  assert.equal(attr(page, ps.RENDER_HOLD_ATTR), 'free', 'precondition: the second hold released');
+  assert.equal(page.byId('go').disabled, true, 'the later release armed nothing');
+  t.mock.timers.tick(QUIET);
+  assert.equal(page.byId('go').disabled, false, 'the gameplay never came back once the window passed');
+  assert.equal(page.byId('keep').disabled, true, 'the first release armed before the route took its players and handed its control back');
+});
+
+test('gh#269: an onStart that throws still lets the release arm run -- and the throw stays loud', async (t) => {
+  const page = await mountScreen(t, {
+    surface: GAMEPLAY_SURFACE,
+    onStart: () => { throw new Error('engine refused the players'); },
+  });
+  await openFully(t, page);
+  const seen = await recordRejections(async () => { await (await startHeld(page))(); });
+  assert.deepEqual(seen, ['engine refused the players'], 'the route failure was swallowed or reported twice');
+  assert.equal(attr(page, ps.RENDER_HOLD_ATTR), 'free', 'precondition: the close released the hold');
+  assert.equal(attr(page, ps.HANDOVER_ATTR), null, 'a route whose onStart threw was acknowledged as handed over');
+  assert.equal(page.byId('go').disabled, true, 'the release arm waited on a handover that threw -- later release deferred forever');
+  t.mock.timers.tick(QUIET);
+  assert.equal(page.byId('go').disabled, false, 'the gameplay never came back once the window passed');
+});
+
+test('gh#269: an onStart whose promise rejects still lets the release arm run -- and the rejection stays loud', async (t) => {
+  const page = await mountScreen(t, {
+    surface: GAMEPLAY_SURFACE,
+    onStart: async () => { throw new Error('engine refused later'); },
+  });
+  await openFully(t, page);
+  const seen = await recordRejections(async () => { await (await startHeld(page))(); });
+  assert.deepEqual(seen, ['engine refused later'], 'the route failure was swallowed or reported twice');
+  assert.equal(attr(page, ps.HANDOVER_ATTR), null, 'a route whose onStart rejected was acknowledged as handed over');
+  assert.equal(page.byId('go').disabled, true, 'the release arm waited on a handover that rejected -- later release deferred forever');
+  t.mock.timers.tick(QUIET);
+  assert.equal(page.byId('go').disabled, false, 'the gameplay never came back once the window passed');
 });

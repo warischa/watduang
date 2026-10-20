@@ -1,6 +1,6 @@
   <div id="app-container">
     <!-- 2D Particle Overlay Canvas -->
-    <canvas id="particle-canvas"></canvas>
+    <canvas id="particle-canvas" data-first-screen-root="gameplay"></canvas>
 
     <!-- Top Navigation Header -->
     <header class="top-nav" data-shows-before-players>
@@ -30,7 +30,7 @@
     </section>
 
     <!-- View Container (FSM Router) -->
-    <main id="view-root" role="region" aria-label="หน้าจอเกม">
+    <main id="view-root" role="region" aria-label="หน้าจอเกม" data-first-screen-root="gameplay">
       <!-- Dynamic View Injected Here -->
     </main>
 

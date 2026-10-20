@@ -83,6 +83,19 @@ const game: GameModule = {
   ads: true,
   // The full-screen route this page hands off to. GameLayout.astro turns it into the chrome link.
   playRoute: '/game/cannon-flag/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#app-container': 'container',
+    '#cf-live': 'chrome',
+    '#top-nav': 'chrome',
+    '#screen-viewport': 'container',
+    '#test-modal': 'chrome',
+    '#cf-players': 'ps-mount',
+    '#screen-pass-device': 'gameplay',
+    '#screen-gameplay': 'gameplay',
+    '#screen-results': 'gameplay',
+  },
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

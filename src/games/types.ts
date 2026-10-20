@@ -55,7 +55,26 @@ export interface GameContext {
  *  category present in only one of the two fails `tsc`, not just scripts/validate-games.mjs. */
 export type Category = 'party' | 'fortune';
 
-export interface GameModule {
+/** gh#269: what one first-screen element of a play route is. `gameplay` is hidden by the shared hold
+ *  (PlayerScreen.astro) until the player screen hands over; `ps-mount` is the root handed to
+ *  mountPlayerScreen; `pre-open` shows before the screen opens and the route's own tested script puts
+ *  it away; `chrome` stays usable while the screen is open; `container` is a wrapper whose children are
+ *  declared one level down. scripts/first-screen-roots-check.mjs holds the meaning of each. */
+export type FirstScreenRole = 'gameplay' | 'ps-mount' | 'pre-open' | 'chrome' | 'container';
+
+/** Keyed `#id`, or `tag.class.class` for an element with no id -- the same key the gate computes from
+ *  the route's markup.html, where each element carries `data-first-screen-root` with the same role. */
+export type FirstScreenRoots = Readonly<Record<string, FirstScreenRole>>;
+
+/** The contract, plus the one field whose presence depends on another: a game that declares a
+ *  `playRoute` must declare its `firstScreenRoots` (gh#269), so `tsc` reds a route that never
+ *  classified its first screen, and a game with no route may not declare any. */
+export type GameModule = GameModuleFields & (
+  | { playRoute?: undefined; firstScreenRoots?: undefined }
+  | { playRoute: string; firstScreenRoots: FirstScreenRoots }
+);
+
+export interface GameModuleFields {
   /** slug -> /game/<id>/ — must match the filename */
   id: string;
   names: { th: string; en: string };

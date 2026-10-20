@@ -619,6 +619,55 @@ export function onRenderHold(listener: (held: boolean) => void): () => void {
   };
 }
 
+/** gh#269: the roots PlayerScreen.astro keeps out of sight until the hold reads 'free' -- the same
+ *  attribute and value its stylesheet keys on, so the set armed here is the set that flip reveals. */
+const GAMEPLAY_ROOTS = '[data-first-screen-root="gameplay"]';
+let cancelReleaseArm: Array<() => void> = [];
+
+/** Handovers whose onStart has not yet returned, resolved, thrown or rejected, across every mount. */
+let handingOver = 0;
+/** A release landed while a handover was in flight: its arm waits for the last one to settle. */
+let releaseAwaitsHandover = false;
+
+/** The flip to 'free' is a reveal (ADR-0057), and it can land long after the route armed its gameplay
+ *  in onStart: a removal the close commits keeps the hold until that write settles, by which time the
+ *  route's window has expired. So every release arms every gameplay root here, whoever released.
+ *  One release gate at a time, as armSurface: an older window's timer would hand controls back while
+ *  a newer one is still open.
+ *
+ *  It runs at the LATER of the release and the handover settling (beginHandover / endHandover), never
+ *  before the route took its players: on a plain handover the flip happens inside close(), BEFORE
+ *  onStart, and a gate built first marks every control it disables as its own -- so a control the
+ *  route then disables for its own reason reads as gate residue to the route's gate and comes back
+ *  enabled. An async onStart builds its gate after an await, which no single microtask outwaits.
+ *
+ *  Stated ceilings, not guarded here:
+ *    - while an async onStart awaits across a release, the gameplay is visible and live, and armed
+ *      only by whatever the route armed before its await, until the handover settles;
+ *    - an onStart whose promise never settles leaves that release unarmed for good, the same fate
+ *      HANDOVER_ATTR has: neither can tell a route still working from one that never will.
+ *
+ *  ponytail: a lock grant releases, not an input, so this gate has no input stamp of its own and its
+ *  timer decides (the stated ceiling in _arm-gate.ts for a gate with no contact behind it). */
+function armReleasedGameplay(): void {
+  for (const cancel of cancelReleaseArm) cancel();
+  cancelReleaseArm = Array.from(document.querySelectorAll<HTMLElement>(GAMEPLAY_ROOTS), (r) => armAllButtons(r));
+}
+
+/** A handover is starting: a release from here on arms only once it has settled. */
+function beginHandover(): void {
+  handingOver += 1;
+}
+
+/** A handover settled, whichever way. The last one runs the arm a release left waiting -- unless the
+ *  hold came back meanwhile, which clears the wait: that hold's own release arms. */
+function endHandover(): void {
+  handingOver = Math.max(0, handingOver - 1);
+  if (handingOver > 0 || !releaseAwaitsHandover || renderHeld) return;
+  releaseAwaitsHandover = false;
+  queueMicrotask(armReleasedGameplay);
+}
+
 function setRenderHold(holder: object, on: boolean): void {
   if (on) renderHolders.add(holder);
   else renderHolders.delete(holder);
@@ -626,6 +675,9 @@ function setRenderHold(holder: object, on: boolean): void {
   if (held === renderHeld) return;
   renderHeld = held;
   document.documentElement.setAttribute(RENDER_HOLD_ATTR, held ? 'held' : 'free');
+  if (held) releaseAwaitsHandover = false;
+  else if (handingOver > 0) releaseAwaitsHandover = true;
+  else queueMicrotask(armReleasedGameplay);
   for (const listener of [...renderListeners]) {
     // A listener that changed the hold itself has already told everyone the newer value.
     if (renderHeld !== held) return;
@@ -1007,13 +1059,30 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
           // Roster first, then the group: loadGroup() filters the group by the roster, so a group
           // written before its names reach the roster reads back empty.
           saveGroup(players.map((p) => p.name));
+          // Before close(): the release it may make must wait for the route to take the players.
+          beginHandover();
           close();
-          // Acknowledged only once the route took them: a throw skips this and stays as loud as it was.
-          const taken = onStart(players);
-          void Promise.resolve(taken).then(() => {
-            const html = document.documentElement;
-            html.setAttribute(HANDOVER_ATTR, String((Number(html.getAttribute(HANDOVER_ATTR)) || 0) + 1));
-          });
+          // Every way out of onStart ends the handover; a throw or a rejection is rethrown, so it
+          // stays as loud as it was and skips the acknowledgement.
+          let taken: ReturnType<typeof onStart>;
+          try {
+            taken = onStart(players);
+          } catch (err) {
+            endHandover();
+            throw err;
+          }
+          // Acknowledged only once the route took them.
+          void Promise.resolve(taken).then(
+            () => {
+              const html = document.documentElement;
+              html.setAttribute(HANDOVER_ATTR, String((Number(html.getAttribute(HANDOVER_ATTR)) || 0) + 1));
+              endHandover();
+            },
+            (err: unknown) => {
+              endHandover();
+              throw err;
+            },
+          );
           return;
         }
         // A seated name another tab removed: show the roster as it stands, this screen's ticks kept.

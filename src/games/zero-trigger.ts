@@ -80,6 +80,21 @@ const game: GameModule = {
   cardArt2x: 'zero-trigger-2x.webp',
   ads: true,
   playRoute: '/game/zero-trigger/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#fx-canvas': 'gameplay',
+    '#toast-banner': 'chrome',
+    '#zt-live': 'chrome',
+    '#app-container': 'container',
+    '#modal-result': 'gameplay',
+    '#modal-rules': 'chrome',
+    'header': 'chrome',
+    '#zt-players': 'ps-mount',
+    '#screen-menu': 'pre-open',
+    '#screen-setup': 'gameplay',
+    '#screen-game': 'gameplay',
+  },
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);

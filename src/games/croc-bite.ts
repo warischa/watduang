@@ -74,6 +74,23 @@ const game: GameModule = {
   cardArt2x: 'croc-bite-2x.webp',
   ads: true,
   playRoute: '/game/croc-bite/play/',
+  // gh#269: every first-screen element of the play route, classified -- gameplay roots are held by
+  // the shared hold until the player screen hands over (scripts/first-screen-roots-check.mjs).
+  firstScreenRoots: {
+    '#app': 'container',
+    '#canvas-container': 'gameplay',
+    '#ui-root': 'container',
+    '#game-ui-container': 'container',
+    '#aria-announcer': 'chrome',
+    '#croc-players': 'ps-mount',
+    '#screen-setup': 'pre-open',
+    '#screen-hud': 'gameplay',
+    '#modal-how': 'gameplay',
+    '#modal-settings': 'gameplay',
+    '#modal-reset': 'gameplay',
+    '#screen-result': 'gameplay',
+    '#webglUnsupportedNotice': 'chrome',
+  },
 
   mount(stage: HTMLElement, ctx: GameContext) {
     mountInto(stage, ctx);
