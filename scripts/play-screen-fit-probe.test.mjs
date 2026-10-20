@@ -390,7 +390,7 @@ test('the six cannon-flag and power-meter rows are owner-ruling rows recorded at
       assert.ok(reason, `${key} left KNOWN_OVERFLOW`);
       const [px, press] = MEASURED[key];
       assert.ok(reason.startsWith(`owner ruling 2026-10-20: ${px}px on press ${press} - `), `${key} reads "${reason.slice(0, 48)}..."`);
-      assert.match(reason, /owner ruling 2026-10-20 \(popup, batch S2026-10-20; recorded in SESSION-HANDOFF\.md S2026-10-20#1\)/, `${key} cites no source for the ruling`);
+      assert.match(reason, /owner ruling 2026-10-20 \(popup, batch S2026-10-20; recorded on gh#182 comment 6292773677\)/, `${key} cites no source for the ruling`);
       assert.match(reason, /Previously: not a defect 2026-09-04: /, `${key} dropped the prior class from its reason`);
     }
   }
