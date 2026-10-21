@@ -763,6 +763,7 @@ const MEASURE = `
   let scrollFrom = scrollPx ? 'documentElement' : null;
   let clippedPx = 0;
   let clipFrom = null;
+  let clipChild = null;
   let overflowXPx = 0;
   let overflowXFrom = null;
   // The ONE list of computed overflow values that declare an element an intended scroller, shared by
@@ -846,7 +847,23 @@ const MEASURE = `
     if (over <= ${EPS}) continue;
     const oy = cs.overflowY;
     if (oy === 'hidden' || oy === 'clip') {
-      if (over > clippedPx) { clippedPx = over; clipFrom = desc(e); }
+      if (over > clippedPx) {
+        clippedPx = over;
+        clipFrom = desc(e);
+        // Which content is cut off, not only which box cuts it: the descendant reaching furthest
+        // below the box, with its rect. A runner-only clip (one-bomb 320x568, 2026-10-20) could not
+        // be judged from the log because only the px was printed. A lead, not a cause -- a fixed
+        // descendant can reach below without adding to scrollHeight.
+        const boxBottom = e.getBoundingClientRect().bottom;
+        let past = 0;
+        clipChild = null;
+        for (const c of e.querySelectorAll('*')) {
+          const r = c.getBoundingClientRect();
+          if (r.width <= 0 || r.height <= 0 || r.bottom - boxBottom <= past) continue;
+          past = r.bottom - boxBottom;
+          clipChild = desc(c) + ' ' + [r.left, r.top, r.width, r.height].map(Math.round).join(',') + ' (+' + Math.round(past) + 'px)';
+        }
+      }
       continue;
     }
     // OWNER RULING 2026-09-01, applied here as a MEASUREMENT rule rather than as an exception list:
@@ -895,7 +912,7 @@ const MEASURE = `
     // KNOWN_OVERFLOW_X, because the exemptions in KNOWN_OVERFLOW are about scrolling.
     overflowPx: Math.max(scrollPx, clippedPx),
     // Named so a KNOWN_OVERFLOW reason can say WHICH box overflows instead of only by how much.
-    scrollFrom, clipFrom, overflowXFrom,
+    scrollFrom, clipFrom, clipChild, overflowXFrom,
     inkCount: n,
     inkLeft: n ? left : null, inkRight: n ? right : null,
     widthFillPct: n ? Math.round((span / innerWidth) * 1000) / 10 : 0,
@@ -1872,7 +1889,9 @@ export const fmtScreens = (r) => {
     const ink = s.inkCount ?? 0;
     // gh#284: the class is printed through the same screenClass the gate reads, so the log shows
     // exactly what was graded, on the runner as well as here.
-    return `  screen [${labelPart}]  overflow ${String(overPx).padStart(5)}px  scrolls ${(scrPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(scrPx).padStart(5)}px  clipped ${String(clpPx).padStart(5)}px  sideways ${String(ovxPx).padStart(5)}px${s.overflowXFrom ? ' by ' + s.overflowXFrom : ''}  width-fill ${String(wfill).padStart(5)}%  ink ${ink}  class ${screenClass(s)}`;
+    // The clip's box and furthest descendant ride only on a screen that clips, so a 0px line is unchanged.
+    const clipBy = clpPx > 0 && s.clipFrom ? ` by ${s.clipFrom}${s.clipChild ? ` [furthest below: ${s.clipChild}]` : ''}` : '';
+    return `  screen [${labelPart}]  overflow ${String(overPx).padStart(5)}px  scrolls ${(scrPx > EPS ? 'YES' : 'no ').padEnd(3)} ${String(scrPx).padStart(5)}px  clipped ${String(clpPx).padStart(5)}px${clipBy}  sideways ${String(ovxPx).padStart(5)}px${s.overflowXFrom ? ' by ' + s.overflowXFrom : ''}  width-fill ${String(wfill).padStart(5)}%  ink ${ink}  class ${screenClass(s)}`;
   });
 };
 

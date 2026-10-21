@@ -443,6 +443,19 @@ test('the per-screen formatter reports every measured screen with its identity a
   assert.deepEqual(fmtScreens({ screens: [] }), [], 'an empty screen set yields no lines');
 });
 
+// A clip printed as px alone could not be judged from a runner log (one-bomb 320x568, 2026-10-20):
+// the line names the clipping box and the descendant reaching furthest below it, and only when it clips.
+test('the per-screen line names what clips and what is cut off, and only on a screen that clips', () => {
+  const [clipped, clean] = fmtScreens({
+    screens: [
+      { press: 1, overflowPx: 79, scrollPx: 0, clippedPx: 79, clipFrom: 'div#app', clipChild: 'div.hud 0,489,320,158 (+79px)', overflowXPx: 0, widthFillPct: 100, inkCount: 52 },
+      { press: 2, overflowPx: 0, scrollPx: 0, clippedPx: 0, clipFrom: 'div#app', clipChild: 'div.hud 0,0,1,1 (+1px)', overflowXPx: 0, widthFillPct: 100, inkCount: 52 },
+    ],
+  });
+  assert.match(clipped, /clipped {4}79px by div#app \[furthest below: div\.hud 0,489,320,158 \(\+79px\)\] {2}sideways/, 'a clipped screen must name its box and the content past it');
+  assert.doesNotMatch(clean, /by div#app|furthest/, 'a screen that clips nothing names no box');
+});
+
 test('fmtRowReport emits the row summary line followed by every screen line', () => {
   const row = {
     route: 'freeze-tap',
