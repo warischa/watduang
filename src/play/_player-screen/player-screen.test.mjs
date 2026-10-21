@@ -1037,6 +1037,66 @@ test('gh#283: a start the roster refuses lifts the freeze -- the x is live again
   assert.deepEqual(names(), ['A', 'B'], 'inside the four seconds nothing is final');
 });
 
+// ---- gh#285: a close while the start save waits abandons the start --------------------------------
+//
+// The route put the screen away (its home control sits outside the screen and stays live through the
+// wait), so no round may start behind it. The save itself cannot be un-written once it lands: the
+// roster keeps it, and only what the start owed after it is skipped -- the group, the handover, onStart.
+// A plain reopen with no close in between is not an abandon (the gh#283 rebuild case hands over).
+
+test('gh#285: a close while the start save waits starts nothing -- the roster keeps the write, the group is untouched', async (t) => {
+  const { page, names, release } = await pendingStart(t, { before: (p) => rename(p, 0, 'Alpha') });
+  const group = page.store.loadGroup();
+  page.screen.close();
+  await release();
+  assert.equal(page.calls.started.length, 0, 'onStart ran for a screen the route had already put away');
+  assert.equal(page.doc.documentElement.hasAttribute(page.ps.HANDOVER_ATTR), false, 'an abandoned start was acknowledged as a handover');
+  assert.deepEqual(names(), ['Alpha', 'B', 'C'], 'the save that landed is the roster now -- it cannot be un-written');
+  assert.deepEqual(page.store.loadGroup(), group, 'an abandoned start saved a group nobody played');
+  assert.equal(page.root.hidden, true);
+});
+
+test('gh#285: closed then reopened while the start save waits -- nothing starts, the reopened screen reloads live', async (t) => {
+  const { page, release } = await pendingStart(t, { before: (p) => rename(p, 0, 'Alpha') });
+  page.screen.close();
+  page.screen.open();
+  await settle();
+  t.mock.timers.tick(401);
+  await release();
+  assert.equal(page.calls.started.length, 0, 'the reopened screen handed over a start pressed before the close');
+  assert.equal(page.root.hidden, false, 'the abandoned start closed the reopened screen');
+  assert.deepEqual(page.root.querySelectorAll('.ps-n').map((f) => f.value), ['Alpha', 'B', 'C'], 'the reopened screen did not re-read the save that landed');
+  assert.equal(page.part('start').disabled, true, 'the reload is a reveal and must arm (ADR-0057)');
+  t.mock.timers.tick(401);
+  assert.equal(page.part('start').disabled, false, 'the freeze outlived the abandoned start');
+  assert.equal(page.root.querySelector('.ps-rm').disabled, false, 'an x stayed inert after the abandoned start');
+});
+
+test('gh#285: a refused start after a close makes its pending x final, the way the close would have', async (t) => {
+  const saved = await savedPage(t);
+  const { page, names } = saved;
+  saved.rm(2);
+  t.mock.timers.tick(401);
+  rename(page, 0, 'Alpha');
+  await page.store.applyRosterOps([{ op: 'add', name: 'Alpha' }], 20); // the other tab: a collision
+  const held = [];
+  withLocks(t, (_name, fn) => new Promise((resolve) => { held.push(() => resolve(fn())); }));
+  assert.equal(page.part('start').click(), true, 'start was not live -- this case presses nothing');
+  await settle();
+  assert.equal(held.length, 1, 'the start save never reached the lock -- this case holds nothing');
+  page.screen.close();
+  while (held.length) {
+    held.shift()();
+    await settle();
+  }
+  assert.equal(page.calls.started.length, 0, 'precondition: the start was refused');
+  assert.deepEqual(names(), ['A', 'B', 'Alpha'], 'the x pressed before the close was lost with the refused start');
+  assert.equal(page.part('toast').hidden, true, 'an undo bar came up on a closed screen');
+  t.mock.timers.tick(page.ps.UNDO_MS);
+  await settle();
+  assert.deepEqual(names(), ['A', 'B', 'Alpha']);
+});
+
 // ---- a refused start keeps the pending x undoable (ADR-0071 ruling 3) -----------------------------
 //
 // The press hides the undo bar because its removal rides in the start's write. A refusal writes

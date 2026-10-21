@@ -747,6 +747,10 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
    *  handler returns early, and syncControls derives the controls' inert state from this, because a
    *  rebuild mints live rows and an arm window that ends hands its controls back. */
   let starting = false;
+  /** gh#285: every close() counts here. A start compares the count at its press with the count when
+   *  its save settles: a close in between means the route put the screen away, so the start is
+   *  abandoned. A count, not isOpen -- a route can close and reopen inside the wait. */
+  let closes = 0;
   let undoTimer: ReturnType<typeof setTimeout> | undefined;
 
   // gh#272: what holds rendering on this mount. Counters, not flags: two opens in flight, or a
@@ -1078,8 +1082,13 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     //     stands, the refused name absent, the add row closed (gh#264 REFUTE finding 2);
     //   - collision (frame 9): another tab stored a name this screen also wants. The re-read keeps
     //     this screen's edits (rebase), so both colliding rows show, marked, with start off.
+    const pressedAt = closes;
     void writeRoster(ops).then((result) => {
       starting = false;
+      if (closes !== pressedAt) {
+        abandonStart(before, result.status);
+        return;
+      }
       if (result.status === 'ceiling') {
         // rebase, not a bare re-read: renames and a pending x survive; the adds that no longer fit
         // are what is dropped, and the full line stays while the roster is at the ceiling.
@@ -1131,6 +1140,22 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
     });
   });
 
+  /** gh#285: the route closed the screen while this start's save waited. A save that landed cannot
+   *  be un-written, so the roster keeps it; everything the start owed after it -- the group, the
+   *  handover, onStart -- is skipped, because no round may start behind a route that left. A refused
+   *  save wrote nothing, and its x had been folded into the write at the press, so the close that
+   *  happened in between never saw it: it is written now, the way that close makes a pending x final. */
+  function abandonStart(before: ScreenState, status: Awaited<ReturnType<typeof applyRosterOps>>['status']): void {
+    const removed = before.undo?.row.origin;
+    if (status !== 'ok' && removed) void writeRoster([{ op: 'remove', name: removed }]);
+    // Reopened inside the wait: its rows were read before the save landed and are frozen. The
+    // re-read is a reveal (ADR-0057).
+    if (isOpen) {
+      load();
+      armSurface();
+    }
+  }
+
   // The page being put away is the last chance to make a pending x final. visibilitychange first:
   // it fires while the page can still run the write; pagehide is the backstop.
   const flushRemoval = (): void => {
@@ -1172,6 +1197,7 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   }
 
   function close(): void {
+    closes += 1;
     commitRemoval();
     hideToast();
     root.hidden = true;
