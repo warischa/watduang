@@ -65,3 +65,41 @@ Not measured: the dialog OPEN on the runner, and which font metric makes it tall
 
 Not taken: a screenshot of the Mac round screen. It shows nothing clipped, so it would be a
 control, not the evidence the question needs.
+
+## gh#286 box 1: the dialog measured OPEN, 2026-10-21
+
+Instrument: `scripts/one-bomb-how-dialog-probe.mjs` (manual, not wired), run through
+`scripts/driver.mjs` with the fit lane's flags, `--headless --disable-gpu --no-sandbox`, at 320x568
+mobile emulation. It opens `#howModal`, then reads the dialog box and its last rules line against
+`#app`, whether anything between them can scroll, and the face Chrome shaped the text with
+(`CSS.getPlatformFontsForNode`). The two readings were written into the probe's header before the
+runner run.
+
+Calibration, Mac, Chrome 155: the control reads **FITS**, with the box overhang at -27px and the
+last rules line at -54px against `#app` (`mac-dialog-open-control.json`). The must-red leg
+(`MUSTRED_PAD=1`, 200px of top padding) reads **RULES-UNREACHABLE** at +140px / +113px
+(`mac-dialog-open-mustred.json`), so both deltas can go red.
+
+Runner: branch-only workflow `gh286-diag`, run 39622359316, head add3c17, Chrome 155:
+
+- **The dialog is the clipped box: confirmed.** The box is 76,571 with a +79px overhang, the
+  exact clip the fit probe reads. The last rules line ends at 620 against `#app`'s 568, so it
+  overhangs by **+52px**, with `canScroll false`. The verdict is RULES-UNREACHABLE, and the
+  geometry is the same closed and open (`runner-39622359316-dialog-open-control.json`). The
+  must-red leg reads +253 / +226 (`runner-39622359316-dialog-open-mustred.json`).
+- **But the runner renders no Thai at all.** `fc-list ':lang=th'` lists nothing, and
+  `fc-match` resolves both `sans-serif` and `system-ui` for Thai to DejaVu Sans
+  (`runner-39622359316-fonts.txt`). Chrome reports every rules glyph as DejaVu Sans, and the
+  screenshot shows tofu boxes, not Thai. It is in that run's `gh286-dialog-39622359316` artifact,
+  not in the tree, because evidence PNGs are gitignored. The Mac
+  shapes the same text in `.ThonburiUI`, with the paragraph at 4 lines and the items at
+  [2,3,3,3]. The runner's tofu takes 5 lines and [3,4,4,4].
+- So the 79px is a measurement of tofu metrics on a machine that has no Thai face. It is not the
+  reading of any device that renders Thai. one-bomb's `--font-ui` is a system stack
+  (`system-ui, -apple-system, ...`) with no self-hosted face in it, so on the runner nothing is
+  left to fall back to.
+
+Not measured: the dialog on a real Android phone (Noto Sans Thai) or on Windows (Leelawadee UI).
+Those decide whether a device that does render Thai can clip it; the Mac's 54px of spare room is
+one machine's number. Also not measured: whether other play routes' runner fit rows are tofu
+readings too. Any route whose stack reaches no self-hosted face would be one.

@@ -1,0 +1,228 @@
+::notice::one-bomb how-dialog 320x568: RULES-UNREACHABLE -- box 76,571 overhang 79px, last rule bottom 620 vs #app bottom 568 = 52px, canScroll false, fonts.status loaded, Chrome/155.0.8059.84
+::notice::one-bomb how-dialog fonts: #howModal .modalBox h2 = DejaVu Sansx11 | #howModal .modalBox p = DejaVu Sansx86+DejaVu Sansx33 | #howModal li:last-child = DejaVu Sansx101
+::notice::one-bomb how-dialog lines: p 5 items [3,4,4,4] h2 null; closed boxOverhang 79 lastLineOverhang 52
+{
+  "verdict": "RULES-UNREACHABLE",
+  "mustred": false,
+  "browser": "Chrome/155.0.8059.84",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+  "url": "/game/one-bomb/play/",
+  "vp": {
+    "w": 320,
+    "h": 568
+  },
+  "closed": {
+    "value": {
+      "innerW": 320,
+      "innerH": 568,
+      "fontsStatus": "loaded",
+      "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif",
+      "open": false,
+      "visibility": "hidden",
+      "app": {
+        "x": 0,
+        "y": 56,
+        "w": 320,
+        "h": 512,
+        "bottom": 568
+      },
+      "appScrollH": 591,
+      "appClientH": 512,
+      "overlay": {
+        "x": 0,
+        "y": 56,
+        "w": 320,
+        "h": 512,
+        "bottom": 568
+      },
+      "box": {
+        "x": 20,
+        "y": 76,
+        "w": 294,
+        "h": 571,
+        "bottom": 647
+      },
+      "lastLine": {
+        "x": 67,
+        "y": 525,
+        "w": 220,
+        "h": 95,
+        "bottom": 620
+      },
+      "boxOverhang": 79,
+      "lastLineOverhang": 52,
+      "lines": {
+        "p": 5,
+        "items": [
+          3,
+          4,
+          4,
+          4
+        ],
+        "h2": null
+      },
+      "scrollers": [
+        {
+          "el": "li",
+          "overflowY": "visible",
+          "scrollH": 95,
+          "clientH": 95
+        },
+        {
+          "el": "ol",
+          "overflowY": "visible",
+          "scrollH": 357,
+          "clientH": 357
+        },
+        {
+          "el": "div.glassPanel.modalBox",
+          "overflowY": "visible",
+          "scrollH": 569,
+          "clientH": 569
+        },
+        {
+          "el": "#howModal",
+          "overflowY": "visible",
+          "scrollH": 591,
+          "clientH": 512
+        },
+        {
+          "el": "#app",
+          "overflowY": "hidden",
+          "scrollH": 591,
+          "clientH": 512
+        }
+      ],
+      "canScroll": false,
+      "hitAtLastLineBottom": null
+    }
+  },
+  "opened": {
+    "value": {
+      "innerW": 320,
+      "innerH": 568,
+      "fontsStatus": "loaded",
+      "fontFamily": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif",
+      "open": true,
+      "visibility": "visible",
+      "app": {
+        "x": 0,
+        "y": 56,
+        "w": 320,
+        "h": 512,
+        "bottom": 568
+      },
+      "appScrollH": 591,
+      "appClientH": 512,
+      "overlay": {
+        "x": 0,
+        "y": 56,
+        "w": 320,
+        "h": 512,
+        "bottom": 568
+      },
+      "box": {
+        "x": 20,
+        "y": 76,
+        "w": 294,
+        "h": 571,
+        "bottom": 647
+      },
+      "lastLine": {
+        "x": 67,
+        "y": 525,
+        "w": 220,
+        "h": 95,
+        "bottom": 620
+      },
+      "boxOverhang": 79,
+      "lastLineOverhang": 52,
+      "lines": {
+        "p": 5,
+        "items": [
+          3,
+          4,
+          4,
+          4
+        ],
+        "h2": null
+      },
+      "scrollers": [
+        {
+          "el": "li",
+          "overflowY": "visible",
+          "scrollH": 95,
+          "clientH": 95
+        },
+        {
+          "el": "ol",
+          "overflowY": "visible",
+          "scrollH": 357,
+          "clientH": 357
+        },
+        {
+          "el": "div.glassPanel.modalBox",
+          "overflowY": "visible",
+          "scrollH": 569,
+          "clientH": 569
+        },
+        {
+          "el": "#howModal",
+          "overflowY": "visible",
+          "scrollH": 591,
+          "clientH": 512
+        },
+        {
+          "el": "#app",
+          "overflowY": "hidden",
+          "scrollH": 591,
+          "clientH": 512
+        }
+      ],
+      "canScroll": false,
+      "hitAtLastLineBottom": null
+    }
+  },
+  "fonts": [
+    {
+      "selector": "#howModal .modalBox h2",
+      "fonts": [
+        {
+          "family": "DejaVu Sans",
+          "postScript": "DejaVuSans-Bold",
+          "custom": false,
+          "glyphs": 11
+        }
+      ]
+    },
+    {
+      "selector": "#howModal .modalBox p",
+      "fonts": [
+        {
+          "family": "DejaVu Sans",
+          "postScript": "DejaVuSans",
+          "custom": false,
+          "glyphs": 86
+        },
+        {
+          "family": "DejaVu Sans",
+          "postScript": "DejaVuSans-Bold",
+          "custom": false,
+          "glyphs": 33
+        }
+      ]
+    },
+    {
+      "selector": "#howModal li:last-child",
+      "fonts": [
+        {
+          "family": "DejaVu Sans",
+          "postScript": "DejaVuSans",
+          "custom": false,
+          "glyphs": 101
+        }
+      ]
+    }
+  ],
+  "anyRunErrored": false
+}

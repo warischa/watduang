@@ -1,0 +1,13 @@
+== fc-match sans-serif:lang=th
+DejaVuSans.ttf: "DejaVu Sans" "Book"
+DejaVuSans-Bold.ttf: "DejaVu Sans" "Bold"
+DejaVuSans-Oblique.ttf: "DejaVu Sans" "Oblique"
+DejaVuSans-BoldOblique.ttf: "DejaVu Sans" "Bold Oblique"
+DejaVuMathTeXGyre.ttf: "DejaVu Math TeX Gyre" "Regular"
+== fc-match system-ui:lang=th
+DejaVuSans.ttf: "DejaVu Sans" "Book"
+DejaVuSans-Bold.ttf: "DejaVu Sans" "Bold"
+DejaVuSans-Oblique.ttf: "DejaVu Sans" "Oblique"
+DejaVuSans-BoldOblique.ttf: "DejaVu Sans" "Bold Oblique"
+DejaVuMathTeXGyre.ttf: "DejaVu Math TeX Gyre" "Regular"
+== fc-list :lang=th family
