@@ -1,0 +1,5 @@
+# CI run 39536646395 (branch ci/batch-1021, head 818f5ff), job log, one-bomb 320x568 block verbatim (timestamps stripped)
+one-bomb           320x568   scrolls YES   171px  clipped    79px  sideways     6px by div#app  width-fill    92%  (worst of 2 screen(s): press 0, 23 ink)
+  screen [press 0]  overflow   171px  scrolls YES   171px  clipped    79px by div#app [furthest below: div.menuBtnCol 13,616,294,98 (+146px)]  sideways     0px  width-fill    92%  ink 23  class player
+  screen [press 1]  overflow    79px  scrolls no      0px  clipped    79px by div#app [furthest below: div.glassPanel.modalBox 20,76,294,571 (+79px)]  sideways     6px by div#app  width-fill   100%  ink 52  class round
+one-bomb           390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  (worst of 2 screen(s): press 0, 23 ink) [pinned fits]

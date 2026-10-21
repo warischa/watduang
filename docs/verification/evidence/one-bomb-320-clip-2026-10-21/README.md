@@ -41,5 +41,27 @@ The batch's branch CI run will print the same line for one-bomb 320x568 on the r
 - Not decidable from the line, e.g. a fixed-position descendant that is not the scrollHeight
   contributor → measure on the runner directly before ruling.
 
+## The runner's answer: CI run 39536646395, branch head 818f5ff
+
+`runner-39536646395-lines.txt`. The runner reproduces the reading of 39444165152: 79px clipped by
+`div#app` on press 0 and press 1, and 6px sideways on press 1.
+
+- Press 1 (round screen): the furthest-below element is `div.glassPanel.modalBox` at 20,76, 294x571,
+  reaching **+79px**, exactly the clip. The 79px equals this element's overhang.
+- Press 0 (player screen): the furthest-below element is `div.menuBtnCol` (+146px). It sits inside
+  `#menuOverlay`, which scrolls, so it is not the 79px. This is the "lead, not cause" case the probe
+  line warns about.
+
+Inferred, not yet measured on the runner: the box is the how-to-play dialog (`#howModal`, the first
+`.glassPanel.modalBox` in `src/play/one-bomb/markup.html`). Its overlay is `visibility: hidden`
+until opened but is always laid out, so its overflow sits inside `#app`'s scrollHeight on every
+screen. That explains why the reading is the same on both presses. On the runner's text metrics
+the dialog is 571px tall inside a 512px `#app`. Opened at 320x568, its last 79px of rules text
+would be unreachable: `#app` is `overflow: hidden` and the dialog does not scroll. On this Mac the
+same dialog fits, so the clip reads 0. Written before the run, this falls under the second reading
+(content a player reads).
+
+Not measured: the dialog OPEN on the runner, and which font metric makes it taller there.
+
 Not taken: a screenshot of the Mac round screen. It shows nothing clipped, so it would be a
 control, not the evidence the question needs.
