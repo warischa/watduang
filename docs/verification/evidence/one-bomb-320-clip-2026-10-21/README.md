@@ -103,3 +103,22 @@ Not measured: the dialog on a real Android phone (Noto Sans Thai) or on Windows 
 Those decide whether a device that does render Thai can clip it; the Mac's 54px of spare room is
 one machine's number. Also not measured: whether other play routes' runner fit rows are tofu
 readings too. Any route whose stack reaches no self-hosted face would be one.
+
+## The same dialog with a Thai face installed, 2026-10-21
+
+The branch-only `gh286-diag` workflow, run 39626259353, head 20ad118, Chrome 155, measured one
+build twice in the same job. Leg A is the runner as it ships. Leg B installs `fonts-noto-core`,
+which brings Noto Sans Thai (the Thai face Android ships: inferred, not measured on a phone), and
+measures with a fresh Chrome.
+
+- **Leg A reproduces the tofu reading.** Box +79px, last rules line +52px, in DejaVu Sans
+  (`runner-39626259353-runner-control.json`).
+- **Leg B: FITS.** The box is 92,440 with a -36px overhang, and the last rules line ends at 505
+  against `#app`'s 568, so **-63px**. The rules are shaped in Noto Sans Thai: paragraph 3 lines,
+  items [2,3,3,3] (`runner-39626259353-noto-control.json`). Its must-red reads +122 / +95
+  (`runner-39626259353-noto-mustred.json`). `fc-match` resolves `sans-serif:lang=th` to Noto Sans
+  Thai (`runner-39626259353-noto-fonts.txt`).
+
+So with a Thai face, in Thonburi (Mac) or Noto Sans Thai (runner), the dialog fits at 320x568 with
+54 to 63px to spare. The 79px clip exists only where Thai renders as tofu. Not measured: a real
+phone's text size and accessibility font scaling, which can grow the text past that margin.

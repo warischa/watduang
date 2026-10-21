@@ -1,0 +1,11 @@
+== fc-match sans-serif:lang=th
+NotoSansThai-Regular.ttf: "Noto Sans Thai" "Regular"
+NotoSans-Regular.ttf: "Noto Sans" "Regular"
+DejaVuSans.ttf: "DejaVu Sans" "Book"
+DejaVuSans-Bold.ttf: "DejaVu Sans" "Bold"
+DejaVuSans-Oblique.ttf: "DejaVu Sans" "Oblique"
+== fc-list :lang=th family
+Noto Looped Thai,Noto Looped Thai Bold
+Noto Looped Thai,Noto Looped Thai Regular
+Noto Sans Thai
+Noto Serif Thai
