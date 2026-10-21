@@ -28,6 +28,8 @@
 //   session.failedRequests        -> array, appended live with every paused-then-failed request's url
 //   session.onNewDocument(src)   -> Page.addScriptToEvaluateOnNewDocument: runs `src` in every
 //                                     document loaded after this call, BEFORE the page's own script
+//   session.cdp(method, params)  -> raw CDP call on this tab, the reply envelope as-is — for a domain
+//                                     the helpers above do not wrap (CSS.getPlatformFontsForNode, gh#286)
 //   session.close()
 const [scriptPath] = process.argv.slice(2);
 const { pathToFileURL } = await import('node:url');
@@ -79,6 +81,7 @@ const settle = (ms = 900) => new Promise((r) => setTimeout(r, ms));
 const session = {
   consoleErrors,
   failedRequests,
+  cdp: send,
   async failRequests(urlPattern, { reason = 'Failed' } = {}) {
     failReason = reason;
     await send('Fetch.enable', { patterns: [{ urlPattern }] });
