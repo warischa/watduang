@@ -1,0 +1,5 @@
+# CI run 39444165152, artifact browser-probe-output-39444165152-1, play-screen-fit-1.log, lines 8 and 36-38 verbatim
+::error::/game/one-bomb/play/ at 320x568 no longer fits VERTICALLY: 0px to scroll and 79px clipped away on a play screen (press 1). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.
+::notice::one-bomb           320x568   scrolls YES   171px  clipped    79px  sideways     6px by div#app  width-fill    92%  (worst of 2 screen(s): press 0, 23 ink) [pinned fits] [player screen excepted]
+::notice::  screen [press 0]  overflow   171px  scrolls YES   171px  clipped    79px  sideways     0px  width-fill    92%  ink 23  class player
+::notice::  screen [press 1]  overflow    79px  scrolls no      0px  clipped    79px  sideways     6px by div#app  width-fill   100%  ink 52  class round

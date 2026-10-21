@@ -1,0 +1,16 @@
+::notice::one-bomb           frame div#app cap    none  screen div.menuBox  [first-game-screen press 0]  display flex  tracks 0 (none)  units 3 {div.logoArea [480-960] | section#ob-player-screen.ob-player-screen.ps [510-930] | div.menuBtnCol [480-960]} in 1 x-range(s)  span 0.333 of 1440px frame  side-by-side no
+NARROWED by ROUTES_ONLY=one-bomb — 1 of 14 play route(s). This is a debug run, not a gate.
+::notice::one-bomb           320x568   scrolls YES   174px  clipped     0px  sideways     0px  width-fill    92%  (worst of 3 screen(s): press 0, 23 ink)
+::notice::  screen [press 0]  overflow   174px  scrolls YES   174px  clipped     0px  sideways     0px  width-fill    92%  ink 23  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 56  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 59  class round
+::notice::one-bomb           390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  (worst of 2 screen(s): press 0, 23 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  ink 23  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 52  class round
+::notice::one-bomb           1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  33.3%  (worst of 4 screen(s): press 0, 23 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  33.3%  ink 23  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 52  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 52  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 52  class round
+FIT_SHARD_WALKED clean 0/1 routes=one-bomb
+OK 3 route/viewport row(s) left the fresh screen; 9 distinct play screen(s) measured across 1 route(s) x 3 viewport(s). 2 row(s) asserted to fit within 8px and 1 row(s) held as recorded exceptions in KNOWN_OVERFLOW (their px reported, never gated: growth or a 0px reading prints a warning; the screen class each ruling names IS gated, gh#284) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all 3 row(s) are asserted to clip no more than 8px horizontally except the 0 in KNOWN_OVERFLOW_X.
