@@ -49,3 +49,8 @@ partition complete (ADR-0056 § What this does not prove).
 only, so all five `run: |` blocks — `Unit tests` among them — sat outside the work-set, and it
 printed `TOTAL=30 FAILS=0` on a red tree. A runnable step that did not run is now arithmetic in the
 exit code, and the summary ends in a verdict stating its own scope rather than a bare `FAILS=0`.
+
+**A throwaway diagnostic never goes in `ci.yml`.** `scripts/gate-selftest-coverage-check.mjs`
+audits every script a `ci.yml` `run:` step invokes as a gate, so a probe added there reds the
+meta-check for having no `--selftest`, and every later step skips (gh#286, run 39621220963). Put
+it in a branch-only workflow file of its own: the audit reads `ci.yml` only.

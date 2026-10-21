@@ -100,7 +100,8 @@ routine verify.
 `scripts/play-screen-fit-probe.mjs` records overflow px per route x viewport. On 2026-09-02 the CI
 runner measured every non-zero row 4-28% above this Mac's numbers on the same commit (power-meter
 76 -> 268 clipped) and read 0px on three rows the Mac records at 2-17px — the workflow installs no
-font, so Thai text wraps under a fallback face (inferred). Zero held on both machines.
+font. Measured 2026-10-21 (gh#287): the runner has NO Thai face, so text in a stack with no
+self-hosted face renders as DejaVu tofu and wraps unlike any Thai face. Zero held on both machines.
 
 **Do:** gate only what both machines agree on — a row is classified, no key is stale, a `FITS_ROWS`
 row stays within `OVERFLOW_TOLERANCE_PX` of zero. Growth or a 0px reading on a `KNOWN_OVERFLOW` row
