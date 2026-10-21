@@ -63,7 +63,7 @@ Production is served from the Azure Static Web Apps default hostname:
 
 It is a default hostname, not the intended one, and is expected to be replaced once gh#9 registers
 `watduang.com`. It also changes if the SWA resource is ever recreated, so treat it as current-value,
-not constant.
+not constant. Byte-compare it with a local build: `bash scripts/live-site-bytes.sh dist <origin>`.
 
 **The sitemap will send you somewhere that does not resolve.** `astro.config.mjs`'s `site` key and
 `public/robots.txt` both carry `https://watduang.com`, so every `<loc>` in the built
