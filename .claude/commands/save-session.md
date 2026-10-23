@@ -45,7 +45,6 @@ isn't injected removes the guardrail.
     it → `H:`; owner acts and an agent still executes afterwards → `Blocked · ask:`, including an owner
     EDIT (ruling 2026-09-18). gh#102/gh#103 is the worked example — the owner edits ten cards, then the
     agent makes portraits from them.
-  - `spent: queue` counts open **non-`H:`** items only — `H:` lines are not agent throughput.
   Safe by construction: `scripts/added-lineno-citation-check.mjs` labels a line by `/^([a-z]+):/`, so
   a tag sitting after `[ ]` never changes that line's verdict (probed 2026-09-18).
 - **cite a section as `§ "Quoted heading"`, never bare.** An entry is ONE long physical line, so an
@@ -158,8 +157,3 @@ too: the `./`-anchored exclusions stop matching from any other directory.
 - **narrative** — entries are telegraphic per master, not a story
 - **reasoning** — same rule as `CLAUDE.md`, cite the ADR number
 - **rules you must know before acting** — this file isn't auto-loaded, that kind of thing belongs in `CLAUDE.md`
-
-## Report
-
-Adds one line beyond master: `homes touched:` names which homes this round wrote to besides `SESSION-HANDOFF.md`,
-so it's visible whether routing actually works or everything still piles into state the same as before.
