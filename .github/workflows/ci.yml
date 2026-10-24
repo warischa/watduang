@@ -505,8 +505,8 @@ jobs:
       # Noto Sans Thai, the face Android ships; it is still not an iPhone, so a runner px stays one
       # machine's number. It precedes every Chrome launch because a running Chrome keeps its font list.
       # The empty-list check is the must-red: leg A of that run is the known failure it catches.
-      # The `${{` in the log path also keeps scripts/run-workflow-gates.sh from running sudo apt-get on
-      # a laptop (NORUN); a Mac already has Thai faces and needs nothing here.
+      # scripts/run-workflow-gates.sh never runs this step on a laptop: its owned DENY guard catches
+      # sudo/apt-get (NORUN). A Mac already has Thai faces and needs nothing here.
       - name: Give the runner a Thai face (gh#287)
         if: steps.probe-scope.outputs.run == 'true'
         run: |

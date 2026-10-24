@@ -100,7 +100,7 @@ Owner ruling 2026-10-24 (gh#287 box 2): `ci.yml` installs `fonts-noto-core` befo
 
 "Affected" was read from the reason strings, not from the at-risk list above. At-risk says a measured box held tofu Thai; it does not say the recorded px came from the runner. Of the 18 `KNOWN_OVERFLOW` rows, the 2 `KNOWN_OVERFLOW_X` rows and the 3 `PLAYER_SCREEN_SCROLLS` rows, only these current readings were taken on the runner:
 
-- **one-bomb 320x568 (`KNOWN_OVERFLOW`).** The reason's runner lane (171 / 79 / 6) was re-recorded as 176 / 0 / 0 on all three runs. Its recorded 174px is this Mac's player screen and does not move.
+- **one-bomb 320x568 (`KNOWN_OVERFLOW`).** The reason's runner lane (171 / 79 / 6) was re-recorded as 176 / 0 / 0 on all three runs. Its recorded 174px is this Mac's player screen and does not move. Per screen, on all three runs: player screen (press 0) 176px to scroll; round screen (press 1) 0px on every axis. The walk reaches 2 screens, not 3, because before the font press 2 was a second reading of the clipped dialog. That runner round-screen clip is what sent this row to its `KNOWN_OVERFLOW` fallback on 2026-10-20. With it gone, that ruling's first choice is open again: `FITS_ROWS`, with the player screen excepted. That move is a reclassification, so it is left to the owner.
 - **pinocchio-luck 320x568 (`KNOWN_OVERFLOW_X`, runner 11px, Mac 0).** It read 0px sideways on all three runs, so both machines are now under tolerance and the row was removed, by the deletion rule its 390x844 sibling states.
 
 Every other recorded px is this Mac's, and a runner font does not move it. The cursed-number 320x568 drift warning (703px against a recorded 689px) stops firing, because the runner now reads 651px.

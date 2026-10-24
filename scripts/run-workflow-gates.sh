@@ -121,6 +121,11 @@ LC_ALL=C awk -v dir="$STEPDIR" -v vfile="$VIOLATIONS" '
       t = substr(s, RSTART, RLENGTH); gsub(/[^a-z]/, "", t)
       return "DENY cloud CLI: " t
     }
+    # A runner-only system install (the gh#287 Thai face): on a laptop sudo stalls on a password prompt.
+    if (match(s, /(^|[[:space:]]|[;&|(])(sudo|apt-get|apt|dpkg)[[:space:]]/)) {
+      t = substr(s, RSTART, RLENGTH); gsub(/[^a-z-]/, "", t)
+      return "DENY system package manager: " t
+    }
     if (s ~ /::add-mask::/) return "DENY secret masking"
     if (s ~ /[Ss]ecret|[Cc]redential|[Pp]assword|[Tt]oken|[Aa]pi[-_]?[Kk]ey|API_KEY/) return "DENY credential-shaped"
     return ""

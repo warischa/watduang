@@ -12,11 +12,12 @@ passed, in the workflow's own order, single-line and `run: |` block alike. It pr
 the not-runnable set, which the script names each run with the marker that caught it. Three rules can
 catch a step, and they are checked in this order: a DENY (see below), then a body holding `${{`, then
 a body writing `$GITHUB_OUTPUT`. Today that is `Decide whether the browser probes can add anything`,
-caught by `${{`, and `Fetch SWA deployment token`, caught by `[DENY cloud CLI: az]` — plus the
+caught by `${{`, `Fetch SWA deployment token`, caught by `[DENY cloud CLI: az]`, and `Give the runner
+a Thai face (gh#287)`, caught by `[DENY system package manager: sudo]` — plus the
 `npm ci` deliberate skip. For those, read the run's per-step conclusions below — never this script's
 exit code.
 
-**What the `$GITHUB_OUTPUT` half of that rule catches today: nothing.** Both current NORUN steps are
+**What the `$GITHUB_OUTPUT` half of that rule catches today: nothing.** Every current NORUN step is
 caught by an earlier rule. `Fetch SWA deployment token` is caught by DENY — its body runs
 `az staticwebapp secrets list` against the production resource group, emits `::add-mask::`, and
 carries credential-shaped text. It does also write `$GITHUB_OUTPUT`, so it would be caught twice
@@ -31,8 +32,10 @@ demonstrated on doctored copies of `ci.yml`. **Rationale, the demonstrations, an
 alternative live in ADR-0056 — read it there, it is not restated here.** Operationally:
 
 - **DENY wins over every other rule.** A run body invoking a cloud CLI at a command position
-  (`az`, `aws`, `gcloud`, `kubectl` and siblings), emitting `::add-mask::`, or carrying
-  credential-shaped text is `NORUN` whatever its markers say. The banner prints the rule that caught
+  (`az`, `aws`, `gcloud`, `kubectl` and siblings) or a system package manager (`sudo`, `apt-get`,
+  `apt`, `dpkg`, added 2026-10-24 for the gh#287 runner font step, where `sudo` would stall on a
+  password prompt), emitting `::add-mask::`, or carrying credential-shaped text is `NORUN` whatever
+  its markers say. The banner prints the rule that caught
   it, e.g. `[DENY cloud CLI: az]`. Deliberately over-broad: a false deny costs one locally-skipped
   gate, printed with its reason; a false allow runs a production credential fetch on a laptop.
 - **REQUIRE aborts rather than discloses.** A body line starting `node --test` or `npm test` must
