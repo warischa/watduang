@@ -11,7 +11,7 @@ costs for effect candidates A–E. **Findings and options only, no picks** — t
   (only `scripts/` and docs moved since prod), so the build is the deployed site's source.
 - **Re-measured on a quiet machine.** The first runs (20:00–21:15) overlapped a sibling session's
   deliberate CPU-load experiment in this checkout (gh#289). Every number in the JSONs and tables below
-  is from the re-run, 21:56–22:12 Asia/Bangkok, sequential, one Chrome at a time, CPU sampled 87–92%
+  is from the re-run, 21:56–22:14 Asia/Bangkok, sequential, one Chrome at a time, CPU sampled 87–92%
   idle before it started. Rebuilt once at 21:56:01–21:56:03 with HEAD `9b18782` (src identical to
   `9158580`, so the gh#289 wheel fix is in); `git status --short` at build time listed only this dir's
   `effects-probe.mjs` (the rep-interleave edit; not in `dist/`). Layout, contrast, target, overflow,
@@ -19,6 +19,19 @@ costs for effect candidates A–E. **Findings and options only, no picks** — t
   Timing rows moved by a few percent (old values: commit `83c5b1f`). Not re-run, because they carry no
   timing claim: `interaction-1440.json`, `detail.json`, `canvas/`, `vt.json` and `shots/visual-*` (layout,
   styles and behaviour only).
+- **Measurement window of every file** (Asia/Bangkok; per the coordinating session, the sibling's load
+  experiment ran from about 20:00, with lighter single-Chrome tests until about 20:50, and its full gate
+  suite ran 21:15:24–21:27:54):
+
+  | Window | Files | Load-sensitive numbers in them? |
+  |---|---|---|
+  | 21:56:27–21:58:11, quiet | `audit-*.json` | local CLS/LCP: yes, re-measured |
+  | 21:58:11–22:01:44, quiet | `states-*.json`, `shots/state-*` | result timings: yes, re-measured |
+  | 22:01:44–22:02:53, quiet | `fortune-motion{,-rm}.json` | which animations ran (not timing) |
+  | 22:02:53–22:05:47, quiet | `live-perf.json` | LCP/CLS/FCP: yes, re-measured |
+  | 22:05:47–22:13:47, quiet | `effects-{nogpu,swiftshader}.{json,txt}` | effect costs: yes, re-measured |
+  | 20:21–20:27, under load | `interaction-1440.json`, `detail.json`, `shots/focus-*`, `canvas/` | no: ring, hover, press, disabled styles, contrast arithmetic, screenshots |
+  | 21:03–21:05, after the load, before the suite | `vt.json`, `shots/visual-*` | no: whether a transition ran (its 250ms is the UA's declared duration), whether an effect painted |
 - **`main` moved during the audit:** another session committed `62d038a` (20:31) and `9158580` (20:47),
   gh#289, after this build. Both touch only `src/pages/tool/wheel.astro` and only *when* the pick is
   announced (on the disc's `transitionend` instead of a timer from the tap); no style changes. Every
