@@ -22,6 +22,9 @@ const all = (xs, f) => Array.isArray(xs) && xs.length > 0 && xs.every(f);
 // comes back green means the probe is inert and its green sibling proves nothing; a control that comes
 // back dead means nothing was measured at all. Both fail. That is the false-green the triage found.
 const sawInjected = (cal) => all(cal, (c) => c.sawInjectedOverflow === true);
+// gh#289: how long the wheel's result may trail the disc's landing. Measured within 1ms on a quiet Mac;
+// the margin is for a loaded machine. Far below the page's fallback timer, which trails by seconds.
+const WHEEL_REVEAL_AFTER_LANDING_MS = 250;
 
 if (rc !== 0) bad(`driver exited ${rc}${rc === 137 ? ' (killed by this script\'s watchdog -- probe hung)' : ''}${label.endsWith('-control') ? ' -- a CONTROL leg that was killed, crashed or never loaded the page never exercised the detector, so it cannot satisfy the control' : ''}: ${tail()}`);
 
@@ -147,7 +150,7 @@ const V = {
     if (out.failing !== 0) return `${out.failing} combination(s) below 44px: ${JSON.stringify(out.bad)}`;
     return null;
   },
-  // gh#289: judged AT THE REVEAL. Two runs at normal speed, then one with the animation clock slowed
+  // gh#289: judged AT THE REVEAL (WHEEL_REVEAL_AFTER_LANDING_MS is defined beside this table). Two runs at normal speed, then one with the animation clock slowed
   // (CDP Animation.setPlaybackRate), so a reveal timed from the tap lands mid-turn. The slow run's
   // lever is checked against the normal runs' own end times, so no page constant is pinned here.
   'wheel-pointer-name': () => {
@@ -162,10 +165,16 @@ const V = {
         if (typeof s.runningAtReveal !== 'number') return `${tag} spin ${s.spin}: no reveal-time reading of the disc -- nothing was measured`;
         if (s.runningAtReveal !== 0) return `${tag} spin ${s.spin}: announced "${s.resultText}" at ${s.revealMs}ms while the disc was still turning (${s.runningAtReveal} running transition(s); it landed at ${s.endMs}ms)`;
         if ((s.resultText || '').trim() !== (s.pointerLabel || '').trim()) return `${tag} spin ${s.spin}: announced "${s.resultText}" but the painted wedge under the pointer is "${s.pointerLabel}"`;
+        // On landing, not merely after it: a page whose landing listener never matches still reveals
+        // late via its fallback timer, over a resting disc and the right wedge.
+        if (typeof s.endMs !== 'number') return `${tag} spin ${s.spin}: no landing time recorded -- cannot tell a reveal on landing from a fallback`;
+        if (s.revealMs - s.endMs > WHEEL_REVEAL_AFTER_LANDING_MS) return `${tag} spin ${s.spin}: announced ${s.revealMs - s.endMs}ms after the disc landed (limit ${WHEEL_REVEAL_AFTER_LANDING_MS}ms) -- a fallback timer, not the landing`;
       }
     }
     const [a, b, slow] = out.runs;
-    if (!(a.rate === 1 && b.rate === 1 && slow.rate > 0 && slow.rate < 1)) return `run rates ${out.runs.map((r) => r.rate).join('/')}, expected 1/1/<1`;
+    // The lever floor below discriminates only well under rate 0.8, and much below about 0.33 an honest
+    // landing outruns the page's fallback timer, so the band is pinned rather than any rate under 1.
+    if (!(a.rate === 1 && b.rate === 1 && slow.rate >= 0.4 && slow.rate <= 0.6)) return `run rates ${out.runs.map((r) => r.rate).join('/')}, expected 1/1 and a slow rate in 0.4..0.6`;
     const normalEnds = [...a.spins, ...b.spins].map((s) => s.endMs);
     if (!normalEnds.every((v) => typeof v === 'number' && v > 0)) return `a normal-speed spin recorded no transition end -- the lever has no baseline`;
     const floor = (0.8 * Math.min(...normalEnds)) / slow.rate;

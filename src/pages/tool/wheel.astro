@@ -650,7 +650,9 @@ import PageChrome from '../../components/PageChrome.astro';
   // named the pick while the disc was still turning. transitionend on the disc IS the landing.
   // The fallback timer covers only a transition that never ends (the disc hidden mid-turn, say). It
   // must outlast every honest landing, the wheel-pointer-name probe's half-speed clock included (its
-  // landing takes twice the duration), or it brings back the early reveal it backs up.
+  // landing takes twice the duration), or it brings back the early reveal it backs up. It is floored
+  // at the full spin's fallback so the short stop arc gets the same headroom against a late frame:
+  // three times STOP_MS alone would announce mid-turn after a stall of just under a second.
   // A cancelled transition never reveals: reset, a mode switch and a new list all go through
   // cancelPendingSpin(), which detaches this listener before they restyle the disc.
   const LANDING_FALLBACK_FACTOR = 3;
@@ -662,7 +664,7 @@ import PageChrome from '../../components/PageChrome.astro';
     };
     group.addEventListener('transitionend', onLanded);
     stopAwaitingLanding = () => group.removeEventListener('transitionend', onLanded);
-    spinTimer = window.setTimeout(() => reveal(picked), durationMs * LANDING_FALLBACK_FACTOR);
+    spinTimer = window.setTimeout(() => reveal(picked), Math.max(durationMs, SPIN_MS) * LANDING_FALLBACK_FACTOR);
   }
 
   /** The OFFSET into `left` that this spin lands on, or null if nothing can be picked. An offset,
@@ -729,8 +731,8 @@ import PageChrome from '../../components/PageChrome.astro';
     clearTimeout(spinTimer);
 
     // Read the live computed transform BEFORE removing .is-pressing — the class removal blanks
-    // the animation, and the inline transform was already cleared at spin-entry (:515-516), so
-    // reading after would see `none` and snap the wheel back to 0.
+    // the animation, and the inline transform was already cleared at spin-entry (the press branch
+    // of spin()), so reading after would see `none` and snap the wheel back to 0.
     const computedTransform = getComputedStyle(group).transform;
     group.classList.remove('is-pressing');
     pressMode = false;

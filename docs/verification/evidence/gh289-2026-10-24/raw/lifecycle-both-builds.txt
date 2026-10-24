@@ -9,3 +9,8 @@
 { "rate": 1, "press": { "revealAfterStop": 904, "runningAtReveal": 0, "landAfterStop": 903 }, "reset": { "revealsWithin7sOfReset": 0, "resultAfterReset": "E", "nextSpinRevealMs": 2019, "nextSpinRunning": 0 }, "mode": { "revealsAfterModeSwitch": 1, "spinDisabled": false }, "reduced": { "matches": true, "revealMs": 1, "running": 0 }}
 == dist-fix rate=0.5
 { "rate": 0.5, "press": { "revealAfterStop": 1825, "runningAtReveal": 0, "landAfterStop": 1824 }, "reset": { "revealsWithin7sOfReset": 0, "resultAfterReset": "B", "nextSpinRevealMs": 4009, "nextSpinRunning": 0 }, "mode": { "revealsAfterModeSwitch": 1, "spinDisabled": false }, "reduced": { "matches": true, "revealMs": 1, "running": 0 }}
+# After REFUTE round 1 (fallback floored at the spin's 6000ms on the stop path too): "dist-fix2".
+== dist-fix2 rate=1
+{ "rate": 1, "press": { "revealAfterStop": 934, "runningAtReveal": 0, "landAfterStop": 934 }, "reset": { "revealsWithin7sOfReset": 0, "resultAfterReset": "C", "nextSpinRevealMs": 2007, "nextSpinRunning": 0 }, "mode": { "revealsAfterModeSwitch": 1, "spinDisabled": false }, "reduced": { "matches": true, "revealMs": 1, "running": 0 }}
+== dist-fix2 rate=0.5
+{ "rate": 0.5, "press": { "revealAfterStop": 1807, "runningAtReveal": 0, "landAfterStop": 1807 }, "reset": { "revealsWithin7sOfReset": 0, "resultAfterReset": "B", "nextSpinRevealMs": 4013, "nextSpinRunning": 0 }, "mode": { "revealsAfterModeSwitch": 1, "spinDisabled": false }, "reduced": { "matches": true, "revealMs": 1, "running": 0 }}

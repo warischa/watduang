@@ -69,3 +69,23 @@ The 7s window outlasts the 6s fallback, so the reset rows also show the fallback
 - A real phone.
 - The press-mode stop path is not in the CI probe; only the hand check above covers it.
 - On the CI runner, `Animation.setPlaybackRate` is untested until a branch run reads the slow run's landing times.
+
+## REFUTE round 1, and what changed
+
+The review found no blocker. Three items were taken:
+
+- **The verdict proved "not early", not "on landing".** A page whose landing listener never matched would reveal through its fallback timer, over a resting disc with the right wedge, and pass. The verdict now also fails a reveal that trails the landing by more than 250ms.
+  - Must-red on a mutant whose listener filter can never match: FAIL, "announced 3987ms after the disc landed"; the reveal came at ~6003ms against a landing at ~2014ms.
+- **The stop path's fallback was 3 × `STOP_MS` = 2700ms.** A frame stall just under a second could still announce mid-turn there. The fallback is now floored at the spin's 6000ms on both paths.
+- **The slow run's rate is pinned to 0.4–0.6.** The lever floor only discriminates well under 0.8, and much below about 0.33 an honest landing outruns the fallback.
+
+Re-run on the revised build (scratch outDir, private snapshots only):
+
+| build | result |
+|---|---|
+| probe on the revised fix | PASS, 3 of 3 runs |
+| probe on the unfixed snapshot | FAIL, slow run |
+| probe on the listener-filter mutant | FAIL, reveal trails landing |
+| lifecycle on the revised fix | press mode reveals at its landing: 934/934ms at rate 1, 1807/1807ms at rate 0.5; reset never reveals; reduced motion 1ms |
+
+Also fixed: a stale line-number citation in the stop handler's comment, which now names the press branch of `spin()` instead.

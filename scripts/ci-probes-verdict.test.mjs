@@ -191,3 +191,21 @@ test('wheel-pointer-name goes red when a spin carries no reveal-time reading', (
   const res = runVerdictRaw('wheel-pointer-name', wheelOut({ runningAtReveal: undefined }));
   assert.equal(res.status, 1, `an unmeasured reveal must not read as a resting disc: ${res.stdout}`);
 });
+
+// gh#289 review: "not early" is not "on landing". A page whose landing listener never matches still
+// reveals, via its fallback timer, long after the disc stopped; with no running transition and the
+// right wedge that passed. The reveal must follow the landing closely.
+test('wheel-pointer-name goes red when the reveal trails the landing (a fallback timer, not the landing)', () => {
+  const res = runVerdictRaw('wheel-pointer-name', { runs: [
+    wheelRun(320, 1, { revealMs: 6000, endMs: 2005 }), wheelRun(390, 1), wheelRun(390, 0.5),
+  ] });
+  assert.equal(res.status, 1, `a reveal 4s after the landing is not a reveal on landing: ${res.stdout}`);
+  assert.match(res.stdout, /after the disc landed/, `the verdict must say the reveal trailed the landing: ${res.stdout}`);
+});
+
+test('wheel-pointer-name goes red when the slow run uses a rate its lever check cannot discriminate', () => {
+  const out = wheelOut();
+  out.runs[2].rate = 0.9;
+  const res = runVerdictRaw('wheel-pointer-name', out);
+  assert.equal(res.status, 1, `at rate 0.9 a no-op lever passes the floor, so the rate itself must be pinned: ${res.stdout}`);
+});
