@@ -343,11 +343,18 @@ Record: device — OS version — PASS / FAIL — note.
 3. If the WebGL context is lost, does the DOM fallback board read as the same game with the
    round intact? This clause is conditional — if a loss never happens under your hand, record
    "not observed" rather than a pass.
+4. *(added 2026-10-24, from gh#286)* On a 320px device, open the how-to-play dialog twice: once
+   at the phone's default text size, once with the system text size at its largest. Can you
+   read the last rule line, with nothing cutting it off? Headless Chrome left 54px (Mac,
+   Thonburi) and 63px (Linux, Noto Sans Thai) to spare at 320x568; a real phone and
+   accessibility text scaling were never measured, and either can eat that margin.
 
 **Pass:** intended tiles are hit reliably (or the occasional miss is tolerated), the board
-survives lock/unlock, and the fallback reads as the same game.
-**Fail:** tiles are too small to hit, the board corrupts after lock/unlock, or the fallback
-reads as a different game.
+survives lock/unlock, the fallback reads as the same game, and the last rule line is fully
+readable at both text sizes.
+**Fail:** tiles are too small to hit, the board corrupts after lock/unlock, the fallback
+reads as a different game, or the dialog cuts off rules text at either text size — record
+which size.
 
 Record: device — OS version — PASS / FAIL — note.
 
