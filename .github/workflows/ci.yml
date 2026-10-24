@@ -499,6 +499,26 @@ jobs:
             echo "run=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # gh#287, owner ruling 2026-10-24: ubuntu-latest ships no Thai face (`fc-list ':lang=th'` printed
+      # nothing on run 40065527286), so any text whose font stack reaches no self-hosted face rendered as
+      # DejaVu tofu and every browser lane below measured tofu wrapping. fonts-noto-core gives the runner
+      # Noto Sans Thai, the face Android ships; it is still not an iPhone, so a runner px stays one
+      # machine's number. It precedes every Chrome launch because a running Chrome keeps its font list.
+      # The empty-list check is the must-red: leg A of that run is the known failure it catches.
+      # The `${{` in the log path also keeps scripts/run-workflow-gates.sh from running sudo apt-get on
+      # a laptop (NORUN); a Mac already has Thai faces and needs nothing here.
+      - name: Give the runner a Thai face (gh#287)
+        if: steps.probe-scope.outputs.run == 'true'
+        run: |
+          log="${{ runner.temp }}/apt-fonts-noto-core.log"
+          if ! { sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends fonts-noto-core; } > "$log" 2>&1; then
+            cat "$log"; echo "::error::apt-get could not install fonts-noto-core"; exit 1
+          fi
+          fc-cache -f
+          thai=$(fc-list ':lang=th' family | sort -u)
+          printf 'Thai faces on the runner:\n%s\n' "$thai"
+          if [ -z "$thai" ]; then echo "::error::fonts-noto-core installed but fc-list finds no Thai face"; exit 1; fi
+
       # PROBE_OUT_DIR is set here only so the upload step below has a path it can name. Left to its
       # default the script mktemp's a directory whose name nothing outside the script knows, and it
       # sits outside the workspace on purpose: it fills with Chrome user-data dirs and screenshots,
