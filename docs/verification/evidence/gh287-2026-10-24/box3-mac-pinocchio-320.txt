@@ -1,0 +1,51 @@
+# gh#287 box 3 -- pinocchio-luck 320x568 SIDEWAYS on this Mac, 2026-10-24, tree 4d91416 (dist from its own npm run build).
+# Why: removing KNOWN_OVERFLOW_X 'pinocchio-luck 320x568' red the local suite: play-screen-fit-2 read 50px sideways
+# by section#stageFrame on press 3 (scripts/run-workflow-gates.sh, full run). Two earlier full runs with the row gone were green.
+# Loop: serve dist on 4611, fresh headless Chrome per walk on 9611 with --headless --disable-gpu --no-sandbox,
+#   BASE=http://localhost:4611 CDP_PORT=9611 ROUTES_ONLY=pinocchio-luck node scripts/play-screen-fit-probe.mjs
+# Per walk, the 320x568 row sideways reading (rc=1 = the sideways gate red with the row removed):
+# batch 1: walk 1 0px rc=0 | walk 2 79px rc=1
+# batch 2: walks 1-6 = 6px rc=0 | 0px rc=0 | 6px rc=0 | 0px rc=0 | 0px rc=0 | 49px rc=1
+# Every non-zero reading is press 3, section#stageFrame. Batch 2 per-screen lines, verbatim:
+
+## batch 2 walk 1
+::notice::pinocchio-luck     320x568   scrolls YES   270px  clipped     0px  sideways     6px by section#stageFrame  width-fill  83.1%  (worst of 4 screen(s): press 0, 21 ink)
+::notice::  screen [press 0]  overflow   270px  scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  ink 21  class player
+::notice::  screen [press 1]  overflow    63px  scrolls YES    63px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 7  class round
+::notice::  screen [press 2]  overflow   163px  scrolls YES   163px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 14  class round
+::notice::  screen [press 3]  overflow    49px  scrolls YES    49px  clipped     4px by div.css-mouth  sideways     6px by section#stageFrame  width-fill  97.8%  ink 7  class round
+
+## batch 2 walk 2
+::notice::pinocchio-luck     320x568   scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  (worst of 4 screen(s): press 0, 21 ink)
+::notice::  screen [press 0]  overflow   270px  scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  ink 21  class player
+::notice::  screen [press 1]  overflow    63px  scrolls YES    63px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 7  class round
+::notice::  screen [press 2]  overflow   163px  scrolls YES   163px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 14  class round
+::notice::  screen [press 3]  overflow    82px  scrolls YES    82px  clipped     4px by div.css-mouth  sideways     0px  width-fill  97.8%  ink 8  class round
+
+## batch 2 walk 3
+::notice::pinocchio-luck     320x568   scrolls YES   270px  clipped     0px  sideways     6px by section#stageFrame  width-fill  83.1%  (worst of 4 screen(s): press 0, 21 ink)
+::notice::  screen [press 0]  overflow   270px  scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  ink 21  class player
+::notice::  screen [press 1]  overflow    63px  scrolls YES    63px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 7  class round
+::notice::  screen [press 2]  overflow   163px  scrolls YES   163px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 14  class round
+::notice::  screen [press 3]  overflow    49px  scrolls YES    49px  clipped     4px by div.css-mouth  sideways     6px by section#stageFrame  width-fill  97.8%  ink 7  class round
+
+## batch 2 walk 4
+::notice::pinocchio-luck     320x568   scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  (worst of 4 screen(s): press 0, 21 ink)
+::notice::  screen [press 0]  overflow   270px  scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  ink 21  class player
+::notice::  screen [press 1]  overflow    63px  scrolls YES    63px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 7  class round
+::notice::  screen [press 2]  overflow   163px  scrolls YES   163px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 14  class round
+::notice::  screen [press 3]  overflow    49px  scrolls YES    49px  clipped     4px by div.css-mouth  sideways     0px  width-fill  97.8%  ink 7  class round
+
+## batch 2 walk 5
+::notice::pinocchio-luck     320x568   scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  (worst of 4 screen(s): press 0, 21 ink)
+::notice::  screen [press 0]  overflow   270px  scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  ink 21  class player
+::notice::  screen [press 1]  overflow    63px  scrolls YES    63px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 7  class round
+::notice::  screen [press 2]  overflow   163px  scrolls YES   163px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 14  class round
+::notice::  screen [press 3]  overflow    82px  scrolls YES    82px  clipped     4px by div.css-mouth  sideways     0px  width-fill  97.8%  ink 8  class round
+
+## batch 2 walk 6
+::notice::pinocchio-luck     320x568   scrolls YES   270px  clipped     0px  sideways    49px by section#stageFrame  width-fill  83.1%  (worst of 4 screen(s): press 0, 21 ink)
+::notice::  screen [press 0]  overflow   270px  scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  ink 21  class player
+::notice::  screen [press 1]  overflow    63px  scrolls YES    63px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 7  class round
+::notice::  screen [press 2]  overflow   135px  scrolls YES   135px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 14  class round
+::notice::  screen [press 3]  overflow    49px  scrolls YES    49px  clipped     4px by div.css-mouth  sideways    49px by section#stageFrame  width-fill  97.8%  ink 7  class round

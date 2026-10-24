@@ -521,11 +521,7 @@ export const KNOWN_OVERFLOW_X = new Map([
   // reading is unverified from this machine but the mechanism removed (a nowrap label forcing a
   // column wider than its share) is font-stack-independent -- the fix does not depend on which font
   // measured wider.
-  // pinocchio-luck 320x568 row REMOVED 2026-10-24, gh#287 box 3: it recorded 11px sideways on the CI
-  // runner against ZERO on this Mac, from an h1 of Thai overflowing its own heading. gh#287 measured
-  // that runner as having no Thai face at all, and once ci.yml installed fonts-noto-core the row read
-  // 0px sideways on n=3 runs of commit a164bd1 (40080855402, 40081954392, 40081954489). Both machines
-  // now read it under tolerance, which is the deletion rule its 390x844 sibling below states.
+  ['pinocchio-luck 320x568', 'gh#202 open: 79px on press 3 - sideways overflow on section#stageFrame, read on THIS MAC, the same box the 390x844 row below records. RE-RECORDED 2026-10-24 by gh#287 box 3. The row was removed in that batch on a CI runner reading of 0px (n=3 with fonts-noto-core) plus the old reason saying this Mac reads ZERO, and the local suite then red on this Mac at 50px. This Mac reads the row intermittently: 0, 79, 6, 0, 6, 0, 0 and 49px on eight walks of ROUTES_ONLY=pinocchio-luck under the ci-probes.sh lane flags (--headless --disable-gpu --no-sandbox), always on press 3, because the route advances on its own clock and press 3 does not always land on the same screen (docs/verification/evidence/gh287-2026-10-24/box3-mac-pinocchio-320.txt). Recorded at the larger of the two machines, per this map. The h1 offender below no longer reads on either machine. Previously: gh#202 open: 11px on press 0 - the widest offender is an h1, so this is Thai text overflowing its own heading rather than a container mis-sized. CI runner 11px, this Mac ZERO, which is consistent with the runner wrapping Thai differently; docs/agents/ci-verification.md names a self-hosted Thai webfont as the converging fix and reserves it for the owner'],
   ['pinocchio-luck 390x844', 'gh#202 open: 10px on press 2 - sideways overflow on section#stageFrame. This Mac 10px, CI runner ZERO - the one row that runs the opposite way to the others. Check (vi) will therefore print its clear-row warning on CI asking for this row to be deleted: DO NOT act on that alone. Deleting it reds the Mac. Delete only when BOTH machines read it under tolerance'],
 ]);
 /**
