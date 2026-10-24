@@ -1,0 +1,142 @@
+# gh#287 box 3 -- fit rows on the CI runner with fonts-noto-core installed
+# Commit a164bd1 (ci.yml install step only, no exemption change). Three runs of the same commit:
+# 40080855402 (ci/gh287-noto), 40081954392 (ci/gh287-noto-r2), 40081954489 (ci/gh287-noto-r3).
+# Read 2026-10-24 from 'gh run view <id> --log', the fit probe's ::notice:: row lines; a green run keeps no artifact.
+# Columns: route viewport scroll clipped sideways. All three runs are identical except cursed-number 390x844.
+# Thai faces the install step printed (run 40080855402, fc-list ':lang=th' family):
+#   Noto Looped Thai,Noto Looped Thai Bold
+#   Noto Looped Thai,Noto Looped Thai Regular
+#   Noto Sans Thai
+#   Noto Serif Thai
+
+## run 1
+bangkok-drift 1440x900 0px 0px 0px
+bangkok-drift 320x568 126px 0px 0px
+bangkok-drift 390x844 0px 0px 0px
+cannon-flag 1440x900 0px 3px 0px
+cannon-flag 320x568 20px 0px 0px
+cannon-flag 390x844 0px 3px 0px
+croc-bite 1440x900 0px 0px 0px
+croc-bite 320x568 0px 0px 0px
+croc-bite 390x844 0px 0px 0px
+cursed-number 1440x900 34px 0px 0px
+cursed-number 320x568 651px 0px 0px
+cursed-number 390x844 283px 0px 0px
+dice-loser 1440x900 0px 0px 0px
+dice-loser 320x568 70px 0px 0px
+dice-loser 390x844 0px 0px 0px
+freeze-tap 1440x900 0px 0px 0px
+freeze-tap 320x568 37px 0px 0px
+freeze-tap 390x844 0px 0px 0px
+how-close-is-near 1440x900 0px 0px 0px
+how-close-is-near 320x568 60px 0px 0px
+how-close-is-near 390x844 0px 0px 0px
+one-bomb 1440x900 0px 0px 0px
+one-bomb 320x568 176px 0px 0px
+one-bomb 390x844 0px 0px 0px
+pinocchio-luck 1440x900 174px 0px 0px
+pinocchio-luck 320x568 270px 2px 0px
+pinocchio-luck 390x844 170px 0px 0px
+power-meter 1440x900 0px 76px 0px
+power-meter 320x568 100px 76px 0px
+power-meter 390x844 0px 76px 0px
+short-stick 1440x900 0px 0px 0px
+short-stick 320x568 156px 0px 0px
+short-stick 390x844 0px 0px 0px
+timebomb 1440x900 0px 0px 0px
+timebomb 320x568 71px 0px 0px
+timebomb 390x844 0px 0px 0px
+wire-snip-panic 1440x900 0px 0px 0px
+wire-snip-panic 320x568 71px 0px 0px
+wire-snip-panic 390x844 0px 0px 0px
+zero-trigger 1440x900 0px 0px 0px
+zero-trigger 320x568 138px 0px 0px
+zero-trigger 390x844 0px 0px 0px
+
+## run 2
+bangkok-drift 1440x900 0px 0px 0px
+bangkok-drift 320x568 126px 0px 0px
+bangkok-drift 390x844 0px 0px 0px
+cannon-flag 1440x900 0px 3px 0px
+cannon-flag 320x568 20px 0px 0px
+cannon-flag 390x844 0px 3px 0px
+croc-bite 1440x900 0px 0px 0px
+croc-bite 320x568 0px 0px 0px
+croc-bite 390x844 0px 0px 0px
+cursed-number 1440x900 34px 0px 0px
+cursed-number 320x568 651px 0px 0px
+cursed-number 390x844 231px 0px 0px
+dice-loser 1440x900 0px 0px 0px
+dice-loser 320x568 70px 0px 0px
+dice-loser 390x844 0px 0px 0px
+freeze-tap 1440x900 0px 0px 0px
+freeze-tap 320x568 37px 0px 0px
+freeze-tap 390x844 0px 0px 0px
+how-close-is-near 1440x900 0px 0px 0px
+how-close-is-near 320x568 60px 0px 0px
+how-close-is-near 390x844 0px 0px 0px
+one-bomb 1440x900 0px 0px 0px
+one-bomb 320x568 176px 0px 0px
+one-bomb 390x844 0px 0px 0px
+pinocchio-luck 1440x900 174px 0px 0px
+pinocchio-luck 320x568 270px 2px 0px
+pinocchio-luck 390x844 170px 0px 0px
+power-meter 1440x900 0px 76px 0px
+power-meter 320x568 100px 76px 0px
+power-meter 390x844 0px 76px 0px
+short-stick 1440x900 0px 0px 0px
+short-stick 320x568 156px 0px 0px
+short-stick 390x844 0px 0px 0px
+timebomb 1440x900 0px 0px 0px
+timebomb 320x568 71px 0px 0px
+timebomb 390x844 0px 0px 0px
+wire-snip-panic 1440x900 0px 0px 0px
+wire-snip-panic 320x568 71px 0px 0px
+wire-snip-panic 390x844 0px 0px 0px
+zero-trigger 1440x900 0px 0px 0px
+zero-trigger 320x568 138px 0px 0px
+zero-trigger 390x844 0px 0px 0px
+
+## run 3
+bangkok-drift 1440x900 0px 0px 0px
+bangkok-drift 320x568 126px 0px 0px
+bangkok-drift 390x844 0px 0px 0px
+cannon-flag 1440x900 0px 3px 0px
+cannon-flag 320x568 20px 0px 0px
+cannon-flag 390x844 0px 3px 0px
+croc-bite 1440x900 0px 0px 0px
+croc-bite 320x568 0px 0px 0px
+croc-bite 390x844 0px 0px 0px
+cursed-number 1440x900 34px 0px 0px
+cursed-number 320x568 651px 0px 0px
+cursed-number 390x844 231px 0px 0px
+dice-loser 1440x900 0px 0px 0px
+dice-loser 320x568 70px 0px 0px
+dice-loser 390x844 0px 0px 0px
+freeze-tap 1440x900 0px 0px 0px
+freeze-tap 320x568 37px 0px 0px
+freeze-tap 390x844 0px 0px 0px
+how-close-is-near 1440x900 0px 0px 0px
+how-close-is-near 320x568 60px 0px 0px
+how-close-is-near 390x844 0px 0px 0px
+one-bomb 1440x900 0px 0px 0px
+one-bomb 320x568 176px 0px 0px
+one-bomb 390x844 0px 0px 0px
+pinocchio-luck 1440x900 174px 0px 0px
+pinocchio-luck 320x568 270px 2px 0px
+pinocchio-luck 390x844 170px 0px 0px
+power-meter 1440x900 0px 76px 0px
+power-meter 320x568 100px 76px 0px
+power-meter 390x844 0px 76px 0px
+short-stick 1440x900 0px 0px 0px
+short-stick 320x568 156px 0px 0px
+short-stick 390x844 0px 0px 0px
+timebomb 1440x900 0px 0px 0px
+timebomb 320x568 71px 0px 0px
+timebomb 390x844 0px 0px 0px
+wire-snip-panic 1440x900 0px 0px 0px
+wire-snip-panic 320x568 71px 0px 0px
+wire-snip-panic 390x844 0px 0px 0px
+zero-trigger 1440x900 0px 0px 0px
+zero-trigger 320x568 138px 0px 0px
+zero-trigger 390x844 0px 0px 0px

@@ -93,3 +93,14 @@ The one-bomb 79px clip going to 0 reproduces gh#286's diagnostic (runs 396223593
 - Screens past `PRESS_CAP`.
 - The final probe on this Mac read only 3 routes. An all-routes run of the round-0 instrument agreed on the route set, but that run is not evidence of the final code and is not kept here.
 - A real phone.
+
+## Box 3: the re-record after the owner picked a Thai face (2026-10-24)
+
+Owner ruling 2026-10-24 (gh#287 box 2): `ci.yml` installs `fonts-noto-core` before the browser lanes (commit a164bd1). `box3-noto-rows.txt` holds the 42 fit row lines of three runs of that commit, with no exemption changed. The three runs agree on every row except cursed-number 390x844 (283 / 231 / 231px), a self-timed route.
+
+"Affected" was read from the reason strings, not from the at-risk list above. At-risk says a measured box held tofu Thai; it does not say the recorded px came from the runner. Of the 18 `KNOWN_OVERFLOW` rows, the 2 `KNOWN_OVERFLOW_X` rows and the 3 `PLAYER_SCREEN_SCROLLS` rows, only these current readings were taken on the runner:
+
+- **one-bomb 320x568 (`KNOWN_OVERFLOW`).** The reason's runner lane (171 / 79 / 6) was re-recorded as 176 / 0 / 0 on all three runs. Its recorded 174px is this Mac's player screen and does not move.
+- **pinocchio-luck 320x568 (`KNOWN_OVERFLOW_X`, runner 11px, Mac 0).** It read 0px sideways on all three runs, so both machines are now under tolerance and the row was removed, by the deletion rule its 390x844 sibling states.
+
+Every other recorded px is this Mac's, and a runner font does not move it. The cursed-number 320x568 drift warning (703px against a recorded 689px) stops firing, because the runner now reads 651px.
