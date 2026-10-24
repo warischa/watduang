@@ -3,14 +3,14 @@
  "height": 844,
  "mobile": true,
  "reducedMotion": true,
- "bangkokAtStart": "2026-10-24, 20:16:29",
+ "bangkokAtStart": "2026-10-24, 22:00:52",
  "states": [
   {
    "id": "wheel-result",
    "path": "/tool/wheel/",
    "drive": {
     "moved": [],
-    "msToResult": 158
+    "msToResult": 155
    },
    "audit": {
     "path": "/tool/wheel/",
@@ -69,7 +69,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.wheel-note \"\"",
-     "ms": 148,
+     "ms": 24,
      "url": null
     }
    },
@@ -137,7 +137,7 @@
    "path": "/tool/draw/",
    "drive": {
     "moved": [],
-    "msToResult": 154
+    "msToResult": 162
    },
    "audit": {
     "path": "/tool/draw/",
@@ -181,7 +181,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนว\"",
-     "ms": 32,
+     "ms": 28,
      "url": null
     }
    },
@@ -234,7 +234,7 @@
    "path": "/tool/team/",
    "drive": {
     "moved": [],
-    "msToResult": 163
+    "msToResult": 161
    },
    "audit": {
     "path": "/tool/team/",
@@ -278,7 +278,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ใส่ชื่อลงสนาม เลือกจำนวน\"",
-     "ms": 32,
+     "ms": 24,
      "url": null
     }
    },
@@ -331,7 +331,7 @@
    "path": "/tool/number/",
    "drive": {
     "moved": [],
-    "msToResult": 155
+    "msToResult": 158
    },
    "audit": {
     "path": "/tool/number/",
@@ -344,7 +344,7 @@
     "under12": [],
     "tightLines": 1,
     "tightLineSample": [
-     "p.number-result \"ได้: 6\" 1.20"
+     "p.number-result \"ได้: 10\" 1.20"
     ],
     "targets": 24,
     "under44": 5,
@@ -382,7 +382,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ตั้งค่าต่ำสุด-สูงสุด แล้\"",
-     "ms": 24,
+     "ms": 16,
      "url": null
     }
    },
@@ -440,8 +440,8 @@
    "path": "/game/siamsi/",
    "drive": {
     "moved": [],
-    "msToResult": 2658,
-    "stage": "๒๕พอใช้แผนที่เก่าในกระเป๋า ยังใช้ได้อยู่บ้างแต่ทางบางเส้นเปลี่ยน ตั้งแต่เราไม่ได้มาถามคนแถวนี้สักคำ ก่อนเลี้ยวตามที่จำปร"
+    "msToResult": 2666,
+    "stage": "๑๒ดีสะพานที่คนช่วยสร้าง ข้ามได้ทั้งสองฝั่งสิ่งที่เคยเข้าใจผิด วันนี้พูดกันรู้เรื่องคำเดียวที่เอ่ยออกไป ทำให้ทางเปิดกว้าง"
    },
    "audit": {
     "path": "/game/siamsi/",
@@ -464,7 +464,7 @@
     "cls": 0,
     "lcp": {
      "el": "h1.game-title \"เสี่ยงเซียมซี\"",
-     "ms": 24,
+     "ms": 16,
      "url": null
     }
    },
@@ -482,13 +482,13 @@
       "visible": true,
       "rect": {
        "x": 16,
-       "y": 1219,
+       "y": 1124,
        "w": 358,
        "h": 252
       }
      }
     ],
-    "docHeight": 1993
+    "docHeight": 1898
    }
   },
   {
@@ -496,8 +496,8 @@
    "path": "/game/daily-fortune/",
    "drive": {
     "moved": [],
-    "msToResult": 2655,
-    "stage": "ส. 24 ต.ค.ดวงวันนี้ประมาณว่าดวงดีนิดๆ พอให้ยิ้มได้กินชานมที่สั่งหวานน้อย จะมาเป็นหวานปกติ แต่วันนี้ดันอยากกินหวานพอดี~เง"
+    "msToResult": 2660,
+    "stage": "ส. 24 ต.ค.ดวงวันนี้ประมาณว่าจักรวาลเข้าข้างแบบเงียบๆกินสั่งเมนูที่ธรรมดาที่สุดในร้าน วันนี้ดันอร่อยจนอยากสั่งซ้ำ+เงินล้ว"
    },
    "audit": {
     "path": "/game/daily-fortune/",
@@ -510,7 +510,7 @@
     "under12": [],
     "tightLines": 1,
     "tightLineSample": [
-     "p.df-verdict \"ดวงดีนิดๆ พอให้ยิ้มได้\" 1.40"
+     "p.df-verdict \"จักรวาลเข้าข้างแบบเงียบๆ\" 1.40"
     ],
     "targets": 18,
     "under44": 0,
@@ -522,7 +522,7 @@
     "cls": 0,
     "lcp": {
      "el": null,
-     "ms": 24,
+     "ms": 32,
      "url": null
     }
    },
@@ -555,7 +555,7 @@
    "drive": {
     "moved": [],
     "msToResult": 3159,
-    "stage": "คุณจะได้เจอเขาตอนคุณอายุ 32 ปีที่ งานวิ่งการกุศลเพศหญิงอายุ29ส่วนสูง166 ซม.รูปร่างล่ำสัญชาติไทยอาชีพนักกายภาพบำบัดฐานะมี"
+    "stage": "คุณจะได้เจอเขาตอนคุณอายุ 34 ปีที่ ตลาดนัดเช้าวันเสาร์เพศหญิงอายุ32ส่วนสูง170 ซม.รูปร่างสูงผอมสัญชาติไทยอาชีพทนายความฐานะ"
    },
    "audit": {
     "path": "/game/love-match/",
@@ -569,7 +569,7 @@
     "tightLines": 2,
     "tightLineSample": [
      "p.lm-heading \"คุณจะได้เจอเขา\" 1.35",
-     "p.lm-when \"ตอนคุณอายุ 32 ปี\" 1.35"
+     "p.lm-when \"ตอนคุณอายุ 34 ปี\" 1.35"
     ],
     "targets": 18,
     "under44": 0,
@@ -581,7 +581,7 @@
     "cls": 0,
     "lcp": {
      "el": null,
-     "ms": 36,
+     "ms": 40,
      "url": null
     }
    },
@@ -609,6 +609,6 @@
    }
   }
  ],
- "bangkokAtEnd": "2026-10-24, 20:17:21",
+ "bangkokAtEnd": "2026-10-24, 22:01:44",
  "consoleErrors": []
 }

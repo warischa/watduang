@@ -9,6 +9,16 @@ costs for effect candidates A–E. **Findings and options only, no picks** — t
 - Built tree: `dd17a72` (`git rev-parse HEAD`), `npm run build` at 20:00:30–20:00:33 Asia/Bangkok
   (13:00 UTC) on 2026-10-24, 26 pages, `BUILD_RC=0`. `git diff --stat ee7dcd7 HEAD -- src public` is empty
   (only `scripts/` and docs moved since prod), so the build is the deployed site's source.
+- **Re-measured on a quiet machine.** The first runs (20:00–21:15) overlapped a sibling session's
+  deliberate CPU-load experiment in this checkout (gh#289). Every number in the JSONs and tables below
+  is from the re-run, 21:56–22:12 Asia/Bangkok, sequential, one Chrome at a time, CPU sampled 87–92%
+  idle before it started. Rebuilt once at 21:56:01–21:56:03 with HEAD `9b18782` (src identical to
+  `9158580`, so the gh#289 wheel fix is in); `git status --short` at build time listed only this dir's
+  `effects-probe.mjs` (the rep-interleave edit; not in `dist/`). Layout, contrast, target, overflow,
+  motion-inventory and reduced-motion rows reproduced with **0 differences** across the five audit files.
+  Timing rows moved by a few percent (old values: commit `83c5b1f`). Not re-run, because they carry no
+  timing claim: `interaction-1440.json`, `detail.json`, `canvas/`, `vt.json` and `shots/visual-*` (layout,
+  styles and behaviour only).
 - **`main` moved during the audit:** another session committed `62d038a` (20:31) and `9158580` (20:47),
   gh#289, after this build. Both touch only `src/pages/tool/wheel.astro` and only *when* the pick is
   announced (on the disc's `transitionend` instead of a timer from the tap); no style changes. Every
@@ -68,8 +78,8 @@ so that X was **not audited**; whether it belongs to this ticket is a scope ques
 | Fortune motion poll | — | siamsi's shake shows `sm-rattle` and `sm-fall` while pressed (so the poll can see this page's motion); runs on `dist/` rebuilt by the 21:08 gate run from `9158580` (gh#289 touches only the wheel) |
 | Focus ring counts any `box-shadow` | — | every stop also had an outline, so no stop's "ring" was a shadow alone; the tool buttons' decorative 4px ink shadow would read as a ring on a page that removed the outline |
 | Live CLS | `/tools/` with a 200px block pushed in at top 600ms after load → CLS `0.237` | the same page without it → `0`–`0.0001` |
-| Live throttle | unthrottled `/` → LCP 144ms | throttled `/` → LCP 1132–1296ms |
-| Effect raster/draw (no-GPU) | `CAL-heavy` (full-viewport 40px backdrop blur + repainting body gradient + box-shadow animations) → RasterTask 1392–1465ms, DrawAndSwap 774–801ms per 3s | home scroll baseline → 24–30 / 100–109ms |
+| Live throttle | unthrottled `/` → LCP 176ms | throttled `/` → LCP 1128–1328ms |
+| Effect raster/draw (no-GPU) | `CAL-heavy` (full-viewport 40px backdrop blur + repainting body gradient + box-shadow animations) → RasterTask 1421–1500ms, DrawAndSwap 722–764ms per 3s | home scroll baseline → 24–29 / 99–108ms |
 | Effect GPU process (SwiftShader) | `CAL-heavy` → GPU-process `Scheduler::RunTask` (see effects table) | idle baseline |
 | **Failed instrument, dropped** | rAF frame intervals read p95 16.7ms on `CAL-heavy` in the no-GPU lane: raster and draw run off the main thread, so rAF cannot see them. rAF figures are kept in the JSON but no claim rests on them. | |
 | **Prototype applied?** | first A1-paint run read raster 0 = baseline: Astro's scoped `.hero[data-astro-cid-*]` `background` shorthand beat the injected rule (computed `background-image: none`). Fixed with `!important`, re-verified in-page (`linear-gradient(120deg, rgb(255, 61, 127)…`), all rows re-run. The same check caught B1's translucent ground. | |
@@ -171,7 +181,7 @@ Options: (a) an idle wheel (neutral segments or sample names) drawn on canvas; (
 ### F9 — Motion today, and what reduced motion does to it (baseline for every candidate)
 - Idle motion lives on `/` only: `shelf-twinkle` ×4 sparks (2.4s), `shelf-bob-narrow` (3.2s), `shelf-tilt`
   ×3 tiles (6s); 6 animations running at 390, 8 at 1440. The wheel spin is a `transform` transition of
-  ~2.1s (`states-*.json` `msToResult` 2097–2122).
+  ~2.1s (`states-*.json` `msToResult` 2099–2110, on the gh#289 tree).
 - Draw, team and number results appear with no transition (result in ~160ms, `moved: []`, final-state
   inventory 0). The fortune pages were sampled through the whole interaction (`fortune-motion-probe.mjs`,
   `getAnimations()` every 100ms from each press to 4s after it, so an animation under 100ms could be
@@ -180,7 +190,7 @@ Options: (a) an idle wheel (neutral segments or sample names) drawn on canvas; (
   animation**, and no inline transform/opacity is written (`fortune-motion.json`). The state probe's
   150ms sample had predated these results by ~2.5s, so this re-measure replaces it for the fortune rows.
 - Under reduced motion every one of those is **removed**, not reduced: `/` drops to 0 animations and
-  0 transitions; the wheel lands in 158ms with nothing moving; siamsi's rattle and fall do not run
+  0 transitions; the wheel lands in 155ms with nothing moving; siamsi's rattle and fall do not run
   (`fortune-motion-rm.json`, nothing seen at any step). ADR-0046's "reduce, not remove" was decided
   for motion that *is* the mechanic (a fuse); it does not say whether ambient or decorative motion may be
   removed. The plan applies "reduced, not removed" to the new layer. Options for the owner: (a) the new
@@ -205,23 +215,23 @@ viewport, 17% of 320×640. A compact sticky bar would be a new canvas design, no
 
 `live-perf.json`. Headless Chrome 155 on a Mac, 390×844 mobile, CDP throttle 1.6 Mbps down / 750 Kbps up /
 CPU 4×, cache disabled, n=3 cold-cache loads per page, no AdSense. **The emulated 150ms RTT did not show
-in TTFB** (61–75ms after the first load, 304ms on the very first): connections were reused, so these
-are warm-connection, cold-cache numbers. Bandwidth and CPU throttling did apply (unthrottled `/` LCP 144ms).
+in TTFB** (61–102ms after the first load of each page run, 298–405ms on a first load): connections were reused, so these
+are warm-connection, cold-cache numbers. Bandwidth and CPU throttling did apply (unthrottled `/` LCP 176ms). Live is prod `ee7dcd7`, so its wheel page predates gh#289.
 
 | Page | LCP median (range) ms | CLS max | FCP median | kB transferred | LCP element |
 |---|---|---|---|---|---|
-| `/` | 1176 (1132–1296) | 0.0041 | 504 | 288 | `croc-bite.webp` (featured card) |
-| `/tools/` | 288 (280–300) | 0.0001 | 288 | 95 | `p.lead` |
-| `/tool/wheel/` | 464 (460–532) | 0 | 464 | 103 | `p.wheel-note` |
-| `/tool/draw/` | 492 (492–504) | 0 | 492 | 101 | `p.tool-tagline` |
-| `/tool/team/` | 460 (460–464) | 0 | 460 | 101 | `p.tool-tagline` |
-| `/tool/number/` | 456 (452–456) | 0 | 456 | 99 | `p.tool-tagline` |
-| `/c/fortune/` | 460 (452–468) | 0 | 460 | 97 | `p.intro-card` |
+| `/` | 1152 (1128–1328) | 0.0041 | 492 | 288 | `croc-bite.webp` (featured card) |
+| `/tools/` | 284 (280–292) | 0.0001 | 284 | 95 | `p.lead` |
+| `/tool/wheel/` | 460 (460–556) | 0 | 460 | 103 | `p.wheel-note` |
+| `/tool/draw/` | 492 (484–500) | 0 | 492 | 101 | `p.tool-tagline` |
+| `/tool/team/` | 456 (456–460) | 0 | 456 | 101 | `p.tool-tagline` |
+| `/tool/number/` | 452 (448–456) | 0 | 452 | 99 | `p.tool-tagline` |
+| `/c/fortune/` | 472 (460–472) | 0 | 472 | 97 | `p.intro-card` |
 | `/c/party/` | 464 (456–468) | 0.0017 | 464 | 155 | `p.intro-card` |
-| `/game/siamsi/` | 492 (492–496) | 0 | 492 | 118 | `h1.game-title` |
-| `/game/daily-fortune/` | 780 (768–784) | 0.0005 | 496 | 108 | `span.df-headline` |
-| `/game/love-match/` | 792 (788–800) | 0.0049 | 492 | 129 | `p.lm-note` |
-| `/404.html` | 284 (280–292) | 0 | 284 | 69 | `h1` |
+| `/game/siamsi/` | 488 (488–492) | 0 | 488 | 118 | `h1.game-title` |
+| `/game/daily-fortune/` | 772 (752–772) | 0.0005 | 500 | 108 | `span.df-headline` |
+| `/game/love-match/` | 796 (788–796) | 0.0049 | 496 | 129 | `p.lm-note` |
+| `/404.html` | 288 (284–544) | 0 | 288 | 69 | `h1` |
 
 The two largest shifts: `/` 0.0041 (featured image + ad slot, ~1.6s) and love-match 0.0049 (`.lm-qbox`
 and the go button, ~1.1s). Both are under 0.1 by a factor of 20. Any effect that adds bytes to `/` adds
@@ -233,35 +243,35 @@ Prototypes in `effects/` are throwaway measurement instruments with placeholder 
 (ADR-0033). Each was injected into the built page over CDP and verified in-page to have applied (see
 Calibration). Bytes = `gzip -9` of the prototype file alone (small files carry ~20 bytes of gzip header,
 so merged into an existing stylesheet they cost less). Cost = trace time over a 3-second window, median of
-3 runs, 390×844, CPU 4× on the main thread (raster and GPU threads are not throttled by CDP):
+3 runs with reps interleaved across variants, 390×844, CPU 4× on the main thread (raster and GPU threads are not throttled by CDP):
 **no-GPU lane** = raster workers + the software display compositor's draw; **SwiftShader lane** = the GPU
 process's scheduler time (software GL). Both are Mac CPU time: compare a row only with its own baseline.
 
 | Candidate · variant | gzip B | No-GPU: raster / draw ms | SwiftShader: GPU-process ms | Paints? | Without support | Reduced-motion form (prototype) |
 |---|---|---|---|---|---|---|
-| idle baseline `/` | — | 0 / 30 | 17 | — | — | — |
-| **A1** CSS gradient, paint path (animates `background-position`) | 434 | **286** / 70 | **1154** | yes | static gradient | animation off |
-| **A1** CSS gradient, compositor path (one layer moved by `transform`) | 497 | 0 / 132 | 24 | yes | static layer | animation off |
-| **A2** WebGL fragment shader, half resolution, paused off-screen | 1363 (JS) | = baseline (no context: 0 / 29) | 111 | yes (SwiftShader); no-WebGL lane keeps today's hero, `shots/visual-hero-*` | today's CSS hero, measured | one still frame |
-| scroll baseline `/` | — | 31 / 100 | 77 | — | — | — |
-| **B0** top bar made sticky, solid (pre-requisite of B, F11) | 179 | 28 / 81 | 75 | — | — | n/a |
-| **B1** frosted `backdrop-filter: blur(14px) saturate(1.4)` on B0 | 275 (+B0) | 28 / **230** | **645** | yes, `shots/visual-bar-b1-*` | translucent ink bar, no blur | n/a (static) |
-| **B2** SVG displacement glass `backdrop-filter: url(#…)`, B1 underneath | 730 (JS) | 28 / **436** | **1026** | yes in Chrome 155, both lanes (content under the bar visibly warps) | B1 via `@supports` | n/a |
-| **C** button hover/press lift, one focus ring, result pop (CSS) | 464 | 51 / 23 (20 presses of 4 buttons in 3s; wheel idle = 0 / 0) | 163 (idle 1) | yes | — (CSS only) | transitions ~0, result fades only |
-| **D** reveal on scroll, below the fold only (`IntersectionObserver` + CSS) | 647 (JS) | `/`: 15 / 108; `/c/party/`: 3 / 91 (baseline 9 / 86) | `/`: 173; `/c/party/`: 84 (baseline 42) | yes | no JS → everything visible (class added by script) | opacity only, 200ms |
+| idle baseline `/` | — | 0 / 29 | 25 | — | — | — |
+| **A1** CSS gradient, paint path (animates `background-position`) | 434 | **284** / 69 | **1123** | yes | static gradient | animation off |
+| **A1** CSS gradient, compositor path (one layer moved by `transform`) | 497 | 0 / 138 | 28 | yes | static layer | animation off |
+| **A2** WebGL fragment shader, half resolution, paused off-screen | 1363 (JS) | = baseline (no context: 0 / 31) | 121 | yes (SwiftShader); no-WebGL lane keeps today's hero, `shots/visual-hero-*` | today's CSS hero, measured | one still frame |
+| scroll baseline `/` | — | 26 / 99 | 85 | — | — | — |
+| **B0** top bar made sticky, solid (pre-requisite of B, F11) | 179 | 26 / 82 | 85 | — | — | n/a |
+| **B1** frosted `backdrop-filter: blur(14px) saturate(1.4)` on B0 | 275 (+B0) | 24 / **238** | **645** | yes, `shots/visual-bar-b1-*` | translucent ink bar, no blur | n/a (static) |
+| **B2** SVG displacement glass `backdrop-filter: url(#…)`, B1 underneath | 730 (JS) | 24 / **451** | **1029** | yes in Chrome 155, both lanes (content under the bar visibly warps) | B1 via `@supports` | n/a |
+| **C** button hover/press lift, one focus ring, result pop (CSS) | 464 | 56 / 25 (20 presses of 4 buttons in 3s; wheel idle = 0 / 0) | 174 (idle 1) | yes | — (CSS only) | transitions ~0, result fades only |
+| **D** reveal on scroll, below the fold only (`IntersectionObserver` + CSS) | 647 (JS) | `/`: 15 / 119; `/c/party/`: 3 / 94 (baseline 7 / 94) | `/`: 174; `/c/party/`: 86 (baseline 41) | yes | no JS → everything visible (class added by script) | opacity only, 200ms |
 | **E** cross-document view transitions (`@view-transition` + reduced-motion rule) | 290 | not measured (navigation, not a frame window) | — | yes: 250ms UA cross-fade | normal navigation | needs the author's rule (below) |
-| must-red `CAL-heavy` | — | 1429 / 760 | 2998 | — | — | — |
+| must-red `CAL-heavy` | — | 1494 / 726 | 3000 | — | — | — |
 
 CLS was 0 in every row of both lanes. No row moved the main thread's rAF p95 off 16.7ms except `CAL-heavy` in
-SwiftShader (33.3); see Calibration for why rAF is not the instrument.
+SwiftShader (median 33.4); see Calibration for why rAF is not the instrument.
 
 Readings that change a choice:
-- **A1's paint path costs ~50× its compositor path** in the GPU lane (1154 vs 24 ms per 3s). If A1 is
+- **A1's paint path costs ~40× its compositor path** in the GPU lane (1123 vs 28 ms per 3s; first run 1154 vs 24). If A1 is
   picked, only the transform-moved layer is viable.
-- **A2 adds ~95ms per 3s of GPU-process time over idle** on software GL, ships 1.36 kB of JS (moves
+- **A2 adds ~96ms per 3s of GPU-process time over idle** (121 vs 25) on software GL, ships 1.36 kB of JS (moves
   `BASELINE_TOTAL_BYTES`, gh#129) and would be the first WebGL on a web page. Its fallback is measured: the
   no-WebGL lane renders today's hero unchanged. Real-phone GPU cost and battery are unknown (gh#141).
-- **B1 costs ~8× B0** in the GPU lane (645 vs 75) and B2 ~14×, during scroll; and B needs B0 first, a
+- **B1 costs ~8× B0** in the GPU lane (645 vs 85) and B2 ~12× (1029), during scroll; and B needs B0 first, a
   109px sticky bar (F11). B2's displacement renders in Chrome only as far as measured; Safari and Firefox
   support was not measured here and is reported absent by secondary sources (researcher note below), and
   an `@supports` test on `url()` may pass where the paint does not, so B2's fallback is unproven.

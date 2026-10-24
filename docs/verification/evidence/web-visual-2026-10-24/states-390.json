@@ -3,7 +3,7 @@
  "height": 844,
  "mobile": true,
  "reducedMotion": false,
- "bangkokAtStart": "2026-10-24, 20:13:47",
+ "bangkokAtStart": "2026-10-24, 21:58:11",
  "states": [
   {
    "id": "wheel-result",
@@ -12,7 +12,7 @@
     "moved": [
      "CSSTransition:transform@wheel-group"
     ],
-    "msToResult": 2122
+    "msToResult": 2099
    },
    "audit": {
     "path": "/tool/wheel/",
@@ -71,7 +71,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.wheel-note \"\"",
-     "ms": 24,
+     "ms": 16,
      "url": null
     }
    },
@@ -146,7 +146,7 @@
    "path": "/tool/draw/",
    "drive": {
     "moved": [],
-    "msToResult": 157
+    "msToResult": 161
    },
    "audit": {
     "path": "/tool/draw/",
@@ -190,7 +190,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนว\"",
-     "ms": 28,
+     "ms": 20,
      "url": null
     }
    },
@@ -243,7 +243,7 @@
    "path": "/tool/team/",
    "drive": {
     "moved": [],
-    "msToResult": 160
+    "msToResult": 162
    },
    "audit": {
     "path": "/tool/team/",
@@ -287,7 +287,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ใส่ชื่อลงสนาม เลือกจำนวน\"",
-     "ms": 24,
+     "ms": 32,
      "url": null
     }
    },
@@ -340,7 +340,7 @@
    "path": "/tool/number/",
    "drive": {
     "moved": [],
-    "msToResult": 173
+    "msToResult": 160
    },
    "audit": {
     "path": "/tool/number/",
@@ -353,7 +353,7 @@
     "under12": [],
     "tightLines": 1,
     "tightLineSample": [
-     "p.number-result \"ได้: 7\" 1.20"
+     "p.number-result \"ได้: 10\" 1.20"
     ],
     "targets": 24,
     "under44": 5,
@@ -391,7 +391,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ตั้งค่าต่ำสุด-สูงสุด แล้\"",
-     "ms": 24,
+     "ms": 20,
      "url": null
     }
    },
@@ -450,7 +450,7 @@
    "drive": {
     "moved": [],
     "msToResult": 2659,
-    "stage": "๒๒ระวังหินริมน้ำดูแห้ง แต่ตะไคร่ซ่อนอยู่ใต้เหยียบเต็มเท้าทันที คือวิธีที่ล้มง่ายที่สุดลองน้ำหนักก่อนสักครึ่ง แล้วค่อยลงใ"
+    "stage": "๑๙ระวังเกวียนบรรทุกจนล้น ล้อจะรับไม่ไหวลดของลงสักใบ แล้วจะไปได้ไกลกว่าของทุกชิ้นดูสำคัญ แต่ไม่ใช่วันนี้ทั้งหมดเลือกสิ่งท"
    },
    "audit": {
     "path": "/game/siamsi/",
@@ -473,7 +473,7 @@
     "cls": 0,
     "lcp": {
      "el": "h1.game-title \"เสี่ยงเซียมซี\"",
-     "ms": 24,
+     "ms": 20,
      "url": null
     }
    },
@@ -491,13 +491,13 @@
       "visible": true,
       "rect": {
        "x": 16,
-       "y": 1195,
+       "y": 1241,
        "w": 358,
        "h": 252
       }
      }
     ],
-    "docHeight": 1969
+    "docHeight": 2015
    }
   },
   {
@@ -505,8 +505,8 @@
    "path": "/game/daily-fortune/",
    "drive": {
     "moved": [],
-    "msToResult": 2663,
-    "stage": "ส. 24 ต.ค.ดวงวันนี้ประมาณว่าเสมอตัว ได้อย่างเสียอย่างกินสั่งไข่ดาว จะได้ไข่เจียว แต่อร่อยกว่าที่สั่งไว้~เงินของที่รอลดรา"
+    "msToResult": 2659,
+    "stage": "ส. 24 ต.ค.ดวงวันนี้ประมาณว่าเสมอตัว ได้อย่างเสียอย่างกินสั่งไข่ดาว จะได้ไข่เจียว แต่อร่อยกว่าที่สั่งไว้~เงินล้วงกระเป๋าเ"
    },
    "audit": {
     "path": "/game/daily-fortune/",
@@ -563,8 +563,8 @@
    "path": "/game/love-match/",
    "drive": {
     "moved": [],
-    "msToResult": 3164,
-    "stage": "คุณจะได้เจอเขาตอนคุณอายุ 30 ปีที่ ห้องสมุดประชาชนเพศหญิงอายุ32ส่วนสูง170 ซม.รูปร่างสูงผอมสัญชาติไทยอาชีพทนายความฐานะสบาย"
+    "msToResult": 3161,
+    "stage": "รอบนี้ยังไม่มีชื่อใครไม่ได้แปลว่าขาด แปลว่าตอนนี้คุณไม่ต้องรอใครก่อนจะมีความสุขเปิดใหม่ได้เรื่อยๆ ดวงไม่ได้ผูกไว้กับรอบเ"
    },
    "audit": {
     "path": "/game/love-match/",
@@ -573,12 +573,11 @@
     "viewport": "width=device-width, initial-scale=1",
     "contrastFails": [],
     "contrastUnmeasured": 0,
-    "textElements16": 21,
+    "textElements16": 1,
     "under12": [],
-    "tightLines": 2,
+    "tightLines": 1,
     "tightLineSample": [
-     "p.lm-heading \"คุณจะได้เจอเขา\" 1.35",
-     "p.lm-when \"ตอนคุณอายุ 30 ปี\" 1.35"
+     "p.lm-heading \"รอบนี้ยังไม่มีชื่อใคร\" 1.35"
     ],
     "targets": 18,
     "under44": 0,
@@ -608,16 +607,16 @@
       "visible": true,
       "rect": {
        "x": 16,
-       "y": 1276,
+       "y": 740,
        "w": 358,
        "h": 252
       }
      }
     ],
-    "docHeight": 2050
+    "docHeight": 1514
    }
   }
  ],
- "bangkokAtEnd": "2026-10-24, 20:14:41",
+ "bangkokAtEnd": "2026-10-24, 21:59:04",
  "consoleErrors": []
 }

@@ -224,7 +224,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.wheel-note \"ยังหมุนไม่ได้ — ใส่ชื่ออ\"",
-    "ms": 40,
+    "ms": 28,
     "url": null
    },
    "navResult": "load",
@@ -471,7 +471,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนว\"",
-    "ms": 28,
+    "ms": 20,
     "url": null
    },
    "navResult": "load",
@@ -673,7 +673,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.tool-tagline \"ใส่ชื่อลงสนาม เลือกจำนวน\"",
-    "ms": 20,
+    "ms": 16,
     "url": null
    },
    "navResult": "load",
@@ -866,7 +866,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.tool-tagline \"ตั้งค่าต่ำสุด-สูงสุด แล้\"",
-    "ms": 16,
+    "ms": 20,
     "url": null
    },
    "navResult": "load",
@@ -1053,7 +1053,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
-    "ms": 32,
+    "ms": 24,
     "url": null
    },
    "navResult": "load",
@@ -1216,7 +1216,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
-    "ms": 28,
+    "ms": 20,
     "url": null
    },
    "navResult": "load",
@@ -1384,7 +1384,7 @@
    "cls": 0,
    "lcp": {
     "el": "h1.game-title \"เสี่ยงเซียมซี\"",
-    "ms": 16,
+    "ms": 24,
     "url": null
    },
    "navResult": "load",
@@ -1722,7 +1722,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.lm-note \"ที่ตอบไว้อยู่แค่ในหน้านี\"",
-    "ms": 28,
+    "ms": 32,
     "url": null
    },
    "navResult": "load",
@@ -2003,7 +2003,7 @@
    "cls": 0,
    "lcp": {
     "el": "h1 \"ไม่พบหน้านี้\"",
-    "ms": 24,
+    "ms": 20,
     "url": null
    },
    "navResult": "load",
@@ -2133,7 +2133,7 @@
    "cls": 0,
    "lcp": {
     "el": "img \"\"",
-    "ms": 32,
+    "ms": 28,
     "url": "http://localhost:4410/art/croc-bite.webp"
    },
    "navResult": "load",

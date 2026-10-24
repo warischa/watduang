@@ -25,7 +25,7 @@
    "cls": 0.0007,
    "lcp": {
     "el": "h1 \"เครื่องมือสุ่ม\"",
-    "ms": 28,
+    "ms": 32,
     "url": null
    },
    "navResult": "load",
@@ -162,7 +162,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.wheel-note \"ยังหมุนไม่ได้ — ใส่ชื่ออ\"",
-    "ms": 24,
+    "ms": 20,
     "url": null
    },
    "navResult": "load",
@@ -368,7 +368,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนว\"",
-    "ms": 24,
+    "ms": 28,
     "url": null
    },
    "navResult": "load",
@@ -528,7 +528,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.tool-tagline \"ใส่ชื่อลงสนาม เลือกจำนวน\"",
-    "ms": 16,
+    "ms": 28,
     "url": null
    },
    "navResult": "load",
@@ -680,7 +680,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.tool-tagline \"ตั้งค่าต่ำสุด-สูงสุด แล้\"",
-    "ms": 24,
+    "ms": 28,
     "url": null
    },
    "navResult": "load",
@@ -826,7 +826,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.intro-card \"รวมคำทำนายดูดวงฟรีบนมือถ\"",
-    "ms": 24,
+    "ms": 28,
     "url": null
    },
    "navResult": "load",
@@ -947,7 +947,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
-    "ms": 32,
+    "ms": 28,
     "url": null
    },
    "navResult": "load",
@@ -1094,7 +1094,7 @@
    "cls": 0,
    "lcp": {
     "el": "h1.game-title \"เสี่ยงเซียมซี\"",
-    "ms": 20,
+    "ms": 16,
     "url": null
    },
    "navResult": "load",
@@ -1310,7 +1310,7 @@
    "cls": 0.0002,
    "lcp": {
     "el": "span.df-headline \"วันนี้คุณจะเจอกับอะไร\"",
-    "ms": 64,
+    "ms": 36,
     "url": null
    },
    "navResult": "load",
@@ -1432,7 +1432,7 @@
    "cls": 0.0044,
    "lcp": {
     "el": "h1.game-title \"เนื้อคู่ของคุณ\"",
-    "ms": 24,
+    "ms": 20,
     "url": null
    },
    "navResult": "load",
@@ -1692,7 +1692,7 @@
    "cls": 0,
    "lcp": {
     "el": "h1 \"ไม่พบหน้านี้\"",
-    "ms": 20,
+    "ms": 32,
     "url": null
    },
    "navResult": "load",

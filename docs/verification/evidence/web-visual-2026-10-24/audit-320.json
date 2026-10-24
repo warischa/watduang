@@ -46,7 +46,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.lead \"เครื่องมือให้คำตอบทันที \"",
-    "ms": 28,
+    "ms": 56,
     "url": null
    },
    "navResult": "load",
@@ -224,7 +224,7 @@
    "cls": 0,
    "lcp": {
     "el": "p \"ใส่ชื่อในวง กดหมุน แล้วใ\"",
-    "ms": 20,
+    "ms": 52,
     "url": null
    },
    "navResult": "load",
@@ -471,7 +471,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนว\"",
-    "ms": 28,
+    "ms": 20,
     "url": null
    },
    "navResult": "load",
@@ -673,7 +673,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.tool-tagline \"ใส่ชื่อลงสนาม เลือกจำนวน\"",
-    "ms": 20,
+    "ms": 16,
     "url": null
    },
    "navResult": "load",
@@ -1216,7 +1216,7 @@
    "cls": 0,
    "lcp": {
     "el": "p.intro-card \"รวมเกมสุ่มคนโดนสำหรับวงเ\"",
-    "ms": 24,
+    "ms": 36,
     "url": null
    },
    "navResult": "load",
@@ -1384,7 +1384,7 @@
    "cls": 0,
    "lcp": {
     "el": "p \"ตั้งจิตให้นิ่ง แล้วนึกถึ\"",
-    "ms": 44,
+    "ms": 28,
     "url": null
    },
    "navResult": "load",
@@ -1722,7 +1722,7 @@
    "cls": 0,
    "lcp": {
     "el": "h1.game-title \"เนื้อคู่ของคุณ\"",
-    "ms": 32,
+    "ms": 20,
     "url": null
    },
    "navResult": "load",
@@ -2003,7 +2003,7 @@
    "cls": 0,
    "lcp": {
     "el": "h1 \"ไม่พบหน้านี้\"",
-    "ms": 20,
+    "ms": 24,
     "url": null
    },
    "navResult": "load",
@@ -2133,7 +2133,7 @@
    "cls": 0,
    "lcp": {
     "el": "img \"\"",
-    "ms": 40,
+    "ms": 36,
     "url": "http://localhost:4410/art/croc-bite.webp"
    },
    "navResult": "load",

@@ -83,11 +83,10 @@ const plan = [
   ['wheel-idle-baseline', '/tool/wheel/', null, false],
 ];
 const REPS = Number(process.env.REPS || 3);
-for (const [id, path, inject, scroll] of plan) {
-  out.runs[id] = [];
-  // Interleaved repeats would need a second page per rep; reps run back to back and the spread is reported.
-  for (let i = 0; i < REPS; i++) out.runs[id].push(await measure(path, inject, scroll));
-}
+// Reps interleaved (rep outer, variant inner): every variant's i-th run sits in the same time slice, so
+// load that drifts across the run moves all rows together instead of favouring the rows that ran first.
+for (const [id] of plan) out.runs[id] = [];
+for (let i = 0; i < REPS; i++) for (const [id, path, inject, scroll] of plan) out.runs[id].push(await measure(path, inject, scroll));
 out.events = s.events;
 await s.close();
 if (process.env.OUT) await writeFile(process.env.OUT, JSON.stringify(out, null, 1));

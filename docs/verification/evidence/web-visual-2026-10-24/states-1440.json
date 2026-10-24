@@ -3,7 +3,7 @@
  "height": 900,
  "mobile": false,
  "reducedMotion": false,
- "bangkokAtStart": "2026-10-24, 20:15:36",
+ "bangkokAtStart": "2026-10-24, 21:59:59",
  "states": [
   {
    "id": "wheel-result",
@@ -12,7 +12,7 @@
     "moved": [
      "CSSTransition:transform@wheel-group"
     ],
-    "msToResult": 2109
+    "msToResult": 2099
    },
    "audit": {
     "path": "/tool/wheel/",
@@ -51,7 +51,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.wheel-note \"\"",
-     "ms": 32,
+     "ms": 20,
      "url": null
     }
    },
@@ -106,7 +106,7 @@
    "path": "/tool/draw/",
    "drive": {
     "moved": [],
-    "msToResult": 155
+    "msToResult": 159
    },
    "audit": {
     "path": "/tool/draw/",
@@ -129,7 +129,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนว\"",
-     "ms": 24,
+     "ms": 32,
      "url": null
     }
    },
@@ -161,7 +161,7 @@
    "path": "/tool/team/",
    "drive": {
     "moved": [],
-    "msToResult": 160
+    "msToResult": 157
    },
    "audit": {
     "path": "/tool/team/",
@@ -184,7 +184,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ใส่ชื่อลงสนาม เลือกจำนวน\"",
-     "ms": 28,
+     "ms": 24,
      "url": null
     }
    },
@@ -216,7 +216,7 @@
    "path": "/tool/number/",
    "drive": {
     "moved": [],
-    "msToResult": 163
+    "msToResult": 158
    },
    "audit": {
     "path": "/tool/number/",
@@ -229,7 +229,7 @@
     "under12": [],
     "tightLines": 1,
     "tightLineSample": [
-     "p.number-result \"ได้: 6\" 1.20"
+     "p.number-result \"ได้: 2\" 1.20"
     ],
     "targets": 24,
     "under44": 1,
@@ -247,7 +247,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ตั้งค่าต่ำสุด-สูงสุด แล้\"",
-     "ms": 20,
+     "ms": 28,
      "url": null
     }
    },
@@ -285,8 +285,8 @@
    "path": "/game/siamsi/",
    "drive": {
     "moved": [],
-    "msToResult": 2662,
-    "stage": "๑๙ระวังเกวียนบรรทุกจนล้น ล้อจะรับไม่ไหวลดของลงสักใบ แล้วจะไปได้ไกลกว่าของทุกชิ้นดูสำคัญ แต่ไม่ใช่วันนี้ทั้งหมดเลือกสิ่งท"
+    "msToResult": 2661,
+    "stage": "๒พอใช้น้ำในคลองไหลช้า แต่ไม่เคยหยุดไหลเรือลำเล็กแค่ไหน ถ้าพายอยู่ก็ถึงฝั่งอย่าเทียบกับลำอื่น ที่แล่นผ่านไปข้างหน้าระยะทา"
    },
    "audit": {
     "path": "/game/siamsi/",
@@ -309,7 +309,7 @@
     "cls": 0,
     "lcp": {
      "el": "h1.game-title \"เสี่ยงเซียมซี\"",
-     "ms": 28,
+     "ms": 32,
      "url": null
     }
    },
@@ -341,8 +341,8 @@
    "path": "/game/daily-fortune/",
    "drive": {
     "moved": [],
-    "msToResult": 2662,
-    "stage": "ส. 24 ต.ค.ดวงวันนี้ประมาณว่าจักรวาลเข้าข้างแบบเงียบๆกินสั่งเมนูที่ธรรมดาที่สุดในร้าน วันนี้ดันอร่อยจนอยากสั่งซ้ำ+เงินล้ว"
+    "msToResult": 2659,
+    "stage": "ส. 24 ต.ค.ดวงวันนี้ประมาณว่าจักรวาลแกล้งเล่นๆ แต่ไม่เจ็บตัวกินชานมที่สั่งหวานน้อย จะมาเป็นหวานปกติ แต่วันนี้ดันอยากกินหว"
    },
    "audit": {
     "path": "/game/daily-fortune/",
@@ -355,7 +355,7 @@
     "under12": [],
     "tightLines": 1,
     "tightLineSample": [
-     "p.df-verdict \"จักรวาลเข้าข้างแบบเงียบๆ\" 1.40"
+     "p.df-verdict \"จักรวาลแกล้งเล่นๆ แต่ไม่\" 1.40"
     ],
     "targets": 18,
     "under44": 0,
@@ -367,7 +367,7 @@
     "cls": 0.0002,
     "lcp": {
      "el": null,
-     "ms": 40,
+     "ms": 48,
      "url": null
     }
    },
@@ -400,7 +400,7 @@
    "drive": {
     "moved": [],
     "msToResult": 3158,
-    "stage": "คุณจะได้เจอเขาตอนคุณอายุ 31 ปีที่ ห้องสมุดประชาชนเพศหญิงอายุ38ส่วนสูง160 ซม.รูปร่างสมส่วนสัญชาติไทยอาชีพช่างตัดเสื้อ รับ"
+    "stage": "คุณจะได้เจอเขาตอนคุณอายุ 31 ปีที่ ร้านซักผ้าหยอดเหรียญเพศหญิงอายุ27ส่วนสูง164 ซม.รูปร่างผอมบางสัญชาติไทยอาชีพครูสอนเต้นร"
    },
    "audit": {
     "path": "/game/love-match/",
@@ -426,7 +426,7 @@
     "cls": 0.0044,
     "lcp": {
      "el": "h1.game-title \"เนื้อคู่ของคุณ\"",
-     "ms": 24,
+     "ms": 16,
      "url": null
     }
    },
@@ -454,6 +454,6 @@
    }
   }
  ],
- "bangkokAtEnd": "2026-10-24, 20:16:28",
+ "bangkokAtEnd": "2026-10-24, 22:00:52",
  "consoleErrors": []
 }

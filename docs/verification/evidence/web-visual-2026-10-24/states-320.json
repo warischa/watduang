@@ -3,7 +3,7 @@
  "height": 640,
  "mobile": true,
  "reducedMotion": false,
- "bangkokAtStart": "2026-10-24, 20:14:41",
+ "bangkokAtStart": "2026-10-24, 21:59:04",
  "states": [
   {
    "id": "wheel-result",
@@ -12,7 +12,7 @@
     "moved": [
      "CSSTransition:transform@wheel-group"
     ],
-    "msToResult": 2116
+    "msToResult": 2110
    },
    "audit": {
     "path": "/tool/wheel/",
@@ -71,7 +71,7 @@
     "cls": 0,
     "lcp": {
      "el": "p \"ใส่ชื่อในวง กดหมุน แล้วใ\"",
-     "ms": 20,
+     "ms": 12,
      "url": null
     }
    },
@@ -146,7 +146,7 @@
    "path": "/tool/draw/",
    "drive": {
     "moved": [],
-    "msToResult": 161
+    "msToResult": 159
    },
    "audit": {
     "path": "/tool/draw/",
@@ -190,7 +190,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนว\"",
-     "ms": 20,
+     "ms": 24,
      "url": null
     }
    },
@@ -243,7 +243,7 @@
    "path": "/tool/team/",
    "drive": {
     "moved": [],
-    "msToResult": 163
+    "msToResult": 153
    },
    "audit": {
     "path": "/tool/team/",
@@ -340,7 +340,7 @@
    "path": "/tool/number/",
    "drive": {
     "moved": [],
-    "msToResult": 161
+    "msToResult": 159
    },
    "audit": {
     "path": "/tool/number/",
@@ -353,7 +353,7 @@
     "under12": [],
     "tightLines": 1,
     "tightLineSample": [
-     "p.number-result \"ได้: 9\" 1.20"
+     "p.number-result \"ได้: 1\" 1.20"
     ],
     "targets": 24,
     "under44": 5,
@@ -391,7 +391,7 @@
     "cls": 0,
     "lcp": {
      "el": "p.tool-tagline \"ตั้งค่าต่ำสุด-สูงสุด แล้\"",
-     "ms": 28,
+     "ms": 20,
      "url": null
     }
    },
@@ -449,8 +449,8 @@
    "path": "/game/siamsi/",
    "drive": {
     "moved": [],
-    "msToResult": 2668,
-    "stage": "๒๒ระวังหินริมน้ำดูแห้ง แต่ตะไคร่ซ่อนอยู่ใต้เหยียบเต็มเท้าทันที คือวิธีที่ล้มง่ายที่สุดลองน้ำหนักก่อนสักครึ่ง แล้วค่อยลงใ"
+    "msToResult": 2661,
+    "stage": "๔ระวังหมอกลงหนาตอนเช้า มองทางข้างหน้าไม่ชัดเร่งไปตอนนี้จะพลัด ตกร่องที่มองไม่เห็นรอให้แดดขึ้นก่อน แล้วค่อยออกเดินทางช้าไ"
    },
    "audit": {
     "path": "/game/siamsi/",
@@ -473,7 +473,7 @@
     "cls": 0,
     "lcp": {
      "el": null,
-     "ms": 36,
+     "ms": 32,
      "url": null
     }
    },
@@ -491,13 +491,13 @@
       "visible": true,
       "rect": {
        "x": 16,
-       "y": 1327,
+       "y": 1391,
        "w": 288,
        "h": 252
       }
      }
     ],
-    "docHeight": 2153
+    "docHeight": 2217
    }
   },
   {
@@ -505,8 +505,8 @@
    "path": "/game/daily-fortune/",
    "drive": {
     "moved": [],
-    "msToResult": 2660,
-    "stage": "ส. 24 ต.ค.ดวงวันนี้ประมาณว่าเสมอตัว ได้อย่างเสียอย่างกินสั่งเมนูที่ธรรมดาที่สุดในร้าน วันนี้ดันอร่อยจนอยากสั่งซ้ำ+เงินตั"
+    "msToResult": 2658,
+    "stage": "ส. 24 ต.ค.ดวงวันนี้ประมาณว่าเสมอตัว ได้อย่างเสียอย่างกินสั่งไข่ดาว จะได้ไข่เจียว แต่อร่อยกว่าที่สั่งไว้~เงินตั้งใจว่าวัน"
    },
    "audit": {
     "path": "/game/daily-fortune/",
@@ -531,7 +531,7 @@
     "cls": 0,
     "lcp": {
      "el": null,
-     "ms": 44,
+     "ms": 40,
      "url": null
     }
    },
@@ -549,13 +549,13 @@
       "visible": true,
       "rect": {
        "x": 16,
-       "y": 1146,
+       "y": 1120,
        "w": 288,
        "h": 252
       }
      }
     ],
-    "docHeight": 1972
+    "docHeight": 1946
    }
   },
   {
@@ -564,7 +564,7 @@
    "drive": {
     "moved": [],
     "msToResult": 3161,
-    "stage": "คุณจะได้เจอเขาตอนคุณอายุ 31 ปีที่ งานวิ่งการกุศลเพศหญิงอายุ31ส่วนสูง167 ซม.รูปร่างสมส่วนสัญชาติไทยอาชีพเจ้าหน้าที่พิทักษ"
+    "stage": "คุณจะได้เจอเขาตอนคุณอายุ 32 ปีที่ งานวิ่งการกุศลเพศหญิงอายุ28ส่วนสูง162 ซม.รูปร่างสมส่วนสัญชาติไทยอาชีพคนทำขนมปัง เปิดร้"
    },
    "audit": {
     "path": "/game/love-match/",
@@ -578,7 +578,7 @@
     "tightLines": 2,
     "tightLineSample": [
      "p.lm-heading \"คุณจะได้เจอเขา\" 1.35",
-     "p.lm-when \"ตอนคุณอายุ 31 ปี\" 1.35"
+     "p.lm-when \"ตอนคุณอายุ 32 ปี\" 1.35"
     ],
     "targets": 18,
     "under44": 0,
@@ -590,7 +590,7 @@
     "cls": 0,
     "lcp": {
      "el": "h1.game-title \"เนื้อคู่ของคุณ\"",
-     "ms": 28,
+     "ms": 16,
      "url": null
     }
    },
@@ -618,6 +618,6 @@
    }
   }
  ],
- "bangkokAtEnd": "2026-10-24, 20:15:36",
+ "bangkokAtEnd": "2026-10-24, 21:59:59",
  "consoleErrors": []
 }

@@ -1,17 +1,17 @@
 lane nogpu {"webgl":false,"webgl2":false}
-CAL-heavy-scroll           raster 1467/1429/1402 draw 757/760/783 paint 54/45/64 bmf 194/189/279 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj heavy
-home-idle-baseline         raster 0/0/0 draw 28/30/32 paint 0/0/0 bmf 32/48/72 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
-A1-gradient-paint          raster 288/278/286 draw 70/65/70 paint 39/24/50 bmf 117/62/124 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css
-A1-gradient-compositor     raster 0/0/0 draw 136/132/132 paint 0/0/0 bmf 72/48/53 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css+layer
-A2-shader                  raster 0/0/0 draw 31/29/29 paint 0/0/0 bmf 59/44/39 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj no-webgl: CSS ground kept
-home-scroll-baseline       raster 36/31/26 draw 106/96/100 paint 0/0/0 bmf 138/46/74 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
-B0-sticky-solid-scroll     raster 28/26/29 draw 81/83/79 paint 0/1/1 bmf 76/83/54 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css
-B1-frosted-scroll          raster 29/28/22 draw 230/230/229 paint 0/0/0 bmf 75/81/91 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css
-B2-svg-glass-scroll        raster 31/24/28 draw 442/436/436 paint 0/0/0 bmf 125/84/79 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj url("#proto-glass") saturate(1.4)
-D-reveal-scroll            raster 16/15/15 draw 107/115/108 paint 16/20/10 bmf 91/126/73 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj 29
-tools-scroll-baseline      raster 12/8/9 draw 86/90/86 paint 1/2/2 bmf 30/49/26 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
-D-reveal-party-scroll      raster 3/3/3 draw 91/98/91 paint 5/6/6 bmf 56/87/50 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj 16
-C-micro-press-wheel        raster 50/56/51 draw 22/26/23 paint 19/50/34 bmf 64/170/98 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css+toggle 4
-wheel-idle-baseline        raster 0/0/0 draw 0/1/0 paint 0/0/0 bmf 31/24/17 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
+CAL-heavy-scroll           raster 1500/1421/1494 draw 722/764/726 paint 60/75/65 bmf 230/358/266 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj heavy
+home-idle-baseline         raster 0/0/0 draw 30/29/29 paint 0/0/0 bmf 46/46/41 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
+A1-gradient-paint          raster 297/284/282 draw 78/69/67 paint 66/39/30 bmf 190/107/87 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css
+A1-gradient-compositor     raster 0/0/0 draw 135/138/145 paint 0/0/0 bmf 59/92/143 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css+layer
+A2-shader                  raster 0/0/0 draw 29/31/33 paint 0/0/0 bmf 48/63/82 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj no-webgl: CSS ground kept
+home-scroll-baseline       raster 26/29/24 draw 108/99/99 paint 0/0/0 bmf 149/65/61 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
+B0-sticky-solid-scroll     raster 26/27/24 draw 82/79/88 paint 0/1/0 bmf 73/58/128 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css
+B1-frosted-scroll          raster 24/25/22 draw 231/241/238 paint 0/0/0 bmf 92/143/101 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css
+B2-svg-glass-scroll        raster 24/23/25 draw 463/437/451 paint 1/1/0 bmf 176/94/122 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj url("#proto-glass") saturate(1.4)
+D-reveal-scroll            raster 15/16/15 draw 116/119/119 paint 15/16/17 bmf 148/169/164 gpuProc 0/0/0 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj 29
+tools-scroll-baseline      raster 11/7/6 draw 90/94/94 paint 3/2/1 bmf 50/70/72 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
+D-reveal-party-scroll      raster 3/3/3 draw 102/93/94 paint 8/7/6 bmf 145/66/66 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj 16
+C-micro-press-wheel        raster 72/53/56 draw 25/24/30 paint 42/32/61 bmf 148/100/191 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css+toggle 4
+wheel-idle-baseline        raster 0/0/0 draw 0/0/0 paint 0/0/0 bmf 20/29/29 gpuProc 0/0/0 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
 events 0 []
 NOGPU_RC=0
