@@ -147,17 +147,30 @@ const V = {
     if (out.failing !== 0) return `${out.failing} combination(s) below 44px: ${JSON.stringify(out.bad)}`;
     return null;
   },
+  // gh#289: judged AT THE REVEAL. Two runs at normal speed, then one with the animation clock slowed
+  // (CDP Animation.setPlaybackRate), so a reveal timed from the tap lands mid-turn. The slow run's
+  // lever is checked against the normal runs' own end times, so no page constant is pinned here.
   'wheel-pointer-name': () => {
-    if (out.runs?.length !== 2) return `${out.runs?.length} runs, expected 2 widths`;
+    if (out.runs?.length !== 3) return `${out.runs?.length} runs, expected 3 (320 and 390 at normal speed, 390 slowed)`;
     for (const run of out.runs) {
-      if (run.error) return `width ${run.width}: ${run.error}`;
-      if (run.innerWidth !== run.width) return `width ${run.width} did not reflow (innerWidth ${run.innerWidth}) -- run is void`;
-      if (run.spins?.length !== 3) return `width ${run.width}: ${run.spins?.length} spins, expected 3`;
+      const tag = `width ${run.width} rate ${run.rate}`;
+      if (run.error) return `${tag}: ${run.error}`;
+      if (run.innerWidth !== run.width) return `${tag} did not reflow (innerWidth ${run.innerWidth}) -- run is void`;
+      if (run.spins?.length !== 3) return `${tag}: ${run.spins?.length} spins, expected 3`;
       for (const s of run.spins) {
-        if (s.hitTag !== 'path' || !(s.pathCount > 0)) return `width ${run.width} spin ${s.spin}: hit-test landed on ${s.hitTag} (pathCount ${s.pathCount}) -- nothing was measured`;
-        if ((s.resultText || '').trim() !== (s.pointerLabel || '').trim()) return `width ${run.width} spin ${s.spin}: announced "${s.resultText}" but the painted wedge under the pointer is "${s.pointerLabel}"`;
+        if (s.hitTag !== 'path' || !(s.pathCount > 0)) return `${tag} spin ${s.spin}: hit-test landed on ${s.hitTag} (pathCount ${s.pathCount}) -- nothing was measured`;
+        if (typeof s.runningAtReveal !== 'number') return `${tag} spin ${s.spin}: no reveal-time reading of the disc -- nothing was measured`;
+        if (s.runningAtReveal !== 0) return `${tag} spin ${s.spin}: announced "${s.resultText}" at ${s.revealMs}ms while the disc was still turning (${s.runningAtReveal} running transition(s); it landed at ${s.endMs}ms)`;
+        if ((s.resultText || '').trim() !== (s.pointerLabel || '').trim()) return `${tag} spin ${s.spin}: announced "${s.resultText}" but the painted wedge under the pointer is "${s.pointerLabel}"`;
       }
     }
+    const [a, b, slow] = out.runs;
+    if (!(a.rate === 1 && b.rate === 1 && slow.rate > 0 && slow.rate < 1)) return `run rates ${out.runs.map((r) => r.rate).join('/')}, expected 1/1/<1`;
+    const normalEnds = [...a.spins, ...b.spins].map((s) => s.endMs);
+    if (!normalEnds.every((v) => typeof v === 'number' && v > 0)) return `a normal-speed spin recorded no transition end -- the lever has no baseline`;
+    const floor = (0.8 * Math.min(...normalEnds)) / slow.rate;
+    const short = slow.spins.find((s) => !(typeof s.endMs === 'number' && s.endMs >= floor));
+    if (short) return `the slow-clock lever did not take effect: spin ${short.spin} landed at ${short.endMs}ms, expected at least ${Math.round(floor)}ms at rate ${slow.rate}`;
     return null;
   },
   // The three probes below report through a `summary` object, not at the top level, and their claim

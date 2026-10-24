@@ -1,0 +1,68 @@
+{
+  "freeze": 0,
+  "spins": [
+    {
+      "spin": 1,
+      "at2300": {
+        "at": 2300,
+        "result": "C",
+        "pointer": "D",
+        "running": true,
+        "startRel": -2,
+        "revealRel": 2062,
+        "endRel": null
+      },
+      "settled": {
+        "at": 4803,
+        "result": "C",
+        "pointer": "C",
+        "running": false,
+        "startRel": null,
+        "revealRel": 2062,
+        "endRel": 4024
+      }
+    },
+    {
+      "spin": 2,
+      "at2300": {
+        "at": 2300,
+        "result": "B",
+        "pointer": "D",
+        "running": true,
+        "startRel": -2415,
+        "revealRel": 2062,
+        "endRel": null
+      },
+      "settled": {
+        "at": 4802,
+        "result": "B",
+        "pointer": "B",
+        "running": false,
+        "startRel": null,
+        "revealRel": 2062,
+        "endRel": 4003
+      }
+    },
+    {
+      "spin": 3,
+      "at2300": {
+        "at": 2302,
+        "result": "D",
+        "pointer": "E",
+        "running": true,
+        "startRel": -4809,
+        "revealRel": 2062,
+        "endRel": null
+      },
+      "settled": {
+        "at": 4804,
+        "result": "D",
+        "pointer": "D",
+        "running": false,
+        "startRel": null,
+        "revealRel": 2062,
+        "endRel": 4017
+      }
+    }
+  ]
+}

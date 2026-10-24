@@ -143,3 +143,51 @@ test('no-nav-in-stage goes red when every claim 1 list is empty', () => {
   const res = runVerdict('no-nav-in-stage', noNavClean({ pass: [] }));
   assert.equal(res.status, 1, `three usable walks and no verdicts is a broken partition, not a pass: ${res.stdout}`);
 });
+
+// gh#289: wheel-pointer-name judges the disc AT THE REVEAL, and a third run slows the animation clock
+// so a reveal that fires on a timer from the tap lands while the disc is still turning. The slow run
+// must also prove its lever took effect, or a no-op playback rate passes it vacuously.
+const wheelSpin = (spin, over = {}) => ({
+  spin, resultText: 'A', pointerLabel: 'A', hitTag: 'path', pathCount: 5, runningAtReveal: 0, revealMs: 2010, endMs: 2005, ...over,
+});
+const wheelRun = (width, rate, spinOver = {}) => ({
+  width, rate, innerWidth: width,
+  spins: [1, 2, 3].map((n) => wheelSpin(n, rate < 1 ? { revealMs: 4010, endMs: 4005, ...spinOver } : spinOver)),
+});
+const wheelOut = (slowOver = {}, extra = {}) => ({
+  runs: [wheelRun(320, 1), wheelRun(390, 1), wheelRun(390, 0.5, slowOver)], ...extra,
+});
+
+test('wheel-pointer-name passes when every reveal lands on a resting disc, the slow run included', () => {
+  const res = runVerdictRaw('wheel-pointer-name', wheelOut());
+  assert.equal(res.status, 0, `a clean run must pass: ${res.stdout}`);
+});
+
+test('wheel-pointer-name goes red when the name is announced while the disc is still turning', () => {
+  const res = runVerdictRaw('wheel-pointer-name', wheelOut({ runningAtReveal: 1, revealMs: 2062, pointerLabel: 'B' }));
+  assert.equal(res.status, 1, `a reveal over a running transition must fail: ${res.stdout}`);
+  assert.match(res.stdout, /still turning/, `the verdict must say the disc was still turning: ${res.stdout}`);
+});
+
+test('wheel-pointer-name goes red on a running transition even when the wedge happens to match', () => {
+  const res = runVerdictRaw('wheel-pointer-name', wheelOut({ runningAtReveal: 1, revealMs: 3800 }));
+  assert.equal(res.status, 1, `matching by luck mid-turn is still an early reveal: ${res.stdout}`);
+});
+
+test('wheel-pointer-name goes red when the slow run shows the playback-rate lever did nothing', () => {
+  const res = runVerdictRaw('wheel-pointer-name', wheelOut({ revealMs: 2010, endMs: 2005 }));
+  assert.equal(res.status, 1, `a slow run that ends at normal speed measured nothing: ${res.stdout}`);
+  assert.match(res.stdout, /lever/, `the verdict must name the lever: ${res.stdout}`);
+});
+
+test('wheel-pointer-name goes red when the slow run is missing', () => {
+  const out = wheelOut();
+  out.runs.pop();
+  const res = runVerdictRaw('wheel-pointer-name', out);
+  assert.equal(res.status, 1, `two runs is the pre-gh#289 shape and must not pass: ${res.stdout}`);
+});
+
+test('wheel-pointer-name goes red when a spin carries no reveal-time reading', () => {
+  const res = runVerdictRaw('wheel-pointer-name', wheelOut({ runningAtReveal: undefined }));
+  assert.equal(res.status, 1, `an unmeasured reveal must not read as a resting disc: ${res.stdout}`);
+});

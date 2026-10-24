@@ -491,6 +491,8 @@ import PageChrome from '../../components/PageChrome.astro';
   // computed FROM the picked name, never read back off the wheel to decide the answer.
   let rotation = 0;
   let spinTimer = 0;
+  // Detaches the listener revealOnLanding() is waiting on; a no-op while nothing is landing.
+  let stopAwaitingLanding: () => void = () => {};
   // True while the disc is frozen on the geometry `rotation` encodes for a reveal that already
   // happened. Redrawing it then would move a different name under the pointer than #wheel-result
   // announces — the very defect this page's landing math exists to avoid.
@@ -619,6 +621,7 @@ import PageChrome from '../../components/PageChrome.astro';
     spinning = false;
     pressMode = false;
     clearTimeout(spinTimer);
+    stopAwaitingLanding();
     group.classList.remove('is-pressing');
     // Recording is gated on the same reveal-time read the filter below uses, so the two halves
     // agree (gh#119). Behaviour chosen: record only while the box is checked — ticking applies
@@ -639,6 +642,27 @@ import PageChrome from '../../components/PageChrome.astro';
     // a list that no longer matches what's on screen. The next drawWheel happens at the next
     // spin's entry point (spin() / the stop handler), from the same `left` array the offset indexes.
     render();
+  }
+
+  // gh#289: the pick is announced when the disc LANDS, never on a timer counted from the tap. A CSS
+  // transition's clock starts at the first frame after the style change, so a late frame (a busy GPU,
+  // a throttled phone) lands the disc later than a tap-anchored timer: the old SPIN_MS + 60 timer
+  // named the pick while the disc was still turning. transitionend on the disc IS the landing.
+  // The fallback timer covers only a transition that never ends (the disc hidden mid-turn, say). It
+  // must outlast every honest landing, the wheel-pointer-name probe's half-speed clock included (its
+  // landing takes twice the duration), or it brings back the early reveal it backs up.
+  // A cancelled transition never reveals: reset, a mode switch and a new list all go through
+  // cancelPendingSpin(), which detaches this listener before they restyle the disc.
+  const LANDING_FALLBACK_FACTOR = 3;
+  function revealOnLanding(picked: NameSlot, durationMs: number): void {
+    clearTimeout(spinTimer);
+    stopAwaitingLanding();
+    const onLanded = (event: TransitionEvent): void => {
+      if (event.target === group && event.propertyName === 'transform') reveal(picked);
+    };
+    group.addEventListener('transitionend', onLanded);
+    stopAwaitingLanding = () => group.removeEventListener('transitionend', onLanded);
+    spinTimer = window.setTimeout(() => reveal(picked), durationMs * LANDING_FALLBACK_FACTOR);
   }
 
   /** The OFFSET into `left` that this spin lands on, or null if nothing can be picked. An offset,
@@ -697,7 +721,7 @@ import PageChrome from '../../components/PageChrome.astro';
 
     // behaviour A: the answer is already decided — the wheel animates towards its landing angle.
     setRotation(landingRotation(rotation, index, left.length, TURNS), `transform ${SPIN_MS}ms cubic-bezier(0.2, 0.7, 0.2, 1)`);
-    spinTimer = window.setTimeout(() => reveal(picked), SPIN_MS + 60);
+    revealOnLanding(picked, SPIN_MS);
   }
 
   stopBtn.addEventListener('click', () => {
@@ -734,7 +758,7 @@ import PageChrome from '../../components/PageChrome.astro';
     discHoldsReveal = false;
 
     setRotation(landingRotation(holdAngle, index, left.length, TURNS), `transform ${STOP_MS}ms cubic-bezier(0.2, 0.7, 0.2, 1)`);
-    spinTimer = window.setTimeout(() => reveal(picked), STOP_MS + 60);
+    revealOnLanding(picked, STOP_MS);
   });
 
   // Every path that mutates the round mid-spin has to cancel the pending reveal, or the old
@@ -745,6 +769,7 @@ import PageChrome from '../../components/PageChrome.astro';
   // a fourth path added later would miss it the same way.
   function cancelPendingSpin(): void {
     clearTimeout(spinTimer);
+    stopAwaitingLanding();
     spinning = false;
     pressMode = false;
     group.classList.remove('is-pressing');

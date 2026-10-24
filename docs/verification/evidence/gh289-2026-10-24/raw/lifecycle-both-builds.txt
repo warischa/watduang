@@ -1,0 +1,11 @@
+# gh#289 lifecycle checks, verbatim driver output (wheel-lifecycle-diag.mjs via scripts/driver.mjs), 2026-10-24.
+# "dist" = unfixed page (dist/ built 20:00:33 from cbb951b src); "dist-fix" = scratch build of the fix.
+# Note: "resultAfterReset" is read after the NEXT spin, not right after the reset; the reset claim is "revealsWithin7sOfReset".
+== dist rate=1
+{ "rate": 1, "press": { "revealAfterStop": 964, "runningAtReveal": 0, "landAfterStop": 918 }, "reset": { "revealsWithin7sOfReset": 0, "resultAfterReset": "D", "nextSpinRevealMs": 2061, "nextSpinRunning": 0 }, "mode": { "revealsAfterModeSwitch": 1, "spinDisabled": false }, "reduced": { "matches": true, "revealMs": 1, "running": 0 }}
+== dist rate=0.5
+{ "rate": 0.5, "press": { "revealAfterStop": 962, "runningAtReveal": 1 }, "reset": { "revealsWithin7sOfReset": 0, "resultAfterReset": "A", "nextSpinRevealMs": 2061, "nextSpinRunning": 1 }, "mode": { "revealsAfterModeSwitch": 1, "spinDisabled": false }, "reduced": { "matches": true, "revealMs": 1, "running": 0 }}
+== dist-fix rate=1
+{ "rate": 1, "press": { "revealAfterStop": 904, "runningAtReveal": 0, "landAfterStop": 903 }, "reset": { "revealsWithin7sOfReset": 0, "resultAfterReset": "E", "nextSpinRevealMs": 2019, "nextSpinRunning": 0 }, "mode": { "revealsAfterModeSwitch": 1, "spinDisabled": false }, "reduced": { "matches": true, "revealMs": 1, "running": 0 }}
+== dist-fix rate=0.5
+{ "rate": 0.5, "press": { "revealAfterStop": 1825, "runningAtReveal": 0, "landAfterStop": 1824 }, "reset": { "revealsWithin7sOfReset": 0, "resultAfterReset": "B", "nextSpinRevealMs": 4009, "nextSpinRunning": 0 }, "mode": { "revealsAfterModeSwitch": 1, "spinDisabled": false }, "reduced": { "matches": true, "revealMs": 1, "running": 0 }}

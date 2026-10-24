@@ -1,11 +1,26 @@
-// Proves reveal() in src/pages/tool/wheel.astro no longer re-slices the disc after announcing a
-// winner. The confirmed defect: reveal() called drawWheel(remaining()) right after setting
-// resultEl.textContent, redrawing the disc against a SHORTER list than the rotation had just been
-// computed for — the pointer ended up over a DIFFERENT name's wedge than the result line said.
+// Proves the wheel at /tool/wheel/ names, at the moment it announces a pick, the wedge the disc has
+// come to rest on. Two defects have broken that promise:
+//   1. reveal() called drawWheel(remaining()) right after setting resultEl.textContent, redrawing
+//      the disc against a SHORTER list than the rotation had just been computed for, so the pointer
+//      ended up over a DIFFERENT name's wedge than the result line said.
+//   2. gh#289: reveal() fired on a timer counted from the tap (SPIN_MS + 60) while the disc's CSS
+//      transition counts from the first frame after the tap. A late frame (a busy GPU or compositor,
+//      a throttled phone, a loaded CI machine) landed the disc after the name was already shown.
 //
-// This probe hit-tests the REAL PAINTED geometry after the spin settles. It never calls
-// segmentAtPointer()/nameAtPointer() itself — recomputing what the fix computes proves nothing
-// about what a player actually sees on screen.
+// So the disc is judged AT THE REVEAL, in the same microtask the result text appears in: no
+// transition may still be running on it, and the painted wedge under the pointer must carry the
+// announced name. A fixed wall-clock read (this probe used to sleep 2300ms) cannot see defect 2 on a
+// quiet machine and reds on it at random under load, which is how gh#289 was found.
+//
+// The third run slows the page's animation clock with CDP Animation.setPlaybackRate, leaving timers
+// at normal speed. That is the decoupling a late frame causes, made deterministic: a reveal timed
+// from the tap lands mid-turn there every time. The verdict also checks that the lever took effect
+// (the slow transitions end later than the normal ones by the rate), so a no-op rate cannot pass
+// vacuously. The page's fallback timer for a transition that never ends must outlast the slow run's
+// landing, or the slow run reds on a correct page; see the fallback comment in wheel.astro.
+//
+// This probe hit-tests the REAL PAINTED geometry. It never calls segmentAtPointer()/nameAtPointer()
+// itself: recomputing what the fix computes proves nothing about what a player actually sees.
 //
 // Shape follows scripts/gamenav-again-grid-probe.mjs: a default-exported async function(session)
 // for scripts/driver.mjs. Also self-spawns that same driver when run directly, so one file covers
@@ -21,11 +36,19 @@
 // Direct run: node scripts/wheel-pointer-name-probe.mjs
 // Via driver: node scripts/driver.mjs scripts/wheel-pointer-name-probe.mjs
 
-const WIDTHS = [320, 390];
+// Two widths at normal speed, then the slowed clock at the wider one.
+const RUNS = [
+  { width: 320, rate: 1 },
+  { width: 390, rate: 1 },
+  { width: 390, rate: 0.5 },
+];
 // Single-character names never hit labelText()'s truncation path, so the painted wedge label is
 // always byte-identical to the untouched result text — a truncated label would be a false mismatch
 // that has nothing to do with the defect this probe targets.
 const NAMES = ['A', 'B', 'C', 'D', 'E'];
+// How long a spin may take to announce before the run is called dead. Well past the slow run's
+// landing (about 4s at rate 0.5) and the page's own fallback.
+const REVEAL_TIMEOUT_MS = 15000;
 
 // Runs inside the page. Enters NAMES through the real name panel — now one textarea, one name per
 // line — and starts the round through the real CTA click (never dispatches watduang:start directly —
@@ -33,7 +56,7 @@ const NAMES = ['A', 'B', 'C', 'D', 'E'];
 // through the trigger" trap). Setting .value fires no 'input' event, so the persistence listener is
 // nudged by hand; the CTA re-parses the box anyway, so the START path is still the real one. It then
 // ticks the eliminate checkbox with a real click (fires the same 'change' listener a tap would), and
-// spins 3 times so an elimination happens between spins, hit-testing the disc after each settle.
+// spins 3 times so an elimination happens between spins, judging the disc at each reveal.
 const PAGE_BODY = `
   const storageKey = 'watduang:tool:wheel-names';
   const seeded = localStorage.getItem(storageKey);
@@ -51,33 +74,54 @@ const PAGE_BODY = `
   const svg = document.querySelector('#wheel-disc svg');
   const group = document.querySelector('#wheel-group');
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const running = () => group.getAnimations().filter((a) => a.playState === 'running').length;
 
-  const spins = [];
-  for (let i = 0; i < 3; i++) {
-    spinBtn.click();
-    await sleep(2300); // SPIN_MS (2000) + reveal's own +60ms setTimeout + settle margin
-    const resultText = (resultEl.textContent || '').trim();
-
-    // Hit-test the REAL rendered geometry: the 12 o'clock axis, inset well inside the rim so a
-    // sub-pixel boundary can't return the wrong element or null (this repo has been bitten before —
-    // 196 false misses from sampling on a bounding-box edge). local y=60 sits inside the rim (edge
-    // at y=36), clear of the hub (y>=154) and clear of the label ring (y~95, radius 105) so the hit
-    // lands on the wedge <path> itself, never a text glyph.
+  // Hit-test the REAL rendered geometry: the 12 o'clock axis, inset well inside the rim so a
+  // sub-pixel boundary can't return the wrong element or null (this repo has been bitten before —
+  // 196 false misses from sampling on a bounding-box edge). local y=60 sits inside the rim (edge
+  // at y=36), clear of the hub (y>=154) and clear of the label ring (y~95, radius 105) so the hit
+  // lands on the wedge <path> itself, never a text glyph.
+  function underPointer() {
     const rect = svg.getBoundingClientRect();
     const scale = rect.width / 400; // viewBox is 400x400; CSS forces the svg square (aspect-ratio:1)
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + 60 * scale;
-    const hit = document.elementFromPoint(x, y);
+    const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + 60 * scale);
     const paths = Array.from(group.querySelectorAll(':scope > path'));
     const texts = Array.from(group.querySelectorAll(':scope > text'));
     const idx = paths.indexOf(hit);
-    spins.push({
-      spin: i + 1,
-      resultText,
-      pointerLabel: idx >= 0 ? (texts[idx].textContent || '') : null,
-      hitTag: hit ? hit.tagName : null,
-      pathCount: paths.length,
+    return { pointerLabel: idx >= 0 ? (texts[idx].textContent || '') : null, hitTag: hit ? hit.tagName : null, pathCount: paths.length };
+  }
+
+  let endAt = null;
+  group.addEventListener('transitionend', (e) => {
+    if (e.target === group && e.propertyName === 'transform') endAt = performance.now();
+  });
+
+  const spins = [];
+  for (let i = 0; i < 3; i++) {
+    endAt = null;
+    let observer = null;
+    const clickedAt = performance.now();
+    // The reading is taken INSIDE the observer callback: the microtask right after the page set the
+    // result text, before any frame can move the disc on. Any sleep here would let it catch up.
+    const atReveal = new Promise((resolve) => {
+      observer = new MutationObserver(() => {
+        const text = (resultEl.textContent || '').trim();
+        if (!text) return; // spin() blanks the result first
+        observer.disconnect();
+        resolve({ resultText: text, revealMs: Math.round(performance.now() - clickedAt), runningAtReveal: running(), ...underPointer() });
+      });
+      observer.observe(resultEl, { childList: true, characterData: true, subtree: true });
     });
+    spinBtn.click();
+    const reading = await Promise.race([atReveal, sleep(${REVEAL_TIMEOUT_MS}).then(() => null)]);
+    if (reading === null) {
+      observer.disconnect();
+      throw new Error('spin ' + (i + 1) + ': no result within ${REVEAL_TIMEOUT_MS}ms');
+    }
+    // Let the disc come to rest before the next spin, so each spin starts from a still wheel and the
+    // landing time below is this spin's own.
+    for (let k = 0; k < 200 && running() > 0; k++) await sleep(50);
+    spins.push({ spin: i + 1, ...reading, endMs: endAt === null ? null : Math.round(endAt - clickedAt) });
   }
   return { innerWidth, spins };
 `;
@@ -86,25 +130,34 @@ export default async function (session) {
   const base = process.env.PROBE_BASE || 'http://localhost:4321';
   const url = `${base}/tool/wheel/`;
   const runs = [];
-  for (const width of WIDTHS) {
+  for (const { width, rate } of RUNS) {
     await session.nav(url);
     await session.wipe();
     await session.nav(url); // reload ON-ORIGIN after the wipe (docs trap #4) so it actually lands
     await session.setWidth(width, 900);
+    // Set on every run, 1 included: the rate is not guaranteed to reset on navigation.
+    await session.cdp('Animation.enable');
+    await session.cdp('Animation.setPlaybackRate', { playbackRate: rate });
     const res = await session.evaluate(PAGE_BODY);
-    runs.push(res.error ? { width, error: res.error } : { width, ...res.value });
+    runs.push(res.error ? { width, rate, error: res.error } : { width, rate, ...res.value });
   }
+  await session.cdp('Animation.setPlaybackRate', { playbackRate: 1 });
   return { runs };
 }
 
 // Self-run: drives THIS file through scripts/driver.mjs (never a second driver), so the one-command
 // verify (`node scripts/wheel-pointer-name-probe.mjs`) works without also typing driver.mjs by hand.
 // When driver.mjs dynamically imports this module instead, process.argv[1] is driver.mjs's own path,
-// not this file's — the check below stays false and this block never re-runs.
+// not this file's — the check below stays false and this block never re-runs. The verdict is the same
+// one ci-probes.sh applies (scripts/ci-probes-verdict.mjs), so a hand run and a CI leg cannot disagree.
 const { fileURLToPath } = await import('node:url');
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const { spawnSync } = await import('node:child_process');
+  const fs = await import('node:fs');
+  const os = await import('node:os');
+  const path = await import('node:path');
   const driverPath = fileURLToPath(new URL('./driver.mjs', import.meta.url));
+  const verdictPath = fileURLToPath(new URL('./ci-probes-verdict.mjs', import.meta.url));
   const selfPath = fileURLToPath(import.meta.url);
   const out = spawnSync('node', [driverPath, selfPath], { encoding: 'utf8', maxBuffer: 8 * 1024 * 1024 });
   if (out.status !== 0 || !out.stdout) {
@@ -119,52 +172,25 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     process.exit(1);
   }
 
-  // Shape guard: `session.evaluate` in scripts/driver.mjs wraps the evaluate body as `(async () => { ${body} })()`, so a body
-  // that never hits `return` (e.g. a page missing the wheel, or someone deleting the trailing
-  // `return` line) resolves to `{value: undefined}` — parsed.runs is then undefined, `|| []` swallows
-  // it silently, and the loops below execute zero times and print only the header, exiting 0. Assert
-  // the exact shape this probe is contracted to produce (2 widths x 3 spins each) before judging it.
-  if (!Array.isArray(parsed.runs) || parsed.runs.length !== 2) {
-    console.error(
-      `dead harness: expected 2 runs (one per width), got ${Array.isArray(parsed.runs) ? parsed.runs.length : typeof parsed.runs}`,
-    );
-    process.exit(1);
-  }
-  for (const run of parsed.runs) {
-    if (run.error) continue; // a reported page-level error is a real failure, judged below — not a shape defect
-    if (!Array.isArray(run.spins) || run.spins.length !== 3) {
-      console.error(
-        `dead harness: width ${run.width} expected 3 spins, got ${Array.isArray(run.spins) ? run.spins.length : typeof run.spins}`,
-      );
-      process.exit(1);
+  console.log('width  rate  spin  result  pointer  running@reveal  revealMs  endMs');
+  for (const run of parsed.runs || []) {
+    if (run.error) {
+      console.log(`${run.width}    ${run.rate}   ERROR: ${run.error}`);
+      continue;
     }
-    for (const s of run.spins) {
-      if (typeof s.resultText !== 'string' || s.resultText === '') {
-        console.error(`dead harness: width ${run.width} spin ${s.spin} has empty/missing resultText`);
-        process.exit(1);
-      }
-      if (typeof s.pointerLabel !== 'string' || s.pointerLabel === '') {
-        console.error(`dead harness: width ${run.width} spin ${s.spin} has empty/missing pointerLabel`);
-        process.exit(1);
-      }
+    for (const s of run.spins || []) {
+      console.log(
+        `${run.width}    ${String(run.rate).padEnd(4)}  ${s.spin}     ${String(s.resultText).padEnd(6)}  ${String(s.pointerLabel).padEnd(7)}  ${String(s.runningAtReveal).padEnd(14)}  ${String(s.revealMs).padEnd(8)}  ${s.endMs}`,
+      );
     }
   }
 
-  let ok = true;
-  console.log('width  spin  result        pointer       match');
-  for (const run of parsed.runs) {
-    if (run.error) {
-      ok = false;
-      console.log(`${run.width}  ERROR: ${run.error}`);
-      continue;
-    }
-    for (const s of run.spins) {
-      const match = s.pointerLabel === s.resultText;
-      if (!match) ok = false;
-      console.log(
-        `${run.width}    ${s.spin}     ${String(s.resultText).padEnd(12)}  ${String(s.pointerLabel).padEnd(12)}  ${match ? 'OK' : 'MISMATCH'}`,
-      );
-    }
-  }
-  process.exit(ok ? 0 : 1);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wheel-pointer-name-'));
+  const outFile = path.join(dir, 'out.json');
+  const errFile = path.join(dir, 'err.log');
+  fs.writeFileSync(outFile, JSON.stringify(parsed));
+  fs.writeFileSync(errFile, out.stderr || '');
+  const verdict = spawnSync('node', [verdictPath, 'wheel-pointer-name', outFile, '0', errFile], { encoding: 'utf8' });
+  console.log(`verdict: ${verdict.status === 0 ? 'PASS' : 'FAIL'} ${verdict.stdout.trim()}`);
+  process.exit(verdict.status === 0 ? 0 : 1);
 }
