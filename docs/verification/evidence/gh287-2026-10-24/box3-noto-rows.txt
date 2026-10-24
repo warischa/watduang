@@ -2,7 +2,7 @@
 # Commit a164bd1 (ci.yml install step only, no exemption change). Three runs of the same commit:
 # 40080855402 (ci/gh287-noto), 40081954392 (ci/gh287-noto-r2), 40081954489 (ci/gh287-noto-r3).
 # Read 2026-10-24 from 'gh run view <id> --log', the fit probe's ::notice:: row lines; a green run keeps no artifact.
-# Each run: every fit row line, then its per-screen lines, verbatim minus the log prefix. Row lines are identical across runs except cursed-number 390x844; per-screen lines also differ on self-timed routes (croc-bite, pinocchio-luck, others) in which screens the walk reaches.
+# Each run: every fit row line, then its per-screen lines, verbatim minus the log prefix. The px columns of the row lines are identical across runs except cursed-number 390x844; the screen count in a row line and the per-screen lines differ on self-timed routes (one-bomb 1440x900, croc-bite, pinocchio-luck 320x568), which reach different screens run to run.
 # Thai faces the install step printed (run 40080855402, fc-list ':lang=th' family):
 #   Noto Looped Thai,Noto Looped Thai Bold
 #   Noto Looped Thai,Noto Looped Thai Regular

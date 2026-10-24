@@ -13,8 +13,9 @@ the not-runnable set, which the script names each run with the marker that caugh
 catch a step, and they are checked in this order: a DENY (see below), then a body holding `${{`, then
 a body writing `$GITHUB_OUTPUT`. Today that is `Decide whether the browser probes can add anything`,
 caught by `${{`, `Fetch SWA deployment token`, caught by `[DENY cloud CLI: az]`, and `Give the runner
-a Thai face (gh#287)`, caught by `[DENY system package manager: sudo]` — plus the
-`npm ci` deliberate skip. For those, read the run's per-step conclusions below — never this script's
+a Thai face (gh#287)`, caught by `[DENY system package manager: sudo]`. The `npm ci` skip rule
+matches a bare `npm ci` only, and the step's body is `npm ci --no-audit`, so it classifies RUN today
+(re-checked 2026-10-24). For the NORUN steps, read the run's per-step conclusions below — never this script's
 exit code.
 
 **What the `$GITHUB_OUTPUT` half of that rule catches today: nothing.** Every current NORUN step is
