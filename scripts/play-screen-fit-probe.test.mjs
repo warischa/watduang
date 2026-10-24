@@ -1377,3 +1377,352 @@ test('MUST-RED gh#264 REFUTE: a board a task leaves standing before the open RED
 test('gh#264 REFUTE: a board inserted and removed inside one callback is never counted -- no frame can show it', () => {
   assert.equal(orderFixture(fit.FIRST_SCREEN_SAMPLER, ['tick', 'frame', 'insert', 'remove', 'checkpoint', 'open', 'tasks']), null);
 });
+
+// gh#287 — the FONT_READ knob's verdict, driven over platform-font reads REPLAYED from headless Chrome
+// on a Mac against a served dist/ (one-bomb's how-to-play list, its player-screen hint and name field,
+// and a node shaped in two faces). The reading itself stays with the browser leg; what is pinned here is
+// what a reading is called once it exists, which is the part a later edit could quietly flatten.
+const HOSTED = ['Sarabun', 'Mitr'];
+const THONBURI_LI = [
+  { familyName: '.ThonburiUI', postScriptName: '.ThonburiUI-Regular', isCustomFont: false, glyphCount: 56 },
+  { familyName: '.SF NS', postScriptName: '.SFNS-Regular', isCustomFont: false, glyphCount: 6 },
+];
+const SARABUN_HINT = [{ familyName: 'Sarabun', postScriptName: 'Sarabun-Regular', isCustomFont: true, glyphCount: 48 }];
+
+test('gh#287 fontVerdict: system-only, custom-only, mixed and empty are four different answers', () => {
+  assert.equal(fit.fontVerdict(THONBURI_LI, HOSTED).verdict, 'system');
+  assert.equal(fit.fontVerdict(SARABUN_HINT, HOSTED).verdict, 'custom');
+  const mixed = fit.fontVerdict([...SARABUN_HINT, { familyName: 'Apple Color Emoji', isCustomFont: false, glyphCount: 1 }], HOSTED);
+  assert.equal(mixed.verdict, 'mixed');
+  assert.deepEqual(mixed.custom, { Sarabun: 48 });
+  assert.deepEqual(mixed.system, { 'Apple Color Emoji': 1 });
+  // An empty read is NOT clean: Chrome returns [] for text it never shaped, and calling that custom
+  // would grade an unread node as safe.
+  assert.equal(fit.fontVerdict([], HOSTED).verdict, 'unread');
+});
+
+test('gh#287 fontVerdict: glyphs are summed per family across duplicate fragment entries', () => {
+  const v = fit.fontVerdict([
+    { familyName: '.ThonburiUI', isCustomFont: false, glyphCount: 30 },
+    { familyName: '.ThonburiUI', isCustomFont: false, glyphCount: 76 },
+    { familyName: '.SF NS', isCustomFont: false, glyphCount: 11 },
+  ], HOSTED);
+  assert.deepEqual(v.system, { '.ThonburiUI': 106, '.SF NS': 11 });
+});
+
+test('gh#287 fontVerdict: the custom flag decides, never the name -- a system face named like a hosted one is system', () => {
+  // Measured on short-stick: a locally installed face whose name contains Sarabun, flagged not custom.
+  assert.equal(fit.fontVerdict([{ familyName: 'TH Sarabun New', isCustomFont: false, glyphCount: 14 }], HOSTED).verdict, 'system');
+});
+
+test('MUST-RED gh#287 fontVerdict: a custom face the page does not host is an ANOMALY, a hosted one is not', () => {
+  assert.deepEqual(fit.fontVerdict(SARABUN_HINT, HOSTED).anomalies, []);
+  assert.deepEqual(fit.fontVerdict([{ familyName: 'Webby', isCustomFont: true, glyphCount: 3 }], HOSTED).anomalies, ['Webby']);
+  // Chrome reports the file's own family name, weight included: the hosted Mitr 500 face read
+  // "Mitr Medium" on one-bomb. That is the hosted face; a name merely STARTING with the letters is not.
+  assert.deepEqual(fit.fontVerdict([{ familyName: 'Mitr Medium', isCustomFont: true, glyphCount: 9 }], HOSTED).anomalies, []);
+  assert.deepEqual(fit.fontVerdict([{ familyName: 'Mitrx', isCustomFont: true, glyphCount: 9 }], HOSTED).anomalies, ['Mitrx']);
+});
+
+test('gh#287 fmtFontRead: elements sharing a name and a reading collapse into one counted item', () => {
+  const cell = { sel: 'div.pScore', kind: 'text', inBox: false, fonts: [{ familyName: '.SF NS', isCustomFont: false, glyphCount: 3 }] };
+  const line = fit.fmtFontRead('one-bomb', '320x568', fontScreen([cell, cell, cell], { boxes: [] }));
+  assert.match(line, /system=3 .*\| system: div\.pScore \.SF NS:3 x3$/);
+});
+
+const fontScreen = (entries, over = {}) => ({
+  press: 2, draw: null, overflowPx: 40, scrollPx: 0, clippedPx: 40, clipFrom: 'div.modal', scrollFrom: null,
+  fontRead: {
+    hosted: HOSTED,
+    // The box's frozen members are the entries marked inBox, read the same way.
+    boxes: [{ slot: 'clip', name: 'div.modal', found: true, members: entries.filter((e) => e.inBox).map((e) => ({ sel: e.sel, kind: e.kind, drift: null, fonts: e.fonts, failed: 0 })) }],
+    entries, ...over,
+  },
+});
+
+test('gh#287 fontReadSummary: at-risk is yes only when a SYSTEM element sits inside the named overflow box', () => {
+  const sys = { sel: 'li', kind: 'text', inBox: true, fonts: THONBURI_LI };
+  const cus = { sel: 'p.ps-hint', kind: 'text', inBox: true, fonts: SARABUN_HINT };
+  assert.equal(fit.fontReadSummary(fontScreen([sys, cus])).atRisk, 'yes');
+  assert.equal(fit.fontReadSummary(fontScreen([{ ...sys, inBox: false }, cus])).atRisk, 'no');
+  // A custom element inside the box does not make the screen at risk.
+  assert.equal(fit.fontReadSummary(fontScreen([cus])).atRisk, 'no');
+  // A screen with no overflow names no box, so the question does not arise.
+  assert.equal(fit.fontReadSummary(fontScreen([sys], { boxes: [] })).atRisk, 'n/a');
+  // A named box the read could not find again is unknown, never no.
+  assert.equal(fit.fontReadSummary(fontScreen([{ ...sys, inBox: false }], { boxes: [{ name: 'div.modal', found: false }] })).atRisk, 'unknown');
+  const s = fit.fontReadSummary(fontScreen([sys, cus, { sel: 'b', kind: 'text', inBox: false, fonts: [] }]));
+  assert.deepEqual([s.system.length, s.custom.length, s.mixed.length, s.unread.length], [1, 1, 0, 1]);
+});
+
+test('gh#287 fmtFontRead / fmtFontRoute: every line carries the FONT_READ prefix, the screen identity and the counts', () => {
+  const sys = { sel: 'li', kind: 'text', inBox: true, fonts: THONBURI_LI };
+  const line = fit.fmtFontRead('one-bomb', '320x568', fontScreen([sys]));
+  assert.match(line, /^FONT_READ one-bomb 320x568 press 2 overflow 40px system=1 custom=0 mixed=0 unread=0 at-risk=yes/);
+  assert.match(line, /li \.ThonburiUI:56,\.SF NS:6/);
+  const route = fit.fmtFontRoute('one-bomb', [
+    { vp: '320x568', screen: fontScreen([sys]) },
+    { vp: '390x844', screen: fontScreen([{ ...sys, inBox: false }]) },
+  ]);
+  assert.equal(route, 'FONT_READ ROUTE one-bomb system=1 at-risk-screens=320x568/p2');
+});
+
+// gh#287 REFUTE round 1 — the FONT_READ collector and its driver half, run END TO END against a minimal
+// fake page and a fake CDP session. The collector string is executed as the browser would execute it,
+// and readFonts makes the same protocol calls it makes in Chrome; only the page and the protocol replies
+// are fakes. What this cannot cover is whether Chrome answers the way the fake does -- the browser leg
+// owns that, and the Mac run's CAL line is its calibration.
+const TH = '\u0E44\u0E17\u0E22';
+const SYS = [{ familyName: '.ThonburiUI', isCustomFont: false, glyphCount: 3 }];
+const CUS = [{ familyName: 'Sarabun', isCustomFont: true, glyphCount: 3 }];
+class FText {
+  constructor(data, fonts) { this.nodeType = 3; this.data = data; this.fonts = fonts; this.parentElement = null; }
+}
+class FEl {
+  constructor(tag, o = {}, kids = []) {
+    this.nodeType = 1; this.tagName = tag.toUpperCase(); this.id = o.id || ''; this.className = o.cls || '';
+    this.o = o; this.fonts = o.fonts; this.placeholder = o.placeholder; this.value = o.value;
+    this.childNodes = []; this.parentElement = null;
+    for (const k of kids) { k.parentElement = this; this.childNodes.push(k); }
+  }
+  get children() { return this.childNodes.filter((n) => n.nodeType === 1); }
+  get clientHeight() { return this.o.clientHeight ?? 100; }
+  get scrollHeight() { return this.clientHeight + (this.o.over ?? 0); }
+  get clientWidth() { return 100; }
+  get scrollWidth() { return 100; }
+  getClientRects() { return this.o.hidden ? [] : [{}]; }
+  getBoundingClientRect() { return { width: 10, height: 10, left: 0, top: 0, right: 10, bottom: 10 }; }
+  contains(n) { for (let x = n; x; x = x.parentElement) if (x === this) return true; return false; }
+  simple(sel) {
+    if (sel === '*') return true;
+    const m = /^([a-z0-9]*)((?:[#.][\w-]+)*)$/i.exec(sel);
+    if (!m) throw new Error(`fake page cannot match selector ${sel}`);
+    if (m[1] && m[1].toUpperCase() !== this.tagName) return false;
+    return (m[2].match(/[#.][\w-]+/g) || []).every((p) => (p[0] === '#' ? this.id === p.slice(1) : this.className.split(/\s+/).includes(p.slice(1))));
+  }
+  matches(sel) {
+    return sel.split(',').some((s) => {
+      const parts = s.trim().split(/\s+/);
+      if (!this.simple(parts.at(-1))) return false;
+      let i = parts.length - 2;
+      for (let a = this.parentElement; a && i >= 0; a = a.parentElement) if (a.simple(parts[i])) i -= 1;
+      return i < 0;
+    });
+  }
+  closest(sel) { for (let x = this; x; x = x.parentElement) if (x.matches(sel)) return x; return null; }
+  all() { const out = []; const w = (e) => { for (const c of e.children) { out.push(c); w(c); } }; w(this); return out; }
+  querySelectorAll(sel) { return this.all().filter((e) => e.matches(sel)); }
+  querySelector(sel) { return this.querySelectorAll(sel)[0] ?? null; }
+}
+const fel = (tag, o, kids) => new FEl(tag, o, kids);
+function fakeFontPage(root, { hosted = ['Sarabun', 'Mitr'] } = {}) {
+  const body = fel('body', {}, [root]);
+  const html = fel('html', {}, [body]);
+  const hidden = (n) => { for (let x = n.nodeType === 3 ? n.parentElement : n; x; x = x.parentElement) if (x.o.hidden) return true; return false; };
+  const document = {
+    documentElement: html, body,
+    querySelector: (sel) => html.querySelector(sel),
+    querySelectorAll: (sel) => html.querySelectorAll(sel),
+    createTreeWalker: (r) => {
+      const list = [];
+      const w = (e) => { for (const c of e.childNodes) { if (c.nodeType === 3) list.push(c); else w(c); } };
+      w(r);
+      let i = 0;
+      return { nextNode: () => list[i++] ?? null };
+    },
+    createRange: () => { let n = null; return { selectNodeContents(x) { n = x; }, getClientRects: () => (hidden(n) ? [] : [{}]) }; },
+    fonts: hosted.map((family) => ({ family })),
+    createElement: () => ({ getContext: () => null }),
+  };
+  const getComputedStyle = (e, p) => ({
+    content: p ? (e.o.pseudo?.[p.slice(2)] ?? 'none') : 'normal',
+    fontFamily: e.o.font ?? 'system-ui', visibility: 'visible', display: 'block', overflowY: 'visible', overflowX: 'visible',
+  });
+  const window = {};
+  const run = (code) => new Function('window', 'document', 'getComputedStyle', 'NodeFilter', 'innerHeight', code)(window, document, getComputedStyle, { SHOW_TEXT: 4 }, 568);
+  return { window, document, run };
+}
+function fakeFontSession(page) {
+  const objs = new Map(); const ids = new Map(); const byId = new Map(); const back = new Map();
+  let oid = 0; let nid = 0; let bid = 0;
+  const reg = (v) => { const k = `o${++oid}`; objs.set(k, v); return k; };
+  const nodeId = (n) => { if (!ids.has(n)) { ids.set(n, ++nid); byId.set(nid, n); } return ids.get(n); };
+  const backId = (v) => { back.set(++bid, v); return bid; };
+  const cdp = async (method, p = {}) => {
+    if (method === 'DOM.getDocument') return { result: {} };
+    if (method === 'Runtime.evaluate') {
+      const v = page.window[JSON.parse(/window\[(".*?")\]/.exec(p.expression)[1])];
+      return { result: { result: v ? { objectId: reg(v) } : { type: 'undefined' } } };
+    }
+    if (method === 'Runtime.getProperties') {
+      return { result: { result: [...objs.get(p.objectId).map((v, i) => ({ name: String(i), value: { objectId: reg(v) } })), { name: 'length', value: {} }] } };
+    }
+    if (method === 'DOM.requestNode') return { result: { nodeId: nodeId(objs.get(p.objectId)) } };
+    if (method === 'CSS.getPlatformFontsForNode') {
+      const n = byId.get(p.nodeId);
+      return n.fonts === 'error' ? { error: { message: 'fake protocol error' } } : { result: { fonts: n.fonts ?? [] } };
+    }
+    if (method === 'DOM.describeNode') {
+      const n = byId.get(p.nodeId);
+      return { result: { node: {
+        pseudoElements: Object.entries(n.o.pseudoFonts ?? {}).map(([pseudoType, fonts]) => ({ pseudoType, backendNodeId: backId({ fonts }) })),
+        shadowRoots: n.o.shadow ? [{ nodeType: 11, children: n.o.shadow.map((s) => ({ nodeType: 1, attributes: s.hidden ? ['style', 'display: none !important;'] : [],
+          children: [{ nodeType: 3, nodeValue: s.text, backendNodeId: backId({ fonts: s.fonts }) }] })) }] : [],
+      } } };
+    }
+    if (method === 'DOM.pushNodesByBackendIdsToFrontend') return { result: { nodeIds: p.backendNodeIds.map((b) => nodeId(back.get(b))) } };
+    throw new Error(`fake session has no ${method}`);
+  };
+  const evaluate = async (code) => { try { return { value: page.run(code) }; } catch (err) { return { error: String(err) }; } };
+  return { cdp, evaluate };
+}
+const NO_OVER = { scrollPx: 0, clippedPx: 0, overflowXPx: 0, scrollFrom: null, clipFrom: null, overflowXFrom: null };
+async function fontReadOf(root, m = NO_OVER, cal = false, stash = null, { mutate = null } = {}) {
+  const page = fakeFontPage(root);
+  if (stash) {
+    // What MEASURE does under the knob: stash the named boxes, then run the REAL snapshot over them.
+    page.window[fit.FONT_BOXES_KEY ?? '__watduangFontBoxes'] = stash;
+    page.run(fit.FONT_SNAPSHOT ?? '');
+  }
+  if (mutate) mutate(page);
+  const read = await fit.readFonts(fakeFontSession(page), m, cal);
+  const screen = { press: 0, draw: null, overflowPx: Math.max(m.scrollPx, m.clippedPx), ...m, fontRead: read };
+  return { read, screen, sum: fit.fontReadSummary(screen) };
+}
+
+test('MUST-RED gh#287 R1-1: one Thai fragment that reads empty or errors makes its host unread, never absorbed by a sibling fragment', async () => {
+  for (const bad of [[], 'error']) {
+    const { sum } = await fontReadOf(fel('div', { id: 'app' }, [fel('p', {}, [new FText(TH, CUS), new FText(TH, bad)])]));
+    assert.deepEqual([sum.custom.length, sum.unread.length], [0, 1], `second fragment ${JSON.stringify(bad)}`);
+  }
+});
+
+test('MUST-RED gh#287 R1-2: at-risk joins to the box MEASURE stashed, not the first element sharing its name', async () => {
+  const first = fel('div', { cls: 'same', over: 50 }, [new FText(TH, CUS)]);
+  const second = fel('div', { cls: 'same', over: 50 }, [new FText(TH, SYS)]);
+  const m = { ...NO_OVER, scrollPx: 50, scrollFrom: 'div.same' };
+  const { sum } = await fontReadOf(fel('div', { id: 'app' }, [first, second]), m, false, { scroll: second });
+  assert.equal(sum.atRisk, 'yes');
+  // No stash (MEASURE ran without the knob, or the box left the document): unknown, never a guess.
+  assert.equal((await fontReadOf(fel('div', { id: 'app' }, [first, second]), m, false, null)).sum.atRisk, 'unknown');
+});
+
+test('MUST-RED gh#287 R1-3: only a weight or style word may follow a hosted family name', () => {
+  assert.deepEqual(fit.fontVerdict([{ familyName: 'Sarabun Unrelated', isCustomFont: true, glyphCount: 3 }], ['Sarabun']).anomalies, ['Sarabun Unrelated']);
+  for (const ok of ['Mitr Medium', 'Sarabun SemiBold Italic', 'Sarabun Italic', 'Sarabun ExtraLight', 'Sarabun']) {
+    assert.deepEqual(fit.fontVerdict([{ familyName: ok, isCustomFont: true, glyphCount: 3 }], ['Sarabun', 'Mitr']).anomalies, [], ok);
+  }
+});
+
+const howPage = (liFonts, liFamilies) => fel('div', { id: 'app' }, [
+  fel('div', { id: 'howModal' }, [fel('ul', {}, liFonts.map((f, i) => fel('li', { font: liFamilies[i] }, [new FText(TH, f)])))]),
+  fel('p', { font: 'Sarabun, system-ui' }, [new FText(TH, CUS)]),
+]);
+
+test('MUST-RED gh#287 R1-4: the Sarabun calibration half never takes an entry the how-to-play half owns', async () => {
+  // The wrong li is Sarabun-first and reads custom. It must stay in the how half and make CAL WRONG.
+  const { screen } = await fontReadOf(howPage([CUS, SYS], ['Sarabun, system-ui', 'system-ui']), NO_OVER, true);
+  assert.match(fit.fmtFontCal('one-bomb', '320x568', screen), /howModal-li=system 1\/2 .*calibration=WRONG/);
+  // Positive control: every li system and a separate Sarabun element custom reads OK.
+  const good = await fontReadOf(howPage([SYS, SYS], ['system-ui', 'system-ui']), NO_OVER, true);
+  assert.match(fit.fmtFontCal('one-bomb', '320x568', good.screen), /howModal-li=system 2\/2 sarabun-el=p custom .*calibration=OK/);
+});
+
+test('MUST-RED gh#287 R1-5: a sideways-only overflow names its box, so at-risk is answered rather than n/a', async () => {
+  const wide = fel('div', { cls: 'wide' }, [new FText(TH, SYS)]);
+  const m = { ...NO_OVER, overflowXPx: 30, overflowXFrom: 'div.wide' };
+  assert.equal((await fontReadOf(fel('div', { id: 'app' }, [wide]), m, false, { x: wide })).sum.atRisk, 'yes');
+});
+
+test('MUST-RED gh#287 R1-6: Thai in the mockup root\'s own pseudo-element is read; its own text already is', async () => {
+  const root = fel('div', { id: 'app', pseudo: { after: `"${TH}"` }, pseudoFonts: { after: SYS } }, []);
+  const { sum } = await fontReadOf(root);
+  assert.deepEqual(sum.system.map((e) => e.sel), ['div#app::after']);
+  // Guard, green before the fix too: a text node directly under the root is in the set.
+  const own = await fontReadOf(fel('div', { id: 'app' }, [new FText(TH, SYS)]));
+  assert.deepEqual(own.sum.system.map((e) => e.sel), ['div#app']);
+});
+
+test('MUST-RED gh#287 R1-7: a partial or EAGAIN write is finished, never dropped', () => {
+  const text = 'x'.repeat(200011);
+  const got = [];
+  let calls = 0;
+  const write = (fd, buf, off = 0, len = undefined) => {
+    calls += 1;
+    if (calls === 2) throw Object.assign(new Error('EAGAIN'), { code: 'EAGAIN' });
+    const b = typeof buf === 'string' ? Buffer.from(buf) : buf;
+    const n = Math.min(len ?? b.length - off, 65536);
+    got.push(b.subarray(off, off + n));
+    return n;
+  };
+  const fell = [];
+  fit.fontWriteAll(3, text, { write, fallback: (b) => fell.push(Buffer.from(b)), sleep: () => {} });
+  assert.equal(Buffer.concat(got).length, 200011);
+  assert.equal(fell.length, 0);
+  // Any other error hands the REST to the fallback, so no byte is lost.
+  const half = [];
+  const fell2 = [];
+  let n2 = 0;
+  fit.fontWriteAll(3, text, {
+    write: (fd, buf, off = 0) => { n2 += 1; if (n2 > 1) throw Object.assign(new Error('EBADF'), { code: 'EBADF' }); const b = typeof buf === 'string' ? Buffer.from(buf) : buf; half.push(b.subarray(off, off + 100)); return 100; },
+    fallback: (b) => fell2.push(Buffer.from(b)), sleep: () => {},
+  });
+  assert.equal(Buffer.concat([...half, ...fell2]).length, 200011);
+});
+
+// gh#287 REFUTE round 2 — A: the at-risk join is to the members the box held AT MEASURE, frozen by the
+// real snapshot MEASURE runs under the knob, then re-checked for drift before they are trusted.
+const detachNode = (n) => { const p = n.parentElement; p.childNodes.splice(p.childNodes.indexOf(n), 1); n.parentElement = null; };
+const moveNode = (n, to) => { detachNode(n); n.parentElement = to; to.childNodes.push(n); };
+const BOX_M = { ...NO_OVER, scrollPx: 40, scrollFrom: 'div.box' };
+
+test('MUST-RED gh#287 R2-A1: system Thai that leaves the box between MEASURE and the read still makes it at-risk', async () => {
+  const t = new FText(TH, SYS);
+  const box = fel('div', { cls: 'box', over: 40 }, [fel('p', {}, [t])]);
+  const out = fel('div', { cls: 'out' }, []);
+  const { sum } = await fontReadOf(fel('div', { id: 'app' }, [box, out]), BOX_M, false, { scroll: box }, { mutate: () => moveNode(t, out) });
+  assert.equal(sum.atRisk, 'yes');
+});
+
+test('gh#287 R2-A2: a frozen member that left the document makes at-risk unknown', async () => {
+  const gone = new FText(TH, CUS);
+  const box = fel('div', { cls: 'box', over: 40 }, [fel('p', {}, [new FText(TH, CUS)]), fel('p', {}, [gone])]);
+  const { sum } = await fontReadOf(fel('div', { id: 'app' }, [box]), BOX_M, false, { scroll: box }, { mutate: () => detachNode(gone) });
+  assert.equal(sum.atRisk, 'unknown');
+});
+
+test('gh#287 R2-A3: system text added to the box after MEASURE is not a member, so all-custom members read no', async () => {
+  const p = fel('p', {}, [new FText(TH, CUS)]);
+  const box = fel('div', { cls: 'box', over: 40 }, [p]);
+  const { sum } = await fontReadOf(fel('div', { id: 'app' }, [box]), BOX_M, false, { scroll: box }, {
+    // In its own element, so it cannot hide as mixed inside a frozen member's host.
+    mutate: () => { const late = fel('p', {}, [new FText(TH, SYS)]); late.parentElement = box; box.childNodes.push(late); },
+  });
+  assert.equal(sum.atRisk, 'no');
+});
+
+test('gh#287 R2-A4: a member whose host font changed since MEASURE makes at-risk unknown', async () => {
+  const p = fel('p', { font: 'Sarabun, system-ui' }, [new FText(TH, CUS)]);
+  const box = fel('div', { cls: 'box', over: 40 }, [p]);
+  const { sum } = await fontReadOf(fel('div', { id: 'app' }, [box]), BOX_M, false, { scroll: box }, { mutate: () => { p.o.font = 'system-ui'; } });
+  assert.equal(sum.atRisk, 'unknown');
+});
+
+test('MUST-RED gh#287 R2-B: a FONT_READ line the child had to send to stderr reaches the parent', async () => {
+  const os = await import('node:os');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fontread-child-'));
+  try {
+    const child = path.join(dir, 'child.mjs');
+    const probeUrl = new URL('./play-screen-fit-probe.mjs', import.meta.url).href;
+    fs.writeFileSync(child, `import fs from 'node:fs';\nconst { fontEmit } = await import(${JSON.stringify(probeUrl)});\nfs.closeSync(3);\nfontEmit('FONT_READ fixture-line');\nprocess.exit(0);\n`);
+    const outFd = fs.openSync(path.join(dir, 'out.json'), 'w');
+    const fd3 = fs.openSync(path.join(dir, 'fd3.txt'), 'w');
+    const forwarded = [];
+    let run;
+    try {
+      run = fit.spawnDriverChild([child], { cwd: dir, outFd, env: process.env, fontRead: true, stdoutFd: fd3, forward: (s) => forwarded.push(s) });
+    } finally { fs.closeSync(outFd); fs.closeSync(fd3); }
+    assert.equal(run.status, 0, run.stderr);
+    assert.match(forwarded.join(''), /^FONT_READ fixture-line$/m);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});

@@ -101,6 +101,16 @@
 //                                                           every manifest route once at the narrow viewport.
 //                                                           See NO_WEBGL_CONTEXTS for what it proves.
 //   ROUTES_ONLY=a,b                                      -> narrow a hand-run debug pass. Never in CI.
+//   FONT_READ=1                                          -> gh#287, REPORT-ONLY and dormant: no lane sets
+//                                                           it and nothing is gated on it. Unset, this file
+//                                                           behaves and prints exactly as without it. Set,
+//                                                           every screen the walk measures is also asked
+//                                                           which face SHAPED its Thai text (Chrome's
+//                                                           CSS.getPlatformFontsForNode, not the declared
+//                                                           stack), and FONT_READ lines stream out per
+//                                                           screen. See FONT_READ below for the sets read.
+//                                                           Shell-rendered games have no play route and no
+//                                                           fit row, so they are outside it.
 //   FIT_SHARD=i FIT_SHARDS=n                             -> CI ONLY, and it is NOT a narrowing: the walk
 //                                                           is split across n legs that between them walk
 //                                                           every route, so each leg still gates every row
@@ -194,6 +204,8 @@ const CDP_PORT = process.env.CDP_PORT || '9592';
 const NO_SEED = Boolean(process.env.BREAK_WALK || process.env.NO_SEED);
 const NO_PRESS = Boolean(process.env.BREAK_WALK || process.env.NO_PRESS);
 const BREAK_WALK = Boolean(process.env.BREAK_WALK);
+// gh#287 — the platform-font read. Exactly "1", so a stray FONT_READ=0 stays off.
+const FONT_READ = process.env.FONT_READ === '1';
 
 /** The three viewports gh#179 asks for: the binding narrow width, the common phone, and desktop. */
 export const VIEWPORTS = [
@@ -721,8 +733,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Shared by every evaluate below. No backticks anywhere inside these template literals — a backtick in
 // a comment closes the Node template and the prose after it is evaluated as Node expressions.
+// The mockup root, one spelling for every in-page read that resolves it.
+const MOCKUP_ROOT_SEL = '#app, #app-container, #appRoot';
 const HELPERS = `
-  const ROOT_SEL = '#app, #app-container, #appRoot';
+  const ROOT_SEL = '${MOCKUP_ROOT_SEL}';
   const visible = (e) => {
     const r = e.getBoundingClientRect();
     const cs = getComputedStyle(e);
@@ -747,6 +761,67 @@ const SIGNATURE = `
   return { ok: true, sig, len: sig.length };
 `;
 
+// The box name MEASURE prints as scrollFrom / clipFrom / overflowXFrom. One copy, because the FONT_READ
+// join finds the named box again by this same name and a second spelling would silently never match.
+const DESC = `const desc = (e) => (e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') +
+    (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\\s+/).join('.') : '')).slice(0, 60);`;
+
+// gh#287 — under FONT_READ only, MEASURE also keeps a REFERENCE to each box it names, so the font read
+// joins to that very element. A name cannot do it: sibling boxes share names. Unset, every piece below
+// is the empty string and MEASURE is the same text as without the knob.
+export const FONT_BOXES_KEY = '__watduangFontBoxes';
+const FONT_BOX_RESET = FONT_READ ? ` window[${JSON.stringify(FONT_BOXES_KEY)}] = { scroll: scrollPx ? de : null };` : '';
+const fontBoxMark = (slot) => (FONT_READ ? ` window[${JSON.stringify(FONT_BOXES_KEY)}].${slot} = e;` : '');
+
+// The ONE text-set criterion, shared by the snapshot MEASURE takes and by FONT_COLLECT, so a member and
+// an entry are the same kind of thing: laid-out text nodes holding U+0E00-U+0E7F, fields showing Thai,
+// and ::before / ::after hosts whose content holds it. scope itself is included.
+const FONT_MEMBERS = `
+  const THAI = /[\\u0E00-\\u0E7F]/;
+  const rangeLaidOut = (n) => { const r = document.createRange(); r.selectNodeContents(n); return r.getClientRects().length > 0; };
+  const fontHosted = () => [...new Set([...document.fonts].map((f) => f.family.replace(/^["']|["']$/g, '')))];
+  const fontMembers = (scope) => {
+    const out = [];
+    const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+    for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+      if (THAI.test(t.data) && t.parentElement && rangeLaidOut(t)) out.push({ node: t, kind: 'text', host: t.parentElement });
+    }
+    for (const e of scope.querySelectorAll('input, textarea')) {
+      // What the field shows: its value when it has one, else its placeholder.
+      if (e.getClientRects().length && THAI.test(e.value ? e.value : (e.placeholder || ''))) out.push({ node: e, kind: 'field', host: e });
+    }
+    for (const e of [scope, ...scope.querySelectorAll('*')]) {
+      for (const pseudo of ['before', 'after']) {
+        if (THAI.test(getComputedStyle(e, '::' + pseudo).content || '') && e.getClientRects().length) out.push({ node: e, kind: 'pseudo', pseudo, host: e });
+      }
+    }
+    return out;
+  };
+`;
+
+/**
+ * gh#287 — the members each named box holds AT MEASURE, frozen once the scan has picked its winners
+ * (MEASURE runs this after the scan loop, under FONT_READ only). Per slot: every member of the text set
+ * inside both that box and the mockup root, with its host's computed font-family, plus the page's hosted
+ * list. FONT_COLLECT later trusts a member only if none of that has drifted. A block, so its names
+ * cannot collide with MEASURE's. Exported so a test runs the real snapshot.
+ */
+export const FONT_SNAPSHOT = `{
+  ${FONT_MEMBERS}
+  const fontRoot = document.querySelector(${JSON.stringify(MOCKUP_ROOT_SEL)});
+  const fontStash = window[${JSON.stringify(FONT_BOXES_KEY)}];
+  if (fontRoot && fontStash) {
+    const frozen = { hosted: fontHosted(), slots: {} };
+    for (const slot of ['scroll', 'clip', 'x']) {
+      const box = fontStash[slot];
+      if (!box) continue;
+      const scope = box.contains(fontRoot) ? fontRoot : fontRoot.contains(box) ? box : null;
+      frozen.slots[slot] = (scope ? fontMembers(scope) : []).map((m) => ({ ...m, font: getComputedStyle(m.host).fontFamily }));
+    }
+    fontStash.frozen = frozen;
+  }
+}`;
+
 const MEASURE = `
   ${HELPERS}
   const de = document.documentElement;
@@ -760,7 +835,7 @@ const MEASURE = `
   // pinned body turns overflow into is not scrolling but CLIPPING — content the player cannot reach
   // at all — so both are measured and the gate is on whichever is larger.
   let scrollPx = docScrollPx > ${EPS} ? docScrollPx : 0;
-  let scrollFrom = scrollPx ? 'documentElement' : null;
+  let scrollFrom = scrollPx ? 'documentElement' : null;${FONT_BOX_RESET}
   let clippedPx = 0;
   let clipFrom = null;
   let clipChild = null;
@@ -816,8 +891,7 @@ const MEASURE = `
     for (const sel of xDeclSelectors) { try { if (e.matches(sel)) return true; } catch (err) { /* an unmatchable selector declares nothing about e */ } }
     return false;
   };
-  const desc = (e) => (e.tagName.toLowerCase() + (e.id ? '#' + e.id : '') +
-    (typeof e.className === 'string' && e.className.trim() ? '.' + e.className.trim().split(/\\s+/).join('.') : '')).slice(0, 60);
+  ${DESC}
   for (const e of [de, document.body, ...document.querySelectorAll('body *')]) {
     if (!e || (e !== de && e !== document.body && !visible(e))) continue;
     // A one-pixel clip box is the screen-reader visually-hidden pattern, not a scroll surface, and it
@@ -841,7 +915,7 @@ const MEASURE = `
       isRoot, overflowX: cs.overflowX, declaredX: declaresX(e), clientHeight: e.clientHeight, innerHeight,
     })) {
       overflowXPx = overX;
-      overflowXFrom = desc(e);
+      overflowXFrom = desc(e);${fontBoxMark('x')}
     }
     const over = e.scrollHeight - e.clientHeight;
     if (over <= ${EPS}) continue;
@@ -849,7 +923,7 @@ const MEASURE = `
     if (oy === 'hidden' || oy === 'clip') {
       if (over > clippedPx) {
         clippedPx = over;
-        clipFrom = desc(e);
+        clipFrom = desc(e);${fontBoxMark('clip')}
         // Which content is cut off, not only which box cuts it: the descendant reaching furthest
         // below the box, with its rect. A runner-only clip (one-bomb 320x568, 2026-10-20) could not
         // be judged from the log because only the px was printed. A lead, not a cause -- a fixed
@@ -886,7 +960,7 @@ const MEASURE = `
     // every .screen / main / #view-root is height:100%.
     const fillsViewport = isScroller && e.clientHeight >= SCREEN_FRACTION * innerHeight;
     if (!isRoot && !fillsViewport) continue;
-    if (over > scrollPx) { scrollPx = over; scrollFrom = desc(e); }
+    if (over > scrollPx) { scrollPx = over; scrollFrom = desc(e);${fontBoxMark('scroll')} }
   }
   // INK, not boxes: leaves that render text, plus the media and control elements that render
   // themselves. A full-bleed wrapper is not content and must not count as width filled.
@@ -904,7 +978,7 @@ const MEASURE = `
     right = Math.max(right, r.right);
     n += 1;
   }
-  const span = n ? Math.min(right, innerWidth) - Math.max(left, 0) : 0;
+  const span = n ? Math.min(right, innerWidth) - Math.max(left, 0) : 0;${FONT_READ ? FONT_SNAPSHOT : ''}
   return {
     ok: true, innerWidth, innerHeight,
     docScrollPx, scrollPx, clippedPx, overflowXPx,
@@ -1164,6 +1238,247 @@ export const FOLD_READ = (sel) => `
   }
   return { found: true, top: r.top, bottom: r.bottom, height: r.height, innerHeight };
 `;
+
+/*
+ * gh#287 — FONT_READ: which face SHAPED the Thai text on each measured screen. Report-only; it feeds
+ * the gh#287 enumeration of fit rows that may be measuring tofu on a runner with no Thai face, and it
+ * gates nothing.
+ *
+ * ROUTE SET: playRoutes(), the same list the walk takes. SCREEN SET: every screen the walk measures,
+ * read right after that screen's own MEASURE in the same pass (after the fold and composition reads, so
+ * those keep their timing), so a line only ever joins to fit numbers of the same run. Every pass of a
+ * DRAW_COUNTS route is read, not only the draw that wins the worst-per-press merge.
+ *
+ * TEXT SET, all inside the mockup root resolved exactly as MEASURE resolves it (page chrome such as the
+ * crawl-home link is out): every LAID-OUT text node holding a character in U+0E00-U+0E7F (laid out =
+ * its range has a client rect, so visibility:hidden text is in and display:none text is out); every
+ * laid-out input or textarea whose placeholder or value holds one; every ::before / ::after whose
+ * computed content holds one.
+ *
+ * READ GRANULARITY: the TEXT NODE, not its element. Measured on one-bomb (Mac, 2026-10-24): an element
+ * read covers its own text plus its depth-1 layout children, so a paragraph read also counted its bold
+ * child's glyphs and a host read counted its ::after. A container read misses deeper text entirely. So
+ * each Thai text node is read on its own and the line names its parent element. A pseudo-element is
+ * read through DOM.describeNode's pseudoElements; a field through its user-agent shadow text, skipping
+ * the placeholder node while the field hides it (a hidden placeholder reads empty by design). Chrome
+ * does not lay out for this call, so the in-page collector's rect reads force layout first.
+ *
+ * VERDICT per element (fontVerdict): glyphs summed per family; custom faces only is custom, non-custom
+ * only is system, both is mixed and counted on neither side, and an EMPTY read is unread, never clean.
+ * The isCustomFont flag decides, never the family name: a system face can carry a self-hosted face name.
+ * Every custom family must also be one the page itself registered in document.fonts (matched with a
+ * weight suffix allowed, see fontVerdict), else an ANOMALY line prints. AT-RISK (fontReadSummary):
+ * whether a system element was inside a box the screen's fit line names (scrolling, clipping or
+ * sideways) AT MEASURE: MEASURE keeps a reference to each box and FONT_SNAPSHOT freezes its members, and
+ * a member that drifted before the read makes the answer unknown rather than no. The ROUTE line's
+ * system count is DISTINCT element names over
+ * every screen read, so a row of identically named cells counts once.
+ *
+ * WHERE IT PRINTS: the walk runs in the driver child, whose stdout is the JSON file. So the parent hands
+ * the child its own stdout as an extra descriptor and the child writes each line there as the screen is
+ * read, which keeps every line a dead or timed-out walk got through. Read from any other launcher, the
+ * lines fall back to stderr. Lines: one per screen, FONT_READ ANOMALY when it fires, FONT_READ CAL once
+ * per one-bomb viewport (its how-to-play list is system-first and expected system, the player-screen
+ * hint is Sarabun-first and expected custom, plus the in-page WebGL state, because the lanes differ in
+ * which board and therefore which text one-bomb renders), and FONT_READ ROUTE per route at the end.
+ */
+const FONT_NODES_KEY = '__watduangFontRead';
+export const FONT_COLLECT = (named, cal) => `
+  ${HELPERS}
+  ${DESC}
+  ${FONT_MEMBERS}
+  const root = document.querySelector(ROOT_SEL);
+  if (!root) return { ok: false, why: 'no mockup root' };
+  const de = document.documentElement;
+  const hosted = fontHosted();
+  const nodes = [];
+  const nodeIndex = new Map();
+  const idxOf = (n) => { if (!nodeIndex.has(n)) { nodeIndex.set(n, nodes.length); nodes.push(n); } return nodeIndex.get(n); };
+  // AT-RISK reads the members each named box held AT MEASURE (FONT_SNAPSHOT), iterated on their own and
+  // not through the walk below, because a member moved out of the root is never visited by it. A member
+  // is trusted only while it is still connected, laid out, inside the root, under a host with the same
+  // computed font-family, on a page with the same hosted list; otherwise it carries its drift reason.
+  // A slot with no stashed box or no frozen set is not found. Text added after MEASURE is not a member.
+  const stash = window[${JSON.stringify(FONT_BOXES_KEY)}] || {};
+  const frozen = stash.frozen;
+  const hostedSame = Boolean(frozen) && JSON.stringify(frozen.hosted) === JSON.stringify(hosted);
+  const trusted = new Set();
+  const boxes = ${JSON.stringify(named)}.map(({ slot, name }) => {
+    const members = frozen && stash[slot] ? frozen.slots[slot] : null;
+    if (!members) return { slot, name, found: false, members: [] };
+    return { slot, name, found: true, members: members.map((m) => {
+      const host = m.kind === 'text' ? m.node.parentElement : m.node;
+      let drift = null;
+      if (!host || !de.contains(m.node)) drift = 'detached';
+      else if (!(m.kind === 'text' ? rangeLaidOut(m.node) : m.node.getClientRects().length)) drift = 'not laid out';
+      else if (!root.contains(m.node)) drift = 'outside root';
+      else if (getComputedStyle(host).fontFamily !== m.font) drift = 'font changed';
+      else if (!hostedSame) drift = 'hosted changed';
+      if (!drift) trusted.add(m.node);
+      const sel = (host ? desc(host) : 'detached') + (m.kind === 'field' ? '[field]' : m.kind === 'pseudo' ? '::' + m.pseudo : '');
+      return { sel, kind: m.kind, pseudo: m.pseudo, drift, idx: drift ? [] : [idxOf(m.node)] };
+    }) };
+  });
+  // The counted text set: the root's members now. inBox marks an entry holding a trusted member.
+  const entries = [];
+  const hosts = new Map();
+  for (const m of fontMembers(root)) {
+    if (m.kind === 'text') {
+      let entry = hosts.get(m.host);
+      if (!entry) {
+        entry = { sel: desc(m.host), kind: 'text', idx: [], inBox: false, host: m.host };
+        hosts.set(m.host, entry);
+        entries.push(entry);
+      }
+      entry.idx.push(idxOf(m.node));
+      entry.inBox = entry.inBox || trusted.has(m.node);
+    } else {
+      entries.push({ sel: desc(m.host) + (m.kind === 'field' ? '[field]' : '::' + m.pseudo), kind: m.kind, pseudo: m.pseudo, idx: [idxOf(m.node)], inBox: trusted.has(m.node), host: m.host });
+    }
+  }
+  let calRead = null;
+  if (${cal ? 'true' : 'false'}) {
+    // Every li of the list is counted, so an li with no readable Thai cannot drop out of the half.
+    const lis = [...root.querySelectorAll('#howModal li')];
+    for (const x of entries) { const li = x.host.closest('#howModal li'); if (li) { x.cal = 'how'; x.calLi = lis.indexOf(li); } }
+    const firstFamily = (e) => (getComputedStyle(e).fontFamily.split(',')[0] || '').trim().replace(/^["']|["']$/g, '');
+    // The two halves never share an entry: the Sarabun half skips anything the list half owns.
+    const free = entries.filter((x) => x.kind === 'text' && !x.cal);
+    const sarabun = free.find((x) => x.host.closest('.ps-hint')) || free.find((x) => firstFamily(x.host) === 'Sarabun');
+    if (sarabun) sarabun.cal = 'sarabun';
+    // The lane's WebGL grant, read in the page because the launch flags do not decide it.
+    const gl = {};
+    for (const k of ['webgl2', 'webgl']) {
+      try {
+        const ctx = document.createElement('canvas').getContext(k);
+        gl[k] = ctx ? 'live' : 'null';
+        if (ctx) { const lose = ctx.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext(); }
+      } catch (err) { gl[k] = 'threw'; }
+    }
+    calRead = { gl, canvasInRoot: root.querySelectorAll('canvas').length, howLi: lis.length };
+  }
+  window[${JSON.stringify(FONT_NODES_KEY)}] = nodes;
+  return {
+    ok: true, hosted, cal: calRead, boxes,
+    entries: entries.map(({ host, ...x }) => x),
+  };
+`;
+
+const isThai = (s) => /[\u0E00-\u0E7F]/.test(s || '');
+
+/**
+ * Driver half of FONT_READ for one screen: collect in the page, then one platform-font read per node.
+ * A failed protocol call leaves that element's fonts empty, which the verdict counts as unread.
+ */
+export async function readFonts(session, m, cal) {
+  const named = [];
+  if (m.scrollPx > EPS && m.scrollFrom) named.push({ slot: 'scroll', name: m.scrollFrom });
+  if (m.clippedPx > EPS && m.clipFrom) named.push({ slot: 'clip', name: m.clipFrom });
+  if (m.overflowXPx > EPS && m.overflowXFrom) named.push({ slot: 'x', name: m.overflowXFrom });
+  // Node ids die with every navigation, so the document is re-requested per screen.
+  await session.cdp('DOM.getDocument', { depth: 0 });
+  const c = await session.evaluate(FONT_COLLECT(named, cal));
+  if (c.error || !c.value?.ok) return { error: `collect failed: ${c.error ?? c.value?.why}` };
+  const list = await session.cdp('Runtime.evaluate', { expression: `window[${JSON.stringify(FONT_NODES_KEY)}]` });
+  const listId = list.result?.result?.objectId;
+  const props = listId ? await session.cdp('Runtime.getProperties', { objectId: listId, ownProperties: true }) : null;
+  const objectIds = [];
+  for (const p of props?.result?.result ?? []) if (/^\d+$/.test(p.name)) objectIds[Number(p.name)] = p.value?.objectId;
+  const nodeIdOf = async (objectId) => (objectId ? (await session.cdp('DOM.requestNode', { objectId })).result?.nodeId : undefined);
+  // null, not [], when the read failed: a failed fragment must stay visible as a failure.
+  const fontsOf = async (nodeId) => {
+    if (!nodeId) return null;
+    const r = await session.cdp('CSS.getPlatformFontsForNode', { nodeId });
+    return r.result?.fonts?.length ? r.result.fonts : null;
+  };
+  const pushed = async (backendNodeIds) => (backendNodeIds.length
+    ? (await session.cdp('DOM.pushNodesByBackendIdsToFrontend', { backendNodeIds })).result?.nodeIds ?? []
+    : []);
+  // One read per node and kind, shared by the entries and the frozen box members that name it.
+  const cache = new Map();
+  const readOne = async (kind, i, pseudo) => {
+    const key = `${kind}:${i}:${pseudo ?? ''}`;
+    if (cache.has(key)) return cache.get(key);
+    const fonts = [];
+    let failed = 0;
+    const take = (f) => { if (f) fonts.push(...f); else failed += 1; };
+    {
+      const nodeId = await nodeIdOf(objectIds[i]);
+      if (kind === 'text') {
+        take(await fontsOf(nodeId));
+      } else if (kind === 'pseudo') {
+        const d = nodeId ? await session.cdp('DOM.describeNode', { nodeId }) : null;
+        const p = (d?.result?.node?.pseudoElements ?? []).find((x) => x.pseudoType === pseudo);
+        const ids = await pushed(p ? [p.backendNodeId] : []);
+        if (!ids.length) failed += 1;
+        for (const id of ids) take(await fontsOf(id));
+      } else if (kind === 'field') {
+        const d = nodeId ? await session.cdp('DOM.describeNode', { nodeId, depth: -1, pierce: true }) : null;
+        const texts = [];
+        const walk = (n, hidden) => {
+          const attrs = n.attributes ?? [];
+          const style = attrs[attrs.indexOf('style') + 1];
+          const off = hidden || (attrs.includes('style') && /display:\s*none/.test(style || ''));
+          if (n.nodeType === 3 && !off && isThai(n.nodeValue)) texts.push(n.backendNodeId);
+          for (const k of [...(n.shadowRoots ?? []), ...(n.children ?? [])]) walk(k, off);
+        };
+        // The shadow only: a textarea's light-DOM text is its unrendered default value.
+        for (const sr of d?.result?.node?.shadowRoots ?? []) walk(sr, false);
+        const ids = await pushed(texts);
+        if (!ids.length) failed += 1;
+        for (const id of ids) take(await fontsOf(id));
+      }
+    }
+    const r = { fonts, failed };
+    cache.set(key, r);
+    return r;
+  };
+  // Every fragment that reads empty or errors is counted, and one is enough to make the element
+  // unread: a sibling fragment that did read must not absorb it.
+  const readInto = async (x) => {
+    const fonts = [];
+    let failed = 0;
+    for (const i of x.idx) { const r = await readOne(x.kind, i, x.pseudo); fonts.push(...r.fonts); failed += r.failed; }
+    x.fonts = fonts;
+    x.failed = failed;
+    delete x.idx;
+  };
+  for (const e of c.value.entries) await readInto(e);
+  for (const b of c.value.boxes) for (const mem of b.members) await readInto(mem);
+  await session.evaluate(`delete window[${JSON.stringify(FONT_NODES_KEY)}]; return true;`);
+  return { hosted: c.value.hosted, boxes: c.value.boxes, entries: c.value.entries, cal: c.value.cal };
+}
+
+/**
+ * The lines stream through the descriptor the parent handed over (see FONT_READ above); FONT_READ_FD is
+ * set by acquireMeasurements only, together with that descriptor.
+ */
+// writeSync on a non-blocking pipe can write PART of the buffer, or throw EAGAIN while the reader is
+// behind. So write until every byte is out, retry EAGAIN after a short pause (bounded), and hand the
+// unwritten rest to the fallback on any other error, so no line is lost or cut.
+const FONT_WRITE_RETRIES = 2000;
+const sleepSync = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+export function fontWriteAll(fd, text, { write = fs.writeSync, fallback = (b) => process.stderr.write(b), sleep = sleepSync } = {}) {
+  const buf = Buffer.from(text);
+  let off = 0;
+  let retries = 0;
+  while (off < buf.length) {
+    try {
+      off += write(fd, buf, off, buf.length - off);
+    } catch (err) {
+      if (err?.code === 'EAGAIN' && retries < FONT_WRITE_RETRIES) { retries += 1; sleep(5); continue; }
+      fallback(buf.subarray(off));
+      return;
+    }
+  }
+}
+export const fontEmit = (line) => {
+  const fd = Number(process.env.FONT_READ_FD);
+  if (Number.isInteger(fd) && fd > 2) { fontWriteAll(fd, line + '\n'); return; }
+  process.stderr.write(line + '\n');
+};
+/** Per route, every screen read this run, for the FONT_READ ROUTE summary. */
+const fontByRoute = new Map();
 
 /**
  * Installed once per session via Page.addScriptToEvaluateOnNewDocument, so it is in place before the
@@ -1696,6 +2011,18 @@ async function walkPass(session, id, url, vp, row, fresh, draw) {
       if (vp.w === DESKTOP_W && !row.composition) {
         row.composition = await capture(session, id, row, 'first-game-screen', press);
       }
+      // gh#287 — report-only; see FONT_READ. Streamed now, so a walk that dies later keeps this line.
+      if (FONT_READ) {
+        const last = measured[measured.length - 1];
+        const cal = id === 'one-bomb' && !row.fontCal;
+        last.fontRead = await readFonts(session, last, cal);
+        fontEmit(fmtFontRead(id, row.vp, last));
+        const anomaly = fmtFontAnomaly(id, row.vp, last);
+        if (anomaly) fontEmit(anomaly);
+        if (cal && !last.fontRead.error) { row.fontCal = true; fontEmit(fmtFontCal(id, row.vp, last)); }
+        if (!fontByRoute.has(id)) fontByRoute.set(id, []);
+        fontByRoute.get(id).push({ vp: row.vp, screen: last });
+      }
     }
     if (press === PRESS_CAP) break;
     const before = sig.value.sig;
@@ -1735,6 +2062,11 @@ export default async function (session) {
   await session.onNewDocument(DRAW_OVERRIDE);
   // gh#264 REFUTE round 1: the first-screen order sampler, registered the same once-per-session way.
   await session.onNewDocument(FIRST_SCREEN_SAMPLER);
+  // gh#287 — the platform-font read needs both agents; enabled once, they hold across navigations.
+  if (FONT_READ) {
+    await session.cdp('DOM.enable');
+    await session.cdp('CSS.enable');
+  }
   const routes = playRoutes();
   const rows = [];
   for (const id of routes) {
@@ -1796,6 +2128,7 @@ export default async function (session) {
         row.composition = await capture(session, id, row, 'setup', null);
       }
     }
+    if (FONT_READ) fontEmit(fmtFontRoute(id, fontByRoute.get(id)));
   }
   return { base: BASE, breakWalk: BREAK_WALK, routesWalked: routes.length, viewports: VIEWPORTS.length, rows };
 }
@@ -1933,6 +2266,143 @@ export const fmtFold = (r) => {
     });
 };
 
+/**
+ * gh#287 — one element's verdict from its platform-font read(s). Pure, so what a reading is CALLED is
+ * pinned by a test without a browser. `hosted` is the family set the page registered in document.fonts.
+ */
+const FONT_STYLE_SUFFIX = /^(?:(?:Thin|ExtraLight|Light|Regular|Medium|SemiBold|Bold|ExtraBold|Black)(?: Italic)?|Italic)$/;
+export function fontVerdict(fonts, hosted) {
+  const custom = {};
+  const system = {};
+  for (const f of fonts || []) {
+    if (!(f.glyphCount > 0)) continue;
+    const into = f.isCustomFont ? custom : system;
+    into[f.familyName] = (into[f.familyName] ?? 0) + f.glyphCount;
+  }
+  // Chrome names a custom face by the font FILE's own family name, which can carry the weight: the
+  // self-hosted Mitr 500 face reads "Mitr Medium" (measured on one-bomb, Mac, 2026-10-24) while
+  // document.fonts says Mitr. So a hosted family matches itself, or itself plus one word from the
+  // closed FONT_STYLE_SUFFIX list. Any other suffix is a different face and an ANOMALY.
+  const isHosted = (fam) => (hosted || []).some((h) => fam === h || (fam.startsWith(h + ' ') && FONT_STYLE_SUFFIX.test(fam.slice(h.length + 1))));
+  const anomalies = Object.keys(custom).filter((fam) => !isHosted(fam));
+  const c = Object.keys(custom).length;
+  const s = Object.keys(system).length;
+  const verdict = c && s ? 'mixed' : c ? 'custom' : s ? 'system' : 'unread';
+  return { verdict, custom, system, anomalies };
+}
+
+/**
+ * gh#287 — one screen's FONT_READ, partitioned by verdict, and whether it is AT RISK: a system element
+ * inside the box the fit line names. n/a when the screen names no box (it fits); unknown when a named
+ * box could not be found again and no system element was seen inside one that was.
+ */
+export function fontReadSummary(s) {
+  const r = s?.fontRead;
+  const out = { system: [], custom: [], mixed: [], unread: [], anomalies: [], atRisk: 'n/a', error: r?.error ?? null };
+  if (!r || r.error) return out;
+  for (const e of r.entries || []) {
+    const v = fontVerdict(e.fonts, r.hosted);
+    if (e.failed) v.verdict = 'unread';
+    out[v.verdict].push({ ...e, ...v });
+    for (const a of v.anomalies) if (!out.anomalies.includes(a)) out.anomalies.push(a);
+  }
+  // Over the members each named box held at MEASURE: yes if a trusted member reads system; else unknown
+  // if a box was not found, a member drifted, or a trusted member reads unread; else no (an empty set is
+  // no, and mixed counts on neither side).
+  const boxes = r.boxes || [];
+  if (boxes.length) {
+    let yes = false;
+    let unknown = false;
+    for (const b of boxes) {
+      if (!b.found) unknown = true;
+      for (const mem of b.members || []) {
+        if (mem.drift) { unknown = true; continue; }
+        const v = mem.failed ? 'unread' : fontVerdict(mem.fonts, r.hosted).verdict;
+        if (v === 'system') yes = true;
+        if (v === 'unread') unknown = true;
+      }
+    }
+    out.atRisk = yes ? 'yes' : unknown ? 'unknown' : 'no';
+  }
+  return out;
+}
+
+const fontScreenId = (s) => `press ${s.press ?? '-'}${s.draw !== null && s.draw !== undefined ? ` draw ${s.draw}` : ''}`;
+const fontFams = (o) => Object.entries(o).map(([f, n]) => `${f}:${n}`).join(',');
+// The first four DISTINCT descriptions; elements sharing a name and a reading (a row of score cells)
+// collapse into one item with a count, so they do not crowd out the rest of the list.
+const fontFirst = (xs, f) => {
+  const seen = new Map();
+  for (const x of xs) { const k = f(x); seen.set(k, (seen.get(k) ?? 0) + 1); }
+  const items = [...seen].map(([k, n]) => (n > 1 ? `${k} x${n}` : k));
+  return items.slice(0, 4).join('; ') + (items.length > 4 ? ` (+${items.length - 4} more)` : '');
+};
+
+/** gh#287 — the per-screen FONT_READ line. */
+export const fmtFontRead = (route, vp, s) => {
+  const sum = fontReadSummary(s);
+  const id = `FONT_READ ${route} ${vp} ${fontScreenId(s)} overflow ${Math.round(s.overflowPx ?? 0)}px`;
+  if (sum.error) return `${id} READ FAILED: ${sum.error}`;
+  const boxes = s.fontRead?.boxes || [];
+  let line = `${id} system=${sum.system.length} custom=${sum.custom.length} mixed=${sum.mixed.length} unread=${sum.unread.length} at-risk=${sum.atRisk}`;
+  const boxInfo = (b) => {
+    if (!b.found) return '(not found)';
+    const drifted = (b.members || []).filter((x) => x.drift).map((x) => x.drift);
+    return `[members ${(b.members || []).length}${drifted.length ? `, drifted ${drifted.length}: ${[...new Set(drifted)].join('/')}` : ''}]`;
+  };
+  if (boxes.length) line += ` box=${boxes.map((b) => `${b.slot ?? 'box'}:${b.name}${boxInfo(b)}`).join('+')}`;
+  if (sum.system.length) line += ` | system: ${fontFirst(sum.system, (e) => `${e.sel} ${fontFams(e.system)}${e.inBox ? ' [in box]' : ''}`)}`;
+  if (sum.mixed.length) line += ` | mixed: ${fontFirst(sum.mixed, (e) => `${e.sel} custom ${fontFams(e.custom)} system ${fontFams(e.system)}`)}`;
+  if (sum.unread.length) line += ` | unread: ${fontFirst(sum.unread, (e) => e.sel)}`;
+  return line;
+};
+
+/** gh#287 — a custom face the page never registered, or null. */
+export const fmtFontAnomaly = (route, vp, s) => {
+  const sum = fontReadSummary(s);
+  return sum.anomalies.length
+    ? `FONT_READ ANOMALY ${route} ${vp} ${fontScreenId(s)} custom face(s) not in document.fonts: ${sum.anomalies.join(',')} (hosted: ${(s.fontRead?.hosted || []).join(',')})`
+    : null;
+};
+
+/**
+ * gh#287 — the instrument's calibration on one-bomb: its how-to-play list must read system and a
+ * Sarabun-first element must read custom. Either side wrong means the reading is wrong, not the page.
+ */
+export const fmtFontCal = (route, vp, s) => {
+  const sum = fontReadSummary(s);
+  const all = ['system', 'custom', 'mixed', 'unread'].flatMap((v) => sum[v].map((e) => ({ ...e, verdict: v })));
+  const how = all.filter((e) => e.cal === 'how');
+  const sar = all.find((e) => e.cal === 'sarabun');
+  const cal = s.fontRead?.cal;
+  // Per li, not per entry: an li counts as system only when it has entries and every one is system,
+  // and the denominator is every li in the list, read or not.
+  const liCount = cal?.howLi ?? 0;
+  const liSys = [...Array(liCount).keys()].filter((i) => {
+    const mine = how.filter((e) => e.calLi === i);
+    return mine.length > 0 && mine.every((e) => e.verdict === 'system');
+  }).length;
+  const ok = liCount > 0 && liSys === liCount && sar?.verdict === 'custom';
+  return `FONT_READ CAL ${route} ${vp} ${fontScreenId(s)} howModal-li=${liCount ? `system ${liSys}/${liCount}` : 'MISSING'}` +
+    ` sarabun-el=${sar ? `${sar.sel} ${sar.verdict} ${fontFams({ ...sar.custom, ...sar.system })}` : 'MISSING'}` +
+    ` webgl2=${cal?.gl?.webgl2 ?? '?'} webgl=${cal?.gl?.webgl ?? '?'} canvas-in-root=${cal?.canvasInRoot ?? '?'} calibration=${ok ? 'OK' : 'WRONG'}`;
+};
+
+/** gh#287 — the run-end line per route: distinct system elements over every screen read, and the at-risk screens. */
+export const fmtFontRoute = (route, reads) => {
+  const sys = new Set();
+  const atRisk = [];
+  const unknown = [];
+  for (const { vp, screen } of reads || []) {
+    const sum = fontReadSummary(screen);
+    for (const e of sum.system) sys.add(e.sel);
+    const tag = `${vp}/p${screen.press}${screen.draw !== null && screen.draw !== undefined ? `/d${screen.draw}` : ''}`;
+    if (sum.atRisk === 'yes') atRisk.push(tag);
+    if (sum.atRisk === 'unknown') unknown.push(tag);
+  }
+  return `FONT_READ ROUTE ${route} system=${sys.size} at-risk-screens=${atRisk.join(',') || '-'}${unknown.length ? ` unknown-screens=${unknown.join(',')}` : ''}`;
+};
+
 export const emitRowReports = (rows, emit) => {
   let emitted = 0;
   for (const r of rows || []) {
@@ -1986,6 +2456,25 @@ export function selftest() {
 }
 
 /**
+ * The driver child, stdout to `outFd`, stderr captured. gh#287: under FONT_READ only, this process's
+ * stdout (or `stdoutFd`) rides along as the child's descriptor 3, so its FONT_READ lines stream straight
+ * out while its own stdout stays the JSON file. Exported so a test can run a REAL child through it.
+ */
+export function spawnDriverChild(args, { cwd, outFd, env, fontRead = FONT_READ, stdoutFd = process.stdout.fd, forward = (t) => process.stdout.write(t) } = {}) {
+  const run = spawnSync(process.execPath, args, {
+    cwd, encoding: 'utf8', stdio: ['ignore', outFd, 'pipe', ...(fontRead ? [stdoutFd] : [])],
+    env: { ...env, ...(fontRead ? { FONT_READ_FD: '3' } : {}) },
+  });
+  // A line the child could not write to descriptor 3 fell back to its stderr, which the caller prints
+  // only for a failed child. So under the knob, a green child's FONT_READ stderr lines are forwarded.
+  if (fontRead && run.status === 0) {
+    const lines = (run.stderr || '').split('\n').filter((l) => l.startsWith('FONT_READ'));
+    if (lines.length) forward(lines.join('\n') + '\n');
+  }
+  return run;
+}
+
+/**
  * Measurement-acquisition seam: runs the browser driver and parses its JSON output.
  * Exported so tests can supply pre-recorded or fixture measurements without requiring
  * a built dist/ or a running Chrome browser.
@@ -2019,9 +2508,8 @@ export function acquireMeasurements() {
   const fd = fs.openSync(jsonPath, 'w');
   let run;
   try {
-    run = spawnSync(process.execPath, [path.join(repoRoot, 'scripts/driver.mjs'), fileURLToPath(import.meta.url)], {
-      cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', fd, 'pipe'],
-      env: { ...process.env, CDP_PORT, BASE },
+    run = spawnDriverChild([path.join(repoRoot, 'scripts/driver.mjs'), fileURLToPath(import.meta.url)], {
+      cwd: repoRoot, outFd: fd, env: { ...process.env, CDP_PORT, BASE },
     });
   } finally {
     fs.closeSync(fd);
