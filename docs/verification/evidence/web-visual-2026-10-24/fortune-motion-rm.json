@@ -1,0 +1,27 @@
+{
+ "reducedMotion": true,
+ "bangkok": "2026-10-24, 21:11:49",
+ "steps": {
+  "siamsi-1-pick-chip-and-intent": {
+   "seen": [],
+   "inlineMotionStyleWrites": 0
+  },
+  "siamsi-2-hold-to-shake": {
+   "seen": [],
+   "inlineMotionStyleWrites": 0
+  },
+  "siamsi-3-open-slip": {
+   "seen": [],
+   "inlineMotionStyleWrites": 0
+  },
+  "daily-fortune-go": {
+   "seen": [],
+   "inlineMotionStyleWrites": 0
+  },
+  "love-match-go": {
+   "seen": [],
+   "inlineMotionStyleWrites": 0
+  }
+ },
+ "events": []
+}

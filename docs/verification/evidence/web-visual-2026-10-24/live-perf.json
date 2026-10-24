@@ -1,0 +1,812 @@
+{
+ "origin": "https://white-plant-05ad7c600.7.azurestaticapps.net",
+ "throttle": "150ms RTT · 1.6 Mbps down · 750 Kbps up · CPU 4x · cache off · 390x844 mobile",
+ "n": 3,
+ "pages": {
+  "/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 1296,
+     "el": "img https://white-plant-05ad",
+     "url": "croc-bite.webp"
+    },
+    "cls": {
+     "sum": 0.0041,
+     "shifts": [
+      {
+       "v": 0.0041,
+       "t": 1643,
+       "src": [
+        "A.featured",
+        "IMG.",
+        "DIV.wrap ad-slot"
+       ]
+      }
+     ]
+    },
+    "fcp": 772,
+    "ttfb": 304,
+    "load": 1916,
+    "requests": 16,
+    "kb": 288
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 1132,
+     "el": "img https://white-plant-05ad",
+     "url": "croc-bite.webp"
+    },
+    "cls": {
+     "sum": 0.0041,
+     "shifts": [
+      {
+       "v": 0.0041,
+       "t": 1470,
+       "src": [
+        "A.featured",
+        "IMG.",
+        "DIV.wrap ad-slot"
+       ]
+      }
+     ]
+    },
+    "fcp": 504,
+    "ttfb": 61,
+    "load": 1685,
+    "requests": 15,
+    "kb": 279
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 1176,
+     "el": "img https://white-plant-05ad",
+     "url": "croc-bite.webp"
+    },
+    "cls": {
+     "sum": 0.0041,
+     "shifts": [
+      {
+       "v": 0.0041,
+       "t": 1459,
+       "src": [
+        "A.featured",
+        "IMG.",
+        "DIV.wrap ad-slot"
+       ]
+      }
+     ]
+    },
+    "fcp": 496,
+    "ttfb": 62,
+    "load": 1671,
+    "requests": 15,
+    "kb": 279
+   }
+  ],
+  "/tools/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 300,
+     "el": "p.lead เครื่องมือให้คำตอบทันที ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 300,
+    "ttfb": 67,
+    "load": 779,
+    "requests": 5,
+    "kb": 95
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 288,
+     "el": "p.lead เครื่องมือให้คำตอบทันที ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 288,
+    "ttfb": 71,
+    "load": 784,
+    "requests": 5,
+    "kb": 95
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 280,
+     "el": "p.lead เครื่องมือให้คำตอบทันที ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0.0001,
+     "shifts": [
+      {
+       "v": 0.0001,
+       "t": 779,
+       "src": [
+        "::after."
+       ]
+      }
+     ]
+    },
+    "fcp": 280,
+    "ttfb": 99,
+    "load": 771,
+    "requests": 5,
+    "kb": 95
+   }
+  ],
+  "/tool/wheel/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 532,
+     "el": "p.wheel-note ยังหมุนไม่ได้ — ใส่ชื่ออ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 532,
+    "ttfb": 70,
+    "load": 812,
+    "requests": 9,
+    "kb": 103
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 464,
+     "el": "p.wheel-note ยังหมุนไม่ได้ — ใส่ชื่ออ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 464,
+    "ttfb": 69,
+    "load": 818,
+    "requests": 9,
+    "kb": 103
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 460,
+     "el": "p.wheel-note ยังหมุนไม่ได้ — ใส่ชื่ออ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 460,
+    "ttfb": 69,
+    "load": 818,
+    "requests": 9,
+    "kb": 103
+   }
+  ],
+  "/tool/draw/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 504,
+     "el": "p.tool-tagline ใส่ชื่อลงกล่อง เลือกจำนว",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 504,
+    "ttfb": 71,
+    "load": 857,
+    "requests": 9,
+    "kb": 101
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 492,
+     "el": "p.tool-tagline ใส่ชื่อลงกล่อง เลือกจำนว",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 492,
+    "ttfb": 72,
+    "load": 849,
+    "requests": 9,
+    "kb": 101
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 492,
+     "el": "p.tool-tagline ใส่ชื่อลงกล่อง เลือกจำนว",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 492,
+    "ttfb": 62,
+    "load": 848,
+    "requests": 9,
+    "kb": 101
+   }
+  ],
+  "/tool/team/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 464,
+     "el": "p.tool-tagline ใส่ชื่อลงสนาม เลือกจำนวน",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 464,
+    "ttfb": 70,
+    "load": 813,
+    "requests": 9,
+    "kb": 101
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 460,
+     "el": "p.tool-tagline ใส่ชื่อลงสนาม เลือกจำนวน",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 460,
+    "ttfb": 70,
+    "load": 812,
+    "requests": 9,
+    "kb": 101
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 460,
+     "el": "p.tool-tagline ใส่ชื่อลงสนาม เลือกจำนวน",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 460,
+    "ttfb": 75,
+    "load": 810,
+    "requests": 9,
+    "kb": 101
+   }
+  ],
+  "/tool/number/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 456,
+     "el": "p.tool-tagline ตั้งค่าต่ำสุด-สูงสุด แล้",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 456,
+    "ttfb": 75,
+    "load": 792,
+    "requests": 7,
+    "kb": 99
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 452,
+     "el": "p.tool-tagline ตั้งค่าต่ำสุด-สูงสุด แล้",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 452,
+    "ttfb": 74,
+    "load": 791,
+    "requests": 7,
+    "kb": 99
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 456,
+     "el": "p.tool-tagline ตั้งค่าต่ำสุด-สูงสุด แล้",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 456,
+    "ttfb": 68,
+    "load": 790,
+    "requests": 7,
+    "kb": 99
+   }
+  ],
+  "/c/fortune/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 460,
+     "el": "p.intro-card รวมคำทำนายดูดวงฟรีบนมือถ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 460,
+    "ttfb": 69,
+    "load": 348,
+    "requests": 6,
+    "kb": 97
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 468,
+     "el": "p.intro-card รวมคำทำนายดูดวงฟรีบนมือถ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 468,
+    "ttfb": 68,
+    "load": 349,
+    "requests": 6,
+    "kb": 97
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 452,
+     "el": "p.intro-card รวมคำทำนายดูดวงฟรีบนมือถ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 452,
+    "ttfb": 69,
+    "load": 344,
+    "requests": 6,
+    "kb": 97
+   }
+  ],
+  "/c/party/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 468,
+     "el": "p.intro-card รวมเกมสุ่มคนโดนสำหรับวงเ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0.0017,
+     "shifts": [
+      {
+       "v": 0.0017,
+       "t": 880,
+       "src": [
+        "DIV.ad-band",
+        "P.intro-card",
+        "#text."
+       ]
+      }
+     ]
+    },
+    "fcp": 468,
+    "ttfb": 69,
+    "load": 342,
+    "requests": 9,
+    "kb": 155
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 464,
+     "el": "p.intro-card รวมเกมสุ่มคนโดนสำหรับวงเ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0.0017,
+     "shifts": [
+      {
+       "v": 0.0017,
+       "t": 887,
+       "src": [
+        "DIV.ad-band",
+        "P.intro-card",
+        "#text."
+       ]
+      }
+     ]
+    },
+    "fcp": 464,
+    "ttfb": 71,
+    "load": 345,
+    "requests": 9,
+    "kb": 155
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 456,
+     "el": "p.intro-card รวมเกมสุ่มคนโดนสำหรับวงเ",
+     "url": null
+    },
+    "cls": {
+     "sum": 0.0017,
+     "shifts": [
+      {
+       "v": 0.0017,
+       "t": 878,
+       "src": [
+        "DIV.ad-band",
+        "P.intro-card",
+        "#text."
+       ]
+      }
+     ]
+    },
+    "fcp": 456,
+    "ttfb": 71,
+    "load": 345,
+    "requests": 9,
+    "kb": 155
+   }
+  ],
+  "/game/siamsi/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 496,
+     "el": "h1.game-title เสี่ยงเซียมซี",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 496,
+    "ttfb": 70,
+    "load": 709,
+    "requests": 14,
+    "kb": 118
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 492,
+     "el": "h1.game-title เสี่ยงเซียมซี",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 492,
+    "ttfb": 72,
+    "load": 712,
+    "requests": 14,
+    "kb": 118
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 492,
+     "el": "h1.game-title เสี่ยงเซียมซี",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 492,
+    "ttfb": 67,
+    "load": 719,
+    "requests": 14,
+    "kb": 118
+   }
+  ],
+  "/game/daily-fortune/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 784,
+     "el": "span.df-headline วันนี้คุณจะเจอกับอะไร",
+     "url": null
+    },
+    "cls": {
+     "sum": 0.0005,
+     "shifts": [
+      {
+       "v": 0.0005,
+       "t": 1063,
+       "src": [
+        "#text.",
+        "#text."
+       ]
+      }
+     ]
+    },
+    "fcp": 500,
+    "ttfb": 67,
+    "load": 718,
+    "requests": 14,
+    "kb": 108
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 780,
+     "el": "span.df-headline วันนี้คุณจะเจอกับอะไร",
+     "url": null
+    },
+    "cls": {
+     "sum": 0.0005,
+     "shifts": [
+      {
+       "v": 0.0005,
+       "t": 1058,
+       "src": [
+        "#text.",
+        "#text."
+       ]
+      }
+     ]
+    },
+    "fcp": 492,
+    "ttfb": 69,
+    "load": 713,
+    "requests": 14,
+    "kb": 108
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 768,
+     "el": "span.df-headline วันนี้คุณจะเจอกับอะไร",
+     "url": null
+    },
+    "cls": {
+     "sum": 0.0005,
+     "shifts": [
+      {
+       "v": 0.0005,
+       "t": 1035,
+       "src": [
+        "#text.",
+        "#text."
+       ]
+      }
+     ]
+    },
+    "fcp": 496,
+    "ttfb": 67,
+    "load": 718,
+    "requests": 14,
+    "kb": 108
+   }
+  ],
+  "/game/love-match/": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 800,
+     "el": "p.lm-note ที่ตอบไว้อยู่แค่ในหน้านี",
+     "url": null
+    },
+    "cls": {
+     "sum": 0.0049,
+     "shifts": [
+      {
+       "v": 0.0049,
+       "t": 1094,
+       "src": [
+        "DIV.lm-qbox",
+        "DIV.lm-qbox",
+        "BUTTON.game-btn game-btn-primary"
+       ]
+      }
+     ]
+    },
+    "fcp": 492,
+    "ttfb": 62,
+    "load": 721,
+    "requests": 15,
+    "kb": 129
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 788,
+     "el": "p.lm-note ที่ตอบไว้อยู่แค่ในหน้านี",
+     "url": null
+    },
+    "cls": {
+     "sum": 0.0049,
+     "shifts": [
+      {
+       "v": 0.0049,
+       "t": 1093,
+       "src": [
+        "DIV.lm-qbox",
+        "DIV.lm-qbox",
+        "BUTTON.game-btn game-btn-primary"
+       ]
+      }
+     ]
+    },
+    "fcp": 492,
+    "ttfb": 74,
+    "load": 712,
+    "requests": 15,
+    "kb": 129
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 792,
+     "el": "p.lm-note ที่ตอบไว้อยู่แค่ในหน้านี",
+     "url": null
+    },
+    "cls": {
+     "sum": 0.0049,
+     "shifts": [
+      {
+       "v": 0.0049,
+       "t": 1084,
+       "src": [
+        "DIV.lm-qbox",
+        "DIV.lm-qbox",
+        "BUTTON.game-btn game-btn-primary"
+       ]
+      }
+     ]
+    },
+    "fcp": 492,
+    "ttfb": 61,
+    "load": 718,
+    "requests": 15,
+    "kb": 129
+   }
+  ],
+  "/404.html": [
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 284,
+     "el": "h1 ไม่พบหน้านี้",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 284,
+    "ttfb": 63,
+    "load": 648,
+    "requests": 4,
+    "kb": 69
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 280,
+     "el": "h1 ไม่พบหน้านี้",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 280,
+    "ttfb": 69,
+    "load": 648,
+    "requests": 4,
+    "kb": 69
+   },
+   {
+    "nav": "load",
+    "lcp": {
+     "ms": 292,
+     "el": "h1 ไม่พบหน้านี้",
+     "url": null
+    },
+    "cls": {
+     "sum": 0,
+     "shifts": []
+    },
+    "fcp": 292,
+    "ttfb": 61,
+    "load": 647,
+    "requests": 4,
+    "kb": 69
+   }
+  ]
+ },
+ "controls": {
+  "clsMustRed": {
+   "lcp": {
+    "ms": 288,
+    "el": "p.lead เครื่องมือให้คำตอบทันที ",
+    "url": null
+   },
+   "cls": {
+    "sum": 0.237,
+    "shifts": [
+     {
+      "v": 0.237,
+      "t": 1382,
+      "src": [
+       "MAIN.",
+       "HEADER.chrome-bar chrome-topbar"
+      ]
+     }
+    ]
+   },
+   "fcp": 288,
+   "ttfb": 70,
+   "load": 779,
+   "requests": 5,
+   "kb": 95
+  },
+  "unthrottledHome": {
+   "lcp": {
+    "ms": 144,
+    "el": "img https://white-plant-05ad",
+    "url": "croc-bite.webp"
+   },
+   "cls": {
+    "sum": 0,
+    "shifts": []
+   },
+   "fcp": 144,
+   "ttfb": 62,
+   "load": 135,
+   "requests": 15,
+   "kb": 279
+  }
+ },
+ "events": []
+}

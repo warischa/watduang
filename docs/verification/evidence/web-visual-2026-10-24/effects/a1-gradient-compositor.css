@@ -1,0 +1,7 @@
+/* PROTOTYPE for measurement only (gh#288 Phase 0). Placeholder values, not design (ADR-0033). */
+/* A1, compositor path: one decorative layer moved by transform only; no per-frame paint. */
+header.hero{isolation:isolate;overflow:hidden}
+.proto-ambient{position:absolute;inset:-40% -60%;z-index:0;pointer-events:none;opacity:.35;background:radial-gradient(40% 40% at 30% 40%,var(--accent-gold),transparent 70%),radial-gradient(35% 35% at 70% 60%,var(--accent-sky),transparent 70%);animation:proto-float 16s ease-in-out infinite alternate;will-change:transform}
+header.hero>.inner{z-index:1}
+@keyframes proto-float{from{transform:translate3d(-10%,0,0)}to{transform:translate3d(10%,4%,0)}}
+@media (prefers-reduced-motion:reduce){.proto-ambient{animation:none}}

@@ -1,0 +1,135 @@
+{
+ "chrome": "Chrome/155.0.0.0",
+ "cases": {
+  "0-neither-opted": {
+   "from": "/",
+   "to": "/tools/",
+   "reducedMotion": false,
+   "landed": "/tools/",
+   "swap": {
+    "from": "/",
+    "vt": false
+   },
+   "reveal": {
+    "at": "/tools/",
+    "vt": false,
+    "anims": []
+   },
+   "ad": null
+  },
+  "1-opted-to-opted": {
+   "from": "/",
+   "to": "/tools/",
+   "reducedMotion": false,
+   "landed": "/tools/",
+   "swap": {
+    "from": "/",
+    "vt": true
+   },
+   "reveal": {
+    "at": "/tools/",
+    "vt": true,
+    "anims": [
+     "::view-transition-group(root) -ua-view-transition-group-anim-root 250ms",
+     "::view-transition-new(root) -ua-view-transition-fade-in 250ms",
+     "::view-transition-new(root) -ua-mix-blend-mode-plus-lighter 250ms",
+     "::view-transition-old(root) -ua-view-transition-fade-out 250ms",
+     "::view-transition-old(root) -ua-mix-blend-mode-plus-lighter 250ms"
+    ],
+    "finished": true
+   },
+   "ad": null
+  },
+  "2-opted-to-play-route": {
+   "from": "/c/party/",
+   "to": "/game/one-bomb/play/",
+   "reducedMotion": false,
+   "landed": "/game/one-bomb/play/",
+   "swap": {
+    "from": "/c/party/",
+    "vt": true
+   },
+   "reveal": {
+    "at": "/game/one-bomb/play/",
+    "vt": false,
+    "anims": []
+   },
+   "ad": null
+  },
+  "3-opted-reduced-motion": {
+   "from": "/",
+   "to": "/tools/",
+   "reducedMotion": true,
+   "landed": "/tools/",
+   "swap": {
+    "from": "/",
+    "vt": true
+   },
+   "reveal": {
+    "at": "/tools/",
+    "vt": true,
+    "anims": [
+     "::view-transition-group(root) -ua-view-transition-group-anim-root 250ms",
+     "::view-transition-new(root) -ua-view-transition-fade-in 250ms",
+     "::view-transition-new(root) -ua-mix-blend-mode-plus-lighter 250ms",
+     "::view-transition-old(root) -ua-view-transition-fade-out 250ms",
+     "::view-transition-old(root) -ua-mix-blend-mode-plus-lighter 250ms"
+    ],
+    "finished": true
+   },
+   "ad": null
+  },
+  "4a-ad-slot-with-vt": {
+   "from": "/tools/",
+   "to": "/c/fortune/",
+   "reducedMotion": false,
+   "landed": "/c/fortune/",
+   "swap": {
+    "from": "/tools/",
+    "vt": true
+   },
+   "reveal": {
+    "at": "/c/fortune/",
+    "vt": true,
+    "anims": [
+     "::view-transition-group(root) -ua-view-transition-group-anim-root 250ms",
+     "::view-transition-new(root) -ua-view-transition-fade-in 250ms",
+     "::view-transition-new(root) -ua-mix-blend-mode-plus-lighter 250ms",
+     "::view-transition-old(root) -ua-view-transition-fade-out 250ms",
+     "::view-transition-old(root) -ua-mix-blend-mode-plus-lighter 250ms"
+    ],
+    "finished": true
+   },
+   "ad": {
+    "y": 650,
+    "h": 254,
+    "w": 354
+   }
+  },
+  "4b-ad-slot-without-vt": {
+   "from": "/tools/",
+   "to": "/c/fortune/",
+   "reducedMotion": false,
+   "landed": "/c/fortune/",
+   "swap": {
+    "from": "/tools/",
+    "vt": false
+   },
+   "reveal": {
+    "at": "/c/fortune/",
+    "vt": false,
+    "anims": []
+   },
+   "ad": {
+    "y": 650,
+    "h": 254,
+    "w": 354
+   }
+  }
+ },
+ "events": [
+  {
+   "exception": "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+  }
+ ]
+}

@@ -1,0 +1,459 @@
+{
+ "width": 1440,
+ "height": 900,
+ "mobile": false,
+ "reducedMotion": false,
+ "bangkokAtStart": "2026-10-24, 20:15:36",
+ "states": [
+  {
+   "id": "wheel-result",
+   "path": "/tool/wheel/",
+   "drive": {
+    "moved": [
+     "CSSTransition:transform@wheel-group"
+    ],
+    "msToResult": 2109
+   },
+   "audit": {
+    "path": "/tool/wheel/",
+    "innerWidth": 1440,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 3,
+    "under12": [],
+    "tightLines": 0,
+    "tightLineSample": [],
+    "targets": 26,
+    "under44": 3,
+    "under44Sample": [
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     },
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     },
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     }
+    ],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "12232",
+    "cls": 0,
+    "lcp": {
+     "el": "p.wheel-note \"\"",
+     "ms": 32,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     },
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     },
+     {
+      "el": "input#wheel-eliminate \"\"",
+      "w": 24,
+      "h": 24
+     }
+    ],
+    "canvases": [],
+    "reducedMotionMatches": false,
+    "motion": [
+     {
+      "el": "g#wheel-group \"ต้นแบมโอ๊ตมิวปุ้ยเจ\"",
+      "transition": "transform 2s",
+      "animation": null,
+      "visible": true
+     }
+    ],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 1,
+    "cssKeyframes": 1,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"\"",
+      "visible": true,
+      "rect": {
+       "x": 448,
+       "y": 2076,
+       "w": 544,
+       "h": 250
+      }
+     }
+    ],
+    "docHeight": 2645
+   }
+  },
+  {
+   "id": "draw-result",
+   "path": "/tool/draw/",
+   "drive": {
+    "moved": [],
+    "msToResult": 155
+   },
+   "audit": {
+    "path": "/tool/draw/",
+    "innerWidth": 1440,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 9,
+    "under12": [],
+    "tightLines": 0,
+    "tightLineSample": [],
+    "targets": 24,
+    "under44": 0,
+    "under44Sample": [],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "122332",
+    "cls": 0,
+    "lcp": {
+     "el": "p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนว\"",
+     "ms": 24,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [],
+    "canvases": [],
+    "reducedMotionMatches": false,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 0,
+    "cssKeyframes": 0,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"ช่องโฆษณา 728 × 90 · ใต้\"",
+      "visible": true,
+      "rect": {
+       "x": 250,
+       "y": 1902,
+       "w": 940,
+       "h": 250
+      }
+     }
+    ],
+    "docHeight": 2537
+   }
+  },
+  {
+   "id": "team-result",
+   "path": "/tool/team/",
+   "drive": {
+    "moved": [],
+    "msToResult": 160
+   },
+   "audit": {
+    "path": "/tool/team/",
+    "innerWidth": 1440,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 6,
+    "under12": [],
+    "tightLines": 0,
+    "tightLineSample": [],
+    "targets": 23,
+    "under44": 0,
+    "under44Sample": [],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "12232",
+    "cls": 0,
+    "lcp": {
+     "el": "p.tool-tagline \"ใส่ชื่อลงสนาม เลือกจำนวน\"",
+     "ms": 28,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [],
+    "canvases": [],
+    "reducedMotionMatches": false,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 0,
+    "cssKeyframes": 0,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"ช่องโฆษณา 728 × 90 · ใต้\"",
+      "visible": true,
+      "rect": {
+       "x": 250,
+       "y": 1803,
+       "w": 940,
+       "h": 250
+      }
+     }
+    ],
+    "docHeight": 2438
+   }
+  },
+  {
+   "id": "number-result",
+   "path": "/tool/number/",
+   "drive": {
+    "moved": [],
+    "msToResult": 163
+   },
+   "audit": {
+    "path": "/tool/number/",
+    "innerWidth": 1440,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 0,
+    "under12": [],
+    "tightLines": 1,
+    "tightLineSample": [
+     "p.number-result \"ได้: 6\" 1.20"
+    ],
+    "targets": 24,
+    "under44": 1,
+    "under44Sample": [
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     }
+    ],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "1232",
+    "cls": 0,
+    "lcp": {
+     "el": "p.tool-tagline \"ตั้งค่าต่ำสุด-สูงสุด แล้\"",
+     "ms": 20,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [
+     {
+      "el": "input#number-no-repeat \"\"",
+      "w": 24,
+      "h": 24
+     }
+    ],
+    "canvases": [],
+    "reducedMotionMatches": false,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 0,
+    "cssKeyframes": 0,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"\"",
+      "visible": true,
+      "rect": {
+       "x": 250,
+       "y": 920,
+       "w": 940,
+       "h": 250
+      }
+     }
+    ],
+    "docHeight": 1529
+   }
+  },
+  {
+   "id": "siamsi-slip",
+   "path": "/game/siamsi/",
+   "drive": {
+    "moved": [],
+    "msToResult": 2662,
+    "stage": "๑๙ระวังเกวียนบรรทุกจนล้น ล้อจะรับไม่ไหวลดของลงสักใบ แล้วจะไปได้ไกลกว่าของทุกชิ้นดูสำคัญ แต่ไม่ใช่วันนี้ทั้งหมดเลือกสิ่งท"
+   },
+   "audit": {
+    "path": "/game/siamsi/",
+    "innerWidth": 1440,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 11,
+    "under12": [],
+    "tightLines": 0,
+    "tightLineSample": [],
+    "targets": 19,
+    "under44": 0,
+    "under44Sample": [],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "1233",
+    "cls": 0,
+    "lcp": {
+     "el": "h1.game-title \"เสี่ยงเซียมซี\"",
+     "ms": 28,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [],
+    "canvases": [],
+    "reducedMotionMatches": false,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 1,
+    "cssKeyframes": 2,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"\"",
+      "visible": true,
+      "rect": {
+       "x": 16,
+       "y": 1088,
+       "w": 1408,
+       "h": 252
+      }
+     }
+    ],
+    "docHeight": 1730
+   }
+  },
+  {
+   "id": "daily-fortune-result",
+   "path": "/game/daily-fortune/",
+   "drive": {
+    "moved": [],
+    "msToResult": 2662,
+    "stage": "ส. 24 ต.ค.ดวงวันนี้ประมาณว่าจักรวาลเข้าข้างแบบเงียบๆกินสั่งเมนูที่ธรรมดาที่สุดในร้าน วันนี้ดันอร่อยจนอยากสั่งซ้ำ+เงินล้ว"
+   },
+   "audit": {
+    "path": "/game/daily-fortune/",
+    "innerWidth": 1440,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 13,
+    "under12": [],
+    "tightLines": 1,
+    "tightLineSample": [
+     "p.df-verdict \"จักรวาลเข้าข้างแบบเงียบๆ\" 1.40"
+    ],
+    "targets": 18,
+    "under44": 0,
+    "under44Sample": [],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "1233",
+    "cls": 0.0002,
+    "lcp": {
+     "el": null,
+     "ms": 40,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [],
+    "canvases": [],
+    "reducedMotionMatches": false,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 1,
+    "cssKeyframes": 2,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"\"",
+      "visible": true,
+      "rect": {
+       "x": 16,
+       "y": 906,
+       "w": 1408,
+       "h": 252
+      }
+     }
+    ],
+    "docHeight": 1548
+   }
+  },
+  {
+   "id": "love-match-result",
+   "path": "/game/love-match/",
+   "drive": {
+    "moved": [],
+    "msToResult": 3158,
+    "stage": "คุณจะได้เจอเขาตอนคุณอายุ 31 ปีที่ ห้องสมุดประชาชนเพศหญิงอายุ38ส่วนสูง160 ซม.รูปร่างสมส่วนสัญชาติไทยอาชีพช่างตัดเสื้อ รับ"
+   },
+   "audit": {
+    "path": "/game/love-match/",
+    "innerWidth": 1440,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 22,
+    "under12": [],
+    "tightLines": 2,
+    "tightLineSample": [
+     "p.lm-heading \"คุณจะได้เจอเขา\" 1.35",
+     "p.lm-when \"ตอนคุณอายุ 31 ปี\" 1.35"
+    ],
+    "targets": 18,
+    "under44": 0,
+    "under44Sample": [],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "1233",
+    "cls": 0.0044,
+    "lcp": {
+     "el": "h1.game-title \"เนื้อคู่ของคุณ\"",
+     "ms": 24,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [],
+    "canvases": [],
+    "reducedMotionMatches": false,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 1,
+    "cssKeyframes": 2,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"\"",
+      "visible": true,
+      "rect": {
+       "x": 16,
+       "y": 1258,
+       "w": 1408,
+       "h": 252
+      }
+     }
+    ],
+    "docHeight": 1900
+   }
+  }
+ ],
+ "bangkokAtEnd": "2026-10-24, 20:16:28",
+ "consoleErrors": []
+}

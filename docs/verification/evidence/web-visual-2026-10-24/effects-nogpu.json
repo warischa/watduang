@@ -1,0 +1,886 @@
+{
+ "lane": "nogpu",
+ "webgl": {
+  "webgl": false,
+  "webgl2": false
+ },
+ "runs": {
+  "CAL-heavy-scroll": [
+   {
+    "injected": "heavy",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 757,
+     "ProxyMain::BeginMainFrame": 194,
+     "Paint": 54,
+     "RasterTask": 1467
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 238,
+    "layoutMs": 1,
+    "styleMs": 40,
+    "cls": 0,
+    "lcp": 56
+   },
+   {
+    "injected": "heavy",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 760,
+     "ProxyMain::BeginMainFrame": 189,
+     "Paint": 45,
+     "RasterTask": 1429
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 242,
+    "layoutMs": 0,
+    "styleMs": 36,
+    "cls": 0,
+    "lcp": 36
+   },
+   {
+    "injected": "heavy",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 783,
+     "ProxyMain::BeginMainFrame": 279,
+     "Paint": 64,
+     "RasterTask": 1402
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 343,
+    "layoutMs": 0,
+    "styleMs": 65,
+    "cls": 0,
+    "lcp": 36
+   }
+  ],
+  "home-idle-baseline": [
+   {
+    "injected": null,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 28,
+     "ProxyMain::BeginMainFrame": 32
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 39,
+    "layoutMs": 0,
+    "styleMs": 6,
+    "cls": 0,
+    "lcp": 32
+   },
+   {
+    "injected": null,
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 30,
+     "ProxyMain::BeginMainFrame": 48
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 54,
+    "layoutMs": 0,
+    "styleMs": 9,
+    "cls": 0,
+    "lcp": 44
+   },
+   {
+    "injected": null,
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 32,
+     "ProxyMain::BeginMainFrame": 72
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 99,
+    "layoutMs": 0,
+    "styleMs": 14,
+    "cls": 0,
+    "lcp": 44
+   }
+  ],
+  "A1-gradient-paint": [
+   {
+    "injected": "css",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 70,
+     "ProxyMain::BeginMainFrame": 117,
+     "Paint": 39,
+     "RasterTask": 288
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 138,
+    "layoutMs": 0,
+    "styleMs": 16,
+    "cls": 0,
+    "lcp": 48
+   },
+   {
+    "injected": "css",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 65,
+     "ProxyMain::BeginMainFrame": 62,
+     "Paint": 24,
+     "RasterTask": 278
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 82,
+    "layoutMs": 0,
+    "styleMs": 9,
+    "cls": 0,
+    "lcp": 40
+   },
+   {
+    "injected": "css",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 70,
+     "ProxyMain::BeginMainFrame": 124,
+     "Paint": 50,
+     "RasterTask": 286
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 161,
+    "layoutMs": 0,
+    "styleMs": 17,
+    "cls": 0,
+    "lcp": 40
+   }
+  ],
+  "A1-gradient-compositor": [
+   {
+    "injected": "css+layer",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 136,
+     "ProxyMain::BeginMainFrame": 72
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 79,
+    "layoutMs": 0,
+    "styleMs": 15,
+    "cls": 0,
+    "lcp": 32
+   },
+   {
+    "injected": "css+layer",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 132,
+     "ProxyMain::BeginMainFrame": 48
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 54,
+    "layoutMs": 0,
+    "styleMs": 9,
+    "cls": 0,
+    "lcp": 44
+   },
+   {
+    "injected": "css+layer",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 132,
+     "ProxyMain::BeginMainFrame": 53
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 75,
+    "layoutMs": 0,
+    "styleMs": 10,
+    "cls": 0,
+    "lcp": 44
+   }
+  ],
+  "A2-shader": [
+   {
+    "injected": "no-webgl: CSS ground kept",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 31,
+     "ProxyMain::BeginMainFrame": 59
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 67,
+    "layoutMs": 0,
+    "styleMs": 9,
+    "cls": 0,
+    "lcp": 56
+   },
+   {
+    "injected": "no-webgl: CSS ground kept",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 29,
+     "ProxyMain::BeginMainFrame": 44
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 52,
+    "layoutMs": 0,
+    "styleMs": 7,
+    "cls": 0,
+    "lcp": 40
+   },
+   {
+    "injected": "no-webgl: CSS ground kept",
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 29,
+     "ProxyMain::BeginMainFrame": 39
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 46,
+    "layoutMs": 0,
+    "styleMs": 6,
+    "cls": 0,
+    "lcp": 52
+   }
+  ],
+  "home-scroll-baseline": [
+   {
+    "injected": null,
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 106,
+     "ProxyMain::BeginMainFrame": 138,
+     "RasterTask": 36
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 168,
+    "layoutMs": 0,
+    "styleMs": 20,
+    "cls": 0,
+    "lcp": 48
+   },
+   {
+    "injected": null,
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 96,
+     "ProxyMain::BeginMainFrame": 46,
+     "RasterTask": 31
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 62,
+    "layoutMs": 0,
+    "styleMs": 7,
+    "cls": 0,
+    "lcp": 52
+   },
+   {
+    "injected": null,
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 100,
+     "ProxyMain::BeginMainFrame": 74,
+     "RasterTask": 26
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 104,
+    "layoutMs": 0,
+    "styleMs": 12,
+    "cls": 0,
+    "lcp": 40
+   }
+  ],
+  "B0-sticky-solid-scroll": [
+   {
+    "injected": "css",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 81,
+     "ProxyMain::BeginMainFrame": 76,
+     "RasterTask": 28
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 89,
+    "layoutMs": 0,
+    "styleMs": 11,
+    "cls": 0,
+    "lcp": 48
+   },
+   {
+    "injected": "css",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 83,
+     "ProxyMain::BeginMainFrame": 83,
+     "RasterTask": 26,
+     "Paint": 1
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 98,
+    "layoutMs": 0,
+    "styleMs": 13,
+    "cls": 0,
+    "lcp": 52
+   },
+   {
+    "injected": "css",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 79,
+     "ProxyMain::BeginMainFrame": 54,
+     "RasterTask": 29,
+     "Paint": 1
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 68,
+    "layoutMs": 0,
+    "styleMs": 7,
+    "cls": 0,
+    "lcp": 52
+   }
+  ],
+  "B1-frosted-scroll": [
+   {
+    "injected": "css",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 230,
+     "ProxyMain::BeginMainFrame": 75,
+     "RasterTask": 29
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 94,
+    "layoutMs": 0,
+    "styleMs": 10,
+    "cls": 0,
+    "lcp": 56
+   },
+   {
+    "injected": "css",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 230,
+     "ProxyMain::BeginMainFrame": 81,
+     "RasterTask": 28
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 93,
+    "layoutMs": 0,
+    "styleMs": 10,
+    "cls": 0,
+    "lcp": 44
+   },
+   {
+    "injected": "css",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 229,
+     "ProxyMain::BeginMainFrame": 91,
+     "RasterTask": 22
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 119,
+    "layoutMs": 0,
+    "styleMs": 10,
+    "cls": 0,
+    "lcp": 52
+   }
+  ],
+  "B2-svg-glass-scroll": [
+   {
+    "injected": "url(\"#proto-glass\") saturate(1.4)",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 442,
+     "ProxyMain::BeginMainFrame": 125,
+     "RasterTask": 31
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 138,
+    "layoutMs": 0,
+    "styleMs": 10,
+    "cls": 0,
+    "lcp": 52
+   },
+   {
+    "injected": "url(\"#proto-glass\") saturate(1.4)",
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 436,
+     "ProxyMain::BeginMainFrame": 84,
+     "RasterTask": 24
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 98,
+    "layoutMs": 0,
+    "styleMs": 8,
+    "cls": 0,
+    "lcp": 48
+   },
+   {
+    "injected": "url(\"#proto-glass\") saturate(1.4)",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 436,
+     "ProxyMain::BeginMainFrame": 79,
+     "RasterTask": 28
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 94,
+    "layoutMs": 0,
+    "styleMs": 10,
+    "cls": 0,
+    "lcp": 48
+   }
+  ],
+  "D-reveal-scroll": [
+   {
+    "injected": 29,
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 91,
+     "Display::DrawAndSwap": 107,
+     "RasterTask": 16,
+     "Paint": 16
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 113,
+    "layoutMs": 2,
+    "styleMs": 15,
+    "cls": 0,
+    "lcp": 32
+   },
+   {
+    "injected": 29,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 115,
+     "ProxyMain::BeginMainFrame": 126,
+     "RasterTask": 15,
+     "Paint": 20
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 156,
+    "layoutMs": 2,
+    "styleMs": 18,
+    "cls": 0,
+    "lcp": 44
+   },
+   {
+    "injected": 29,
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 108,
+     "ProxyMain::BeginMainFrame": 73,
+     "RasterTask": 15,
+     "Paint": 10
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 99,
+    "layoutMs": 1,
+    "styleMs": 9,
+    "cls": 0,
+    "lcp": 36
+   }
+  ],
+  "tools-scroll-baseline": [
+   {
+    "injected": null,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 30,
+     "Display::DrawAndSwap": 86,
+     "RasterTask": 12,
+     "Paint": 1
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 40,
+    "layoutMs": 0,
+    "styleMs": 0,
+    "cls": 0,
+    "lcp": 40
+   },
+   {
+    "injected": null,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 49,
+     "Display::DrawAndSwap": 90,
+     "RasterTask": 8,
+     "Paint": 2
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 65,
+    "layoutMs": 0,
+    "styleMs": 0,
+    "cls": 0,
+    "lcp": 40
+   },
+   {
+    "injected": null,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 26,
+     "Display::DrawAndSwap": 86,
+     "RasterTask": 9,
+     "Paint": 2
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 39,
+    "layoutMs": 0,
+    "styleMs": 0,
+    "cls": 0,
+    "lcp": 52
+   }
+  ],
+  "D-reveal-party-scroll": [
+   {
+    "injected": 16,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 56,
+     "Display::DrawAndSwap": 91,
+     "Paint": 5,
+     "RasterTask": 3
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 70,
+    "layoutMs": 2,
+    "styleMs": 5,
+    "cls": 0,
+    "lcp": 4460
+   },
+   {
+    "injected": 16,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 87,
+     "Display::DrawAndSwap": 98,
+     "Paint": 6,
+     "RasterTask": 3
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 110,
+    "layoutMs": 2,
+    "styleMs": 6,
+    "cls": 0,
+    "lcp": 4476
+   },
+   {
+    "injected": 16,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 50,
+     "Display::DrawAndSwap": 91,
+     "Paint": 6,
+     "RasterTask": 3
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 61,
+    "layoutMs": 1,
+    "styleMs": 4,
+    "cls": 0,
+    "lcp": 4468
+   }
+  ],
+  "C-micro-press-wheel": [
+   {
+    "injected": "css+toggle 4",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "Display::DrawAndSwap": 22,
+     "ProxyMain::BeginMainFrame": 64,
+     "Paint": 19,
+     "RasterTask": 50
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 96,
+    "layoutMs": 0,
+    "styleMs": 11,
+    "cls": 0,
+    "lcp": 24
+   },
+   {
+    "injected": "css+toggle 4",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 170,
+     "Paint": 50,
+     "Display::DrawAndSwap": 26,
+     "RasterTask": 56
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 195,
+    "layoutMs": 0,
+    "styleMs": 25,
+    "cls": 0,
+    "lcp": 32
+   },
+   {
+    "injected": "css+toggle 4",
+    "frames": 180,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 98,
+     "Paint": 34,
+     "RasterTask": 51,
+     "Display::DrawAndSwap": 23
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 123,
+    "layoutMs": 0,
+    "styleMs": 18,
+    "cls": 0,
+    "lcp": 28
+   }
+  ],
+  "wheel-idle-baseline": [
+   {
+    "injected": null,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 31,
+     "Display::DrawAndSwap": 0
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 37,
+    "layoutMs": 0,
+    "styleMs": 0,
+    "cls": 0,
+    "lcp": 36
+   },
+   {
+    "injected": null,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.7,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 24,
+     "Display::DrawAndSwap": 1
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 28,
+    "layoutMs": 0,
+    "styleMs": 0,
+    "cls": 0,
+    "lcp": 32
+   },
+   {
+    "injected": null,
+    "frames": 181,
+    "p50": 16.7,
+    "p95": 16.8,
+    "max": 16.8,
+    "over50": 0,
+    "longTasks": 0,
+    "traceMs": {
+     "ProxyMain::BeginMainFrame": 17,
+     "Display::DrawAndSwap": 0
+    },
+    "gpuProcessMs": 0,
+    "mainThreadMs": 21,
+    "layoutMs": 0,
+    "styleMs": 0,
+    "cls": 0,
+    "lcp": 36
+   }
+  ]
+ },
+ "events": []
+}

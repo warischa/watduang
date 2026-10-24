@@ -1,0 +1,4 @@
+/* PROTOTYPE for measurement only (gh#288 Phase 0). E: cross-document view transitions, opt-in plus the
+   reduced-motion rule Chrome 155 does NOT apply on its own (vt.json case 3: full 250ms fade under reduce). */
+@view-transition{navigation:auto}
+@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}

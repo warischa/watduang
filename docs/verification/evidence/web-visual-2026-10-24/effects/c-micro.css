@@ -1,0 +1,9 @@
+/* PROTOTYPE for measurement only (gh#288 Phase 0). Placeholder values, not design (ADR-0033). */
+/* C: press/hover lift on buttons, one focus ring, a result pop. CSS only. */
+button{transition:transform .14s ease-out,box-shadow .14s ease-out}
+button:hover:not(:disabled){transform:translate(-1px,-1px)}
+button:active:not(:disabled),button.proto-press{transform:translate(2px,2px)!important;box-shadow:none!important}
+:focus-visible{outline:3px solid var(--color-text);outline-offset:3px}
+.wheel-result:not(:empty),#draw-result:not(:empty),#team-result:not(:empty),#number-result:not(:empty){animation:proto-pop .3s ease-out}
+@keyframes proto-pop{from{transform:scale(.96);opacity:.4}}
+@media (prefers-reduced-motion:reduce){button{transition-duration:.01ms}.wheel-result:not(:empty),#draw-result:not(:empty),#team-result:not(:empty),#number-result:not(:empty){animation:proto-fade .2s linear}@keyframes proto-fade{from{opacity:.4}}}

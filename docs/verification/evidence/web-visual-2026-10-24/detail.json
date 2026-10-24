@@ -1,0 +1,125 @@
+{
+ "buttons": {
+  "/tool/wheel/#wheel-spin": {
+   "before": {
+    "disabled": true,
+    "bg": "rgb(43, 123, 255)",
+    "color": "rgb(20, 20, 43)",
+    "border": "rgb(20, 20, 43)",
+    "opacity": "1",
+    "cursor": "pointer",
+    "shadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+    "filter": "none"
+   },
+   "after": {
+    "disabled": false,
+    "bg": "rgb(43, 123, 255)",
+    "color": "rgb(20, 20, 43)",
+    "border": "rgb(20, 20, 43)",
+    "opacity": "1",
+    "cursor": "pointer",
+    "shadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+    "filter": "none"
+   }
+  },
+  "/tool/wheel/#wheel-disc": {
+   "after": {
+    "disabled": false,
+    "bg": "rgba(0, 0, 0, 0)",
+    "color": "rgb(0, 0, 0)",
+    "border": "rgb(0, 0, 0)",
+    "opacity": "1",
+    "cursor": "pointer",
+    "shadow": "none",
+    "filter": "none"
+   }
+  },
+  "/tool/draw/#draw-go": {
+   "before": {
+    "disabled": true,
+    "bg": "rgb(43, 123, 255)",
+    "color": "rgb(20, 20, 43)",
+    "border": "rgb(20, 20, 43)",
+    "opacity": "1",
+    "cursor": "pointer",
+    "shadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+    "filter": "none"
+   },
+   "after": {
+    "disabled": false,
+    "bg": "rgb(43, 123, 255)",
+    "color": "rgb(20, 20, 43)",
+    "border": "rgb(20, 20, 43)",
+    "opacity": "1",
+    "cursor": "pointer",
+    "shadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+    "filter": "none"
+   }
+  },
+  "/tool/team/#team-split": {
+   "before": {
+    "disabled": true,
+    "bg": "rgb(43, 123, 255)",
+    "color": "rgb(20, 20, 43)",
+    "border": "rgb(20, 20, 43)",
+    "opacity": "1",
+    "cursor": "pointer",
+    "shadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+    "filter": "none"
+   },
+   "after": {
+    "disabled": false,
+    "bg": "rgb(43, 123, 255)",
+    "color": "rgb(20, 20, 43)",
+    "border": "rgb(20, 20, 43)",
+    "opacity": "1",
+    "cursor": "pointer",
+    "shadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+    "filter": "none"
+   }
+  },
+  "/game/love-match/#lm-go": {
+   "before": {
+    "disabled": true,
+    "bg": "rgb(20, 20, 43)",
+    "color": "rgb(255, 246, 224)",
+    "border": "rgb(20, 20, 43)",
+    "opacity": "1",
+    "cursor": "default",
+    "shadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+    "filter": "none"
+   },
+   "after": {
+    "disabled": false,
+    "bg": "rgb(20, 20, 43)",
+    "color": "rgb(255, 246, 224)",
+    "border": "rgb(20, 20, 43)",
+    "opacity": "1",
+    "cursor": "pointer",
+    "shadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+    "filter": "none"
+   }
+  }
+ },
+ "wheelHub": {
+  "fillComputed": "rgb(20, 20, 43)",
+  "colorComputed": "rgba(16, 16, 16, 0.3)",
+  "fillAttr": "#14142b",
+  "circleFill": "rgb(255, 246, 224)"
+ },
+ "focusOnBand": null,
+ "focusOnCream": {
+  "el": "A วัดดวง",
+  "x": 14,
+  "y": 12,
+  "w": 79.671875,
+  "h": 41
+ },
+ "primaryContrast": {
+  "onCream": 4.29,
+  "onWhite": 4.62,
+  "inkOnCream": 16.75,
+  "control_inkOnWhite": 21
+ },
+ "events": []
+}

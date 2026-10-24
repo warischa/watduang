@@ -1,0 +1,3635 @@
+{
+ "width": 1440,
+ "height": 900,
+ "mobile": false,
+ "pages": [
+  {
+   "path": "/",
+   "tab": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 17,
+     "x": 80
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1015
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1109
+    },
+    {
+     "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1232
+    },
+    {
+     "el": "a.cta \"เลือกเกมเลย →\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 5.35,
+     "y": 489,
+     "x": 80
+    },
+    {
+     "el": "a.featured \"จระเข้งับ เกมปาร์ตี้ 3\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 10px 10px 0px 0px",
+     "ringContrast": 5.35,
+     "y": 140,
+     "x": 750
+    },
+    {
+     "el": "a.tile.tilt-a \"พิน็อคคิอวย ตอบคำถามคน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 16.75,
+     "y": 1129,
+     "x": 80
+    },
+    {
+     "el": "a.tile.tilt-b \"ไกลแค่ไหนคือใกล้ แอบทา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 16.75,
+     "y": 1129,
+     "x": 517
+    },
+    {
+     "el": "a.tile.tilt-c \"เต๋าชี้คนแพ้ ผลัดกันทอ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 16.75,
+     "y": 1129,
+     "x": 955
+    },
+    {
+     "el": "a.see-all \"ดูทั้งหมด →\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": null,
+     "ringContrast": 11.93,
+     "y": 1704,
+     "x": 1226
+    },
+    {
+     "el": "a.tile \"ระเบิดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 1825,
+     "x": 80
+    },
+    {
+     "el": "a.tile \"จับไม้สั้น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 1825,
+     "x": 266
+    },
+    {
+     "el": "a.tile \"มือลั่น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 1825,
+     "x": 451
+    },
+    {
+     "el": "a.tile \"ยิงธง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 1825,
+     "x": 637
+    },
+    {
+     "el": "a.tile \"วัดพลัง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 1825,
+     "x": 823
+    },
+    {
+     "el": "a.tile \"เต๋าชี้คนแพ้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 1825,
+     "x": 1009
+    },
+    {
+     "el": "a.tile \"ไกลแค่ไหนคือใกล้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 1825,
+     "x": 1194
+    },
+    {
+     "el": "a.tile \"พิน็อคคิอวย\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 2047,
+     "x": 80
+    },
+    {
+     "el": "a.tile \"เลขอาถรรพ์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 2047,
+     "x": 266
+    },
+    {
+     "el": "a.tile \"ตัดสายกู้ชีพ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 2047,
+     "x": 451
+    },
+    {
+     "el": "a.tile \"แตะหยุดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 2047,
+     "x": 637
+    },
+    {
+     "el": "a.tile \"กับระเบิด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 2047,
+     "x": 823
+    },
+    {
+     "el": "a.tile \"บางกอกดริฟต์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 2047,
+     "x": 1009
+    },
+    {
+     "el": "a.tile \"จระเข้งับ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(255, 204, 0) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 11.93,
+     "y": 2047,
+     "x": 1194
+    },
+    {
+     "el": "a.see-all \"ดูทั้งหมด →\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": null,
+     "ringContrast": 16.75,
+     "y": 2372,
+     "x": 1226
+    },
+    {
+     "el": "a.tile \"เสี่ยงเซียมซี เขย่ามือ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 16.75,
+     "y": 2473,
+     "x": 80
+    },
+    {
+     "el": "a.tile \"ดวงวันนี้ กดครั้งเดียว\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 16.75,
+     "y": 2473,
+     "x": 516
+    },
+    {
+     "el": "a.tile \"เนื้อคู่ของคุณ ตอบสามข\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 16.75,
+     "y": 2473,
+     "x": 952
+    },
+    {
+     "el": "a.see-all \"ดูทั้งหมด →\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": null,
+     "ringContrast": 16.75,
+     "y": 2742,
+     "x": 1226
+    },
+    {
+     "el": "a.tile \"วงล้อสุ่มชื่อ ใส่ชื่อใ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 16.75,
+     "y": 2844,
+     "x": 80
+    },
+    {
+     "el": "a.tile \"จับฉลาก ใส่ชื่อทั้งวง \"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 16.75,
+     "y": 2844,
+     "x": 406
+    },
+    {
+     "el": "a.tile \"แบ่งทีม ใส่ชื่อแล้วบอก\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 16.75,
+     "y": 2844,
+     "x": 732
+    },
+    {
+     "el": "a.tile \"สุ่มเลข ตั้งเลขต่ำสุดก\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "solid 3px rgb(20, 20, 43) off 3px",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "ringContrast": 16.75,
+     "y": 2844,
+     "x": 1058
+    }
+   ],
+   "tabBackJumps": [
+    "a.featured \"จระเข้งับ เกมปาร์ตี้ 3\""
+   ],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "solid 3px rgb(20, 20, 43) off 3px | rgb(20, 20, 43) 6px 6px 0px 0px",
+    "solid 3px rgb(20, 20, 43) off 3px | rgb(20, 20, 43) 10px 10px 0px 0px",
+    "solid 3px rgb(255, 204, 0) off 3px | ",
+    "solid 3px rgb(255, 204, 0) off 3px | rgb(20, 20, 43) 6px 6px 0px 0px",
+    "solid 3px rgb(20, 20, 43) off 3px | "
+   ],
+   "ringLowContrast": [],
+   "disabled": [],
+   "hover": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a.cta \"เลือกเกมเลย →\"",
+     "delta": []
+    },
+    {
+     "el": "a.featured \"จระเข้งับ เกมปาร์ตี้ 3\"",
+     "delta": []
+    },
+    {
+     "el": "a.tile.tilt-a \"พิน็อคคิอวย ตอบคำถามคน\"",
+     "delta": [
+      "boxShadow: rgb(20, 20, 43) 6px 6px 0px 0px -> rgb(20, 20, 43) 9px 12px 0px 0px"
+     ]
+    },
+    {
+     "el": "a.tile.tilt-b \"ไกลแค่ไหนคือใกล้ แอบทา\"",
+     "delta": [
+      "boxShadow: rgb(20, 20, 43) 6px 6px 0px 0px -> rgb(20, 20, 43) 9px 12px 0px 0px"
+     ]
+    },
+    {
+     "el": "a.see-all \"ดูทั้งหมด →\"",
+     "delta": []
+    },
+    {
+     "el": "a.see-all \"ดูทั้งหมด →\"",
+     "delta": []
+    }
+   ],
+   "active": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a.cta \"เลือกเกมเลย →\"",
+     "delta": []
+    },
+    {
+     "el": "a.featured \"จระเข้งับ เกมปาร์ตี้ 3\"",
+     "delta": []
+    },
+    {
+     "el": "a.tile.tilt-a \"พิน็อคคิอวย ตอบคำถามคน\"",
+     "delta": []
+    },
+    {
+     "el": "a.tile.tilt-b \"ไกลแค่ไหนคือใกล้ แอบทา\"",
+     "delta": []
+    },
+    {
+     "el": "a.see-all \"ดูทั้งหมด →\"",
+     "delta": []
+    },
+    {
+     "el": "a.see-all \"ดูทั้งหมด →\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 2,
+   "hoverSampled": 9,
+   "activeWithDelta": 0
+  },
+  {
+   "path": "/tools/",
+   "tab": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 17,
+     "x": 80
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1015
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1109
+    },
+    {
+     "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1232
+    },
+    {
+     "el": "a.tool-card \"วงล้อสุ่มชื่อ ใส่ชื่อใ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 346,
+     "x": 98
+    },
+    {
+     "el": "a.tool-card \"จับฉลาก ใส่ชื่อทั้งวง \"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 346,
+     "x": 414
+    },
+    {
+     "el": "a.tool-card \"แบ่งทีม ใส่ชื่อแล้วบอก\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 346,
+     "x": 730
+    },
+    {
+     "el": "a.tool-card \"สุ่มเลข ตั้งเลขต่ำสุดก\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 346,
+     "x": 1046
+    },
+    {
+     "el": "a.back-link \"กลับหน้าแรก\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 549,
+     "x": 98
+    },
+    {
+     "el": "(body)"
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "auto 1px rgb(0, 95, 204) off 1px | rgb(20, 20, 43) 4px 4px 0px 0px"
+   ],
+   "ringLowContrast": [],
+   "disabled": [],
+   "hover": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a.tool-card \"วงล้อสุ่มชื่อ ใส่ชื่อใ\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a.tool-card \"จับฉลาก ใส่ชื่อทั้งวง \"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a.back-link \"กลับหน้าแรก\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    }
+   ],
+   "active": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a.tool-card \"วงล้อสุ่มชื่อ ใส่ชื่อใ\"",
+     "delta": []
+    },
+    {
+     "el": "a.tool-card \"จับฉลาก ใส่ชื่อทั้งวง \"",
+     "delta": []
+    },
+    {
+     "el": "a.back-link \"กลับหน้าแรก\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 3,
+   "hoverSampled": 6,
+   "activeWithDelta": 0
+  },
+  {
+   "path": "/tool/wheel/",
+   "tab": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 17,
+     "x": 80
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1015
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1109
+    },
+    {
+     "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1232
+    },
+    {
+     "el": "input \"auto\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 2px",
+     "boxShadow": "rgb(255, 255, 255) 0px 0px 0px 3.5px inset",
+     "ringContrast": 1.53,
+     "y": 254,
+     "x": 464
+    },
+    {
+     "el": "button#wheel-reset.wheel-reset \"คืนทุกชื่อเข้าวงล้อ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 872,
+     "x": 834
+    },
+    {
+     "el": "input#wheel-eliminate \"on\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 2px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 958,
+     "x": 448
+    },
+    {
+     "el": "textarea#name-input \"\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1205,
+     "x": 466
+    },
+    {
+     "el": "button#name-start \"ใส่ชื่อลงวงล้อ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1752,
+     "x": 466
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1904,
+     "x": 464
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1904,
+     "x": 551
+    },
+    {
+     "el": "a \"มือลั่น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1904,
+     "x": 622
+    },
+    {
+     "el": "a \"ยิงธง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1904,
+     "x": 682
+    },
+    {
+     "el": "a \"วัดพลัง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1904,
+     "x": 742
+    },
+    {
+     "el": "a \"เต๋าชี้คนแพ้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1904,
+     "x": 804
+    },
+    {
+     "el": "a \"ไกลแค่ไหนคือใกล้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1956,
+     "x": 464
+    },
+    {
+     "el": "a \"พิน็อคคิอวย\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1956,
+     "x": 594
+    },
+    {
+     "el": "a \"เลขอาถรรพ์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1956,
+     "x": 687
+    },
+    {
+     "el": "a \"ตัดสายกู้ชีพ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1956,
+     "x": 780
+    },
+    {
+     "el": "a \"แตะหยุดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1956,
+     "x": 872
+    },
+    {
+     "el": "a \"กับระเบิด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 2008,
+     "x": 464
+    },
+    {
+     "el": "a \"บางกอกดริฟต์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 2008,
+     "x": 541
+    },
+    {
+     "el": "a \"จระเข้งับ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 2008,
+     "x": 648
+    },
+    {
+     "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 2473,
+     "x": 448
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "auto 1px rgb(0, 95, 204) off 2px | rgb(255, 255, 255) 0px 0px 0px 3.5px inset",
+    "auto 1px rgb(0, 95, 204) off 0px | ",
+    "auto 1px rgb(0, 95, 204) off 2px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | rgba(20, 20, 43, 0.3) 5px 5px 0px 0px"
+   ],
+   "ringLowContrast": [
+    "input \"auto\" 1.53"
+   ],
+   "disabled": [
+    {
+     "el": "button#wheel-disc.wheel-disc \"หมุน\"",
+     "bg": "rgba(0, 0, 0, 0)",
+     "color": "rgba(16, 16, 16, 0.3)",
+     "opacity": "1",
+     "cursor": "default",
+     "border": "rgba(16, 16, 16, 0.3)"
+    },
+    {
+     "el": "button#wheel-spin.wheel-spin \"หมุน\"",
+     "bg": "rgb(43, 123, 255)",
+     "color": "rgb(20, 20, 43)",
+     "opacity": "1",
+     "cursor": "pointer",
+     "border": "rgb(20, 20, 43)"
+    }
+   ],
+   "hover": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "label.wheel-mode-option \"A · หมุนแล้วช้าลงจนหยุ\"",
+     "delta": []
+    },
+    {
+     "el": "input \"auto\"",
+     "delta": []
+    },
+    {
+     "el": "label.wheel-mode-option \"B · หมุนค้างไว้ จนกว่า\"",
+     "delta": []
+    },
+    {
+     "el": "input \"press\"",
+     "delta": []
+    },
+    {
+     "el": "button#wheel-disc.wheel-disc \"หมุน\"",
+     "delta": []
+    },
+    {
+     "el": "button#wheel-spin.wheel-spin \"หมุน\"",
+     "delta": []
+    },
+    {
+     "el": "button#wheel-reset.wheel-reset \"คืนทุกชื่อเข้าวงล้อ\"",
+     "delta": []
+    },
+    {
+     "el": "label \"เอาคนที่ออกแล้วออกจากว\"",
+     "delta": []
+    },
+    {
+     "el": "textarea#name-input \"\"",
+     "delta": []
+    },
+    {
+     "el": "button#name-start \"ใส่ชื่อลงวงล้อ\"",
+     "delta": []
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    }
+   ],
+   "active": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "label.wheel-mode-option \"A · หมุนแล้วช้าลงจนหยุ\"",
+     "delta": []
+    },
+    {
+     "el": "input \"auto\"",
+     "delta": []
+    },
+    {
+     "el": "label.wheel-mode-option \"B · หมุนค้างไว้ จนกว่า\"",
+     "delta": []
+    },
+    {
+     "el": "input \"press\"",
+     "delta": []
+    },
+    {
+     "el": "button#wheel-disc.wheel-disc \"หมุน\"",
+     "delta": []
+    },
+    {
+     "el": "button#wheel-spin.wheel-spin \"หมุน\"",
+     "delta": []
+    },
+    {
+     "el": "button#wheel-reset.wheel-reset \"คืนทุกชื่อเข้าวงล้อ\"",
+     "delta": []
+    },
+    {
+     "el": "label \"เอาคนที่ออกแล้วออกจากว\"",
+     "delta": []
+    },
+    {
+     "el": "textarea#name-input \"\"",
+     "delta": [
+      "outlineStyle: none -> auto"
+     ]
+    },
+    {
+     "el": "button#name-start \"ใส่ชื่อลงวงล้อ\"",
+     "delta": []
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "delta": []
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 2,
+   "hoverSampled": 15,
+   "activeWithDelta": 1
+  },
+  {
+   "path": "/tool/draw/",
+   "tab": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 17,
+     "x": 80
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1015
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1109
+    },
+    {
+     "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1232
+    },
+    {
+     "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 1.53,
+     "y": 124,
+     "x": 80
+    },
+    {
+     "el": "textarea#name-input \"\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 439,
+     "x": 268
+    },
+    {
+     "el": "button#name-start \"ใส่ชื่อลงกล่อง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 987,
+     "x": 268
+    },
+    {
+     "el": "input#draw-count \"2\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1188,
+     "x": 338
+    },
+    {
+     "el": "button#draw-reset \"เริ่มรอบใหม่\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1482,
+     "x": 278
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1746,
+     "x": 266
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1746,
+     "x": 353
+    },
+    {
+     "el": "a \"มือลั่น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1746,
+     "x": 424
+    },
+    {
+     "el": "a \"ยิงธง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1746,
+     "x": 484
+    },
+    {
+     "el": "a \"วัดพลัง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1746,
+     "x": 544
+    },
+    {
+     "el": "a \"เต๋าชี้คนแพ้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1746,
+     "x": 606
+    },
+    {
+     "el": "a \"ไกลแค่ไหนคือใกล้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1746,
+     "x": 695
+    },
+    {
+     "el": "a \"พิน็อคคิอวย\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1746,
+     "x": 824
+    },
+    {
+     "el": "a \"เลขอาถรรพ์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1746,
+     "x": 917
+    },
+    {
+     "el": "a \"ตัดสายกู้ชีพ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1746,
+     "x": 1011
+    },
+    {
+     "el": "a \"แตะหยุดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1798,
+     "x": 266
+    },
+    {
+     "el": "a \"กับระเบิด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1798,
+     "x": 369
+    },
+    {
+     "el": "a \"บางกอกดริฟต์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1798,
+     "x": 445
+    },
+    {
+     "el": "a \"จระเข้งับ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1798,
+     "x": 553
+    },
+    {
+     "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 2361,
+     "x": 250
+    },
+    {
+     "el": "(body)"
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | rgba(20, 20, 43, 0.3) 5px 5px 0px 0px"
+   ],
+   "ringLowContrast": [
+    "a \"เครื่องมือสุ่มทั้งหมด\" 1.53"
+   ],
+   "disabled": [
+    {
+     "el": "button#draw-go \"จับฉลาก\"",
+     "bg": "rgb(43, 123, 255)",
+     "color": "rgb(20, 20, 43)",
+     "opacity": "1",
+     "cursor": "pointer",
+     "border": "rgb(20, 20, 43)"
+    }
+   ],
+   "hover": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+     "delta": []
+    },
+    {
+     "el": "textarea#name-input \"\"",
+     "delta": []
+    },
+    {
+     "el": "button#name-start \"ใส่ชื่อลงกล่อง\"",
+     "delta": []
+    },
+    {
+     "el": "label.draw-count \"จับกี่คน\"",
+     "delta": []
+    },
+    {
+     "el": "input#draw-count \"2\"",
+     "delta": []
+    },
+    {
+     "el": "button#draw-go \"จับฉลาก\"",
+     "delta": []
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    }
+   ],
+   "active": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+     "delta": []
+    },
+    {
+     "el": "textarea#name-input \"\"",
+     "delta": [
+      "outlineStyle: none -> auto"
+     ]
+    },
+    {
+     "el": "button#name-start \"ใส่ชื่อลงกล่อง\"",
+     "delta": []
+    },
+    {
+     "el": "label.draw-count \"จับกี่คน\"",
+     "delta": []
+    },
+    {
+     "el": "input#draw-count \"2\"",
+     "delta": [
+      "outlineStyle: none -> auto"
+     ]
+    },
+    {
+     "el": "button#draw-go \"จับฉลาก\"",
+     "delta": []
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 1,
+   "hoverSampled": 10,
+   "activeWithDelta": 2
+  },
+  {
+   "path": "/tool/team/",
+   "tab": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 17,
+     "x": 80
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1015
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1109
+    },
+    {
+     "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1232
+    },
+    {
+     "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 1.53,
+     "y": 124,
+     "x": 80
+    },
+    {
+     "el": "textarea#name-input \"\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 439,
+     "x": 268
+    },
+    {
+     "el": "button#name-start \"ใส่ชื่อลงสนาม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 987,
+     "x": 268
+    },
+    {
+     "el": "input#team-count \"2\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1194,
+     "x": 356
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1647,
+     "x": 266
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1647,
+     "x": 353
+    },
+    {
+     "el": "a \"มือลั่น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1647,
+     "x": 424
+    },
+    {
+     "el": "a \"ยิงธง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1647,
+     "x": 484
+    },
+    {
+     "el": "a \"วัดพลัง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1647,
+     "x": 544
+    },
+    {
+     "el": "a \"เต๋าชี้คนแพ้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1647,
+     "x": 606
+    },
+    {
+     "el": "a \"ไกลแค่ไหนคือใกล้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1647,
+     "x": 695
+    },
+    {
+     "el": "a \"พิน็อคคิอวย\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1647,
+     "x": 824
+    },
+    {
+     "el": "a \"เลขอาถรรพ์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1647,
+     "x": 917
+    },
+    {
+     "el": "a \"ตัดสายกู้ชีพ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1647,
+     "x": 1011
+    },
+    {
+     "el": "a \"แตะหยุดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1699,
+     "x": 266
+    },
+    {
+     "el": "a \"กับระเบิด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1699,
+     "x": 369
+    },
+    {
+     "el": "a \"บางกอกดริฟต์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1699,
+     "x": 445
+    },
+    {
+     "el": "a \"จระเข้งับ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1699,
+     "x": 553
+    },
+    {
+     "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 2262,
+     "x": 250
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | rgba(20, 20, 43, 0.3) 5px 5px 0px 0px"
+   ],
+   "ringLowContrast": [
+    "a \"เครื่องมือสุ่มทั้งหมด\" 1.53"
+   ],
+   "disabled": [
+    {
+     "el": "button#team-split \"แบ่งทีม\"",
+     "bg": "rgb(43, 123, 255)",
+     "color": "rgb(20, 20, 43)",
+     "opacity": "1",
+     "cursor": "pointer",
+     "border": "rgb(20, 20, 43)"
+    }
+   ],
+   "hover": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+     "delta": []
+    },
+    {
+     "el": "textarea#name-input \"\"",
+     "delta": []
+    },
+    {
+     "el": "button#name-start \"ใส่ชื่อลงสนาม\"",
+     "delta": []
+    },
+    {
+     "el": "label.team-count \"จำนวนทีม\"",
+     "delta": []
+    },
+    {
+     "el": "input#team-count \"2\"",
+     "delta": []
+    },
+    {
+     "el": "button#team-split \"แบ่งทีม\"",
+     "delta": []
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    }
+   ],
+   "active": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+     "delta": []
+    },
+    {
+     "el": "textarea#name-input \"\"",
+     "delta": [
+      "outlineStyle: none -> auto"
+     ]
+    },
+    {
+     "el": "button#name-start \"ใส่ชื่อลงสนาม\"",
+     "delta": []
+    },
+    {
+     "el": "label.team-count \"จำนวนทีม\"",
+     "delta": []
+    },
+    {
+     "el": "input#team-count \"2\"",
+     "delta": [
+      "outlineStyle: none -> auto"
+     ]
+    },
+    {
+     "el": "button#team-split \"แบ่งทีม\"",
+     "delta": []
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 1,
+   "hoverSampled": 10,
+   "activeWithDelta": 2
+  },
+  {
+   "path": "/tool/number/",
+   "tab": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 17,
+     "x": 80
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1015
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1109
+    },
+    {
+     "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1232
+    },
+    {
+     "el": "input#number-min \"1\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 407,
+     "x": 329
+    },
+    {
+     "el": "input#number-max \"10\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 407,
+     "x": 486
+    },
+    {
+     "el": "input#number-no-repeat \"on\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 2px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 483,
+     "x": 278
+    },
+    {
+     "el": "button#number-go \"สุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 498,
+     "x": 735
+    },
+    {
+     "el": "button#number-reset \"เริ่มรอบใหม่\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 572,
+     "x": 735
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 764,
+     "x": 266
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 764,
+     "x": 353
+    },
+    {
+     "el": "a \"มือลั่น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 764,
+     "x": 424
+    },
+    {
+     "el": "a \"ยิงธง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 764,
+     "x": 484
+    },
+    {
+     "el": "a \"วัดพลัง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 764,
+     "x": 544
+    },
+    {
+     "el": "a \"เต๋าชี้คนแพ้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 764,
+     "x": 606
+    },
+    {
+     "el": "a \"ไกลแค่ไหนคือใกล้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 764,
+     "x": 695
+    },
+    {
+     "el": "a \"พิน็อคคิอวย\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 764,
+     "x": 824
+    },
+    {
+     "el": "a \"เลขอาถรรพ์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 764,
+     "x": 917
+    },
+    {
+     "el": "a \"ตัดสายกู้ชีพ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 764,
+     "x": 1011
+    },
+    {
+     "el": "a \"แตะหยุดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 816,
+     "x": 266
+    },
+    {
+     "el": "a \"กับระเบิด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 816,
+     "x": 369
+    },
+    {
+     "el": "a \"บางกอกดริฟต์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 816,
+     "x": 445
+    },
+    {
+     "el": "a \"จระเข้งับ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 816,
+     "x": 553
+    },
+    {
+     "el": "a \"เครื่องมือสุ่มทั้งหมด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1353,
+     "x": 250
+    },
+    {
+     "el": "(body)"
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | ",
+    "auto 1px rgb(0, 95, 204) off 2px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | rgb(20, 20, 43) 5px 5px 0px 0px"
+   ],
+   "ringLowContrast": [],
+   "disabled": [],
+   "hover": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "label \"ต่ำสุด\"",
+     "delta": []
+    },
+    {
+     "el": "input#number-min \"1\"",
+     "delta": []
+    },
+    {
+     "el": "label \"สูงสุด\"",
+     "delta": []
+    },
+    {
+     "el": "input#number-max \"10\"",
+     "delta": []
+    },
+    {
+     "el": "button#number-go \"สุ่ม\"",
+     "delta": []
+    },
+    {
+     "el": "button#number-reset \"เริ่มรอบใหม่\"",
+     "delta": []
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    }
+   ],
+   "active": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "label \"ต่ำสุด\"",
+     "delta": []
+    },
+    {
+     "el": "input#number-min \"1\"",
+     "delta": [
+      "outlineStyle: none -> auto"
+     ]
+    },
+    {
+     "el": "label \"สูงสุด\"",
+     "delta": []
+    },
+    {
+     "el": "input#number-max \"10\"",
+     "delta": [
+      "outlineStyle: none -> auto"
+     ]
+    },
+    {
+     "el": "button#number-go \"สุ่ม\"",
+     "delta": []
+    },
+    {
+     "el": "button#number-reset \"เริ่มรอบใหม่\"",
+     "delta": []
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "delta": []
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 2,
+   "hoverSampled": 11,
+   "activeWithDelta": 2
+  },
+  {
+   "path": "/c/fortune/",
+   "tab": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 17,
+     "x": 80
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1015
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1109
+    },
+    {
+     "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1232
+    },
+    {
+     "el": "a \"หน้าแรก\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 136,
+     "x": 80
+    },
+    {
+     "el": "a.game-card \"เสี่ยงเซียมซี เขย่ามือ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 802,
+     "x": 80
+    },
+    {
+     "el": "a.game-card \"ดวงวันนี้ กดครั้งเดียว\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 802,
+     "x": 400
+    },
+    {
+     "el": "a.game-card \"เนื้อคู่ของคุณ ตอบสามข\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 802,
+     "x": 720
+    },
+    {
+     "el": "a.cross-card \"สุ่มคนโดน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1087,
+     "x": 80
+    },
+    {
+     "el": "a.cross-card \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1087,
+     "x": 560
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "auto 1px rgb(0, 95, 204) off 1px | rgb(20, 20, 43) 4px 4px 0px 0px"
+   ],
+   "ringLowContrast": [],
+   "disabled": [],
+   "hover": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a \"หน้าแรก\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a.game-card \"เสี่ยงเซียมซี เขย่ามือ\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a.game-card \"ดวงวันนี้ กดครั้งเดียว\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a.cross-card \"สุ่มคนโดน\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a.cross-card \"เครื่องมือสุ่ม\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    }
+   ],
+   "active": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a \"หน้าแรก\"",
+     "delta": []
+    },
+    {
+     "el": "a.game-card \"เสี่ยงเซียมซี เขย่ามือ\"",
+     "delta": []
+    },
+    {
+     "el": "a.game-card \"ดวงวันนี้ กดครั้งเดียว\"",
+     "delta": []
+    },
+    {
+     "el": "a.cross-card \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a.cross-card \"เครื่องมือสุ่ม\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 5,
+   "hoverSampled": 8,
+   "activeWithDelta": 0
+  },
+  {
+   "path": "/c/party/",
+   "tab": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 17,
+     "x": 80
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1015
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1109
+    },
+    {
+     "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1232
+    },
+    {
+     "el": "a \"หน้าแรก\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 1.77,
+     "y": 136,
+     "x": 80
+    },
+    {
+     "el": "a.game-card \"ระเบิดเวลา ส่งมือถือวน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 802,
+     "x": 80
+    },
+    {
+     "el": "a.game-card \"จับไม้สั้น ส่งมือถือวน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 802,
+     "x": 400
+    },
+    {
+     "el": "a.game-card \"มือลั่น แตะให้ไวที่สุด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 802,
+     "x": 720
+    },
+    {
+     "el": "a.game-card \"ยิงธง ดวลปืนใหญ่ผลัดกั\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1178,
+     "x": 80
+    },
+    {
+     "el": "a.game-card \"วัดพลัง แตะหยุดเกจพลัง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1178,
+     "x": 400
+    },
+    {
+     "el": "a.game-card \"เต๋าชี้คนแพ้ ผลัดกันทอ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1178,
+     "x": 720
+    },
+    {
+     "el": "a.game-card \"ไกลแค่ไหนคือใกล้ แอบทา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1554,
+     "x": 80
+    },
+    {
+     "el": "a.game-card \"พิน็อคคิอวย ตอบคำถามคน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1554,
+     "x": 400
+    },
+    {
+     "el": "a.game-card \"เลขอาถรรพ์ ผลัดกันทายเ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1554,
+     "x": 720
+    },
+    {
+     "el": "a.game-card \"ตัดสายกู้ชีพ จำลำดับไฟ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1930,
+     "x": 80
+    },
+    {
+     "el": "a.game-card \"แตะหยุดเวลา ผลัดกันแตะ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1930,
+     "x": 400
+    },
+    {
+     "el": "a.game-card \"กับระเบิด ผลัดกันเปิดแ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 1930,
+     "x": 720
+    },
+    {
+     "el": "a.game-card \"บางกอกดริฟต์ ผลัดกันขั\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 2331,
+     "x": 80
+    },
+    {
+     "el": "a.game-card \"จระเข้งับ เกมปาร์ตี้ 3\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 2331,
+     "x": 400
+    },
+    {
+     "el": "a.cross-card \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 2772,
+     "x": 80
+    },
+    {
+     "el": "a.cross-card \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "ringContrast": 5.56,
+     "y": 2772,
+     "x": 560
+    },
+    {
+     "el": "(body)"
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "auto 1px rgb(0, 95, 204) off 1px | rgb(20, 20, 43) 4px 4px 0px 0px"
+   ],
+   "ringLowContrast": [
+    "a \"หน้าแรก\" 1.77"
+   ],
+   "disabled": [],
+   "hover": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a \"หน้าแรก\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a.game-card \"ระเบิดเวลา ส่งมือถือวน\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a.game-card \"จับไม้สั้น ส่งมือถือวน\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a.cross-card \"ดูดวง\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "a.cross-card \"เครื่องมือสุ่ม\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    }
+   ],
+   "active": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a \"หน้าแรก\"",
+     "delta": []
+    },
+    {
+     "el": "a.game-card \"ระเบิดเวลา ส่งมือถือวน\"",
+     "delta": []
+    },
+    {
+     "el": "a.game-card \"จับไม้สั้น ส่งมือถือวน\"",
+     "delta": []
+    },
+    {
+     "el": "a.cross-card \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.cross-card \"เครื่องมือสุ่ม\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 5,
+   "hoverSampled": 8,
+   "activeWithDelta": 0
+  },
+  {
+   "path": "/game/siamsi/",
+   "tab": [
+    {
+     "el": "a \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 20,
+     "x": 16
+    },
+    {
+     "el": "button.sm-chip \"การงาน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 317,
+     "x": 510
+    },
+    {
+     "el": "button.sm-chip \"ความรัก\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 317,
+     "x": 594
+    },
+    {
+     "el": "button.sm-chip \"การเงิน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 317,
+     "x": 680
+    },
+    {
+     "el": "button.sm-chip \"สุขภาพ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 317,
+     "x": 761
+    },
+    {
+     "el": "button.sm-chip.sm-chip--on \"ไม่เจาะจง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 317,
+     "x": 843
+    },
+    {
+     "el": "button#ss-intent-done.game-btn.game-btn-primary \"ตั้งจิตแล้ว\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+     "ringContrast": 3.96,
+     "y": 659,
+     "x": 20
+    },
+    {
+     "el": "a \"ดวงวันนี้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1272,
+     "x": 16
+    },
+    {
+     "el": "a \"เนื้อคู่ของคุณ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1272,
+     "x": 86
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 16
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 103
+    },
+    {
+     "el": "a \"มือลั่น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 174
+    },
+    {
+     "el": "a \"ยิงธง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 234
+    },
+    {
+     "el": "a \"วัดพลัง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 294
+    },
+    {
+     "el": "a \"เต๋าชี้คนแพ้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 356
+    },
+    {
+     "el": "a \"ไกลแค่ไหนคือใกล้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 445
+    },
+    {
+     "el": "a \"พิน็อคคิอวย\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 574
+    },
+    {
+     "el": "a \"เลขอาถรรพ์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 667
+    },
+    {
+     "el": "a \"ตัดสายกู้ชีพ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 761
+    },
+    {
+     "el": "a \"แตะหยุดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 853
+    },
+    {
+     "el": "a \"กับระเบิด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 955
+    },
+    {
+     "el": "a \"บางกอกดริฟต์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 1032
+    },
+    {
+     "el": "a \"จระเข้งับ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1386,
+     "x": 1139
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | rgba(20, 20, 43, 0.3) 5px 5px 0px 0px"
+   ],
+   "ringLowContrast": [],
+   "disabled": [],
+   "hover": [
+    {
+     "el": "a \"ดูดวง\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "button.sm-chip \"การงาน\"",
+     "delta": []
+    },
+    {
+     "el": "button.sm-chip \"ความรัก\"",
+     "delta": []
+    },
+    {
+     "el": "button#ss-intent-done.game-btn.game-btn-primary \"ตั้งจิตแล้ว\"",
+     "delta": []
+    },
+    {
+     "el": "a \"ดวงวันนี้\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    }
+   ],
+   "active": [
+    {
+     "el": "a \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "button.sm-chip \"การงาน\"",
+     "delta": []
+    },
+    {
+     "el": "button.sm-chip \"ความรัก\"",
+     "delta": []
+    },
+    {
+     "el": "button#ss-intent-done.game-btn.game-btn-primary \"ตั้งจิตแล้ว\"",
+     "delta": []
+    },
+    {
+     "el": "a \"ดวงวันนี้\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 2,
+   "hoverSampled": 5,
+   "activeWithDelta": 0
+  },
+  {
+   "path": "/game/daily-fortune/",
+   "tab": [
+    {
+     "el": "a \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 20,
+     "x": 16
+    },
+    {
+     "el": "button#df-go.game-btn.game-btn-primary \"เปิดดวงวันนี้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+     "ringContrast": 3.96,
+     "y": 612,
+     "x": 20
+    },
+    {
+     "el": "a \"เสี่ยงเซียมซี\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1293,
+     "x": 16
+    },
+    {
+     "el": "a \"เนื้อคู่ของคุณ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1293,
+     "x": 106
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 16
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 103
+    },
+    {
+     "el": "a \"มือลั่น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 174
+    },
+    {
+     "el": "a \"ยิงธง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 234
+    },
+    {
+     "el": "a \"วัดพลัง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 294
+    },
+    {
+     "el": "a \"เต๋าชี้คนแพ้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 356
+    },
+    {
+     "el": "a \"ไกลแค่ไหนคือใกล้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 445
+    },
+    {
+     "el": "a \"พิน็อคคิอวย\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 574
+    },
+    {
+     "el": "a \"เลขอาถรรพ์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 667
+    },
+    {
+     "el": "a \"ตัดสายกู้ชีพ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 761
+    },
+    {
+     "el": "a \"แตะหยุดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 853
+    },
+    {
+     "el": "a \"กับระเบิด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 955
+    },
+    {
+     "el": "a \"บางกอกดริฟต์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 1032
+    },
+    {
+     "el": "a \"จระเข้งับ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1407,
+     "x": 1139
+    },
+    {
+     "el": "(body)"
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | rgba(20, 20, 43, 0.3) 5px 5px 0px 0px"
+   ],
+   "ringLowContrast": [],
+   "disabled": [],
+   "hover": [
+    {
+     "el": "a \"ดูดวง\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "button#df-go.game-btn.game-btn-primary \"เปิดดวงวันนี้\"",
+     "delta": []
+    },
+    {
+     "el": "a \"เสี่ยงเซียมซี\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    }
+   ],
+   "active": [
+    {
+     "el": "a \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "button#df-go.game-btn.game-btn-primary \"เปิดดวงวันนี้\"",
+     "delta": []
+    },
+    {
+     "el": "a \"เสี่ยงเซียมซี\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 2,
+   "hoverSampled": 3,
+   "activeWithDelta": 0
+  },
+  {
+   "path": "/game/love-match/",
+   "tab": [
+    {
+     "el": "a \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 20,
+     "x": 16
+    },
+    {
+     "el": "button#lm-me-m.lm-choice \"ผู้ชาย\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 321,
+     "x": 641
+    },
+    {
+     "el": "button#lm-me-f.lm-choice \"ผู้หญิง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 321,
+     "x": 722
+    },
+    {
+     "el": "button#lm-band-0.lm-choice \"18–24\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 418,
+     "x": 453
+    },
+    {
+     "el": "button#lm-band-1.lm-choice \"25–29\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 418,
+     "x": 541
+    },
+    {
+     "el": "button#lm-band-2.lm-choice \"30–34\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 418,
+     "x": 629
+    },
+    {
+     "el": "button#lm-band-3.lm-choice \"35–39\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 418,
+     "x": 717
+    },
+    {
+     "el": "button#lm-band-4.lm-choice \"40–49\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 418,
+     "x": 805
+    },
+    {
+     "el": "button#lm-band-5.lm-choice \"50 ขึ้นไป\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 418,
+     "x": 893
+    },
+    {
+     "el": "button#lm-want-m.lm-choice \"ผู้ชาย\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 515,
+     "x": 641
+    },
+    {
+     "el": "button#lm-want-f.lm-choice \"ผู้หญิง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 0px",
+     "boxShadow": null,
+     "ringContrast": 3.96,
+     "y": 515,
+     "x": 722
+    },
+    {
+     "el": "a \"เสี่ยงเซียมซี\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1283,
+     "x": 16
+    },
+    {
+     "el": "a \"ดวงวันนี้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1283,
+     "x": 106
+    },
+    {
+     "el": "a \"ระเบิดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 16
+    },
+    {
+     "el": "a \"จับไม้สั้น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 103
+    },
+    {
+     "el": "a \"มือลั่น\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 174
+    },
+    {
+     "el": "a \"ยิงธง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 234
+    },
+    {
+     "el": "a \"วัดพลัง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 294
+    },
+    {
+     "el": "a \"เต๋าชี้คนแพ้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 356
+    },
+    {
+     "el": "a \"ไกลแค่ไหนคือใกล้\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 445
+    },
+    {
+     "el": "a \"พิน็อคคิอวย\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 574
+    },
+    {
+     "el": "a \"เลขอาถรรพ์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 667
+    },
+    {
+     "el": "a \"ตัดสายกู้ชีพ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 761
+    },
+    {
+     "el": "a \"แตะหยุดเวลา\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 853
+    },
+    {
+     "el": "a \"กับระเบิด\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 955
+    },
+    {
+     "el": "a \"บางกอกดริฟต์\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 1032
+    },
+    {
+     "el": "a \"จระเข้งับ\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 1397,
+     "x": 1139
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | ",
+    "auto 1px rgb(0, 95, 204) off 0px | "
+   ],
+   "ringLowContrast": [],
+   "disabled": [
+    {
+     "el": "button#lm-go.game-btn.game-btn-primary \"เปิดดูเนื้อคู่\"",
+     "bg": "rgb(20, 20, 43)",
+     "color": "rgb(255, 246, 224)",
+     "opacity": "1",
+     "cursor": "default",
+     "border": "rgb(20, 20, 43)"
+    }
+   ],
+   "hover": [
+    {
+     "el": "a \"ดูดวง\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    },
+    {
+     "el": "button#lm-me-m.lm-choice \"ผู้ชาย\"",
+     "delta": []
+    },
+    {
+     "el": "button#lm-me-f.lm-choice \"ผู้หญิง\"",
+     "delta": []
+    },
+    {
+     "el": "button#lm-go.game-btn.game-btn-primary \"เปิดดูเนื้อคู่\"",
+     "delta": []
+    },
+    {
+     "el": "a \"เสี่ยงเซียมซี\"",
+     "delta": [
+      "color: rgb(20, 20, 43) -> rgb(214, 51, 108)",
+      "borderTopColor: rgb(20, 20, 43) -> rgb(214, 51, 108)"
+     ]
+    }
+   ],
+   "active": [
+    {
+     "el": "a \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "button#lm-me-m.lm-choice \"ผู้ชาย\"",
+     "delta": []
+    },
+    {
+     "el": "button#lm-me-f.lm-choice \"ผู้หญิง\"",
+     "delta": []
+    },
+    {
+     "el": "button#lm-go.game-btn.game-btn-primary \"เปิดดูเนื้อคู่\"",
+     "delta": []
+    },
+    {
+     "el": "a \"เสี่ยงเซียมซี\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 2,
+   "hoverSampled": 5,
+   "activeWithDelta": 0
+  },
+  {
+   "path": "/404.html",
+   "tab": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 17,
+     "x": 80
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1015
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1109
+    },
+    {
+     "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 3.01,
+     "y": 20,
+     "x": 1232
+    },
+    {
+     "el": "a \"กลับหน้าแรก\"",
+     "fv": true,
+     "ringVisible": true,
+     "outline": "auto 1px rgb(0, 95, 204) off 1px",
+     "boxShadow": null,
+     "ringContrast": 5.56,
+     "y": 327,
+     "x": 80
+    },
+    {
+     "el": "(body)"
+    }
+   ],
+   "tabBackJumps": [],
+   "tabNoRing": [],
+   "tabNotFocusVisible": [],
+   "ringStyles": [
+    "auto 1px rgb(0, 95, 204) off 1px | "
+   ],
+   "ringLowContrast": [],
+   "disabled": [],
+   "hover": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a \"กลับหน้าแรก\"",
+     "delta": []
+    }
+   ],
+   "active": [
+    {
+     "el": "a.chrome-brand \"วัดดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"ดูดวง\"",
+     "delta": []
+    },
+    {
+     "el": "a.chrome-pill \"สุ่มคนโดน\"",
+     "delta": []
+    },
+    {
+     "el": "a \"กลับหน้าแรก\"",
+     "delta": []
+    }
+   ],
+   "hoverWithDelta": 0,
+   "hoverSampled": 4,
+   "activeWithDelta": 0
+  }
+ ],
+ "calibration": {
+  "focus": [
+   {
+    "el": "button#__nohov \"__nohov\"",
+    "fv": true,
+    "ringVisible": true,
+    "outline": "auto 1px rgb(0, 95, 204) off 0px",
+    "boxShadow": null,
+    "ringContrast": 5.98,
+    "y": 150,
+    "x": 4
+   },
+   {
+    "el": "button#__hov \"__hov\"",
+    "fv": true,
+    "ringVisible": true,
+    "outline": "auto 1px rgb(0, 95, 204) off 0px",
+    "boxShadow": null,
+    "ringContrast": 5.98,
+    "y": 100,
+    "x": 4
+   },
+   {
+    "el": "button#__noring \"__noring\"",
+    "fv": true,
+    "ringVisible": false,
+    "outline": null,
+    "boxShadow": null,
+    "ringContrast": null,
+    "y": 4,
+    "x": 4
+   },
+   {
+    "el": "button#__ring \"__ring\"",
+    "fv": true,
+    "ringVisible": true,
+    "outline": "solid 3px rgb(255, 0, 0) off 0px",
+    "boxShadow": null,
+    "ringContrast": 4,
+    "y": 50,
+    "x": 4
+   }
+  ],
+  "hoverWithRule": [
+   "backgroundColor: rgb(0, 0, 255) -> rgb(255, 0, 0)"
+  ],
+  "hoverWithoutRule": []
+ },
+ "consoleErrors": []
+}

@@ -1,0 +1,121 @@
+{
+ "home-320": {
+  "built": 4232,
+  "board": 4786,
+  "boardFile": "design/HomeShelf320.dc.html",
+  "builtFonts": "Sarabun 400, Sarabun 700, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 600, Mitr 600, Mitr 700, Mitr 700, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 600, Noto Sans Thai 600"
+ },
+ "home-1440": {
+  "built": 3493,
+  "board": 4288,
+  "boardFile": "design/HomeShelfDesktop.dc.html",
+  "builtFonts": "Sarabun 400, Sarabun 700, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 600, Mitr 600, Mitr 700, Mitr 700, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 600, Noto Sans Thai 600"
+ },
+ "c-fortune-1440": {
+  "built": 1303,
+  "board": 1347,
+  "boardFile": "design/CatFortunePop.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 500, Mitr 500, Mitr 600, Mitr 600, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "c-party-1440": {
+  "built": 2988,
+  "board": 1456,
+  "boardFile": "design/CatPartyPop.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 500, Mitr 500, Mitr 600, Mitr 600, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "wheel-390": {
+  "built": 2765,
+  "board": 3164,
+  "boardFile": "design/ToolWheel390.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 500, Mitr 600, Mitr 600, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "wheel-1440": {
+  "built": 2645,
+  "board": 3030,
+  "boardFile": "design/ToolWheelDesktop.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 500, Mitr 600, Mitr 600, Mitr 700, Mitr 700, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "draw-390": {
+  "built": 2844,
+  "board": 2121,
+  "boardFile": "design/ToolDraw390.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 500, Mitr 600, Mitr 600, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "draw-1440": {
+  "built": 2537,
+  "board": 1497,
+  "boardFile": "design/ToolDrawDesktop.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 500, Mitr 600, Mitr 600, Mitr 700, Mitr 700, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "team-390": {
+  "built": 2629,
+  "board": 2121,
+  "boardFile": "design/ToolTeam390.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 500, Mitr 600, Mitr 600, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "team-1440": {
+  "built": 2438,
+  "board": 1363,
+  "boardFile": "design/ToolTeamDesktop.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 500, Mitr 600, Mitr 600, Mitr 700, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "number-390": {
+  "built": 1721,
+  "board": 3039,
+  "boardFile": "design/ToolNumber390.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 500, Mitr 600, Mitr 700, Mitr 700, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "number-1440": {
+  "built": 1529,
+  "board": 2512,
+  "boardFile": "design/ToolNumberDesktop.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 500, Mitr 600, Mitr 700, Mitr 700, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "404-320": {
+  "built": 640,
+  "board": 796,
+  "boardFile": "design/NotFound320.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 600, Mitr 700, Noto Sans Thai 400, Noto Sans Thai 400"
+ },
+ "404-1440": {
+  "built": 900,
+  "board": 900,
+  "boardFile": "design/NotFoundDesktop.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 600, Mitr 700",
+  "boardFonts": "Mitr 600, Mitr 700, Noto Sans Thai 400, Noto Sans Thai 400"
+ },
+ "siamsi-390": {
+  "built": 1738,
+  "board": 2121,
+  "boardFile": "design/SiamsiIntent.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 700",
+  "boardFonts": "Mitr 500, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "daily-fortune-390": {
+  "built": 1701,
+  "board": 2121,
+  "boardFile": "design/DuangTodayIdle.dc.html",
+  "builtFonts": "Sarabun 400, Mitr 500, Mitr 700",
+  "boardFonts": "Mitr 500, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500"
+ },
+ "love-match-390": {
+  "built": 1744,
+  "board": 2121,
+  "boardFile": "design/SoulmateStart.dc.html",
+  "builtFonts": "Sarabun 400, Sarabun 700, Mitr 500, Mitr 700",
+  "boardFonts": "Mitr 500, Noto Sans Thai 400, Noto Sans Thai 400, Noto Sans Thai 500, Noto Sans Thai 500, Noto Sans Thai 700, Noto Sans Thai 700"
+ }
+}

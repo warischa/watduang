@@ -1,0 +1,17 @@
+lane swiftshader {"webgl":true,"webgl2":true}
+CAL-heavy-scroll           raster 14/9/9 draw 23/23/25 paint 58/62/64 bmf 274/271/311 gpuProc 2970/2998/3020 rAF p95 33.3 >50ms 0/0/1 long 0/0/0 cls 0/0/0 inj heavy
+home-idle-baseline         raster 0/0/0 draw 6/7/10 paint 0/0/0 bmf 37/36/81 gpuProc 16/17/24 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
+A1-gradient-paint          raster 7/6/7 draw 9/7/10 paint 54/27/62 bmf 135/83/157 gpuProc 1182/1115/1154 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css
+A1-gradient-compositor     raster 0/0/0 draw 7/7/8 paint 0/0/0 bmf 42/38/49 gpuProc 24/24/26 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css+layer
+A2-shader                  raster 0/0/0 draw 10/8/7 paint 0/0/0 bmf 66/47/37 gpuProc 115/111/110 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj webgl
+home-scroll-baseline       raster 1/1/1 draw 9/6/7 paint 0/0/0 bmf 90/46/61 gpuProc 86/76/77 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
+B0-sticky-solid-scroll     raster 1/1/0 draw 10/6/6 paint 0/0/0 bmf 104/47/42 gpuProc 85/74/75 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css
+B1-frosted-scroll          raster 1/1/1 draw 27/19/20 paint 0/0/0 bmf 166/76/90 gpuProc 661/645/633 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css
+B2-svg-glass-scroll        raster 1/1/1 draw 32/21/23 paint 0/0/0 bmf 199/89/109 gpuProc 1084/1000/1026 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj url("#proto-glass") saturate(1.4)
+D-reveal-scroll            raster 1/1/1 draw 11/9/7 paint 15/18/7 bmf 147/103/78 gpuProc 173/173/164 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj 29
+tools-scroll-baseline      raster 2/0/0 draw 7/5/4 paint 2/1/1 bmf 45/28/25 gpuProc 42/43/38 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
+D-reveal-party-scroll      raster 1/1/1 draw 8/6/6 paint 5/8/7 bmf 94/57/62 gpuProc 91/82/84 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj 16
+C-micro-press-wheel        raster 3/3/2 draw 5/6/5 paint 23/40/22 bmf 98/128/83 gpuProc 160/168/163 rAF p95 16.8 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj css+toggle 4
+wheel-idle-baseline        raster 0/0/0 draw 0/0/0 paint 0/0/0 bmf 20/23/10 gpuProc 1/1/2 rAF p95 16.7 >50ms 0/0/0 long 0/0/0 cls 0/0/0 inj null
+events 0 []
+SWIFT_RC=0

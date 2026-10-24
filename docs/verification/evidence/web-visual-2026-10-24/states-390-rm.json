@@ -1,0 +1,614 @@
+{
+ "width": 390,
+ "height": 844,
+ "mobile": true,
+ "reducedMotion": true,
+ "bangkokAtStart": "2026-10-24, 20:16:29",
+ "states": [
+  {
+   "id": "wheel-result",
+   "path": "/tool/wheel/",
+   "drive": {
+    "moved": [],
+    "msToResult": 158
+   },
+   "audit": {
+    "path": "/tool/wheel/",
+    "innerWidth": 390,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 5,
+    "under12": [],
+    "tightLines": 0,
+    "tightLineSample": [],
+    "targets": 26,
+    "under44": 7,
+    "under44Sample": [
+     {
+      "el": "a.chrome-brand \"วัดดวง\"",
+      "w": 80,
+      "h": 41
+     },
+     {
+      "el": "a.chrome-pill \"ดูดวง\"",
+      "w": 59,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"สุ่มคนโดน\"",
+      "w": 82,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+      "w": 97,
+      "h": 34
+     },
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     },
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     },
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     }
+    ],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "12232",
+    "cls": 0,
+    "lcp": {
+     "el": "p.wheel-note \"\"",
+     "ms": 148,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [
+     {
+      "el": "a.chrome-brand \"วัดดวง\"",
+      "w": 80,
+      "h": 41
+     },
+     {
+      "el": "a.chrome-pill \"ดูดวง\"",
+      "w": 59,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"สุ่มคนโดน\"",
+      "w": 82,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+      "w": 97,
+      "h": 34
+     },
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     },
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     },
+     {
+      "el": "input#wheel-eliminate \"\"",
+      "w": 24,
+      "h": 24
+     }
+    ],
+    "canvases": [],
+    "reducedMotionMatches": true,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 1,
+    "cssKeyframes": 1,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"\"",
+      "visible": true,
+      "rect": {
+       "x": 16,
+       "y": 2163,
+       "w": 358,
+       "h": 250
+      }
+     }
+    ],
+    "docHeight": 2765
+   }
+  },
+  {
+   "id": "draw-result",
+   "path": "/tool/draw/",
+   "drive": {
+    "moved": [],
+    "msToResult": 154
+   },
+   "audit": {
+    "path": "/tool/draw/",
+    "innerWidth": 390,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 13,
+    "under12": [],
+    "tightLines": 0,
+    "tightLineSample": [],
+    "targets": 24,
+    "under44": 4,
+    "under44Sample": [
+     {
+      "el": "a.chrome-brand \"วัดดวง\"",
+      "w": 80,
+      "h": 41
+     },
+     {
+      "el": "a.chrome-pill \"ดูดวง\"",
+      "w": 59,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"สุ่มคนโดน\"",
+      "w": 82,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+      "w": 97,
+      "h": 34
+     }
+    ],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "122332",
+    "cls": 0,
+    "lcp": {
+     "el": "p.tool-tagline \"ใส่ชื่อลงกล่อง เลือกจำนว\"",
+     "ms": 32,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [
+     {
+      "el": "a.chrome-brand \"วัดดวง\"",
+      "w": 80,
+      "h": 41
+     },
+     {
+      "el": "a.chrome-pill \"ดูดวง\"",
+      "w": 59,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"สุ่มคนโดน\"",
+      "w": 82,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+      "w": 97,
+      "h": 34
+     }
+    ],
+    "canvases": [],
+    "reducedMotionMatches": true,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 0,
+    "cssKeyframes": 0,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"ช่องโฆษณา 728 × 90 · ใต้\"",
+      "visible": true,
+      "rect": {
+       "x": 20,
+       "y": 2186,
+       "w": 350,
+       "h": 250
+      }
+     }
+    ],
+    "docHeight": 2844
+   }
+  },
+  {
+   "id": "team-result",
+   "path": "/tool/team/",
+   "drive": {
+    "moved": [],
+    "msToResult": 163
+   },
+   "audit": {
+    "path": "/tool/team/",
+    "innerWidth": 390,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 10,
+    "under12": [],
+    "tightLines": 0,
+    "tightLineSample": [],
+    "targets": 23,
+    "under44": 4,
+    "under44Sample": [
+     {
+      "el": "a.chrome-brand \"วัดดวง\"",
+      "w": 80,
+      "h": 41
+     },
+     {
+      "el": "a.chrome-pill \"ดูดวง\"",
+      "w": 59,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"สุ่มคนโดน\"",
+      "w": 82,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+      "w": 97,
+      "h": 34
+     }
+    ],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "12232",
+    "cls": 0,
+    "lcp": {
+     "el": "p.tool-tagline \"ใส่ชื่อลงสนาม เลือกจำนวน\"",
+     "ms": 32,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [
+     {
+      "el": "a.chrome-brand \"วัดดวง\"",
+      "w": 80,
+      "h": 41
+     },
+     {
+      "el": "a.chrome-pill \"ดูดวง\"",
+      "w": 59,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"สุ่มคนโดน\"",
+      "w": 82,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+      "w": 97,
+      "h": 34
+     }
+    ],
+    "canvases": [],
+    "reducedMotionMatches": true,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 0,
+    "cssKeyframes": 0,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"ช่องโฆษณา 728 × 90 · ใต้\"",
+      "visible": true,
+      "rect": {
+       "x": 20,
+       "y": 1950,
+       "w": 350,
+       "h": 250
+      }
+     }
+    ],
+    "docHeight": 2629
+   }
+  },
+  {
+   "id": "number-result",
+   "path": "/tool/number/",
+   "drive": {
+    "moved": [],
+    "msToResult": 155
+   },
+   "audit": {
+    "path": "/tool/number/",
+    "innerWidth": 390,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 3,
+    "under12": [],
+    "tightLines": 1,
+    "tightLineSample": [
+     "p.number-result \"ได้: 6\" 1.20"
+    ],
+    "targets": 24,
+    "under44": 5,
+    "under44Sample": [
+     {
+      "el": "a.chrome-brand \"วัดดวง\"",
+      "w": 80,
+      "h": 41
+     },
+     {
+      "el": "a.chrome-pill \"ดูดวง\"",
+      "w": 59,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"สุ่มคนโดน\"",
+      "w": 82,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+      "w": 97,
+      "h": 34
+     },
+     {
+      "el": "input \"\"",
+      "w": 24,
+      "h": 24
+     }
+    ],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "1232",
+    "cls": 0,
+    "lcp": {
+     "el": "p.tool-tagline \"ตั้งค่าต่ำสุด-สูงสุด แล้\"",
+     "ms": 24,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [
+     {
+      "el": "a.chrome-brand \"วัดดวง\"",
+      "w": 80,
+      "h": 41
+     },
+     {
+      "el": "a.chrome-pill \"ดูดวง\"",
+      "w": 59,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"สุ่มคนโดน\"",
+      "w": 82,
+      "h": 34
+     },
+     {
+      "el": "a.chrome-pill \"เครื่องมือสุ่ม\"",
+      "w": 97,
+      "h": 34
+     },
+     {
+      "el": "input#number-no-repeat \"\"",
+      "w": 24,
+      "h": 24
+     }
+    ],
+    "canvases": [],
+    "reducedMotionMatches": true,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 0,
+    "cssKeyframes": 0,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"\"",
+      "visible": true,
+      "rect": {
+       "x": 20,
+       "y": 1117,
+       "w": 350,
+       "h": 250
+      }
+     }
+    ],
+    "docHeight": 1721
+   }
+  },
+  {
+   "id": "siamsi-slip",
+   "path": "/game/siamsi/",
+   "drive": {
+    "moved": [],
+    "msToResult": 2658,
+    "stage": "๒๕พอใช้แผนที่เก่าในกระเป๋า ยังใช้ได้อยู่บ้างแต่ทางบางเส้นเปลี่ยน ตั้งแต่เราไม่ได้มาถามคนแถวนี้สักคำ ก่อนเลี้ยวตามที่จำปร"
+   },
+   "audit": {
+    "path": "/game/siamsi/",
+    "innerWidth": 390,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 11,
+    "under12": [],
+    "tightLines": 0,
+    "tightLineSample": [],
+    "targets": 19,
+    "under44": 0,
+    "under44Sample": [],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "1233",
+    "cls": 0,
+    "lcp": {
+     "el": "h1.game-title \"เสี่ยงเซียมซี\"",
+     "ms": 24,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [],
+    "canvases": [],
+    "reducedMotionMatches": true,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 1,
+    "cssKeyframes": 2,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"\"",
+      "visible": true,
+      "rect": {
+       "x": 16,
+       "y": 1219,
+       "w": 358,
+       "h": 252
+      }
+     }
+    ],
+    "docHeight": 1993
+   }
+  },
+  {
+   "id": "daily-fortune-result",
+   "path": "/game/daily-fortune/",
+   "drive": {
+    "moved": [],
+    "msToResult": 2655,
+    "stage": "ส. 24 ต.ค.ดวงวันนี้ประมาณว่าดวงดีนิดๆ พอให้ยิ้มได้กินชานมที่สั่งหวานน้อย จะมาเป็นหวานปกติ แต่วันนี้ดันอยากกินหวานพอดี~เง"
+   },
+   "audit": {
+    "path": "/game/daily-fortune/",
+    "innerWidth": 390,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 12,
+    "under12": [],
+    "tightLines": 1,
+    "tightLineSample": [
+     "p.df-verdict \"ดวงดีนิดๆ พอให้ยิ้มได้\" 1.40"
+    ],
+    "targets": 18,
+    "under44": 0,
+    "under44Sample": [],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "1233",
+    "cls": 0,
+    "lcp": {
+     "el": null,
+     "ms": 24,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [],
+    "canvases": [],
+    "reducedMotionMatches": true,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 1,
+    "cssKeyframes": 2,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"\"",
+      "visible": true,
+      "rect": {
+       "x": 16,
+       "y": 963,
+       "w": 358,
+       "h": 252
+      }
+     }
+    ],
+    "docHeight": 1737
+   }
+  },
+  {
+   "id": "love-match-result",
+   "path": "/game/love-match/",
+   "drive": {
+    "moved": [],
+    "msToResult": 3159,
+    "stage": "คุณจะได้เจอเขาตอนคุณอายุ 32 ปีที่ งานวิ่งการกุศลเพศหญิงอายุ29ส่วนสูง166 ซม.รูปร่างล่ำสัญชาติไทยอาชีพนักกายภาพบำบัดฐานะมี"
+   },
+   "audit": {
+    "path": "/game/love-match/",
+    "innerWidth": 390,
+    "lang": "th",
+    "viewport": "width=device-width, initial-scale=1",
+    "contrastFails": [],
+    "contrastUnmeasured": 0,
+    "textElements16": 21,
+    "under12": [],
+    "tightLines": 2,
+    "tightLineSample": [
+     "p.lm-heading \"คุณจะได้เจอเขา\" 1.35",
+     "p.lm-when \"ตอนคุณอายุ 32 ปี\" 1.35"
+    ],
+    "targets": 18,
+    "under44": 0,
+    "under44Sample": [],
+    "under24": [],
+    "imgNoAlt": [],
+    "headingSkips": 0,
+    "headings": "1233",
+    "cls": 0,
+    "lcp": {
+     "el": null,
+     "ms": 36,
+     "url": null
+    }
+   },
+   "extras2": {
+    "under44All": [],
+    "canvases": [],
+    "reducedMotionMatches": true,
+    "motion": [],
+    "runningAnimations": [],
+    "cssReducedMotionRules": 1,
+    "cssKeyframes": 2,
+    "adSlots": [
+     {
+      "el": "div.ad-slot \"\"",
+      "visible": true,
+      "rect": {
+       "x": 16,
+       "y": 1276,
+       "w": 358,
+       "h": 252
+      }
+     }
+    ],
+    "docHeight": 2050
+   }
+  }
+ ],
+ "bangkokAtEnd": "2026-10-24, 20:17:21",
+ "consoleErrors": []
+}

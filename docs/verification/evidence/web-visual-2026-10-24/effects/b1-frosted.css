@@ -1,0 +1,3 @@
+/* PROTOTYPE for measurement only (gh#288 Phase 0). Placeholder values, not design (ADR-0033). */
+/* B1: frosted glass on the sticky bar — translucent ink ground plus backdrop blur. */
+header.chrome-bar{background:rgba(20,20,43,.72)!important;-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4)}

@@ -1,0 +1,32 @@
+{
+ "reducedMotion": false,
+ "bangkok": "2026-10-24, 21:11:14",
+ "steps": {
+  "siamsi-1-pick-chip-and-intent": {
+   "seen": [
+    "CSSAnimation sm-rattle @g.sm-sticks 320ms @+2001ms"
+   ],
+   "inlineMotionStyleWrites": 0
+  },
+  "siamsi-2-hold-to-shake": {
+   "seen": [
+    "CSSAnimation sm-rattle @g.sm-sticks 320ms @+103ms",
+    "CSSAnimation sm-fall @g.sm-fallen 450ms @+2103ms"
+   ],
+   "inlineMotionStyleWrites": 0
+  },
+  "siamsi-3-open-slip": {
+   "seen": [],
+   "inlineMotionStyleWrites": 0
+  },
+  "daily-fortune-go": {
+   "seen": [],
+   "inlineMotionStyleWrites": 0
+  },
+  "love-match-go": {
+   "seen": [],
+   "inlineMotionStyleWrites": 0
+  }
+ },
+ "events": []
+}

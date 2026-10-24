@@ -1,0 +1,2 @@
+/* PROTOTYPE for measurement only (gh#288 Phase 0). B0: the top bar made sticky, solid ground as built. */
+header.chrome-bar{position:sticky;top:0;z-index:50}

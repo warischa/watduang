@@ -1,0 +1,6 @@
+/* PROTOTYPE for measurement only (gh#288 Phase 0). Placeholder values, not design (ADR-0033). */
+/* !important: Astro's scoped .hero[data-astro-cid-*] background shorthand otherwise wins (measured). */
+/* A1, paint path: the hero's own background animates background-position, so every frame repaints. */
+header.hero{background-image:linear-gradient(120deg,var(--accent-punch),var(--accent-gold),var(--accent-sky),var(--accent-punch))!important;background-size:300% 300%!important;animation:proto-drift 14s ease-in-out infinite alternate}
+@keyframes proto-drift{from{background-position:0% 50%}to{background-position:100% 50%}}
+@media (prefers-reduced-motion:reduce){header.hero{animation:none}}
