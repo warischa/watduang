@@ -55,8 +55,14 @@ function scanCategoryFilter(distDir) {
     // A card may point at the landing (/game/<id>/) or, since the card-to-play flip (owner ruling
     // 2026-08-29, ADR-0050 ruling 2), straight at the play route (/game/<id>/play/). Either one
     // counts as the category listing the game; the capture stays the game id in both shapes.
+    // A card is an <a> whose class list holds the token `game-card` (gh#288 added a second token);
+    // `game-card-art` is a different token, so the split keeps the art image out of the set.
     const shipped = new Set(
-      [...grid[1].matchAll(/class="game-card" href="\/game\/([^"/]+)\/(?:play\/)?"/g)].map((m) => m[1]),
+      [...grid[1].matchAll(/<a\b([^>]*)>/g)]
+        .map((m) => ` ${m[1]}`)
+        .filter((attrs) => (attrOf(attrs, 'class') || '').split(/\s+/).includes('game-card'))
+        .map((attrs) => (attrOf(attrs, 'href') || '').match(/^\/game\/([^"/]+)\/(?:play\/)?$/)?.[1])
+        .filter(Boolean),
     );
     const expected = new Set(games.filter((g) => g.category === slug).map((g) => g.id));
     const extra = [...shipped].filter((id) => !expected.has(id));
@@ -209,7 +215,10 @@ function scanCardArt(distDir, gameList = games, stats = { withArt: 0, withoutArt
     }
     // A card holds no nested <a> (its children are the art, h3, p and the CTA span), so the first
     // closing tag after a card's opening tag ends that card.
-    for (const card of grid[1].matchAll(/<a\b([^>]*\bclass="game-card"[^>]*)>([\s\S]*?)<\/a>/g)) {
+    const cards = [...grid[1].matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].filter((m) =>
+      (attrOf(` ${m[1]}`, 'class') || '').split(/\s+/).includes('game-card'),
+    );
+    for (const card of cards) {
       const id = (attrOf(` ${card[1]}`, 'href') || '').match(/^\/game\/([^"/]+)\/(?:play\/)?$/)?.[1];
       const game = id ? byId.get(id) : undefined;
       if (!game) continue; // a card for no manifest game is scanCategoryFilter's finding, not this one's
@@ -428,7 +437,9 @@ const artTag = (file, { loading = 'lazy', src = `/art/${file}` } = {}) =>
 const goodCardInner = (gameList) => (id) => (artOf(gameList, id) ? artTag(artOf(gameList, id)) : '') + '<h3 data-x>t</h3>';
 
 function categoryPageHtml({ gameIds, h1, lead, intro }, cardInner) {
-  const cards = gameIds.map((id) => `<a class="game-card" href="/game/${id}/" data-x>${cardInner(id)}</a>`).join('');
+  // The card carries a second class token (gh#288's .ui-press), as the built page does: a matcher keyed
+  // on the whole attribute value reads every real card as absent.
+  const cards = gameIds.map((id) => `<a class="game-card ui-press" href="/game/${id}/" data-x>${cardInner(id)}</a>`).join('');
   return (
     `<html><body><main><header class="cat-head"><div class="cat-head-inner"><div class="cat-head-copy">` +
     `<h1 data-x>${h1}</h1><p class="lead" data-x>${lead}</p></div>` +
