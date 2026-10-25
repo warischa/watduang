@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    /* Self-hosted faces, relative paths, same files the page loads from src/styles/fonts.css (Sarabun 400/700, Mitr 600/700).
+       The board is design source and is never referenced at runtime. */
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    /* gh#288 pick 2 (owner popup, Phase 1): ONE decorative CSS gradient layer behind the home hero, moved by transform only.
+       This sheet is design source for Phase 3 (ADR-0033): code takes its values from here. It is not a page.
+       Sheet annotations are English and monospace. Every Thai string inside a frame is copied verbatim from src (cited in the
+       Thai-strings note). Invented Thai: 0. Every colour is a token value or a named neutral (palette note). */
+    .row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .row .why { margin: 0 0 22px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1240px; }
+    .row .why b { color: #14142b; }
+    .tbl { border-collapse: collapse; font: 12px/1.5 ui-monospace, Menlo, monospace; margin: 0 0 18px; max-width: 1300px; }
+    .tbl th, .tbl td { border: 1px solid #14142b; padding: 5px 9px; text-align: left; vertical-align: top; }
+    .tbl th { background: #14142b; color: #ffcc00; }
+    .cands { display: flex; flex-wrap: wrap; gap: 26px; align-items: flex-start; }
+    .cands.col { flex-direction: column; }
+    .cand { display: flex; flex-direction: column; gap: 8px; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; min-height: 52px; max-width: 1240px; }
+    .pin { font: 12px/1.55 ui-monospace, Menlo, monospace; color: #14142b; background: #ffffff; border: 2px solid #14142b; border-radius: 8px; padding: 10px 14px; max-width: 1240px; margin: 0 0 14px; }
+
+    /* ------------------------------------------------------------------------------------------------
+       THE PAGE, replayed. Tokens: values of src/styles/tokens.css (ADR-0069 palette, canvas D).
+       --accent-punch hero ground, --accent-gold sun, --accent-sky tools blue, --ink / --color-line-strong, --ink-light white,
+       --ink-soft secondary text, --ad-line placeholder border, --hero-dot dot colour, --art-shadow art shadow. */
+    .vp { --accent-gold: #ffcc00; --accent-punch: #ff3d7f; --accent-sky: #2b7bff; --ink: #14142b; --ink-light: #ffffff; --ink-soft: #3d3b5c;
+          --ad-line: #c9c3a8; --hero-dot: rgba(255,255,255,0.18); --art-shadow: rgba(20,20,43,0.28); --surface-page: #fff6e0;
+          box-sizing: border-box; overflow: hidden; background: var(--surface-page); color: var(--ink); font-family: 'Sarabun', system-ui, sans-serif;
+          box-shadow: 0 0 0 1px #14142b; }
+    .vp *, .vp *::before, .vp *::after { box-sizing: border-box; }
+
+    /* Top bar: the site chrome. Values from the two home boards' own top bars (1440: 84px bar, 1280px inner; 320: 12/14 padding, pills on a second row). */
+    .vp .brand { font-family: 'Mitr', sans-serif; font-weight: 700; color: var(--accent-gold); }
+    .vp .pills { display: flex; font-family: 'Mitr', sans-serif; font-weight: 600; }
+    .vp .pill { color: var(--ink); border-radius: 999px; }
+    .vp .p-gold { background: var(--accent-gold); } .vp .p-punch { background: var(--accent-punch); } .vp .p-sky { background: var(--accent-sky); }
+    .vp.d .bar { background: var(--ink); }
+    .vp.d .bar-in { width: 1280px; margin-inline: auto; height: 84px; display: flex; align-items: center; justify-content: space-between; }
+    .vp.d .brand { font-size: 32px; } .vp.d .pills { gap: 12px; font-size: 17px; } .vp.d .pill { padding: 9px 20px; }
+    .vp.m .bar { background: var(--ink); padding: 12px 14px; }
+    .vp.m .brand { display: block; font-size: 26px; } .vp.m .pills { gap: 6px; margin-top: 10px; font-size: 14px; } .vp.m .pill { padding: 6px 12px; }
+
+    /* HERO: .hero rules of src/components/landing/HomeHero.astro. position: relative + overflow: hidden is what clips the layer;
+       isolation: isolate is NEW (the Phase 0 prototype idiom) so the layer's z-index stays inside the hero. */
+    .vp .hero { position: relative; overflow: hidden; isolation: isolate; background: var(--accent-punch); border-block-end: 6px solid var(--ink); }
+    .vp .dots { position: absolute; inset: 0; background-image: radial-gradient(circle, var(--hero-dot) 3px, transparent 3.5px); background-size: 34px 34px; }
+    .vp .inner { position: relative; width: min(1280px, 100% - 28px); margin-inline: auto; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 40px; padding-block: 56px; }
+    .vp .copy { min-width: 0; overflow-wrap: anywhere; }
+    .vp .badge { display: inline-block; background: var(--accent-gold); color: var(--ink); border: 4px solid var(--ink); border-radius: 999px; padding: 6px 18px; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px; }
+    .vp h1 { margin: 22px 0 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 84px; line-height: 1.08; color: var(--ink-light); text-shadow: 5px 5px 0 var(--ink); }
+    .vp .mark { display: inline-block; white-space: nowrap; padding: 0 8px; border: 3px solid var(--ink); border-radius: 12px; background: var(--accent-gold); color: var(--ink); text-shadow: none; }
+    .vp .lead { margin: 22px 0 0; font-size: 22px; font-weight: 600; color: var(--ink); }
+    .vp .cta { display: inline-block; margin-top: 30px; background: var(--accent-gold); color: var(--ink); border: 4px solid var(--ink); border-radius: 18px; box-shadow: 6px 6px 0 0 var(--ink); padding: 16px 32px; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 26px; }
+
+    /* Featured card, src/components/landing/FeaturedCard.astro. Static here: the page's own bob and twinkle are not drawn, frames are still pictures. */
+    .vp .featured { position: relative; display: block; justify-self: end; width: 540px; max-width: calc(100% - 70px); min-width: 0; overflow-wrap: anywhere; background: var(--accent-gold); color: var(--ink); border: 5px solid var(--ink); border-radius: 34px; box-shadow: 10px 10px 0 0 var(--ink); padding: 0 30px 26px; }
+    .vp .spark { position: absolute; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+    .vp .s1 { left: 34px; top: 40px; width: 26px; height: 26px; background: var(--ink-light); }
+    .vp .s2 { right: 40px; top: 70px; width: 34px; height: 34px; background: var(--ink-light); }
+    .vp .s3 { left: 70px; top: 250px; width: 20px; height: 20px; background: var(--ink); }
+    .vp .s4 { right: 70px; top: 290px; width: 22px; height: 22px; background: var(--ink); }
+    .vp .art { position: relative; display: block; aspect-ratio: 361 / 320; }
+    .vp .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 8px var(--art-shadow)); }
+    .vp .toy { width: 420px; max-width: 100%; margin: -48px auto 0; }
+    .vp .fname { display: block; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 46px; line-height: 1.1; }
+    .vp .fdesc { display: block; margin-top: 6px; font-size: 19px; font-weight: 600; }
+
+    /* Ad strip: .ad-slot of src/pages/index.astro. A sibling AFTER the hero in normal flow. */
+    .vp .ad { width: min(1280px, 100% - 28px); margin: 40px auto 24px; height: 250px; display: grid; place-items: center; border: 3px dashed var(--ad-line); border-radius: 16px; color: var(--ink-soft); font-size: 16px; }
+
+    /* <=1099px: the same files' max-width 1099px blocks (the 320 artboard's values). 390 takes this branch too, it is NOT a separate set. */
+    .vp.m .hero { border-block-end-width: 5px; }
+    .vp.m .dots { background-image: radial-gradient(circle, var(--hero-dot) 2.5px, transparent 3px); background-size: 26px 26px; }
+    .vp.m .inner { display: block; padding-block: 24px 30px; }
+    .vp.m .badge { border-width: 3px; padding: 4px 12px; font-size: 14px; }
+    .vp.m h1 { margin-top: 14px; font-size: 44px; line-height: 1.1; text-shadow: 3px 3px 0 var(--ink); }
+    .vp.m .lead { margin-top: 12px; font-size: 17px; }
+    .vp.m .cta { display: block; margin-top: 18px; text-align: center; border-width: 3px; border-radius: 14px; box-shadow: 4px 4px 0 0 var(--ink); padding: 12px 16px; font-size: 20px; }
+    .vp.m .featured { justify-self: auto; width: auto; max-width: 540px; margin-top: 48px; border-width: 4px; border-radius: 24px; box-shadow: 6px 6px 0 0 var(--ink); padding: 0 16px 16px; }
+    .vp.m .s1 { left: 14px; top: 24px; width: 20px; height: 20px; }
+    .vp.m .s2 { right: 16px; top: 40px; width: 24px; height: 24px; }
+    .vp.m .art img { filter: drop-shadow(0 8px 6px var(--art-shadow)); }
+    .vp.m .toy { width: 240px; margin: -36px auto 0; }
+    .vp.m .fname { font-size: 30px; }
+    .vp.m .fdesc { margin-top: 4px; font-size: 16px; }
+    .vp.m .ad { margin: 24px 14px 24px; width: auto; height: 100px; border-radius: 12px; font-size: 14px; }
+
+    /* ================================================================================================
+       THE LAYER: the one new element. This block is the spec Phase 3 copies.
+       Markup: <div class="ambient" aria-hidden="true"></div> as the hero's FIRST child, before .dots.
+       Box: inset: -40% -60% of .hero (the Phase 0 prototype's own box, the one whose cost was measured).
+       Paint: two token-sky radial blobs on one element, alpha on the element (opacity), so the peak alpha is the opacity itself.
+       Motion: none here. transform comes from --tx / --ty, set per frame; the real range, period, easing and reduced form
+       are on the sibling sheet (see the motion note). */
+    .vp .ambient {
+      position: absolute;
+      inset: -40% -60%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: var(--glow);
+      background:
+        radial-gradient(ellipse 28% 30% at 26% 38%, var(--accent-sky) 0, transparent 70%),
+        radial-gradient(ellipse 28% 30% at 74% 62%, var(--accent-sky) 0, transparent 70%);
+      transform: translate3d(var(--tx), var(--ty), 0);
+      will-change: transform;
+    }
+  </style>
+</helmet>
+
+<div style="width: 1520px; background: #ffffff; color: #14142b;">
+
+  <div style="padding: 32px 40px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#288 pick 2 · home hero ambient layer · one CSS gradient moved by transform · static look at the layer's two extreme positions · APPROVED by the owner 2026-10-25 (popup)</div>
+    <div style="margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">Phase 3 code takes the values from this board (ADR-0033). Status: APPROVED by the owner 2026-10-25 (popup). Frames are still pictures of the real hero (values replayed from the page's own CSS), not wireframes. Annotation tags are not part of any design.</div>
+    <div style="margin-top: 8px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">Approval result: strength 0.12 is PICKED. Strength 0.18 was NOT PICKED; its frames stay below as history. Renders as approved: docs/verification/evidence/gh288-phase2-2026-10-25/</div>
+  </div>
+
+  <div class="row">
+    <h2>PINNED VALUES · each with its source</h2>
+    <table class="tbl">
+      <tr><th>Value</th><th>Pinned as</th><th>Source</th></tr>
+      <tr><td>Stop colour (the only one)</td><td>sky <b>#2b7bff</b> = --accent-sky, on the hero's own ground punch <b>#ff3d7f</b> = --accent-punch</td><td>src/styles/tokens.css (--accent-sky, --accent-punch); ADR-0069 table (sky tools blue, punch party pink); canvas D boards HomeShelfDesktop and HomeShelf320 paint the hero ground #ff3d7f and sky #2b7bff in the tool pills and tiles</td></tr>
+      <tr><td>Stop colours NOT used</td><td>gold #ffcc00, white #ffffff, ink #14142b</td><td>Computed below: any gold or white in the layer lowers the white h1's contrast under today's 3.37; ink lowers the ink lead line. Sky is the only palette colour that does neither to the h1</td></tr>
+      <tr><td>Stop positions</td><td>two blobs, ellipse 28% x 30% of the layer box, centres (26% 38%) and (74% 62%), opaque sky at the centre fading to transparent at 70% of the radius</td><td>NEW values, not on any canvas board: the hero has no ambient layer today. Chosen here, to be approved from the render. The blobs do not touch (visible half-widths 19.6% of the layer, centres 48% apart)</td></tr>
+      <tr><td>Strength (owner picked 0.12 on 2026-10-25)</td><td>layer opacity <b>0.12</b> <span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span> · <b>0.18</b> <span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span> </td><td>NEW. Both derived from the contrast arithmetic below, 0.18 sits near the ceiling (4.5:1 is crossed at 0.20)</td></tr>
+      <tr><td>Dots stay</td><td>rgba(255,255,255,0.18) dot field on top of the layer, 34px/3px at 1440, 26px/2.5px at 320</td><td>--hero-dot in src/styles/tokens.css; .dots in src/components/landing/HomeHero.astro</td></tr>
+    </table>
+  </div>
+
+  <div class="row">
+    <h2>BOX · what the layer sits behind, how big, and what it can never touch</h2>
+    <table class="tbl">
+      <tr><th></th><th>Rule</th><th>Source / how derived</th></tr>
+      <tr><td>Sits behind</td><td>the whole <b>header.hero</b> content: DOM order is [ambient, .dots, .inner]. The layer paints on the punch ground; .dots paints over it; .inner (position: relative, copy and featured card) paints over both</td><td>.hero, .dots, .inner in src/components/landing/HomeHero.astro. Tree order of z-index: 0 / auto positioned siblings; no z-index is needed on .dots or .inner. isolation: isolate on .hero keeps the layer's z-index inside the hero</td></tr>
+      <tr><td>Extent</td><td>position: absolute; inset: -40% -60%: layer = 220% of the hero's width by 180% of its height, the hero box in its middle</td><td>The Phase 0 prototype's box (docs/verification/evidence/web-visual-2026-10-24/effects/a1-gradient-compositor.css): the measured one, 497 B gzip, GPU-process 28 ms per 3 s vs 25 idle at 390 (README effects table)</td></tr>
+      <tr><td>At 320</td><td>hero is 320 wide, about 666 tall: layer about 704 x 1199 px</td><td>hero bottom = ad slot top 813 minus its 24px margin = 789 (audit-320.json, home page adSlots rect); hero top about 123 read off canvas/pair-home-320.jpg (by eye, +-3px). Re-measure at render</td></tr>
+      <tr><td>At 390</td><td>hero is 390 wide, about 632 tall: layer about 858 x 1138 px. Same CSS as 320 (the max-width 1099px branch)</td><td>hero bottom = 765 minus 24 = 741 (audit-390.json adSlots rect); top bar 109px per the gh#288 Phase 1 picks table (pick 3 premise). Estimated, not measured on the hero</td></tr>
+      <tr><td>At 1440</td><td>hero is 1440 wide, about 559 tall: layer about 3168 x 1006 px (about 12.7 MB as an RGBA texture, inferred, not measured)</td><td>hero bottom = 683 minus 40 = 643 (audit-1440.json adSlots rect); top bar 84px (HomeShelfDesktop board). Phase 0 measured cost at 390 ONLY; a 1440 layer is about 3.3x the 390 layer pixel area, so its cost is UNMEASURED. Phase 3 may shrink the box (for example inset: -25% -30%); that is a new, unmeasured value and needs its own run</td></tr>
+      <tr><td>Never hit-testable</td><td>aria-hidden="true", pointer-events: none, no tabindex, no text, no link, no handler. The hero keeps its one CTA and the featured card as the only targets</td><td>CLAUDE.md game-screens rule is about play surfaces; this is the same discipline on the home hero. The layer adds 0 targets</td></tr>
+      <tr><td>Never overlaps or moves the ad strip</td><td>The strip is a later sibling of the hero in flow (the .ad-slot div follows the hero in index.astro). The layer is position: absolute inside .hero, takes no flow space, and .hero has overflow: hidden, so every pixel of it is clipped at the hero's bottom border. A transform changes paint only, never layout, so the strip's box cannot move and no layer pixel can reach it. Frames below show the strip below the hero's border in every position</td><td>.hero in HomeHero.astro (overflow: hidden, border-block-end), .ad-slot in index.astro (fixed height, reserved per ADR-0024)</td></tr>
+      <tr><td>Travel limit (for the motion sheet)</td><td>translate must stay inside the box's own margin: horizontal |tx| &lt;= 27.27% of the layer width (60 / 220), vertical |ty| &lt;= 22.22% of the layer height (40 / 180). Past that a layer edge enters the hero. The frames below ARE those limits</td><td>Derived from inset: -40% -60% (translate percentages are of the layer's own box). The edge is transparent anyway, so exceeding it shows a thinner glow, not a seam; the limit is the safe bound</td></tr>
+    </table>
+  </div>
+
+  <div class="row">
+    <h2>TEXT CONTRAST · what sits on the layer, and the numbers</h2>
+    <p class="why"><b>Method.</b> WCAG 2.x. Relative luminance L = 0.2126 R + 0.7152 G + 0.0722 B on linearised sRGB channels (c/255, then c/12.92 if c &lt;= 0.04045 else ((c + 0.055)/1.055)^2.4). Ratio = (L1 + 0.05) / (L2 + 0.05), lighter over darker. The layer is blended in sRGB space, composite = punch x (1 - a) + sky x a per channel, which is what a browser does for opacity; a is the layer's opacity, and it is the PEAK alpha because both blobs are one element and the blob centres are opaque sky (a point never exceeds the element's opacity, and the blobs do not overlap). Computed by a script run in this session (Python, the formula above), not read off a screenshot. Text sitting on the layer: the h1 (white, #ffffff) and the lead line (ink, #14142b). The badge, the highlighted words, the CTA and the featured card are opaque gold chips with their own ground, so the layer cannot reach their text.</p>
+    <table class="tbl">
+      <tr><th>Where</th><th>Ground</th><th>White h1</th><th>Ink lead (needs 4.5:1)</th></tr>
+      <tr><td>today, no layer</td><td>punch (255, 61, 127)</td><td>3.37</td><td>5.35</td></tr>
+      <tr><td>today, on a dot</td><td>punch + white 0.18 = (255, 96, 150)</td><td>2.85</td><td>6.32</td></tr>
+      <tr><td><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span> layer 0.12 at its peak</td><td>(230, 68, 142)</td><td>3.76</td><td><b>4.79</b></td></tr>
+      <tr><td>layer 0.12, on a dot</td><td>over the line above</td><td>3.03</td><td>5.95</td></tr>
+      <tr><td><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span> layer 0.18 at its peak</td><td>(217, 72, 150)</td><td>3.95</td><td><b>4.57</b></td></tr>
+      <tr><td>layer 0.18, on a dot</td><td>over the line above</td><td>3.11</td><td>5.80</td></tr>
+      <tr><td>ceiling check, 0.20</td><td>(213, 73, 153)</td><td>4.01</td><td>4.497 (just under 4.5: the ceiling is below 0.20)</td></tr>
+    </table>
+    <p class="why"><b>Reading.</b> The layer's BRIGHTEST point is the unlit ground (sky only darkens punch): the white h1 is at today's 3.37, never lower, and rises to 3.76 / 3.95 under the layer (3.03 / 3.11 against 2.85 on a dot, which is today's worst case). The layer's DARKEST point sets the ink lead's floor: 4.79 at 0.12, 4.57 at 0.18, down from 5.35. That is a real drop, not "unchanged": ink and white pull opposite ways on any layer that is not isoluminant with punch, and no palette colour is. The lead is 22px / 600 at 1440 and 17px / 600 at 320; weight 600 is not WCAG bold, so it needs 4.5:1, which both strengths keep. <b>Gold is out, by arithmetic:</b> gold over punch at 0.10 takes the white h1 to 3.23 and at 0.25 to 2.95, under today's 3.37 (and under 3:1 at 0.25). The 5px ink hard shadow on the h1 is not counted in any figure.</p>
+  </div>
+
+  <div class="row">
+    <h2>MOTION · none on this sheet</h2>
+    <p class="why"><b>Motion: see Gh288MotionSheet &sect; hero.</b> The transform range, period, easing and reduced-motion form live on design/Gh288MotionSheet.dc.html (a sibling sheet, written in parallel). This board draws the layer STILL. The two extreme frames are the box's own travel limits (the note in BOX), so any range the motion sheet picks is a sub-range of what is drawn here, never outside it. Phase 0 measured the compositor path (transform on one layer) at 28 ms GPU-process per 3 s against 1123 for animating background-position; only the transform path is on the table. Without support or under reduced motion the layer is still present as a static layer (the reduced form is the motion sheet's).</p>
+  </div>
+
+  <div class="row">
+    <h2>1440 · today (control), then the layer at its two extreme positions @ 0.18 (not picked), then extreme A @ 0.12 (picked)</h2>
+    <p class="why">Extreme A = translate3d(-27.27%, -22.22%, 0), extreme B = translate3d(27.27%, 22.22%, 0): the pinned box's travel limits. At A the first blob has left the hero and the second sits left of centre; at B the second blob has left and the first sits right of centre. Look for: pink stays pink (a violet drift, no new hue), the dots still read, the ad strip is untouched under the hero's ink border.</p>
+    <div class="cands col"><div class="cand"><div class="tag">CONTROL · 1440 · today, no layer (built page as captured in pair-home-1440)</div><div class="vp d" style="width:1440px;"><div class="bar"><div class="bar-in"><span class="brand">วัดดวง</span><span class="pills"><span class="pill p-gold">ดูดวง</span><span class="pill p-punch">สุ่มคนโดน</span><span class="pill p-sky">เครื่องมือสุ่ม</span></span></div></div><header class="hero"><div class="dots" aria-hidden="true"></div><div class="inner"><div class="copy"><span class="badge">เปิดเว็บแล้วกดเล่นได้เลย</span><h1>กดทีเดียว<br>รู้เลยว่า<span class="mark">ใครโดน</span></h1><p class="lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p><span class="cta">เลือกเกมเลย <span aria-hidden="true">→</span></span></div><span class="featured"><span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span><span class="spark s4"></span><span class="art toy"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span><span class="fname">จระเข้งับ</span><span class="fdesc">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span></span></div></header><div class="ad">ช่องโฆษณา</div></div></div><div class="cand"><div class="tag"><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span> EXTREME A · 1440 · translate3d(-27.27%, -22.22%, 0) · opacity 0.18</div><div class="vp d" style="width:1440px;"><div class="bar"><div class="bar-in"><span class="brand">วัดดวง</span><span class="pills"><span class="pill p-gold">ดูดวง</span><span class="pill p-punch">สุ่มคนโดน</span><span class="pill p-sky">เครื่องมือสุ่ม</span></span></div></div><header class="hero"><div class="ambient" aria-hidden="true" style="--tx:-27.27%; --ty:-22.22%; --glow:0.18;"></div><div class="dots" aria-hidden="true"></div><div class="inner"><div class="copy"><span class="badge">เปิดเว็บแล้วกดเล่นได้เลย</span><h1>กดทีเดียว<br>รู้เลยว่า<span class="mark">ใครโดน</span></h1><p class="lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p><span class="cta">เลือกเกมเลย <span aria-hidden="true">→</span></span></div><span class="featured"><span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span><span class="spark s4"></span><span class="art toy"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span><span class="fname">จระเข้งับ</span><span class="fdesc">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span></span></div></header><div class="ad">ช่องโฆษณา</div></div></div><div class="cand"><div class="tag"><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span> EXTREME B · 1440 · translate3d(27.27%, 22.22%, 0) · opacity 0.18</div><div class="vp d" style="width:1440px;"><div class="bar"><div class="bar-in"><span class="brand">วัดดวง</span><span class="pills"><span class="pill p-gold">ดูดวง</span><span class="pill p-punch">สุ่มคนโดน</span><span class="pill p-sky">เครื่องมือสุ่ม</span></span></div></div><header class="hero"><div class="ambient" aria-hidden="true" style="--tx:27.27%; --ty:22.22%; --glow:0.18;"></div><div class="dots" aria-hidden="true"></div><div class="inner"><div class="copy"><span class="badge">เปิดเว็บแล้วกดเล่นได้เลย</span><h1>กดทีเดียว<br>รู้เลยว่า<span class="mark">ใครโดน</span></h1><p class="lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p><span class="cta">เลือกเกมเลย <span aria-hidden="true">→</span></span></div><span class="featured"><span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span><span class="spark s4"></span><span class="art toy"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span><span class="fname">จระเข้งับ</span><span class="fdesc">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span></span></div></header><div class="ad">ช่องโฆษณา</div></div></div><div class="cand"><div class="tag"><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span> EXTREME A · 1440 · translate3d(-27.27%, -22.22%, 0) · opacity 0.12 (the softer strength)</div><div class="vp d" style="width:1440px;"><div class="bar"><div class="bar-in"><span class="brand">วัดดวง</span><span class="pills"><span class="pill p-gold">ดูดวง</span><span class="pill p-punch">สุ่มคนโดน</span><span class="pill p-sky">เครื่องมือสุ่ม</span></span></div></div><header class="hero"><div class="ambient" aria-hidden="true" style="--tx:-27.27%; --ty:-22.22%; --glow:0.12;"></div><div class="dots" aria-hidden="true"></div><div class="inner"><div class="copy"><span class="badge">เปิดเว็บแล้วกดเล่นได้เลย</span><h1>กดทีเดียว<br>รู้เลยว่า<span class="mark">ใครโดน</span></h1><p class="lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p><span class="cta">เลือกเกมเลย <span aria-hidden="true">→</span></span></div><span class="featured"><span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span><span class="spark s4"></span><span class="art toy"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span><span class="fname">จระเข้งับ</span><span class="fdesc">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span></span></div></header><div class="ad">ช่องโฆษณา</div></div></div></div>
+  </div>
+
+  <div class="row">
+    <h2>320 · today (control), extreme A, extreme B @ 0.18 (not picked), extreme A @ 0.12 (picked)</h2>
+    <p class="why">Same layer, same box, the max-width 1099px CSS of the hero. The layer is a taller box here (180% of a tall hero), so the blobs are taller ellipses.</p>
+    <div class="cands"><div class="cand"><div class="tag">CONTROL · 320 · today, no layer (pair-home-320)</div><div class="vp m" style="width:320px;"><div class="bar"><span class="brand">วัดดวง</span><span class="pills"><span class="pill p-gold">ดูดวง</span><span class="pill p-punch">สุ่มคนโดน</span><span class="pill p-sky">เครื่องมือสุ่ม</span></span></div><header class="hero"><div class="dots" aria-hidden="true"></div><div class="inner"><div class="copy"><span class="badge">เปิดเว็บแล้วกดเล่นได้เลย</span><h1>กดทีเดียว<br>รู้เลยว่า<span class="mark">ใครโดน</span></h1><p class="lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p><span class="cta">เลือกเกมเลย <span aria-hidden="true">→</span></span></div><span class="featured"><span class="spark s1"></span><span class="spark s2"></span><span class="art toy"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span><span class="fname">จระเข้งับ</span><span class="fdesc">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span></span></div></header><div class="ad">ช่องโฆษณา</div></div></div><div class="cand"><div class="tag"><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span> EXTREME A · 320 · translate3d(-27.27%, -22.22%, 0) · opacity 0.18</div><div class="vp m" style="width:320px;"><div class="bar"><span class="brand">วัดดวง</span><span class="pills"><span class="pill p-gold">ดูดวง</span><span class="pill p-punch">สุ่มคนโดน</span><span class="pill p-sky">เครื่องมือสุ่ม</span></span></div><header class="hero"><div class="ambient" aria-hidden="true" style="--tx:-27.27%; --ty:-22.22%; --glow:0.18;"></div><div class="dots" aria-hidden="true"></div><div class="inner"><div class="copy"><span class="badge">เปิดเว็บแล้วกดเล่นได้เลย</span><h1>กดทีเดียว<br>รู้เลยว่า<span class="mark">ใครโดน</span></h1><p class="lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p><span class="cta">เลือกเกมเลย <span aria-hidden="true">→</span></span></div><span class="featured"><span class="spark s1"></span><span class="spark s2"></span><span class="art toy"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span><span class="fname">จระเข้งับ</span><span class="fdesc">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span></span></div></header><div class="ad">ช่องโฆษณา</div></div></div><div class="cand"><div class="tag"><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span> EXTREME B · 320 · translate3d(27.27%, 22.22%, 0) · opacity 0.18</div><div class="vp m" style="width:320px;"><div class="bar"><span class="brand">วัดดวง</span><span class="pills"><span class="pill p-gold">ดูดวง</span><span class="pill p-punch">สุ่มคนโดน</span><span class="pill p-sky">เครื่องมือสุ่ม</span></span></div><header class="hero"><div class="ambient" aria-hidden="true" style="--tx:27.27%; --ty:22.22%; --glow:0.18;"></div><div class="dots" aria-hidden="true"></div><div class="inner"><div class="copy"><span class="badge">เปิดเว็บแล้วกดเล่นได้เลย</span><h1>กดทีเดียว<br>รู้เลยว่า<span class="mark">ใครโดน</span></h1><p class="lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p><span class="cta">เลือกเกมเลย <span aria-hidden="true">→</span></span></div><span class="featured"><span class="spark s1"></span><span class="spark s2"></span><span class="art toy"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span><span class="fname">จระเข้งับ</span><span class="fdesc">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span></span></div></header><div class="ad">ช่องโฆษณา</div></div></div><div class="cand"><div class="tag"><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span> EXTREME A · 320 · translate3d(-27.27%, -22.22%, 0) · opacity 0.12</div><div class="vp m" style="width:320px;"><div class="bar"><span class="brand">วัดดวง</span><span class="pills"><span class="pill p-gold">ดูดวง</span><span class="pill p-punch">สุ่มคนโดน</span><span class="pill p-sky">เครื่องมือสุ่ม</span></span></div><header class="hero"><div class="ambient" aria-hidden="true" style="--tx:-27.27%; --ty:-22.22%; --glow:0.12;"></div><div class="dots" aria-hidden="true"></div><div class="inner"><div class="copy"><span class="badge">เปิดเว็บแล้วกดเล่นได้เลย</span><h1>กดทีเดียว<br>รู้เลยว่า<span class="mark">ใครโดน</span></h1><p class="lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p><span class="cta">เลือกเกมเลย <span aria-hidden="true">→</span></span></div><span class="featured"><span class="spark s1"></span><span class="spark s2"></span><span class="art toy"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span><span class="fname">จระเข้งับ</span><span class="fdesc">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span></span></div></header><div class="ad">ช่องโฆษณา</div></div></div></div>
+  </div>
+
+  <div class="row">
+    <h2>390 · extreme A and extreme B @ 0.18 (the 320 CSS at 390px wide, not a separate artboard)</h2>
+    <div class="cands"><div class="cand"><div class="tag"><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span> EXTREME A · 390 · translate3d(-27.27%, -22.22%, 0) · opacity 0.18</div><div class="vp m" style="width:390px;"><div class="bar"><span class="brand">วัดดวง</span><span class="pills"><span class="pill p-gold">ดูดวง</span><span class="pill p-punch">สุ่มคนโดน</span><span class="pill p-sky">เครื่องมือสุ่ม</span></span></div><header class="hero"><div class="ambient" aria-hidden="true" style="--tx:-27.27%; --ty:-22.22%; --glow:0.18;"></div><div class="dots" aria-hidden="true"></div><div class="inner"><div class="copy"><span class="badge">เปิดเว็บแล้วกดเล่นได้เลย</span><h1>กดทีเดียว<br>รู้เลยว่า<span class="mark">ใครโดน</span></h1><p class="lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p><span class="cta">เลือกเกมเลย <span aria-hidden="true">→</span></span></div><span class="featured"><span class="spark s1"></span><span class="spark s2"></span><span class="art toy"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span><span class="fname">จระเข้งับ</span><span class="fdesc">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span></span></div></header><div class="ad">ช่องโฆษณา</div></div></div><div class="cand"><div class="tag"><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span> EXTREME B · 390 · translate3d(27.27%, 22.22%, 0) · opacity 0.18</div><div class="vp m" style="width:390px;"><div class="bar"><span class="brand">วัดดวง</span><span class="pills"><span class="pill p-gold">ดูดวง</span><span class="pill p-punch">สุ่มคนโดน</span><span class="pill p-sky">เครื่องมือสุ่ม</span></span></div><header class="hero"><div class="ambient" aria-hidden="true" style="--tx:27.27%; --ty:22.22%; --glow:0.18;"></div><div class="dots" aria-hidden="true"></div><div class="inner"><div class="copy"><span class="badge">เปิดเว็บแล้วกดเล่นได้เลย</span><h1>กดทีเดียว<br>รู้เลยว่า<span class="mark">ใครโดน</span></h1><p class="lead">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</p><span class="cta">เลือกเกมเลย <span aria-hidden="true">→</span></span></div><span class="featured"><span class="spark s1"></span><span class="spark s2"></span><span class="art toy"><img src="../public/art/croc-bite.webp" alt="" width="361" height="320"></span><span class="fname">จระเข้งับ</span><span class="fdesc">เกมปาร์ตี้ 3D · ผลัดกันกดฟันล่าผู้แพ้!</span></span></div></header><div class="ad">ช่องโฆษณา</div></div></div></div>
+  </div>
+
+  <div class="row">
+    <h2>NOTES · sources, palette, what is not pinned</h2>
+    <p class="why"><b>Thai strings, every one verbatim from src:</b> hero copy (badge, h1 lines, highlighted words, lead, CTA label) and the ad strip's "ช่องโฆษณา" = the props and markup in src/pages/index.astro; featured card name and tagline = names.th and tagline in src/games/croc-bite.ts (the featured game, as captured); the three nav labels and the brand = src/components/PageChrome.astro. Invented Thai: 0.</p>
+    <p class="why"><b>Palette, every colour on this sheet:</b> #ff3d7f, #ffcc00, #2b7bff, #14142b, #fff6e0, #3d3b5c, #c9c3a8 (src/styles/tokens.css values, ADR-0069), #ffffff and transparent (named neutrals), rgba(255,255,255,0.18) (--hero-dot), rgba(20,20,43,0.28) (--art-shadow). The layer itself uses only #2b7bff (as var(--accent-sky) in the replay's token block). No new accent hex.</p>
+    <p class="why"><b>Not pinned here, and why:</b> (1) the transform range, period, easing, reduced form: the motion sheet owns them. (2) A 1440 layer's GPU cost and texture memory: Phase 0 measured one box at 390 only. (3) Real-phone cost and battery: unmeasured, both Phase 0 lanes were Mac CPU (gh#141). (4) Hero heights at 320 / 390 / 1440 are estimates from the audit's ad-slot rects and the captures; re-measure at render. (5) Safari and Firefox paint of radial-gradient with a will-change layer: unmeasured. (6) This board has not been rendered by me: no browser was run, so a look claim waited for the owner's render; the owner approved the look on 2026-10-25 (popup). (7) Phase 0's shots/visual-hero-* images, which the README names as the A2 hero crops, are not on disk in this worktree, so the A1 look was never reviewed by eye; this board is the first picture of it.</p>
+    <p class="why"><b>Phase 3 code, from this board:</b> one new element as the hero's first child, the .ambient block above verbatim (inset, z-index, pointer-events, opacity, the two radial-gradients, will-change, transform), isolation: isolate on .hero, and a reduced-motion rule from the motion sheet. The page's existing blanket reduced-motion rule in src/pages/index.astro already sets animation and transition to none for every element in main.</p>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    /* The tool pages' own faces, the self-hosted subsets from src/styles/fonts.css, pointed at with a relative path so
+       every Thai line wraps here where it wraps on the page. This board is design source and is never referenced at
+       runtime. */
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 400; src: url('../public/fonts/mitr-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 500; src: url('../public/fonts/mitr-medium-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    /* gh#288 Phase 2 proposal sheet for the four /tool/* pages, picks 8, 9, 10 and 11. Not a page.
+       Starts from the BUILT pages: every TODAY frame is a 1:1 crop of the Phase 0 capture
+       (docs/verification/evidence/web-visual-2026-10-24/canvas/pair-*.jpg, built half), never an older board.
+       Every PROPOSED frame replays the page's own CSS values; each value names its source.
+       Colours: only tokens.css values (#14142b ink/line-strong, #fff6e0 ground-warm, #ffffff color-bg,
+       #2b7bff accent-sky, #ffcc00 accent-gold, #ff3d7f accent-punch, #3d3b5c color-muted/ink-soft,
+       #c9c3a8 ad-line) plus ONE approved canvas literal, rgba(20,20,43,0.35) (gh#262 variant (i), ToolWheel390).
+       Sheet annotations are English and monospace. Every Thai string is copied verbatim from src (file named in the
+       COPY SOURCES row). Invented Thai: 0. Motion: none drawn here. Any hover, press or reveal motion belongs to the
+       sibling sheet Gh288MotionSheet.dc.html. */
+    .sheet { width: 1720px; background: #ffffff; color: #14142b; }
+    .top { padding: 32px 40px; background: #14142b; color: #ffcc00; }
+    .top .t1 { font: 700 26px/1.3 ui-monospace, Menlo, monospace; }
+    .top .t2 { margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0; max-width: 1560px; }
+    .row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .row .why { margin: 0 0 22px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1560px; }
+    .row h3 { margin: 26px 0 10px; font: 700 15px/1.3 ui-monospace, Menlo, monospace; }
+    .cands { display: flex; flex-wrap: wrap; gap: 26px; align-items: flex-start; }
+    .cand { display: flex; flex-direction: column; gap: 8px; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; max-width: 390px; }
+    .tag.wide { max-width: 1440px; }
+    .tag .pick { display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; margin-right: 4px; }
+    .tag .today { display: inline-block; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; }
+    .note { font: 12px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 390px; }
+    .note.wide { max-width: 1560px; }
+    .vs { font: 700 12px/1 ui-monospace, Menlo, monospace; align-self: center; }
+
+    /* ONE FRAME = one viewport width, cropped in height. box-shadow draws the edge without taking width. */
+    .frame { position: relative; overflow: hidden; box-sizing: border-box; box-shadow: 0 0 0 1px #14142b; background: #fff6e0; }
+    .w390 { width: 390px; } .w320 { width: 320px; } .w1440 { width: 1440px; }
+    .cap { background-repeat: no-repeat; }
+    .dim { position: absolute; right: 6px; top: 4px; z-index: 5; font: 600 10px/1 ui-monospace, Menlo, monospace; color: #14142b; background: #ffffff; padding: 2px 4px; box-shadow: 0 0 0 1px #14142b; }
+
+    /* ---- PageChrome top bar, replayed from src/components/PageChrome.astro (<=1099px block, and the 1440 base) ---- */
+    .pg { font-family: 'Sarabun', sans-serif; color: #14142b; }
+    .pg *, .pg *::before, .pg *::after { box-sizing: border-box; }
+    .bar { background: #14142b; font-family: 'Mitr', sans-serif; padding: 12px 14px; }
+    .bar .brand { display: block; font-weight: 700; font-size: 26px; line-height: 1.5; color: #ffcc00; }
+    .bar .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; font-weight: 600; font-size: 14px; }
+    .bar .pill { border-radius: 999px; padding: 6px 12px; color: #14142b; line-height: 1.5; }
+    .bar.d { padding: 0 18px; }
+    .bar.d .in { max-width: 1280px; margin: 0 auto; height: 84px; display: flex; align-items: center; justify-content: space-between; }
+    .bar.d .brand { font-size: 32px; }
+    .bar.d .pills { margin-top: 0; gap: 12px; font-size: 17px; }
+    .bar.d .pill { padding: 9px 20px; }
+
+    /* ---- Header A: number.astro's built header (.tool-band / .tool-band-inner / h1 / .tool-tagline) ---- */
+    .hA { background: #2b7bff; border-bottom: 3px solid #14142b; }
+    .hA .in { display: flex; flex-direction: column; gap: 14px; padding: 24px 20px 22px 20px; }
+    .hA h1 { margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 26px; line-height: 1.3; }
+    .hA p { margin: 0; font-size: 16px; line-height: 1.65; }
+    .hA.d { border-bottom-width: 5px; }
+    .hA.d .in { gap: 0; max-width: 1280px; margin: 0 auto; padding: 40px 0 36px 0; }
+    .hA.d h1 { font-weight: 700; font-size: 38px; line-height: 1.2; }
+    .hA.d p { margin: 10px 0 0 0; font-size: 17px; line-height: 1.7; max-width: 56ch; }
+
+    /* ---- Header B: wheel.astro's built header (main > h1 + lead p, no band; main padding var(--space-md) 16px) ---- */
+    .hB { padding: 16px 16px 0 16px; }
+    .hB h1 { margin: 0.67em 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 26px; line-height: 1.3; }
+    .hB p { margin: 1em 0; font-size: 16px; line-height: normal; }
+    .hB.d { max-width: 940px; margin: 0 auto; padding: 16px 0 0 0; }
+
+    /* ---- tool column + cards, replayed from draw.astro / number.astro (.tool-column, .tool-module) and
+       src/components/ToolNameEntry.astro (#tool-name-entry, .name-head, #name-input) ---- */
+    .col { display: flex; flex-direction: column; gap: 20px; padding: 20px; }
+    .col.d { max-width: 940px; margin: 0 auto; gap: 36px; padding: 44px 0 20px 0; }
+    .col.wh { padding: 0 16px 16px 16px; }
+    .card { background: #fff6e0; border: 2.5px solid #14142b; border-radius: 20px; box-shadow: 5px 5px 0 #14142b; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+    .card.d { padding: 26px; }
+    .nhead { display: flex; align-items: baseline; justify-content: space-between; }
+    .nhead h2 { margin: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px; }
+    .nhead span { font-size: 16px; color: #3d3b5c; }
+    .card.d .nhead span { font-size: 12px; }
+    .ta { height: 180px; border: 2.5px solid #14142b; border-radius: 14px; background: #fff6e0; padding: 10px 14px; font-size: 16px; line-height: 1.6; color: #3d3b5c; }
+    .mtitle { margin: 0 0 12px 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 19px; }
+    .card.d .mtitle { margin: 0 0 16px 0; font-size: 26px; }
+    .count { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; }
+    .count .num { width: 4rem; min-height: 48px; display: grid; place-items: center; font-size: 18px; background: #fff6e0; border: 2.5px solid #14142b; border-radius: 14px; }
+    .card.d .count { font-size: 16px; }
+    .card.d .count .num { min-height: 52px; font-size: 20px; }
+
+    /* go buttons, replayed: #draw-go, #team-split, .wheel-spin, #number-go (all the same face: accent-sky, ink text,
+       Mitr 500 20px, 2.5px ink border, radius 16, 4px 4px 0 ink shadow, min-height 60; >=1100: 64px, 22px, 5px shadow) */
+    .go { display: grid; place-items: center; width: 100%; min-height: 60px; background: #2b7bff; color: #14142b; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 20px; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 #14142b; cursor: pointer; }
+    .go.d { min-height: 64px; font-size: 22px; box-shadow: 5px 5px 0 #14142b; }
+    /* PICK 8, the one disabled look: number.astro #number-go:disabled, canvas source ToolNumber390 .go[disabled]. */
+    .go.off { opacity: 0.4; box-shadow: none; cursor: default; }
+    .reset { display: grid; place-items: center; width: 100%; min-height: 52px; background: #fff6e0; color: #14142b; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 16px; border: 2.5px solid #14142b; border-radius: 14px; cursor: pointer; }
+    .reset.d { min-height: 56px; font-size: 18px; border-radius: 16px; }
+    .stack { display: flex; flex-direction: column; gap: 8px; }
+    .stack.d { gap: 10px; }
+    .wrow { display: flex; flex-wrap: wrap; gap: 8px; }
+    .wrow .go { width: auto; flex: 1 1 auto; padding: 0 18px; }
+    .wrow .reset { width: auto; padding: 0 18px; }
+    .stop { display: grid; place-items: center; min-height: 56px; padding: 0 18px; background: #14142b; color: #fff6e0; font-family: 'Mitr', sans-serif; font-weight: 500; font-size: 18px; border: 2.5px solid #14142b; border-radius: 16px; cursor: pointer; }
+    .stop.off { opacity: 0.4; box-shadow: none; cursor: default; }
+    .why-note { margin: 10px 0 0 0; font-size: 16px; line-height: 1.5; height: 3em; overflow: hidden; color: #3d3b5c; }
+
+    /* PICK 9, variant (i): the same reserved height, transparent, 2.5px dashed ink at 35%, radius 16, border-box.
+       Source: ToolWheel390 "(i) RESERVED" block; shipped as .wheel-result:empty and .number-result:empty. */
+    .slot-i { box-sizing: border-box; background: transparent; border: 2.5px dashed rgba(20,20,43,0.35); border-radius: 16px; }
+    .slot-dark { box-sizing: border-box; background: #14142b; border-radius: 16px; }
+
+    /* PICK 11, the one ad placeholder look: src/pages/index.astro .ad-slot (border, radius, label colour, size,
+       centred label) at each slot's OWN reserved box. <=1099: radius 12, 14px; >=1100: radius 16, 16px. */
+    .ad { box-sizing: border-box; width: 100%; height: 250px; display: grid; place-items: center; border: 3px dashed #c9c3a8; border-radius: 12px; color: #3d3b5c; font-family: 'Sarabun', sans-serif; font-size: 14px; }
+    .ad.d { border-radius: 16px; font-size: 16px; }
+
+    table.pin { border-collapse: collapse; font: 12px/1.5 ui-monospace, Menlo, monospace; width: 1640px; }
+    table.pin th, table.pin td { text-align: left; vertical-align: top; border: 1px solid #14142b; padding: 6px 8px; }
+    table.pin th { background: #14142b; color: #fff6e0; }
+    table.pin td.th { font-family: 'Sarabun', sans-serif; font-size: 14px; }
+  </style>
+</helmet>
+
+<div class="sheet">
+
+  <div class="top">
+    <div class="t1">gh#288 · tool pages (wheel, draw, team, number) · picks 8, 9, 10, 11 · Phase 2 board, APPROVED by the owner 2026-10-25 (popup)</div>
+    <div class="t2">Picks are recorded in the gh#288 comment "Phase 0 done, Phase 1 picks recorded" (owner popups 2026-10-24); go for Phase 2 by owner popup 2026-10-25. The header choice (row 10) is resolved: A. Rows 8, 9 and 11 carry no open choice and were approved as drawn. Their values are already approved elsewhere and are cited per value. The exception is the idle-wheel segment count, the board's one new value (row 9). Phase 3 code takes every value from this board (ADR-0033).</div>
+    <div class="t2" style="margin-top: 8px;">Approval result: header A (the number page's blue band on all four tool pages) is PICKED. Header B (the wheel page's plain header) was NOT PICKED; its frames stay below as history. Rows 8, 9 and 11 approved as drawn (frames labelled PROPOSED are the approved looks). Renders as approved: docs/verification/evidence/gh288-phase2-2026-10-25/</div>
+  </div>
+
+  <!-- ===================================================== PICK 10 · HEADER ===================================================== -->
+  <div class="row">
+    <h2>(10) One header for all four tool pages · owner picked A on 2026-10-25, B not picked</h2>
+    <p class="why">Today: three patterns (Phase 0 README F5). At 390 the wheel's h1 sits at y 142 (no band), the number's at 133 (blue band), and the h1 on draw and team at 251. Draw and team add a back row with "เครื่องมือสุ่มทั้งหมด" twice (back link and the "เครื่องมือ" pill row, plus the breadcrumb at 1440) and the eyebrow line, so their tool starts ~110px lower. Both candidates below are a header ALREADY SHIPPED on one tool page, replayed byte for byte. Nothing in them is a new value. Both drop the same strings from draw and team: the back row (back link "เครื่องมือสุ่มทั้งหมด", pill "เครื่องมือ"), the eyebrow and the 1440 breadcrumb. The "เครื่องมือสุ่มทั้งหมด" link under "วิธีใช้" stays on all four pages. The top bar's "เครื่องมือสุ่ม" pill also stays. Neither candidate adds a Thai string.</p>
+
+    <h3>TODAY · built, 390 (1:1 capture crops, top bar to first card)</h3>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag"><span class="today">TODAY</span>/tool/wheel/ · no band · h1 y 142</span>
+        <div class="frame w390 cap" style="height: 440px; background-image: url('../docs/verification/evidence/web-visual-2026-10-24/canvas/pair-wheel-390.jpg'); background-position: 0 -14px;"></div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="today">TODAY</span>/tool/number/ · blue band · h1 y 133</span>
+        <div class="frame w390 cap" style="height: 440px; background-image: url('../docs/verification/evidence/web-visual-2026-10-24/canvas/pair-number-390.jpg'); background-position: 0 -14px;"></div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="today">TODAY</span>/tool/draw/ (team identical) · back row + eyebrow + band · h1 y 251</span>
+        <div class="frame w390 cap" style="height: 440px; background-image: url('../docs/verification/evidence/web-visual-2026-10-24/canvas/pair-draw-390.jpg'); background-position: 0 -14px;"></div>
+      </div>
+    </div>
+
+    <h3><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span> A · the number page's band on all four · 390</h3>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag"><span class="pick">A</span><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span>draw (and team) under A · h1 y 133 measured on /tool/number/ today, the same markup</span>
+        <div class="frame w390 pg" style="height: 520px;">
+          <span class="dim">390</span>
+          <div class="bar"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background: #ffcc00;">ดูดวง</span><span class="pill" style="background: #ff3d7f;">สุ่มคนโดน</span><span class="pill" style="background: #2b7bff;">เครื่องมือสุ่ม</span></div></div>
+          <div class="hA"><div class="in"><h1>จับฉลาก</h1><p>ใส่ชื่อลงกล่อง เลือกจำนวนที่จะจับ แล้วกดจับ — คนที่จับไปแล้วจะไม่ถูกจับซ้ำในรอบเดียวกัน</p></div></div>
+          <div class="col"><div class="card"><div class="nhead"><h2>ชื่อในกล่อง</h2><span>ใส่ได้กี่คนก็ได้</span></div><div class="ta">พิมพ์ชื่อ บรรทัดละ 1 ชื่อ</div></div></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="pick">A</span><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span>wheel under A · the lead line moves into the band as its tagline · the page body below is unchanged</span>
+        <div class="frame w390 pg" style="height: 520px;">
+          <span class="dim">390</span>
+          <div class="bar"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background: #ffcc00;">ดูดวง</span><span class="pill" style="background: #ff3d7f;">สุ่มคนโดน</span><span class="pill" style="background: #2b7bff;">เครื่องมือสุ่ม</span></div></div>
+          <div class="hA"><div class="in"><h1>วงล้อสุ่มชื่อ</h1><p>ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน</p></div></div>
+          <div class="col wh" style="padding-top: 16px;"><div style="font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 19px;">วงล้อ</div></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="pick">A</span><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span>320 · team (the longest tagline) · the tagline wraps to 3 lines</span>
+        <div class="frame w320 pg" style="height: 520px;">
+          <span class="dim">320</span>
+          <div class="bar"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background: #ffcc00;">ดูดวง</span><span class="pill" style="background: #ff3d7f;">สุ่มคนโดน</span><span class="pill" style="background: #2b7bff;">เครื่องมือสุ่ม</span></div></div>
+          <div class="hA"><div class="in"><h1>แบ่งทีม</h1><p>ใส่ชื่อลงสนาม เลือกจำนวนทีม แล้วสุ่มแบ่งให้ทันที — คนเกินกระจายให้เห็นชัดว่าทีมไหนได้เพิ่ม</p></div></div>
+          <div class="col"><div class="card"><div class="nhead"><h2>ชื่อในสนาม</h2><span>ใส่ได้กี่คนก็ได้</span></div><div class="ta">พิมพ์ชื่อ บรรทัดละ 1 ชื่อ</div></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="note wide">A: the blue band is the tools accent (--accent-sky, the same colour as the top bar's "เครื่องมือสุ่ม" pill), so the page says which group it belongs to. Ink on sky measures 4.62:1 (ADR-0069). Cost: the wheel gains a band it never had.</p>
+
+    <h3><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span> B · the wheel page's plain header on all four · 390</h3>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag"><span class="pick">B</span><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span>draw (and team) under B · h1 y 142 measured on /tool/wheel/ today, the same markup</span>
+        <div class="frame w390 pg" style="height: 520px;">
+          <span class="dim">390</span>
+          <div class="bar"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background: #ffcc00;">ดูดวง</span><span class="pill" style="background: #ff3d7f;">สุ่มคนโดน</span><span class="pill" style="background: #2b7bff;">เครื่องมือสุ่ม</span></div></div>
+          <div class="hB"><h1>จับฉลาก</h1><p>ใส่ชื่อลงกล่อง เลือกจำนวนที่จะจับ แล้วกดจับ — คนที่จับไปแล้วจะไม่ถูกจับซ้ำในรอบเดียวกัน</p></div>
+          <div class="col" style="padding-top: 0;"><div class="card"><div class="nhead"><h2>ชื่อในกล่อง</h2><span>ใส่ได้กี่คนก็ได้</span></div><div class="ta">พิมพ์ชื่อ บรรทัดละ 1 ชื่อ</div></div></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="pick">B</span><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span>number under B · the band is removed · the page body below is unchanged</span>
+        <div class="frame w390 pg" style="height: 520px;">
+          <span class="dim">390</span>
+          <div class="bar"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background: #ffcc00;">ดูดวง</span><span class="pill" style="background: #ff3d7f;">สุ่มคนโดน</span><span class="pill" style="background: #2b7bff;">เครื่องมือสุ่ม</span></div></div>
+          <div class="hB"><h1>สุ่มเลข</h1><p>ตั้งค่าต่ำสุด-สูงสุด แล้วกดสุ่ม — เลือกโหมดได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้ไหม</p></div>
+          <div class="col" style="padding-top: 0;"><div class="card"><h2 class="mtitle" style="margin: 0;">ช่วงตัวเลข</h2></div></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="pick">B</span><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span>320 · team · the lead wraps to 3 lines</span>
+        <div class="frame w320 pg" style="height: 520px;">
+          <span class="dim">320</span>
+          <div class="bar"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background: #ffcc00;">ดูดวง</span><span class="pill" style="background: #ff3d7f;">สุ่มคนโดน</span><span class="pill" style="background: #2b7bff;">เครื่องมือสุ่ม</span></div></div>
+          <div class="hB"><h1>แบ่งทีม</h1><p>ใส่ชื่อลงสนาม เลือกจำนวนทีม แล้วสุ่มแบ่งให้ทันที — คนเกินกระจายให้เห็นชัดว่าทีมไหนได้เพิ่ม</p></div>
+          <div class="col" style="padding-top: 0;"><div class="card"><div class="nhead"><h2>ชื่อในสนาม</h2><span>ใส่ได้กี่คนก็ได้</span></div><div class="ta">พิมพ์ชื่อ บรรทัดละ 1 ชื่อ</div></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="note wide">B: the quietest option, with no accent ground under the title. The h1 stays at 26px at every width, because wheel.astro has no desktop h1 rule. Cost: the three banded pages lose their band, and at 1440 the title is 12px smaller than A's 38px.</p>
+
+    <h3>A and B at 1440 · draw (top bar to first card)</h3>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag wide"><span class="pick">A</span><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span>1440 · number.astro's ≥1100 block: band border 5px, inner max-width 1280 centred, padding 40/36, h1 Mitr 700 38/1.2, tagline 17/1.7 max 56ch · column 940</span>
+        <div class="frame w1440 pg" style="height: 420px;">
+          <span class="dim">1440</span>
+          <div class="bar d"><div class="in"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background: #ffcc00;">ดูดวง</span><span class="pill" style="background: #ff3d7f;">สุ่มคนโดน</span><span class="pill" style="background: #2b7bff;">เครื่องมือสุ่ม</span></div></div></div>
+          <div class="hA d"><div class="in"><h1>จับฉลาก</h1><p>ใส่ชื่อลงกล่อง เลือกจำนวนที่จะจับ แล้วกดจับ — คนที่จับไปแล้วจะไม่ถูกจับซ้ำในรอบเดียวกัน</p></div></div>
+          <div class="col d"><div class="card d"><div class="nhead"><h2>ชื่อในกล่อง</h2><span>ใส่ได้กี่คนก็ได้</span></div><div class="ta">พิมพ์ชื่อ บรรทัดละ 1 ชื่อ</div></div></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag wide"><span class="pick">B</span><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span>1440 · wheel.astro's header: no band, h1 Mitr 600 26/1.3 at the top of the page's own column (940 here; 544 on the wheel, as built), UA margins</span>
+        <div class="frame w1440 pg" style="height: 420px;">
+          <span class="dim">1440</span>
+          <div class="bar d"><div class="in"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background: #ffcc00;">ดูดวง</span><span class="pill" style="background: #ff3d7f;">สุ่มคนโดน</span><span class="pill" style="background: #2b7bff;">เครื่องมือสุ่ม</span></div></div></div>
+          <div class="hB d"><h1>จับฉลาก</h1><p>ใส่ชื่อลงกล่อง เลือกจำนวนที่จะจับ แล้วกดจับ — คนที่จับไปแล้วจะไม่ถูกจับซ้ำในรอบเดียวกัน</p></div>
+          <div class="col d" style="padding-top: 0;"><div class="card d"><div class="nhead"><h2>ชื่อในกล่อง</h2><span>ใส่ได้กี่คนก็ได้</span></div><div class="ta">พิมพ์ชื่อ บรรทัดละ 1 ชื่อ</div></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="note wide">The y values above are measured today on the page whose header each candidate copies (README F5, DOM at 390). They are not measured on the other three pages under the new header. Phase 3 re-measures all four at 320, 390 and 1440. Phase 3 also adds the draw.md and team.md provenance rows recording the dropped strings (docs/agents/tool-copy-provenance/).</p>
+  </div>
+
+  <!-- ===================================================== PICK 8 · DISABLED ===================================================== -->
+  <div class="row">
+    <h2>(8) Disabled go buttons · one look, tool pages only · no open choice · approved as drawn by the owner 2026-10-25</h2>
+    <p class="why">Today on wheel, draw and team, disabled and enabled are identical: background #2b7bff, ink text, border, shadow, opacity 1 and cursor: pointer (README F3, detail.json). /tool/number/ already ships a disabled look, approved on ToolNumber390 state 3: opacity 0.4, no shadow, cursor default (number.astro #number-go:disabled). This board extends that one look to .wheel-spin, #draw-go and #team-split. That puts all four pages on one look with zero new values. Tool pages call no arm gate: armAllButtons appears in no file under src/tools, src/pages or src/components (grep, this session). So the look cannot flash at an arm window there. Fortune pages are out of scope (ADR-0057). WCAG 1.4.3 exempts inactive controls from the 4.5:1 minimum. The reason stays in text below each button (the note line, unchanged).</p>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">/tool/wheel/ · .wheel-spin + .wheel-reset row</span>
+        <div class="frame w390 pg" style="padding: 16px;">
+          <span class="dim">390</span>
+          <div class="note" style="margin-bottom: 4px;">enabled</div>
+          <div class="wrow"><span class="go">หมุน</span><span class="reset">คืนทุกชื่อเข้าวงล้อ</span></div>
+          <div class="note" style="margin: 14px 0 4px;">disabled TODAY (identical, cursor: pointer)</div>
+          <div class="wrow"><span class="go">หมุน</span><span class="reset">คืนทุกชื่อเข้าวงล้อ</span></div>
+          <div class="note" style="margin: 14px 0 4px;">disabled PROPOSED · opacity 0.4 · box-shadow none · cursor default</div>
+          <div class="wrow"><span class="go off">หมุน</span><span class="reset">คืนทุกชื่อเข้าวงล้อ</span></div>
+          <p class="why-note" style="height: auto; margin-top: 8px;">ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงวงล้อ"</p>
+        </div>
+        <span class="note">.wheel-spin is also disabled DURING every spin (wheel.astro sets spinBtn.disabled = spinning || !canSpin), so the dim look shows for the ~2.1s of each spin. It reads as "busy" there. The owner should see this once in the render. The stop control (.wheel-stop, behaviour B) takes the same rule when it renders disabled: B is selected and nothing is running. #wheel-disc keeps its own shipped :disabled rule (cursor default, no dimming), so the idle wheel in row 9 is not faded.</span>
+      </div>
+      <div class="cand">
+        <span class="tag">/tool/wheel/ · .wheel-stop (behaviour B selected, nothing running) · the enabled frame omits the built 4px 4px 0 ink-at-30% shadow (not this board's value set); disabled drops it anyway</span>
+        <div class="frame w390 pg" style="padding: 16px;">
+          <span class="dim">390</span>
+          <div class="note" style="margin-bottom: 4px;">enabled (spinning in B)</div>
+          <div class="wrow"><span class="stop">หยุด</span></div>
+          <div class="note" style="margin: 14px 0 4px;">disabled PROPOSED</div>
+          <div class="wrow"><span class="stop off">หยุด</span></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag">/tool/draw/ · #draw-go</span>
+        <div class="frame w390 pg" style="padding: 16px;">
+          <span class="dim">390</span>
+          <div class="note" style="margin-bottom: 4px;">enabled</div>
+          <div class="stack"><span class="go">จับฉลาก</span></div>
+          <div class="note" style="margin: 14px 0 4px;">disabled TODAY (identical, cursor: pointer)</div>
+          <div class="stack"><span class="go">จับฉลาก</span></div>
+          <div class="note" style="margin: 14px 0 4px;">disabled PROPOSED</div>
+          <div class="stack"><span class="go off">จับฉลาก</span><span class="reset">เริ่มรอบใหม่</span></div>
+          <p class="why-note">ยังจับไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงกล่อง"</p>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag">/tool/team/ · #team-split</span>
+        <div class="frame w390 pg" style="padding: 16px;">
+          <span class="dim">390</span>
+          <div class="note" style="margin-bottom: 4px;">enabled</div>
+          <div class="stack"><span class="go">แบ่งทีม</span></div>
+          <div class="note" style="margin: 14px 0 4px;">disabled TODAY (identical, cursor: pointer)</div>
+          <div class="stack"><span class="go">แบ่งทีม</span></div>
+          <div class="note" style="margin: 14px 0 4px;">disabled PROPOSED</div>
+          <div class="stack"><span class="go off">แบ่งทีม</span></div>
+          <p class="why-note">ยังแบ่งไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงสนาม"</p>
+        </div>
+      </div>
+    </div>
+    <h3>1440 · same rule, the ≥1100 sizes as built (64px, 22px, 5px shadow when enabled) · number shown as the shipped reference</h3>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag">draw · left column (440 wide at 1440)</span>
+        <div class="frame pg" style="width: 440px; padding: 16px;">
+          <div class="stack d"><span class="go d">จับฉลาก</span><span class="go d off">จับฉลาก</span><span class="reset d">เริ่มรอบใหม่</span></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag">team · split button beside the count (flex: 1)</span>
+        <div class="frame pg" style="width: 440px; padding: 16px;">
+          <div class="stack d"><span class="go d">แบ่งทีม</span><span class="go d off">แบ่งทีม</span></div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag">number · SHIPPED today (the reference value)</span>
+        <div class="frame pg" style="width: 440px; padding: 16px;">
+          <div class="stack d"><span class="go d">สุ่ม</span><span class="go d off">สุ่ม</span><span class="reset d">เริ่มรอบใหม่</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="note wide">The cursor is a property, not paint: each PROPOSED button on this board carries cursor: default, so hovering it in the render shows the real cursor. Press and hover feedback for the enabled state is pick 5 (candidate C), owned by Gh288MotionSheet.dc.html. Nothing is drawn for it here.</p>
+  </div>
+
+  <!-- ===================================================== PICK 9 · IDLE ===================================================== -->
+  <div class="row">
+    <h2>(9) Idle states · draw and team get variant (i) · the wheel draws an empty wheel · no open choice · approved as drawn by the owner 2026-10-25</h2>
+    <p class="why">Variant (i) is the owner's 2026-10-06 pick for the wheel's pre-spin slot (gh#262, last comment, and the ToolWheel390 "(i) RESERVED" block), already extended to /tool/number/. The values are the same reserved height, transparent, 2.5px dashed rgba(20,20,43,0.35), radius 16 and no text. Gh262Proposals.dc.html does not carry variant (i); its source is the ToolWheel390 board. Draw keeps its 136px result box, and team keeps its 185px card region. Only the look changes. The space is unchanged, so the ad below does not move (ADR-0024, gh#120).</p>
+
+    <h3>draw · 390 · the "กล่องฉลาก" module before any names</h3>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag"><span class="today">TODAY</span>solid dark 136px box, empty (capture crop)</span>
+        <div class="frame w390 cap" style="height: 420px; background-image: url('../docs/verification/evidence/web-visual-2026-10-24/canvas/pair-draw-390.jpg'); background-position: 0 -1120px;"></div>
+      </div>
+      <span class="vs">→</span>
+      <div class="cand">
+        <span class="tag"><span class="pick">PROPOSED</span>136px variant (i) box · go disabled per pick 8</span>
+        <div class="frame w390 pg" style="height: 420px; padding: 0 20px;">
+          <span class="dim">390</span>
+          <div class="card" style="gap: 0; margin-top: 2px;">
+            <h2 class="mtitle">กล่องฉลาก</h2>
+            <div class="count">จับกี่คน <span class="num">2</span></div>
+            <div class="slot-i" style="height: 136px; margin-top: 12px;"></div>
+            <div class="stack" style="margin-top: 12px;"><span class="go off">จับฉลาก</span><span class="reset">เริ่มรอบใหม่</span></div>
+          </div>
+        </div>
+        <span class="note">Selector, for Phase 3: #draw-result-box always holds the &lt;p id="draw-result"&gt;, so the box itself is never :empty. Key it on .draw-result-box:has(> #draw-result:empty), or on a state class. The box is already box-sizing: border-box, so the 2.5px dashed border stays inside 136px. That matters because the page's round-start freeze writes the outer offsetHeight into min-height (gh#110's fix). The "ยังอยู่ในกล่อง" box below is unchanged and not drawn.</span>
+      </div>
+    </div>
+
+    <h3>team · 390 · the "แบ่งทีม" module before any names</h3>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag"><span class="today">TODAY</span>tall empty region under the note (capture crop)</span>
+        <div class="frame w390 cap" style="height: 470px; background-image: url('../docs/verification/evidence/web-visual-2026-10-24/canvas/pair-team-390.jpg'); background-position: 0 -1120px;"></div>
+      </div>
+      <span class="vs">→</span>
+      <div class="cand">
+        <span class="tag"><span class="pick">PROPOSED</span>185px variant (i) region · split disabled per pick 8</span>
+        <div class="frame w390 pg" style="height: 470px; padding: 0 20px;">
+          <span class="dim">390</span>
+          <div class="card" style="gap: 0; margin-top: 2px;">
+            <h2 class="mtitle">แบ่งทีม</h2>
+            <div class="count">จำนวนทีม <span class="num">2</span></div>
+            <span class="go off" style="margin-top: 12px;">แบ่งทีม</span>
+            <p class="why-note">ยังแบ่งไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงสนาม"</p>
+            <div class="slot-i" style="height: 185px; margin-top: 12px;"></div>
+          </div>
+        </div>
+        <span class="note">Selector, for Phase 3: .team-cards:empty. The element is written with no whitespace children, and the script clears it on reset. .team-cards is already border-box, and the freeze writes #team-result's outer height, so the border must stay inside 185px. At 1440 the region becomes the two-column grid, and the placeholder spans both columns at the same 185px.</span>
+      </div>
+    </div>
+
+    <h3>wheel · 390 · before names: an empty wheel instead of a bare hub</h3>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag"><span class="today">TODAY</span>pointer and hub only, no disc (capture crop)</span>
+        <div class="frame w390 cap" style="height: 760px; background-image: url('../docs/verification/evidence/web-visual-2026-10-24/canvas/pair-wheel-390.jpg'); background-position: 0 -270px;"></div>
+      </div>
+      <span class="vs">→</span>
+      <div class="cand">
+        <span class="tag"><span class="pick">PROPOSED</span>8 neutral segments, ink rim, hub and pointer unchanged, no labels · result slot already (i) · spin disabled per pick 8</span>
+        <div class="frame w390 pg" style="height: 760px; padding: 0 16px;">
+          <span class="dim">390</span>
+          <div style="display: flex; justify-content: center; margin: 16px 0;">
+            <svg viewBox="0 0 400 400" width="358" height="358" aria-hidden="true">
+              <g>
+                <path d="M200 200 L137.2 48.5 A164 164 0 0 1 262.8 48.5 Z" fill="#ffffff" stroke="rgba(20,20,43,0.35)" stroke-width="2.5"></path>
+                <path d="M200 200 L262.8 48.5 A164 164 0 0 1 351.5 137.2 Z" fill="#fff6e0" stroke="rgba(20,20,43,0.35)" stroke-width="2.5"></path>
+                <path d="M200 200 L351.5 137.2 A164 164 0 0 1 351.5 262.8 Z" fill="#ffffff" stroke="rgba(20,20,43,0.35)" stroke-width="2.5"></path>
+                <path d="M200 200 L351.5 262.8 A164 164 0 0 1 262.8 351.5 Z" fill="#fff6e0" stroke="rgba(20,20,43,0.35)" stroke-width="2.5"></path>
+                <path d="M200 200 L262.8 351.5 A164 164 0 0 1 137.2 351.5 Z" fill="#ffffff" stroke="rgba(20,20,43,0.35)" stroke-width="2.5"></path>
+                <path d="M200 200 L137.2 351.5 A164 164 0 0 1 48.5 262.8 Z" fill="#fff6e0" stroke="rgba(20,20,43,0.35)" stroke-width="2.5"></path>
+                <path d="M200 200 L48.5 262.8 A164 164 0 0 1 48.5 137.2 Z" fill="#ffffff" stroke="rgba(20,20,43,0.35)" stroke-width="2.5"></path>
+                <path d="M200 200 L48.5 137.2 A164 164 0 0 1 137.2 48.5 Z" fill="#fff6e0" stroke="rgba(20,20,43,0.35)" stroke-width="2.5"></path>
+                <circle cx="200" cy="200" r="164" fill="none" stroke="#14142b" stroke-width="7"></circle>
+              </g>
+              <circle cx="200" cy="200" r="46" fill="#fff6e0" stroke="#14142b" stroke-width="7"></circle>
+              <text x="200" y="212" text-anchor="middle" font-family="Mitr, sans-serif" font-weight="600" font-size="26" fill="#14142b">หมุน</text>
+              <path d="M200 8 l22 40 h-44 z" fill="#fff6e0" stroke="#14142b" stroke-width="6" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <div class="slot-i" style="height: 60px;"></div>
+          <p class="why-note" style="height: 4.5em; margin: 4px 0 16px;">ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงวงล้อ"</p>
+          <div class="wrow"><span class="go off">หมุน</span><span class="reset">คืนทุกชื่อเข้าวงล้อ</span></div>
+        </div>
+        <span class="note">Geometry is the built wheel's own: segmentPath(i, 8) from src/tools/wheel.ts (r 164, centre 200), the rim r 164 / 7px ink and the static hub and pointer from wheel.astro. The 8 path strings are ToolWheel390's 8-name disc. Fills alternate #ffffff (--color-bg) and #fff6e0 (--color-ground-warm), and the 2.5px dividers are variant (i)'s rgba(20,20,43,0.35), so the empty wheel reads as the same placeholder language as the slot below it. No accent hex is used: the accent-single-source gate (CLASS V) holds any file that copies an accent hex to the WHOLE trio, and the populated wheel keeps WHEEL_PALETTE unchanged. Phase 3 draws this when the name list is empty, where drawWheel() today returns early. The disc is not dimmed by pick 8.</span>
+      </div>
+    </div>
+
+    <h3>1440 · draw and team modules in the 940 column (today's built layout, the idle look only changes)</h3>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag"><span class="today">TODAY</span>draw 1440, built half of pair-draw-1440 (captured at 50%)</span>
+        <div class="frame cap" style="width: 720px; height: 450px; background-image: url('../docs/verification/evidence/web-visual-2026-10-24/canvas/pair-draw-1440.jpg'); background-position: 0 -14px;"></div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="pick">PROPOSED</span>draw module, left column at 1440 (≥1100 values: padding 18/22, gap 16)</span>
+        <div class="frame pg" style="width: 470px; padding: 0;">
+          <div class="card d" style="gap: 16px; box-shadow: none; border: none; border-radius: 0;">
+            <h2 class="mtitle" style="margin: 0;">กล่องฉลาก</h2>
+            <div class="count">จับกี่คน <span class="num">2</span></div>
+            <div class="slot-i" style="height: 136px;"></div>
+            <div class="stack d"><span class="go d off">จับฉลาก</span><span class="reset d">เริ่มรอบใหม่</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="pick">PROPOSED</span>team module at 1440 · the region spans both grid columns</span>
+        <div class="frame pg" style="width: 940px;">
+          <div class="card d" style="box-shadow: none; border: none; border-radius: 0; gap: 0;">
+            <h2 class="mtitle">แบ่งทีม</h2>
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 18px;"><div class="count">จำนวนทีม <span class="num">2</span></div><span class="go d off" style="flex: 1; width: auto;">แบ่งทีม</span></div>
+            <p class="why-note" style="margin: 0 0 14px 0; font-size: 14px;">ยังแบ่งไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด "ใส่ชื่อลงสนาม"</p>
+            <div class="slot-i" style="height: 185px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================== PICK 11 · AD PLACEHOLDER ===================================================== -->
+  <div class="row">
+    <h2>(11) One ad placeholder look until AdSense is live · no open choice · approved as drawn by the owner 2026-10-25</h2>
+    <p class="why">Today: four looks (README F6). The one look is the home page's slot, src/pages/index.astro .ad-slot, with label colour per the gh#262 (b) pick A (#3d3b5c, 9.86:1 on the cream). Its values: 3px dashed --ad-line #c9c3a8, label --ink-soft #3d3b5c, centred, no fill, the one label "ช่องโฆษณา" verbatim from index.astro, radius 12 and 14px at ≤1099, radius 16 and 16px at ≥1100. Each tool slot keeps its OWN reserved box. Only the paint changes: the inline min-height 250px stays, and width stays the column's (states-*.json, adSlots rects). The dashed border is drawn INSIDE that box (box-sizing: border-box). draw and team already work this way at 1440. Home is content-box (its border sits outside its 250px), but on the tool pages that would add 6px to the outer box, and gh#110 is the record of a border on a content-box element moving the ad. So the tool slots stay border-box. Wheel and number have no .ad-slot rule today (an unstyled 250px block), so they gain the full rule. aria-hidden="true" stays on every slot.</p>
+
+    <h3>TODAY · four looks (measured rects, states-390 / -320 / -1440)</h3>
+    <table class="pin" style="width: 1640px;">
+      <tr><th>surface</th><th>today's look and its source</th><th>today's label → new label</th><th>reserved box (unchanged)</th></tr>
+      <tr><td>/tool/wheel/, /tool/number/</td><td>no rule at all in the page's stylesheet: an unstyled block with min-height 250px inline</td><td class="th">(no label) → "ช่องโฆษณา"</td><td>wheel 358×250 @390 · 288×250 @320 · 544×250 @1440 — number 350×250 @390 · 280×250 @320 · 940×250 @1440</td></tr>
+      <tr><td>/tool/draw/, /tool/team/ ≤1099</td><td>2.5px ink top rule + a cream-grey fill (a page literal with no token, draw.astro / team.astro .ad-slot) + one 12px label</td><td class="th">"ช่องโฆษณา — ใต้เครื่องมือ (ADR-0004)" → "ช่องโฆษณา"</td><td>350×250 @390 · 280×250 @320</td></tr>
+      <tr><td>/tool/draw/, /tool/team/ ≥1100</td><td>3px dashed rgba(20,20,43,0.35), radius 16, title (Mitr 500) + meta line</td><td class="th">"ช่องโฆษณา" + "728 × 90 · ใต้เครื่องมือ · ตาม ADR-0004" → "ช่องโฆษณา" (the 728 × 90 label is false on a 940×250 box)</td><td>940×250 @1440</td></tr>
+      <tr><td>/ (reference, not changed)</td><td>3px dashed --ad-line, radius 16 / 12, --ink-soft label 16 / 14px (index.astro .ad-slot)</td><td class="th">"ช่องโฆษณา" (unchanged)</td><td>250 tall ≥1100, 100 tall ≤1099 (content-box)</td></tr>
+    </table>
+
+    <h3>PROPOSED · the one look at each slot's own box</h3>
+    <div class="cands">
+      <div class="cand">
+        <span class="tag"><span class="pick">390</span>wheel 358×250 (16px gutter)</span>
+        <div class="frame w390 pg" style="padding: 20px 16px;"><span class="dim">390</span><div class="ad">ช่องโฆษณา</div></div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="pick">390</span>draw, team, number 350×250 (20px gutter)</span>
+        <div class="frame w390 pg" style="padding: 20px;"><span class="dim">390</span><div class="ad">ช่องโฆษณา</div></div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="pick">320</span>wheel 288×250</span>
+        <div class="frame w320 pg" style="padding: 20px 16px;"><span class="dim">320</span><div class="ad">ช่องโฆษณา</div></div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="pick">320</span>draw, team, number 280×250 · the one-word label does not wrap at any width</span>
+        <div class="frame w320 pg" style="padding: 20px;"><span class="dim">320</span><div class="ad">ช่องโฆษณา</div></div>
+      </div>
+    </div>
+    <div class="cands" style="margin-top: 26px;">
+      <div class="cand">
+        <span class="tag"><span class="pick">1440</span>wheel 544×250 (its 34rem column)</span>
+        <div class="frame pg" style="width: 584px; padding: 20px;"><div class="ad d">ช่องโฆษณา</div></div>
+      </div>
+      <div class="cand">
+        <span class="tag"><span class="pick">1440</span>draw, team, number 940×250 (the 940 column)</span>
+        <div class="frame pg" style="width: 980px; padding: 20px;"><div class="ad d">ช่องโฆษณา</div></div>
+      </div>
+    </div>
+    <p class="note wide">For Phase 3: draw and team drop their .ad-slot-title, .ad-slot-meta and .ad-slot-mobile spans for the one text node. That retires the draw.md and team.md provenance rows for those strings, and adds a wheel.md and a number.md row for "ช่องโฆษณา" (source: this board, quoting index.astro). The reserve guards CLS. After the change, the slot rects in states-*.json must read the same w×h as the table above, and scripts/ad-slot-grid-probe.mjs still owns the tap-clearance question.</p>
+  </div>
+
+  <!-- ===================================================== PINNED VALUES ===================================================== -->
+  <div class="row">
+    <h2>Pinned values for Phase 3 (name = value · source)</h2>
+    <table class="pin">
+      <tr><th>pick</th><th>name</th><th>value</th><th>source</th></tr>
+      <tr><td>8</td><td>go-disabled.opacity</td><td>0.4</td><td>number.astro #number-go:disabled · ToolNumber390 / ToolNumberDesktop .go[disabled]</td></tr>
+      <tr><td>8</td><td>go-disabled.box-shadow</td><td>none</td><td>same</td></tr>
+      <tr><td>8</td><td>go-disabled.cursor</td><td>default</td><td>number.astro #number-go:disabled · wheel.astro .wheel-disc:disabled</td></tr>
+      <tr><td>8</td><td>applies to</td><td>.wheel-spin, .wheel-stop, #draw-go, #team-split (#number-go already ships it)</td><td>README F3 · this board</td></tr>
+      <tr><td>9</td><td>idle-slot.border</td><td>2.5px dashed rgba(20,20,43,0.35)</td><td>ToolWheel390 "(i) RESERVED" · wheel.astro .wheel-result:empty · number.astro .number-result:empty</td></tr>
+      <tr><td>9</td><td>idle-slot.background / radius / text</td><td>transparent / 16px / none</td><td>same</td></tr>
+      <tr><td>9</td><td>idle-slot.height</td><td>draw 136px (box) · team 185px (region), every width</td><td>draw.astro .draw-result-box · team.astro .team-cards (unchanged)</td></tr>
+      <tr><td>9</td><td>idle-wheel.segments</td><td>8 (NEW value, this board)</td><td>count matches ToolWheel390's 8-name disc; geometry segmentPath(i, 8)</td></tr>
+      <tr><td>9</td><td>idle-wheel.fills</td><td>#ffffff / #fff6e0 alternating, from 12 o'clock</td><td>tokens.css --color-bg / --color-ground-warm</td></tr>
+      <tr><td>9</td><td>idle-wheel.dividers</td><td>stroke rgba(20,20,43,0.35), 2.5px</td><td>variant (i) rule colour and weight</td></tr>
+      <tr><td>9</td><td>idle-wheel.rim / hub / pointer</td><td>r 164, 7px #14142b / unchanged / unchanged</td><td>wheel.astro drawWheel() rim and the static svg chrome</td></tr>
+      <tr><td>10</td><td>header</td><td>A (number.astro .tool-band), owner pick 2026-10-25; B (wheel.astro main &gt; h1 + p) not picked</td><td>this board, row 10</td></tr>
+      <tr><td>10</td><td>removed on draw and team (both A and B)</td><td>.tool-chrome back row, .tool-badge, .tool-eyebrow, .tool-breadcrumb</td><td>this board, row 10</td></tr>
+      <tr><td>11</td><td>ad.border</td><td>3px dashed #c9c3a8 (--ad-line)</td><td>index.astro .ad-slot</td></tr>
+      <tr><td>11</td><td>ad.color / label</td><td>#3d3b5c (--ink-soft) / "ช่องโฆษณา" centred</td><td>index.astro .ad-slot · gh#262 (b) A</td></tr>
+      <tr><td>11</td><td>ad.radius / font-size</td><td>12px / 14px at ≤1099 · 16px / 16px at ≥1100</td><td>index.astro .ad-slot and its max-width 1099px block</td></tr>
+      <tr><td>11</td><td>ad.box</td><td>box-sizing border-box · min-height 250px inline · width = column (unchanged) · background none</td><td>each tool page's .ad-slot markup · gh#110</td></tr>
+    </table>
+    <p class="note wide" style="margin-top: 14px;">COPY SOURCES (every Thai string on this board, verbatim). PageChrome.astro: "วัดดวง", "ดูดวง", "สุ่มคนโดน", "เครื่องมือสุ่ม". wheel.astro: "วงล้อสุ่มชื่อ", its lead line, "วงล้อ", "หมุน" (button and hub), "คืนทุกชื่อเข้าวงล้อ", "หยุด", the "ยังหมุนไม่ได้" note. draw.astro: "จับฉลาก" (h1 and button), its tagline, "กล่องฉลาก", "จับกี่คน", "เริ่มรอบใหม่", the "ยังจับไม่ได้" note, "ยังอยู่ในกล่อง", the old ad labels. team.astro: "แบ่งทีม" (h1, h2 and button), its tagline, "จำนวนทีม", the "ยังแบ่งไม่ได้" note. number.astro: "สุ่มเลข", its tagline, "ช่วงตัวเลข", "สุ่ม". ToolNameEntry.astro and the pages' heading props: "ชื่อในกล่อง", "ชื่อในสนาม", "ใส่ได้กี่คนก็ได้", "พิมพ์ชื่อ บรรทัดละ 1 ชื่อ". index.astro: "ช่องโฆษณา". Invented or translated Thai: 0. PROPOSED strings: 0.</p>
+    <p class="note wide">NOT COVERED: not rendered by its author (rendering is a later step); the h1 y under each header candidate on the three pages that do not ship it today is unmeasured; Safari and Firefox; real AdSense (gh#29), including whether a real unit's iframe fits 250px inside a 3px border-box placeholder. That question ends when the placeholder look is removed for a live unit.</p>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

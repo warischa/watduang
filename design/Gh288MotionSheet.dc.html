@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Sarabun', system-ui, sans-serif; }
+    /* The site's own self-hosted faces (src/styles/fonts.css), pointed at from this board with a relative path so the
+       Thai in each frame renders as it does on the page. The board is design source and is never referenced at runtime. */
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 500; src: url('../public/fonts/mitr-medium-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    /* gh#288 Phase 2 motion and interaction sheet, not a page. It pins every duration, easing, distance and
+       reduced-motion form for owner picks 2 (motion half), 4, 5, 6 and 7; the sibling Gh288 boards cite it.
+       Motion on a static board is drawn as frame strips (start / mid / end) with the numbers printed beside each
+       frame: the PRINTED NUMBERS are what is approved. Mid-frame values are the easing curve's progress at half
+       the duration (ease-out 0.685, ease 0.802, ease-in-out 0.500, linear 0.500; cubic-bezier solved numerically).
+       Colours: only tokens.css values (canvas D, ADR-0069) plus #ffffff. Ratios: WCAG 2.x relative luminance,
+       sRGB channels linearised at the 0.03928 knee, (L1 + 0.05) / (L2 + 0.05); positive controls reproduced the
+       Phase 0 figures first (#d6336c on #fff6e0 = 4.29, #ff3d7f on #fff6e0 = 3.13, #ffcc00 on #ff3d7f = 2.23).
+       Annotations are English; every Thai string sits in a .q element and is copied verbatim from the file named
+       next to it. Invented Thai: 0. */
+    .row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; color: #14142b; }
+    .row .why { margin: 0 0 20px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1300px; }
+    .mono { font: 12px/1.55 ui-monospace, Menlo, monospace; color: #14142b; }
+    .mono b { font-weight: 700; }
+    .pin { display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; }
+    .fail { font-weight: 700; text-decoration: underline; }
+    .q { font-family: inherit; }
+
+    table.spec { border-collapse: collapse; font: 12px/1.5 ui-monospace, Menlo, monospace; color: #14142b; }
+    table.spec th, table.spec td { border: 1.5px solid #14142b; padding: 6px 10px; text-align: left; vertical-align: top; }
+    table.spec th { background: #14142b; color: #fff6e0; font-weight: 700; }
+    table.spec td.v { font-weight: 700; white-space: nowrap; }
+
+    /* frame strip: one cell per keyframe, a 220 x 130 stage and the numbers under it */
+    .strips { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    .strip { display: flex; flex-direction: column; gap: 8px; }
+    .strip .label { font: 700 13px/1.4 ui-monospace, Menlo, monospace; color: #14142b; }
+    .frames { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .fr { display: flex; flex-direction: column; gap: 6px; }
+    .stage { position: relative; height: 130px; border: 2px solid #14142b; border-radius: 8px; background: #fff6e0; overflow: hidden; display: grid; place-items: center; }
+    .fr .num { font: 11px/1.5 ui-monospace, Menlo, monospace; color: #14142b; }
+    .fr .num b { display: block; font-size: 12px; }
+
+    /* the tool go button as built (src/pages/tool/wheel.astro .wheel-spin): sky fill, 2.5px ink border, radius 16,
+       4px 4px 0 ink shadow, Mitr 500 20px, min-height 60 */
+    .btn { box-sizing: border-box; min-height: 60px; padding: 0 22px; border: 2.5px solid #14142b; border-radius: 16px; background: #2b7bff; color: #14142b; font: 500 20px/1 'Mitr', sans-serif; box-shadow: 4px 4px 0 #14142b; display: inline-grid; place-items: center; }
+
+    /* focus swatches */
+    .grounds { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+    .ground { height: 150px; border: 2px solid #14142b; border-radius: 8px; display: grid; place-items: center; }
+    .ground .tgt { box-sizing: border-box; padding: 10px 16px; border: 2.5px solid #14142b; border-radius: 12px; background: #ffffff; color: #14142b; font: 600 16px/1 'Mitr', sans-serif; outline: 3px solid #14142b; outline-offset: 3px; }
+    .ground.ink .tgt { outline-color: #ffcc00; }
+
+    /* result box as a stand-in for the tool and fortune result elements */
+    .result { box-sizing: border-box; width: 150px; height: 80px; border: 2.5px solid #14142b; border-radius: 12px; background: #ffffff; display: grid; place-items: center; font: 700 34px/1 'Mitr', sans-serif; color: #14142b; }
+    .card { box-sizing: border-box; width: 170px; padding: 12px 14px; border: 2.5px solid #14142b; border-radius: 16px; background: #ffcc00; box-shadow: 4px 4px 0 #14142b; font: 600 15px/1.35 'Mitr', sans-serif; color: #14142b; }
+
+    /* arm-gate timeline */
+    .tl { position: relative; width: 640px; height: 46px; border-bottom: 2px solid #14142b; margin: 6px 0 22px; }
+    .tl .bar { position: absolute; top: 8px; height: 14px; border: 1.5px solid #14142b; border-radius: 4px; }
+    .tl .tick { position: absolute; bottom: -18px; font: 10px/1 ui-monospace, Menlo, monospace; color: #14142b; transform: translateX(-50%); }
+    .tl .arm { position: absolute; top: 0; bottom: 0; border-left: 3px solid #14142b; }
+
+    /* scroll-reveal viewport diagram */
+    .vp { position: relative; width: 220px; height: 300px; border: 2px solid #14142b; border-radius: 8px; background: #fff6e0; overflow: hidden; }
+    .vp .fold { position: absolute; left: 0; right: 0; border-top: 3px dashed #14142b; }
+    .vp .blk { position: absolute; left: 14px; right: 14px; height: 44px; border: 2px solid #14142b; border-radius: 10px; font: 10px/1.3 ui-monospace, Menlo, monospace; color: #14142b; padding: 4px 6px; box-sizing: border-box; }
+
+    /* hero ambient layer, canvas D hero ground (src/components/landing/HomeHero.astro): punch, white dots, ink edge */
+    .hero { position: relative; overflow: hidden; height: 190px; border: 2px solid #14142b; border-radius: 8px; background: #ff3d7f; isolation: isolate; }
+    /* The layer's box, colour and strength are copied from the Gh288HomeHero board, which owns them (--glow is its owner
+       choice, 0.12 or 0.18; 0.18 is drawn here only so the motion is visible). This sheet owns transform and timing only. */
+    .hero .amb { --glow: 0.18; position: absolute; inset: -40% -60%; z-index: 0; pointer-events: none; opacity: var(--glow);
+      background:
+        radial-gradient(ellipse 28% 30% at 26% 38%, #2b7bff 0, transparent 70%),
+        radial-gradient(ellipse 28% 30% at 74% 62%, #2b7bff 0, transparent 70%); }
+    .hero .dots { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 2.5px, transparent 3px); background-size: 26px 26px; }
+    .hero .copy { position: relative; padding: 18px 16px; }
+    .hero .badge { display: inline-block; background: #ffcc00; color: #14142b; border: 3px solid #14142b; border-radius: 999px; padding: 3px 12px; font: 600 13px/1.3 'Mitr', sans-serif; }
+    .hero h1 { margin: 10px 0 0; font: 700 30px/1.1 'Mitr', sans-serif; color: #ffffff; text-shadow: 3px 3px 0 #14142b; }
+    .hero .mark { display: inline-block; white-space: nowrap; padding: 0 6px; border: 2.5px solid #14142b; border-radius: 10px; background: #ffcc00; color: #14142b; text-shadow: none; }
+    .hero .lead { margin: 8px 0 0; font: 600 14px/1.3 'Sarabun', sans-serif; color: #14142b; }
+    /* live demo only: the pinned keyframes running at their real values (the printed frames are what is approved) */
+    .hero.live .amb { animation: gh288-amb 18s cubic-bezier(0.42, 0, 0.58, 1) infinite alternate; }
+    .hero.live-rm .amb { transform: translate3d(0, 0, 0) scale(1.04); animation: gh288-amb-rm 18s cubic-bezier(0.42, 0, 0.58, 1) infinite alternate; }
+    @keyframes gh288-amb { from { transform: translate3d(-6%, -4%, 0) scale(1); } to { transform: translate3d(6%, 4%, 0) scale(1.08); } }
+    @keyframes gh288-amb-rm { from { opacity: var(--glow); } to { opacity: calc(var(--glow) * 0.5); } }
+
+    .foot { padding: 24px 40px 40px; font: 12px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #ffffff; color: #14142b;">
+
+  <div style="padding: 32px 40px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#288 Phase 2 · motion and interaction sheet · picks 2 (motion), 4, 5, 6, 7</div>
+    <div style="margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">Every duration, easing and distance a gh#288 effect uses is pinned here and only here (ADR-0033: a design value not in the canvas is drift). The sibling Gh288 boards draw the static look and cite this sheet for motion. Status: APPROVED by the owner 2026-10-25 (popup). Picks: gh#288 comment 6385620006.</div>
+    <div style="margin-top: 8px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">Approval result: every value on this sheet is approved as printed. Hover colour (section 5) = option A, --color-muted + 2px underline (PICKED). Option B, --ink + underline, was NOT PICKED and stays below as history. Renders as approved: docs/verification/evidence/gh288-phase2-2026-10-25/</div>
+    <div style="margin-top: 6px; font: 13px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0;">How the numbers were computed. Contrast: WCAG 2.x, relative luminance from sRGB channels linearised at the 0.03928 knee, ratio (L1 + 0.05) / (L2 + 0.05); the method first reproduced the Phase 0 figures #d6336c on #fff6e0 = 4.29, #ff3d7f on #fff6e0 = 3.13 and #ffcc00 on #ff3d7f = 2.23. Hero composites: source-over blend of the blob colour at its peak alpha onto #ff3d7f, then the same ratio. Mid frames: the easing curve's progress at half the duration, cubic-bezier solved numerically (ease-out 0.685, ease 0.802, ease-in-out 0.500, linear 0.500).</div>
+  </div>
+
+  <!-- 0. token table -->
+  <div class="row">
+    <h2>0 · Motion tokens (proposed names for Phase 3 step 1, tokens.css)</h2>
+    <p class="why">No motion token exists today. The home tiles carry the only shipped UI motion value, 160ms ease-out (src/components/landing/ArtTile.astro, TextTile.astro); it is reused, not replaced. The other durations are the Phase 0 prototype values whose costs were measured (README "Effect candidates A-E"), adopted so those costs stay valid, except where a pick or a gate forces a change (marked).</p>
+    <table class="spec">
+      <tr><th>Token</th><th>Value</th><th>Used by</th><th>Source / reason</th></tr>
+      <tr><td>--motion-ui</td><td class="v">160ms</td><td>button hover + press</td><td>= the home tiles' shipped transition, one UI tempo site-wide</td></tr>
+      <tr><td>--motion-reveal</td><td class="v">280ms</td><td>result reveal</td><td>must settle under ARM_DELAY_MS = 400 (src/games/_arm-gate.ts); prototype 300ms cut to keep a 120ms margin</td></tr>
+      <tr><td>--motion-scroll</td><td class="v">450ms</td><td>scroll reveal</td><td>prototype D value, measured (CLS 0, raster 15 / draw 119ms per 3s on /)</td></tr>
+      <tr><td>--motion-page</td><td class="v">250ms</td><td>view transition</td><td>Chrome 155's own root cross-fade, measured (vt.json case 1); written explicitly so it never depends on the UA sheet</td></tr>
+      <tr><td>--motion-ambient</td><td class="v">18s</td><td>hero layer, one leg (alternate, 36s round trip)</td><td>prototype was 16s; slowed so the layer never reads as a moving object</td></tr>
+      <tr><td>--motion-rm-fade</td><td class="v">200ms</td><td>reduced result + scroll reveal</td><td>prototype C and D reduced value (opacity only, 200ms linear), measured</td></tr>
+      <tr><td>--motion-rm-quick</td><td class="v">120ms</td><td>reduced view transition, reduced button shadow</td><td>new: shorter than the full form; the prototypes' "none" / ".01ms" were removals, which pick 7 rules out</td></tr>
+      <tr><td>--ease-out</td><td class="v">ease-out = cubic-bezier(0, 0, 0.58, 1)</td><td>ui, reveal, scroll</td><td>matches the tiles' shipped easing</td></tr>
+      <tr><td>--ease-page</td><td class="v">ease = cubic-bezier(0.25, 0.1, 0.25, 1)</td><td>view transition</td><td>the CSS initial timing function; that the UA cross-fade uses it is INFERRED (vt.json records no easing), so Phase 3 writes it explicitly</td></tr>
+      <tr><td>--ease-ambient</td><td class="v">ease-in-out = cubic-bezier(0.42, 0, 0.58, 1)</td><td>hero layer</td><td>symmetric, so the alternate turn has no visible kink</td></tr>
+      <tr><td>--ease-rm</td><td class="v">linear</td><td>every reduced form</td><td>prototype reduced value</td></tr>
+    </table>
+  </div>
+
+  <!-- 1. view transitions -->
+  <div class="row">
+    <h2>1 · Pick 4 · cross-document view transitions, web pages only</h2>
+    <p class="why">Root cross-fade only: no view-transition-name anywhere, so nothing but the whole page fades (the ad slot box measured identical with and without, vt.json case 4). Opt-in is @view-transition { navigation: auto }. Phase 3 writes ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 250ms; animation-timing-function: ease }. Chrome 155 does NOT reduce it under prefers-reduced-motion (vt.json case 3: the full 250ms ran), so the reduced rule below is required. CODE HOME is a Phase 3 decision: Base.astro also serves the play routes, and a play route must never carry the opt-in (case 2: a play route without it aborts the transition and loads normally) - the rule needs a sheet only web pages load, plus a gate.</p>
+    <div class="strips">
+      <div class="strip">
+        <span class="label">FULL · 250ms · ease <span class="pin">pinned</span></span>
+        <div class="frames">
+          <div class="fr"><div class="stage"><div class="card" style="opacity: 1;">old page</div></div><div class="num"><b>t = 0ms</b>old opacity 1 · new opacity 0</div></div>
+          <div class="fr"><div class="stage"><div class="card" style="opacity: 0.20; position: absolute;">old page</div><div class="card" style="opacity: 0.80; background: #2b7bff;">new page</div></div><div class="num"><b>t = 125ms</b>old 0.20 · new 0.80 (ease progress 0.802)</div></div>
+          <div class="fr"><div class="stage"><div class="card" style="background: #2b7bff;">new page</div></div><div class="num"><b>t = 250ms</b>old 0 · new 1</div></div>
+        </div>
+      </div>
+      <div class="strip">
+        <span class="label">REDUCED · 120ms · linear · opacity only <span class="pin">pinned</span></span>
+        <div class="frames">
+          <div class="fr"><div class="stage"><div class="card">old page</div></div><div class="num"><b>t = 0ms</b>old 1 · new 0</div></div>
+          <div class="fr"><div class="stage"><div class="card" style="opacity: 0.5; position: absolute;">old page</div><div class="card" style="opacity: 0.5; background: #2b7bff;">new page</div></div><div class="num"><b>t = 60ms</b>old 0.50 · new 0.50</div></div>
+          <div class="fr"><div class="stage"><div class="card" style="background: #2b7bff;">new page</div></div><div class="num"><b>t = 120ms</b>old 0 · new 1</div></div>
+        </div>
+      </div>
+    </div>
+    <p class="mono" style="margin-top: 14px;">Reduced = @media (prefers-reduced-motion: reduce) { same pseudo-elements: animation-duration 120ms; animation-timing-function linear }. Not "animation: none" (the Phase 0 prototype's rule was a measurement stand-in, and a removal).</p>
+  </div>
+
+  <!-- 2. focus ring -->
+  <div class="row">
+    <h2>2 · Pick 5 · one site-wide focus ring (canonize the existing token)</h2>
+    <p class="why">CANONIZED, not replaced: --focus-ring: 3px solid var(--ink) and --focus-offset: 3px already exist in src/styles/tokens.css and are what / ships (src/pages/index.astro, main :focus-visible). The ink band override to the sun yellow is also / 's own rule (.band :focus-visible). Phase 3 extends both to every web page on :focus-visible only. Needs 3:1 against the ground it sits on (WCAG 1.4.11; the 3px offset puts ground between ring and control). Not animated, so its reduced form is identical. No owner choice here.</p>
+    <div class="grounds">
+      <div class="fr"><div class="ground" style="background: #fff6e0;"><span class="tgt"><span class="q">ดูทั้งหมด →</span></span></div><div class="num"><b>cream #fff6e0</b>ink ring 16.75:1 PASS</div></div>
+      <div class="fr"><div class="ground" style="background: #ffffff;"><span class="tgt"><span class="q">ดูทั้งหมด →</span></span></div><div class="num"><b>white #ffffff (tiles)</b>ink ring 18.03:1 PASS</div></div>
+      <div class="fr"><div class="ground" style="background: #ffcc00;"><span class="tgt"><span class="q">ดูทั้งหมด →</span></span></div><div class="num"><b>gold #ffcc00</b>ink ring 11.93:1 PASS</div></div>
+      <div class="fr"><div class="ground" style="background: #ff3d7f;"><span class="tgt"><span class="q">ดูทั้งหมด →</span></span></div><div class="num"><b>punch #ff3d7f</b>ink ring 5.35:1 PASS</div></div>
+      <div class="fr"><div class="ground" style="background: #2b7bff;"><span class="tgt"><span class="q">ดูทั้งหมด →</span></span></div><div class="num"><b>sky #2b7bff</b>ink ring 4.62:1 PASS</div></div>
+      <div class="fr"><div class="ground ink" style="background: #14142b;"><span class="tgt"><span class="q">ดูทั้งหมด →</span></span></div><div class="num"><b>ink band #14142b</b>gold ring 11.93:1 PASS (ink ring would be 1:1)</div></div>
+    </div>
+    <p class="mono" style="margin-top: 12px;">Label "ดูทั้งหมด →" is quoted from src/pages/index.astro (the dark row's linkLabel). Today 11 of 12 pages show Chrome's default UA ring (README F1).</p>
+  </div>
+
+  <!-- 3. button hover / press -->
+  <div class="row">
+    <h2>3 · Pick 5 · button hover + press (cue is geometry, never colour alone)</h2>
+    <p class="why">Applies to the web-page buttons that carry the 4px 4px 0 ink shadow (tool go buttons, fortune buttons outside the arm window) and to card links with the same 4px rest shadow (--shadow-pop). Hover gated on @media (hover: hover) so a phone tap never leaves a stuck lift - the same reason the home tiles drop their lift at 1099px and below. Press on :active everywhere. :not(:disabled) on both: a disabled control never moves (pick 8's disabled look lives on the tool-pages board). The home tiles keep their own shipped values (rest 6px shadow, hover -3/-6 and 9px 12px) untouched. The press depth equals the shadow offset, so the face lands exactly where its shadow was.</p>
+    <div class="strips">
+      <div class="strip">
+        <span class="label">FULL · transform + box-shadow · 160ms ease-out <span class="pin">pinned</span></span>
+        <div class="frames">
+          <div class="fr"><div class="stage"><span class="btn"><span class="q">หมุน</span></span></div><div class="num"><b>rest</b>translate(0, 0) · shadow 4px 4px 0 ink</div></div>
+          <div class="fr"><div class="stage"><span class="btn" style="transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #14142b;"><span class="q">หมุน</span></span></div><div class="num"><b>hover (end, 160ms)</b>translate(-2px, -2px) · shadow 6px 6px 0 ink<br>mid 80ms: -1.4px · 5.4px</div></div>
+          <div class="fr"><div class="stage"><span class="btn" style="transform: translate(4px, 4px); box-shadow: 0 0 0 #14142b;"><span class="q">หมุน</span></span></div><div class="num"><b>press (end, 160ms)</b>translate(4px, 4px) · shadow 0 0 0 ink<br>mid 80ms: 2.7px · 1.3px</div></div>
+        </div>
+      </div>
+      <div class="strip">
+        <span class="label">REDUCED · no transform · box-shadow only · 120ms linear <span class="pin">pinned</span></span>
+        <div class="frames">
+          <div class="fr"><div class="stage"><span class="btn"><span class="q">หมุน</span></span></div><div class="num"><b>rest</b>translate none · shadow 4px 4px 0 ink</div></div>
+          <div class="fr"><div class="stage"><span class="btn" style="box-shadow: 6px 6px 0 #14142b;"><span class="q">หมุน</span></span></div><div class="num"><b>hover (end, 120ms)</b>no move · shadow 6px 6px 0 ink<br>mid 60ms: 5px</div></div>
+          <div class="fr"><div class="stage"><span class="btn" style="box-shadow: 0 0 0 #14142b;"><span class="q">หมุน</span></span></div><div class="num"><b>press (end, 120ms)</b>no move · shadow 0 0 0 ink<br>mid 60ms: 2px</div></div>
+        </div>
+      </div>
+    </div>
+    <p class="mono" style="margin-top: 14px;">Button label "หมุน" is quoted from src/pages/tool/wheel.astro (#wheel-spin); the button is drawn with that page's .wheel-spin values. The prototype's reduced ".01ms" was a removal; the reduced form keeps the shadow cue and drops only the movement.</p>
+  </div>
+
+  <!-- 4. result reveal -->
+  <div class="row">
+    <h2>4 · Pick 5 · result reveal (tool results and the three fortune results)</h2>
+    <p class="why">One keyframe for the result element of /tool/wheel/, /tool/draw/, /tool/team/, /tool/number/, and the siamsi slip, the daily-fortune result and the love-match result (today all appear with no animation, README F9). opacity + transform only, so layout never moves (CLS 0). Start at opacity 0.4, never 0: the answer is readable from the first frame. HARD LIMIT: ARM_DELAY_MS = 400 (src/games/_arm-gate.ts). On the fortune pages the controls re-enable 400ms after a reveal (ADR-0057), so the result must be at rest before a second contact can count; 280ms plus at most one 16.7ms frame of start latency is under 400 (that the animation and the arm window start in the same task is INFERRED, Phase 3 proves it). The tool pages have no arm gate, but the spec is shared, so the limit binds it too.</p>
+    <div class="strips">
+      <div class="strip">
+        <span class="label">FULL · 280ms · ease-out · opacity + scale <span class="pin">pinned</span></span>
+        <div class="frames">
+          <div class="fr"><div class="stage"><div class="result" style="opacity: 0.4; transform: scale(0.96);">7</div></div><div class="num"><b>t = 0ms</b>opacity 0.40 · scale(0.96)</div></div>
+          <div class="fr"><div class="stage"><div class="result" style="opacity: 0.81; transform: scale(0.987);">7</div></div><div class="num"><b>t = 140ms</b>opacity 0.81 · scale(0.987)</div></div>
+          <div class="fr"><div class="stage"><div class="result">7</div></div><div class="num"><b>t = 280ms</b>opacity 1 · transform none (at rest)</div></div>
+        </div>
+      </div>
+      <div class="strip">
+        <span class="label">REDUCED · 200ms · linear · opacity only <span class="pin">pinned</span></span>
+        <div class="frames">
+          <div class="fr"><div class="stage"><div class="result" style="opacity: 0.4;">7</div></div><div class="num"><b>t = 0ms</b>opacity 0.40 · no transform</div></div>
+          <div class="fr"><div class="stage"><div class="result" style="opacity: 0.7;">7</div></div><div class="num"><b>t = 100ms</b>opacity 0.70</div></div>
+          <div class="fr"><div class="stage"><div class="result">7</div></div><div class="num"><b>t = 200ms</b>opacity 1 (at rest)</div></div>
+        </div>
+      </div>
+    </div>
+    <p class="mono" style="margin: 16px 0 0;">Timeline from the reveal render, 0-400ms (scale 1.6px per ms):</p>
+    <div class="tl">
+      <div class="bar" style="left: 0; width: 448px; background: #2b7bff;"></div>
+      <div class="bar" style="left: 0; width: 320px; top: 26px; height: 10px; background: #ffcc00;"></div>
+      <div class="arm" style="left: 640px;"></div>
+      <span class="tick" style="left: 0;">0</span><span class="tick" style="left: 320px;">200 reduced at rest</span><span class="tick" style="left: 448px;">280 full at rest</span><span class="tick" style="left: 640px; transform: translateX(-100%);">400 ARM_DELAY_MS</span>
+    </div>
+    <p class="mono">The demo value "7" is a number result, not copy. Sky bar = full form, gold bar = reduced form, ink line = controls re-arm.</p>
+  </div>
+
+  <!-- 5. hover colour -->
+  <div class="row">
+    <h2>5 · Pick 5 · text-link hover colour fix (replaces --color-primary #d6336c as a hover colour)</h2>
+    <p class="why">The affected rules turn ink link text to --color-primary on hover: GameNav, GameLayout's top bar, /tools/, /c/*, the draw and team back and how-to links. #d6336c on cream measures 4.29:1 (README F2), under the 4.5:1 that hover-state text still needs. Only two token colours clear 4.5:1 on cream: --color-muted #3d3b5c (9.86:1) and --ink #14142b (16.75:1). Punch 3.13, sky 3.63, primary 4.29 all fail. Either way the hover adds an underline, so the cue is not colour alone (pick 5 constraint): text-decoration underline, 2px, text-underline-offset 3px, currentColor. The colour change is instant (no transition), so there is no reduced form to draw: it is identical.</p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+      <div class="fr"><div class="stage" style="height: 90px;"><span class="q" style="font: 600 18px/1 'Mitr', sans-serif; color: #d6336c;">เครื่องมือสุ่มทั้งหมด</span></div><div class="num"><b>CURRENT · #d6336c, no underline</b>4.29:1 on cream <span class="fail">FAIL</span> · 4.62:1 on white</div></div>
+      <div class="fr"><div class="stage" style="height: 90px;"><span class="q" style="font: 600 18px/1 'Mitr', sans-serif; color: #3d3b5c; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px;">เครื่องมือสุ่มทั้งหมด</span></div><div class="num"><b>OPTION A · --color-muted #3d3b5c + underline</b> <span class="pin">rec</span> <span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span><br>9.86:1 on cream · 10.61:1 on white PASS · a visible colour shift plus the underline</div></div>
+      <div class="fr"><div class="stage" style="height: 90px;"><span class="q" style="font: 600 18px/1 'Mitr', sans-serif; color: #14142b; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px;">เครื่องมือสุ่มทั้งหมด</span></div><div class="num"><b>OPTION B · --ink #14142b (no colour change) + underline</b> <span style="display: inline-block; background: #fff6e0; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span><br>16.75:1 on cream · 18.03:1 on white PASS · the underline is the whole cue</div></div>
+    </div>
+    <p class="mono" style="margin-top: 12px;">Link text "เครื่องมือสุ่มทั้งหมด" is quoted from src/pages/tool/draw.astro (the back link, one of the affected hovers). Owner picked A (2026-10-25); B not picked. --color-primary stays defined: GameLayout's play CTA uses it as a fill fallback, which is not a hover colour.</p>
+  </div>
+
+  <!-- 6. scroll reveal -->
+  <div class="row">
+    <h2>6 · Pick 6 · section reveal on scroll, below the first screen only</h2>
+    <p class="why">SELECTION PREDICATE, evaluated once at load: an element is a reveal target only if getBoundingClientRect().top &gt; window.innerHeight. Anything whose top is on the first screen is never touched, so it cannot become a late LCP candidate (README D caveat). TARGET SET: main's sections and the tiles and cards inside them. NEVER: the ad slot (it must not move or fade), the hero, anything inside #stage. TRIGGER: IntersectionObserver, threshold 0, rootMargin "0px 0px -10% 0px" (fires when the element's top crosses 90% of the viewport height), once per element, then unobserved. NO-JS: no stylesheet rule hides anything; the pre-reveal class is added only by the script, so without JS every element is simply visible.</p>
+    <div style="display: grid; grid-template-columns: 260px 1fr; gap: 32px; align-items: start;">
+      <div class="fr">
+        <div class="vp">
+          <div class="blk" style="top: 14px; background: #ff3d7f;">hero: never a target</div>
+          <div class="blk" style="top: 70px; background: #ffffff; border-style: dashed; border-color: #c9c3a8;">ad slot: never a target</div>
+          <div class="blk" style="top: 126px; background: #ffffff;">top 126 &lt; fold: untouched</div>
+          <div class="fold" style="top: 200px;"></div>
+          <div class="blk" style="top: 214px; background: #ffcc00;">top &gt; fold at load: target</div>
+          <div class="fold" style="top: 180px; border-top-style: dotted; border-top-width: 2px;"></div>
+        </div>
+        <div class="num"><b>load-time predicate</b>dashed = innerHeight at load · dotted = the -10% trigger line (90% of innerHeight)</div>
+      </div>
+      <div class="strips">
+        <div class="strip">
+          <span class="label">FULL · 450ms · ease-out · rise 16px + fade <span class="pin">pinned</span></span>
+          <div class="frames">
+            <div class="fr"><div class="stage"><div class="card" style="opacity: 0; transform: translateY(16px);">section</div></div><div class="num"><b>t = 0ms</b>opacity 0 · translateY(16px)</div></div>
+            <div class="fr"><div class="stage"><div class="card" style="opacity: 0.69; transform: translateY(5px);">section</div></div><div class="num"><b>t = 225ms</b>opacity 0.69 · translateY(5px)</div></div>
+            <div class="fr"><div class="stage"><div class="card">section</div></div><div class="num"><b>t = 450ms</b>opacity 1 · transform none</div></div>
+          </div>
+        </div>
+        <div class="strip">
+          <span class="label">REDUCED · 200ms · linear · fade only <span class="pin">pinned</span></span>
+          <div class="frames">
+            <div class="fr"><div class="stage"><div class="card" style="opacity: 0;">section</div></div><div class="num"><b>t = 0ms</b>opacity 0 · no transform</div></div>
+            <div class="fr"><div class="stage"><div class="card" style="opacity: 0.5;">section</div></div><div class="num"><b>t = 100ms</b>opacity 0.50</div></div>
+            <div class="fr"><div class="stage"><div class="card">section</div></div><div class="num"><b>t = 200ms</b>opacity 1</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="mono" style="margin-top: 14px;">Cost of exactly these values, measured as prototype D (README): 647 B gzip JS, CLS 0, / raster 15 / draw 119ms per 3s. The word "section" in the demo cards is an English annotation, not UI copy.</p>
+  </div>
+
+  <!-- 7. hero ambient -->
+  <div class="row">
+    <h2>7 · Pick 2 · hero ambient gradient layer, motion half (the static look is the Gh288 home-hero board's)</h2>
+    <p class="why">COLOUR AND STRENGTH: see Gh288HomeHero (box, blobs, layer opacity and its contrast table live there). This sheet pins the motion only. Moved by transform only, the compositor path Phase 0 measured (raster 0, GPU-process 28ms per 3s vs 25 idle; the paint path was ~40x dearer and is out); scale is also compositor-only. RANGE CHECK against that board's travel limits (|tx| &lt;= 27.27%, |ty| &lt;= 22.22% of the layer box): this range is ±6% x and ±4% y, inside both; scale 1.08 is about the centre and only grows the layer, so it adds overhang and never brings an edge into the hero. OPACITY: the reduced form does NOT multiply by itself. A keyframe opacity replaces the element's opacity, so a literal 1 to 0.5 would override the hero board's 0.12 / 0.18 and paint the layer at full strength. The pinned reduced keyframes are therefore written relative to the board's value: opacity var(--glow) to calc(var(--glow) * 0.5), i.e. 0.18 to 0.09 or 0.12 to 0.06, never above the strength the board's contrast table approved. PHASE 3 NOTE: src/pages/index.astro sets animation: none !important on every element in main under reduced motion; that blanket rule would turn this reduced form into a removal, so the layer needs an exemption from it.</p>
+    <div class="strips">
+      <div class="strip">
+        <span class="label">FULL · 18s per leg · ease-in-out · infinite alternate · transform only <span class="pin">pinned</span></span>
+        <div class="frames">
+          <div class="fr"><div class="hero"><div class="amb" style="transform: translate3d(-6%, -4%, 0) scale(1);"></div><div class="dots"></div><div class="copy"><span class="badge"><span class="q">เปิดเว็บแล้วกดเล่นได้เลย</span></span><h1><span class="q">กดทีเดียว</span><br><span class="q">รู้เลยว่า</span><span class="mark"><span class="q">ใครโดน</span></span></h1></div></div><div class="num"><b>t = 0s</b>translate3d(-6%, -4%, 0) scale(1)</div></div>
+          <div class="fr"><div class="hero"><div class="amb" style="transform: translate3d(0, 0, 0) scale(1.04);"></div><div class="dots"></div><div class="copy"><span class="badge"><span class="q">เปิดเว็บแล้วกดเล่นได้เลย</span></span><h1><span class="q">กดทีเดียว</span><br><span class="q">รู้เลยว่า</span><span class="mark"><span class="q">ใครโดน</span></span></h1></div></div><div class="num"><b>t = 9s</b>translate3d(0, 0, 0) scale(1.04)</div></div>
+          <div class="fr"><div class="hero"><div class="amb" style="transform: translate3d(6%, 4%, 0) scale(1.08);"></div><div class="dots"></div><div class="copy"><span class="badge"><span class="q">เปิดเว็บแล้วกดเล่นได้เลย</span></span><h1><span class="q">กดทีเดียว</span><br><span class="q">รู้เลยว่า</span><span class="mark"><span class="q">ใครโดน</span></span></h1></div></div><div class="num"><b>t = 18s, then back</b>translate3d(6%, 4%, 0) scale(1.08)</div></div>
+        </div>
+      </div>
+      <div class="strip">
+        <span class="label">REDUCED · no transform · opacity x1 to x0.5 of the layer's strength · 18s ease-in-out alternate <span class="pin">pinned</span></span>
+        <div class="frames">
+          <div class="fr"><div class="hero"><div class="amb" style="transform: translate3d(0, 0, 0) scale(1.04);"></div><div class="dots"></div><div class="copy"><span class="badge"><span class="q">เปิดเว็บแล้วกดเล่นได้เลย</span></span><h1><span class="q">กดทีเดียว</span><br><span class="q">รู้เลยว่า</span><span class="mark"><span class="q">ใครโดน</span></span></h1></div></div><div class="num"><b>t = 0s</b>fixed at the mid pose · opacity var(--glow) (0.18 drawn)</div></div>
+          <div class="fr"><div class="hero"><div class="amb" style="transform: translate3d(0, 0, 0) scale(1.04); opacity: calc(var(--glow) * 0.75);"></div><div class="dots"></div><div class="copy"><span class="badge"><span class="q">เปิดเว็บแล้วกดเล่นได้เลย</span></span><h1><span class="q">กดทีเดียว</span><br><span class="q">รู้เลยว่า</span><span class="mark"><span class="q">ใครโดน</span></span></h1></div></div><div class="num"><b>t = 9s</b>opacity calc(var(--glow) * 0.75)</div></div>
+          <div class="fr"><div class="hero"><div class="amb" style="transform: translate3d(0, 0, 0) scale(1.04); opacity: calc(var(--glow) * 0.5);"></div><div class="dots"></div><div class="copy"><span class="badge"><span class="q">เปิดเว็บแล้วกดเล่นได้เลย</span></span><h1><span class="q">กดทีเดียว</span><br><span class="q">รู้เลยว่า</span><span class="mark"><span class="q">ใครโดน</span></span></h1></div></div><div class="num"><b>t = 18s, then back</b>opacity calc(var(--glow) * 0.5) (contrast only improves as it fades)</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 18px;">
+      <div class="fr"><div class="hero live"><div class="amb"></div><div class="dots"></div><div class="copy"><span class="badge"><span class="q">เปิดเว็บแล้วกดเล่นได้เลย</span></span><h1><span class="q">กดทีเดียว</span><br><span class="q">รู้เลยว่า</span><span class="mark"><span class="q">ใครโดน</span></span></h1><p class="lead"><span class="q">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</span></p></div></div><div class="num"><b>live demo, full form</b>running the pinned keyframes</div></div>
+      <div class="fr"><div class="hero live-rm"><div class="amb"></div><div class="dots"></div><div class="copy"><span class="badge"><span class="q">เปิดเว็บแล้วกดเล่นได้เลย</span></span><h1><span class="q">กดทีเดียว</span><br><span class="q">รู้เลยว่า</span><span class="mark"><span class="q">ใครโดน</span></span></h1><p class="lead"><span class="q">ไม่ต้องโหลดแอป ไม่ต้องสมัคร</span></p></div></div><div class="num"><b>live demo, reduced form</b>opacity only; its cost was not measured in Phase 0 (opacity is compositor-only: INFERRED)</div></div>
+    </div>
+    <p class="mono" style="margin-top: 12px;">Hero badge, h1 parts and lead are quoted from src/pages/index.astro (the HomeHero props); hero structure and sizes scaled from src/components/landing/HomeHero.astro's 320 values. The layer's box, blobs and strength are drawn as Gh288HomeHero pins them; any change there changes these frames, not the motion values.</p>
+  </div>
+
+  <!-- 8. reduced-motion policy -->
+  <div class="row">
+    <h2>8 · Pick 7 · reduced-motion policy: every new effect, full vs reduced (reduce, never remove)</h2>
+    <p class="why">Scope: only the effects on this sheet. Today's motion (the / sparks, bob and tilt; the wheel spin; siamsi's rattle and fall) keeps today's removal under the setting, per pick 7. Every reduced form drops movement and keeps the state change as opacity or shadow.</p>
+    <table class="spec">
+      <tr><th>Effect</th><th>Full form</th><th>Reduced form (prefers-reduced-motion: reduce)</th></tr>
+      <tr><td>View transition (pick 4)</td><td class="v">root cross-fade 250ms ease</td><td class="v">root cross-fade 120ms linear</td></tr>
+      <tr><td>Focus ring (pick 5)</td><td class="v">3px solid ink, offset 3px; gold on the ink band; not animated</td><td class="v">identical (nothing moves)</td></tr>
+      <tr><td>Button / card hover (pick 5)</td><td class="v">translate(-2px, -2px) + shadow 6px 6px, 160ms ease-out, (hover: hover) only</td><td class="v">no move; shadow 6px 6px, 120ms linear</td></tr>
+      <tr><td>Button / card press (pick 5)</td><td class="v">translate(4px, 4px) + shadow 0, 160ms ease-out</td><td class="v">no move; shadow 0, 120ms linear</td></tr>
+      <tr><td>Result reveal (pick 5)</td><td class="v">opacity 0.4 to 1 + scale 0.96 to 1, 280ms ease-out</td><td class="v">opacity 0.4 to 1, 200ms linear</td></tr>
+      <tr><td>Link hover colour (pick 5)</td><td class="v">option A (picked) + 2px underline, instant</td><td class="v">identical (no motion)</td></tr>
+      <tr><td>Scroll reveal (pick 6)</td><td class="v">opacity 0 to 1 + translateY 16px to 0, 450ms ease-out</td><td class="v">opacity 0 to 1, 200ms linear</td></tr>
+      <tr><td>Hero layer (pick 2)</td><td class="v">translate3d(-6%, -4%) scale(1) to (6%, 4%) scale(1.08), 18s ease-in-out alternate</td><td class="v">fixed mid pose; opacity var(--glow) to calc(var(--glow) * 0.5), 18s ease-in-out alternate</td></tr>
+    </table>
+  </div>
+
+  <div class="foot">
+    Copy sources, each quoted verbatim: "หมุน" src/pages/tool/wheel.astro · "เครื่องมือสุ่มทั้งหมด" src/pages/tool/draw.astro · "ดูทั้งหมด →", "เปิดเว็บแล้วกดเล่นได้เลย", "กดทีเดียว", "รู้เลยว่า", "ใครโดน", "ไม่ต้องโหลดแอป ไม่ต้องสมัคร" src/pages/index.astro. Invented Thai: 0.<br>
+    Resolved by the owner 2026-10-25: the hover colour (section 5) is option A. Not pinned here, Phase 3 measures: whether a reveal target can be in view after scroll restoration (back/forward, reload mid-page) when the load-time predicate runs; that the result animation and the arm window start in the same task; the reduced hero form's cost; real devices, Safari, AdSense iframes (gh#141, gh#29).
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

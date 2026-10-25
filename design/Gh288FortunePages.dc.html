@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    /* Real faces of the page: the self-hosted subsets from src/styles/fonts.css, pointed at with relative paths from this board.
+       The board is design source and is never referenced at runtime. */
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 400; src: url('../public/fonts/mitr-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 500; src: url('../public/fonts/mitr-medium-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    /* ---- sheet chrome (annotations): English, monospace, tokens only ---- */
+    .bd-banner { padding: 32px 40px; background: #14142b; color: #ffcc00; }
+    .bd-banner-1 { font: 700 24px/1.3 ui-monospace, Menlo, monospace; }
+    .bd-banner-2 { margin-top: 8px; font: 14px/1.6 ui-monospace, Menlo, monospace; color: #fff6e0; max-width: 1280px; }
+    .bd-row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .bd-row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .bd-row h3 { margin: 30px 0 10px; font: 700 15px/1.4 ui-monospace, Menlo, monospace; }
+    .bd-why { margin: 0 0 22px; font: 13px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1280px; }
+    .bd-row code { font: 600 12px ui-monospace, Menlo, monospace; background: #fff6e0; padding: 0 3px; }
+    .bd-row q { font-family: 'Sarabun', sans-serif; font-size: 14px; color: #14142b; }
+    .bd-table { border-collapse: collapse; font: 12px/1.55 ui-monospace, Menlo, monospace; max-width: 1280px; margin-bottom: 20px; }
+    .bd-table th, .bd-table td { border: 2px solid #14142b; padding: 8px 10px; text-align: left; vertical-align: top; }
+    .bd-table th { background: #14142b; color: #fff6e0; }
+    .bd-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; max-width: 1280px; }
+    .bd-note, .bd-armbox { font: 12px/1.65 ui-monospace, Menlo, monospace; color: #14142b; border: 2px solid #14142b; padding: 12px 14px; background: #fff6e0; }
+    .bd-armbox { margin-bottom: 8px; max-width: 1280px; }
+    .bd-list { font: 13px/1.7 ui-monospace, Menlo, monospace; max-width: 1280px; color: #14142b; }
+    .bd-cands { display: flex; gap: 26px; align-items: flex-start; flex-wrap: wrap; }
+    .bd-gap { margin-top: 34px; }
+    .bd-cand { display: flex; flex-direction: column; gap: 8px; }
+    .bd-tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; min-height: 52px; max-width: 390px; }
+
+    /* ---- frame chrome ---- */
+    .bd-frame { position: relative; box-sizing: border-box; background: #fff6e0; box-shadow: 0 0 0 1px #14142b; }
+    .bd-fold { position: absolute; left: 0; right: 0; height: 0; border-top: 2px dashed #d6336c; z-index: 5; pointer-events: none; }
+    .bd-fold span { position: absolute; right: 4px; top: 2px; font: 600 10px/1 ui-monospace, Menlo, monospace; color: #d6336c; }
+    /* the element pick 12 removes, before frames only */
+    .bd-drop { position: relative; outline: 3px dashed #d6336c; outline-offset: 4px; }
+    .bd-drop::after { content: attr(data-drop-label); position: absolute; top: -26px; right: 0; padding: 2px 6px; font: 700 11px/1.2 ui-monospace, Menlo, monospace; background: #d6336c; color: #ffffff; }
+    /* start frame of a reveal: the final box of the result element, content hidden, no motion value implied */
+    .bd-ghost { background: transparent !important; border-color: transparent !important; box-shadow: none !important; outline: 3px dashed #14142b; outline-offset: -3px; }
+    .bd-ghost * { visibility: hidden; }
+    /* static frames: the in-page animations of the shipped sheet are not replayed here (their numbers live on the motion sheet) */
+    .bd-frame .sm-fallen, .bd-frame .sm-sticks { animation: none; }
+
+    /* ---- REPLAY: the shipped rules, copied from src (tokens, game layout, shared game-screen vocabulary, the three game sheets), comments stripped, unchanged values ---- */
+:root {
+  --color-bg: #ffffff;
+  --color-text: #14142b;
+  --color-primary: #d6336c;
+  --color-accent: #ffb703;
+  
+  --accent-gold: #ffcc00;
+  --accent-punch: #ff3d7f;
+  --accent-sky: #2b7bff;
+  
+  --color-muted: #3d3b5c;
+  --color-border: #e5e7eb;
+  --color-ground-warm: #fff6e0;
+  --color-line-strong: #14142b;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+
+  
+  --font-sans: 'Sarabun', 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
+  --font-display: 'Mitr', 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  --shadow-pop: 0.25rem 0.25rem 0 0 var(--color-line-strong);
+}
+
+  
+  
+  main {
+    background: var(--color-ground-warm);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+  }
+
+  .game-title {
+    margin: 0;
+    font-family: var(--font-display);
+    
+    
+    line-height: 1.2;
+  }
+
+  .game-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    min-height: 60px;
+    border-bottom: 2.5px solid var(--color-line-strong);
+  }
+
+  .game-topbar a {
+    display: flex;
+    align-items: center;
+    
+    min-height: 44px;
+    min-width: 44px;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .game-topbar a:hover {
+    color: var(--color-primary);
+  }
+
+  
+  
+
+  
+  .play-area {
+    background: var(--page-accent);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  
+  
+
+  
+
+  .bd-howto {
+    padding: var(--space-lg) var(--space-md) var(--space-xl);
+    border-block-start: 2.5px solid var(--color-line-strong);
+  }
+
+  .bd-howto h2 {
+    margin-block: 0 var(--space-md);
+    font-family: var(--font-display);
+  }
+
+  .bd-howto ol {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  
+  
+
+
+  
+  .stage-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    width: 100%;
+  }
+
+  .stage-screen p {
+    margin: 0;
+    text-align: center;
+  }
+
+  .game-btn {
+    width: 100%;
+    border-radius: 16px;
+    border: 2.5px solid var(--color-line-strong);
+    font-family: var(--font-display);
+    cursor: pointer;
+  }
+
+  .game-btn:disabled {
+    cursor: default;
+  }
+
+  .game-btn-primary {
+    min-height: 64px;
+    background: var(--color-line-strong);
+    color: var(--color-ground-warm);
+    font-weight: 500;
+    font-size: 22px;
+    box-shadow: 5px 5px 0 rgba(20, 20, 43, 0.3);
+  }
+
+  
+  .game-btn-secondary {
+    min-height: 56px;
+    background: transparent;
+    font-weight: 400;
+    font-size: 17px;
+    color: var(--color-text);
+    
+    margin-block-start: -12px;
+  }
+
+  
+  .game-btn-secondary:disabled {
+    color: rgba(20, 20, 43, 0.45);
+    border: 2.5px dashed rgba(20, 20, 43, 0.35);
+  }
+
+
+
+
+
+
+
+
+
+.sm-barrel {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 260px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  overflow: hidden;
+  perspective: 600px;
+}
+
+
+.sm-barrel svg {
+  transform-style: preserve-3d;
+}
+
+
+.sm-hint--tap {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+
+.sm-hint {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 15px;
+  text-align: center;
+}
+
+
+
+
+
+
+.sm-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.sm-subtitle {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+
+.sm-intent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.sm-intent-label {
+  font-size: 13px;
+}
+
+.sm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.sm-chip {
+  font-family: inherit;
+  font-size: 14px;
+  color: inherit;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: var(--color-ground-warm);
+  cursor: pointer;
+  position: relative;
+}
+
+
+.sm-chip::after {
+  content: '';
+  position: absolute;
+  inset: -7px -2px;
+}
+
+.sm-chip--on {
+  font-weight: 500;
+  background: var(--color-line-strong);
+  color: var(--color-ground-warm);
+}
+
+
+.sm-barrel--landed {
+  align-items: center;
+}
+
+
+.sm-meter {
+  width: 100%;
+  height: 10px;
+  background: var(--color-ground-warm);
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sm-meter-fill {
+  width: 0;
+  height: 100%;
+  background: var(--color-line-strong);
+}
+
+
+.sm-sticks {
+  animation: sm-rattle 0.32s linear infinite;
+  transform-origin: 98px 110px;
+}
+
+@keyframes sm-rattle {
+  0% { transform: translateY(0) rotate(-0.8deg); }
+  50% { transform: translateY(-3px) rotate(0.8deg); }
+  100% { transform: translateY(0) rotate(-0.8deg); }
+}
+
+
+.sm-fallen {
+  animation: sm-fall 0.45s ease-out 1;
+}
+
+@keyframes sm-fall {
+  0% { transform: translateY(-70px) rotate(-40deg); opacity: 0; }
+  100% { transform: translateY(0) rotate(-7deg); opacity: 1; }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-sticks,
+  .sm-fallen {
+    animation: none;
+  }
+}
+
+
+.sm-number {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.sm-number-thai {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 64px;
+  line-height: 1;
+}
+
+
+.sm-slip {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  padding: 20px 18px;
+  text-align: left;
+}
+
+.sm-slip-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 2.5px dashed var(--color-line-strong);
+  padding-bottom: 12px;
+}
+
+.sm-slip-number {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 34px;
+  line-height: 1;
+}
+
+
+.sm-grade {
+  font-size: 14px;
+  font-weight: 700;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  padding: 4px 14px;
+  background: var(--page-accent);
+}
+
+
+.sm-verse {
+  margin: 16px 0 0 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 2;
+  text-align: center;
+}
+
+.sm-rows {
+  border-top: 2.5px dashed var(--color-line-strong);
+  margin-top: 18px;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sm-row {
+  display: flex;
+  gap: 10px;
+}
+
+.sm-row-bar {
+  width: 5px;
+  border-radius: 999px;
+  background: var(--color-line-strong);
+  opacity: 0.15;
+  flex-shrink: 0;
+}
+
+
+.sm-row--asked .sm-row-bar {
+  background: #d6336c;
+  opacity: 1;
+}
+
+.sm-row-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.sm-row p {
+  margin: 2px 0 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+
+.sm-closing {
+  margin: 16px 0 0 0;
+  padding-top: 14px;
+  border-top: 2.5px dashed var(--color-line-strong);
+  font-size: 13px;
+  line-height: 1.7;
+  opacity: 0.7;
+}
+
+
+.sm-hold {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+
+
+
+.lm-heading {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1.35;
+}
+
+.lm-heading--ask {
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+
+.lm-qbox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.lm-q {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.lm-opts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.lm-choice {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  background: var(--color-ground-warm);
+  color: var(--color-line-strong);
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.lm-choice[aria-pressed='true'] {
+  background: var(--color-line-strong);
+  color: var(--color-ground-warm);
+}
+
+.lm-choice:disabled {
+  cursor: default;
+}
+
+.lm-note {
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 32ch;
+  color: rgba(20, 20, 43, 0.7);
+}
+
+
+
+.lm-note {
+  font-size: 16px;
+}
+
+
+.lm-when {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1.35;
+}
+
+.lm-where {
+  font-size: 17px;
+  margin-block-start: -14px;
+}
+
+
+.lm-portrait {
+  width: min(100%, 240px);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lm-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+
+.lm-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  padding: 16px 18px;
+  box-sizing: border-box;
+}
+
+.lm-row {
+  display: flex;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: start;
+}
+
+.lm-row > :first-child {
+  flex: 0 0 6.5em;
+  color: rgba(20, 20, 43, 0.7);
+}
+
+
+.lm-art {
+  display: flex;
+}
+
+.lm-body {
+  font-size: 18px;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+
+
+
+.df-date-row {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.df-date {
+  font-size: 13px;
+  font-weight: 500;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+
+.df-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 220px;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  box-sizing: border-box;
+}
+
+.df-headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.df-joke {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: center;
+  max-width: 26ch;
+}
+
+
+.df-verdict-card {
+  width: 100%;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--color-line-strong);
+  box-sizing: border-box;
+  padding: 18px 18px 20px 18px;
+  text-align: center;
+}
+
+.df-verdict-label {
+  font-size: 13px;
+}
+
+.df-verdict {
+  margin: 6px 0 0 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+.df-lines {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+.df-line {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--color-ground-warm);
+  border: 2.5px solid var(--color-line-strong);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--color-line-strong);
+  box-sizing: border-box;
+  padding: 14px;
+}
+
+.df-line-cat {
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 999px;
+  padding: 3px 10px;
+  flex-shrink: 0;
+}
+
+.df-line-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+
+.df-line .df-line-text {
+  text-align: start;
+}
+
+
+.df-line-luck {
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--color-line-strong);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 15px;
+  flex-shrink: 0;
+  background: var(--color-ground-warm);
+}
+
+
+.df-line-luck.df-luck-flip {
+  background: var(--page-accent);
+}
+
+.df-foot {
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 30ch;
+  margin: 0;
+}
+
+
+
+.df-joke,
+.df-foot {
+  font-size: 16px;
+}
+
+
+  /* the shipped h1 clamp, resolved at the frame's own width: a viewport unit reads the board's 1440 width, so the literal clamp would paint at its 44px ceiling */
+  .bd-frame[data-w="390"] .game-title { font-size: 35.1px; }
+  .bd-frame[data-w="320"] .game-title { font-size: 32px; }
+
+  </style>
+</helmet>
+
+<div style="width: 1440px; background: #ffffff; color: #14142b;">
+
+<div class="bd-banner">
+  <div class="bd-banner-1">gh#288 · fortune pages /game/siamsi/ · /game/daily-fortune/ · /game/love-match/ · pick 12 (drop the stage heading where it repeats the h1) + result reveal in place (pick 5) · APPROVED by the owner 2026-10-25 (popup)</div>
+  <div class="bd-banner-2">Status: APPROVED by the owner 2026-10-25 (popup); Phase 3 code reads this sheet (ADR-0033). Each frame replays the shipped markup and the shipped CSS rules (copied from src, comments stripped, not redrawn) at the <b>390</b> and <b>320</b> phone widths. The 390 frame is the one the Phase 0 capture compared; 320 has no board before this sheet. The red dashed line in every frame is the viewport fold (844 or 568 tall). Page fonts: Mitr for display, Sarabun for body, the same hosted subsets as the page. Thai inside a frame or in a quotation is verbatim from src; no Thai is invented. Motion lives on the sibling sheet, never here: motion: see Gh288MotionSheet § result reveal.</div>
+  <div class="bd-banner-2">Approval result: option A is PICKED, drop the repeated stage heading on BOTH siamsi (intent screen) and love-match (ask screen); every AFTER frame below is the picked look. Option B was NOT PICKED; the board draws no separate B, so the BEFORE frames (heading kept, as built) stay below as the unpicked history. daily-fortune is unchanged, as drawn. Renders as approved: docs/verification/evidence/gh288-phase2-2026-10-25/</div>
+</div>
+
+<div class="bd-row">
+  <h2>Pick 12 at a glance · which screen loses which heading element</h2>
+  <p class="bd-why">The page h1 is <code>h1.game-title</code>, rendered by <code>GameLayout.astro</code> from <code>game.names.th</code>. The stage heading is whatever the game module builds inside <code>#stage</code>. Neither stage heading is an <code>h2</code>: love-match builds a <code>p</code>, siamsi and daily-fortune build a <code>span</code>. So no heading outline changes; only a repeated line of visible and spoken text goes.</p>
+  <table class="bd-table">
+    <tr><th>page</th><th>h1 (shell)</th><th>stage heading element (module, builder)</th><th>same text as the h1?</th><th>pick 12</th></tr>
+    <tr><td>/game/siamsi/</td><td><q>เสี่ยงเซียมซี</q></td><td><code>span.sm-title</code> reading <q>เซียมซี</q> · <code>siamsi.ts</code> <code>renderIntent()</code>, constant <code>TITLE_INTENT</code></td><td>No: a short form of the h1, the h1 minus <q>เสี่ยง</q>. It repeats the same name.</td><td><b>drops</b> on screen 1 of 4 (the intent screen). Screens 2 to 4 keep <code>span.sm-subtitle</code> (<q>เขย่าให้ไม้หลุด</q>, <q>ไม้ติ้วหลุดแล้ว</q>), which do not repeat the h1, and the slip screen has no heading at all.</td></tr>
+    <tr><td>/game/love-match/</td><td><q>เนื้อคู่ของคุณ</q></td><td><code>p.lm-heading.lm-heading--ask</code> reading <q>เนื้อคู่ของคุณ</q> · <code>love-match.ts</code> <code>renderAsk()</code></td><td>Yes, byte for byte.</td><td><b>drops</b> on the ask screen. The reading screens keep <code>p.lm-heading</code> (<q>คุณจะได้เจอเขา</q> and the four self headings): different words, not a repeat.</td></tr>
+    <tr><td>/game/daily-fortune/</td><td><q>ดวงวันนี้</q></td><td><code>span.df-headline</code> reading <q>วันนี้คุณจะเจอกับอะไร</q> · <code>daily-fortune.ts</code> <code>renderIdle()</code></td><td>No: different words, as README F7 says.</td><td><b>nothing drops.</b> Drawn as a control frame so the owner sees the pick does not touch it.</td></tr>
+  </table>
+  <div class="bd-notes">
+    <div class="bd-note"><b>How this relates to gh#263 item 2 (closed).</b> gh#263 ruled the heading SIZE, not its presence: <code>.lm-heading</code> at 26px / 1.35 for the meet and self readings, and the ask title at 30px / 1.2 through the <code>.lm-heading--ask</code> modifier (owner approval 2026-10-06 on the SoulmateResult, SoulmateSolo and SoulmateStart renders, shipped, ticket closed). It never ruled that the ask title must stay on the page. Pick 12 removes the one element the modifier sizes. The 26px / 1.35 ruling for the reading headings is untouched. The 30px / 1.2 ruling is not overturned either: nothing is drawn at that size any more, so it goes quiet. The SoulmateStart board drew only the stage heading (README F7), so this sheet supersedes it for the ask screen. siamsi's <code>.sm-title</code> (30px / 1.2) was never part of gh#263; it comes from the SiamsiIntent board.</div>
+    <div class="bd-note"><b>firstScreenReserve must be re-measured in Phase 3.</b> It is the field each game module declares for the measured height of its first screen; <code>GameLayout.astro</code> hands it to <code>#stage</code> as <code>--stage-reserve-phone</code> and <code>--stage-reserve-wide</code> until the page script marks the stage mounted (ADR-0070). Today: siamsi phone 576 / wide 534, love-match phone 581 / wide 520, daily-fortune phone 539 / wide 530. The first screens of siamsi and love-match each lose one 30px / 1.2 heading line plus one 22px flex gap of the stage column, so both pairs are stale the moment the heading goes (a CSS reading, not a render; wrapped Thai line boxes decide the real height). Re-measure by the gh#253 method (<code>docs/verification/evidence/gh253/</code>, residual CLS) at 320 to 639 and at 640 up. No replacement number is written here on purpose. daily-fortune keeps its 539 / 530 because its first screen does not change. A reserve left too tall leaves an empty hole above the how-to section; too short makes it jump at mount.</div>
+  </div>
+</div>
+
+<div class="bd-row">
+  <h2>/game/siamsi/ · intent screen · before and after · 390, then 320 · AFTER picked 2026-10-25</h2>
+  <p class="bd-why">Gone: <code>span.sm-title</code> (red dashed outline in the before frames), the first child of <code>#stage</code> on the intent screen. The lead line <q>ตั้งจิตให้นิ่ง แล้วนึกถึงเรื่องที่อยากรู้ให้ชัดในใจ</q> becomes the stage's first child, so the whole screen sits one title-height plus one 22px gap higher. Nothing else in the stage moves relative to its neighbours. The h1 is <code>clamp(2rem, 9vw, 2.75rem)</code>: 9vw is 35.1px at 390 and 28.8px at 320, so 320 takes the 2rem floor (32px).</p>
+  <div class="bd-cands">
+    <div class="bd-cand"><span class="bd-tag"><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span><br>390 · BEFORE (as built)<br>stage heading repeats the h1</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="siamsi-390-before">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เสี่ยงเซียมซี</h1>
+      <div class="stage-screen" data-bd="stage"><span class="sm-title bd-drop" data-drop-label="drops">เซียมซี</span><p>ตั้งจิตให้นิ่ง แล้วนึกถึงเรื่องที่อยากรู้ให้ชัดในใจ</p><div class="sm-intent"><span class="sm-intent-label">เรื่องที่อยากถาม</span><div class="sm-chips"><button type="button" class="sm-chip">การงาน</button><button type="button" class="sm-chip">ความรัก</button><button type="button" class="sm-chip">การเงิน</button><button type="button" class="sm-chip">สุขภาพ</button><button type="button" class="sm-chip sm-chip--on">ไม่เจาะจง</button></div></div><div class="sm-barrel"><svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true"><rect x="66" y="52" width="9" height="80" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="84" y="46" width="9" height="86" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="102" y="50" width="9" height="82" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="120" y="48" width="9" height="84" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><path d="M56 72 h84 l-9 126 h-66 z" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><ellipse cx="98" cy="72" rx="42" ry="13" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><path d="M70 112 h56" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path><path d="M72 134 h52" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path></svg></div><button type="button" class="game-btn game-btn-primary">ตั้งจิตแล้ว</button></div>
+    </div>
+    <section class="bd-howto"><h2>วิธีเล่น</h2><ol><li>ตั้งจิตให้นิ่ง แล้วเลือกเรื่องที่อยากถาม</li><li>เขย่าเครื่องต่อเนื่อง หรือกดปุ่มค้างไว้ จนไม้ติ้วหลุดออกมา</li><li>ดูเบอร์ไม้ติ้วก่อน แล้วค่อยเปิดอ่านใบเซียมซี</li></ol></section>
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag"><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span><br>390 · AFTER<br>h1 is the only title</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="siamsi-390-after">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เสี่ยงเซียมซี</h1>
+      <div class="stage-screen" data-bd="stage"><p>ตั้งจิตให้นิ่ง แล้วนึกถึงเรื่องที่อยากรู้ให้ชัดในใจ</p><div class="sm-intent"><span class="sm-intent-label">เรื่องที่อยากถาม</span><div class="sm-chips"><button type="button" class="sm-chip">การงาน</button><button type="button" class="sm-chip">ความรัก</button><button type="button" class="sm-chip">การเงิน</button><button type="button" class="sm-chip">สุขภาพ</button><button type="button" class="sm-chip sm-chip--on">ไม่เจาะจง</button></div></div><div class="sm-barrel"><svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true"><rect x="66" y="52" width="9" height="80" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="84" y="46" width="9" height="86" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="102" y="50" width="9" height="82" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="120" y="48" width="9" height="84" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><path d="M56 72 h84 l-9 126 h-66 z" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><ellipse cx="98" cy="72" rx="42" ry="13" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><path d="M70 112 h56" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path><path d="M72 134 h52" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path></svg></div><button type="button" class="game-btn game-btn-primary">ตั้งจิตแล้ว</button></div>
+    </div>
+    <section class="bd-howto"><h2>วิธีเล่น</h2><ol><li>ตั้งจิตให้นิ่ง แล้วเลือกเรื่องที่อยากถาม</li><li>เขย่าเครื่องต่อเนื่อง หรือกดปุ่มค้างไว้ จนไม้ติ้วหลุดออกมา</li><li>ดูเบอร์ไม้ติ้วก่อน แล้วค่อยเปิดอ่านใบเซียมซี</li></ol></section>
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+  </div>
+  <div class="bd-cands bd-gap">
+    <div class="bd-cand"><span class="bd-tag"><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span><br>320 · BEFORE (as built)</span><div class="bd-frame" data-w="320" style="width:320px; min-height:568px" data-frame="siamsi-320-before">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เสี่ยงเซียมซี</h1>
+      <div class="stage-screen" data-bd="stage"><span class="sm-title bd-drop" data-drop-label="drops">เซียมซี</span><p>ตั้งจิตให้นิ่ง แล้วนึกถึงเรื่องที่อยากรู้ให้ชัดในใจ</p><div class="sm-intent"><span class="sm-intent-label">เรื่องที่อยากถาม</span><div class="sm-chips"><button type="button" class="sm-chip">การงาน</button><button type="button" class="sm-chip">ความรัก</button><button type="button" class="sm-chip">การเงิน</button><button type="button" class="sm-chip">สุขภาพ</button><button type="button" class="sm-chip sm-chip--on">ไม่เจาะจง</button></div></div><div class="sm-barrel"><svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true"><rect x="66" y="52" width="9" height="80" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="84" y="46" width="9" height="86" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="102" y="50" width="9" height="82" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="120" y="48" width="9" height="84" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><path d="M56 72 h84 l-9 126 h-66 z" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><ellipse cx="98" cy="72" rx="42" ry="13" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><path d="M70 112 h56" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path><path d="M72 134 h52" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path></svg></div><button type="button" class="game-btn game-btn-primary">ตั้งจิตแล้ว</button></div>
+    </div>
+    <section class="bd-howto"><h2>วิธีเล่น</h2><ol><li>ตั้งจิตให้นิ่ง แล้วเลือกเรื่องที่อยากถาม</li><li>เขย่าเครื่องต่อเนื่อง หรือกดปุ่มค้างไว้ จนไม้ติ้วหลุดออกมา</li><li>ดูเบอร์ไม้ติ้วก่อน แล้วค่อยเปิดอ่านใบเซียมซี</li></ol></section>
+  </main>
+  <div class="bd-fold" style="top:568px"><span>fold · 320 x 568</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag"><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span><br>320 · AFTER</span><div class="bd-frame" data-w="320" style="width:320px; min-height:568px" data-frame="siamsi-320-after">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เสี่ยงเซียมซี</h1>
+      <div class="stage-screen" data-bd="stage"><p>ตั้งจิตให้นิ่ง แล้วนึกถึงเรื่องที่อยากรู้ให้ชัดในใจ</p><div class="sm-intent"><span class="sm-intent-label">เรื่องที่อยากถาม</span><div class="sm-chips"><button type="button" class="sm-chip">การงาน</button><button type="button" class="sm-chip">ความรัก</button><button type="button" class="sm-chip">การเงิน</button><button type="button" class="sm-chip">สุขภาพ</button><button type="button" class="sm-chip sm-chip--on">ไม่เจาะจง</button></div></div><div class="sm-barrel"><svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true"><rect x="66" y="52" width="9" height="80" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="84" y="46" width="9" height="86" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="102" y="50" width="9" height="82" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="120" y="48" width="9" height="84" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><path d="M56 72 h84 l-9 126 h-66 z" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><ellipse cx="98" cy="72" rx="42" ry="13" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><path d="M70 112 h56" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path><path d="M72 134 h52" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path></svg></div><button type="button" class="game-btn game-btn-primary">ตั้งจิตแล้ว</button></div>
+    </div>
+    <section class="bd-howto"><h2>วิธีเล่น</h2><ol><li>ตั้งจิตให้นิ่ง แล้วเลือกเรื่องที่อยากถาม</li><li>เขย่าเครื่องต่อเนื่อง หรือกดปุ่มค้างไว้ จนไม้ติ้วหลุดออกมา</li><li>ดูเบอร์ไม้ติ้วก่อน แล้วค่อยเปิดอ่านใบเซียมซี</li></ol></section>
+  </main>
+  <div class="bd-fold" style="top:568px"><span>fold · 320 x 568</span></div>
+</div></div>
+  </div>
+</div>
+
+<div class="bd-row">
+  <h2>/game/love-match/ · ask screen · before and after · 390, then 320 · AFTER picked 2026-10-25</h2>
+  <p class="bd-why">Gone: <code>p.lm-heading.lm-heading--ask</code> (red dashed outline in the before frames), the first child of <code>#stage</code> on the ask screen. The lead line <q>ตอบสามข้อ แล้วเปิดดูครั้งเดียว</q> becomes the first child. The three question rows, the privacy note and the open button are untouched. The answer buttons are drawn unanswered, the way the page mounts; the open button is disabled until all three are answered, as built. Phase 3 note: <code>love-match.test.mjs</code> asserts that the ask title exists with the modifier and that the modifier never leaks onto a reading; those assertions are rewritten with the change, not worked around.</p>
+  <div class="bd-cands">
+    <div class="bd-cand"><span class="bd-tag"><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span><br>390 · BEFORE (as built)<br>stage heading is the h1 again</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="love-390-before">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เนื้อคู่ของคุณ</h1>
+      <div class="stage-screen" data-bd="stage"><p class="lm-heading lm-heading--ask bd-drop" data-drop-label="drops">เนื้อคู่ของคุณ</p><p>ตอบสามข้อ แล้วเปิดดูครั้งเดียว</p><div class="lm-qbox"><span class="lm-q">คุณเป็น</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">ผู้ชาย</button><button type="button" class="lm-choice" aria-pressed="false">ผู้หญิง</button></div></div><div class="lm-qbox"><span class="lm-q">อายุของคุณ</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">18–24</button><button type="button" class="lm-choice" aria-pressed="false">25–29</button><button type="button" class="lm-choice" aria-pressed="false">30–34</button><button type="button" class="lm-choice" aria-pressed="false">35–39</button><button type="button" class="lm-choice" aria-pressed="false">40–49</button><button type="button" class="lm-choice" aria-pressed="false">50 ขึ้นไป</button></div></div><div class="lm-qbox"><span class="lm-q">อยากให้เนื้อคู่เป็น</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">ผู้ชาย</button><button type="button" class="lm-choice" aria-pressed="false">ผู้หญิง</button></div></div><p class="lm-note">ที่ตอบไว้อยู่แค่ในหน้านี้รอบเดียว ไม่ได้บันทึก ไม่ได้อยู่ในลิงก์ ไม่ได้ส่งไปไหน</p><button type="button" class="game-btn game-btn-primary" disabled>เปิดดูเนื้อคู่</button></div>
+    </div>
+    <section class="bd-howto"><h2>วิธีเล่น</h2><ol><li>บอกว่าคุณเป็นผู้ชายหรือผู้หญิง</li><li>เลือกช่วงอายุของคุณ</li><li>เลือกว่าอยากให้เนื้อคู่เป็นผู้ชายหรือผู้หญิง</li><li>กด "เปิดดูเนื้อคู่" ครั้งเดียว แล้วอ่านผล</li></ol></section>
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag"><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span><br>390 · AFTER</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="love-390-after">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เนื้อคู่ของคุณ</h1>
+      <div class="stage-screen" data-bd="stage"><p>ตอบสามข้อ แล้วเปิดดูครั้งเดียว</p><div class="lm-qbox"><span class="lm-q">คุณเป็น</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">ผู้ชาย</button><button type="button" class="lm-choice" aria-pressed="false">ผู้หญิง</button></div></div><div class="lm-qbox"><span class="lm-q">อายุของคุณ</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">18–24</button><button type="button" class="lm-choice" aria-pressed="false">25–29</button><button type="button" class="lm-choice" aria-pressed="false">30–34</button><button type="button" class="lm-choice" aria-pressed="false">35–39</button><button type="button" class="lm-choice" aria-pressed="false">40–49</button><button type="button" class="lm-choice" aria-pressed="false">50 ขึ้นไป</button></div></div><div class="lm-qbox"><span class="lm-q">อยากให้เนื้อคู่เป็น</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">ผู้ชาย</button><button type="button" class="lm-choice" aria-pressed="false">ผู้หญิง</button></div></div><p class="lm-note">ที่ตอบไว้อยู่แค่ในหน้านี้รอบเดียว ไม่ได้บันทึก ไม่ได้อยู่ในลิงก์ ไม่ได้ส่งไปไหน</p><button type="button" class="game-btn game-btn-primary" disabled>เปิดดูเนื้อคู่</button></div>
+    </div>
+    <section class="bd-howto"><h2>วิธีเล่น</h2><ol><li>บอกว่าคุณเป็นผู้ชายหรือผู้หญิง</li><li>เลือกช่วงอายุของคุณ</li><li>เลือกว่าอยากให้เนื้อคู่เป็นผู้ชายหรือผู้หญิง</li><li>กด "เปิดดูเนื้อคู่" ครั้งเดียว แล้วอ่านผล</li></ol></section>
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+  </div>
+  <div class="bd-cands bd-gap">
+    <div class="bd-cand"><span class="bd-tag"><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-10-25</span><br>320 · BEFORE (as built)</span><div class="bd-frame" data-w="320" style="width:320px; min-height:568px" data-frame="love-320-before">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เนื้อคู่ของคุณ</h1>
+      <div class="stage-screen" data-bd="stage"><p class="lm-heading lm-heading--ask bd-drop" data-drop-label="drops">เนื้อคู่ของคุณ</p><p>ตอบสามข้อ แล้วเปิดดูครั้งเดียว</p><div class="lm-qbox"><span class="lm-q">คุณเป็น</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">ผู้ชาย</button><button type="button" class="lm-choice" aria-pressed="false">ผู้หญิง</button></div></div><div class="lm-qbox"><span class="lm-q">อายุของคุณ</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">18–24</button><button type="button" class="lm-choice" aria-pressed="false">25–29</button><button type="button" class="lm-choice" aria-pressed="false">30–34</button><button type="button" class="lm-choice" aria-pressed="false">35–39</button><button type="button" class="lm-choice" aria-pressed="false">40–49</button><button type="button" class="lm-choice" aria-pressed="false">50 ขึ้นไป</button></div></div><div class="lm-qbox"><span class="lm-q">อยากให้เนื้อคู่เป็น</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">ผู้ชาย</button><button type="button" class="lm-choice" aria-pressed="false">ผู้หญิง</button></div></div><p class="lm-note">ที่ตอบไว้อยู่แค่ในหน้านี้รอบเดียว ไม่ได้บันทึก ไม่ได้อยู่ในลิงก์ ไม่ได้ส่งไปไหน</p><button type="button" class="game-btn game-btn-primary" disabled>เปิดดูเนื้อคู่</button></div>
+    </div>
+    <section class="bd-howto"><h2>วิธีเล่น</h2><ol><li>บอกว่าคุณเป็นผู้ชายหรือผู้หญิง</li><li>เลือกช่วงอายุของคุณ</li><li>เลือกว่าอยากให้เนื้อคู่เป็นผู้ชายหรือผู้หญิง</li><li>กด "เปิดดูเนื้อคู่" ครั้งเดียว แล้วอ่านผล</li></ol></section>
+  </main>
+  <div class="bd-fold" style="top:568px"><span>fold · 320 x 568</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag"><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-10-25</span><br>320 · AFTER</span><div class="bd-frame" data-w="320" style="width:320px; min-height:568px" data-frame="love-320-after">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เนื้อคู่ของคุณ</h1>
+      <div class="stage-screen" data-bd="stage"><p>ตอบสามข้อ แล้วเปิดดูครั้งเดียว</p><div class="lm-qbox"><span class="lm-q">คุณเป็น</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">ผู้ชาย</button><button type="button" class="lm-choice" aria-pressed="false">ผู้หญิง</button></div></div><div class="lm-qbox"><span class="lm-q">อายุของคุณ</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">18–24</button><button type="button" class="lm-choice" aria-pressed="false">25–29</button><button type="button" class="lm-choice" aria-pressed="false">30–34</button><button type="button" class="lm-choice" aria-pressed="false">35–39</button><button type="button" class="lm-choice" aria-pressed="false">40–49</button><button type="button" class="lm-choice" aria-pressed="false">50 ขึ้นไป</button></div></div><div class="lm-qbox"><span class="lm-q">อยากให้เนื้อคู่เป็น</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">ผู้ชาย</button><button type="button" class="lm-choice" aria-pressed="false">ผู้หญิง</button></div></div><p class="lm-note">ที่ตอบไว้อยู่แค่ในหน้านี้รอบเดียว ไม่ได้บันทึก ไม่ได้อยู่ในลิงก์ ไม่ได้ส่งไปไหน</p><button type="button" class="game-btn game-btn-primary" disabled>เปิดดูเนื้อคู่</button></div>
+    </div>
+    <section class="bd-howto"><h2>วิธีเล่น</h2><ol><li>บอกว่าคุณเป็นผู้ชายหรือผู้หญิง</li><li>เลือกช่วงอายุของคุณ</li><li>เลือกว่าอยากให้เนื้อคู่เป็นผู้ชายหรือผู้หญิง</li><li>กด "เปิดดูเนื้อคู่" ครั้งเดียว แล้วอ่านผล</li></ol></section>
+  </main>
+  <div class="bd-fold" style="top:568px"><span>fold · 320 x 568</span></div>
+</div></div>
+  </div>
+</div>
+
+<div class="bd-row">
+  <h2>/game/daily-fortune/ · idle screen · control, no change · 390 and 320 · approved unchanged 2026-10-25</h2>
+  <p class="bd-why">Nothing is removed. The h1 <q>ดวงวันนี้</q> and the stage headline <q>วันนี้คุณจะเจอกับอะไร</q> are different words, so pick 12 does not apply (README F7 says the same). These frames are the as-built control so the sheet shows all three pages.</p>
+  <div class="bd-cands">
+    <div class="bd-cand"><span class="bd-tag">390 · AS BUILT = AFTER</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="daily-390">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">ดวงวันนี้</h1>
+      <div class="stage-screen" data-bd="stage"><div class="df-date-row"><span class="df-date">ส. 24 ต.ค.</span></div><div class="df-art"><svg width="150" height="150" viewBox="0 0 150 150" fill="none" aria-hidden="true"><circle cx="75" cy="75" r="34" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3"></circle><path d="M75 18 v-12 M75 132 v12 M18 75 h-12 M132 75 h12 M35 35 l-9-9 M115 35 l9-9 M35 115 l-9 9 M115 115 l9 9" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path><path d="M64 70 q4 -5 8 0" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path><circle cx="86" cy="70" r="2.6" fill="var(--color-line-strong)"></circle><path d="M65 85 q10 8 20 0" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path></svg></div><span class="df-headline">วันนี้คุณจะเจอกับอะไร</span><p class="df-joke">ดวงขำๆ เรื่องจิ๊บจ๊อยประจำวัน ไม่ต้องเชื่อ กดแล้วรู้เลย</p><button type="button" class="game-btn game-btn-primary">เปิดดวงวันนี้</button><p class="df-foot">อยากได้คำทำนายจริงจัง ไปเสี่ยงเซียมซี</p></div>
+    </div>
+    <section class="bd-howto"><h2>วิธีเล่น</h2><ol><li>กด "เปิดดวงวันนี้" ครั้งเดียว</li><li>อ่านสามเรื่องที่ได้ เรื่องกิน เรื่องเงิน และเรื่องทาง</li><li>ดูสรุปดวงวันนี้ที่มาจากสามเรื่องนั้นรวมกัน</li><li>อยากได้ใหม่ กด "เปิดใหม่อีกที" ได้เรื่อยๆ</li></ol></section>
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag">320 · AS BUILT = AFTER</span><div class="bd-frame" data-w="320" style="width:320px; min-height:568px" data-frame="daily-320">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">ดวงวันนี้</h1>
+      <div class="stage-screen" data-bd="stage"><div class="df-date-row"><span class="df-date">ส. 24 ต.ค.</span></div><div class="df-art"><svg width="150" height="150" viewBox="0 0 150 150" fill="none" aria-hidden="true"><circle cx="75" cy="75" r="34" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3"></circle><path d="M75 18 v-12 M75 132 v12 M18 75 h-12 M132 75 h12 M35 35 l-9-9 M115 35 l9-9 M35 115 l-9 9 M115 115 l9 9" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path><path d="M64 70 q4 -5 8 0" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path><circle cx="86" cy="70" r="2.6" fill="var(--color-line-strong)"></circle><path d="M65 85 q10 8 20 0" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path></svg></div><span class="df-headline">วันนี้คุณจะเจอกับอะไร</span><p class="df-joke">ดวงขำๆ เรื่องจิ๊บจ๊อยประจำวัน ไม่ต้องเชื่อ กดแล้วรู้เลย</p><button type="button" class="game-btn game-btn-primary">เปิดดวงวันนี้</button><p class="df-foot">อยากได้คำทำนายจริงจัง ไปเสี่ยงเซียมซี</p></div>
+    </div>
+    <section class="bd-howto"><h2>วิธีเล่น</h2><ol><li>กด "เปิดดวงวันนี้" ครั้งเดียว</li><li>อ่านสามเรื่องที่ได้ เรื่องกิน เรื่องเงิน และเรื่องทาง</li><li>ดูสรุปดวงวันนี้ที่มาจากสามเรื่องนั้นรวมกัน</li><li>อยากได้ใหม่ กด "เปิดใหม่อีกที" ได้เรื่อยๆ</li></ol></section>
+  </main>
+  <div class="bd-fold" style="top:568px"><span>fold · 320 x 568</span></div>
+</div></div>
+  </div>
+</div>
+
+<div class="bd-row bd-reveal">
+  <h2>Result reveal (pick 5) · where it happens, start and end frame · 390</h2>
+  <p class="bd-why">Every result is a screen swap inside <code>#stage</code>: the module clears the stage with <code>replaceChildren()</code> and appends the result in one task, under the finger that pressed. So the reveal happens <b>in place</b>, in the same box the previous screen occupied, and the stage grows downward. Each row reads A (the screen the finger is on), B (start frame: the dashed outline is the final box of the result element, content hidden; what is painted at the start is a motion value), C (end frame: settled). Pick 12 only changes screen 1 of siamsi and love-match, so none of these frames depend on it. motion: see Gh288MotionSheet § result reveal (duration, easing, distance and the reduced form are there and nowhere in this file).</p>
+  <div class="bd-armbox"><b>Constraint · arm window.</b> Every one of these renders ends with <code>armAllButtons(stage)</code> (<code>src/games/_arm-gate.ts</code>). That keeps the result screen's controls disabled for <code>ARM_DELAY_MS</code> = 400 ms, so a second contact of a double-tap cannot activate what the reveal just put under the finger; closing a modal arms the same way (ADR-0057). The reveal must therefore be settled within 400 ms: at that moment the controls become tappable, and a result still moving would put a live button under a moving layout. <b>Dropping a heading arms nothing.</b> The removed elements are not controls, <code>armAllButtons</code> never saw them, and pick 12 changes no render call and no timer. Adding the reveal also arms nothing: the gate is already attached to every one of these renders.</div>
+
+  <h3>siamsi · stick screen to slip · result element <code>div.sm-slip</code> · trigger <code>#ss-open-slip</code> · <code>renderStick()</code> to <code>renderSlip()</code></h3>
+  <div class="bd-cands">
+    <div class="bd-cand"><span class="bd-tag">A · before the press<br>stick screen, button <q>เปิดใบเซียมซี</q></span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="rv-siamsi-a">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เสี่ยงเซียมซี</h1>
+      <div class="stage-screen" data-bd="stage"><span class="sm-subtitle">ไม้ติ้วหลุดแล้ว</span><div class="sm-barrel sm-barrel--landed"><svg width="240" height="240" viewBox="0 0 240 240" fill="none" aria-hidden="true"><g style="transform: rotate(-12deg); transform-origin: 150px 180px;"><rect x="118" y="66" width="9" height="60" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="136" y="60" width="9" height="66" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="154" y="64" width="9" height="62" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><path d="M108 86 h84 l-9 112 h-66 z" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><ellipse cx="150" cy="86" rx="42" ry="13" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><path d="M122 124 h56" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path></g><g class="sm-fallen" style="transform: rotate(-7deg); transform-origin: 100px 196px;"><rect x="16" y="182" width="150" height="13" rx="6.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="16" y="182" width="24" height="13" rx="6.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><text x="118" y="193" font-family="var(--font-display)" font-size="13" font-weight="500" fill="var(--color-line-strong)" text-anchor="middle">๑๙</text></g></svg></div><div class="sm-number"><span class="sm-number-thai">๑๙</span><span>ไม้ติ้วเบอร์ 19</span></div><button type="button" class="game-btn game-btn-primary">เปิดใบเซียมซี</button></div>
+    </div>
+    
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag">B · start frame<br>dashed box = final box of <code>.sm-slip</code></span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="rv-siamsi-b">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เสี่ยงเซียมซี</h1>
+      <div class="stage-screen" data-bd="stage"><div class="sm-slip bd-ghost"><div class="sm-slip-head"><span class="sm-slip-number">๑๙</span><span class="sm-grade">ระวัง</span></div><p class="sm-verse"><span>เกวียนบรรทุกจนล้น ล้อจะรับไม่ไหว</span><br><span>ลดของลงสักใบ แล้วจะไปได้ไกลกว่า</span><br><span>ของทุกชิ้นดูสำคัญ แต่ไม่ใช่วันนี้ทั้งหมด</span><br><span>เลือกสิ่งที่ต้องถึงก่อน แล้วปล่อยที่เหลือไว้</span></p><div class="sm-rows"><div class="sm-row sm-row--asked"><span class="sm-row-bar"></span><div><span class="sm-row-label">ความรัก</span><p>ไม่มีเวลาให้คนใกล้ตัวมาหลายวันแล้ว แบ่งมาสักช่วงเย็น</p></div></div><div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">การงาน</span><p>รับไว้เยอะเกินจนไม่เสร็จสักอย่าง เลือกทำให้จบทีละเรื่อง</p></div></div><div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">การเงิน</span><p>รายจ่ายประจำหลายทางกำลังกินเกินที่ควร ตัดสักทางก่อน</p></div></div><div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">สุขภาพ</span><p>นอนไม่พอสะสมจนตัวหนัก คืนนี้เข้านอนก่อนเวลาเดิม</p></div></div></div><p class="sm-closing">ลองวางลงสักอย่าง ไม่ใช่ยอมแพ้ แต่เป็นวิธีเดียวที่จะไปถึงพร้อมของ</p></div><button type="button" class="game-btn game-btn-primary">เก็บใบนี้ไว้</button><button type="button" class="game-btn game-btn-secondary">ผูกทิ้งไว้ที่นี่</button><p>ใบดีเก็บไว้เป็นกำลังใจ ใบที่ไม่ถูกใจฝากทิ้งไว้ที่นี่ ไม่ต้องเอากลับบ้าน</p></div>
+    </div>
+    
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag">C · end frame (settled)<br>slip 19, asked subject first</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="rv-siamsi-c">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เสี่ยงเซียมซี</h1>
+      <div class="stage-screen" data-bd="stage"><div class="sm-slip"><div class="sm-slip-head"><span class="sm-slip-number">๑๙</span><span class="sm-grade">ระวัง</span></div><p class="sm-verse"><span>เกวียนบรรทุกจนล้น ล้อจะรับไม่ไหว</span><br><span>ลดของลงสักใบ แล้วจะไปได้ไกลกว่า</span><br><span>ของทุกชิ้นดูสำคัญ แต่ไม่ใช่วันนี้ทั้งหมด</span><br><span>เลือกสิ่งที่ต้องถึงก่อน แล้วปล่อยที่เหลือไว้</span></p><div class="sm-rows"><div class="sm-row sm-row--asked"><span class="sm-row-bar"></span><div><span class="sm-row-label">ความรัก</span><p>ไม่มีเวลาให้คนใกล้ตัวมาหลายวันแล้ว แบ่งมาสักช่วงเย็น</p></div></div><div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">การงาน</span><p>รับไว้เยอะเกินจนไม่เสร็จสักอย่าง เลือกทำให้จบทีละเรื่อง</p></div></div><div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">การเงิน</span><p>รายจ่ายประจำหลายทางกำลังกินเกินที่ควร ตัดสักทางก่อน</p></div></div><div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">สุขภาพ</span><p>นอนไม่พอสะสมจนตัวหนัก คืนนี้เข้านอนก่อนเวลาเดิม</p></div></div></div><p class="sm-closing">ลองวางลงสักอย่าง ไม่ใช่ยอมแพ้ แต่เป็นวิธีเดียวที่จะไปถึงพร้อมของ</p></div><button type="button" class="game-btn game-btn-primary">เก็บใบนี้ไว้</button><button type="button" class="game-btn game-btn-secondary">ผูกทิ้งไว้ที่นี่</button><p>ใบดีเก็บไว้เป็นกำลังใจ ใบที่ไม่ถูกใจฝากทิ้งไว้ที่นี่ ไม่ต้องเอากลับบ้าน</p></div>
+    </div>
+    
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+  </div>
+
+  <h3>daily-fortune · idle to result · result elements <code>div.df-verdict-card</code> and <code>div.df-lines</code> · trigger <code>#df-go</code> · <code>renderIdle()</code> to <code>renderResult()</code></h3>
+  <div class="bd-cands">
+    <div class="bd-cand"><span class="bd-tag">A · before the press<br>idle screen, button <q>เปิดดวงวันนี้</q></span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="rv-daily-a">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">ดวงวันนี้</h1>
+      <div class="stage-screen" data-bd="stage"><div class="df-date-row"><span class="df-date">ส. 24 ต.ค.</span></div><div class="df-art"><svg width="150" height="150" viewBox="0 0 150 150" fill="none" aria-hidden="true"><circle cx="75" cy="75" r="34" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3"></circle><path d="M75 18 v-12 M75 132 v12 M18 75 h-12 M132 75 h12 M35 35 l-9-9 M115 35 l9-9 M35 115 l-9 9 M115 115 l9 9" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path><path d="M64 70 q4 -5 8 0" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path><circle cx="86" cy="70" r="2.6" fill="var(--color-line-strong)"></circle><path d="M65 85 q10 8 20 0" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path></svg></div><span class="df-headline">วันนี้คุณจะเจอกับอะไร</span><p class="df-joke">ดวงขำๆ เรื่องจิ๊บจ๊อยประจำวัน ไม่ต้องเชื่อ กดแล้วรู้เลย</p><button type="button" class="game-btn game-btn-primary">เปิดดวงวันนี้</button><p class="df-foot">อยากได้คำทำนายจริงจัง ไปเสี่ยงเซียมซี</p></div>
+    </div>
+    
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag">B · start frame<br>dashed boxes = final boxes of the verdict card and the three lines</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="rv-daily-b">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">ดวงวันนี้</h1>
+      <div class="stage-screen" data-bd="stage"><div class="df-date-row"><span class="df-date">ส. 24 ต.ค.</span></div><div class="df-verdict-card bd-ghost"><span class="df-verdict-label">ดวงวันนี้ประมาณว่า</span><p class="df-verdict">เสมอตัว ได้อย่างเสียอย่าง</p></div><div class="df-lines bd-ghost"><div class="df-line"><span class="df-line-cat">กิน</span><p class="df-line-text">สั่งไข่ดาว จะได้ไข่เจียว แต่อร่อยกว่าที่สั่งไว้</p><span class="df-line-luck df-luck-flip">~</span></div><div class="df-line"><span class="df-line-cat">เงิน</span><p class="df-line-text">ล้วงกระเป๋าเสื้อตัวเก่า จะเจอแบงก์ที่ลืมไปแล้วว่าเคยมี</p><span class="df-line-luck">+</span></div><div class="df-line"><span class="df-line-cat">ทาง</span><p class="df-line-text">ลืมพกร่ม ฝนจะตกตอนออกจากบ้าน แล้วหยุดตอนถึงที่หมาย</p><span class="df-line-luck">-</span></div></div><button type="button" class="game-btn game-btn-primary">เปิดใหม่อีกที</button><p class="df-foot">กดใหม่ได้เรื่อยๆ ดวงนี้ไม่จริงจังอยู่แล้ว</p></div>
+    </div>
+    
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag">C · end frame (settled)<br>sum 0, so the verdict reads <q>เสมอตัว ได้อย่างเสียอย่าง</q></span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="rv-daily-c">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">ดวงวันนี้</h1>
+      <div class="stage-screen" data-bd="stage"><div class="df-date-row"><span class="df-date">ส. 24 ต.ค.</span></div><div class="df-verdict-card"><span class="df-verdict-label">ดวงวันนี้ประมาณว่า</span><p class="df-verdict">เสมอตัว ได้อย่างเสียอย่าง</p></div><div class="df-lines"><div class="df-line"><span class="df-line-cat">กิน</span><p class="df-line-text">สั่งไข่ดาว จะได้ไข่เจียว แต่อร่อยกว่าที่สั่งไว้</p><span class="df-line-luck df-luck-flip">~</span></div><div class="df-line"><span class="df-line-cat">เงิน</span><p class="df-line-text">ล้วงกระเป๋าเสื้อตัวเก่า จะเจอแบงก์ที่ลืมไปแล้วว่าเคยมี</p><span class="df-line-luck">+</span></div><div class="df-line"><span class="df-line-cat">ทาง</span><p class="df-line-text">ลืมพกร่ม ฝนจะตกตอนออกจากบ้าน แล้วหยุดตอนถึงที่หมาย</p><span class="df-line-luck">-</span></div></div><button type="button" class="game-btn game-btn-primary">เปิดใหม่อีกที</button><p class="df-foot">กดใหม่ได้เรื่อยๆ ดวงนี้ไม่จริงจังอยู่แล้ว</p></div>
+    </div>
+    
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+  </div>
+
+  <h3>love-match · ask to reading · result elements: every child of <code>#stage</code> above the redo button · trigger <code>#lm-go</code> · <code>renderAsk()</code> to <code>renderReading()</code>, two branches</h3>
+  <div class="bd-cands">
+    <div class="bd-cand"><span class="bd-tag">A · before the press<br>ask screen as it is after pick 12</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="rv-love-a">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เนื้อคู่ของคุณ</h1>
+      <div class="stage-screen" data-bd="stage"><p>ตอบสามข้อ แล้วเปิดดูครั้งเดียว</p><div class="lm-qbox"><span class="lm-q">คุณเป็น</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">ผู้ชาย</button><button type="button" class="lm-choice" aria-pressed="false">ผู้หญิง</button></div></div><div class="lm-qbox"><span class="lm-q">อายุของคุณ</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">18–24</button><button type="button" class="lm-choice" aria-pressed="false">25–29</button><button type="button" class="lm-choice" aria-pressed="false">30–34</button><button type="button" class="lm-choice" aria-pressed="false">35–39</button><button type="button" class="lm-choice" aria-pressed="false">40–49</button><button type="button" class="lm-choice" aria-pressed="false">50 ขึ้นไป</button></div></div><div class="lm-qbox"><span class="lm-q">อยากให้เนื้อคู่เป็น</span><div class="lm-opts"><button type="button" class="lm-choice" aria-pressed="false">ผู้ชาย</button><button type="button" class="lm-choice" aria-pressed="false">ผู้หญิง</button></div></div><p class="lm-note">ที่ตอบไว้อยู่แค่ในหน้านี้รอบเดียว ไม่ได้บันทึก ไม่ได้อยู่ในลิงก์ ไม่ได้ส่งไปไหน</p><button type="button" class="game-btn game-btn-primary" disabled>เปิดดูเนื้อคู่</button></div>
+    </div>
+    
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag">B · start frame, self branch<br>dashed boxes = final boxes of the art and the three text blocks</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="rv-love-b">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เนื้อคู่ของคุณ</h1>
+      <div class="stage-screen" data-bd="stage"><div class="lm-art bd-ghost"><svg width="96" height="96" viewBox="0 0 96 96" fill="none" aria-hidden="true"><circle cx="48" cy="48" r="30" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3"></circle><path d="M37 52q11 10 22 0" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path></svg></div><p class="lm-heading bd-ghost">รอบนี้ยังไม่มีชื่อใคร</p><p class="lm-body bd-ghost">ไม่ได้แปลว่าขาด แปลว่าตอนนี้คุณไม่ต้องรอใครก่อนจะมีความสุข</p><p class="lm-note bd-ghost">เปิดใหม่ได้เรื่อยๆ ดวงไม่ได้ผูกไว้กับรอบเดียว</p><button type="button" class="game-btn game-btn-secondary">เปิดใหม่อีกที</button></div>
+    </div>
+    
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+    <div class="bd-cand"><span class="bd-tag">C · end frame, self branch (settled)</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="rv-love-c">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เนื้อคู่ของคุณ</h1>
+      <div class="stage-screen" data-bd="stage"><div class="lm-art"><svg width="96" height="96" viewBox="0 0 96 96" fill="none" aria-hidden="true"><circle cx="48" cy="48" r="30" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3"></circle><path d="M37 52q11 10 22 0" stroke="var(--color-line-strong)" stroke-width="3" stroke-linecap="round"></path></svg></div><p class="lm-heading">รอบนี้ยังไม่มีชื่อใคร</p><p class="lm-body">ไม่ได้แปลว่าขาด แปลว่าตอนนี้คุณไม่ต้องรอใครก่อนจะมีความสุข</p><p class="lm-note">เปิดใหม่ได้เรื่อยๆ ดวงไม่ได้ผูกไว้กับรอบเดียว</p><button type="button" class="game-btn game-btn-secondary">เปิดใหม่อีกที</button></div>
+    </div>
+    
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+  </div>
+  <div class="bd-cands bd-gap">
+    <div class="bd-cand"><span class="bd-tag">D · end frame, meet branch (settled)<br>the other branch of the same reveal; the portrait box (<code>.lm-portrait</code>) holds its square before the image arrives</span><div class="bd-frame" data-w="390" style="width:390px; min-height:844px" data-frame="rv-love-d">
+  <main style="--page-accent: var(--accent-gold);">
+    <header class="game-topbar"><a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"></path><path d="M12 19l-7-7 7-7"></path></svg>ดูดวง</a></header>
+    <div class="play-area">
+      <h1 class="game-title">เนื้อคู่ของคุณ</h1>
+      <div class="stage-screen" data-bd="stage"><p class="lm-heading">คุณจะได้เจอเขา</p><p class="lm-when">ตอนคุณอายุ 29 ปี</p><p class="lm-where">ที่ ร้านหนังสือมือสอง</p><div class="lm-portrait"><img src="../public/art/nuea-khu/IMG_01_041.webp" alt="" width="400" height="400"></div><div class="lm-card"><div class="lm-row"><span>เพศ</span><span>ชาย</span></div><div class="lm-row"><span>อายุ</span><span>29</span></div><div class="lm-row"><span>ส่วนสูง</span><span>172 ซม.</span></div><div class="lm-row"><span>รูปร่าง</span><span>ผอมสูง</span></div><div class="lm-row"><span>สัญชาติ</span><span>ไทย</span></div><div class="lm-row"><span>อาชีพ</span><span>ครูสอนดนตรี</span></div><div class="lm-row"><span>ฐานะ</span><span>มีรายได้ประจำ ไม่ถึงกับสบาย</span></div><div class="lm-row"><span>ท่าที</span><span>พูดน้อยแต่ยิ้มง่าย</span></div><div class="lm-row"><span>นิสัยติดตัว</span><span>ฮัมเพลงตอนคิดอะไรไม่ออก</span></div><div class="lm-row"><span>จุดสังเกต</span><span>แผลเป็นเล็กๆ ที่คิ้วซ้าย</span></div></div><p class="lm-note">ไม่ต้องรีบออกไปหา แค่จำไว้ว่าประมาณนี้</p><button type="button" class="game-btn game-btn-secondary">เปิดใหม่อีกที</button></div>
+    </div>
+    
+  </main>
+  <div class="bd-fold" style="top:844px"><span>fold · 390 x 844</span></div>
+</div></div>
+  </div>
+</div>
+
+<div class="bd-row">
+  <h2>Hand-off to Phase 3 · what takes values from this sheet</h2>
+  <ul class="bd-list">
+    <li>Pick 12: delete the creation of <code>span.sm-title</code> in <code>renderIntent()</code> and of <code>p.lm-heading.lm-heading--ask</code> in <code>renderAsk()</code>; retire the CSS that only they used (<code>.sm-title</code>, <code>.lm-heading--ask</code>) after counting importers and selectors from disk, never from this line.</li>
+    <li>Re-measure <code>firstScreenReserve</code> for siamsi and love-match (phone and wide) after the delete. daily-fortune is not touched.</li>
+    <li>Rewrite the <code>love-match.test.mjs</code> assertions that pin the ask title and its modifier; the gh#263 size ruling for the reading headings stays pinned.</li>
+    <li>Result reveal: values (duration, easing, distance, reduced form) come from Gh288MotionSheet, not from here. The settle-within-400 ms constraint above binds whatever it says.</li>
+    <li>Not drawn here: the stage at the 600 to 639 and 640 up widths (reserve has a wide value), real-device behaviour, and screen-reader output; the frames are static renders of the shipped CSS.</li>
+  </ul>
+</div>
+</div>
+</x-dc>
+</body>
+</html>
