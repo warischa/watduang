@@ -1,0 +1,92 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import { execFileSync, spawnSync } from 'node:child_process';
+const repo = '/Users/waris.c/claude/free-game';
+const scratch = path.dirname(new URL(import.meta.url).pathname);
+const sourceAt = (ref, file) => ref === 'worktree' ? fs.readFileSync(repo + '/' + file, 'utf8') : execFileSync('git', ['show', `${ref}:${file}`], { cwd: repo, encoding: 'utf8' });
+fs.writeFileSync(scratch + '/stderr.log', '');
+
+async function evaluateWrongPage(body, width, rate) {
+  let now = 0, next = 0;
+  const tasks = new Map(), observers = new Set(), listeners = [];
+  const animation = { playState: 'finished' };
+  const paths = Array.from({ length: 5 }, () => ({ tagName: 'path' }));
+  const texts = ['A', 'B', 'C', 'D', 'E'].map(textContent => ({ textContent }));
+  let resultText = '';
+  const result = {
+    get textContent() { return resultText; },
+    set textContent(value) { resultText = value; queueMicrotask(() => { for (const obs of [...observers]) obs.callback(); }); },
+  };
+  const setTimeout = (fn, delay) => { tasks.set(++next, { at: now + delay, fn }); return next; };
+  const group = {
+    getAnimations: () => [animation],
+    addEventListener: (type, fn) => listeners.push(fn),
+    querySelectorAll: selector => selector.endsWith('path') ? paths : texts,
+  };
+  const input = { tagName: 'TEXTAREA', dispatchEvent() {} };
+  const noop = { click() {} };
+  const spin = {
+    click() {
+      result.textContent = '';
+      animation.playState = 'running';
+      setTimeout(() => {
+        // Wrong page: announce halfway through a temporarily paused transition.
+        // The observer sees paused; a later microtask resumes the unfinished disc.
+        animation.playState = 'paused';
+        result.textContent = 'A';
+        queueMicrotask(() => { animation.playState = 'running'; });
+      }, 1000);
+      setTimeout(() => {
+        animation.playState = 'finished';
+        for (const fn of listeners) fn({ target: group, propertyName: 'transform' });
+      }, 2005 / rate);
+    },
+  };
+  const ids = { 'name-input': input, 'name-start': noop, 'wheel-eliminate': noop, 'wheel-spin': spin, 'wheel-result': result };
+  class MutationObserver {
+    constructor(callback) { this.callback = callback; }
+    observe() { observers.add(this); }
+    disconnect() { observers.delete(this); }
+  }
+  const document = {
+    getElementById: id => ids[id],
+    querySelector: selector => selector === '#wheel-group' ? group : { getBoundingClientRect: () => ({ left: 0, top: 0, width: 400 }) },
+    elementFromPoint: () => paths[0],
+  };
+  const promise = vm.runInNewContext(`(async () => { ${body} })()`, { document, localStorage: { getItem: () => null }, Event, MutationObserver, setTimeout, performance: { now: () => now }, innerWidth: width });
+  let settled = false, value, error;
+  promise.then(v => { settled = true; value = v; }, e => { settled = true; error = e; });
+  for (let i = 0; !settled && i < 1000; i++) {
+    await new Promise(setImmediate);
+    if (settled) break;
+    const due = [...tasks].sort((a, b) => a[1].at - b[1].at)[0];
+    assert.ok(due, 'page promise pending without a scheduled task');
+    tasks.delete(due[0]); now = due[1].at; due[1].fn();
+  }
+  if (error) throw error;
+  assert.ok(settled, 'virtual clock did not converge');
+  return { value };
+}
+
+for (const ref of ['cbb951b', '8934bce', 'worktree']) {
+  const probePath = scratch + `/probe-${ref}.mjs`;
+  const verdictPath = scratch + `/verdict-${ref}.mjs`;
+  fs.writeFileSync(probePath, sourceAt(ref, 'scripts/wheel-pointer-name-probe.mjs'));
+  fs.writeFileSync(verdictPath, sourceAt(ref, 'scripts/ci-probes-verdict.mjs'));
+  const probe = (await import(probePath)).default;
+  let width = 390, rate = 1;
+  const session = {
+    nav: async () => {}, wipe: async () => {},
+    setWidth: async w => { width = w; },
+    cdp: async (method, args) => { if (method === 'Animation.setPlaybackRate') rate = args.playbackRate; },
+    evaluate: body => evaluateWrongPage(body, width, rate),
+  };
+  const out = await probe(session);
+  const outFile = scratch + `/wrong-page-${ref}.json`;
+  fs.writeFileSync(outFile, JSON.stringify(out, null, 2));
+  const judged = spawnSync(process.execPath, [verdictPath, 'wheel-pointer-name', outFile, '0', scratch + '/stderr.log'], { encoding: 'utf8' });
+  assert.equal(judged.status, 0, judged.stdout + judged.stderr);
+  console.log(JSON.stringify({ ref, verdict: judged.status, measurement: out.runs.map(r => ({ width: r.width, rate: r.rate, firstSpin: r.spins[0] })) }));
+}

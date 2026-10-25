@@ -1,0 +1,19 @@
+Result: FAIL
+Round 1: late-fallback detection FIXED; slow-rate band FIXED; stop fallback floor FIXED at 6000ms, subject to finding 2.
+Both findings reproduce at base; neither is a newly introduced regression.
+
+1. scripts/wheel-pointer-name-probe.mjs:77 + scripts/ci-probes-verdict.mjs:171 — P2, Confirmed [spot-fix] [pre-existing].
+Counter-example: pause at revealMs=1000 with matching pointer/name, then resume in a microtask; landing occurs at endMs=2005/4010. The unmodified probe reports runningAtReveal=0 and verdict exits 0 despite announcing before landing. Missing revealMs also passes.
+base: reproduces — RAN the actual probe/verdict sources at cbb951b and 8934bce against the synthetic page fixture; both pass incorrectly.
+Fix: require a finite revealMs and reject reveals preceding landing, with small rounding slack.
+
+2. src/pages/tool/wheel.astro:667 — P2, Inferred [mechanism] [pre-existing].
+Counter-example: first transition frame delayed 4500ms; its 2000ms transition lands at 6500ms. The fallback reveals at 6000ms without settling the transform. Raising a fixed timer cannot bound browser-owned frame delays.
+base: reproduces — RAN cbb951b and 8934bce scripts in the timer/DOM harness; both reveal without settling. Native rendering reproduction was not run because the sandbox denied Chromium launch.
+Fix: make the fallback settle the disc before revealing.
+
+RAN: `node /Users/waris.c/claude/claude-skills-index/skills/orchestrate/runtime/judge.c0X0/audit.mjs`
+RAN: `node /Users/waris.c/claude/claude-skills-index/skills/orchestrate/runtime/judge.c0X0/wrong-page-audit.mjs`
+RAN inside `/Users/waris.c/claude/free-game`: `node --test /Users/waris.c/claude/free-game/scripts/ci-probes-verdict.test.mjs /Users/waris.c/claude/free-game/scripts/play-screen-fit-probe.test.mjs` — 92 passed.
+Coverage: read wheel lifecycle, probe/verdict, fit tables/consumers and new test. Confirmed 176px parsing, round boundary 8/9 and warning boundary 184/185. No row-move defect found. Native stale-event/hidden-tab behavior remains unverified; workspace unchanged.
+would change if: timing validation rejects the counter-example and the fallback demonstrably settles before revealing.

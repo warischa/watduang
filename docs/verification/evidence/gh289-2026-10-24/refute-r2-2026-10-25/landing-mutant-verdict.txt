@@ -1,0 +1,2 @@
+width 320 rate 1 spin 1: announced 3990ms after the disc landed (limit 250ms) -- a fallback timer, not the landing
+rc=1

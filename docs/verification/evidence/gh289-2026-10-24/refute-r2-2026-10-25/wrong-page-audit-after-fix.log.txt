@@ -1,0 +1,21 @@
+{"ref":"cbb951b","verdict":0,"measurement":[{"width":320,"firstSpin":{"spin":1,"resultText":"A","pointerLabel":"A","hitTag":"path","pathCount":5}},{"width":390,"firstSpin":{"spin":1,"resultText":"A","pointerLabel":"A","hitTag":"path","pathCount":5}}]}
+{"ref":"8934bce","verdict":0,"measurement":[{"width":320,"rate":1,"firstSpin":{"spin":1,"resultText":"A","revealMs":1000,"runningAtReveal":0,"pointerLabel":"A","hitTag":"path","pathCount":5,"endMs":2005}},{"width":390,"rate":1,"firstSpin":{"spin":1,"resultText":"A","revealMs":1000,"runningAtReveal":0,"pointerLabel":"A","hitTag":"path","pathCount":5,"endMs":2005}},{"width":390,"rate":0.5,"firstSpin":{"spin":1,"resultText":"A","revealMs":1000,"runningAtReveal":0,"pointerLabel":"A","hitTag":"path","pathCount":5,"endMs":4010}}]}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: width 320 rate 1 spin 1: announced "A" 1005ms before the disc landed (limit 2ms) -- the pick was named while the disc was still on its way
+
+
+1 !== 0
+
+    at file:///private/tmp/claude-501/-Users-waris-c-claude-free-game/03ad40b3-5d14-47af-bd32-a66e8845cb17/scratchpad/audit/wrong-page-audit.mjs:90:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.1

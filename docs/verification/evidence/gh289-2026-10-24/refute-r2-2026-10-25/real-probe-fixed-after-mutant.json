@@ -1,0 +1,115 @@
+{
+  "runs": [
+    {
+      "width": 320,
+      "rate": 1,
+      "innerWidth": 320,
+      "spins": [
+        {
+          "spin": 1,
+          "resultText": "C",
+          "revealMs": 2015,
+          "runningAtReveal": 0,
+          "pointerLabel": "C",
+          "hitTag": "path",
+          "pathCount": 5,
+          "endMs": 2014
+        },
+        {
+          "spin": 2,
+          "resultText": "B",
+          "revealMs": 2015,
+          "runningAtReveal": 0,
+          "pointerLabel": "B",
+          "hitTag": "path",
+          "pathCount": 4,
+          "endMs": 2014
+        },
+        {
+          "spin": 3,
+          "resultText": "E",
+          "revealMs": 2014,
+          "runningAtReveal": 0,
+          "pointerLabel": "E",
+          "hitTag": "path",
+          "pathCount": 3,
+          "endMs": 2013
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "rate": 1,
+      "innerWidth": 390,
+      "spins": [
+        {
+          "spin": 1,
+          "resultText": "E",
+          "revealMs": 2006,
+          "runningAtReveal": 0,
+          "pointerLabel": "E",
+          "hitTag": "path",
+          "pathCount": 5,
+          "endMs": 2005
+        },
+        {
+          "spin": 2,
+          "resultText": "D",
+          "revealMs": 2014,
+          "runningAtReveal": 0,
+          "pointerLabel": "D",
+          "hitTag": "path",
+          "pathCount": 4,
+          "endMs": 2013
+        },
+        {
+          "spin": 3,
+          "resultText": "C",
+          "revealMs": 2015,
+          "runningAtReveal": 0,
+          "pointerLabel": "C",
+          "hitTag": "path",
+          "pathCount": 3,
+          "endMs": 2014
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "rate": 0.5,
+      "innerWidth": 390,
+      "spins": [
+        {
+          "spin": 1,
+          "resultText": "A",
+          "revealMs": 4017,
+          "runningAtReveal": 0,
+          "pointerLabel": "A",
+          "hitTag": "path",
+          "pathCount": 5,
+          "endMs": 4016
+        },
+        {
+          "spin": 2,
+          "resultText": "B",
+          "revealMs": 4014,
+          "runningAtReveal": 0,
+          "pointerLabel": "B",
+          "hitTag": "path",
+          "pathCount": 4,
+          "endMs": 4013
+        },
+        {
+          "spin": 3,
+          "resultText": "E",
+          "revealMs": 4016,
+          "runningAtReveal": 0,
+          "pointerLabel": "E",
+          "hitTag": "path",
+          "pathCount": 3,
+          "endMs": 4016
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "runs": [
+    {
+      "width": 390,
+      "rate": 0.5,
+      "innerWidth": 390,
+      "spins": [
+        {
+          "spin": 1,
+          "resultText": "B",
+          "revealMs": 4014,
+          "runningAtReveal": 0,
+          "pointerLabel": "B",
+          "hitTag": "path",
+          "pathCount": 5,
+          "endMs": 4013
+        },
+        {
+          "spin": 2,
+          "resultText": "E",
+          "revealMs": 4016,
+          "runningAtReveal": 0,
+          "pointerLabel": "E",
+          "hitTag": "path",
+          "pathCount": 4,
+          "endMs": 4016
+        },
+        {
+          "spin": 3,
+          "resultText": "A",
+          "revealMs": 4015,
+          "runningAtReveal": 0,
+          "pointerLabel": "A",
+          "hitTag": "path",
+          "pathCount": 3,
+          "endMs": 4015
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "rate": 0.25,
+      "innerWidth": 390,
+      "spins": [
+        {
+          "spin": 1,
+          "resultText": "A",
+          "revealMs": 6003,
+          "runningAtReveal": 1,
+          "pointerLabel": "A",
+          "hitTag": "path",
+          "pathCount": 5,
+          "endMs": 8009
+        },
+        {
+          "spin": 2,
+          "resultText": "C",
+          "revealMs": 6002,
+          "runningAtReveal": 1,
+          "pointerLabel": "C",
+          "hitTag": "path",
+          "pathCount": 4,
+          "endMs": 8009
+        },
+        {
+          "spin": 3,
+          "resultText": "E",
+          "revealMs": 6002,
+          "runningAtReveal": 1,
+          "pointerLabel": "E",
+          "hitTag": "path",
+          "pathCount": 3,
+          "endMs": 8011
+        }
+      ]
+    }
+  ]
+}

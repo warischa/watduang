@@ -25,6 +25,10 @@ const sawInjected = (cal) => all(cal, (c) => c.sawInjectedOverflow === true);
 // gh#289: how long the wheel's result may trail the disc's landing. Measured within 1ms on a quiet Mac;
 // the margin is for a loaded machine. Far below the page's fallback timer, which trails by seconds.
 const WHEEL_REVEAL_AFTER_LANDING_MS = 250;
+// gh#289: how far before the landing a reveal may read. Both times are Math.round of one monotonic
+// clock against the same tap, and the probe's own landing listener runs before the page's, so an honest
+// reveal reads at or after the landing; 2ms covers the two roundings and nothing else.
+const WHEEL_REVEAL_BEFORE_LANDING_SLACK_MS = 2;
 
 if (rc !== 0) bad(`driver exited ${rc}${rc === 137 ? ' (killed by this script\'s watchdog -- probe hung)' : ''}${label.endsWith('-control') ? ' -- a CONTROL leg that was killed, crashed or never loaded the page never exercised the detector, so it cannot satisfy the control' : ''}: ${tail()}`);
 
@@ -168,6 +172,10 @@ const V = {
         // On landing, not merely after it: a page whose landing listener never matches still reveals
         // late via its fallback timer, over a resting disc and the right wedge.
         if (typeof s.endMs !== 'number') return `${tag} spin ${s.spin}: no landing time recorded -- cannot tell a reveal on landing from a fallback`;
+        // A page can pause the disc, announce, and resume it in a microtask: runningAtReveal reads 0 and the
+        // disc lands later. So the reveal time must exist and must not precede the landing.
+        if (!Number.isFinite(s.revealMs)) return `${tag} spin ${s.spin}: no reveal time recorded (${String(s.revealMs)}) -- cannot tell when the name was announced`;
+        if (s.endMs - s.revealMs > WHEEL_REVEAL_BEFORE_LANDING_SLACK_MS) return `${tag} spin ${s.spin}: announced "${s.resultText}" ${s.endMs - s.revealMs}ms before the disc landed (limit ${WHEEL_REVEAL_BEFORE_LANDING_SLACK_MS}ms) -- the pick was named while the disc was still on its way`;
         if (s.revealMs - s.endMs > WHEEL_REVEAL_AFTER_LANDING_MS) return `${tag} spin ${s.spin}: announced ${s.revealMs - s.endMs}ms after the disc landed (limit ${WHEEL_REVEAL_AFTER_LANDING_MS}ms) -- a fallback timer, not the landing`;
       }
     }

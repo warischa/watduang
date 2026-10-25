@@ -1,0 +1,58 @@
+{
+  "runs": [
+    {
+      "width": 320,
+      "innerWidth": 320,
+      "spins": [
+        {
+          "spin": 1,
+          "resultText": "A",
+          "pointerLabel": "A",
+          "hitTag": "path",
+          "pathCount": 5
+        },
+        {
+          "spin": 2,
+          "resultText": "A",
+          "pointerLabel": "A",
+          "hitTag": "path",
+          "pathCount": 5
+        },
+        {
+          "spin": 3,
+          "resultText": "A",
+          "pointerLabel": "A",
+          "hitTag": "path",
+          "pathCount": 5
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "innerWidth": 390,
+      "spins": [
+        {
+          "spin": 1,
+          "resultText": "A",
+          "pointerLabel": "A",
+          "hitTag": "path",
+          "pathCount": 5
+        },
+        {
+          "spin": 2,
+          "resultText": "A",
+          "pointerLabel": "A",
+          "hitTag": "path",
+          "pathCount": 5
+        },
+        {
+          "spin": 3,
+          "resultText": "A",
+          "pointerLabel": "A",
+          "hitTag": "path",
+          "pathCount": 5
+        }
+      ]
+    }
+  ]
+}

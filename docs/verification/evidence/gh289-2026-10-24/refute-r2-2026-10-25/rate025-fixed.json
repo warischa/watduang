@@ -1,0 +1,78 @@
+{
+  "runs": [
+    {
+      "width": 390,
+      "rate": 0.5,
+      "innerWidth": 390,
+      "spins": [
+        {
+          "spin": 1,
+          "resultText": "E",
+          "revealMs": 4007,
+          "runningAtReveal": 0,
+          "pointerLabel": "E",
+          "hitTag": "path",
+          "pathCount": 5,
+          "endMs": 4007
+        },
+        {
+          "spin": 2,
+          "resultText": "D",
+          "revealMs": 4017,
+          "runningAtReveal": 0,
+          "pointerLabel": "D",
+          "hitTag": "path",
+          "pathCount": 4,
+          "endMs": 4017
+        },
+        {
+          "spin": 3,
+          "resultText": "C",
+          "revealMs": 4017,
+          "runningAtReveal": 0,
+          "pointerLabel": "C",
+          "hitTag": "path",
+          "pathCount": 3,
+          "endMs": 4016
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "rate": 0.25,
+      "innerWidth": 390,
+      "spins": [
+        {
+          "spin": 1,
+          "resultText": "E",
+          "revealMs": 6002,
+          "runningAtReveal": 0,
+          "pointerLabel": "E",
+          "hitTag": "path",
+          "pathCount": 5,
+          "endMs": null
+        },
+        {
+          "spin": 2,
+          "resultText": "B",
+          "revealMs": 6002,
+          "runningAtReveal": 0,
+          "pointerLabel": "B",
+          "hitTag": "path",
+          "pathCount": 4,
+          "endMs": null
+        },
+        {
+          "spin": 3,
+          "resultText": "D",
+          "revealMs": 6003,
+          "runningAtReveal": 0,
+          "pointerLabel": "D",
+          "hitTag": "path",
+          "pathCount": 3,
+          "endMs": null
+        }
+      ]
+    }
+  ]
+}

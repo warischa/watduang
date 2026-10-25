@@ -209,3 +209,32 @@ test('wheel-pointer-name goes red when the slow run uses a rate its lever check 
   const res = runVerdictRaw('wheel-pointer-name', out);
   assert.equal(res.status, 1, `at rate 0.9 a no-op lever passes the floor, so the rate itself must be pinned: ${res.stdout}`);
 });
+
+// gh#289 review round 2: a page can pause the disc, announce, and resume it in a microtask, so
+// runningAtReveal reads 0 while the disc lands seconds later. The reveal must not precede the landing.
+test('wheel-pointer-name goes red when the reveal precedes the landing even though no transition reads as running', () => {
+  for (const [label, runs] of [
+    ['normal speed', [wheelRun(320, 1, { revealMs: 1000, endMs: 2005 }), wheelRun(390, 1), wheelRun(390, 0.5)]],
+    ['slowed clock', [wheelRun(320, 1), wheelRun(390, 1), wheelRun(390, 0.5, { revealMs: 1000, endMs: 4010 })]],
+  ]) {
+    const res = runVerdictRaw('wheel-pointer-name', { runs });
+    assert.equal(res.status, 1, `${label}: an announce 1000ms before the landing must fail: ${res.stdout}`);
+    assert.match(res.stdout, /before the disc landed/, `${label}: the verdict must say the reveal preceded the landing: ${res.stdout}`);
+  }
+});
+
+test('wheel-pointer-name goes red when a spin has no finite reveal time', () => {
+  for (const revealMs of [undefined, null, NaN, Infinity, '2010']) {
+    const res = runVerdictRaw('wheel-pointer-name', wheelOut({ revealMs }));
+    assert.equal(res.status, 1, `revealMs ${String(revealMs)} is not a measurement and must not pass: ${res.stdout}`);
+    assert.match(res.stdout, /no reveal time/, `the verdict must say the reveal time is missing: ${res.stdout}`);
+  }
+});
+
+test('wheel-pointer-name passes a reveal at the landing, a rounding step early, or inside the trailing limit', () => {
+  for (const [revealMs, endMs] of [[2005, 2005], [2004, 2005], [2255, 2005]]) {
+    const out = { runs: [wheelRun(320, 1, { revealMs, endMs }), wheelRun(390, 1), wheelRun(390, 0.5)] };
+    const res = runVerdictRaw('wheel-pointer-name', out);
+    assert.equal(res.status, 0, `reveal ${revealMs}ms vs landing ${endMs}ms is an honest reveal: ${res.stdout}`);
+  }
+});
