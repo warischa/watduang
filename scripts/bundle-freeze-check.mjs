@@ -116,6 +116,9 @@ const BASELINE_BASENAMES = [
   // gh#264 / ADR-0071 -- _setup-bridge.js REMOVED. Every play route mounts the shared player screen
   // and PlayExit edits in place, so the bridge module (edit flag + save-on-setup-complete) lost its
   // last importer and was deleted. SET leg only, as the notes below.
+  // gh#288 Phase 3 -- the web-only chrome script: one new chunk, loaded by PageChrome on every web page
+  // (the 12 pairs pinned below). SET leg; the TOTAL leg is re-pinned at the constant.
+  'PageChrome.astro_astro_type_script_index_0_lang.js',
   'LeaveConfirm.astro_astro_type_script_index_0_lang.js',
   'PlayExit.astro_astro_type_script_index_0_lang.js',
   // gh#273 -- the setup panel island is deleted, component and GameLayout mount both. gh#149 had
@@ -448,7 +451,16 @@ const BASELINE_BASENAMES = [
 // so the love-match rebuild's +12786 is a difference against that record, almost all its forty
 // character cards in its own chunk, net of dead helpers removed from daily-fortune. Local build of
 // the integrated tree, same as the re-pins above.
-const BASELINE_TOTAL_BYTES = 1105063;
+// Re-pinned 2026-10-25 (gh#288 Phase 3), 1105063 -> 1080518 (-24545, -2.22%), n=1 local build of the
+// integrated tree, measured by this gate's own functions over a fresh `npm run build` (the gate itself
+// was green on the TOTAL leg before this edit: the red was the SET and PAIR legs only). The delta is
+// NEGATIVE, not growth. MEASURED: the new PageChrome chunk is +1571 B (`ls -l
+// dist/_astro/PageChrome.*.js`). SPLIT by a second build: the pre-Phase-3 tree (b91a52b, what production
+// served) measures 1078395 with this same gate, so Phase 3's own delta is +2123 B (+0.20%) and the other
+// -26668 B is carry that predates Phase 3 — bundled-source commits since the 2026-09-26 pin that never
+// re-pinned because the total stayed in band. n=1 build per tree. Re-pinned in-band on purpose, per the
+// convention above.
+const BASELINE_TOTAL_BYTES = 1080518;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as
@@ -467,6 +479,20 @@ const BAND = 0.05; // +/-5%
 // RE-BASELINE, like the other two constants, is the intended signal and a deliberate edit: a new
 // game adds its own pairs here.
 const BASELINE_PAGE_ENTRIES = [
+  // gh#288 Phase 3 -- PageChrome's web-only script loads on every web page: 12 pages gain this pair and
+  // no page loses one. Pages with their own entry chunk keep it; these pairs are additive.
+  '404.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'c/fortune/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'c/party/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'game/daily-fortune/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'game/love-match/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'game/siamsi/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'tool/draw/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'tool/number/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'tool/team/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'tool/wheel/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'tools/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
   'game/bangkok-drift/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
   'game/bangkok-drift/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/cannon-flag/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
