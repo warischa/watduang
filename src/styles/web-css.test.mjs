@@ -204,3 +204,45 @@ test('the tools hub tags its pop cards .ui-press and uses the muted underline li
   assert.match(cardHover.body, /color:\s*var\(--color-line-strong\)/);
   assert.match(cardHover.body, /text-decoration:\s*none/);
 });
+
+// Scroll reveal below the first screen. The script (src/scripts/scroll-reveal.ts) puts
+// .reveal-pending on below-the-fold targets and .is-in once each is in view. The rise is the
+// `translate` property, not `transform`: home tiles carry their own rest rotate, tilt animation and
+// hover transform, and the cards carry .ui-press's transform — `translate` composes with all of them
+// instead of replacing them.
+test('scroll reveal: hidden only under the script class, rise and fade on tokens, reduced keeps the fade', () => {
+  const full = (sel) => find(sel, (r) => !inReduced(r));
+  const pend = full('main .reveal-pending');
+  assert.equal(pend.length, 1);
+  assert.match(pend[0].body, /opacity:\s*0;/);
+  assert.match(pend[0].body, /translate:\s*0 16px/);
+  assert.doesNotMatch(pend[0].body, /transition/, 'the hide is instant; only the reveal animates');
+
+  const shown = full('main .reveal-pending.is-in');
+  assert.equal(shown.length, 1);
+  assert.match(shown[0].body, /opacity:\s*1/);
+  assert.match(shown[0].body, /translate:\s*none/);
+  assert.match(shown[0].body, /transition:\s*opacity var\(--motion-scroll\) var\(--ease-out\),\s*translate var\(--motion-scroll\) var\(--ease-out\)/);
+
+  const rmPend = find('main .reveal-pending', inReduced);
+  const rmShown = find('main .reveal-pending.is-in', inReduced);
+  assert.equal(rmPend.length, 1);
+  assert.equal(rmShown.length, 1);
+  assert.match(rmPend[0].body, /translate:\s*none/, 'reduced: no rise');
+  assert.doesNotMatch(rmPend[0].body, /opacity/, 'reduced keeps the fade, so the hidden start stays');
+  assert.match(rmShown[0].body, /transition:\s*opacity var\(--motion-rm-fade\) var\(--ease-rm\)/);
+  assert.doesNotMatch(rmShown[0].body, /translate var/, 'reduced: the fade only');
+
+  assert.doesNotMatch(code, /(^|[;{\s])transform:\s*translateY/, 'the rise must not write transform');
+});
+
+test('no stylesheet rule hides anything without the script class (no-JS shows everything)', () => {
+  const hides = leaf.filter((r) =>
+    !r.parents.some((p) => p.startsWith('@keyframes')) &&
+    /(^|;)\s*(opacity:\s*0(\.0+)?\s*(;|$)|visibility:\s*hidden|display:\s*none)/m.test(r.body),
+  );
+  assert.ok(hides.length >= 1, 'positive control: the pending rule itself is found');
+  for (const r of hides) {
+    for (const s of selectorsOf(r)) assert.match(s, /\.reveal-pending/, `hides without the script class: ${s}`);
+  }
+});

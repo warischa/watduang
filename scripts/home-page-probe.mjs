@@ -28,6 +28,15 @@
 //      under prefers-reduced-motion. Under normal motion the same scan must find real running
 //      animation. That is the positive control: a page whose motion check cannot prove motion exists
 //      is N/A, per docs/agents/browser-verification.md, not a pass.
+//   6. SCROLL_REVEAL (gh#288). At 390 and 1440, after a plain navigation (the module hides nothing on
+//      a back/forward or reload navigation, so a run whose navigation type is not "navigate" is void,
+//      not a pass): no element at or above the fold carries .reveal-pending; no .reveal-pending or
+//      .is-in sits on, inside or around an .ad-slot, the .hero or #stage; at least one below-the-fold
+//      <section> is pending at load, with the lane's own pending form (normal: opacity 0, translate
+//      0px 16px; reduced: opacity 0, translate none — the lanes must differ, or the reduced rule never
+//      applied); scrolled into view it gains .is-in, ends at opacity 1 with both classes removed, and
+//      nothing in view is left pending. Calibrated: the excluded-element detector must see a class
+//      injected onto the ad slot and the hero, or the run fails loudly.
 const BASE = process.env.BASE || 'http://localhost:4321';
 
 const WIDTHS = [320, 390, 768, 1024, 1440];
@@ -91,6 +100,66 @@ const ART = `
   };
 `;
 
+// Scroll reveal (verdict 6). One evaluate defines the scan and records the load state; the scan is
+// kept on window so the calibration can rerun the same detector, never a second copy of it.
+const REVEAL_WIDTHS = [390, 1440];
+const REVEAL_LOAD = `
+  const NEVER = '.ad-slot, .hero, #stage';
+  const describe = (el) => el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') +
+    (String(el.className).trim() ? '.' + String(el.className).trim().split(/\\s+/).join('.') : '');
+  window.__revealScan = () => {
+    const marked = [...document.querySelectorAll('.reveal-pending, .is-in')];
+    return {
+      excluded: marked.filter((el) => el.closest(NEVER) || el.querySelector(NEVER)).map(describe),
+      // Not mid-fade: fonts can shift a section into view after the module ran, and IO then reveals
+      // it correctly; only an element still hidden counts.
+      aboveFold: [...document.querySelectorAll('.reveal-pending:not(.is-in)')]
+        .filter((el) => el.getBoundingClientRect().top <= innerHeight).map(describe),
+    };
+  };
+  const target = [...document.querySelectorAll('section.reveal-pending')][0] ?? null;
+  window.__revealProbe = { target, sawIn: false };
+  if (target) {
+    new MutationObserver(() => {
+      if (target.classList.contains('is-in')) window.__revealProbe.sawIn = true;
+    }).observe(target, { attributes: true, attributeFilter: ['class'] });
+  }
+  const cs = target ? getComputedStyle(target) : null;
+  return {
+    innerWidth: window.innerWidth,
+    navigationType: performance.getEntriesByType('navigation')[0]?.type ?? null,
+    reducedMotionMatches: matchMedia('(prefers-reduced-motion: reduce)').matches,
+    pendingCount: document.querySelectorAll('.reveal-pending').length,
+    target: target ? describe(target) : null,
+    pendingForm: cs ? { opacity: cs.opacity, translate: cs.translate } : null,
+    ...window.__revealScan(),
+  };
+`;
+const REVEAL_CALIBRATE = `
+  const planted = [...document.querySelectorAll('.ad-slot, .hero')].filter((el) => !el.classList.contains('reveal-pending'));
+  planted.forEach((el) => el.classList.add('reveal-pending'));
+  const seen = window.__revealScan().excluded.length;
+  planted.forEach((el) => el.classList.remove('reveal-pending'));
+  return { planted: planted.length, seen, cleanAfter: window.__revealScan().excluded.length };
+`;
+const REVEAL_SCROLL = `
+  const p = window.__revealProbe;
+  if (!p || !p.target) return { note: 'no target' };
+  p.target.scrollIntoView({ block: 'center' });
+  await new Promise((r) => setTimeout(r, 1200));
+  const stuck = [...document.querySelectorAll('.reveal-pending:not(.is-in)')].filter((el) => {
+    const r = el.getBoundingClientRect();
+    return r.bottom > 0 && r.top < innerHeight * 0.9 - 1;
+  });
+  return {
+    sawIn: p.sawIn,
+    opacity: getComputedStyle(p.target).opacity,
+    cleanedUp: !p.target.classList.contains('reveal-pending') && !p.target.classList.contains('is-in'),
+    stuckInView: stuck.length,
+    ...window.__revealScan(),
+  };
+`;
+
 export default async function (session) {
   const rows = [];
   const calibration = [];
@@ -117,6 +186,32 @@ export default async function (session) {
     rows.push(clean.value ?? { innerWidth: width, note: 'null measure' });
     if (width === 320) art = (await session.evaluate(ART)).value ?? { note: 'null art measure' };
   }
+
+  // Verdict 6. A different URL first, so the navigation into / is a plain one, never a same-URL
+  // navigation the browser may turn into a reload (on which the module hides nothing by design).
+  const reveal = [];
+  for (const width of REVEAL_WIDTHS) {
+    await session.setWidth(width, 844);
+    await session.nav('about:blank');
+    await session.nav(`${BASE}/`);
+    const load = (await session.evaluate(REVEAL_LOAD)).value ?? { note: 'null reveal measure' };
+    const calibration = (await session.evaluate(REVEAL_CALIBRATE)).value ?? { note: 'null calibration' };
+    const scrolled = (await session.evaluate(REVEAL_SCROLL)).value ?? { note: 'null scroll measure' };
+    reveal.push({ width, load, calibration, scrolled });
+  }
+  const revealReduced = reveal.every((r) => r.load.reducedMotionMatches);
+  const expectedTranslate = revealReduced ? 'none' : '0px 16px';
+  const revealVerdict = {
+    lane: revealReduced ? 'reduced' : 'normal',
+    voidUnlessPlainNavigation: reveal.every((r) => r.load.navigationType === 'navigate' && r.load.innerWidth === r.width),
+    detectorCalibrated: reveal.every((r) => r.calibration.planted > 0 && r.calibration.seen >= r.calibration.planted && r.calibration.cleanAfter === 0),
+    belowFoldSectionPending: reveal.every((r) => r.load.target !== null),
+    pendingFormForLane: reveal.every((r) => r.load.pendingForm?.opacity === '0' && r.load.pendingForm?.translate === expectedTranslate),
+    nothingAboveFoldPending: reveal.every((r) => (r.load.aboveFold ?? []).length === 0),
+    neverOnAdHeroOrStage: reveal.every((r) => (r.load.excluded ?? []).length === 0 && (r.scrolled.excluded ?? []).length === 0),
+    revealedOnScroll: reveal.every((r) => r.scrolled.sawIn === true && r.scrolled.opacity === '1' && r.scrolled.cleanedUp === true),
+    nothingInViewLeftPending: reveal.every((r) => r.scrolled.stuckInView === 0),
+  };
 
   const noScroll = (row) => row.scrollWidth === row.clientWidth && row.overflowCount === 0;
   const widthVerdicts = WIDTHS.map((w, i) => ({
@@ -155,10 +250,12 @@ export default async function (session) {
       artLoaded: !!art && art.images > 0 && Array.isArray(art.broken) && art.broken.length === 0,
       overflowDetectorCalibration: calibrationClean ? `red-then-clean on all ${WIDTHS.length} widths` : 'CALIBRATION FAILED',
       motion: motionVerdict,
+      scrollReveal: revealVerdict,
     },
     widthVerdicts,
     art,
     calibration,
+    reveal,
     consoleErrors: session.consoleErrors,
   };
 }

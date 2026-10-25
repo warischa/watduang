@@ -50,6 +50,13 @@ const SITE_LINKS: SiteLink[] = [
   </div>
 </footer>
 
+<script>
+  // gh#288: the scroll reveal below the first screen. A bundled module, never inline (ADR-0005); it
+  // rides here because every web page renders PageChrome and no play route does.
+  import { startScrollReveal } from '../scripts/scroll-reveal';
+  startScrollReveal(window, document);
+</script>
+
 <style>
   /* gh#247 — the top bar and footer of canvas D (design/HomeShelfDesktop.dc.html and
      design/HomeShelf320.dc.html), values byte for byte. Colours go through tokens where the canvas

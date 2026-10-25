@@ -85,11 +85,33 @@
   cursor: default;
 }
 
+/* ---- Scroll reveal, below the first screen ---------------------------------------------------
+   The script (src/scripts/scroll-reveal.ts) adds .reveal-pending only to elements below the fold at
+   load and .is-in once each scrolls into view, then takes both off when the fade ends. No rule here
+   hides anything without that class, so a page without the script shows everything. The rise is the
+   `translate` property, never `transform`: the home tiles carry their own rest rotate, tilt animation
+   and hover transform, and the cards carry .ui-press's transform; `translate` composes with them
+   instead of replacing them. The main prefix lifts both rules over a component's own scoped
+   transition (an Astro-scoped class rule ties with a bare two-class selector), and every target sits
+   inside main. */
+main .reveal-pending {
+  opacity: 0;
+  translate: 0 16px;
+}
+
+main .reveal-pending.is-in {
+  opacity: 1;
+  translate: none;
+  transition:
+    opacity var(--motion-scroll) var(--ease-out),
+    translate var(--motion-scroll) var(--ease-out);
+}
+
 /* ---- Reduced motion -------------------------------------------------------------------------
    Movement goes; the cue stays. The hover and press keep their shadow change over the quick linear
-   step with no transform; the reveal keeps its fade over the reduced fade. The hover rule keeps its
-   (hover: hover) gate, and the reduced press sits after it for the same source-order reason as the
-   full pair. */
+   step with no transform; both reveals keep their fade over the reduced fade, with no scale and no
+   rise. The hover rule keeps its (hover: hover) gate, and the reduced press sits after it for the
+   same source-order reason as the full pair. */
 @media (prefers-reduced-motion: reduce) {
   .ui-press {
     transition: box-shadow var(--motion-rm-quick) var(--ease-rm);
@@ -97,6 +119,14 @@
 
   .wd-reveal {
     animation: wd-reveal-rm var(--motion-rm-fade) var(--ease-rm) both;
+  }
+
+  main .reveal-pending {
+    translate: none;
+  }
+
+  main .reveal-pending.is-in {
+    transition: opacity var(--motion-rm-fade) var(--ease-rm);
   }
 }
 
