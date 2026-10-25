@@ -1,0 +1,235 @@
+command: BASE=http://localhost:4322 CDP_PORT=9333 node scripts/driver.mjs scripts/stage-reserve-probe.mjs (+ WIDTHS=320..1440 node scripts/driver.mjs docs/verification/evidence/gh253/stage-heights-probe.mjs); Chrome 155 headless, fresh user-data-dir, npx serve dist -l 4322
+commit: 9a499dd (headings dropped, lm-reading wrapper, BEFORE block) + working-tree reserve edit in src/games/siamsi.ts and love-match.ts (AFTER block, dist rebuilt once under Node 22.22.1)
+date: 2026-10-25 (n=1 per cell, deterministic layout, document.fonts.status loaded on every height row)
+
+## BEFORE — reserves 576/534 siamsi, 581/520 love-match, 539/530 daily-fortune (stage-reserve-probe.mjs output)
+{
+  "pass": true,
+  "maxCls": 0.05,
+  "failures": [],
+  "rows": [
+    {
+      "id": "siamsi",
+      "viewport": "1440x900",
+      "cls": 0.0093,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "1440x900",
+      "cls": 0.0002,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "love-match",
+      "viewport": "1440x900",
+      "cls": 0.0116,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "siamsi",
+      "viewport": "768x900",
+      "cls": 0.0148,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "768x900",
+      "cls": 0.0003,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "love-match",
+      "viewport": "768x900",
+      "cls": 0.0186,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "siamsi",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    },
+    {
+      "id": "love-match",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    }
+  ],
+  "failLeg": {
+    "id": "siamsi",
+    "aborted": [
+      "http://localhost:4322/_astro/siamsi.B3CvTwle.js"
+    ],
+    "cls": 0.2814,
+    "state": "failed",
+    "minBlock": "auto",
+    "declared": true,
+    "innerWidth": 1440,
+    "innerHeight": 900
+  }
+}
+
+## mounted #stage height by width, same build (stage-heights-probe.mjs, h in px)
+/game/siamsi/ {"320": 539, "360": 518, "375": 518, "390": 518, "414": 518, "480": 476, "560": 476, "639": 476, "640": 476, "700": 476, "768": 476, "900": 476, "1024": 476, "1280": 476, "1440": 476}
+/game/daily-fortune/ {"320": 538.5, "360": 538.5, "375": 538.5, "390": 538.5, "414": 538.5, "480": 538.5, "560": 538.5, "639": 538.5, "640": 530.3, "700": 530.3, "768": 530.3, "900": 530.3, "1024": 530.3, "1280": 530.3, "1440": 530.3}
+/game/love-match/ {"320": 523.2, "360": 523.2, "375": 523.2, "390": 523.2, "414": 523.2, "480": 523.2, "560": 523.2, "639": 471.2, "640": 461.6, "700": 461.6, "768": 461.6, "900": 461.6, "1024": 461.6, "1280": 461.6, "1440": 461.6}
+
+## AFTER — reserves 518/476 siamsi, 523/462 love-match, 539/530 daily-fortune (unchanged control)
+{
+  "pass": true,
+  "maxCls": 0.05,
+  "failures": [],
+  "rows": [
+    {
+      "id": "siamsi",
+      "viewport": "1440x900",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "1440x900",
+      "cls": 0.0002,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "love-match",
+      "viewport": "1440x900",
+      "cls": 0.0053,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 1440,
+      "innerHeight": 900
+    },
+    {
+      "id": "siamsi",
+      "viewport": "768x900",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "768x900",
+      "cls": 0.0003,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "love-match",
+      "viewport": "768x900",
+      "cls": 0.008,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 768,
+      "innerHeight": 900
+    },
+    {
+      "id": "siamsi",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    },
+    {
+      "id": "daily-fortune",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    },
+    {
+      "id": "love-match",
+      "viewport": "390x844",
+      "cls": 0,
+      "state": "mounted",
+      "minBlock": "auto",
+      "declared": true,
+      "innerWidth": 390,
+      "innerHeight": 844
+    }
+  ],
+  "failLeg": {
+    "id": "siamsi",
+    "aborted": [
+      "http://localhost:4322/_astro/siamsi.MAeK8vHu.js"
+    ],
+    "cls": 0.2509,
+    "state": "failed",
+    "minBlock": "auto",
+    "declared": true,
+    "innerWidth": 1440,
+    "innerHeight": 900
+  }
+}
+
+## mounted #stage height by width, after (h in px; reserve unchanged vs measurement for daily-fortune)
+/game/siamsi/ {"320": 539, "360": 518, "375": 518, "390": 518, "414": 518, "480": 476, "560": 476, "639": 476, "640": 476, "700": 476, "768": 476, "900": 476, "1024": 476, "1280": 476, "1440": 476}
+/game/daily-fortune/ {"320": 538.5, "360": 538.5, "375": 538.5, "390": 538.5, "414": 538.5, "480": 538.5, "560": 538.5, "639": 538.5, "640": 530.3, "700": 530.3, "768": 530.3, "900": 530.3, "1024": 530.3, "1280": 530.3, "1440": 530.3}
+/game/love-match/ {"320": 523.2, "360": 523.2, "375": 523.2, "390": 523.2, "414": 523.2, "480": 523.2, "560": 523.2, "639": 471.2, "640": 461.6, "700": 461.6, "768": 461.6, "900": 461.6, "1024": 461.6, "1280": 461.6, "1440": 461.6}

@@ -430,9 +430,9 @@ const game: GameModule = {
   // the decision was no slot on the PLAY SCREEN, never no slot on the page.
   ads: true,
   // gh#253 — the ask screen's measured height (docs/verification/evidence/gh253/), re-measured for
-  // gh#263 when the ask title grew to 30px / 1.2 (docs/verification/evidence/gh263-code/): 581 up to
-  // 560, 529 at 600-639; 520 from 640 up.
-  firstScreenReserve: { phone: 581, wide: 520 },
+  // gh#288 when the ask heading was dropped (docs/verification/evidence/gh288-phase3-2026-10-25/):
+  // 523 up to 560, 471 at 639; 462 from 640 up.
+  firstScreenReserve: { phone: 523, wide: 462 },
 
   mount(stage: HTMLElement, _ctx: GameContext) {
     stageEl = stage;
