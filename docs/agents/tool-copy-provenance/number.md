@@ -20,6 +20,8 @@ name-entry panel (it takes a min/max range, not a roster), and it carries none o
 | String | Source |
 |---|---|
 | H1 "สุ่มเลข", intro line, module heading "ช่วงตัวเลข" (`number.astro`), "ต่ำสุด" / "สูงสุด" labels, no-repeat checkbox label | **agent-authored** — no artboard exists to draw from |
+| (H1 and intro/tagline above): "สุ่มเลข" / "ตั้งค่าต่ำสุด-สูงสุด แล้วกดสุ่ม — เลือกโหมดได้ว่าจะให้เลขที่ออกแล้วออกซ้ำได้ไหม" | moved, not removed — now passed as the `title` / `tagline` props to `src/components/ToolHeader.astro`; the Thai stays in `number.astro`, the component carries none (gh#288 Phase 3, commit f5c44fc) |
+| Ad-slot label "ช่องโฆษณา" (`number.astro`) | artboard (the ad-block title string in the draw/team artboards) — this page's `.ad-slot` was an empty div and now renders the same single label as the other three pages; gh#288 Phase 3 owner pick 11 |
 | Button "สุ่ม" / "เริ่มรอบใหม่" | **agent-authored** |
 | Runtime templates ("ได้: X", range-exhausted, remaining-count, error fallback) | **agent-authored** |
 

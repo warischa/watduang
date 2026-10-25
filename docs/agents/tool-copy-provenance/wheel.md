@@ -5,8 +5,8 @@ authorship-cannot-be-recovered note, the source legend, the shared name-entry pa
 (`wheel.astro` mounts `ToolNameEntry`), and the rows genuinely shared by all 4 tool pages (back
 link, "วิธีใช้", GameNav heading).
 
-`wheel.astro` carries no `tool-eyebrow`/`tool-badge`/`tool-breadcrumb` markup and ships an empty
-`.ad-slot` with no Thai text — those rows exist only in `draw.md` and `team.md`.
+`wheel.astro` carries no `tool-eyebrow`/`tool-badge`/`tool-breadcrumb` markup — those rows exist only in
+`draw.md` and `team.md`. Its `.ad-slot` was an empty div with no Thai text until gh#288 Phase 3 (see "Page copy").
 
 ## SEO metadata
 
@@ -20,6 +20,8 @@ link, "วิธีใช้", GameNav heading).
 | String | Source |
 |---|---|
 | H1 "วงล้อสุ่มชื่อ", intro "ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน" | artboard (`ToolWheelDesktop.dc.html`) — **note:** that artboard still carries the older, longer wording with the clause gh#94 deleted from the manifest desc ("หมุนเสร็จกดต่อเข้าเกมได้เลย รายชื่อไหลต่อไปเอง"); the page dropped the clause, the artboard did not — pre-existing drift, out of this session's scope to fix |
+| (H1 and intro/tagline above): "วงล้อสุ่มชื่อ" / "ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน" | moved, not removed — now passed as the `title` / `tagline` props to `src/components/ToolHeader.astro`; the Thai stays in `wheel.astro`, the component carries none (gh#288 Phase 3, commit f5c44fc) |
+| Ad-slot label "ช่องโฆษณา" (`wheel.astro`) | artboard (the ad-block title string in the draw/team artboards) — this page's `.ad-slot` was an empty div and now renders the same single label as the other three pages; gh#288 Phase 3 owner pick 11 |
 | Module heading "วงล้อ" (`wheel.astro`, distinct from the H1 above) | artboard (`ToolWheelDesktop.dc.html`, `ToolWheel390.dc.html`) — missed by the prior pass of this table |
 | Mode labels "A · หมุนแล้วช้าลงจนหยุดเอง" / 'B · หมุนค้างไว้ จนกว่าจะกด "หยุด"' | artboard (`ToolWheelDesktop.dc.html`, `ToolWheel390.dc.html`) |
 | Buttons "หมุน" / "หยุด" / "คืนทุกชื่อเข้าวงล้อ" | artboard (both wheel artboards) |

@@ -14,6 +14,10 @@ per-tool rows moved out:
 - [`tool-copy-provenance/team.md`](tool-copy-provenance/team.md) — `src/pages/tool/team.astro` + `src/tools/team.ts`
 - [`tool-copy-provenance/number.md`](tool-copy-provenance/number.md) — `src/pages/tool/number.astro` + `src/tools/number.ts`
 
+All four pages render their title and tagline through `src/components/ToolHeader.astro` (gh#288 Phase 3,
+commit f5c44fc). It holds no Thai: each page passes its own strings as props, so those rows stay in the
+per-tool files. It is in the registry check's pinned set.
+
 **gh#112, 2026-08-26:** scope widened to also cover user-facing Thai string literals (thrown
 `Error` messages surfaced to the player) in the four `src/tools/*.ts` logic modules — those had
 no artboard and no manifest field, so they were agent-authored Thai sitting outside every
@@ -71,14 +75,14 @@ One file, all 4 tools — stays here rather than split 4 ways.
 
 ## Shared chrome — genuinely all 4 pages
 
-`wheel.astro`/`number.astro` use plainer `<main>`/`<h1>` markup, no breadcrumb/badge/band/ad-slot
+Before gh#288 Phase 3, `wheel.astro`/`number.astro` used plainer `<main>`/`<h1>` markup, no breadcrumb/badge/band/ad-slot
 text; `draw.astro`/`team.astro` share a fuller chrome block — those two-page-only rows live in
 `tool-copy-provenance/draw.md` and `team.md`, not here. Only rows true for all 4 tool pages stay
 in this shared table.
 
 | String | Source |
 |---|---|
-| Back link / footer link "เครื่องมือสุ่มทั้งหมด" (genuinely all 4 pages) | artboard (`ToolWheelDesktop.dc.html`, `ToolWheel390.dc.html`, `ToolDrawDesktop.dc.html`, `ToolTeamDesktop.dc.html`, `ToolDraw390.dc.html`, `ToolTeam390.dc.html`) |
+| Footer link "เครื่องมือสุ่มทั้งหมด" (genuinely all 4 pages). The top back link and breadcrumb with the same text were `draw.astro`/`team.astro` only and are **removed in gh#288 Phase 3 (header A, owner pick 10), commit f5c44fc** (rows kept in `draw.md`/`team.md`) | artboard (`ToolWheelDesktop.dc.html`, `ToolWheel390.dc.html`, `ToolDrawDesktop.dc.html`, `ToolTeamDesktop.dc.html`, `ToolDraw390.dc.html`, `ToolTeam390.dc.html`) |
 | "วิธีใช้" heading + its 2–3 how-to `<li>` lines per page (genuinely all 4 pages) | **agent-authored** — no `.dc.html`/`canvas.json` note draws a "วิธีใช้" block; written straight into each `*.astro` page |
 | GameNav heading "เล่นเกมต่อ" — identical literal on all 4 tool pages (`wheel.astro`, `draw.astro`, `team.astro`, `number.astro`) | **agent-authored** — `GameNav.astro`'s `heading` prop is required, no default, by design (gh#111): a default would be silently inherited and false wherever a caller's group does not carry on; no artboard/manifest field carries it |
 
