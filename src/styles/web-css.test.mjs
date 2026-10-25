@@ -265,16 +265,39 @@ test('view transitions: opt-in, root cross-fade on the page tokens, reduced form
   assert.equal(at[0].parents.length, 0, 'the opt-in must not sit inside a media query');
 
   const pseudos = ['::view-transition-old(root)', '::view-transition-new(root)'];
-  const full = leaf.filter((r) => !inReduced(r) && pseudos.every((p) => selectorsOf(r).includes(p)));
+  // `.some`, not `.every`: a rule naming ONE root pseudo (a reduced override of -new(root) alone) is
+  // still a rule on the cross-fade, and must be counted, not slip past the filter.
+  const full = leaf.filter((r) => !inReduced(r) && pseudos.some((p) => selectorsOf(r).includes(p)));
   assert.equal(full.length, 1, 'one full rule styling both root pseudos');
+  assert.deepEqual([...selectorsOf(full[0])].sort(), [...pseudos].sort(), 'the full rule names exactly the two root pseudos');
   assert.match(full[0].body, /animation-duration:\s*var\(--motion-page\)/);
   assert.match(full[0].body, /animation-timing-function:\s*var\(--ease-page\)/);
 
-  const reduced = leaf.filter((r) => inReduced(r) && pseudos.every((p) => selectorsOf(r).includes(p)));
+  const reduced = leaf.filter((r) => inReduced(r) && pseudos.some((p) => selectorsOf(r).includes(p)));
   assert.equal(reduced.length, 1, 'one reduced rule styling both root pseudos');
+  assert.deepEqual([...selectorsOf(reduced[0])].sort(), [...pseudos].sort(), 'the reduced rule names exactly the two root pseudos');
   assert.match(reduced[0].body, /animation-duration:\s*var\(--motion-rm-quick\)/);
   assert.match(reduced[0].body, /animation-timing-function:\s*var\(--ease-rm\)/);
   assert.ok(leaf.indexOf(reduced[0]) > leaf.indexOf(full[0]), 'the reduced rule comes after the full one');
 
   assert.doesNotMatch(code, /view-transition-name/, 'root cross-fade only: nothing is named');
+
+  // The owned set scripts/page-chrome-check.mjs compares every built page against: these two rules
+  // and no other ::view-transition selector anywhere in web.css.
+  const vtRules = leaf.filter((r) => r.prelude.includes('::view-transition'));
+  assert.deepEqual(vtRules, [full[0], reduced[0]], `web.css holds exactly the two root cross-fade rules, got: ${vtRules.map((r) => r.prelude).join(' / ')}`);
+});
+
+test('tokens.css declares --motion-rm-quick once, outside any media block, at a real duration', () => {
+  const tokens = parseRules(stripCss(read('./tokens.css')));
+  const decls = tokens.flatMap((r) => r.body.split(';').map((d) => ({ r, d: d.trim() })))
+    .filter(({ d }) => /^--motion-rm-quick\s*:/.test(d));
+  assert.equal(decls.length, 1, `exactly one --motion-rm-quick declaration, got ${decls.length}`);
+  assert.equal(decls[0].r.parents.length, 0, 'the reduced token is not declared inside a media block');
+  const t = decls[0].d.replace(/^--motion-rm-quick\s*:\s*/, '').match(/^(\d*\.?\d+)(ms|s)$/);
+  assert.ok(t, `a literal time, got: ${decls[0].d}`);
+  const ms = parseFloat(t[1]) * (t[2] === 's' ? 1000 : 1);
+  // The same 50ms floor scripts/page-chrome-check.mjs holds the built page to: under three frames at
+  // 60Hz nothing visibly fades.
+  assert.ok(ms >= 50, `--motion-rm-quick must be at least 50ms, got ${ms}ms`);
 });

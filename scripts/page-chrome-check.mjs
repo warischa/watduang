@@ -37,8 +37,9 @@
 // stripped before any match. Terms: no @view-transition on a play route; @view-transition
 // { navigation: auto } on every solo landing and every-other page (liveness: the opt-in rides in
 // src/styles/web.css, which only PageChrome imports); wherever the opt-in is present, a reduced
-// ::view-transition-old(root) / -new(root) rule inside a prefers-reduced-motion block that does not
-// remove the animation; no view-transition-name in any page's CSS; and no element in any page's
+// ::view-transition rules that are exactly web.css's full and reduced rules, in that order, with
+// --motion-rm-quick declared once at a real duration (see the owned-set note above
+// reducedVtProblems); no view-transition-name in any page's CSS; and no element in any page's
 // markup carrying the class reveal-pending (the scroll-reveal script's class; in markup it would hide
 // content with no script to show it). Fail closed: a stylesheet link that is not a local file under
 // the scanned root, a linked file that is missing, or an @import reds, because the CSS behind it is
@@ -141,7 +142,6 @@ const VT_ANY_RE = /@view-transition\b/i;
 const VT_OPTIN_RE = /@view-transition\s*\{[^}]*\bnavigation\s*:\s*auto\b/i;
 const VT_NAME_RE = /view-transition-name/i;
 const REDUCED_RE = /prefers-reduced-motion\s*:\s*reduce/i;
-const VT_PSEUDOS = ['::view-transition-old(root)', '::view-transition-new(root)'];
 const REVEAL_PENDING = 'reveal-pending'; // added by src/scripts/scroll-reveal.ts only, never markup
 
 // ponytail: a /* */ inside a CSS string would be read as a comment opener. dist CSS is generated and
@@ -203,55 +203,80 @@ function resolveLocalHref(href, pageRel) {
   return norm.startsWith('../') || norm === '..' || path.posix.isAbsolute(norm) ? null : norm;
 }
 
-/** The shortest literal reduced cross-fade that still counts as a fade. The approved reduced form is
- *  --motion-rm-quick (120ms); under 50ms (three frames at 60Hz) nothing visibly fades, and the
- *  classic removal idiom is a near-zero duration (0s, 0.01ms) rather than `animation: none`. */
+// The reduced-form term is an OWNED SET, not a classifier. The root cross-fade rules are web.css's:
+// on a page that opts in, every rule whose selector names a ::view-transition pseudo must be exactly
+// web.css's own rules (prelude, body and enclosing media chain, whitespace-normalised), the reduced
+// rule must follow the full one in the same sheet (equal specificity, so order decides), and the
+// token the reduced rule reads must be declared once at a real duration. The forms CSS could take to
+// shorten or override the fade (var() chains, calc(), lists, !important, other pseudos, other
+// selectors) belong to the spec and are not enumerated — anything that is not web.css's rule reds.
+// src/styles/web-css.test.mjs ("every duration and easing is a motion token, never a literal") keeps
+// web.css free of literals the minifier would rewrite, so the source/artifact comparison differs by
+// whitespace only.
+// Disclosed ceiling, outside this scan: the JS View Transition API (startViewTransition, pageswap,
+// pagereveal — absent from src and dist today); a later `@view-transition { navigation: none }`
+// (the opt-in regex sees the first opt-in, not the cascade); the value of --ease-rm; CSS identifier
+// escapes in selectors (none in dist today).
+
+/** The floor for the --motion-rm-quick declaration. The approved reduced form is 120ms (the minifier
+ *  writes .12s); under 50ms (three frames at 60Hz) nothing visibly fades, and the classic removal
+ *  idiom is a near-zero duration (0s, 0.01ms) rather than `animation: none`. */
 const MIN_REDUCED_VT_MS = 50;
-const MOTION_TOKEN_RE = /^var\(--motion-[\w-]+\)$/i;
+const REDUCED_TOKEN = '--motion-rm-quick';
 const TIME_RE = /^(\d*\.?\d+)(ms|s)$/i;
+const WEB_CSS_PATH = path.join(repoRoot, 'src', 'styles', 'web.css');
 
-/** One reduced rule body -> 'fade' (a duration that fades), 'removed' (none, or a duration under the
- *  floor), or null (no readable duration: not counted, so the term stays red — fail closed). A
- *  var(--motion-*) duration is accepted as a token; any other var() or calc() is unreadable here. */
-function reducedVtForm(body) {
-  const decls = body.split(';').map((d) => d.trim()).filter(Boolean).map((d) => {
-    const at = d.indexOf(':');
-    return [d.slice(0, at).trim().toLowerCase(), d.slice(at + 1).trim()];
-  });
-  let duration = null;
-  for (const [prop, value] of decls) {
-    if ((prop === 'animation' || prop === 'animation-name') && /(^|\s|,)none(\s|,|$)/i.test(value)) return 'removed';
-    if (prop === 'animation-duration') duration = value;
-    if (prop === 'animation') {
-      const first = value.split(/\s+(?![^(]*\))/).find((tok) => TIME_RE.test(tok) || MOTION_TOKEN_RE.test(tok));
-      if (first) duration = first;
-    }
-  }
-  if (duration === null) return null;
-  if (MOTION_TOKEN_RE.test(duration)) return 'fade';
-  const t = duration.match(TIME_RE);
-  if (!t) return null;
-  const ms = parseFloat(t[1]) * (t[2].toLowerCase() === 's' ? 1000 : 1);
-  return ms < MIN_REDUCED_VT_MS ? 'removed' : 'fade';
+const normCss = (t) => t.replace(/\s+/g, ' ').replace(/\s*([:;,(){}])\s*/g, '$1').trim().replace(/;+$/, '');
+const isReducedMedia = (p) => /^@media\b/i.test(p) && REDUCED_RE.test(p);
+const isVtRule = (r) => r.prelude.includes('::view-transition');
+const vtKey = (r) => [...r.parents.map(normCss), normCss(r.prelude), normCss(r.body)].join(' | ');
+
+/** web.css text -> the owned set: every ::view-transition rule's key, plus the one full and the one
+ *  reduced rule. A source that does not hold exactly one of each yields null for that half. */
+function ownedVtRules(webCssText) {
+  const rules = cssRules(stripCssComments(webCssText)).filter(isVtRule);
+  const full = rules.filter((r) => !r.parents.some(isReducedMedia));
+  const reduced = rules.filter((r) => r.parents.some(isReducedMedia));
+  return {
+    keys: rules.map(vtKey).sort(),
+    fullKey: full.length === 1 ? vtKey(full[0]) : null,
+    reducedKey: reduced.length === 1 ? vtKey(reduced[0]) : null,
+  };
 }
+const OWNED_VT = ownedVtRules(fs.readFileSync(WEB_CSS_PATH, 'utf8'));
 
-/** comment-stripped sheets -> true when a prefers-reduced-motion block gives both root pseudos a
- *  duration that fades, and no reduced rule on them removes the animation or zeroes its duration. */
-function hasReducedVt(sheets) {
-  const found = new Set();
-  let removed = false;
-  for (const sheet of sheets) {
-    for (const r of cssRules(sheet)) {
-      if (!r.parents.some((p) => /^@media\b/i.test(p) && REDUCED_RE.test(p))) continue;
-      const sels = r.prelude.split(',').map((s) => s.trim().toLowerCase().replace(/\s+/g, ''));
-      const form = reducedVtForm(r.body);
-      for (const pseudo of VT_PSEUDOS.filter((p) => sels.includes(p))) {
-        if (form === 'removed') removed = true;
-        else if (form === 'fade') found.add(pseudo);
-      }
-    }
+/** (comment-stripped sheets of one opted-in page, owned set) -> every way the page's root cross-fade
+ *  differs from web.css's; [] when it is exactly web.css's. */
+function reducedVtProblems(sheets, owned) {
+  const problems = [];
+  const perSheet = sheets.map((css) => cssRules(css));
+  const pageKeys = perSheet.flatMap((rules) => rules.filter(isVtRule).map(vtKey));
+  const left = [...owned.keys];
+  const extra = [];
+  for (const k of pageKeys) {
+    const i = left.indexOf(k);
+    if (i >= 0) left.splice(i, 1);
+    else extra.push(k);
   }
-  return !removed && found.size === VT_PSEUDOS.length;
+  for (const k of extra) problems.push(`a ::view-transition rule that is not web.css's: ${k}`);
+  for (const k of left) problems.push(`web.css's rule is missing or altered: ${k}`);
+  const ordered = perSheet.some((rules) => {
+    const keys = rules.map((r) => (isVtRule(r) ? vtKey(r) : null));
+    const f = keys.indexOf(owned.fullKey);
+    const r = keys.lastIndexOf(owned.reducedKey);
+    return f >= 0 && r > f;
+  });
+  if (!ordered) problems.push('the reduced rule does not follow the full rule in one sheet (same specificity, so the later one wins)');
+  const decls = perSheet.flatMap((rules) => rules.flatMap((r) => r.body.split(';')))
+    .map((d) => [d.slice(0, d.indexOf(':')).trim(), d.slice(d.indexOf(':') + 1).trim()])
+    .filter(([prop]) => prop === REDUCED_TOKEN);
+  if (decls.length !== 1) problems.push(`${REDUCED_TOKEN} is declared ${decls.length} time(s), expected exactly 1`);
+  for (const [, value] of decls) {
+    const t = value.match(TIME_RE);
+    const ms = t ? parseFloat(t[1]) * (t[2].toLowerCase() === 's' ? 1000 : 1) : NaN;
+    if (!(ms >= MIN_REDUCED_VT_MS)) problems.push(`${REDUCED_TOKEN} is ${JSON.stringify(value)}, expected a literal time of at least ${MIN_REDUCED_VT_MS}ms`);
+  }
+  return problems;
 }
 
 /** html -> every class token on a live element (comments and raw-text bodies blanked). */
@@ -296,7 +321,7 @@ const CITES_OWNER_RULING = (s) => typeof s === 'string' && /owner/i.test(s) && /
 
 // Pure: (pages, reader, manifest, exemptions) -> { failures, counts }. Every failure starts with a
 // bracketed reason code, so the selftest can prove each fixture reds for its OWN reason and no other.
-function evaluate({ pages, read, gameList, noChrome }) {
+function evaluate({ pages, read, gameList, noChrome, ownedVt = OWNED_VT }) {
   const failures = [];
   const fail = (code, msg) => failures.push(`[${code}] ${msg}`);
   const counts = { play: 0, solo: 0, chrome: 0, exempt: 0, vtOptIn: 0 };
@@ -304,6 +329,9 @@ function evaluate({ pages, read, gameList, noChrome }) {
   const classes = gamePageClasses(gameList);
   const pageSet = new Set(pages);
 
+  if (!ownedVt.fullKey || !ownedVt.reducedKey || ownedVt.keys.length !== 2) {
+    fail('vt-src-rules', `src/styles/web.css must hold exactly one full and one reduced ::view-transition rule (got ${ownedVt.keys.length} rule(s)) — the owned set this leg compares every page against is unreadable.`);
+  }
   if (pages.length === 0) {
     fail('empty-walk', 'the walk matched zero built .html pages — the target set must never be empty (docs/adr/0019).');
   }
@@ -360,7 +388,10 @@ function evaluate({ pages, read, gameList, noChrome }) {
     if (optIn) counts.vtOptIn += 1;
     if (cls === 'play' && VT_ANY_RE.test(allCss)) fail('vt-play-optin', `${rel} · a play route carries @view-transition — the cross-document fade is web pages only.`);
     if ((cls === 'solo' || cls === 'chrome') && !optIn) fail('vt-web-missing', `${rel} · a web page without @view-transition { navigation: auto } — the opt-in did not reach it (web.css rides on PageChrome).`);
-    if (optIn && !hasReducedVt(cleaned)) fail('vt-no-reduced', `${rel} · opts in to view transitions with no reduced ::view-transition-old(root) / -new(root) rule inside a prefers-reduced-motion block, or one that removes the animation or drops its duration under ${MIN_REDUCED_VT_MS}ms — reduced motion is reduced, not removed (ADR-0046).`);
+    if (optIn) {
+      const problems = reducedVtProblems(cleaned, ownedVt);
+      if (problems.length) fail('vt-no-reduced', `${rel} · opts in to view transitions, but its root cross-fade is not exactly web.css's full and reduced rules: ${problems.join(' · ')} — reduced motion is reduced, not removed (ADR-0046).`);
+    }
     if (VT_NAME_RE.test(allCss)) fail('vt-name', `${rel} · its CSS names a view-transition-name — the approved transition is the root cross-fade only.`);
     if (classTokens(text).includes(REVEAL_PENDING)) fail('reveal-pending-markup', `${rel} · ships class "${REVEAL_PENDING}" in markup — that class is the scroll-reveal script's alone, and in markup it hides content with no script to show it.`);
 
@@ -405,7 +436,8 @@ const FOOTER_HTML = '<footer class="chrome-bar chrome-footer" data-page-chrome="
 // chrome pages inline it, the solo landings link it.
 const VT_FULL = '::view-transition-old(root),::view-transition-new(root){animation-duration:var(--motion-page);animation-timing-function:var(--ease-page)}';
 const VT_REDUCED = '@media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation-duration:var(--motion-rm-quick);animation-timing-function:var(--ease-rm)}}';
-const WEB_CSS = `:focus-visible{outline:var(--focus-ring)}@view-transition{navigation:auto}${VT_FULL}main .reveal-pending{opacity:0;translate:0 16px}main .reveal-pending.is-in{opacity:1;translate:none}${VT_REDUCED}`;
+const TOKENS_CSS = ':root{--motion-page:.25s;--motion-rm-quick:.12s;--ease-rm:linear}';
+const WEB_CSS = `${TOKENS_CSS}:focus-visible{outline:var(--focus-ring)}@view-transition{navigation:auto}${VT_FULL}main .reveal-pending{opacity:0;translate:0 16px}main .reveal-pending.is-in{opacity:1;translate:none}${VT_REDUCED}`;
 const WEB_CSS_REL = '_astro/PageChrome.Ab12Cd34.css';
 const CHROME_PAGE = `<!doctype html><head><style>${WEB_CSS}</style></head><body>${TOPBAR_HTML}\n<main>x</main>\n${FOOTER_HTML}</body>`;
 const SOLO_PAGE = `<!doctype html><head><link rel="stylesheet" href="/${WEB_CSS_REL}"></head><body><main><header class="game-topbar"><a href="/c/fortune/" data-stable-exit>x</a></header></main>\n${FOOTER_HTML}</body>`;
@@ -480,6 +512,29 @@ function selftest() {
     }
   }
 
+  // The owned set itself: a web.css that does not hold exactly one full and one reduced rule leaves
+  // the leg nothing to compare against, and must red rather than compare against an empty set.
+  {
+    const pages = ['index.html', ...PLAY_GAMES.map(playRel), ...SOLO_GAMES.map((g) => `game/${g.id}/index.html`)];
+    const read = (rel) => ({ [WEB_CSS_REL]: WEB_CSS, [PLAY_CSS_REL]: PLAY_CSS, 'index.html': CHROME_PAGE })[rel] ?? (rel.endsWith('play/index.html') ? PLAY_PAGE : SOLO_PAGE);
+    for (const [label, srcText] of [['empty web.css', ''], ['web.css with the full rule only', VT_FULL], ['web.css with the reduced rule only', VT_REDUCED]]) {
+      const r = evaluate({ pages, read, gameList: games, noChrome: new Map(), ownedVt: ownedVtRules(srcText) });
+      const got = new Set(r.failures.map((f) => f.match(/^\[([a-z-]+)\]/)[1]));
+      assert.ok(got.has('vt-src-rules'), `${label}: must red with [vt-src-rules] — got ${[...got]}`);
+      console.log(`PASS owned-set red (${label}): ${r.failures.find((f) => f.startsWith('[vt-src-rules]'))}`);
+    }
+    const clean = evaluate({ pages, read, gameList: games, noChrome: new Map(), ownedVt: ownedVtRules(`${VT_FULL}${VT_REDUCED}`) });
+    assert.ok(!clean.failures.some((f) => f.startsWith('[vt-')), `the minified owned pair must clear the leg — got ${clean.failures}`);
+    console.log('PASS owned-set green: the minified full + reduced pair is a readable owned set');
+    // Each problem names itself, so a missing rule is reported as missing, not only through the
+    // order term it also breaks.
+    const owned = ownedVtRules(`${VT_FULL}${VT_REDUCED}`);
+    const onlyFull = reducedVtProblems([`${TOKENS_CSS}${VT_FULL}`], owned);
+    assert.ok(onlyFull.some((x) => x.startsWith("web.css's rule is missing or altered")), `a page without the reduced rule must report it missing — got ${onlyFull}`);
+    assert.deepEqual(reducedVtProblems([`${TOKENS_CSS}${VT_FULL}${VT_REDUCED}`], owned), [], 'the exact pair with the token reports nothing');
+    console.log(`PASS owned-set detail: a page without the reduced rule reports — ${onlyFull.join(' · ')}`);
+  }
+
   // Green direction: the manifest-driven clean tree — every play route bare, every solo landing
   // footer-only, the hub, tool, category, home and 404 pages with both landmarks.
   const good = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-good-'));
@@ -515,9 +570,9 @@ function selftest() {
     ['nested page under a known game', (r) => write(r, `game/${SOLO_GAMES[0].id}/extra/index.html`, PLAY_PAGE), ['unexpected-game-page']],
     ['tree with no play route', null, ['empty-class']],
     // View-transition leg (gh#288): each term reds on its own planted violation.
-    ['play route carrying the opt-in in an inline style', (r) => write(r, play0, PLAY_PAGE.replace('</head>', `<style>@view-transition{navigation:auto}${VT_REDUCED}</style></head>`)), ['vt-play-optin']],
+    ['play route carrying the opt-in in an inline style', (r) => write(r, play0, PLAY_PAGE.replace('</head>', `<style>${WEB_CSS}</style></head>`)), ['vt-play-optin']],
     ['play route carrying the opt-in through linked CSS', (r) => {
-      write(r, '_astro/leak.Qq11.css', `@view-transition{navigation:auto}${VT_FULL}${VT_REDUCED}`);
+      write(r, '_astro/leak.Qq11.css', `${TOKENS_CSS}@view-transition{navigation:auto}${VT_FULL}${VT_REDUCED}`);
       write(r, play0, PLAY_PAGE.replace('</head>', '<link rel="stylesheet" href="/_astro/leak.Qq11.css"></head>'));
     }, ['vt-play-optin']],
     ['web page missing the opt-in', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('@view-transition{navigation:auto}', '')), ['vt-web-missing']],
@@ -530,6 +585,20 @@ function selftest() {
     ['reduced rule with a 0ms duration', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick)', 'animation-duration:0ms')), ['vt-no-reduced']],
     ['reduced rule with a .01ms duration', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick)', 'animation-duration:.01ms')), ['vt-no-reduced']],
     ['reduced shorthand with a 0s duration', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick);animation-timing-function:var(--ease-rm)', 'animation:0s linear')), ['vt-no-reduced']],
+    // Formerly green, now red: a literal or a shorthand is not web.css's rule, whatever it computes to.
+    ['reduced rule with a literal duration above the floor (not web.css\'s rule)', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick)', 'animation-duration:120ms')), ['vt-no-reduced']],
+    ['reduced shorthand with a token duration (not web.css\'s rule)', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick);animation-timing-function:var(--ease-rm)', 'animation:var(--motion-rm-quick) var(--ease-rm)')), ['vt-no-reduced']],
+    // The owned set: each form a classifier would have to enumerate, and did not.
+    ['reduced rule with .01ms!important', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick)', 'animation-duration:.01ms!important')), ['vt-no-reduced']],
+    ['reduced rule reading var(--zero)', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick)', 'animation-duration:var(--zero)').replace('</style>', ':root{--zero:0s}</style>')), ['vt-no-reduced']],
+    ['an !important zero override outside the media block', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('</style>', '::view-transition-new(root){animation-duration:0s!important}</style>')), ['vt-no-reduced']],
+    ['a ::view-transition-group(*) rule removing the animation', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('</style>', '::view-transition-group(*){animation:none}</style>')), ['vt-no-reduced']],
+    ['an html::view-transition-new(root) override', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('</style>', '@media (prefers-reduced-motion:reduce){html::view-transition-new(root){animation-duration:0s}}</style>')), ['vt-no-reduced']],
+    ['the reduced token redeclared at 0s in page CSS', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('</style>', ':root{--motion-rm-quick:0s}</style>')), ['vt-no-reduced']],
+    ['the reduced token declared once, at 0s', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('--motion-rm-quick:.12s', '--motion-rm-quick:0s')), ['vt-no-reduced']],
+    ['the reduced token declaration absent', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('--motion-rm-quick:.12s;', '')), ['vt-no-reduced']],
+    ['the reduced rule ordered before the full rule', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace(VT_FULL, '').replace(VT_REDUCED, `${VT_REDUCED}${VT_FULL}`)), ['vt-no-reduced']],
+    ['linked web CSS with the reduced rule before the full rule', (r) => write(r, WEB_CSS_REL, WEB_CSS.replace(VT_FULL, 'TMPFULL').replace(VT_REDUCED, VT_FULL).replace('TMPFULL', VT_REDUCED)), ['vt-no-reduced']],
     ['reduced rule on the old pseudo only', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace(VT_REDUCED, VT_REDUCED.replace(',::view-transition-new(root)', ''))), ['vt-no-reduced']],
     ['a view-transition-name in page CSS', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('</style>', '.hero{view-transition-name:hero}</style>')), ['vt-name']],
     ['reveal-pending shipped in markup', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('<main>x</main>', '<main><section class="wrap reveal-pending">x</section></main>')), ['reveal-pending-markup']],
@@ -555,13 +624,13 @@ function selftest() {
   // Green direction for the view-transition leg: shapes a wrong detector would red. Each tree is the
   // clean tree plus one page rewritten, and must still exit 0.
   const realWebCss = fs.readFileSync(path.join(repoRoot, 'src', 'styles', 'web.css'), 'utf8');
+  const realTokensCss = fs.readFileSync(path.join(repoRoot, 'src', 'styles', 'tokens.css'), 'utf8');
   const vtGreenCases = [
     // The web layer exactly as authored, unminified: the real source must clear the gate.
-    ['web page inlining the authored src/styles/web.css', (r) => write(r, 'index.html', CHROME_PAGE.replace(`<style>${WEB_CSS}</style>`, `<style>${realWebCss}</style>`))],
+    // The normaliser's positive control: the authored, unminified tokens.css + web.css must match.
+    ['web page inlining the authored src/styles/tokens.css + web.css', (r) => write(r, 'index.html', CHROME_PAGE.replace(`<style>${WEB_CSS}</style>`, `<style>${realTokensCss}${realWebCss}</style>`))],
     ['play route mentioning @view-transition only in comments', (r) => write(r, play0, PLAY_PAGE.replace('</head>', '<style>/* @view-transition{navigation:auto} */</style><!-- <style>@view-transition{navigation:auto}</style> --></head>'))],
     ['reveal-pending in text, a comment, JSON-LD and a longer class token', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('<main>x</main>', '<main><p>reveal-pending</p><!-- <i class="reveal-pending"></i> --><script type="application/ld+json">{"a":"<b class=\\"reveal-pending\\">"}</script><b class="reveal-pendingx">y</b></main>'))],
-    ['reduced rule with a literal duration at or above the floor', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick)', 'animation-duration:120ms'))],
-    ['reduced shorthand with a token duration', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick);animation-timing-function:var(--ease-rm)', 'animation:var(--motion-rm-quick) var(--ease-rm)'))],
     ['web CSS linked by a relative href with a query string', (r) => write(r, 'tools/index.html', SOLO_PAGE.replace(`href="/${WEB_CSS_REL}"`, `href="../${WEB_CSS_REL}?v=1"`).replace('<body>', `<body>${TOPBAR_HTML}`))],
   ];
   for (const [label, rewrite] of vtGreenCases) {
@@ -619,7 +688,7 @@ function main() {
     process.exit(1);
   }
   console.log(
-    `page-chrome-check: ${pages.length} page(s) in ${distRoot} — play route (no chrome) ${counts.play} · solo landing (footer only) ${counts.solo} · every other page (top bar + footer) ${counts.chrome} · NO_CHROME exempt ${counts.exempt} · view-transition opt-in on ${counts.vtOptIn} web page(s), 0 play routes, reduced rule wherever present, no view-transition-name, no reveal-pending in markup${process.env.PAGE_CHROME_DIST_OVERRIDE ? ' (PAGE_CHROME_DIST_OVERRIDE active)' : ''}`,
+    `page-chrome-check: ${pages.length} page(s) in ${distRoot} — play route (no chrome) ${counts.play} · solo landing (footer only) ${counts.solo} · every other page (top bar + footer) ${counts.chrome} · NO_CHROME exempt ${counts.exempt} · view-transition opt-in on ${counts.vtOptIn} web page(s), 0 play routes, root cross-fade on ${counts.vtOptIn} opt-in page(s): exactly web.css's two rules, no other ::view-transition selector, ${REDUCED_TOKEN} declared once at >=${MIN_REDUCED_VT_MS}ms, no view-transition-name, no reveal-pending in markup${process.env.PAGE_CHROME_DIST_OVERRIDE ? ' (PAGE_CHROME_DIST_OVERRIDE active)' : ''}`,
   );
 }
 
