@@ -904,7 +904,27 @@ test('the player-screen exception lives only on FITS_ROWS rows, and excepts only
   const play = (px) => ({ press: 1, overflowPx: px, scrollPx: px, clippedPx: 0, widthFillPct: 90, playerScreen: false });
   assert.equal(gatedWorstOf(row([player, play(0)])).overflowPx, 0, 'the player screen alone overflowing is excepted');
   assert.equal(gatedWorstOf(row([player, play(12)])).overflowPx, 12, 'MUST-RED: a play screen that grows still reaches the gate');
-  assert.equal(gatedWorstOf({ ...row([player]), route: 'one-bomb' }).overflowPx, 15, 'MUST-RED: a row with no ruling is not excepted');
+  assert.equal(gatedWorstOf({ ...row([player]), route: 'short-stick' }).overflowPx, 15, 'MUST-RED: a row with no ruling is not excepted');
+});
+
+// Owner ruling 2026-10-25: one-bomb 320x568 is pinned as fitting with only its shared player screen
+// excepted. REPLAYED readings, both lanes: the player screen at 174px (dev Mac, no-WebGL lane) and 176px
+// (CI runner), every round screen 0px on both. Before the move the row sat in KNOWN_OVERFLOW, which
+// grades only its worst screen class, so a round screen that overflowed again was not gated at all.
+test('one-bomb 320x568: the player screen scrolls, and a round screen that overflows reds the gate', () => {
+  const key = 'one-bomb 320x568';
+  assert.ok(FITS_ROWS.has(key), `${key} must be pinned as fitting`);
+  assert.ok(PLAYER_SCREEN_SCROLLS.has(key), `${key} must carry the player-screen exception`);
+  assert.ok(!KNOWN_OVERFLOW.has(key), `${key} must not stay a whole-row exception`);
+  assert.ok(!KNOWN_OVERFLOW_SCREEN.has(key), `${key} must leave the class map with KNOWN_OVERFLOW`);
+  const row = (screens) => ({ route: 'one-bomb', vp: '320x568', screens });
+  const screen = (press, px, playerScreen) => ({ press, overflowPx: px, scrollPx: px, clippedPx: 0, widthFillPct: 90, playerScreen });
+  for (const playerPx of [174, 176]) {
+    assert.equal(gatedWorstOf(row([screen(0, playerPx, true), screen(1, 0, false)])).overflowPx, 0, `a ${playerPx}px player screen with 0px round screens is excepted`);
+  }
+  const grown = gatedWorstOf(row([screen(0, 176, true), screen(1, 12, false)]));
+  assert.equal(grown.overflowPx, 12, 'MUST-RED: a round screen that grows still reaches the gate');
+  assert.ok(grown.overflowPx > OVERFLOW_TOLERANCE_PX, 'the grown round screen is past the tolerance the gate reds on');
 });
 
 // gh#284 — a KNOWN_OVERFLOW row must keep grading the screen CLASS its ruling was made on. The real
