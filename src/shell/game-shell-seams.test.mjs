@@ -110,3 +110,20 @@ test('gh#140 no game module imports the mascot cast', () => {
     .filter((f) => /_mascots|MASCOTS/.test(readFileSync(new URL(f, dir), 'utf8')));
   assert.deepEqual(offenders, [], 'a game module reached for the cast; identity stays in the shell');
 });
+
+// gh#288 Phase 3 — the top bar's link hover is --color-muted plus a 2px underline, instant.
+// --color-primary stays in this file only as the play CTA's fill fallback, never as a hover colour.
+test('gh#288 the game top bar link hover is muted ink plus a 2px underline', () => {
+  const css = gameLayout.slice(gameLayout.indexOf('<style>')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const hover = css.match(/\.game-topbar a:hover\s*\{([^}]*)\}/);
+  assert.ok(hover, 'positive control: GameLayout still declares .game-topbar a:hover');
+  assert.match(hover[1], /color:\s*var\(--color-muted\)/);
+  assert.match(hover[1], /text-decoration:\s*underline/);
+  assert.match(hover[1], /text-decoration-thickness:\s*2px/);
+  assert.match(hover[1], /text-underline-offset:\s*3px/);
+  assert.doesNotMatch(hover[1], /--color-primary|transition/);
+  const hoverRules = [...css.matchAll(/([^{}]*:hover[^{}]*)\{([^}]*)\}/g)];
+  for (const [, sel, body] of hoverRules) {
+    assert.doesNotMatch(body, /--color-primary/, `--color-primary is no longer a hover colour: ${sel.trim()}`);
+  }
+});

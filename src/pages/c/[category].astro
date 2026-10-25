@@ -91,7 +91,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
           <h2 class="kicker">{meta.listHeading}</h2>
           <div class="cards-grid">
             {games.map((game) => (
-              <a class="game-card" href={game.playRoute ?? `/game/${game.id}/`}>
+              <a class="game-card ui-press" href={game.playRoute ?? `/game/${game.id}/`}>
                 {/* gh#241 card art, rendered only for a game whose module sets cardArt. alt is empty
                     because the h3 in the same link already names the game. No width/height: each file
                     has its own pixel size, and the .game-card-art rule fixes both box dimensions, so the
@@ -134,7 +134,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
           <div class="cross-grid">
             {otherCategories.map((link) => (
               <a
-                class="cross-card"
+                class="cross-card ui-press"
                 href={`/c/${link.slug}/`}
                 style={`--cross-accent: var(--accent-${link.accent});`}
               >
@@ -155,7 +155,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
                 </svg>
               </a>
             ))}
-            <a class="cross-card" href={toolsGroup.href} style={`--cross-accent: var(${toolsGroup.accentVar});`}>
+            <a class="cross-card ui-press" href={toolsGroup.href} style={`--cross-accent: var(${toolsGroup.accentVar});`}>
               เครื่องมือสุ่ม
               <svg
                 width="20"
@@ -191,8 +191,8 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
 <style>
   /* gh#88 — every value below is design/CatFortunePop.dc.html / design/CatPartyPop.dc.html's own
      (ADR-0033). Colours go through tokens where the canvas value IS a token (--color-ground-warm
-     #fff6e0, --color-line-strong #14142b, --color-muted (canvas D secondary text since gh#246), --color-primary #d6336c is the
-     canvas's own global a:hover, --accent-gold/--accent-punch/--accent-sky, --radius-lg 16px,
+     #fff6e0, --color-line-strong #14142b, --color-muted (canvas D secondary text since gh#246, and
+     the link hover since gh#288), --accent-gold/--accent-punch/--accent-sky, --radius-lg 16px,
      --shadow-pop 4px 4px 0); the rgba() fills are canvas literals, no token exists for either
      alpha pair. --page-accent and --cross-accent are defined by the inline custom properties above
      from manifest accent NAMES, never hex values: no colour is written in this page file. The
@@ -213,8 +213,12 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
     text-decoration: none;
   }
 
+  /* gh#288: muted ink plus a 2px underline, instant; the underline is the cue that is not colour alone. */
   main a:hover {
-    color: var(--color-primary);
+    color: var(--color-muted);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
   }
 
   /* ------------------------------ header -------------------------------- */
@@ -418,9 +422,13 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
     box-sizing: border-box;
   }
 
-  .game-card:hover,
-  .cross-card:hover {
-    color: var(--color-line-strong); /* the card keeps its ink; the canvas hover is for its text links */
+  /* The card keeps its ink and takes no underline; the link hover above is for its text links. The
+     lift and press come from .ui-press (src/styles/web.css). The main prefix is load-bearing: Astro's
+     attribute scoping makes `main a:hover` outrank a bare `.game-card:hover`. */
+  main .game-card:hover,
+  main .cross-card:hover {
+    color: var(--color-line-strong);
+    text-decoration: none;
   }
 
   /* gh#241 - the card art slot, byte-identical to design/CatPartyPop.dc.html's own rule. One value at

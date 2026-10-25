@@ -36,7 +36,7 @@ import PageChrome from '../../components/PageChrome.astro';
         {
           tools.map((tool) => (
             <li>
-              <a class="tool-card" href={tool.href}>
+              <a class="tool-card ui-press" href={tool.href}>
                 <h2>{tool.name}</h2>
                 <p>{tool.desc}</p>
               </a>
@@ -45,7 +45,7 @@ import PageChrome from '../../components/PageChrome.astro';
         }
       </ul>
 
-      <p class="back"><a class="back-link" href="/">กลับหน้าแรก</a></p>
+      <p class="back"><a class="back-link ui-press" href="/">กลับหน้าแรก</a></p>
     </div>
   </main>
   </PageChrome>
@@ -68,8 +68,12 @@ import PageChrome from '../../components/PageChrome.astro';
     text-decoration: none;
   }
 
+  /* gh#288: muted ink plus a 2px underline, instant; the underline is the cue that is not colour alone. */
   main a:hover {
-    color: var(--color-primary);
+    color: var(--color-muted);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
   }
 
   /* ------------------------------ header -------------------------------- */
@@ -158,9 +162,6 @@ import PageChrome from '../../components/PageChrome.astro';
     box-sizing: border-box;
   }
 
-  .tool-card:hover {
-    color: var(--color-line-strong); /* the card keeps its ink; the canvas hover is for text links */
-  }
 
   .tool-card h2 {
     margin: 0;
@@ -199,8 +200,13 @@ import PageChrome from '../../components/PageChrome.astro';
     box-sizing: border-box;
   }
 
-  .back-link:hover {
+  /* Both pop cards keep their ink and take no underline; the link hover above is for text links. The
+     lift and press come from .ui-press (src/styles/web.css). The main prefix is load-bearing: Astro's
+     attribute scoping makes `main a:hover` outrank a bare `.tool-card:hover`. */
+  main .tool-card:hover,
+  main .back-link:hover {
     color: var(--color-line-strong);
+    text-decoration: none;
   }
 
   /* ------------------------------ reflow -------------------------------- */

@@ -1,4 +1,8 @@
 ---
+// gh#288: the web-only interaction layer rides on the one component every web page renders and no
+// play route does, so its classes never reach a play surface.
+import '../styles/web.css';
+
 interface Props {
   /** gh#255: false renders the footer alone (the solo game landings, whose own topbar stays). */
   topbar?: boolean;

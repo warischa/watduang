@@ -153,3 +153,31 @@ test('a new category builds a page with no edit to this file', () => {
   assert.match(pageSrc, /\.filter\(\(key\) => key !== category\)/, 'the cross-links must derive from the same keys minus self');
   assert.doesNotMatch(pageSrc, /params:\s*\{\s*category:\s*['"]/, 'no route may be hardcoded with a string literal slug');
 });
+// gh#288 Phase 3 — the pop cards take the shared .ui-press hover lift and press from web.css (so
+// they declare no hover motion of their own), and the text-link hover is --color-muted plus a 2px
+// underline. Astro's attribute scoping makes `main a:hover` (0,3,2) outrank `.game-card:hover`
+// (0,3,0), so the cards' ink-and-no-underline override carries the `main` prefix to win.
+test('gh#288: pop cards carry .ui-press, link hover is muted plus underline, cards never underline', () => {
+  const css = pageCode.slice(pageCode.indexOf('<style>'));
+  assert.match(pageSrc, /class="game-card ui-press"/, '.game-card must carry .ui-press');
+  const crossTags = [...pageSrc.matchAll(/class="cross-card[^"]*"/g)].map((m) => m[0]);
+  assert.equal(crossTags.length, 2, 'positive control: both cross-card anchors found');
+  for (const tag of crossTags) assert.equal(tag, 'class="cross-card ui-press"');
+
+  const linkHover = css.match(/main a:hover\s*\{([^}]*)\}/);
+  assert.ok(linkHover, 'positive control: main a:hover still declared');
+  assert.match(linkHover[1], /color:\s*var\(--color-muted\)/);
+  assert.match(linkHover[1], /text-decoration:\s*underline/);
+  assert.match(linkHover[1], /text-decoration-thickness:\s*2px/);
+  assert.match(linkHover[1], /text-underline-offset:\s*3px/);
+
+  const cardHover = css.match(/main \.game-card:hover,\s*main \.cross-card:hover\s*\{([^}]*)\}/);
+  assert.ok(cardHover, 'the card hover override is main-prefixed');
+  assert.match(cardHover[1], /color:\s*var\(--color-line-strong\)/);
+  assert.match(cardHover[1], /text-decoration:\s*none/);
+
+  for (const [, sel, body] of css.matchAll(/([^{}]*:(?:hover|active)[^{}]*)\{([^}]*)\}/g)) {
+    assert.doesNotMatch(body, /transform|box-shadow/, `own hover/press motion fights .ui-press: ${sel.trim()}`);
+    assert.doesNotMatch(body, /--color-primary/, `--color-primary is no longer a hover colour: ${sel.trim()}`);
+  }
+});

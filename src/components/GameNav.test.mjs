@@ -116,3 +116,17 @@ test('gh#111 box 2: a narrowed list cannot render without an explicit heading', 
     'GameNav must throw when `heading` and `category` do not travel together — box 2 has no other enforcement left',
   );
 });
+
+// gh#288 Phase 3 — the link hover colour is --color-muted plus a 2px underline, instant. The old
+// --color-primary fails 3:1 on the cream ground; the underline is the cue that is not colour alone.
+test('gh#288: a nav link hover is muted ink plus a 2px underline, never --color-primary', () => {
+  const css = navSrc.slice(navSrc.indexOf('<style>')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const hover = css.match(/(?:^|\})\s*a:hover\s*\{([^}]*)\}/);
+  assert.ok(hover, 'positive control: GameNav still declares a:hover');
+  assert.match(hover[1], /color:\s*var\(--color-muted\)/);
+  assert.match(hover[1], /text-decoration:\s*underline/);
+  assert.match(hover[1], /text-decoration-thickness:\s*2px/);
+  assert.match(hover[1], /text-underline-offset:\s*3px/);
+  assert.doesNotMatch(css, /--color-primary/, 'GameNav must not use --color-primary as a hover colour');
+  assert.doesNotMatch(hover[1], /transition/, 'the hover colour is instant');
+});

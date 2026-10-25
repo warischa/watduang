@@ -200,8 +200,13 @@ const howToJsonLd = {
     text-decoration: none;
   }
 
+  /* gh#288: muted ink plus a 2px underline, instant. --color-primary stays only as the play CTA's
+     fill fallback below. */
   .game-topbar a:hover {
-    color: var(--color-primary);
+    color: var(--color-muted);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
   }
 
   /* Styled here because this layout is what emits the element (ADR-0036). 44px minimum on both axes:

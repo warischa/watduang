@@ -1,0 +1,115 @@
+/* gh#288 Phase 3 — the web-only interaction layer, values from design/Gh288MotionSheet.dc.html and
+   design/Gh288ToolPages.dc.html (owner-approved 2026-10-25; the boards are the source, ADR-0033).
+   Imported by PageChrome alone: every web page renders PageChrome and no play route does, so nothing
+   here reaches a play surface. Durations and easings are the motion tokens in tokens.css, never
+   literals. Reduced motion keeps a reduced form of every effect, never a removal (ADR-0046).
+
+   Class contract: .ui-press (hover lift + press), .wd-reveal (result reveal on a newly inserted
+   node), .tool-go (tool-page go buttons; disabled look). Pages add the class and delete their own
+   competing hover/press motion; the values live only here. */
+
+/* ---- Focus ring ------------------------------------------------------------------------------
+   Keyboard focus only, every web page. Ink on the light grounds; on an ink band an ink ring would
+   vanish, so it takes the band's sun yellow (the colour its see-all pill already uses). The bands web
+   pages render: PageChrome's top bar and footer (.chrome-bar) and the home page's band (.band).
+   Not animated, so the reduced form is identical and the reduced block below leaves it alone. */
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.chrome-bar :focus-visible,
+.band :focus-visible {
+  outline-color: var(--surface-sun);
+}
+
+/* ---- Hover lift and press -------------------------------------------------------------------
+   Buttons with the 4px ink rest shadow and the pop-card links (--shadow-pop). The home tiles keep
+   their own values and never carry this class. The state selectors weigh (0,3,0) on purpose: that
+   outranks an Astro-scoped class rule (0,2,0), so a page's rest shadow cannot pin the hover. An
+   ID-scoped rest rule still outranks it. Press comes after hover: a pressed control is also hovered,
+   and the two tie on specificity, so source order is what shows the press. */
+.ui-press {
+  transition:
+    transform var(--motion-ui) var(--ease-out),
+    box-shadow var(--motion-ui) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .ui-press:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+}
+
+.ui-press:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+/* ---- Result reveal --------------------------------------------------------------------------
+   Runs once when the node is inserted with the class. Opacity starts at 0.4, never 0, and only
+   opacity and transform move, so layout never shifts. It settles inside ARM_DELAY_MS
+   (src/games/_arm-gate.ts) with a frame to spare. The scale needs a box that is not inline: on a
+   plain inline element transform does nothing and only the fade shows. */
+.wd-reveal {
+  animation: wd-reveal var(--motion-reveal) var(--ease-out) both;
+}
+
+@keyframes wd-reveal {
+  from {
+    opacity: 0.4;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes wd-reveal-rm {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---- Disabled go button (tool pages) --------------------------------------------------------
+   Dimmed and flat, with no pointer. Hover and press already skip :disabled. Never on a fortune
+   .game-btn: those use the arm gate (ADR-0057), and a dim look would flash on every render. */
+.tool-go:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+  cursor: default;
+}
+
+/* ---- Reduced motion -------------------------------------------------------------------------
+   Movement goes; the cue stays. The hover and press keep their shadow change over the quick linear
+   step with no transform; the reveal keeps its fade over the reduced fade. The hover rule keeps its
+   (hover: hover) gate, and the reduced press sits after it for the same source-order reason as the
+   full pair. */
+@media (prefers-reduced-motion: reduce) {
+  .ui-press {
+    transition: box-shadow var(--motion-rm-quick) var(--ease-rm);
+  }
+
+  .wd-reveal {
+    animation: wd-reveal-rm var(--motion-rm-fade) var(--ease-rm) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (hover: hover) {
+  .ui-press:hover:not(:disabled) {
+    transform: none;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-press:active:not(:disabled) {
+    transform: none;
+    box-shadow: 0 0 0 var(--ink);
+  }
+}
