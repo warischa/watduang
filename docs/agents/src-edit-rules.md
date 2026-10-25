@@ -160,3 +160,13 @@ its Verify proves that every other probe viewport's computed styles equal the ba
 proof as a must-red too: a wider query must show a difference. An unchanged fit-probe number is not
 that proof, because a screen can be restyled and still fit. In gh#281 the worker chose a 639px phone
 split, so 390x844 got the 320-only squeeze. The fit probe read 0px both ways, and only review caught it.
+
+## Gates read the built HTML as text: list them before you change markup
+
+Several gates parse `dist/` by literal shape. `scripts/landing-claims-check.mjs` matched a card's whole
+`class` attribute, so adding a second class token hid every category card. `scripts/home-page-probe.mjs`
+counts every element whose box passes the viewport edge, clipped or not, so a transform-moved overdraw
+layer reds it while the page never scrolls sideways. Both surfaced only in the full suite (gh#288 Phase 3).
+A brief that adds a class token to existing markup, or an element larger than its container, names the
+gates that read that markup: `grep -rn '<the old literal>' scripts/`. It must also name the probe whose
+detector an overdraw box would trip.
