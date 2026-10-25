@@ -85,13 +85,6 @@
    would be a second source for a colour this site already defines. Those two tokens carry canvas
    D's cream and ink since gh#246 / ADR-0069, not the older values these artboards hold. */
 
-.sm-title {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 30px;
-  line-height: 1.2;
-}
-
 .sm-subtitle {
   font-family: var(--font-display);
   font-weight: 500;

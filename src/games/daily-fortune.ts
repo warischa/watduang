@@ -194,7 +194,7 @@ function renderIdle(): void {
   const go = el('button', 'เปิดดวงวันนี้');
   go.id = 'df-go';
   go.type = 'button';
-  go.className = 'game-btn game-btn-primary';
+  go.className = 'game-btn game-btn-primary ui-press';
   on(go, 'click', () => draw());
   stage.appendChild(go);
 
@@ -217,7 +217,7 @@ function renderResult(lines: readonly FortuneLine[], now: Date): void {
 
   // The verdict is the punchline and the screenshot. Derived, never authored per combination.
   const verdictCard = document.createElement('div');
-  verdictCard.className = 'df-verdict-card';
+  verdictCard.className = 'df-verdict-card wd-reveal';
   const verdictLabel = el('span', 'ดวงวันนี้ประมาณว่า');
   verdictLabel.className = 'df-verdict-label';
   const verdict = el('p', verdictFor(luckSum(lines)));
@@ -227,7 +227,7 @@ function renderResult(lines: readonly FortuneLine[], now: Date): void {
   stage.appendChild(verdictCard);
 
   const list = document.createElement('div');
-  list.className = 'df-lines';
+  list.className = 'df-lines wd-reveal';
   lines.forEach((line, index) => {
     const row = document.createElement('div');
     row.className = 'df-line';
@@ -247,7 +247,7 @@ function renderResult(lines: readonly FortuneLine[], now: Date): void {
   const again = el('button', 'เปิดใหม่อีกที');
   again.id = 'df-again';
   again.type = 'button';
-  again.className = 'game-btn game-btn-primary';
+  again.className = 'game-btn game-btn-primary ui-press';
   on(again, 'click', () => draw());
   stage.appendChild(again);
 

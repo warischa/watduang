@@ -374,14 +374,16 @@ test('both branches render, read correctly, and hold no navigation target; nothi
   }
 });
 
-// gh#263 (owner approval 2026-10-06, SoulmateStart / SoulmateResult / SoulmateSolo boards): the ask
-// title is the larger 30px heading; the meet and self reading headings stay on the 26px base.
-test('the ask title carries the ask modifier; the meet and self reading headings do not', (t) => {
+// gh#263 set the reading headings at 26px; gh#288 pick 12 (Gh288FortunePages option A) then dropped the
+// ask screen's own heading, because the page h1 already says it. The ask screen carries no lm-heading
+// at all, so the lead line is the stage's first child; the meet and self readings keep the base class.
+test('the ask screen carries no heading of its own; the meet and self readings keep the base heading', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const { stage } = mountAsk(t);
-  const ask = byClass(stage, 'lm-heading');
-  assert.equal(ask.length, 1, 'the ask screen has no single lm-heading');
-  assert.equal(ask[0].className, 'lm-heading lm-heading--ask', 'the ask title lost the ask modifier');
+  assert.equal(byClass(stage, 'lm-heading').length, 0, 'the ask screen repeats the page h1 as a heading');
+  assert.equal(byClass(stage, 'lm-heading--ask').length, 0, 'the retired ask modifier is back');
+  assert.equal(stage.children[0].textContent, 'ตอบสามข้อ แล้วเปิดดูครั้งเดียว',
+    'the lead line is not the first child of the ask stage');
   byId(stage, 'lm-me-f').click();
   byId(stage, 'lm-band-1').click();
 

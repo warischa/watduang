@@ -266,9 +266,6 @@ function renderAsk(): void {
   stage.replaceChildren();
   stage.className = 'stage-screen';
 
-  const title = el('p', 'เนื้อคู่ของคุณ');
-  title.className = 'lm-heading lm-heading--ask';
-  stage.appendChild(title);
   stage.appendChild(el('p', 'ตอบสามข้อ แล้วเปิดดูครั้งเดียว'));
 
   const go = el('button', 'เปิดดูเนื้อคู่');
@@ -300,7 +297,7 @@ function renderAsk(): void {
 
   go.id = 'lm-go';
   go.type = 'button';
-  go.className = 'game-btn game-btn-primary';
+  go.className = 'game-btn game-btn-primary ui-press';
   on(go, 'click', () => {
     if (me !== null && band !== null && want !== null) renderReading(drawReading(band, want));
   });
@@ -325,10 +322,17 @@ function renderReading(r: Reading): void {
   stage.replaceChildren();
   stage.className = 'stage-screen';
 
+  // One block holds the whole reading, so the reveal moves it as a single unit and the redo button
+  // below it stays out of the motion. wd-reveal: inserted in the same task that arms the stage
+  // (reveal-arm-budget.test.mjs pins the sum against the arm window).
+  const reading = el('div');
+  reading.className = 'lm-reading wd-reveal';
+  stage.appendChild(reading);
+
   const add = (text: string, cls: string): void => {
     const p = el('p', text);
     p.className = cls;
-    stage.appendChild(p);
+    reading.appendChild(p);
   };
 
   let closing: string;
@@ -348,7 +352,7 @@ function renderReading(r: Reading): void {
     img.setAttribute('height', '400');
     on(img, 'error', () => box.replaceChildren(el('p', 'ยังไม่มีภาพ')));
     box.appendChild(img);
-    stage.appendChild(box);
+    reading.appendChild(box);
 
     const rows = el('div');
     rows.className = 'lm-card';
@@ -359,13 +363,13 @@ function renderReading(r: Reading): void {
       row.appendChild(el('span', value));
       rows.appendChild(row);
     }
-    stage.appendChild(rows);
+    reading.appendChild(rows);
     closing = 'ไม่ต้องรีบออกไปหา แค่จำไว้ว่าประมาณนี้';
   } else {
     const art = el('div');
     art.className = 'lm-art';
     art.innerHTML = SELF_SVG;
-    stage.appendChild(art);
+    reading.appendChild(art);
     const v = SELF_VARIANTS[r.variant]!;
     add(v.heading, 'lm-heading');
     add(v.body, 'lm-body');
@@ -378,7 +382,7 @@ function renderReading(r: Reading): void {
   const again = el('button', 'เปิดใหม่อีกที');
   again.id = 'lm-again';
   again.type = 'button';
-  again.className = 'game-btn game-btn-secondary';
+  again.className = 'game-btn game-btn-secondary ui-press';
   on(again, 'click', () => renderAsk());
   stage.appendChild(again);
 

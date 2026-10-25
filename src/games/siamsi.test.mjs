@@ -18,6 +18,7 @@ import game, {
   HINT_TAP_ONLY,
   HINT_ENABLE_SHAKE,
   BTN_INTENT_DONE,
+  LEAD_INTENT,
   BTN_HOLD,
   BTN_OPEN_SLIP,
   BTN_KEEP,
@@ -216,6 +217,17 @@ test('gh#97: ตั้งจิต to a read slip, four screens, without ever as
   again.click();
   assert.ok(byId(stage, 'ss-intent-done'), 'the restart did not land back on ตั้งจิต');
 
+  game.dispose();
+});
+
+// gh#288 pick 12 (Gh288FortunePages option A): the page h1 already says the name, so the intent
+// screen opens on its lead line. Screens two to four keep their own subtitle.
+test('gh#288: the intent screen carries no heading of its own; the lead line is its first child', (t) => {
+  t.mock.timers.enable(timers);
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx([]));
+  assert.equal(q(stage, 'sm-title'), null, 'the intent screen repeats the page h1 as a heading');
+  assert.equal(stage.children[0].textContent, LEAD_INTENT, 'the lead line is not the first child of the intent stage');
   game.dispose();
 });
 

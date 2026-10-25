@@ -9,8 +9,8 @@
    so there is no reduced-motion branch to keep. */
 
 /* gh#263, owner approval 2026-10-06 on the SoulmateResult and SoulmateSolo boards: the reading
-   headings (meet and self) are 26px / 1.35. The ask title is the larger modifier below, taken from
-   the SoulmateStart board. The "when" line under a meet heading is unruled and is not set here. */
+   headings (meet and self) are 26px / 1.35. The ask screen carries no heading of its own since
+   gh#288 pick 12. The "when" line under a meet heading is unruled and is not set here. */
 .lm-heading {
   font-family: var(--font-display);
   font-weight: 500;
@@ -18,9 +18,15 @@
   line-height: 1.35;
 }
 
-.lm-heading--ask {
-  font-size: 30px;
-  line-height: 1.2;
+/* The reading block replays the shell's .stage-screen column (flex, centred, 22px gap) one level down,
+   so wrapping the reading in one revealed box moves nothing on screen. A block, never inline: an
+   inline box takes no transform. */
+.lm-reading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  width: 100%;
 }
 
 /* ---- the ask screen: one box per question, the label over a wrapping row of toggles ---- */

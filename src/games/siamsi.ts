@@ -32,7 +32,6 @@ export { SLIPS, drawSlip, readingOrder, thaiNumeral } from './_siamsi-deck.ts';
 // ---- Copy. Every string a reader sees on this page, in one place ----
 // Values come from design/SiamsiIntent, SiamsiShake, SiamsiStick and SiamsiSlip (ADR-0033).
 
-export const TITLE_INTENT = 'เซียมซี';
 export const LEAD_INTENT = 'ตั้งจิตให้นิ่ง แล้วนึกถึงเรื่องที่อยากรู้ให้ชัดในใจ';
 export const LABEL_INTENT_GROUP = 'เรื่องที่อยากถาม';
 export const BTN_INTENT_DONE = 'ตั้งจิตแล้ว';
@@ -438,9 +437,6 @@ function renderIntent(): void {
   stage.replaceChildren();
   stage.className = 'stage-screen';
 
-  const title = el('span', TITLE_INTENT);
-  title.className = 'sm-title';
-  stage.appendChild(title);
   stage.appendChild(el('p', LEAD_INTENT));
 
   const group = document.createElement('div');
@@ -478,7 +474,7 @@ function renderIntent(): void {
   const go = el('button', BTN_INTENT_DONE);
   go.id = 'ss-intent-done';
   go.type = 'button';
-  go.className = 'game-btn game-btn-primary';
+  go.className = 'game-btn game-btn-primary ui-press';
   on(go, 'click', startRound);
   stage.appendChild(go);
 
@@ -579,7 +575,7 @@ function renderStick(): void {
   const open = el('button', BTN_OPEN_SLIP);
   open.id = 'ss-open-slip';
   open.type = 'button';
-  open.className = 'game-btn game-btn-primary';
+  open.className = 'game-btn game-btn-primary ui-press';
   on(open, 'click', openSlip);
   stage.appendChild(open);
 
@@ -597,7 +593,9 @@ function renderSlip(): void {
   stage.className = 'stage-screen';
 
   const panel = document.createElement('div');
-  panel.className = 'sm-slip';
+  // wd-reveal: this panel is inserted in the same task that arms the stage, so the reveal starts with
+  // the arm window and is at rest well inside it (reveal-arm-budget.test.mjs pins that sum).
+  panel.className = 'sm-slip wd-reveal';
 
   const head = document.createElement('div');
   head.className = 'sm-slip-head';
@@ -647,14 +645,14 @@ function renderSlip(): void {
   const keep = el('button', BTN_KEEP);
   keep.id = 'ss-keep';
   keep.type = 'button';
-  keep.className = 'game-btn game-btn-primary';
+  keep.className = 'game-btn game-btn-primary ui-press';
   on(keep, 'click', () => renderDone(DONE_KEEP));
   stage.appendChild(keep);
 
   const tie = el('button', BTN_TIE);
   tie.id = 'ss-tie';
   tie.type = 'button';
-  tie.className = 'game-btn game-btn-secondary';
+  tie.className = 'game-btn game-btn-secondary ui-press';
   on(tie, 'click', () => renderDone(DONE_TIE));
   stage.appendChild(tie);
 
@@ -679,7 +677,7 @@ function renderDone(line: string): void {
   const again = el('button', BTN_AGAIN);
   again.id = 'ss-again';
   again.type = 'button';
-  again.className = 'game-btn game-btn-primary';
+  again.className = 'game-btn game-btn-primary ui-press';
   on(again, 'click', () => {
     const stageRef = stageEl;
     const ctxRef = gameCtx;
