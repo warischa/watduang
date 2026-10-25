@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import ToolNameEntry from '../../components/ToolNameEntry.astro';
 import GameNav from '../../components/GameNav.astro';
 import PageChrome from '../../components/PageChrome.astro';
+import ToolHeader from '../../components/ToolHeader.astro';
 ---
 
 <Base
@@ -11,11 +12,14 @@ import PageChrome from '../../components/PageChrome.astro';
   chrome
 >
   <PageChrome>
-  <main>
-    <h1>วงล้อสุ่มชื่อ</h1>
+  <main class="tool-page">
     {/* gh#91 removed the tool-to-game name handoff: this tool now keeps its own list and never
         writes the shared roster. The clause promising names flow onward was deleted, not reworded. */}
-    <p>ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน</p>
+    <ToolHeader title="วงล้อสุ่มชื่อ" tagline="ใส่ชื่อในวง กดหมุน แล้วให้ดวงตัดสินว่าใครโดน" />
+
+    {/* The band spans the full width, so the 34rem reading column lives in this wrapper and not on
+        <main>. The ad slot stays inside it, so the slot keeps the width it always had. */}
+    <div class="wheel-column">
 
     <section id="wheel" aria-labelledby="wheel-heading">
       <div class="wheel-head">
@@ -56,11 +60,11 @@ import PageChrome from '../../components/PageChrome.astro';
       </p>
 
       <div class="wheel-actions">
-        <button id="wheel-spin" class="wheel-spin" type="button" disabled aria-describedby="wheel-note">หมุน</button>
+        <button id="wheel-spin" class="wheel-spin tool-go ui-press" type="button" disabled aria-describedby="wheel-note">หมุน</button>
         {/* The stop control of behaviour B. It renders (disabled, nothing running) whenever B is
             selected, so it never appears mid-spin and never moves the ad below — under
             prefers-reduced-motion B collapses into A and this control stays inert forever. */}
-        <button id="wheel-stop" class="wheel-stop" type="button" hidden disabled>หยุด</button>
+        <button id="wheel-stop" class="wheel-stop tool-go ui-press" type="button" hidden disabled>หยุด</button>
         <button id="wheel-reset" class="wheel-reset" type="button">คืนทุกชื่อเข้าวงล้อ</button>
       </div>
 
@@ -89,7 +93,7 @@ import PageChrome from '../../components/PageChrome.astro';
         doesn't jump on load, and nothing may be injected above the content.
         Clearance vs a controls-driven layout shift here is verified by hand only, not in CI.
         See scripts/ad-slot-grid-probe.mjs. */}
-    <div class="ad-slot" aria-hidden="true" style="min-height: 250px;"></div>
+    <div class="ad-slot" aria-hidden="true" style="min-height: 250px;">ช่องโฆษณา</div>
 
     <section id="how-to-use">
       <h2>วิธีใช้</h2>
@@ -100,6 +104,7 @@ import PageChrome from '../../components/PageChrome.astro';
       </ol>
       <p><a href="/tools/">เครื่องมือสุ่มทั้งหมด</a></p>
     </section>
+    </div>
   </main>
   </PageChrome>
 </Base>
@@ -110,20 +115,15 @@ import PageChrome from '../../components/PageChrome.astro';
     background-color: var(--color-ground-warm);
   }
 
-  main {
-    max-width: 34rem;
-    margin: 0 auto;
-    padding: var(--space-md);
+  .tool-page {
     font-family: var(--font-sans);
     color: var(--color-text);
   }
 
-  /* gh#262 finding 3: the h1 inherited the body face; values from the ToolWheel390 artboard */
-  main > h1 {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 26px;
-    line-height: 1.3;
+  .wheel-column {
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: var(--space-md);
   }
 
   /* 320px screen: the disc is fluid below 400px (the desktop artboard's disc size), so it can
@@ -413,6 +413,29 @@ import PageChrome from '../../components/PageChrome.astro';
     }
   }
 
+  /* The one ad placeholder look shared by the four tool pages: a dashed frame and one label. The
+     inline min-height keeps the 250px reserve, and border-box keeps the frame inside it, so the box
+     the ad reflow probe measures does not move. Phone and tablet take the smaller radius and label;
+     everything from 1100px up takes the desktop pair, written as the complement of the closed
+     max-width 1099px query. */
+  .ad-slot {
+    box-sizing: border-box;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    border: 3px dashed var(--ad-line);
+    border-radius: 16px;
+    color: var(--ink-soft);
+    font-size: 16px;
+  }
+
+  @media (max-width: 1099px) {
+    .ad-slot {
+      border-radius: 12px;
+      font-size: 14px;
+    }
+  }
+
   #how-to-use p a {
     /* a 44px invisible hit area per the owner ruling on gh#263; the row may grow to hold it */
     min-height: 44px;
@@ -515,10 +538,41 @@ import PageChrome from '../../components/PageChrome.astro';
 
   // Rebuilds one segment per name — the list that feeds the wheel is `remaining()`, so the disc
   // re-draws when names arrive, when the eliminate box flips, and after every reveal removes one.
+  function makeRim(): SVGCircleElement {
+    const rim = document.createElementNS(SVG_NS, 'circle');
+    rim.setAttribute('cx', '200');
+    rim.setAttribute('cy', '200');
+    rim.setAttribute('r', '164');
+    rim.setAttribute('fill', 'none');
+    rim.setAttribute('stroke', '#14142b');
+    rim.setAttribute('stroke-width', '7');
+    return rim;
+  }
+
+  // Before any name is entered the disc is an empty wheel: eight neutral segments that alternate
+  // the page white and the warm ground, light dividers, the ink rim and no labels. Hub, hub label
+  // and pointer are static svg chrome. Colours go through style so they can name tokens, which an
+  // svg presentation attribute cannot.
+  const IDLE_SEGMENTS = 8;
+  function drawIdleWheel(): void {
+    for (let i = 0; i < IDLE_SEGMENTS; i++) {
+      const seg = document.createElementNS(SVG_NS, 'path');
+      seg.setAttribute('d', segmentPath(i, IDLE_SEGMENTS));
+      seg.style.fill = i % 2 === 0 ? 'var(--color-bg)' : 'var(--color-ground-warm)';
+      seg.style.stroke = 'color-mix(in srgb, var(--ink) 35%, transparent)';
+      seg.setAttribute('stroke-width', '2.5');
+      group.appendChild(seg);
+    }
+    group.appendChild(makeRim());
+  }
+
   function drawWheel(slots: NameSlot[]): void {
     const names = slots.map((slot) => slot.name);
     while (group.firstChild) group.removeChild(group.firstChild);
-    if (names.length === 0) return; // hub, hub label and pointer are static svg chrome
+    if (names.length === 0) {
+      drawIdleWheel();
+      return;
+    }
 
     if (names.length === 1) {
       // one segment IS the whole disc — a filled circle stands in for the degenerate wedge
@@ -538,14 +592,7 @@ import PageChrome from '../../components/PageChrome.astro';
     }
 
     // rim rides inside the rotating group, as on the artboard
-    const rim = document.createElementNS(SVG_NS, 'circle');
-    rim.setAttribute('cx', '200');
-    rim.setAttribute('cy', '200');
-    rim.setAttribute('r', '164');
-    rim.setAttribute('fill', 'none');
-    rim.setAttribute('stroke', '#14142b');
-    rim.setAttribute('stroke-width', '7');
-    group.appendChild(rim);
+    group.appendChild(makeRim());
 
     for (let i = 0; i < names.length; i++) {
       const label = labelGeometry(i, names.length);
@@ -572,6 +619,16 @@ import PageChrome from '../../components/PageChrome.astro';
     const inner = resultEl.clientWidth - 32; // the artboard's 16px side padding
     const size = Math.min(26, Math.max(12, Math.floor(inner / (text.length * 0.62))));
     if (size < 26) resultEl.style.fontSize = `${size}px`;
+  }
+
+  // The result is a FRESH child inserted into the stable role=status region, so the reveal
+  // animation runs on insertion and the live region itself is never replaced. A block box,
+  // because a transform does not apply to an inline one.
+  function showResult(text: string): void {
+    const fresh = document.createElement('div');
+    fresh.className = 'wd-reveal';
+    fresh.textContent = text;
+    resultEl.replaceChildren(fresh);
   }
 
   function render(): void {
@@ -636,7 +693,7 @@ import PageChrome from '../../components/PageChrome.astro';
     // who's left) belongs to the note, owned solely by render() — otherwise unchecking after a round
     // ends would leave the result stuck announcing "everyone's out" while the wheel is full again.
     const done = eliminateBox.checked && remaining().length === 0;
-    resultEl.textContent = done ? `${picked.name} (คนสุดท้าย)` : picked.name;
+    showResult(done ? `${picked.name} (คนสุดท้าย)` : picked.name);
     fitResultFont();
     // The disc stays as drawn — re-slicing here would leave `rotation` pointing at an offset into
     // a list that no longer matches what's on screen. The next drawWheel happens at the next
@@ -835,5 +892,7 @@ import PageChrome from '../../components/PageChrome.astro';
     });
   }
 
+  // The page opens on the idle disc: no name has been entered, so the wheel is drawn empty.
+  drawWheel(remaining());
   render();
 </script>

@@ -61,6 +61,7 @@ const REGISTRY_REL = 'scripts/tool-copy-registry.json';
 
 /** The pinned set. Enumerated, not globbed. Both feeds below must reconcile against it exactly. */
 const PIN = [
+  'src/components/ToolHeader.astro',
   'src/components/ToolNameEntry.astro',
   'src/pages/tool/draw.astro',
   'src/pages/tool/number.astro',

@@ -44,7 +44,7 @@ const { heading, storageKey, ctaLabel } = Astro.props as Props;
       browser, not assumed (see the session's measurement table). `overflow-y: auto` (inherited from
       the textarea default) still applies, so line 10 scrolls instead of growing the box. */}
   <textarea id="name-input" rows="20" placeholder="พิมพ์ชื่อ บรรทัดละ 1 ชื่อ"></textarea>
-  <button id="name-start" type="button">{ctaLabel}</button>
+  <button id="name-start" class="ui-press" type="button">{ctaLabel}</button>
 </div>
 
 <style>
@@ -133,7 +133,9 @@ const { heading, storageKey, ctaLabel } = Astro.props as Props;
     }
   }
 
-  #name-start {
+  /* Rest rules sit in :where() so the shared .ui-press hover and press rules (web.css), which are
+     class selectors, are not out-ranked by an id selector on box-shadow. */
+  :where(#name-start) {
     min-height: 60px;
     background: #14142b;
     color: #fff6e0;
