@@ -109,3 +109,30 @@ test('idle placeholders: draw box, team cards and the empty wheel', () => {
   assert.doesNotMatch(wheelJs, /names\.length === 0\) return/, 'wheel: drawWheel still returns early on an empty list');
   assert.match(wheelJs, /IDLE_SEGMENTS\s*=\s*8/, 'wheel: idle disc must have 8 segments');
 });
+
+// A go button's rest rule must not out-rank the shared .tool-go:disabled and .ui-press rules in
+// web.css. Those weigh (0,2,0) and (0,3,0), and a page's scoped class rule weighs (0,2,0) once Astro
+// scopes it, so a bare class ties the disabled rule and wins on source order; an id selector beats
+// both outright. What is asserted: every selector, in any rule or media block of the page style, that
+// names a go button AND whose rule sets box-shadow or cursor is the whole selector inside :where(),
+// which weighs 0 before scoping and at most (0,1,0) after it.
+test('every go-button rest rule that sets box-shadow or cursor is wrapped in :where()', () => {
+  const GO = /#draw-go|#team-split|#number-go|#name-start|\.wheel-spin|\.wheel-stop/;
+  const sources = [
+    ...PAGES.map((n) => [`${n}.astro`, page[n]]),
+    ['ToolNameEntry.astro', read('../components/ToolNameEntry.astro')],
+  ];
+  let checked = 0;
+  for (const [file, src] of sources) {
+    const css = src.slice(src.indexOf('<style>'), src.indexOf('</style>')).replace(/\/\*[\s\S]*?\*\//g, '');
+    for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      const selectors = m[1].split(',').map((x) => x.trim()).filter((x) => GO.test(x));
+      if (!selectors.length || !/(?:^|[;\s])(?:box-shadow|cursor)\s*:/.test(m[2])) continue;
+      for (const sel of selectors) {
+        checked++;
+        assert.match(sel, /^:where\([^()]*\)$/, `${file}: "${sel}" sets box-shadow/cursor and is not wrapped in :where()`);
+      }
+    }
+  }
+  assert.ok(checked >= 10, `only ${checked} go-button rest selectors found: the scan is looking at the wrong shape`);
+});

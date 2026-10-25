@@ -315,8 +315,12 @@ import ToolHeader from '../../components/ToolHeader.astro';
     gap: var(--space-sm);
   }
 
-  .wheel-spin,
-  .wheel-stop,
+  /* The go buttons' rest rules (spin, stop) are wrapped in :where() on purpose: the shared
+     .tool-go:disabled rule (web.css) weighs (0,2,0), the same as a scoped class rule here, and the
+     page stylesheet comes later, so a bare class selector wins the tie and a disabled button would
+     keep its shadow and its pointer. :where() takes the rest rules to the floor. */
+  :where(.wheel-spin),
+  :where(.wheel-stop),
   .wheel-reset {
     border: 2.5px solid var(--color-line-strong);
     cursor: pointer;
@@ -324,7 +328,7 @@ import ToolHeader from '../../components/ToolHeader.astro';
     font-weight: 500;
   }
 
-  .wheel-spin {
+  :where(.wheel-spin) {
     flex: 1 1 auto;
     min-height: 60px;
     padding: 0 18px;
@@ -335,7 +339,7 @@ import ToolHeader from '../../components/ToolHeader.astro';
     box-shadow: 4px 4px 0 var(--color-line-strong);
   }
 
-  .wheel-stop {
+  :where(.wheel-stop) {
     min-height: 56px;
     padding: 0 18px;
     background: var(--color-line-strong);
