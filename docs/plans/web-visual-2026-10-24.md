@@ -119,5 +119,5 @@ Each commit gets a test that is red first wherever a seam exists. Examples: the 
 - [x] Phase 0 evidence README committed: findings plus options, with an explicit "not covered" list.
   `docs/verification/evidence/web-visual-2026-10-24/README.md`.
 - [x] The owner's picks recorded on gh#288 (comment 6385620006, 2026-10-24).
-- [ ] Canvas boards for every pick, approved by the owner.
+- [x] Canvas boards for every pick, approved by the owner. Local `108defd`; owner popup 2026-10-25; gh#288 comment 6394085911.
 - [ ] Code shipped and deployed. Full local gates green, branch and main CI green, the live site byte-identical to the build. What was not verified (real devices, Safari) is named on the ticket.
