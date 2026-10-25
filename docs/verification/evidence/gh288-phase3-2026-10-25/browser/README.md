@@ -52,3 +52,12 @@ Re-run: `probe.mjs` (one width+lane per run) then `node aggregate.mjs`. Raw: `re
 Real devices and touch (mouse emulation only, mobile:false), Safari/Firefox, real AdSense, GPU (software `--disable-gpu`),
 play-route WebGL, back/forward navigation, view-transition visual frames (only completion), `/tools/` and `/c/fortune/`
 interaction beyond focus, and the 4 tool pages' behaviour with 0-1 names.
+
+## Re-check after ccdd237 (2026-10-25)
+HEAD f122d9d, dist built at 0d22d47 (not rebuilt), `serve dist -l 4366`, Chrome 155.0.8059.85 CDP 9666, same probe.mjs
+method (BASE port only changed), 4 tool pages x 3 widths x 2 lanes. Raw: `recheck-wheel-disabled.json`.
+- Failure 1 closed: `/tool/wheel/` disabled `#wheel-spin` = opacity 0.4, box-shadow none, cursor default, hover and
+  press delta 0,0 with shadow none, 6/6 combos (was 0/6; shadow `4px 4px 0 0`, cursor pointer).
+- Disabled go, draw/team/number/wheel: 6/6 each. Enabled hover/press (-2,-2 / 4,4 normal; shadow only reduced): 6/6 each.
+- Enabled wheel spin rest look vs earlier results-*.json: box-shadow `rgb(20,20,43) 4px 4px 0 0`, opacity 1, cursor
+  pointer identical 6/6. Not covered: background/border (earlier run never recorded them, so no baseline).

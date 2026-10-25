@@ -1,0 +1,1058 @@
+{
+ "head": "f122d9d (dist built 0d22d47)",
+ "date": "2026-10-25",
+ "combos": {
+  "320-normal": {
+   "media": {},
+   "/tool/draw/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 320,
+     "innerHeight": 640,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/team/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 320,
+     "innerHeight": 640,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/number/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 320,
+     "innerHeight": 640,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/wheel/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 320,
+     "innerHeight": 640,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   }
+  },
+  "390-normal": {
+   "media": {},
+   "/tool/draw/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 390,
+     "innerHeight": 844,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/team/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 390,
+     "innerHeight": 844,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/number/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 390,
+     "innerHeight": 844,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/wheel/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 390,
+     "innerHeight": 844,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   }
+  },
+  "1440-normal": {
+   "media": {},
+   "/tool/draw/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 1440,
+     "innerHeight": 900,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/team/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 1440,
+     "innerHeight": 900,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/number/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 1440,
+     "innerHeight": 900,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/wheel/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 1440,
+     "innerHeight": 900,
+     "reduce": false,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   }
+  },
+  "320-reduced": {
+   "media": {},
+   "/tool/draw/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 320,
+     "innerHeight": 640,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/team/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 320,
+     "innerHeight": 640,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/number/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 320,
+     "innerHeight": 640,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/wheel/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 320,
+     "innerHeight": 640,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   }
+  },
+  "390-reduced": {
+   "media": {},
+   "/tool/draw/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 390,
+     "innerHeight": 844,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/team/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 390,
+     "innerHeight": 844,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/number/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 390,
+     "innerHeight": 844,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/wheel/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 390,
+     "innerHeight": 844,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   }
+  },
+  "1440-reduced": {
+   "media": {},
+   "/tool/draw/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 1440,
+     "innerHeight": 900,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/team/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 1440,
+     "innerHeight": 900,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/number/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 1440,
+     "innerHeight": 900,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   },
+   "/tool/wheel/": {
+    "hoverDisabledPass": true,
+    "hoverEnabledPass": true,
+    "disabled": {
+     "rest": {
+      "opacity": "0.4",
+      "boxShadow": "none",
+      "cursor": "default",
+      "disabled": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "hovShadow": "none",
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actShadow": "none"
+    },
+    "enabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "media": {
+     "innerWidth": 1440,
+     "innerHeight": 900,
+     "reduce": true,
+     "hover": true,
+     "pointerFine": true,
+     "hasFocus": true
+    },
+    "errs": 0,
+    "oldEnabledRest": {
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer"
+    },
+    "restSame": true
+   }
+  }
+ },
+ "totals": {
+  "/tool/draw/": {
+   "dis": 6,
+   "en": 6,
+   "rest": 6,
+   "n": 6
+  },
+  "/tool/team/": {
+   "dis": 6,
+   "en": 6,
+   "rest": 6,
+   "n": 6
+  },
+  "/tool/number/": {
+   "dis": 6,
+   "en": 6,
+   "rest": 6,
+   "n": 6
+  },
+  "/tool/wheel/": {
+   "dis": 6,
+   "en": 6,
+   "rest": 6,
+   "n": 6
+  }
+ }
+}
