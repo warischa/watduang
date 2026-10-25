@@ -32,6 +32,18 @@
 //                  count is what catches a page that renders PageChrome but forgets Base's `chrome`
 //                  prop, which ships Base's plain footer as a second one.
 //
+// The view-transition leg (gh#288) reuses the same walk and the same classes. A page's CSS is every
+// inline <style> body plus every <link rel=stylesheet> target read from the scanned root, CSS comments
+// stripped before any match. Terms: no @view-transition on a play route; @view-transition
+// { navigation: auto } on every solo landing and every-other page (liveness: the opt-in rides in
+// src/styles/web.css, which only PageChrome imports); wherever the opt-in is present, a reduced
+// ::view-transition-old(root) / -new(root) rule inside a prefers-reduced-motion block that does not
+// remove the animation; no view-transition-name in any page's CSS; and no element in any page's
+// markup carrying the class reveal-pending (the scroll-reveal script's class; in markup it would hide
+// content with no script to show it). Fail closed: a stylesheet link that is not a local file under
+// the scanned root, a linked file that is missing, or an @import reds, because the CSS behind it is
+// unread.
+//
 // Fail closed (docs/adr/0019): the walk must find pages, and each class must be non-empty; any page
 // under dist/game/ that is not exactly one of the manifest-derived shapes reds, and an id there that
 // the manifest does not know reds by name. NO_CHROME is the only way out of the default class: each
@@ -55,7 +67,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 // Reused, not re-implemented: csp-inline-check.mjs owns the calibrated HTML comment blanker and
 // guards its own entry point, so importing it never runs that gate. See markerHits below.
-import { stripHtmlComments } from './csp-inline-check.mjs';
+import { stripHtmlComments, tagAttributes } from './csp-inline-check.mjs';
 // The one owner of which game page is a play route and which a solo landing (precedent:
 // scripts/stage-reserve-probe.mjs). Executed, so the class set is the runtime value.
 import { games } from '../src/games/manifest.ts';
@@ -120,6 +132,104 @@ function footerTagCount(text) {
   return (stripHtmlComments(text).match(/<footer(?=[\s>/])/gi) || []).length;
 }
 
+// ---------------------------------------------------------------------------
+// View-transition leg (gh#288). Pure helpers: page text -> its CSS, CSS -> facts. The page's CSS is
+// every inline <style> body plus every local <link rel=stylesheet> target, because Astro inlines a
+// small stylesheet chunk and links a larger one, and which one a page gets is the bundler's call.
+// ---------------------------------------------------------------------------
+const VT_ANY_RE = /@view-transition\b/i;
+const VT_OPTIN_RE = /@view-transition\s*\{[^}]*\bnavigation\s*:\s*auto\b/i;
+const VT_NAME_RE = /view-transition-name/i;
+const REDUCED_RE = /prefers-reduced-motion\s*:\s*reduce/i;
+const VT_PSEUDOS = ['::view-transition-old(root)', '::view-transition-new(root)'];
+const REVEAL_PENDING = 'reveal-pending'; // added by src/scripts/scroll-reveal.ts only, never markup
+
+// ponytail: a /* */ inside a CSS string would be read as a comment opener. dist CSS is generated and
+// carries no such string; the effect would be a wrongly blanked span, which reds liveness, not greens.
+const stripCssComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '');
+
+// Blank <script>/<style> bodies so markup scans never read CSS selectors or JSON-LD text as tags.
+const blankRawText = (html) =>
+  html.replace(/(<(script|style)\b[^>]*>)([\s\S]*?)(<\/\2)/gi, (_m, open, _t, body, close) => open + body.replace(/[^\n]/g, ' ') + close);
+
+/** Flat CSS block walk: `{ prelude, body, parents }` per block, quote-aware so a brace inside a
+ *  string never shifts depth. Enough for generated sheets with at-rules nested a level or two. */
+function cssRules(css) {
+  const out = [];
+  const stack = [];
+  let buf = '';
+  for (let i = 0; i < css.length; i++) {
+    const ch = css[i];
+    if (ch === '"' || ch === "'") {
+      const end = css.indexOf(ch, i + 1);
+      const stop = end === -1 ? css.length - 1 : end;
+      buf += css.slice(i, stop + 1);
+      i = stop;
+    } else if (ch === '{') {
+      stack.push(buf.trim());
+      buf = '';
+    } else if (ch === '}') {
+      out.push({ prelude: stack.pop() ?? '', body: buf.trim(), parents: [...stack] });
+      buf = '';
+    } else {
+      buf += ch;
+    }
+  }
+  return out;
+}
+
+/** html -> { inline: [css], hrefs: [href | null] } for every inline <style> body and every
+ *  <link rel=stylesheet>, read outside HTML comments. A stylesheet link with no href yields null. */
+function pageStyles(html) {
+  const scanned = stripHtmlComments(html);
+  const inline = [...scanned.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)].map((m) => m[1]);
+  const hrefs = [];
+  for (const m of blankRawText(scanned).matchAll(/<link\b[^>]*>/gi)) {
+    const attrs = new Map([...tagAttributes(m[0])].map((a) => [a.name.toLowerCase(), a.value]));
+    if (!(attrs.get('rel') ?? '').toLowerCase().split(/\s+/).includes('stylesheet')) continue;
+    hrefs.push(attrs.has('href') ? attrs.get('href') : null);
+  }
+  return { inline, hrefs };
+}
+
+/** href on page `pageRel` -> path relative to the scanned root, or null when it is not local (a
+ *  scheme, a protocol-relative URL, or a path that climbs out of the root). */
+function resolveLocalHref(href, pageRel) {
+  if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith('//')) return null;
+  const clean = href.split(/[?#]/)[0];
+  if (clean === '') return null;
+  const joined = clean.startsWith('/') ? clean.slice(1) : path.posix.join(path.posix.dirname(pageRel), clean);
+  const norm = path.posix.normalize(joined);
+  return norm.startsWith('../') || norm === '..' || path.posix.isAbsolute(norm) ? null : norm;
+}
+
+/** comment-stripped sheets -> true when a prefers-reduced-motion block styles both root pseudos with
+ *  a duration, and no reduced rule on them removes the animation. */
+function hasReducedVt(sheets) {
+  const found = new Set();
+  let removed = false;
+  for (const sheet of sheets) {
+    for (const r of cssRules(sheet)) {
+      if (!r.parents.some((p) => /^@media\b/i.test(p) && REDUCED_RE.test(p))) continue;
+      const sels = r.prelude.split(',').map((s) => s.trim().toLowerCase().replace(/\s+/g, ''));
+      for (const pseudo of VT_PSEUDOS.filter((p) => sels.includes(p))) {
+        if (/(^|[;{\s])animation(-name)?\s*:\s*none\b/i.test(r.body)) removed = true;
+        else if (/(^|[;{\s])animation(-duration)?\s*:/i.test(r.body)) found.add(pseudo);
+      }
+    }
+  }
+  return !removed && found.size === VT_PSEUDOS.length;
+}
+
+/** html -> every class token on a live element (comments and raw-text bodies blanked). */
+function classTokens(html) {
+  const out = [];
+  for (const a of tagAttributes(blankRawText(stripHtmlComments(html)))) {
+    if (a.name.toLowerCase() === 'class') out.push(...a.value.split(/\s+/).filter(Boolean));
+  }
+  return out;
+}
+
 // Pure-ish: root -> relative paths of every built .html page, RECURSIVE (gh#105: the recursion is
 // the point). Dot-entries are skipped; a missing root yields [] — evaluate() fails closed on the
 // empty set, so a vanished dist/ can never read as clean.
@@ -156,7 +266,7 @@ const CITES_OWNER_RULING = (s) => typeof s === 'string' && /owner/i.test(s) && /
 function evaluate({ pages, read, gameList, noChrome }) {
   const failures = [];
   const fail = (code, msg) => failures.push(`[${code}] ${msg}`);
-  const counts = { play: 0, solo: 0, chrome: 0, exempt: 0 };
+  const counts = { play: 0, solo: 0, chrome: 0, exempt: 0, vtOptIn: 0 };
   const knownIds = new Set(gameList.map((g) => g.id));
   const classes = gamePageClasses(gameList);
   const pageSet = new Set(pages);
@@ -190,6 +300,36 @@ function evaluate({ pages, read, gameList, noChrome }) {
     }
     if (!cls) cls = noChrome.has(rel) ? 'exempt' : 'chrome';
     counts[cls] += 1;
+
+    // View-transition leg (gh#288). The opt-in rides in src/styles/web.css, imported by PageChrome
+    // alone, so it must reach every web page and no play route. Linked CSS is read through the same
+    // reader as the pages; anything this scan cannot read is a red, never a skip.
+    const styles = pageStyles(text);
+    const sheets = [...styles.inline];
+    for (const href of styles.hrefs) {
+      const target = href === null ? null : resolveLocalHref(href, rel);
+      if (target === null) {
+        fail('vt-nonlocal-css', `${rel} · stylesheet ${href === null ? 'link with no href' : JSON.stringify(href)} is not a local file under the scanned root — its CSS cannot be read, so the page cannot be cleared.`);
+        continue;
+      }
+      let css;
+      try { css = read(target); } catch { css = undefined; }
+      if (typeof css !== 'string') {
+        fail('vt-css-missing', `${rel} · stylesheet ${JSON.stringify(href)} resolves to ${target}, which is not in the scanned root.`);
+        continue;
+      }
+      sheets.push(css);
+    }
+    const cleaned = sheets.map(stripCssComments);
+    if (cleaned.some((c) => /@import\b/i.test(c))) fail('vt-css-import', `${rel} · its CSS carries an @import — an imported sheet is outside this scan, so the page cannot be cleared.`);
+    const allCss = cleaned.join('\n');
+    const optIn = VT_OPTIN_RE.test(allCss);
+    if (optIn) counts.vtOptIn += 1;
+    if (cls === 'play' && VT_ANY_RE.test(allCss)) fail('vt-play-optin', `${rel} · a play route carries @view-transition — the cross-document fade is web pages only.`);
+    if ((cls === 'solo' || cls === 'chrome') && !optIn) fail('vt-web-missing', `${rel} · a web page without @view-transition { navigation: auto } — the opt-in did not reach it (web.css rides on PageChrome).`);
+    if (optIn && !hasReducedVt(cleaned)) fail('vt-no-reduced', `${rel} · opts in to view transitions with no reduced ::view-transition-old(root) / -new(root) rule inside a prefers-reduced-motion block (or one that removes the animation) — reduced motion is reduced, not removed (ADR-0046).`);
+    if (VT_NAME_RE.test(allCss)) fail('vt-name', `${rel} · its CSS names a view-transition-name — the approved transition is the root cross-fade only.`);
+    if (classTokens(text).includes(REVEAL_PENDING)) fail('reveal-pending-markup', `${rel} · ships class "${REVEAL_PENDING}" in markup — that class is the scroll-reveal script's alone, and in markup it hides content with no script to show it.`);
 
     if (cls === 'play' || cls === 'exempt') {
       for (const h of hits) fail(cls === 'play' ? 'play-route-marker' : 'exempt-page-marker', `${rel}:${h.line} · ${MARKER}="${h.value}" · ${cls === 'play' ? 'a play route renders no page chrome' : 'a NO_CHROME page renders no page chrome'} · ${h.snippet}`);
@@ -226,15 +366,27 @@ function write(root, relPath, content) {
 
 const TOPBAR_HTML = '<header class="chrome-bar chrome-topbar" data-page-chrome="topbar"><a href="/">x</a></header>';
 const FOOTER_HTML = '<footer class="chrome-bar chrome-footer" data-page-chrome="footer"><span>x</span></footer>';
-const CHROME_PAGE = `<!doctype html><body>${TOPBAR_HTML}\n<main>x</main>\n${FOOTER_HTML}</body>`;
-const SOLO_PAGE = `<!doctype html><body><main><header class="game-topbar"><a href="/c/fortune/" data-stable-exit>x</a></header></main>\n${FOOTER_HTML}</body>`;
-const PLAY_PAGE = '<!doctype html><body><main>app</main></body>';
+// The web layer as the bundler emits it (minified src/styles/web.css): the opt-in, the full and the
+// reduced root rules, and the scroll-reveal selectors — so a green also proves `.reveal-pending` in
+// CSS is not mistaken for the class in markup. Web pages carry it both ways the build can: the
+// chrome pages inline it, the solo landings link it.
+const VT_FULL = '::view-transition-old(root),::view-transition-new(root){animation-duration:var(--motion-page);animation-timing-function:var(--ease-page)}';
+const VT_REDUCED = '@media (prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation-duration:var(--motion-rm-quick);animation-timing-function:var(--ease-rm)}}';
+const WEB_CSS = `:focus-visible{outline:var(--focus-ring)}@view-transition{navigation:auto}${VT_FULL}main .reveal-pending{opacity:0;translate:0 16px}main .reveal-pending.is-in{opacity:1;translate:none}${VT_REDUCED}`;
+const WEB_CSS_REL = '_astro/PageChrome.Ab12Cd34.css';
+const CHROME_PAGE = `<!doctype html><head><style>${WEB_CSS}</style></head><body>${TOPBAR_HTML}\n<main>x</main>\n${FOOTER_HTML}</body>`;
+const SOLO_PAGE = `<!doctype html><head><link rel="stylesheet" href="/${WEB_CSS_REL}"></head><body><main><header class="game-topbar"><a href="/c/fortune/" data-stable-exit>x</a></header></main>\n${FOOTER_HTML}</body>`;
+const PLAY_PAGE = '<!doctype html><head><link rel="stylesheet" href="/_astro/play.Zz99.css"><style>#stage{min-height:100dvh}</style></head><body><main>app</main></body>';
+const PLAY_CSS_REL = '_astro/play.Zz99.css';
+const PLAY_CSS = '.play-root{display:grid}@media (prefers-reduced-motion:reduce){.toy{animation:none}}';
 const OTHER_PAGES = ['index.html', 'c/fortune/index.html', 'c/party/index.html', 'tools/index.html', 'tool/wheel/index.html', 'tool/draw/index.html', '404.html'];
 const PLAY_GAMES = games.filter((g) => g.playRoute);
 const SOLO_GAMES = games.filter((g) => !g.playRoute);
 const playRel = (g) => `${g.playRoute.replace(/^\/+|\/+$/g, '')}/index.html`;
 
 function cleanTree(root, { withPlay = true } = {}) {
+  write(root, WEB_CSS_REL, WEB_CSS);
+  write(root, PLAY_CSS_REL, PLAY_CSS);
   if (withPlay) for (const g of PLAY_GAMES) write(root, playRel(g), PLAY_PAGE);
   for (const g of SOLO_GAMES) write(root, `game/${g.id}/index.html`, SOLO_PAGE);
   for (const rel of OTHER_PAGES) write(root, rel, CHROME_PAGE);
@@ -269,6 +421,8 @@ function selftest() {
   {
     const pages = ['index.html', 'tools/index.html', ...PLAY_GAMES.map(playRel), ...SOLO_GAMES.map((g) => `game/${g.id}/index.html`)];
     const content = new Map([
+      [WEB_CSS_REL, WEB_CSS],
+      [PLAY_CSS_REL, PLAY_CSS],
       ['index.html', CHROME_PAGE],
       ['tools/index.html', PLAY_PAGE], // bare: the page the exemptions below point at
       ...PLAY_GAMES.map((g) => [playRel(g), PLAY_PAGE]),
@@ -321,12 +475,31 @@ function selftest() {
     ['play route shipping a plain footer (Base without `chrome`)', (r) => write(r, play0, `${PLAY_PAGE}<footer><a href="/">x</a></footer>`), ['play-route-footer']],
     ['solo landing with no footer marker', (r) => write(r, solo0, SOLO_PAGE.replace(' data-page-chrome="footer"', '')), ['missing-footer']],
     ['solo landing shipping two footers', (r) => write(r, solo0, `${SOLO_PAGE}<footer><a href="/">x</a></footer>`), ['footer-tags']],
-    ['tools hub bare', (r) => write(r, 'tools/index.html', PLAY_PAGE), ['missing-topbar', 'missing-footer', 'footer-tags']],
+    ['tools hub bare', (r) => write(r, 'tools/index.html', PLAY_PAGE), ['missing-topbar', 'missing-footer', 'footer-tags', 'vt-web-missing']],
     ['tool page with two <footer> tags', (r) => write(r, 'tool/wheel/index.html', `${CHROME_PAGE}<footer><a href="/">x</a></footer>`), ['footer-tags']],
     ['404 carrying the pre-gh#255 bare marker', (r) => write(r, '404.html', CHROME_PAGE.replace('<main>', '<main data-page-chrome>')), ['unknown-marker-value']],
     ['unmapped game id', (r) => write(r, 'game/nope/index.html', SOLO_PAGE), ['unmapped-game-id']],
     ['nested page under a known game', (r) => write(r, `game/${SOLO_GAMES[0].id}/extra/index.html`, PLAY_PAGE), ['unexpected-game-page']],
     ['tree with no play route', null, ['empty-class']],
+    // View-transition leg (gh#288): each term reds on its own planted violation.
+    ['play route carrying the opt-in in an inline style', (r) => write(r, play0, PLAY_PAGE.replace('</head>', `<style>@view-transition{navigation:auto}${VT_REDUCED}</style></head>`)), ['vt-play-optin']],
+    ['play route carrying the opt-in through linked CSS', (r) => {
+      write(r, '_astro/leak.Qq11.css', `@view-transition{navigation:auto}${VT_FULL}${VT_REDUCED}`);
+      write(r, play0, PLAY_PAGE.replace('</head>', '<link rel="stylesheet" href="/_astro/leak.Qq11.css"></head>'));
+    }, ['vt-play-optin']],
+    ['web page missing the opt-in', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('@view-transition{navigation:auto}', '')), ['vt-web-missing']],
+    ['web page whose only opt-in is a CSS comment', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('@view-transition{navigation:auto}', '/*@view-transition{navigation:auto}*/')), ['vt-web-missing']],
+    ['solo landing whose linked CSS lost the opt-in', (r) => write(r, WEB_CSS_REL, WEB_CSS.replace('@view-transition{navigation:auto}', '')), ['vt-web-missing']],
+    ['opt-in with no reduced rule', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace(VT_REDUCED, '')), ['vt-no-reduced']],
+    ['reduced rule outside a prefers-reduced-motion block', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace(VT_REDUCED, VT_REDUCED.replace('prefers-reduced-motion:reduce', 'min-width:1px'))), ['vt-no-reduced']],
+    ['reduced rule that removes the animation', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace(VT_REDUCED, `${VT_REDUCED}@media (prefers-reduced-motion:reduce){::view-transition-new(root){animation:none}}`)), ['vt-no-reduced']],
+    ['reduced rule on the old pseudo only', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace(VT_REDUCED, VT_REDUCED.replace(',::view-transition-new(root)', ''))), ['vt-no-reduced']],
+    ['a view-transition-name in page CSS', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('</style>', '.hero{view-transition-name:hero}</style>')), ['vt-name']],
+    ['reveal-pending shipped in markup', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('<main>x</main>', '<main><section class="wrap reveal-pending">x</section></main>')), ['reveal-pending-markup']],
+    ['stylesheet linked from another origin', (r) => write(r, solo0, SOLO_PAGE.replace('</head>', '<link rel="stylesheet" href="https://fonts.example.com/x.css"></head>')), ['vt-nonlocal-css']],
+    ['stylesheet climbing out of the scanned root', (r) => write(r, solo0, SOLO_PAGE.replace('</head>', '<link rel="stylesheet" href="../../../outside.css"></head>')), ['vt-nonlocal-css']],
+    ['linked stylesheet missing from the root', (r) => write(r, solo0, SOLO_PAGE.replace('</head>', '<link rel="stylesheet" href="/_astro/gone.css"></head>')), ['vt-css-missing']],
+    ['an @import in page CSS', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('<style>', '<style>@import url(/_astro/more.css);')), ['vt-css-import']],
   ];
   for (const [label, breach, codes] of redCases) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-bad-'));
@@ -337,6 +510,29 @@ function selftest() {
       assert.notEqual(run.status, 0, `${label}: must exit non-zero`);
       assert.deepEqual([...codesOf(run.stderr)].sort(), [...codes].sort(), `${label}: must red for exactly [${codes}] — stderr: ${run.stderr}`);
       console.log(`PASS red (${label}): ${run.stderr.split('\n')[0]}`);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  // Green direction for the view-transition leg: shapes a wrong detector would red. Each tree is the
+  // clean tree plus one page rewritten, and must still exit 0.
+  const realWebCss = fs.readFileSync(path.join(repoRoot, 'src', 'styles', 'web.css'), 'utf8');
+  const vtGreenCases = [
+    // The web layer exactly as authored, unminified: the real source must clear the gate.
+    ['web page inlining the authored src/styles/web.css', (r) => write(r, 'index.html', CHROME_PAGE.replace(`<style>${WEB_CSS}</style>`, `<style>${realWebCss}</style>`))],
+    ['play route mentioning @view-transition only in comments', (r) => write(r, play0, PLAY_PAGE.replace('</head>', '<style>/* @view-transition{navigation:auto} */</style><!-- <style>@view-transition{navigation:auto}</style> --></head>'))],
+    ['reveal-pending in text, a comment, JSON-LD and a longer class token', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('<main>x</main>', '<main><p>reveal-pending</p><!-- <i class="reveal-pending"></i> --><script type="application/ld+json">{"a":"<b class=\\"reveal-pending\\">"}</script><b class="reveal-pendingx">y</b></main>'))],
+    ['web CSS linked by a relative href with a query string', (r) => write(r, 'tools/index.html', SOLO_PAGE.replace(`href="/${WEB_CSS_REL}"`, `href="../${WEB_CSS_REL}?v=1"`).replace('<body>', `<body>${TOPBAR_HTML}`))],
+  ];
+  for (const [label, rewrite] of vtGreenCases) {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'page-chrome-vt-good-'));
+    try {
+      cleanTree(dir);
+      rewrite(dir);
+      const run = spawnAgainst(dir);
+      assert.equal(run.status, 0, `${label}: must exit 0 — stderr: ${run.stderr}`);
+      console.log(`PASS green (${label})`);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
@@ -384,7 +580,7 @@ function main() {
     process.exit(1);
   }
   console.log(
-    `page-chrome-check: ${pages.length} page(s) in ${distRoot} — play route (no chrome) ${counts.play} · solo landing (footer only) ${counts.solo} · every other page (top bar + footer) ${counts.chrome} · NO_CHROME exempt ${counts.exempt}${process.env.PAGE_CHROME_DIST_OVERRIDE ? ' (PAGE_CHROME_DIST_OVERRIDE active)' : ''}`,
+    `page-chrome-check: ${pages.length} page(s) in ${distRoot} — play route (no chrome) ${counts.play} · solo landing (footer only) ${counts.solo} · every other page (top bar + footer) ${counts.chrome} · NO_CHROME exempt ${counts.exempt} · view-transition opt-in on ${counts.vtOptIn} web page(s), 0 play routes, reduced rule wherever present, no view-transition-name, no reveal-pending in markup${process.env.PAGE_CHROME_DIST_OVERRIDE ? ' (PAGE_CHROME_DIST_OVERRIDE active)' : ''}`,
   );
 }
 

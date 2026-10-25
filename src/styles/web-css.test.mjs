@@ -170,6 +170,13 @@ test('every duration and easing is a motion token, never a literal', () => {
   const timed = leaf.flatMap((r) => r.body.split(';')).filter((d) => /^\s*(animation|transition)\s*:/.test(d));
   assert.ok(timed.length >= 4, 'positive control: the timed declarations were found');
   for (const d of timed) assert.match(d, /var\(--motion-/, `untokened duration: ${d.trim()}`);
+  // The longhands too: the view-transition pseudos set duration and easing one property at a time.
+  const decls = leaf.flatMap((r) => r.body.split(';'));
+  const durations = decls.filter((d) => /^\s*(animation|transition)-(duration|delay)\s*:/.test(d));
+  const easings = decls.filter((d) => /^\s*(animation|transition)-timing-function\s*:/.test(d));
+  assert.ok(durations.length >= 2 && easings.length >= 2, 'positive control: the longhand declarations were found');
+  for (const d of durations) assert.match(d, /:\s*var\(--motion-[\w-]+\)\s*$/, `untokened longhand duration: ${d.trim()}`);
+  for (const d of easings) assert.match(d, /:\s*var\(--ease-[\w-]+\)\s*$/, `untokened longhand easing: ${d.trim()}`);
   const noVars = code.replace(/var\([^)]*\)/g, '');
   assert.doesNotMatch(noVars, /(?<![\w.-])\d*\.?\d+m?s\b/, 'a literal duration');
   assert.doesNotMatch(noVars, /cubic-bezier|steps\(|\bease(-in|-out|-in-out)?\b|\blinear\b/, 'a literal easing');
@@ -245,4 +252,29 @@ test('no stylesheet rule hides anything without the script class (no-JS shows ev
   for (const r of hides) {
     for (const s of selectorsOf(r)) assert.match(s, /\.reveal-pending/, `hides without the script class: ${s}`);
   }
+});
+
+// Cross-document view transitions, web pages only: web.css reaches PageChrome pages and no play
+// route, which is why the opt-in lives here and never in Base. Root cross-fade only — no element is
+// named. The built-artifact side (opt-in on every web page, none on a play route, the reduced rule
+// wherever the opt-in is) is scripts/page-chrome-check.mjs.
+test('view transitions: opt-in, root cross-fade on the page tokens, reduced form, no names', () => {
+  const at = rules.filter((r) => r.prelude === '@view-transition');
+  assert.equal(at.length, 1, 'exactly one @view-transition rule');
+  assert.match(at[0].body, /^navigation:\s*auto;?$/);
+  assert.equal(at[0].parents.length, 0, 'the opt-in must not sit inside a media query');
+
+  const pseudos = ['::view-transition-old(root)', '::view-transition-new(root)'];
+  const full = leaf.filter((r) => !inReduced(r) && pseudos.every((p) => selectorsOf(r).includes(p)));
+  assert.equal(full.length, 1, 'one full rule styling both root pseudos');
+  assert.match(full[0].body, /animation-duration:\s*var\(--motion-page\)/);
+  assert.match(full[0].body, /animation-timing-function:\s*var\(--ease-page\)/);
+
+  const reduced = leaf.filter((r) => inReduced(r) && pseudos.every((p) => selectorsOf(r).includes(p)));
+  assert.equal(reduced.length, 1, 'one reduced rule styling both root pseudos');
+  assert.match(reduced[0].body, /animation-duration:\s*var\(--motion-rm-quick\)/);
+  assert.match(reduced[0].body, /animation-timing-function:\s*var\(--ease-rm\)/);
+  assert.ok(leaf.indexOf(reduced[0]) > leaf.indexOf(full[0]), 'the reduced rule comes after the full one');
+
+  assert.doesNotMatch(code, /view-transition-name/, 'root cross-fade only: nothing is named');
 });

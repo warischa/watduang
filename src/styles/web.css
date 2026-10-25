@@ -107,6 +107,20 @@ main .reveal-pending.is-in {
     translate var(--motion-scroll) var(--ease-out);
 }
 
+/* ---- Cross-document view transitions --------------------------------------------------------
+   A root cross-fade between web pages, nothing named. The opt-in lives here, never in Base: Base
+   also serves the play routes, and a play route must never carry it; this file reaches PageChrome
+   pages only. Duration and easing are written explicitly, not left to the browser default. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--motion-page);
+  animation-timing-function: var(--ease-page);
+}
+
 /* ---- Reduced motion -------------------------------------------------------------------------
    Movement goes; the cue stays. The hover and press keep their shadow change over the quick linear
    step with no transform; both reveals keep their fade over the reduced fade, with no scale and no
@@ -127,6 +141,14 @@ main .reveal-pending.is-in {
 
   main .reveal-pending.is-in {
     transition: opacity var(--motion-rm-fade) var(--ease-rm);
+  }
+
+  /* The browser does not shorten the cross-fade under this setting by itself, so the reduced form
+     is written here: the same fade, quicker and linear. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--motion-rm-quick);
+    animation-timing-function: var(--ease-rm);
   }
 }
 
