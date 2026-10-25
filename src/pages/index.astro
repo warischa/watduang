@@ -300,7 +300,9 @@ const featured = withArt(featuredGame);
      A wholesale rule over every element in main would also turn each newer effect's reduced form
      (the hero layer's held pose, the hover shadow, the scroll fade) into a removal, so a motion
      added later brings its own reduced form instead. !important beats the components' scoped
-     selectors; it is the only !important on the page. */
+     selectors; it is the only !important on the page. A tile is also a scroll-reveal target, so the
+     transition half skips a tile while it carries .reveal-pending: there the reveal's reduced fade
+     (src/styles/web.css) runs, and the stop comes back once the script takes the class off. */
   @media (prefers-reduced-motion: reduce) {
     main :global(.tile),
     main :global(.tilt-a),
@@ -309,6 +311,14 @@ const featured = withArt(featuredGame);
     main :global(.spark),
     main :global(.toy) {
       animation: none !important;
+    }
+
+    main :global(.tile:not(.reveal-pending)),
+    main :global(.tilt-a:not(.reveal-pending)),
+    main :global(.tilt-b:not(.reveal-pending)),
+    main :global(.tilt-c:not(.reveal-pending)),
+    main :global(.spark),
+    main :global(.toy) {
       transition: none !important;
     }
   }

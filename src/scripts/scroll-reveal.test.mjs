@@ -15,7 +15,7 @@
 //      on its own rules (its hover transition, its rest transform).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { TARGET_SELECTOR, NEVER_SELECTOR, ROOT_MARGIN, startScrollReveal } from './scroll-reveal.ts';
+import { TARGET_SELECTOR, NEVER_SELECTOR, ROOT_MARGIN, FALLBACK_MARGIN_MS, transitionMs, startScrollReveal } from './scroll-reveal.ts';
 
 class FakeClassList {
   constructor() { this.set = new Set(); }
@@ -50,8 +50,14 @@ function makeEnv(elements, { io = true, navType = 'navigate', innerHeight = 800 
     emit(el, isIntersecting) { this.cb([{ target: el, isIntersecting }], this); }
   }
   const winListeners = {};
+  const timers = [];
   const win = {
     innerHeight,
+    computed: { transitionDuration: '0.45s, 0.45s', transitionDelay: '0s, 0s' },
+    getComputedStyle() { return this.computed; },
+    setTimeout(fn, ms) { timers.push({ fn, ms, cleared: false }); return timers.length; },
+    clearTimeout(id) { if (timers[id - 1]) timers[id - 1].cleared = true; },
+    timers,
     performance: { getEntriesByType: (t) => (t === 'navigation' && navType ? [{ type: navType }] : []) },
     addEventListener(type, fn) { (winListeners[type] ??= []).push(fn); },
     fire(type, ev) { (winListeners[type] ?? []).forEach((fn) => fn(ev)); },
@@ -183,4 +189,41 @@ test('PageChrome runs the reveal from a bundled script, and that script does not
   assert.equal(attrs.trim(), '', 'a bare <script>, so Astro bundles it');
   assert.match(body, /import \{ startScrollReveal \} from '\.\.\/scripts\/scroll-reveal';/);
   assert.match(body, /startScrollReveal\(window, document\);/);
+});
+
+// Any `transition: none` that outranks the reveal (a page's !important reduced rule, a component's
+// own stop) means no transitionend ever fires. A timer at the computed transition time plus a margin
+// takes the classes off anyway, so nothing is ever stranded half-revealed.
+test('transitionMs reads the longest duration + delay from computed style, in ms', () => {
+  assert.equal(transitionMs({ transitionDuration: '0.45s, 0.45s', transitionDelay: '0s, 0s' }), 450);
+  assert.equal(transitionMs({ transitionDuration: '200ms', transitionDelay: '0s' }), 200);
+  assert.equal(transitionMs({ transitionDuration: '0s', transitionDelay: '0s' }), 0);
+  assert.equal(transitionMs({ transitionDuration: '0.1s, 0.3s', transitionDelay: '0.2s, 0s' }), 300);
+  assert.equal(transitionMs({ transitionDuration: '', transitionDelay: '' }), 0);
+});
+
+test('with no transition at all, the fallback timer takes the classes off at the margin', () => {
+  const below = new FakeEl('below', 1200);
+  const { win, doc, observers } = makeEnv([below]);
+  win.computed = { transitionDuration: '0s', transitionDelay: '0s' };
+  startScrollReveal(win, doc);
+  observers[0].emit(below, true);
+  assert.equal(win.timers.length, 1, 'one fallback timer per reveal');
+  assert.equal(win.timers[0].ms, FALLBACK_MARGIN_MS);
+  assert.ok(pending(below), 'still pending until the timer fires');
+  win.timers[0].fn();
+  assert.equal(pending(below), false);
+  assert.equal(below.classList.contains('is-in'), false);
+  assert.equal((below.listeners.transitionend ?? []).length, 0, 'the transitionend listener goes too');
+});
+
+test('the fallback waits for the computed transition, and transitionend first cancels it', () => {
+  const below = new FakeEl('below', 1200);
+  const { win, doc, observers } = makeEnv([below]);
+  startScrollReveal(win, doc);
+  observers[0].emit(below, true);
+  assert.equal(win.timers[0].ms, 450 + FALLBACK_MARGIN_MS);
+  below.fire('transitionend', { propertyName: 'opacity' });
+  assert.equal(pending(below), false);
+  assert.ok(win.timers[0].cleared, 'the fallback timer is cleared once the fade ends');
 });

@@ -141,6 +141,16 @@ const V = {
       if (m?.state !== 'reduced') return `expected --force-prefers-reduced-motion, got state=${m?.state} (the flag did not apply)`;
       if (m.allDecorationStopped !== true || m.noRunningAnimations !== true) return `motion still running under reduce: ${JSON.stringify(m)}`;
     }
+    // gh#288 scroll reveal. A missing object is a red, never a skip: a probe that stopped measuring
+    // the reveal would otherwise pass both legs. The lane comes from the browser, like the motion leg.
+    const sr = v.scrollReveal;
+    if (!sr || typeof sr !== 'object') return `scrollReveal missing from the verdict -- the scroll-reveal leg measured nothing: ${JSON.stringify(out.reveal ?? null)}`;
+    if (sr.voidUnlessPlainNavigation !== true) return `scrollReveal run is VOID, not a pass (voidUnlessPlainNavigation = ${JSON.stringify(sr.voidUnlessPlainNavigation)}): the navigation into / was not a plain one, or a width did not apply, so the module was allowed to hide nothing -- ${JSON.stringify((out.reveal ?? []).map((r) => [r.width, r.load?.navigationType, r.load?.innerWidth]))}`;
+    const lane = label === 'home-page-normal' ? 'normal' : 'reduced';
+    if (sr.lane !== lane) return `scrollReveal lane = ${JSON.stringify(sr.lane)}, expected ${lane} (the browser's motion setting disagrees with the leg)`;
+    for (const k of ['detectorCalibrated', 'belowFoldSectionPending', 'pendingFormForLane', 'nothingAboveFoldPending', 'neverOnAdHeroOrStage', 'revealedOnScroll', 'nothingInViewLeftPending']) {
+      if (sr[k] !== true) return `scrollReveal.${k} = ${JSON.stringify(sr[k])} -- ${JSON.stringify(out.reveal ?? null)}`;
+    }
     return null;
   },
   'mount-failed-network': () => {

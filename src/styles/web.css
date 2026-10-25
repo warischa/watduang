@@ -50,8 +50,10 @@
 /* ---- Result reveal --------------------------------------------------------------------------
    Runs once when the node is inserted with the class. Opacity starts at 0.4, never 0, and only
    opacity and transform move, so layout never shifts. It settles inside ARM_DELAY_MS
-   (src/games/_arm-gate.ts) with a frame to spare. The scale needs a box that is not inline: on a
-   plain inline element transform does nothing and only the fade shows. */
+   (src/games/_arm-gate.ts), with a thin margin: 280ms of reveal, one 17ms frame and a 100ms
+   first-frame latency budget come to 397ms of the 400 (src/games/reveal-arm-budget.test.mjs holds
+   that sum). The scale needs a box that is not inline: on a plain inline element transform does
+   nothing and only the fade shows. */
 .wd-reveal {
   animation: wd-reveal var(--motion-reveal) var(--ease-out) both;
 }

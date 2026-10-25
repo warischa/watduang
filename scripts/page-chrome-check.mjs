@@ -203,8 +203,40 @@ function resolveLocalHref(href, pageRel) {
   return norm.startsWith('../') || norm === '..' || path.posix.isAbsolute(norm) ? null : norm;
 }
 
-/** comment-stripped sheets -> true when a prefers-reduced-motion block styles both root pseudos with
- *  a duration, and no reduced rule on them removes the animation. */
+/** The shortest literal reduced cross-fade that still counts as a fade. The approved reduced form is
+ *  --motion-rm-quick (120ms); under 50ms (three frames at 60Hz) nothing visibly fades, and the
+ *  classic removal idiom is a near-zero duration (0s, 0.01ms) rather than `animation: none`. */
+const MIN_REDUCED_VT_MS = 50;
+const MOTION_TOKEN_RE = /^var\(--motion-[\w-]+\)$/i;
+const TIME_RE = /^(\d*\.?\d+)(ms|s)$/i;
+
+/** One reduced rule body -> 'fade' (a duration that fades), 'removed' (none, or a duration under the
+ *  floor), or null (no readable duration: not counted, so the term stays red — fail closed). A
+ *  var(--motion-*) duration is accepted as a token; any other var() or calc() is unreadable here. */
+function reducedVtForm(body) {
+  const decls = body.split(';').map((d) => d.trim()).filter(Boolean).map((d) => {
+    const at = d.indexOf(':');
+    return [d.slice(0, at).trim().toLowerCase(), d.slice(at + 1).trim()];
+  });
+  let duration = null;
+  for (const [prop, value] of decls) {
+    if ((prop === 'animation' || prop === 'animation-name') && /(^|\s|,)none(\s|,|$)/i.test(value)) return 'removed';
+    if (prop === 'animation-duration') duration = value;
+    if (prop === 'animation') {
+      const first = value.split(/\s+(?![^(]*\))/).find((tok) => TIME_RE.test(tok) || MOTION_TOKEN_RE.test(tok));
+      if (first) duration = first;
+    }
+  }
+  if (duration === null) return null;
+  if (MOTION_TOKEN_RE.test(duration)) return 'fade';
+  const t = duration.match(TIME_RE);
+  if (!t) return null;
+  const ms = parseFloat(t[1]) * (t[2].toLowerCase() === 's' ? 1000 : 1);
+  return ms < MIN_REDUCED_VT_MS ? 'removed' : 'fade';
+}
+
+/** comment-stripped sheets -> true when a prefers-reduced-motion block gives both root pseudos a
+ *  duration that fades, and no reduced rule on them removes the animation or zeroes its duration. */
 function hasReducedVt(sheets) {
   const found = new Set();
   let removed = false;
@@ -212,9 +244,10 @@ function hasReducedVt(sheets) {
     for (const r of cssRules(sheet)) {
       if (!r.parents.some((p) => /^@media\b/i.test(p) && REDUCED_RE.test(p))) continue;
       const sels = r.prelude.split(',').map((s) => s.trim().toLowerCase().replace(/\s+/g, ''));
+      const form = reducedVtForm(r.body);
       for (const pseudo of VT_PSEUDOS.filter((p) => sels.includes(p))) {
-        if (/(^|[;{\s])animation(-name)?\s*:\s*none\b/i.test(r.body)) removed = true;
-        else if (/(^|[;{\s])animation(-duration)?\s*:/i.test(r.body)) found.add(pseudo);
+        if (form === 'removed') removed = true;
+        else if (form === 'fade') found.add(pseudo);
       }
     }
   }
@@ -327,7 +360,7 @@ function evaluate({ pages, read, gameList, noChrome }) {
     if (optIn) counts.vtOptIn += 1;
     if (cls === 'play' && VT_ANY_RE.test(allCss)) fail('vt-play-optin', `${rel} · a play route carries @view-transition — the cross-document fade is web pages only.`);
     if ((cls === 'solo' || cls === 'chrome') && !optIn) fail('vt-web-missing', `${rel} · a web page without @view-transition { navigation: auto } — the opt-in did not reach it (web.css rides on PageChrome).`);
-    if (optIn && !hasReducedVt(cleaned)) fail('vt-no-reduced', `${rel} · opts in to view transitions with no reduced ::view-transition-old(root) / -new(root) rule inside a prefers-reduced-motion block (or one that removes the animation) — reduced motion is reduced, not removed (ADR-0046).`);
+    if (optIn && !hasReducedVt(cleaned)) fail('vt-no-reduced', `${rel} · opts in to view transitions with no reduced ::view-transition-old(root) / -new(root) rule inside a prefers-reduced-motion block, or one that removes the animation or drops its duration under ${MIN_REDUCED_VT_MS}ms — reduced motion is reduced, not removed (ADR-0046).`);
     if (VT_NAME_RE.test(allCss)) fail('vt-name', `${rel} · its CSS names a view-transition-name — the approved transition is the root cross-fade only.`);
     if (classTokens(text).includes(REVEAL_PENDING)) fail('reveal-pending-markup', `${rel} · ships class "${REVEAL_PENDING}" in markup — that class is the scroll-reveal script's alone, and in markup it hides content with no script to show it.`);
 
@@ -493,6 +526,10 @@ function selftest() {
     ['opt-in with no reduced rule', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace(VT_REDUCED, '')), ['vt-no-reduced']],
     ['reduced rule outside a prefers-reduced-motion block', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace(VT_REDUCED, VT_REDUCED.replace('prefers-reduced-motion:reduce', 'min-width:1px'))), ['vt-no-reduced']],
     ['reduced rule that removes the animation', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace(VT_REDUCED, `${VT_REDUCED}@media (prefers-reduced-motion:reduce){::view-transition-new(root){animation:none}}`)), ['vt-no-reduced']],
+    ['reduced rule with a 0s duration', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick)', 'animation-duration:0s')), ['vt-no-reduced']],
+    ['reduced rule with a 0ms duration', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick)', 'animation-duration:0ms')), ['vt-no-reduced']],
+    ['reduced rule with a .01ms duration', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick)', 'animation-duration:.01ms')), ['vt-no-reduced']],
+    ['reduced shorthand with a 0s duration', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick);animation-timing-function:var(--ease-rm)', 'animation:0s linear')), ['vt-no-reduced']],
     ['reduced rule on the old pseudo only', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace(VT_REDUCED, VT_REDUCED.replace(',::view-transition-new(root)', ''))), ['vt-no-reduced']],
     ['a view-transition-name in page CSS', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('</style>', '.hero{view-transition-name:hero}</style>')), ['vt-name']],
     ['reveal-pending shipped in markup', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('<main>x</main>', '<main><section class="wrap reveal-pending">x</section></main>')), ['reveal-pending-markup']],
@@ -523,6 +560,8 @@ function selftest() {
     ['web page inlining the authored src/styles/web.css', (r) => write(r, 'index.html', CHROME_PAGE.replace(`<style>${WEB_CSS}</style>`, `<style>${realWebCss}</style>`))],
     ['play route mentioning @view-transition only in comments', (r) => write(r, play0, PLAY_PAGE.replace('</head>', '<style>/* @view-transition{navigation:auto} */</style><!-- <style>@view-transition{navigation:auto}</style> --></head>'))],
     ['reveal-pending in text, a comment, JSON-LD and a longer class token', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('<main>x</main>', '<main><p>reveal-pending</p><!-- <i class="reveal-pending"></i> --><script type="application/ld+json">{"a":"<b class=\\"reveal-pending\\">"}</script><b class="reveal-pendingx">y</b></main>'))],
+    ['reduced rule with a literal duration at or above the floor', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick)', 'animation-duration:120ms'))],
+    ['reduced shorthand with a token duration', (r) => write(r, 'tools/index.html', CHROME_PAGE.replace('animation-duration:var(--motion-rm-quick);animation-timing-function:var(--ease-rm)', 'animation:var(--motion-rm-quick) var(--ease-rm)'))],
     ['web CSS linked by a relative href with a query string', (r) => write(r, 'tools/index.html', SOLO_PAGE.replace(`href="/${WEB_CSS_REL}"`, `href="../${WEB_CSS_REL}?v=1"`).replace('<body>', `<body>${TOPBAR_HTML}`))],
   ];
   for (const [label, rewrite] of vtGreenCases) {

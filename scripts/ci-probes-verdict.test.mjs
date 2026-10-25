@@ -8,7 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -237,4 +237,56 @@ test('wheel-pointer-name passes a reveal at the landing, a rounding step early, 
     const res = runVerdictRaw('wheel-pointer-name', out);
     assert.equal(res.status, 0, `reveal ${revealMs}ms vs landing ${endMs}ms is an honest reveal: ${res.stdout}`);
   }
+});
+
+// gh#288 -- the home-page judge must read the scroll-reveal verdict. Base inputs are RECORDED probe
+// outputs (docs/verification/evidence/gh244/, one per motion leg), which pass every older term of the
+// judge; the scroll-reveal object is grafted on, because those runs predate it. Missing object = red
+// (liveness, never a skip); every required boolean false = red naming it; a void run = red with its
+// own reason; a lane that disagrees with the leg = red.
+const recorded = (leg) => JSON.parse(readFileSync(join(here, '..', 'docs', 'verification', 'evidence', 'gh244', `probe-home-page-${leg}.json`), 'utf8'));
+const REVEAL_KEYS = ['detectorCalibrated', 'belowFoldSectionPending', 'pendingFormForLane', 'nothingAboveFoldPending', 'neverOnAdHeroOrStage', 'revealedOnScroll', 'nothingInViewLeftPending'];
+const goodReveal = (lane) => ({ lane, voidUnlessPlainNavigation: true, ...Object.fromEntries(REVEAL_KEYS.map((k) => [k, true])) });
+const withReveal = (leg, scrollReveal) => {
+  const out = recorded(leg);
+  if (scrollReveal !== undefined) out.verdict.scrollReveal = scrollReveal;
+  return out;
+};
+
+test('home-page passes a recorded verdict with a good scroll-reveal object, on both motion legs', () => {
+  for (const leg of ['normal', 'reduced']) {
+    const r = runVerdictRaw(`home-page-${leg}`, withReveal(leg, goodReveal(leg)));
+    assert.equal(r.status, 0, `${leg}: ${r.stdout}`);
+  }
+});
+
+test('home-page goes red when the scroll-reveal verdict is missing (liveness, never a skip)', () => {
+  for (const leg of ['normal', 'reduced']) {
+    const r = runVerdictRaw(`home-page-${leg}`, withReveal(leg, undefined));
+    assert.equal(r.status, 1, `${leg}: a probe output without scrollReveal must not pass -- got: ${r.stdout}`);
+    assert.match(r.stdout, /scrollReveal/);
+  }
+});
+
+test('home-page goes red on every required scroll-reveal boolean that is false', () => {
+  for (const leg of ['normal', 'reduced']) {
+    for (const k of REVEAL_KEYS) {
+      const r = runVerdictRaw(`home-page-${leg}`, withReveal(leg, { ...goodReveal(leg), [k]: false }));
+      assert.equal(r.status, 1, `${leg} ${k}=false must be red -- got: ${r.stdout}`);
+      assert.match(r.stdout, new RegExp(k), `${leg}: the reason must name ${k}`);
+    }
+  }
+});
+
+test('home-page names a void scroll-reveal run as void, and fails it', () => {
+  const r = runVerdictRaw('home-page-normal', withReveal('normal', { ...goodReveal('normal'), voidUnlessPlainNavigation: false }));
+  assert.equal(r.status, 1, r.stdout);
+  assert.match(r.stdout, /void/i);
+  assert.match(r.stdout, /voidUnlessPlainNavigation/);
+});
+
+test('home-page goes red when the scroll-reveal lane disagrees with the leg', () => {
+  const r = runVerdictRaw('home-page-reduced', withReveal('reduced', goodReveal('normal')));
+  assert.equal(r.status, 1, r.stdout);
+  assert.match(r.stdout, /lane/);
 });

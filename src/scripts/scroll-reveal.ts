@@ -19,10 +19,36 @@ export const NEVER_SELECTOR = '.ad-slot, .hero, #stage';
 /** The element counts as in view once its top clears the bottom 10% of the viewport. */
 export const ROOT_MARGIN = '0px 0px -10% 0px';
 
+/** How long past the computed transition the fallback waits for transitionend before taking the
+ *  classes off itself. A frame or two of slack for a busy main thread; it only matters when the
+ *  fade never fires (a stylesheet elsewhere forcing `transition: none`), and then the element is
+ *  already fully shown and only the classes are left to clear. */
+export const FALLBACK_MARGIN_MS = 100;
+
 const PENDING = 'reveal-pending';
 const IN = 'is-in';
 
-type RevealWindow = Pick<Window, 'innerHeight' | 'addEventListener'> & {
+const toMs = (t: string): number => {
+  const v = parseFloat(t);
+  if (!Number.isFinite(v)) return 0;
+  return t.trim().endsWith('ms') ? v : v * 1000;
+};
+
+/** The longest duration + delay pair in a computed style's transition lists, in ms (0 when none).
+ *  CSS repeats the shorter list to the longer one's length, so pairs are read the same way. */
+export function transitionMs(cs: Pick<CSSStyleDeclaration, 'transitionDuration' | 'transitionDelay'>): number {
+  const durations = (cs.transitionDuration || '').split(',').filter((x) => x.trim() !== '');
+  const delays = (cs.transitionDelay || '').split(',').filter((x) => x.trim() !== '');
+  let max = 0;
+  for (let i = 0; i < Math.max(durations.length, delays.length); i++) {
+    const d = durations.length ? toMs(durations[i % durations.length]) : 0;
+    const w = delays.length ? toMs(delays[i % delays.length]) : 0;
+    max = Math.max(max, d + w);
+  }
+  return max;
+}
+
+type RevealWindow = Pick<Window, 'innerHeight' | 'addEventListener' | 'getComputedStyle' | 'setTimeout' | 'clearTimeout'> & {
   IntersectionObserver?: typeof IntersectionObserver;
   performance?: Pick<Performance, 'getEntriesByType'>;
 };
@@ -52,14 +78,22 @@ export function startScrollReveal(win: RevealWindow, doc: Pick<Document, 'queryS
   const reveal = (el: Element, io: IntersectionObserver) => {
     io.unobserve(el);
     // The classes come off when the element's own fade ends (a child's transition bubbles here too),
-    // so the element goes back to its own transition and transform rules.
-    const done = (ev: Event) => {
-      if (ev.target !== el || (ev as TransitionEvent).propertyName !== 'opacity') return;
+    // so the element goes back to its own transition and transform rules. If no fade runs at all (a
+    // stylesheet elsewhere forcing `transition: none`), transitionend never fires; the fallback timer
+    // clears the classes once the computed transition time plus a margin has passed.
+    let timer = 0;
+    const finish = () => {
+      win.clearTimeout(timer);
       el.removeEventListener('transitionend', done);
       el.classList.remove(PENDING, IN);
     };
+    const done = (ev: Event) => {
+      if (ev.target !== el || (ev as TransitionEvent).propertyName !== 'opacity') return;
+      finish();
+    };
     el.addEventListener('transitionend', done);
     el.classList.add(IN);
+    timer = win.setTimeout(finish, transitionMs(win.getComputedStyle(el)) + FALLBACK_MARGIN_MS);
   };
 
   const io = new IO(

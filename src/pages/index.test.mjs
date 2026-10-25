@@ -288,3 +288,31 @@ test('the page\'s reduced-motion rule names today\'s motion; it is no longer a w
   }
   assert.doesNotMatch(reduced, /ambient/, 'the new layer is not stopped by the page rule');
 });
+
+// gh#288 scroll reveal x today's reduced-motion rule. A home tile is a scroll-reveal target, and the
+// reveal's reduced form is a 200ms fade (src/styles/web.css). The page's `transition: none !important`
+// on .tile would turn that fade into a pop (a removal, ADR-0046) and the fade's transitionend would
+// never fire. So the transition half of the rule skips a tile in a reveal state, while the animation
+// half still stops every one of today's motions unconditionally.
+test('the reduced rule stops tile transitions except while a tile is in a scroll-reveal state', () => {
+  const reduced = blockAfter(pageCss, '@media (prefers-reduced-motion: reduce)');
+  assert.ok(reduced, 'positive control: the reduced block was found');
+  const rules = [...reduced.matchAll(/([^{}]+)\{([^}]*)\}/g)].map(([, sel, body]) => ({
+    sels: sel.split(',').map((s) => s.trim()).filter(Boolean),
+    body,
+  }));
+  const transitionRules = rules.filter((r) => /transition:\s*none\s*!important/.test(r.body));
+  assert.ok(transitionRules.length > 0, 'positive control: today\'s transitions still stop');
+  for (const r of transitionRules) {
+    for (const s of r.sels.filter((x) => /\.(tile|tilt-[abc])\b/.test(x))) {
+      assert.match(s, /:not\(\.reveal-pending\)/, `a tile in a reveal state must keep the reduced fade: ${s}`);
+    }
+  }
+  const animationRules = rules.filter((r) => /animation:\s*none\s*!important/.test(r.body));
+  for (const sel of ['.tile', '.tilt-a', '.tilt-b', '.tilt-c', '.spark', '.toy']) {
+    assert.ok(
+      animationRules.some((r) => r.sels.includes(`main :global(${sel})`)),
+      `today's animation on ${sel} still stops, reveal state or not`,
+    );
+  }
+});

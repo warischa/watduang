@@ -147,8 +147,9 @@
    Every duration and easing a web-page effect uses, pinned once. The board is the source (ADR-0033);
    a value here that differs from the sheet is drift. Reduced motion keeps a reduced form, never a
    removal (ADR-0046): the --motion-rm-* pair is what each effect falls back to. --motion-reveal must
-   settle inside ARM_DELAY_MS (src/games/_arm-gate.ts) with a frame to spare. Play routes never read
-   these. */
+   settle inside ARM_DELAY_MS (src/games/_arm-gate.ts): src/games/reveal-arm-budget.test.mjs holds
+   reveal + one frame + a 100ms first-frame latency budget under it, which leaves 3ms at 280ms. Play
+   routes never read these. */
 :root {
   --motion-ui: 160ms; /* button hover and press */
   --motion-reveal: 280ms; /* result reveal */
