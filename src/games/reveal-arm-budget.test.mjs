@@ -87,6 +87,9 @@ function assertRevealedAndArmed(stage, where) {
   const all = buttons(stage);
   assert.ok(all.length >= 1, `${where}: the result screen has no button to arm`);
   for (const b of all) assert.equal(b.disabled, true, `${where}: button ${b.id || b.className} is live while the reveal runs`);
+  // Fortune buttons carry no rest shadow the shared press contract assumes, so none may opt into it
+  // until the fortune hover and press have their own approved drawing.
+  for (const b of all) assert.ok(!hasClass(b, 'ui-press'), `${where}: button ${b.id || b.className} opts into ui-press`);
 }
 
 const arm = (t) => t.mock.timers.tick(ARM_DELAY_MS + 1);

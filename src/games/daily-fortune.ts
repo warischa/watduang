@@ -194,7 +194,7 @@ function renderIdle(): void {
   const go = el('button', 'เปิดดวงวันนี้');
   go.id = 'df-go';
   go.type = 'button';
-  go.className = 'game-btn game-btn-primary ui-press';
+  go.className = 'game-btn game-btn-primary';
   on(go, 'click', () => draw());
   stage.appendChild(go);
 
@@ -247,7 +247,7 @@ function renderResult(lines: readonly FortuneLine[], now: Date): void {
   const again = el('button', 'เปิดใหม่อีกที');
   again.id = 'df-again';
   again.type = 'button';
-  again.className = 'game-btn game-btn-primary ui-press';
+  again.className = 'game-btn game-btn-primary';
   on(again, 'click', () => draw());
   stage.appendChild(again);
 

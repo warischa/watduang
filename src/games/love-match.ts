@@ -297,7 +297,7 @@ function renderAsk(): void {
 
   go.id = 'lm-go';
   go.type = 'button';
-  go.className = 'game-btn game-btn-primary ui-press';
+  go.className = 'game-btn game-btn-primary';
   on(go, 'click', () => {
     if (me !== null && band !== null && want !== null) renderReading(drawReading(band, want));
   });
@@ -382,7 +382,7 @@ function renderReading(r: Reading): void {
   const again = el('button', 'เปิดใหม่อีกที');
   again.id = 'lm-again';
   again.type = 'button';
-  again.className = 'game-btn game-btn-secondary ui-press';
+  again.className = 'game-btn game-btn-secondary';
   on(again, 'click', () => renderAsk());
   stage.appendChild(again);
 

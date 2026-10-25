@@ -474,7 +474,7 @@ function renderIntent(): void {
   const go = el('button', BTN_INTENT_DONE);
   go.id = 'ss-intent-done';
   go.type = 'button';
-  go.className = 'game-btn game-btn-primary ui-press';
+  go.className = 'game-btn game-btn-primary';
   on(go, 'click', startRound);
   stage.appendChild(go);
 
@@ -575,7 +575,7 @@ function renderStick(): void {
   const open = el('button', BTN_OPEN_SLIP);
   open.id = 'ss-open-slip';
   open.type = 'button';
-  open.className = 'game-btn game-btn-primary ui-press';
+  open.className = 'game-btn game-btn-primary';
   on(open, 'click', openSlip);
   stage.appendChild(open);
 
@@ -645,14 +645,14 @@ function renderSlip(): void {
   const keep = el('button', BTN_KEEP);
   keep.id = 'ss-keep';
   keep.type = 'button';
-  keep.className = 'game-btn game-btn-primary ui-press';
+  keep.className = 'game-btn game-btn-primary';
   on(keep, 'click', () => renderDone(DONE_KEEP));
   stage.appendChild(keep);
 
   const tie = el('button', BTN_TIE);
   tie.id = 'ss-tie';
   tie.type = 'button';
-  tie.className = 'game-btn game-btn-secondary ui-press';
+  tie.className = 'game-btn game-btn-secondary';
   on(tie, 'click', () => renderDone(DONE_TIE));
   stage.appendChild(tie);
 
@@ -677,7 +677,7 @@ function renderDone(line: string): void {
   const again = el('button', BTN_AGAIN);
   again.id = 'ss-again';
   again.type = 'button';
-  again.className = 'game-btn game-btn-primary ui-press';
+  again.className = 'game-btn game-btn-primary';
   on(again, 'click', () => {
     const stageRef = stageEl;
     const ctxRef = gameCtx;
