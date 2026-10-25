@@ -1,0 +1,571 @@
+{
+ "groups": {
+  "0-run": {
+   "n": 78,
+   "pass": 78
+  },
+  "1-focus": {
+   "n": 72,
+   "pass": 72
+  },
+  "8-smoke": {
+   "n": 198,
+   "pass": 198
+  },
+  "9-layout": {
+   "n": 156,
+   "pass": 156
+  },
+  "9b-cls-reload": {
+   "n": 12,
+   "pass": 10
+  },
+  "7-vt": {
+   "n": 96,
+   "pass": 90
+  },
+  "3-tools": {
+   "n": 90,
+   "pass": 90
+  },
+  "2-hover": {
+   "n": 66,
+   "pass": 60
+  },
+  "4-reveal": {
+   "n": 96,
+   "pass": 78
+  },
+  "5-scroll": {
+   "n": 36,
+   "pass": 36
+  },
+  "6-hero": {
+   "n": 6,
+   "pass": 6
+  }
+ },
+ "failCount": 32,
+ "fails": [
+  {
+   "group": "9b-cls-reload",
+   "page": "/",
+   "width": 320,
+   "lane": "normal",
+   "assertion": "CLS <= 0.05 in the document reloaded from mid-page (beyond the brief)",
+   "measured": {
+    "cls": 0.0531,
+    "clsAll": 0.0531
+   }
+  },
+  {
+   "group": "2-hover",
+   "page": "/tool/wheel/",
+   "width": 320,
+   "lane": "normal",
+   "assertion": "disabled go: opacity .4, shadow none, cursor default, no lift",
+   "measured": {
+    "rest": {
+     "x": 16,
+     "y": 880.578125,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "0.4",
+     "cursor": "pointer",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": 0,
+     "dy": 0
+    }
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/siamsi/",
+   "width": 320,
+   "lane": "normal",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/love-match/",
+   "width": 320,
+   "lane": "normal",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/daily-fortune/",
+   "width": 320,
+   "lane": "normal",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "7-vt",
+   "page": "nav:web-to-play",
+   "width": 320,
+   "lane": "normal",
+   "assertion": "real link click web->play lands, play works, no VT, no errors",
+   "measured": {
+    "from": "/c/party/",
+    "href": "/game/timebomb/play/",
+    "landed": {
+     "p": "/game/timebomb/play/",
+     "rs": "complete",
+     "vt": {
+      "hasVT": false,
+      "state": "none"
+     },
+     "stageChildren": 0,
+     "buttons": 13,
+     "vtRules": 0
+    },
+    "ok": true,
+    "errors": [
+     "exception: InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    ],
+    "playWorks": true,
+    "playHasVT": false
+   }
+  },
+  {
+   "group": "2-hover",
+   "page": "/tool/wheel/",
+   "width": 390,
+   "lane": "normal",
+   "assertion": "disabled go: opacity .4, shadow none, cursor default, no lift",
+   "measured": {
+    "rest": {
+     "x": 16,
+     "y": 924.1875,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "0.4",
+     "cursor": "pointer",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": 0,
+     "dy": 0
+    }
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/siamsi/",
+   "width": 390,
+   "lane": "normal",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/love-match/",
+   "width": 390,
+   "lane": "normal",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/daily-fortune/",
+   "width": 390,
+   "lane": "normal",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "7-vt",
+   "page": "nav:web-to-play",
+   "width": 390,
+   "lane": "normal",
+   "assertion": "real link click web->play lands, play works, no VT, no errors",
+   "measured": {
+    "from": "/c/party/",
+    "href": "/game/timebomb/play/",
+    "landed": {
+     "p": "/game/timebomb/play/",
+     "rs": "complete",
+     "vt": {
+      "hasVT": false,
+      "state": "none"
+     },
+     "stageChildren": 0,
+     "buttons": 13,
+     "vtRules": 0
+    },
+    "ok": true,
+    "errors": [
+     "exception: InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    ],
+    "playWorks": true,
+    "playHasVT": false
+   }
+  },
+  {
+   "group": "2-hover",
+   "page": "/tool/wheel/",
+   "width": 1440,
+   "lane": "normal",
+   "assertion": "disabled go: opacity .4, shadow none, cursor default, no lift",
+   "measured": {
+    "rest": {
+     "x": 448,
+     "y": 931.484375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "0.4",
+     "cursor": "pointer",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": 0,
+     "dy": 0
+    }
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/siamsi/",
+   "width": 1440,
+   "lane": "normal",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/love-match/",
+   "width": 1440,
+   "lane": "normal",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/daily-fortune/",
+   "width": 1440,
+   "lane": "normal",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "7-vt",
+   "page": "nav:web-to-play",
+   "width": 1440,
+   "lane": "normal",
+   "assertion": "real link click web->play lands, play works, no VT, no errors",
+   "measured": {
+    "from": "/c/party/",
+    "href": "/game/timebomb/play/",
+    "landed": {
+     "p": "/game/timebomb/play/",
+     "rs": "complete",
+     "vt": {
+      "hasVT": false,
+      "state": "none"
+     },
+     "stageChildren": 0,
+     "buttons": 13,
+     "vtRules": 0
+    },
+    "ok": true,
+    "errors": [
+     "exception: InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    ],
+    "playWorks": true,
+    "playHasVT": false
+   }
+  },
+  {
+   "group": "9b-cls-reload",
+   "page": "/",
+   "width": 320,
+   "lane": "reduced",
+   "assertion": "CLS <= 0.05 in the document reloaded from mid-page (beyond the brief)",
+   "measured": {
+    "cls": 0.0531,
+    "clsAll": 0.0531
+   }
+  },
+  {
+   "group": "2-hover",
+   "page": "/tool/wheel/",
+   "width": 320,
+   "lane": "reduced",
+   "assertion": "disabled go: opacity .4, shadow none, cursor default, no lift",
+   "measured": {
+    "rest": {
+     "x": 16,
+     "y": 880.578125,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "0.4",
+     "cursor": "pointer",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": 0,
+     "dy": 0
+    }
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/siamsi/",
+   "width": 320,
+   "lane": "reduced",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/love-match/",
+   "width": 320,
+   "lane": "reduced",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/daily-fortune/",
+   "width": 320,
+   "lane": "reduced",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "7-vt",
+   "page": "nav:web-to-play",
+   "width": 320,
+   "lane": "reduced",
+   "assertion": "real link click web->play lands, play works, no VT, no errors",
+   "measured": {
+    "from": "/c/party/",
+    "href": "/game/timebomb/play/",
+    "landed": {
+     "p": "/game/timebomb/play/",
+     "rs": "complete",
+     "vt": {
+      "hasVT": false,
+      "state": "none"
+     },
+     "stageChildren": 0,
+     "buttons": 13,
+     "vtRules": 0
+    },
+    "ok": true,
+    "errors": [
+     "exception: InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    ],
+    "playWorks": true,
+    "playHasVT": false
+   }
+  },
+  {
+   "group": "2-hover",
+   "page": "/tool/wheel/",
+   "width": 390,
+   "lane": "reduced",
+   "assertion": "disabled go: opacity .4, shadow none, cursor default, no lift",
+   "measured": {
+    "rest": {
+     "x": 16,
+     "y": 924.1875,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "0.4",
+     "cursor": "pointer",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": 0,
+     "dy": 0
+    }
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/siamsi/",
+   "width": 390,
+   "lane": "reduced",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/love-match/",
+   "width": 390,
+   "lane": "reduced",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/daily-fortune/",
+   "width": 390,
+   "lane": "reduced",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "7-vt",
+   "page": "nav:web-to-play",
+   "width": 390,
+   "lane": "reduced",
+   "assertion": "real link click web->play lands, play works, no VT, no errors",
+   "measured": {
+    "from": "/c/party/",
+    "href": "/game/timebomb/play/",
+    "landed": {
+     "p": "/game/timebomb/play/",
+     "rs": "complete",
+     "vt": {
+      "hasVT": false,
+      "state": "none"
+     },
+     "stageChildren": 0,
+     "buttons": 13,
+     "vtRules": 0
+    },
+    "ok": true,
+    "errors": [
+     "exception: InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    ],
+    "playWorks": true,
+    "playHasVT": false
+   }
+  },
+  {
+   "group": "2-hover",
+   "page": "/tool/wheel/",
+   "width": 1440,
+   "lane": "reduced",
+   "assertion": "disabled go: opacity .4, shadow none, cursor default, no lift",
+   "measured": {
+    "rest": {
+     "x": 448,
+     "y": 931.484375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "0.4",
+     "cursor": "pointer",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": 0,
+     "dy": 0
+    }
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/siamsi/",
+   "width": 1440,
+   "lane": "reduced",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/love-match/",
+   "width": 1440,
+   "lane": "reduced",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "4-reveal",
+   "page": "/game/daily-fortune/",
+   "width": 1440,
+   "lane": "reduced",
+   "assertion": "role=status live region carries the result (brief premise)",
+   "measured": {
+    "roleStatusNodes": 0
+   }
+  },
+  {
+   "group": "7-vt",
+   "page": "nav:web-to-play",
+   "width": 1440,
+   "lane": "reduced",
+   "assertion": "real link click web->play lands, play works, no VT, no errors",
+   "measured": {
+    "from": "/c/party/",
+    "href": "/game/timebomb/play/",
+    "landed": {
+     "p": "/game/timebomb/play/",
+     "rs": "complete",
+     "vt": {
+      "hasVT": false,
+      "state": "none"
+     },
+     "stageChildren": 0,
+     "buttons": 13,
+     "vtRules": 0
+    },
+    "ok": true,
+    "errors": [
+     "exception: InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+    ],
+    "playWorks": true,
+    "playHasVT": false
+   }
+  }
+ ]
+}

@@ -1,0 +1,53 @@
+{
+  "seen": [
+    {
+      "tag": "A",
+      "fv": true,
+      "w": "1px",
+      "st": "auto",
+      "col": "rgb(0, 95, 204)",
+      "off": "1px"
+    },
+    {
+      "tag": "BUTTON",
+      "fv": true,
+      "w": "1px",
+      "st": "auto",
+      "col": "rgb(0, 95, 204)",
+      "off": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "fv": true,
+      "w": "1px",
+      "st": "auto",
+      "col": "rgb(0, 95, 204)",
+      "off": "0px"
+    },
+    {
+      "tag": "BUTTON",
+      "fv": true,
+      "w": "1px",
+      "st": "auto",
+      "col": "rgb(0, 95, 204)",
+      "off": "0px"
+    },
+    {
+      "tag": "INPUT",
+      "fv": true,
+      "w": "2px",
+      "st": "solid",
+      "col": "rgb(56, 189, 248)",
+      "off": "2px"
+    },
+    {
+      "tag": "INPUT",
+      "fv": true,
+      "w": "2px",
+      "st": "solid",
+      "col": "rgb(56, 189, 248)",
+      "off": "2px"
+    }
+  ],
+  "anyMatchesWebRing": false
+}

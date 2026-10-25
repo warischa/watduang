@@ -1,0 +1,3742 @@
+{
+ "width": 1440,
+ "height": 900,
+ "lane": "normal",
+ "pages": {
+  "/": {
+   "path": "/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 1,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 5,
+    "firstBar": {
+     "tag": "a",
+     "id": "",
+     "cls": "chrome-brand",
+     "text": "วัดดวง",
+     "inBand": true,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(255, 204, 0)",
+     "outlineOffset": "3px"
+    },
+    "firstOutside": {
+     "tag": "a",
+     "id": "",
+     "cls": "cta",
+     "text": "เลือกเกมเลย →",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "chrome-brand",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "cta",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": true
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "hero": {
+    "count": 1,
+    "ariaHidden": "true",
+    "opacity": "0.12",
+    "animations": [
+     {
+      "name": "hero-ambient",
+      "state": "running",
+      "props": [
+       "transform",
+       "transform"
+      ]
+     }
+    ],
+    "animationName": "hero-ambient"
+   },
+   "scroll": {
+    "cls": {
+     "load": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "overflowEls": 1,
+      "cls": 0,
+      "clsAll": 0
+     },
+     "afterScroll": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "overflowEls": 1,
+      "cls": 0,
+      "clsAll": 0
+     },
+     "afterReload": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "overflowEls": 1,
+      "cls": 0,
+      "clsAll": 0
+     }
+    },
+    "load": {
+     "fold": 900,
+     "pending": 29,
+     "aboveFoldPending": 0,
+     "pendingHidden": 29,
+     "pendingTranslate": [
+      "0px 16px"
+     ],
+     "neverHit": 0,
+     "scrollH": 3493
+    },
+    "afterScroll": {
+     "opacity": "1",
+     "translate": "none",
+     "className": "",
+     "pendingLeft": 25,
+     "pass": true
+    },
+    "mid": {
+     "cls": "reveal-pending"
+    },
+    "loadPass": true,
+    "reload": {
+     "scrollY": 1297,
+     "navType": "reload",
+     "pending": 0,
+     "inViewCount": 19,
+     "inViewHidden": 0
+    },
+    "reloadPass": true
+   },
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 1,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "pageUrl": "/",
+   "consoleErrors": []
+  },
+  "/tools/": {
+   "path": "/tools/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 5,
+    "firstBar": {
+     "tag": "a",
+     "id": "",
+     "cls": "chrome-brand",
+     "text": "วัดดวง",
+     "inBand": true,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(255, 204, 0)",
+     "outlineOffset": "3px"
+    },
+    "firstOutside": {
+     "tag": "a",
+     "id": "",
+     "cls": "tool-card ui-press",
+     "text": "วงล้อสุ่มชื่อ ใส",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "chrome-brand",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "tool-card ui-press",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": true
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "pageUrl": "/tools/",
+   "consoleErrors": []
+  },
+  "/c/party/": {
+   "path": "/c/party/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 5,
+    "firstBar": {
+     "tag": "a",
+     "id": "",
+     "cls": "chrome-brand",
+     "text": "วัดดวง",
+     "inBand": true,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(255, 204, 0)",
+     "outlineOffset": "3px"
+    },
+    "firstOutside": {
+     "tag": "a",
+     "id": "",
+     "cls": "",
+     "text": "หน้าแรก",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "chrome-brand",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": true
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "scroll": {
+    "cls": {
+     "load": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "overflowEls": 0,
+      "cls": 0,
+      "clsAll": 0
+     },
+     "afterScroll": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "overflowEls": 0,
+      "cls": 0,
+      "clsAll": 0
+     },
+     "afterReload": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "overflowEls": 0,
+      "cls": 0.0025,
+      "clsAll": 0.0025
+     }
+    },
+    "load": {
+     "fold": 900,
+     "pending": 14,
+     "aboveFoldPending": 0,
+     "pendingHidden": 14,
+     "pendingTranslate": [
+      "0px 16px"
+     ],
+     "neverHit": 0,
+     "scrollH": 2988
+    },
+    "afterScroll": {
+     "opacity": "1",
+     "translate": "none",
+     "className": "game-card ui-press",
+     "pendingLeft": 11,
+     "pass": true
+    },
+    "mid": {
+     "cls": "game-card ui-press reveal-pending"
+    },
+    "loadPass": true,
+    "reload": {
+     "scrollY": 1046,
+     "navType": "reload",
+     "pending": 0,
+     "inViewCount": 13,
+     "inViewHidden": 0
+    },
+    "reloadPass": true
+   },
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0.0025,
+    "clsAll": 0.0025
+   },
+   "pageUrl": "/c/party/",
+   "consoleErrors": []
+  },
+  "/c/fortune/": {
+   "path": "/c/fortune/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 5,
+    "firstBar": {
+     "tag": "a",
+     "id": "",
+     "cls": "chrome-brand",
+     "text": "วัดดวง",
+     "inBand": true,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(255, 204, 0)",
+     "outlineOffset": "3px"
+    },
+    "firstOutside": {
+     "tag": "a",
+     "id": "",
+     "cls": "",
+     "text": "หน้าแรก",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "chrome-brand",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": true
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "pageUrl": "/c/fortune/",
+   "consoleErrors": []
+  },
+  "/tool/draw/": {
+   "path": "/tool/draw/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 5,
+    "firstBar": {
+     "tag": "a",
+     "id": "",
+     "cls": "chrome-brand",
+     "text": "วัดดวง",
+     "inBand": true,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(255, 204, 0)",
+     "outlineOffset": "3px"
+    },
+    "firstOutside": {
+     "tag": "textarea",
+     "id": "name-input",
+     "cls": "",
+     "text": "",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "chrome-brand",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "name-input",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": true
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "structure": {
+    "toolBand": 1,
+    "h1": 1,
+    "adText": "ช่องโฆษณา",
+    "ad728": false,
+    "adBorderStyle": "dashed",
+    "adBox": {
+     "x": 250,
+     "y": 1846.3,
+     "w": 940,
+     "h": 250
+    },
+    "adBoxIdle": {
+     "x": 250,
+     "y": 1846.3,
+     "w": 940,
+     "h": 250
+    },
+    "adBoxAfter": {
+     "x": 250,
+     "y": 1846.3,
+     "w": 940,
+     "h": 250
+    }
+   },
+   "idle": {
+    "borderStyle": "dashed",
+    "w": 427,
+    "h": 136,
+    "visible": true,
+    "text": ""
+   },
+   "hoverDisabled": {
+    "rest": {
+     "x": 278,
+     "y": 1352.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hov": {
+     "x": 278,
+     "y": 1352.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "act": {
+     "x": 278,
+     "y": 1352.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "after": {
+     "x": 278,
+     "y": 1352.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": 0,
+     "dy": 0
+    },
+    "actDelta": {
+     "dx": 0,
+     "dy": 0
+    }
+   },
+   "hoverDisabledPass": true,
+   "hoverEnabled": {
+    "rest": {
+     "x": 278,
+     "y": 1352.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hov": {
+     "x": 276,
+     "y": 1350.25,
+     "transform": "matrix(1, 0, 0, 1, -2, -2)",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "act": {
+     "x": 282,
+     "y": 1356.25,
+     "transform": "matrix(1, 0, 0, 1, 4, 4)",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 0px 0px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "after": {
+     "x": 278,
+     "y": 1352.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": -2,
+     "dy": -2
+    },
+    "actDelta": {
+     "dx": 4,
+     "dy": 4
+    }
+   },
+   "hoverEnabledPass": true,
+   "reveal0": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6093.734999999469,
+      "endTime": 6373.734999999469,
+      "cls": "wd-reveal",
+      "state": "running"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "wd-reveal",
+      "at": 6112
+     }
+    ],
+    "status": [
+     {
+      "id": "draw-result",
+      "text": "จับได้: คอควาย, ขอไข่"
+     },
+     {
+      "id": "draw-note",
+      "text": "เหลือในกล่อง 3 คน"
+     }
+    ],
+    "armLog": {
+     "sawDisabled": false,
+     "armAt": null
+    },
+    "now": 6269.300000000745
+   },
+   "reveal": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6093.734999999469,
+      "endTime": 6373.734999999469,
+      "cls": "wd-reveal",
+      "state": "finished"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "wd-reveal",
+      "at": 6112
+     }
+    ],
+    "status": [
+     {
+      "id": "draw-result",
+      "text": "จับได้: คอควาย, ขอไข่"
+     },
+     {
+      "id": "draw-note",
+      "text": "เหลือในกล่อง 3 คน"
+     }
+    ],
+    "armLog": {
+     "sawDisabled": false,
+     "armAt": null
+    },
+    "now": 6772.100000000559
+   },
+   "revealPass": true,
+   "result": "จับได้: คอควาย, ขอไข่",
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "pageUrl": "/tool/draw/",
+   "consoleErrors": []
+  },
+  "/tool/team/": {
+   "path": "/tool/team/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 5,
+    "firstBar": {
+     "tag": "a",
+     "id": "",
+     "cls": "chrome-brand",
+     "text": "วัดดวง",
+     "inBand": true,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(255, 204, 0)",
+     "outlineOffset": "3px"
+    },
+    "firstOutside": {
+     "tag": "textarea",
+     "id": "name-input",
+     "cls": "",
+     "text": "",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "chrome-brand",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "name-input",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": true
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "structure": {
+    "toolBand": 1,
+    "h1": 1,
+    "adText": "ช่องโฆษณา",
+    "ad728": false,
+    "adBorderStyle": "dashed",
+    "adBox": {
+     "x": 250,
+     "y": 1747.3,
+     "w": 940,
+     "h": 250
+    },
+    "adBoxIdle": {
+     "x": 250,
+     "y": 1747.3,
+     "w": 940,
+     "h": 250
+    },
+    "adBoxAfter": {
+     "x": 250,
+     "y": 1747.3,
+     "w": 940,
+     "h": 250
+    }
+   },
+   "idle": {
+    "borderStyle": "dashed",
+    "w": 884,
+    "h": 185,
+    "visible": true,
+    "empty": true
+   },
+   "hoverDisabled": {
+    "rest": {
+     "x": 435.578125,
+     "y": 1132.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hov": {
+     "x": 435.578125,
+     "y": 1132.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "act": {
+     "x": 435.578125,
+     "y": 1132.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "after": {
+     "x": 435.578125,
+     "y": 1132.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": 0,
+     "dy": 0
+    },
+    "actDelta": {
+     "dx": 0,
+     "dy": 0
+    }
+   },
+   "hoverDisabledPass": true,
+   "hoverEnabled": {
+    "rest": {
+     "x": 435.578125,
+     "y": 1132.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hov": {
+     "x": 433.578125,
+     "y": 1130.25,
+     "transform": "matrix(1, 0, 0, 1, -2, -2)",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "act": {
+     "x": 439.578125,
+     "y": 1136.25,
+     "transform": "matrix(1, 0, 0, 1, 4, 4)",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 0px 0px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "after": {
+     "x": 435.578125,
+     "y": 1132.25,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": -2,
+     "dy": -2
+    },
+    "actDelta": {
+     "dx": 4,
+     "dy": 4
+    }
+   },
+   "hoverEnabledPass": true,
+   "reveal0": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6078.037999999651,
+      "endTime": 6358.037999999651,
+      "cls": "team-card wd-reveal",
+      "state": "running"
+     },
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6078.037999999651,
+      "endTime": 6358.037999999651,
+      "cls": "team-card wd-reveal",
+      "state": "running"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "team-card wd-reveal",
+      "at": 6096.5999999996275
+     },
+     {
+      "name": "wd-reveal",
+      "cls": "team-card wd-reveal",
+      "at": 6096.700000000186
+     }
+    ],
+    "status": [
+     {
+      "id": "team-note",
+      "text": ""
+     },
+     {
+      "id": "team-result",
+      "text": "ทีม 1 — 3 คน (ได้คนเกิน)\n\nจานข้าว, คอควาย, ขอไข่\n\nทีม 2 — 2 คน\n\nงูใหญ่, กอไก่"
+     }
+    ],
+    "armLog": {
+     "sawDisabled": false,
+     "armAt": null
+    },
+    "now": 6252.899999999441
+   },
+   "reveal": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6078.037999999651,
+      "endTime": 6358.037999999651,
+      "cls": "team-card wd-reveal",
+      "state": "finished"
+     },
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6078.037999999651,
+      "endTime": 6358.037999999651,
+      "cls": "team-card wd-reveal",
+      "state": "finished"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "team-card wd-reveal",
+      "at": 6096.5999999996275
+     },
+     {
+      "name": "wd-reveal",
+      "cls": "team-card wd-reveal",
+      "at": 6096.700000000186
+     }
+    ],
+    "status": [
+     {
+      "id": "team-note",
+      "text": ""
+     },
+     {
+      "id": "team-result",
+      "text": "ทีม 1 — 3 คน (ได้คนเกิน)\n\nจานข้าว, คอควาย, ขอไข่\n\nทีม 2 — 2 คน\n\nงูใหญ่, กอไก่"
+     }
+    ],
+    "armLog": {
+     "sawDisabled": false,
+     "armAt": null
+    },
+    "now": 6756
+   },
+   "revealPass": true,
+   "result": "ทีม 1 — 3 คน (ได้คนเกิน)\n\nจานข้าว, คอควาย, ขอไข่\n\nทีม 2 — 2 คน\n\nงูใหญ่, กอไก่",
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "pageUrl": "/tool/team/",
+   "consoleErrors": []
+  },
+  "/tool/number/": {
+   "path": "/tool/number/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 5,
+    "firstBar": {
+     "tag": "a",
+     "id": "",
+     "cls": "chrome-brand",
+     "text": "วัดดวง",
+     "inBand": true,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(255, 204, 0)",
+     "outlineOffset": "3px"
+    },
+    "firstOutside": {
+     "tag": "input",
+     "id": "number-min",
+     "cls": "",
+     "text": "",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "chrome-brand",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "number-min",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": true
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "structure": {
+    "toolBand": 1,
+    "h1": 1,
+    "adText": "ช่องโฆษณา",
+    "ad728": false,
+    "adBorderStyle": "dashed",
+    "adBox": {
+     "x": 250,
+     "y": 920.4,
+     "w": 940,
+     "h": 250
+    },
+    "adBoxIdle": {
+     "x": 250,
+     "y": 920.4,
+     "w": 940,
+     "h": 250
+    },
+    "adBoxAfter": {
+     "x": 250,
+     "y": 920.4,
+     "w": 940,
+     "h": 250
+    }
+   },
+   "idle": {
+    "borderStyle": "dashed",
+    "w": 427,
+    "h": 72,
+    "text": "",
+    "min": "1",
+    "max": "100"
+   },
+   "hoverDisabled": {
+    "rest": {
+     "x": 735,
+     "y": 498.375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hov": {
+     "x": 735,
+     "y": 498.375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "act": {
+     "x": 735,
+     "y": 498.375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "after": {
+     "x": 735,
+     "y": 498.375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "none",
+     "opacity": "0.4",
+     "cursor": "default",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": 0,
+     "dy": 0
+    },
+    "actDelta": {
+     "dx": 0,
+     "dy": 0
+    }
+   },
+   "hoverDisabledPass": true,
+   "hoverEnabled": {
+    "rest": {
+     "x": 735,
+     "y": 498.375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hov": {
+     "x": 733,
+     "y": 496.375,
+     "transform": "matrix(1, 0, 0, 1, -2, -2)",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "act": {
+     "x": 739,
+     "y": 502.375,
+     "transform": "matrix(1, 0, 0, 1, 4, 4)",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 0px 0px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "after": {
+     "x": 735,
+     "y": 498.375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 5px 5px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": -2,
+     "dy": -2
+    },
+    "actDelta": {
+     "dx": 4,
+     "dy": 4
+    }
+   },
+   "hoverEnabledPass": true,
+   "reveal0": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6028.153999999631,
+      "endTime": 6308.153999999631,
+      "cls": "wd-reveal",
+      "state": "running"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "wd-reveal",
+      "at": 6046.0999999996275
+     }
+    ],
+    "status": [
+     {
+      "id": "number-result",
+      "text": "ได้: 39"
+     },
+     {
+      "id": "number-note",
+      "text": ""
+     }
+    ],
+    "armLog": {
+     "sawDisabled": false,
+     "armAt": null
+    },
+    "now": 6202.5
+   },
+   "reveal": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6028.153999999631,
+      "endTime": 6308.153999999631,
+      "cls": "wd-reveal",
+      "state": "finished"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "wd-reveal",
+      "at": 6046.0999999996275
+     }
+    ],
+    "status": [
+     {
+      "id": "number-result",
+      "text": "ได้: 39"
+     },
+     {
+      "id": "number-note",
+      "text": ""
+     }
+    ],
+    "armLog": {
+     "sawDisabled": false,
+     "armAt": null
+    },
+    "now": 6704.5
+   },
+   "revealPass": true,
+   "result": "ได้: 39",
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "pageUrl": "/tool/number/",
+   "consoleErrors": []
+  },
+  "/tool/wheel/": {
+   "path": "/tool/wheel/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 5,
+    "firstBar": {
+     "tag": "a",
+     "id": "",
+     "cls": "chrome-brand",
+     "text": "วัดดวง",
+     "inBand": true,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(255, 204, 0)",
+     "outlineOffset": "3px"
+    },
+    "firstOutside": {
+     "tag": "input",
+     "id": "",
+     "cls": "",
+     "text": "",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "chrome-brand",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "input",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": true
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "structure": {
+    "toolBand": 1,
+    "h1": 1,
+    "adText": "ช่องโฆษณา",
+    "ad728": false,
+    "adBorderStyle": "dashed",
+    "adBox": {
+     "x": 448,
+     "y": 2136.4,
+     "w": 544,
+     "h": 250
+    },
+    "adBoxIdle": {
+     "x": 448,
+     "y": 2136.4,
+     "w": 544,
+     "h": 250
+    },
+    "adBoxAfter": {
+     "x": 448,
+     "y": 2136.4,
+     "w": 544,
+     "h": 250
+    }
+   },
+   "idle": {
+    "discW": 400,
+    "discH": 400,
+    "groupChildren": 9,
+    "groupMarkup": "<path d=\"M200 200 L137.2 48.5 A164 164 0 0 1 262.8 48.5 Z\" stroke-width=\"2.5\" style=\"fill: var(--color-bg); stroke: colo",
+    "drawn": 9
+   },
+   "hoverDisabled": {
+    "rest": {
+     "x": 448,
+     "y": 931.484375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "0.4",
+     "cursor": "pointer",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hov": {
+     "x": 448,
+     "y": 931.484375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "0.4",
+     "cursor": "pointer",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "act": {
+     "x": 448,
+     "y": 931.484375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "0.4",
+     "cursor": "pointer",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "after": {
+     "x": 448,
+     "y": 931.484375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "0.4",
+     "cursor": "pointer",
+     "disabled": true,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": 0,
+     "dy": 0
+    },
+    "actDelta": {
+     "dx": 0,
+     "dy": 0
+    }
+   },
+   "hoverDisabledPass": false,
+   "hoverEnabled": {
+    "rest": {
+     "x": 448,
+     "y": 931.484375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hov": {
+     "x": 446,
+     "y": 929.484375,
+     "transform": "matrix(1, 0, 0, 1, -2, -2)",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 6px 6px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "act": {
+     "x": 452,
+     "y": 935.484375,
+     "transform": "matrix(1, 0, 0, 1, 4, 4)",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 0px 0px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "after": {
+     "x": 448,
+     "y": 931.484375,
+     "transform": "none",
+     "translate": "none",
+     "boxShadow": "rgb(20, 20, 43) 4px 4px 0px 0px",
+     "opacity": "1",
+     "cursor": "pointer",
+     "disabled": false,
+     "hasUiPress": true,
+     "hoverMq": true
+    },
+    "hovDelta": {
+     "dx": -2,
+     "dy": -2
+    },
+    "actDelta": {
+     "dx": 4,
+     "dy": 4
+    }
+   },
+   "hoverEnabledPass": true,
+   "reveal0": {
+    "anims": [],
+    "events": [],
+    "status": [
+     {
+      "id": "wheel-result",
+      "text": ""
+     },
+     {
+      "id": "wheel-note",
+      "text": "กำลังหมุน…"
+     }
+    ],
+    "armLog": {
+     "sawDisabled": true,
+     "armAt": null
+    },
+    "now": 6239.9000000003725
+   },
+   "reveal": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 8083.626999999979,
+      "endTime": 8363.626999999979,
+      "cls": "wd-reveal",
+      "state": "finished"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "wd-reveal",
+      "at": 8101.600000000559
+     }
+    ],
+    "status": [
+     {
+      "id": "wheel-result",
+      "text": "คอควาย"
+     },
+     {
+      "id": "wheel-note",
+      "text": ""
+     }
+    ],
+    "armLog": {
+     "sawDisabled": true,
+     "armAt": null
+    },
+    "now": 8757.799999999814
+   },
+   "revealPass": true,
+   "result": "คอควาย",
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "pageUrl": "/tool/wheel/",
+   "consoleErrors": []
+  },
+  "/game/siamsi/": {
+   "path": "/game/siamsi/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 45,
+    "firstBar": null,
+    "firstOutside": {
+     "tag": "a",
+     "id": "",
+     "cls": "",
+     "text": "ดูดวง",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "sm-chip",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "sm-chip",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "sm-chip",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "sm-chip",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "sm-chip sm-chip--on",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "ss-intent-done",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "sm-chip",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "sm-chip",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "sm-chip",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "sm-chip",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "sm-chip sm-chip--on",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "ss-intent-done",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": false
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "idleRevealAnims": 0,
+   "hoverGameBtn": {
+    "h": {
+     "rest": {
+      "x": 20,
+      "y": 600.796875,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "hov": {
+      "x": 20,
+      "y": 600.796875,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "act": {
+      "x": 20,
+      "y": 600.796875,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "after": {
+      "x": 20,
+      "y": 600.796875,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     }
+    },
+    "noPress": true
+   },
+   "holdLanded": true,
+   "revealEarly": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 10395.814999999857,
+      "endTime": 10675.814999999857,
+      "cls": "sm-slip wd-reveal",
+      "state": "running"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "sm-slip wd-reveal",
+      "at": 10414.099999999627
+     }
+    ],
+    "status": [],
+    "armLog": {
+     "sawDisabled": true,
+     "armAt": null
+    },
+    "now": 10507.5,
+    "revealEnd": 10675.814999999857,
+    "armAt": null,
+    "marginMs": null,
+    "revealPass": true,
+    "orderPass": false,
+    "liveRegionRoleStatus": 0
+   },
+   "reveal": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 10395.814999999857,
+      "endTime": 10675.814999999857,
+      "cls": "sm-slip wd-reveal",
+      "state": "finished"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "sm-slip wd-reveal",
+      "at": 10414.099999999627
+     }
+    ],
+    "status": [],
+    "armLog": {
+     "sawDisabled": true,
+     "armAt": 10784.599999999627
+    },
+    "now": 11410.200000000186,
+    "revealEnd": 10675.814999999857,
+    "armAt": 10784.599999999627,
+    "marginMs": 108.8,
+    "revealPass": true,
+    "orderPass": true,
+    "liveRegionRoleStatus": 0
+   },
+   "resultText": "๑๒\nดี\n\nสะพานที่คนช่วยสร้าง ข้ามได้ทั้งสองฝั่ง\nสิ่งที่เคยเข้าใจผิด วันนี้พูดกันรู้เรื่อง\nคำเดียวที่เอ",
+   "keepScreen": true,
+   "againOk": true,
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0.6205
+   },
+   "pageUrl": "/game/siamsi/",
+   "consoleErrors": []
+  },
+  "/game/love-match/": {
+   "path": "/game/love-match/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0.0053,
+    "clsAll": 0.0053
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 44,
+    "firstBar": null,
+    "firstOutside": {
+     "tag": "a",
+     "id": "",
+     "cls": "",
+     "text": "ดูดวง",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-me-m",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-me-f",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-0",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-1",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-2",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-3",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-4",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-5",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-want-m",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-want-f",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-me-m",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-me-f",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-0",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-1",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-2",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-3",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-4",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-band-5",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-want-m",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "lm-want-f",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": false
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "idleRevealAnims": 0,
+   "hoverGameBtn": {
+    "h": {
+     "rest": {
+      "x": 20,
+      "y": 586.390625,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "hov": {
+      "x": 20,
+      "y": 586.390625,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "act": {
+      "x": 20,
+      "y": 586.390625,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "after": {
+      "x": 20,
+      "y": 586.390625,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     }
+    },
+    "noPress": true
+   },
+   "revealEarly": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 8853.382999999667,
+      "endTime": 9133.382999999667,
+      "cls": "lm-reading wd-reveal",
+      "state": "running"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "lm-reading wd-reveal",
+      "at": 8870.5
+     }
+    ],
+    "status": [],
+    "armLog": {
+     "sawDisabled": true,
+     "armAt": null
+    },
+    "now": 8968.700000000186,
+    "revealEnd": 9133.382999999667,
+    "armAt": null,
+    "marginMs": null,
+    "revealPass": true,
+    "orderPass": false,
+    "liveRegionRoleStatus": 0
+   },
+   "reveal": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 8853.382999999667,
+      "endTime": 9133.382999999667,
+      "cls": "lm-reading wd-reveal",
+      "state": "finished"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "lm-reading wd-reveal",
+      "at": 8870.5
+     }
+    ],
+    "status": [],
+    "armLog": {
+     "sawDisabled": true,
+     "armAt": 9244.200000000186
+    },
+    "now": 9871.900000000373,
+    "revealEnd": 9133.382999999667,
+    "armAt": 9244.200000000186,
+    "marginMs": 110.8,
+    "revealPass": true,
+    "orderPass": true,
+    "liveRegionRoleStatus": 0
+   },
+   "resultText": "คุณจะได้เจอเขา\n\nตอนคุณอายุ 34 ปี\n\nที่ ร้านซักผ้าหยอดเหรียญ\n\nเพศ\nหญิง\nอายุ\n33\nส่วนสูง\n165 ซม.\nรูปร่าง\nสมส่วน\nสัญชาติ\nไทย\n",
+   "againOk": true,
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0.0053,
+    "clsAll": 0.3677
+   },
+   "pageUrl": "/game/love-match/",
+   "consoleErrors": []
+  },
+  "/game/daily-fortune/": {
+   "path": "/game/daily-fortune/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0.0002,
+    "clsAll": 0.0002
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 44,
+    "firstBar": null,
+    "firstOutside": {
+     "tag": "a",
+     "id": "",
+     "cls": "",
+     "text": "ดูดวง",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "df-go",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "df-go",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "df-go",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": false
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "idleRevealAnims": 0,
+   "hoverGameBtn": {
+    "h": {
+     "rest": {
+      "x": 20,
+      "y": 612.296875,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "hov": {
+      "x": 20,
+      "y": 612.296875,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "act": {
+      "x": 20,
+      "y": 612.296875,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "after": {
+      "x": 20,
+      "y": 612.296875,
+      "transform": "none",
+      "translate": "none",
+      "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+      "opacity": "1",
+      "cursor": "pointer",
+      "disabled": false,
+      "hasUiPress": false,
+      "hoverMq": true
+     },
+     "hovDelta": {
+      "dx": 0,
+      "dy": 0
+     },
+     "actDelta": {
+      "dx": 0,
+      "dy": 0
+     }
+    },
+    "noPress": true
+   },
+   "revealEarly": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6908.02900000017,
+      "endTime": 7188.02900000017,
+      "cls": "df-verdict-card wd-reveal",
+      "state": "running"
+     },
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6908.02900000017,
+      "endTime": 7188.02900000017,
+      "cls": "df-lines wd-reveal",
+      "state": "running"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "df-verdict-card wd-reveal",
+      "at": 6925.799999999814
+     },
+     {
+      "name": "wd-reveal",
+      "cls": "df-lines wd-reveal",
+      "at": 6925.799999999814
+     }
+    ],
+    "status": [],
+    "armLog": {
+     "sawDisabled": true,
+     "armAt": null
+    },
+    "now": 7019.200000000186,
+    "revealEnd": 7188.02900000017,
+    "armAt": null,
+    "marginMs": null,
+    "revealPass": true,
+    "orderPass": false,
+    "liveRegionRoleStatus": 0
+   },
+   "reveal": {
+    "anims": [
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6908.02900000017,
+      "endTime": 7188.02900000017,
+      "cls": "df-verdict-card wd-reveal",
+      "state": "finished"
+     },
+     {
+      "name": "wd-reveal",
+      "dur": 280,
+      "startTime": 6908.02900000017,
+      "endTime": 7188.02900000017,
+      "cls": "df-lines wd-reveal",
+      "state": "finished"
+     }
+    ],
+    "events": [
+     {
+      "name": "wd-reveal",
+      "cls": "df-verdict-card wd-reveal",
+      "at": 6925.799999999814
+     },
+     {
+      "name": "wd-reveal",
+      "cls": "df-lines wd-reveal",
+      "at": 6925.799999999814
+     }
+    ],
+    "status": [],
+    "armLog": {
+     "sawDisabled": true,
+     "armAt": 7296.4000000003725
+    },
+    "now": 7921.700000000186,
+    "revealEnd": 7188.02900000017,
+    "armAt": 7296.4000000003725,
+    "marginMs": 108.4,
+    "revealPass": true,
+    "orderPass": true,
+    "liveRegionRoleStatus": 0
+   },
+   "resultText": "อา. 25 ต.ค.\nดวงวันนี้ประมาณว่า\n\nดวงดีนิดๆ พอให้ยิ้มได้\n\nกิน\n\nสั่งไข่ดาว จะได้ไข่เจียว แต่อร่อยกว่าที่สั่งไว้\n\n~\nเงิน\n\nล้",
+   "againOk": true,
+   "againKind": "df: again redraws a fresh result screen (no return-to-start screen exists)",
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0.0002,
+    "clsAll": 0.007
+   },
+   "pageUrl": "/game/daily-fortune/",
+   "consoleErrors": []
+  },
+  "/404.html": {
+   "path": "/404.html",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "focus": {
+    "sun": "rgb(255, 204, 0)",
+    "tabs": 5,
+    "firstBar": {
+     "tag": "a",
+     "id": "",
+     "cls": "chrome-brand",
+     "text": "วัดดวง",
+     "inBand": true,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(255, 204, 0)",
+     "outlineOffset": "3px"
+    },
+    "firstOutside": {
+     "tag": "a",
+     "id": "",
+     "cls": "",
+     "text": "กลับหน้าแรก",
+     "inBand": false,
+     "focusVisible": true,
+     "outlineWidth": "3px",
+     "outlineStyle": "solid",
+     "outlineColor": "rgb(20, 20, 43)",
+     "outlineOffset": "3px"
+    },
+    "all": [
+     {
+      "id": "chrome-brand",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "chrome-pill",
+      "inBand": true,
+      "color": "rgb(255, 204, 0)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     },
+     {
+      "id": "a",
+      "inBand": false,
+      "color": "rgb(20, 20, 43)",
+      "w": "3px",
+      "off": "3px",
+      "fv": true
+     }
+    ],
+    "pass": true,
+    "barSeen": true
+   },
+   "vt": {
+    "n": 1,
+    "types": [
+     "@view-transition { navigation: auto; }"
+    ],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "pageUrl": "/404",
+   "consoleErrors": []
+  },
+  "/game/bangkok-drift/play/": {
+   "path": "/game/bangkok-drift/play/",
+   "mediaAtLoad": {
+    "innerWidth": 1440,
+    "innerHeight": 900,
+    "reduce": false,
+    "hover": true,
+    "pointerFine": true,
+    "hasFocus": true
+   },
+   "loadLayout": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0
+   },
+   "vt": {
+    "n": 0,
+    "types": [],
+    "ctorExists": true
+   },
+   "badResources": [],
+   "play": {
+    "stageChildren": 4,
+    "buttons": 16,
+    "uiPress": 0,
+    "wdReveal": 0,
+    "pending": 0,
+    "webCssLinked": false,
+    "title": "บางกอกดริฟต์ — เล่นเต็มจอ",
+    "pendingAfterScroll": 0
+   },
+   "layoutEnd": {
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "overflowEls": 0,
+    "cls": 0,
+    "clsAll": 0.1697
+   },
+   "pageUrl": "/game/bangkok-drift/play/",
+   "consoleErrors": []
+  },
+  "nav:web-to-web": {
+   "from": "/",
+   "href": "/tools/",
+   "landed": {
+    "p": "/tools/",
+    "rs": "complete",
+    "vt": {
+     "hasVT": true,
+     "state": "finished"
+    },
+    "stageChildren": 0,
+    "buttons": 0,
+    "vtRules": 1
+   },
+   "ok": true,
+   "errors": [],
+   "vtHad": true,
+   "vtState": "finished"
+  },
+  "nav:web-to-play": {
+   "from": "/c/party/",
+   "href": "/game/timebomb/play/",
+   "landed": {
+    "p": "/game/timebomb/play/",
+    "rs": "complete",
+    "vt": {
+     "hasVT": false,
+     "state": "none"
+    },
+    "stageChildren": 0,
+    "buttons": 13,
+    "vtRules": 0
+   },
+   "ok": true,
+   "errors": [
+    "exception: InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+   ],
+   "playWorks": true,
+   "playHasVT": false
+  }
+ }
+}
