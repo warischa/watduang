@@ -142,3 +142,24 @@
   --focus-ring: 3px solid var(--ink);
   --focus-offset: 3px;
 }
+
+/* ---- Motion (gh#288, design/Gh288MotionSheet.dc.html, owner-approved 2026-10-25) ----
+   Every duration and easing a web-page effect uses, pinned once. The board is the source (ADR-0033);
+   a value here that differs from the sheet is drift. Reduced motion keeps a reduced form, never a
+   removal (ADR-0046): the --motion-rm-* pair is what each effect falls back to. --motion-reveal must
+   settle inside ARM_DELAY_MS (src/games/_arm-gate.ts) with a frame to spare. Play routes never read
+   these. */
+:root {
+  --motion-ui: 160ms; /* button hover and press */
+  --motion-reveal: 280ms; /* result reveal */
+  --motion-scroll: 450ms; /* scroll reveal */
+  --motion-page: 250ms; /* cross-document view transition */
+  --motion-ambient: 18s; /* hero ambient layer, one leg, alternating */
+  --motion-rm-fade: 200ms; /* reduced result and scroll reveal */
+  --motion-rm-quick: 120ms; /* reduced view transition and button shadow */
+
+  --ease-out: cubic-bezier(0, 0, 0.58, 1);
+  --ease-page: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-ambient: cubic-bezier(0.42, 0, 0.58, 1);
+  --ease-rm: linear;
+}
