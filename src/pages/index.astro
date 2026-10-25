@@ -10,7 +10,7 @@
 // the popular heading) is read at build time and never retyped. The hero, the see-all label, the
 // FAQ and the ad placeholder are the live page's own copy, approved for reuse (owner ruling
 // 2026-10-04 on gh#243); this page invents no Thai. All motion is CSS only (ADR-0005: no inline
-// page script) and stops under prefers-reduced-motion.
+// page script); today's motion stops under prefers-reduced-motion, newer effects reduce.
 import Base from '../layouts/Base.astro';
 import PageChrome from '../components/PageChrome.astro';
 import HomeHero from '../components/landing/HomeHero.astro';
@@ -295,14 +295,19 @@ const featured = withArt(featuredGame);
     outline-color: var(--surface-sun);
   }
 
-  /* Every animation and transition on this page is decorative, so under reduced motion ALL of them
-     stop, not a listed few: any motion a later section adds, in this file or in a landing component,
-     falls under this rule with no edit. !important is what makes that true against the components'
-     scoped selectors; it is the only !important on the page. */
+  /* Today's motion stops under reduced motion (owner pick 7, gh#288): the popular row's tilt, the
+     featured card's sparks and bob, and the tiles' hover transitions. They are listed on purpose.
+     A wholesale rule over every element in main would also turn each newer effect's reduced form
+     (the hero layer's held pose, the hover shadow, the scroll fade) into a removal, so a motion
+     added later brings its own reduced form instead. !important beats the components' scoped
+     selectors; it is the only !important on the page. */
   @media (prefers-reduced-motion: reduce) {
-    main :global(*),
-    main :global(*::before),
-    main :global(*::after) {
+    main :global(.tile),
+    main :global(.tilt-a),
+    main :global(.tilt-b),
+    main :global(.tilt-c),
+    main :global(.spark),
+    main :global(.toy) {
       animation: none !important;
       transition: none !important;
     }
