@@ -207,14 +207,12 @@ test('no site-level roster or phone-passing claim is left in the home page how-t
 // The three drift scans above are what actually hold gh#87 criterion 1: if a hub field regrows AND the
 // page starts rendering it, the retyped-literal scan is what sees it.
 
-// gh#288 Phase 3, home hero ambient layer (pick 2, strength 0.12) and the reduced-motion scoping that
-// lets its reduced form survive. Pinned at the source-text level like everything above; the rendered
-// look and the cost are the browser probes' and the owner's, not this file's.
-const heroSrc = readFileSync(join(here, '..', 'components', 'landing', 'HomeHero.astro'), 'utf8');
+// gh#288 Phase 3, the reduced-motion scoping that lets the new effects' reduced forms survive on /.
+// Pinned at the source-text level like everything above. The hero ambient layer (pick 2) was pulled
+// from this batch: home-page-probe's per-element overflow term counts its clipped, transform-moved
+// box (owner popup 2026-10-25), so its tests left with it.
 const stripCssComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '');
-const heroCss = stripCssComments((heroSrc.match(/<style>([\s\S]*)<\/style>/) ?? ['', ''])[1]);
 const pageCss = stripCssComments((pageSrc.match(/<style>([\s\S]*)<\/style>/) ?? ['', ''])[1]);
-assert.ok(heroCss.includes('.hero'), 'positive control: the hero style slice is empty or the comment strip ate it');
 assert.ok(pageCss.includes('.faq'), 'positive control: the page style slice is empty or the comment strip ate it');
 
 // The body of the first balanced { ... } that follows `head`, or null when `head` is absent.
@@ -230,52 +228,6 @@ const blockAfter = (css, head) => {
   return null;
 };
 
-test('the hero carries one decorative ambient layer, first, hidden from assistive tech and from pointers', () => {
-  const markup = heroSrc.replace(/^---[\s\S]*?^---$/m, '').replace(/<style>[\s\S]*<\/style>/, '');
-  assert.equal((markup.match(/class="ambient"/g) ?? []).length, 1, 'exactly one .ambient element');
-  assert.match(markup, /<header class="hero">\s*<div class="ambient" aria-hidden="true"><\/div>\s*<div class="dots"/, 'the layer is the hero\'s first child, before .dots, and aria-hidden');
-  assert.doesNotMatch(markup, /class="ambient"[^>]*(tabindex|href|onclick)/, 'the layer adds no target');
-  const rule = blockAfter(heroCss, '.ambient {');
-  assert.ok(rule, '.ambient rule exists');
-  assert.match(rule, /pointer-events:\s*none/, 'never hit-testable');
-  assert.match(rule, /position:\s*absolute/, 'out of flow: the hero keeps its box (CLS 0)');
-  assert.match(rule, /--glow:\s*0\.12\s*;/, 'the picked strength is 0.12, not the demo default 0.18');
-  assert.match(rule, /opacity:\s*var\(--glow\)/, 'full-motion opacity is the strength');
-  assert.doesNotMatch(rule, /0\.18/, 'the not-picked strength must not appear');
-  assert.match(rule, /var\(--accent-sky\)/, 'the gradient reads the accent token');
-  assert.doesNotMatch(rule, /#[0-9a-f]{3,8}\b/i, 'no hex in the gradient (accent-single-source)');
-  assert.match(rule, /will-change:\s*transform/, 'promoted for transform only');
-  const hero = blockAfter(heroCss, '.hero {');
-  assert.match(hero, /overflow:\s*hidden/, 'the hero clips the oversized layer');
-  assert.match(hero, /isolation:\s*isolate/, 'the layer\'s z-index stays inside the hero');
-});
-
-test('the layer animates transform only, on the motion tokens, and only when motion is allowed', () => {
-  const frames = blockAfter(heroCss, '@keyframes hero-ambient');
-  assert.ok(frames, '@keyframes hero-ambient exists');
-  assert.match(frames, /transform:\s*translate3d\(-6%,\s*-4%,\s*0\)\s*scale\(1\)/, 'from-frame is the motion sheet\'s');
-  assert.match(frames, /transform:\s*translate3d\(6%,\s*4%,\s*0\)\s*scale\(1\.08\)/, 'to-frame is the motion sheet\'s, not the 27%/22% limit drawings');
-  assert.doesNotMatch(frames, /background/, 'background-position repaints every frame (measured ~50x costlier)');
-  assert.doesNotMatch(heroCss, /background-position/, 'nothing in the hero animates background-position');
-  const motionOk = blockAfter(heroCss, '@media (prefers-reduced-motion: no-preference)');
-  assert.ok(motionOk, 'the animation sits under no-preference');
-  assert.match(motionOk, /\.ambient\s*\{[^}]*animation:\s*hero-ambient var\(--motion-ambient\) var\(--ease-ambient\) infinite alternate/, 'duration and easing come from the tokens');
-  const base = blockAfter(heroCss, '.ambient {');
-  assert.doesNotMatch(base, /animation/, 'the base rule is the static middle pose, never animated unconditionally');
-  assert.match(base, /transform:\s*translate3d\(0,\s*0,\s*0\)\s*scale\(1\.04\)/, 'static middle pose');
-});
-
-test('reduced motion holds the middle pose at half strength, no animation: reduced, not removed', () => {
-  const reduced = blockAfter(heroCss, '@media (prefers-reduced-motion: reduce)');
-  assert.ok(reduced, 'the layer has a reduced-motion form');
-  const rule = blockAfter(reduced, '.ambient');
-  assert.ok(rule, '.ambient is restated under reduce');
-  assert.match(rule, /animation:\s*none/, 'no animation');
-  assert.match(rule, /transform:\s*translate3d\(0,\s*0,\s*0\)\s*scale\(1\.04\)/, 'held at the middle pose');
-  assert.match(rule, /opacity:\s*calc\(var\(--glow\)\s*\*\s*0\.5\)/, 'opacity halved: 0.12 * 0.5 = 0.06');
-  assert.equal(0.12 * 0.5, 0.06, 'arithmetic of the pin above');
-});
-
 test('the page\'s reduced-motion rule names today\'s motion; it is no longer a wholesale blanket', () => {
   const reduced = blockAfter(pageCss, '@media (prefers-reduced-motion: reduce)');
   assert.ok(reduced, 'the page keeps a reduced-motion rule for today\'s motion (owner pick 7)');
@@ -286,7 +238,6 @@ test('the page\'s reduced-motion rule names today\'s motion; it is no longer a w
   for (const sel of ['.tile', '.tilt-a', '.tilt-b', '.tilt-c', '.spark', '.toy']) {
     assert.ok(reduced.includes(`:global(${sel})`), `today's motion selector ${sel} is still stopped`);
   }
-  assert.doesNotMatch(reduced, /ambient/, 'the new layer is not stopped by the page rule');
 });
 
 // gh#288 scroll reveal x today's reduced-motion rule. A home tile is a scroll-reveal target, and the

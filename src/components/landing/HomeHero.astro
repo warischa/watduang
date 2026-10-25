@@ -23,7 +23,6 @@ const { badge, titleTop, titleLead, titleMark, lead, ctaLabel, ctaHref, featured
 ---
 
 <header class="hero">
-  <div class="ambient" aria-hidden="true"></div>
   <div class="dots" aria-hidden="true"></div>
   <div class="inner">
     <div class="copy">
@@ -44,55 +43,8 @@ const { badge, titleTop, titleLead, titleMark, lead, ctaLabel, ctaHref, featured
   .hero {
     position: relative;
     overflow: hidden;
-    /* The ambient layer's z-index stays inside the hero. */
-    isolation: isolate;
     background: var(--surface-hero);
     border-block-end: 6px solid var(--ink);
-  }
-
-  /* gh#288 pick 2: one decorative gradient layer behind the hero content, moved by transform alone
-     (a moving background-position repaints every frame, measured about 50x costlier). It is 220% x
-     180% of the hero, centred, clipped by the hero's overflow, so the hero's own box never changes.
-     Strength 0.12 is the owner's pick; the sheet's demo default of 0.18 is the one not picked. The
-     base rule is the static middle pose, so a browser that runs no animation still shows the layer. */
-  .ambient {
-    --glow: 0.12;
-    position: absolute;
-    inset: -40% -60%;
-    z-index: 0;
-    pointer-events: none;
-    opacity: var(--glow);
-    background:
-      radial-gradient(ellipse 28% 30% at 26% 38%, var(--accent-sky) 0, transparent 70%),
-      radial-gradient(ellipse 28% 30% at 74% 62%, var(--accent-sky) 0, transparent 70%);
-    transform: translate3d(0, 0, 0) scale(1.04);
-    will-change: transform;
-  }
-
-  /* Motion-sheet keyframes: plus or minus 6% and 4%, scale 1 to 1.08. The 27% and 22% on the board
-     are the layer's travel limits, drawn to prove the gradient never runs out, not animation ends. */
-  @keyframes hero-ambient {
-    from {
-      transform: translate3d(-6%, -4%, 0) scale(1);
-    }
-    to {
-      transform: translate3d(6%, 4%, 0) scale(1.08);
-    }
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .ambient {
-      animation: hero-ambient var(--motion-ambient) var(--ease-ambient) infinite alternate;
-    }
-  }
-
-  /* Reduced, not removed (ADR-0046): the layer holds the middle pose at half strength, 0.06. */
-  @media (prefers-reduced-motion: reduce) {
-    .ambient {
-      animation: none;
-      transform: translate3d(0, 0, 0) scale(1.04);
-      opacity: calc(var(--glow) * 0.5);
-    }
   }
 
   .dots {
