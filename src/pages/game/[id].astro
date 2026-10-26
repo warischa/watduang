@@ -205,10 +205,12 @@ const { game } = Astro.props as { game: GameModule };
       text-underline-offset: 3px;
     }
 
-    /* a HELD control (.sm-hold: its hold stops on pointerleave, with no pointer capture) never
-       moves, in any state: a 2px lift plus a 5px press would slide the box out from under a
-       stationary pointer and end the hold. Shadow only, the reduced-motion form. */
-    .game-btn-primary.sm-hold:hover:not(:disabled) {
+    /* a HELD control never moves, in any state: its hold stops on pointerleave with no pointer
+       capture, and a 2px lift plus a 5px press would slide the box out from under a stationary
+       pointer and end the hold. The contract is the generic .game-btn-held class on any variant;
+       two classes plus the state and the :not() out-rank every variant rule. Shadow only, the
+       reduced-motion form. */
+    .game-btn.game-btn-held:hover:not(:disabled) {
       transform: none;
       box-shadow: 7px 7px 0 rgba(20, 20, 43, 0.3);
     }
@@ -237,9 +239,9 @@ const { game } = Astro.props as { game: GameModule };
     text-decoration: none;
   }
 
-  /* the held control's press, shadow only; it out-ranks the hover override, so it sits after it and
-     covers the reduced-motion form as well */
-  .game-btn-primary.sm-hold:active:not(:disabled) {
+  /* the held control's press, shadow only, for any variant; it out-ranks the hover override, so it
+     sits after it and covers the reduced-motion form as well */
+  .game-btn.game-btn-held:active:not(:disabled) {
     transform: none;
     box-shadow: none;
   }

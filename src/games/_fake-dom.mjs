@@ -96,6 +96,19 @@ function walk(node, selector, out) {
   return out;
 }
 
+/** Every element in the tree (root included) that carries a live `pointerleave` handler, bound by
+ *  addEventListener or by the `onpointerleave` property. A control whose hold stops on pointerleave
+ *  is registered by this, never by a scan of source text. */
+export function elementsWithPointerleave(root) {
+  const out = [];
+  const visit = (node) => {
+    if (node.listenerCount('pointerleave') > 0 || typeof node.onpointerleave === 'function') out.push(node);
+    for (const child of node.children) visit(child);
+  };
+  visit(root);
+  return out;
+}
+
 export class FakeElement {
   constructor(tagName, ownerDocument = null) {
     this.tagName = tagName;
@@ -106,6 +119,7 @@ export class FakeElement {
     this.style = {};
     this._attrs = {};
     this._listeners = {};
+    this.onpointerleave = null; // the IDL handler slot a game may assign instead of addEventListener
     this.disabled = false;
     this.hidden = false;
     // Hole (c): a real mounted element has a width. Zero here made every layout-measuring branch

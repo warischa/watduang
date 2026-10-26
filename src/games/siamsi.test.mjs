@@ -29,7 +29,7 @@ import game, {
 } from './siamsi.ts';
 import { ASPECT_LABEL, INTENT_LABEL, SLIPS } from './_siamsi-deck.ts';
 import { ARM_DELAY_MS } from './_arm-gate.ts';
-import { makeDocument } from './_fake-dom.mjs';
+import { makeDocument, elementsWithPointerleave } from './_fake-dom.mjs';
 
 const fakeDocument = makeDocument();
 globalThis.document = fakeDocument;
@@ -346,6 +346,43 @@ test('gh#97: with no motion sensor the press-and-hold reaches the same ติ้
   assert.ok(byId(stage, 'ss-open-slip'), 'a full hold never released the ติ้ว');
 
   game.dispose();
+});
+
+// gh#288 follow-up: a control whose hold stops on pointerleave must register as held, so the shell
+// stylesheet never gives it a hover or press transform. The set comes from live listeners, not text.
+test('gh#288: every element bound to pointerleave on the hold screen carries game-btn-held', (t) => {
+  t.mock.timers.enable(timers);
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx([]));
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  byId(stage, 'ss-intent-done').click();
+
+  const bound = elementsWithPointerleave(stage);
+  assert.ok(bound.length > 0, 'positive control: the hold screen binds pointerleave on at least one element');
+  // the shell rule keys on `.game-btn.game-btn-held`, so both classes are the contract
+  for (const e of bound) {
+    const classes = e.className.split(/\s+/);
+    for (const need of ['game-btn', 'game-btn-held']) {
+      assert.ok(classes.includes(need), `pointerleave-bound <${e.tagName}> must carry ${need}, got class="${e.className}"`);
+    }
+  }
+
+  game.dispose();
+});
+
+test('gh#288: elementsWithPointerleave sees an addEventListener binding, an onpointerleave handler, and a nested one', () => {
+  const root = fakeDocument.createElement('div');
+  const inner = fakeDocument.createElement('div');
+  const viaListener = fakeDocument.createElement('button');
+  const viaIdl = fakeDocument.createElement('button');
+  const plain = fakeDocument.createElement('button');
+  viaListener.addEventListener('pointerleave', () => {});
+  viaIdl.onpointerleave = () => {};
+  inner.appendChild(viaIdl);
+  root.appendChild(viaListener);
+  root.appendChild(inner);
+  root.appendChild(plain);
+  assert.deepEqual(elementsWithPointerleave(root), [viaListener, viaIdl]);
 });
 
 test('gh#97: the hold interval stops when the screen is replaced under the finger', (t) => {

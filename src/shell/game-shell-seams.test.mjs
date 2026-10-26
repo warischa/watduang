@@ -5,6 +5,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
+import siamsi from '../games/siamsi.ts';
+import { ARM_DELAY_MS } from '../games/_arm-gate.ts';
+import { makeDocument, elementsWithPointerleave } from '../games/_fake-dom.mjs';
 
 const gamePage = readFileSync(new URL('../pages/game/[id].astro', import.meta.url), 'utf8');
 const gameLayout = readFileSync(new URL('../layouts/GameLayout.astro', import.meta.url), 'utf8');
@@ -133,6 +136,20 @@ test('gh#288 the game top bar link hover is muted ink plus a 2px underline', () 
 // Fortune buttons never carry .ui-press (their rest shadow is translucent, not ink), so the page's
 // own global block owns the motion, and nothing here may touch a disabled control: the arm gate
 // renders a control disabled for its window, and a press on it must not move or underline it.
+/** the parts of a selector list, split on commas outside parentheses */
+function splitTopLevel(list) {
+  const parts = [];
+  let depth = 0;
+  let from = 0;
+  for (let i = 0; i < list.length; i += 1) {
+    if (list[i] === '(') depth += 1;
+    else if (list[i] === ')') depth -= 1;
+    else if (list[i] === ',' && depth === 0) { parts.push(list.slice(from, i).trim()); from = i + 1; }
+  }
+  parts.push(list.slice(from).trim());
+  return parts;
+}
+
 function flattenRules(css, media = null) {
   const out = [];
   let i = 0;
@@ -144,16 +161,21 @@ function flattenRules(css, media = null) {
     assert.ok(close !== -1, `unbalanced braces after: ${prelude}`);
     const inner = css.slice(open + 1, close);
     if (prelude.startsWith('@media')) out.push(...flattenRules(inner, prelude.replace(/^@media\s*/, '')));
-    else out.push({ media, sel: prelude, body: inner.trim() });
+    else {
+      // each selector is its own rule, but keeps its whole list: a check scoped to state rules must
+      // still see a non-state sibling that shares the declarations
+      const list = splitTopLevel(prelude);
+      for (const sel of list) out.push({ media, sel, list, body: inner.trim() });
+    }
     i = close + 1;
   }
   return out;
 }
 
-const gamePageRules = flattenRules(
-  gamePage.slice(gamePage.indexOf('<style is:global>') + '<style is:global>'.length, gamePage.lastIndexOf('</style>'))
-    .replace(/\/\*[\s\S]*?\*\//g, ''),
-);
+const gamePageCss = gamePage
+  .slice(gamePage.indexOf('<style is:global>') + '<style is:global>'.length, gamePage.lastIndexOf('</style>'))
+  .replace(/\/\*[\s\S]*?\*\//g, '');
+const gamePageRules = flattenRules(gamePageCss);
 /** declarations of the one rule with this selector under this media prelude (null = top level) */
 function declsOf(sel, media = null) {
   const hits = gamePageRules.filter((r) => r.sel === sel && r.media === media);
@@ -220,13 +242,16 @@ test('gh#288 fortune buttons: transition mirrors .ui-press tokens, reduced form 
 });
 
 test('gh#288 fortune buttons: no hover or press rule can reach a disabled control', () => {
-  const states = gamePageRules.filter((r) => /:(hover|active)\b/.test(r.sel));
+  // a selector listed beside a state selector carries the same declarations, so it is checked too
+  const states = gamePageRules.filter((r) => r.list.some((s) => /:(hover|active)\b/.test(s)));
   assert.ok(states.length >= 7, `positive control: hover/press rules exist, found ${states.length}`);
   for (const r of states) {
     assert.ok(r.sel.endsWith(NOT_OFF), `state rule must exclude disabled controls: ${r.sel}`);
   }
   for (const r of states.filter((x) => x.media === null || x.media === HOVER)) {
-    assert.doesNotMatch(r.sel, /\.game-btn(?![-\w])/, `state rules name a variant, never the bare .game-btn: ${r.sel}`);
+    // the held registration pairs the bare .game-btn with .game-btn-held on purpose, to out-rank every variant
+    const sel = r.sel.replace(/\.game-btn(?=\.game-btn-held(?![-\w]))/, '');
+    assert.doesNotMatch(sel, /\.game-btn(?![-\w])/, `state rules name a variant, never the bare .game-btn: ${r.sel}`);
   }
   for (const r of states.filter((x) => x.media === HOVER || x.media === RM_HOVER)) {
     assert.match(r.sel, /:hover/, `hover media holds only hover rules: ${r.sel}`);
@@ -248,22 +273,11 @@ test('gh#288 fortune buttons: a state rule is declared after its normal-motion t
 });
 
 // gh#288 REFUTE — a HELD control (its hold stops on pointerleave, no pointer capture) must never
-// move under a stationary pointer, so no hover or press rule may give it a transform. The held set
-// is read from src/games, not named here: a control whose element gets a pointerleave handler.
-function heldClasses() {
-  const dir = new URL('../games/', import.meta.url);
-  const held = [];
-  for (const f of readdirSync(dir).filter((n) => n.endsWith('.ts'))) {
-    const src = readFileSync(new URL(f, dir), 'utf8');
-    for (const [, v, cls] of src.matchAll(/(\w+)\.className\s*=\s*'([^']+)'/g)) {
-      if (new RegExp(`on\\(\\s*${v}\\s*,\\s*'pointerleave'`).test(src)) held.push(cls.split(/\s+/));
-    }
-  }
-  return held;
-}
-
+// move under a stationary pointer, so no hover or press rule may give it a transform. A held
+// control registers itself with the generic `game-btn-held` class, whatever variant it wears.
 /** final `transform` of an enabled element carrying `classes`, in the given state and mode; the
- *  cascade is specificity (classes + state pseudo-classes + a :not(:disabled)) then source order */
+ *  cascade is importance, then specificity (classes + state pseudo-classes + a :not(:disabled)),
+ *  then source order. It models no cascade layers, so the page CSS must declare none. */
 function finalTransform(classes, { hover, active, reduced }) {
   let best = null;
   gamePageRules.forEach((r, order) => {
@@ -277,23 +291,67 @@ function finalTransform(classes, { hover, active, reduced }) {
     const states = [...bare.matchAll(/:(hover|active)\b/g)].map((m) => m[1]);
     if (states.includes('hover') && !hover) return;
     if (states.includes('active') && !active) return;
-    const m = r.body.match(/(?:^|;)\s*transform:\s*([^;]+)/);
-    if (!m) return;
+    // inside one block the last important transform wins, else the last normal one
+    const decls = [...r.body.matchAll(/(?:^|;)\s*transform:\s*([^;]+)/g)].map((d) => ({
+      important: /!\s*important\s*$/.test(d[1].trim()),
+      value: d[1].replace(/!\s*important\s*$/, '').trim(),
+    }));
+    if (!decls.length) return;
+    const own = decls.filter((d) => d.important).at(-1) ?? decls.at(-1);
+    const { important, value } = own;
     const spec = cls.length + states.length + (r.sel.includes(':not(:disabled)') ? 1 : 0);
-    if (!best || spec > best.spec || (spec === best.spec && order > best.order)) best = { spec, order, value: m[1].trim() };
+    // cascade: an important declaration beats any normal one, then specificity, then source order
+    let wins = true;
+    if (best) {
+      if (important !== best.important) wins = important;
+      else if (spec !== best.spec) wins = spec > best.spec;
+      else wins = order > best.order;
+    }
+    if (wins) best = { important, spec, order, value };
   });
   return best ? best.value : 'none';
 }
 
-test('gh#288 held controls: no hover or press state, in either motion mode, gives them a transform', () => {
-  const held = heldClasses();
-  assert.ok(held.some((c) => c.includes('sm-hold')), `positive control: the held set found siamsi's hold button, got ${JSON.stringify(held)}`);
+/** class lists of the held controls siamsi really renders: every element with a live pointerleave
+ *  listener on the hold screen, read off the mounted tree rather than named here */
+function renderedHeldClassLists(t) {
+  const fakeDocument = makeDocument();
+  globalThis.document = fakeDocument;
+  t.mock.timers.enable({ apis: ['setTimeout', 'setInterval'] });
+  const stage = fakeDocument.createElement('div');
+  siamsi.mount(stage, {
+    roster: { names: () => [], add() {} },
+    session: { players: [], setPlayers() {}, played: [], markPlayed() {}, checkpoint: null, saveCheckpoint() {}, clear() {} },
+  });
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  stage.querySelector('#ss-intent-done').click();
+  const lists = elementsWithPointerleave(stage).map((e) => e.className.split(/\s+/).filter(Boolean));
+  siamsi.dispose();
+  return lists;
+}
+
+test('gh#288 held controls: the game page CSS declares no @layer, which the cascade model cannot represent', () => {
+  assert.doesNotMatch(gamePageCss, /@layer\b/, 'a cascade layer would void finalTransform\'s verdict');
+});
+
+test('gh#288 held controls: no hover or press state, in either motion mode, gives them a transform', (t) => {
   assert.equal(
     finalTransform(['game-btn', 'game-btn-primary'], { hover: true, active: true, reduced: false }),
     'translate(5px, 5px)',
     'positive control: a tapped primary button does move when pressed',
   );
-  for (const classes of held) {
+  assert.equal(
+    finalTransform(['game-btn', 'game-btn-primary'], { hover: true, active: false, reduced: false }),
+    'translate(-2px, -2px)',
+    'positive control: a hovered primary button does lift',
+  );
+  const real = renderedHeldClassLists(t);
+  assert.ok(real.length > 0, 'positive control: the mounted hold screen renders a held control');
+  const sets = [
+    ...['game-btn-primary', 'game-btn-secondary'].map((variant) => ['game-btn', variant, 'game-btn-held']),
+    ...real,
+  ];
+  for (const classes of sets) {
     for (const reduced of [false, true]) {
       for (const [hover, active] of [[true, false], [false, true], [true, true]]) {
         assert.equal(
@@ -303,5 +361,21 @@ test('gh#288 held controls: no hover or press state, in either motion mode, give
         );
       }
     }
+  }
+});
+
+// A game that binds pointerleave on a control must register it as held. The scan is a tripwire on
+// the substring, so any quote style or binding API trips it; the runtime check in each game's own
+// test is what proves the registration on the live element.
+test('gh#288 held controls: every game file that mentions pointerleave also registers game-btn-held', () => {
+  const dir = new URL('../games/', import.meta.url);
+  const scanned = readdirSync(dir)
+    .filter((n) => n.endsWith('.ts'))
+    .map((n) => [n, readFileSync(new URL(n, dir), 'utf8')])
+    .filter(([, src]) => src.includes('pointerleave'));
+  assert.ok(scanned.length > 0, 'positive control: some game binds pointerleave');
+  assert.ok(scanned.some(([n]) => n === 'siamsi.ts'), `positive control: siamsi.ts is in the set, got ${scanned.map(([n]) => n)}`);
+  for (const [n, src] of scanned) {
+    assert.ok(src.includes('game-btn-held'), `${n} binds pointerleave but never registers game-btn-held`);
   }
 });

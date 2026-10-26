@@ -520,7 +520,7 @@ function renderShake(): void {
   const hold = el('button', BTN_HOLD);
   hold.id = 'ss-hold';
   hold.type = 'button';
-  hold.className = 'game-btn game-btn-primary sm-hold';
+  hold.className = 'game-btn game-btn-primary game-btn-held sm-hold';
   // pointerdown/up rather than click, because the control is a hold. cancel and leave are both
   // wired: a finger that slides off the button never sends pointerup.
   //
