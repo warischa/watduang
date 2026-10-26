@@ -11,11 +11,24 @@
 //   CDP_PORT=9223 node scripts/driver.mjs scripts/home-page-probe.mjs
 //
 // Verdicts:
-//   1. NO_SIDEWAYS_SCROLL at every width in WIDTHS. The run reports innerWidth equal to what was
-//      asked (a run that does not is void, not a pass), scrollWidth === clientWidth, and zero
-//      elements whose right edge passes the viewport edge. Calibrated per width: a deliberately
-//      overflowing element injected before each measurement must flip the detector red, or the run
-//      fails loudly. A detector that cannot see the overflow it exists to catch measures nothing.
+//   1. NO_SIDEWAYS_SCROLL at every width in WIDTHS. The term is "contributes to sideways scroll"
+//      (owner ruling 2026-10-26, gh#288), so the verdict reads only the document's own scroll extent:
+//      scrollWidth === clientWidth, and the layout viewport did not grow past clientWidth (mobile
+//      emulation widens innerWidth around overflowing content, which is the browser saying the same
+//      thing). Both are read with html and body forced to overflow-x: visible inline, in the same
+//      evaluate, so a root or body clip cannot hide real overflow from the reading; the computed
+//      overflow-x of both must then read "visible", or the row is red (an !important rule beat the
+//      force). Which elements a decorative layer may poke past the edge without scrolling the page
+//      (a clipping ancestor, clip-path, contain: paint, a transformed containing block) is a set the
+//      browser owns, so the probe never models it. The per-element list of boxes whose right edge
+//      passes the viewport edge is kept, UN-GATED, as a diagnostic that names a red's culprit.
+//      Void is "the width did not apply" (clientWidth read before the force differs from the width
+//      asked), never innerWidth: overflow grows innerWidth, and a real overflow must report as this
+//      verdict's red, not as a void run. Calibrated per width, both must red or the run fails loudly:
+//      (a) an injected 150vw element; (b) the same element under an injected html, body
+//      { overflow-x: clip }, which hides it from an unforced reading (asserted, or the leg proves
+//      nothing) and must still red through the force. A detector that cannot see the overflow it
+//      exists to catch measures nothing.
 //   2. ONE_AD_SLOT. Exactly one reserved slot, and no rail at any width (owner ruling 2026-10-04 on
 //      gh#244). Its height is measured border-inclusive: the canvas content height plus its two 3px
 //      dashed borders, 250 + 6 at desktop and 100 + 6 at or below 1099px.
@@ -47,7 +60,7 @@ const expectedSlotHeight = (w) => (w >= 1100 ? 256 : 106);
 // One evaluate body, returned raw so the two launches' rows are comparable. `return` is
 // load-bearing: driver.mjs wraps the body in an async function, an expression without it reads
 // back as null (runbook trap).
-const MEASURE = `
+export const MEASURE = `
   const doc = document.documentElement;
   const over = [...document.querySelectorAll('body *')]
     .map((el) => ({
@@ -62,10 +75,27 @@ const MEASURE = `
   const shelfTiles = [...document.querySelectorAll('.grid-shelf > a')];
   const firstTop = shelfTiles.length ? Math.round(shelfTiles[0].getBoundingClientRect().top) : null;
   const firstRow = shelfTiles.filter((el) => Math.abs(Math.round(el.getBoundingClientRect().top) - firstTop) <= 1);
-  return {
-    innerWidth: window.innerWidth,
+  // Unforced reading first: forcing overflow visible grows innerWidth synchronously under mobile
+  // emulation and it does not shrink back, so every other read above and here precedes the force.
+  const innerWidth = window.innerWidth;
+  const unforced = { scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth };
+  const inline = { html: doc.style.overflowX, body: document.body.style.overflowX };
+  doc.style.overflowX = 'visible';
+  document.body.style.overflowX = 'visible';
+  const forced = {
+    htmlOverflowX: getComputedStyle(doc).overflowX,
+    bodyOverflowX: getComputedStyle(document.body).overflowX,
     scrollWidth: doc.scrollWidth,
     clientWidth: doc.clientWidth,
+    innerWidth: window.innerWidth,
+  };
+  doc.style.overflowX = inline.html;
+  document.body.style.overflowX = inline.body;
+  return {
+    innerWidth,
+    clientWidth: unforced.clientWidth,
+    unforced,
+    forced,
     overflowCount: over.length,
     overflowSample: over.slice(0, 4),
     railCount: document.querySelectorAll('.ad-rail').length,
@@ -160,29 +190,57 @@ const REVEAL_SCROLL = `
   };
 `;
 
+// Verdict 1's term, one predicate for the clean rows and both calibration legs. Fails closed: a null
+// or partial measure is never a pass.
+export const noScroll = (row) => {
+  const f = row?.forced;
+  return !!f && typeof f.scrollWidth === 'number' && typeof f.clientWidth === 'number' &&
+    f.htmlOverflowX === 'visible' && f.bodyOverflowX === 'visible' &&
+    f.scrollWidth === f.clientWidth && f.innerWidth === f.clientWidth;
+};
+
+const OVERFLOW_DIV = `document.body.insertAdjacentHTML('afterbegin',
+  '<div id="probe-overflow" style="width:150vw;height:1px"></div>');`;
+const ROOT_CLIP = `document.head.insertAdjacentHTML('beforeend',
+  '<style id="probe-root-clip">html, body { overflow-x: clip }</style>');`;
+
 export default async function (session) {
   const rows = [];
   const calibration = [];
   let art = null;
   for (const width of WIDTHS) {
     await session.setWidth(width, 844);
+    // Positive controls: the detector must SEE a deliberate overflow, plain and behind a root clip.
+    // Each leg gets its own fresh load: mobile viewport emulation expands the layout viewport around
+    // overflowing content and does NOT re-contract without a reload, so a leg measured on the
+    // previous leg's layout would read that leg's expansion, and a clean measure on it would pass.
     await session.nav(`${BASE}/`);
-    // Positive control: the overflow detector must SEE a deliberate overflow, then the clean
-    // re-measure must be empty again. Injection is DOM-only, same tab, no reload between the two.
-    await session.evaluate(
-      `document.body.insertAdjacentHTML('afterbegin',
-        '<div id="probe-overflow" style="width:150vw;height:1px"></div>'); return true;`,
-    );
-    const injected = await session.evaluate(MEASURE);
-    await session.evaluate(
-      `const el = document.getElementById('probe-overflow'); if (el) el.remove(); return true;`,
-    );
-    // A fresh load after removal, not a re-measure of the same layout: mobile viewport emulation
-    // expands the layout viewport around overflowing content and does NOT re-contract without a
-    // reload — measuring the post-expansion layout would report innerWidth 330 as a clean pass.
+    await session.evaluate(`${OVERFLOW_DIV} return true;`);
+    const plain = (await session.evaluate(MEASURE)).value ?? null;
+    await session.nav(`${BASE}/`);
+    await session.evaluate(`${ROOT_CLIP} ${OVERFLOW_DIV} return true;`);
+    const clipped = (await session.evaluate(MEASURE)).value ?? null;
     await session.nav(`${BASE}/`);
     const clean = await session.evaluate(MEASURE);
-    calibration.push({ width, sawInjectedOverflow: (injected.value?.overflowCount ?? 0) > 0 });
+    // The clip leg counts only if the clip really hid the overflow from an unforced reading; a leg
+    // that reds without the force step proves nothing about the force step.
+    const clipHidUnforced = !!clipped && clipped.unforced?.scrollWidth === clipped.unforced?.clientWidth;
+    // Red for the right reason: the forced scroll extent itself, not the computed-visible assertion,
+    // which a clip leg trips with or without the force and so would mask a force step that stopped
+    // working.
+    const redByExtent = (m) => !!m?.forced && !noScroll(m) && m.forced.scrollWidth !== m.forced.clientWidth;
+    const plainRed = redByExtent(plain);
+    const clipRed = redByExtent(clipped);
+    const reading = (m) => m && { unforced: m.unforced, forced: m.forced };
+    calibration.push({
+      width,
+      sawInjectedOverflow: plainRed && clipRed && clipHidUnforced,
+      plainRed,
+      clipRed,
+      clipHidUnforced,
+      plain: reading(plain),
+      clipped: reading(clipped),
+    });
     rows.push(clean.value ?? { innerWidth: width, note: 'null measure' });
     if (width === 320) art = (await session.evaluate(ART)).value ?? { note: 'null art measure' };
   }
@@ -213,12 +271,13 @@ export default async function (session) {
     nothingInViewLeftPending: reveal.every((r) => r.scrolled.stuckInView === 0),
   };
 
-  const noScroll = (row) => row.scrollWidth === row.clientWidth && row.overflowCount === 0;
   const widthVerdicts = WIDTHS.map((w, i) => ({
     width: w,
     innerWidthReported: rows[i].innerWidth,
-    voidUnlessEqual: rows[i].innerWidth === w,
+    voidUnlessEqual: rows[i].clientWidth === w,
     noSidewaysScroll: noScroll(rows[i]),
+    forced: rows[i].forced ?? null,
+    overflowDiagnostic: { count: rows[i].overflowCount ?? null, sample: rows[i].overflowSample ?? null },
     oneAdSlot: rows[i].slotHeights?.length === 1 && rows[i].railCount === 0,
     slotHeight: rows[i].slotHeights?.[0] ?? null,
     slotHeightAsDrawn: rows[i].slotHeights?.[0] === expectedSlotHeight(w),
@@ -248,7 +307,7 @@ export default async function (session) {
       shelfColumnsAsDrawn: widthVerdicts.every((w) => w.shelfColumnsAsDrawn),
       shelfOneImagePerTile: shelf.shelfTiles > 0 && shelf.shelfImages === shelf.shelfTiles,
       artLoaded: !!art && art.images > 0 && Array.isArray(art.broken) && art.broken.length === 0,
-      overflowDetectorCalibration: calibrationClean ? `red-then-clean on all ${WIDTHS.length} widths` : 'CALIBRATION FAILED',
+      overflowDetectorCalibration: calibrationClean ? `plain and root-clip legs red on all ${WIDTHS.length} widths` : 'CALIBRATION FAILED',
       motion: motionVerdict,
       scrollReveal: revealVerdict,
     },

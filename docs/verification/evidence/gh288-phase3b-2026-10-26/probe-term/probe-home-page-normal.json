@@ -1,0 +1,404 @@
+{
+  "verdict": {
+    "noSidewaysScrollAll": true,
+    "oneAdSlotNoRail": true,
+    "slotHeightsAsDrawn": true,
+    "shelfColumnsAsDrawn": true,
+    "shelfOneImagePerTile": true,
+    "artLoaded": true,
+    "overflowDetectorCalibration": "plain and root-clip legs red on all 5 widths",
+    "motion": {
+      "state": "normal",
+      "motionActuallyPresent": true,
+      "decorated": [
+        8,
+        8,
+        8,
+        8,
+        8
+      ]
+    },
+    "scrollReveal": {
+      "lane": "normal",
+      "voidUnlessPlainNavigation": true,
+      "detectorCalibrated": true,
+      "belowFoldSectionPending": true,
+      "pendingFormForLane": true,
+      "nothingAboveFoldPending": true,
+      "neverOnAdHeroOrStage": true,
+      "revealedOnScroll": true,
+      "nothingInViewLeftPending": true
+    }
+  },
+  "widthVerdicts": [
+    {
+      "width": 320,
+      "innerWidthReported": 320,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "forced": {
+        "htmlOverflowX": "visible",
+        "bodyOverflowX": "visible",
+        "scrollWidth": 320,
+        "clientWidth": 320,
+        "innerWidth": 320
+      },
+      "overflowDiagnostic": {
+        "count": 1,
+        "sample": [
+          {
+            "cls": "ambient",
+            "right": 470.3039245605469
+          }
+        ]
+      },
+      "oneAdSlot": true,
+      "slotHeight": 106,
+      "slotHeightAsDrawn": true,
+      "shelfFirstRow": 2,
+      "shelfColumnsAsDrawn": true
+    },
+    {
+      "width": 390,
+      "innerWidthReported": 390,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "forced": {
+        "htmlOverflowX": "visible",
+        "bodyOverflowX": "visible",
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "innerWidth": 390
+      },
+      "overflowDiagnostic": {
+        "count": 1,
+        "sample": [
+          {
+            "cls": "ambient",
+            "right": 573.1829833984375
+          }
+        ]
+      },
+      "oneAdSlot": true,
+      "slotHeight": 106,
+      "slotHeightAsDrawn": true,
+      "shelfFirstRow": 2,
+      "shelfColumnsAsDrawn": true
+    },
+    {
+      "width": 768,
+      "innerWidthReported": 768,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "forced": {
+        "htmlOverflowX": "visible",
+        "bodyOverflowX": "visible",
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "innerWidth": 768
+      },
+      "overflowDiagnostic": {
+        "count": 1,
+        "sample": [
+          {
+            "cls": "ambient",
+            "right": 1128.7266845703125
+          }
+        ]
+      },
+      "oneAdSlot": true,
+      "slotHeight": 106,
+      "slotHeightAsDrawn": true,
+      "shelfFirstRow": 4,
+      "shelfColumnsAsDrawn": true
+    },
+    {
+      "width": 1024,
+      "innerWidthReported": 1024,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "forced": {
+        "htmlOverflowX": "visible",
+        "bodyOverflowX": "visible",
+        "scrollWidth": 1024,
+        "clientWidth": 1024,
+        "innerWidth": 1024
+      },
+      "overflowDiagnostic": {
+        "count": 1,
+        "sample": [
+          {
+            "cls": "ambient",
+            "right": 1504.9646606445312
+          }
+        ]
+      },
+      "oneAdSlot": true,
+      "slotHeight": 106,
+      "slotHeightAsDrawn": true,
+      "shelfFirstRow": 4,
+      "shelfColumnsAsDrawn": true
+    },
+    {
+      "width": 1440,
+      "innerWidthReported": 1440,
+      "voidUnlessEqual": true,
+      "noSidewaysScroll": true,
+      "forced": {
+        "htmlOverflowX": "visible",
+        "bodyOverflowX": "visible",
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "innerWidth": 1440
+      },
+      "overflowDiagnostic": {
+        "count": 1,
+        "sample": [
+          {
+            "cls": "ambient",
+            "right": 2116.18798828125
+          }
+        ]
+      },
+      "oneAdSlot": true,
+      "slotHeight": 256,
+      "slotHeightAsDrawn": true,
+      "shelfFirstRow": 7,
+      "shelfColumnsAsDrawn": true
+    }
+  ],
+  "art": {
+    "images": 18,
+    "broken": []
+  },
+  "calibration": [
+    {
+      "width": 320,
+      "sawInjectedOverflow": true,
+      "plainRed": true,
+      "clipRed": true,
+      "clipHidUnforced": true,
+      "plain": {
+        "unforced": {
+          "scrollWidth": 480,
+          "clientWidth": 320
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 480,
+          "clientWidth": 320,
+          "innerWidth": 480
+        }
+      },
+      "clipped": {
+        "unforced": {
+          "scrollWidth": 320,
+          "clientWidth": 320
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 480,
+          "clientWidth": 320,
+          "innerWidth": 480
+        }
+      }
+    },
+    {
+      "width": 390,
+      "sawInjectedOverflow": true,
+      "plainRed": true,
+      "clipRed": true,
+      "clipHidUnforced": true,
+      "plain": {
+        "unforced": {
+          "scrollWidth": 585,
+          "clientWidth": 390
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 585,
+          "clientWidth": 390,
+          "innerWidth": 585
+        }
+      },
+      "clipped": {
+        "unforced": {
+          "scrollWidth": 390,
+          "clientWidth": 390
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 585,
+          "clientWidth": 390,
+          "innerWidth": 585
+        }
+      }
+    },
+    {
+      "width": 768,
+      "sawInjectedOverflow": true,
+      "plainRed": true,
+      "clipRed": true,
+      "clipHidUnforced": true,
+      "plain": {
+        "unforced": {
+          "scrollWidth": 1152,
+          "clientWidth": 768
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 1152,
+          "clientWidth": 768,
+          "innerWidth": 1152
+        }
+      },
+      "clipped": {
+        "unforced": {
+          "scrollWidth": 768,
+          "clientWidth": 768
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 1152,
+          "clientWidth": 768,
+          "innerWidth": 1152
+        }
+      }
+    },
+    {
+      "width": 1024,
+      "sawInjectedOverflow": true,
+      "plainRed": true,
+      "clipRed": true,
+      "clipHidUnforced": true,
+      "plain": {
+        "unforced": {
+          "scrollWidth": 1536,
+          "clientWidth": 1024
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 1536,
+          "clientWidth": 1024,
+          "innerWidth": 1536
+        }
+      },
+      "clipped": {
+        "unforced": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 1536,
+          "clientWidth": 1024,
+          "innerWidth": 1536
+        }
+      }
+    },
+    {
+      "width": 1440,
+      "sawInjectedOverflow": true,
+      "plainRed": true,
+      "clipRed": true,
+      "clipHidUnforced": true,
+      "plain": {
+        "unforced": {
+          "scrollWidth": 2160,
+          "clientWidth": 1440
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 2160,
+          "clientWidth": 1440,
+          "innerWidth": 2160
+        }
+      },
+      "clipped": {
+        "unforced": {
+          "scrollWidth": 1440,
+          "clientWidth": 1440
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 2160,
+          "clientWidth": 1440,
+          "innerWidth": 2160
+        }
+      }
+    }
+  ],
+  "reveal": [
+    {
+      "width": 390,
+      "load": {
+        "innerWidth": 390,
+        "navigationType": "navigate",
+        "reducedMotionMatches": false,
+        "pendingCount": 29,
+        "target": "section.reveal-pending",
+        "pendingForm": {
+          "opacity": "0",
+          "translate": "0px 16px"
+        },
+        "excluded": [],
+        "aboveFold": []
+      },
+      "calibration": {
+        "planted": 2,
+        "seen": 2,
+        "cleanAfter": 0
+      },
+      "scrolled": {
+        "sawIn": true,
+        "opacity": "1",
+        "cleanedUp": true,
+        "stuckInView": 0,
+        "excluded": [],
+        "aboveFold": []
+      }
+    },
+    {
+      "width": 1440,
+      "load": {
+        "innerWidth": 1440,
+        "navigationType": "navigate",
+        "reducedMotionMatches": false,
+        "pendingCount": 29,
+        "target": "section.reveal-pending",
+        "pendingForm": {
+          "opacity": "0",
+          "translate": "0px 16px"
+        },
+        "excluded": [],
+        "aboveFold": []
+      },
+      "calibration": {
+        "planted": 2,
+        "seen": 2,
+        "cleanAfter": 0
+      },
+      "scrolled": {
+        "sawIn": true,
+        "opacity": "1",
+        "cleanedUp": true,
+        "stuckInView": 0,
+        "excluded": [],
+        "aboveFold": [
+          "section.reveal-pending"
+        ]
+      }
+    }
+  ],
+  "consoleErrors": []
+}
