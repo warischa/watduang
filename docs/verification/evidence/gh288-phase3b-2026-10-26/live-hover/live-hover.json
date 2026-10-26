@@ -1,0 +1,126 @@
+{
+ "method": "real CDP Input.dispatchMouseEvent (mouseMoved/mousePressed) at element centre; width 1280; desktop non-mobile",
+ "origin": "https://white-plant-05ad7c600.7.azurestaticapps.net",
+ "deploy": "d7d3120",
+ "media": {
+  "hover": true,
+  "width": 1280
+ },
+ "crumb_party": {
+  "txt": "หน้าแรก",
+  "rest": {
+   "color": "rgb(20, 20, 43)",
+   "textDecorationLine": "none",
+   "textDecorationThickness": "auto",
+   "textDecorationStyle": "solid"
+  },
+  "hover": {
+   "color": "rgb(20, 20, 43)",
+   "textDecorationLine": "underline",
+   "textDecorationThickness": "2px",
+   "textDecorationStyle": "solid"
+  },
+  "matchesHover": true,
+  "catHeadBg": "rgb(255, 61, 127)",
+  "contrastHovered": "5.346"
+ },
+ "crumb_fortune": {
+  "txt": "หน้าแรก",
+  "rest": {
+   "color": "rgb(20, 20, 43)",
+   "textDecorationLine": "none",
+   "textDecorationThickness": "auto",
+   "textDecorationStyle": "solid"
+  },
+  "hover": {
+   "color": "rgb(20, 20, 43)",
+   "textDecorationLine": "underline",
+   "textDecorationThickness": "2px",
+   "textDecorationStyle": "solid"
+  },
+  "matchesHover": true,
+  "catHeadBg": "rgb(255, 204, 0)",
+  "contrastHovered": "11.925"
+ },
+ "siamsi_normal": {
+  "primaryId": "ss-intent-done",
+  "primaryRest": {
+   "transform": "none",
+   "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+   "transitionProperty": "transform, box-shadow"
+  },
+  "primaryHover": {
+   "transform": "matrix(1, 0, 0, 1, -2, -2)",
+   "boxShadow": "rgba(20, 20, 43, 0.3) 7px 7px 0px 0px",
+   "transitionProperty": "transform, box-shadow"
+  },
+  "hoverMatch": true,
+  "primaryPressed": {
+   "transform": "matrix(1, 0, 0, 1, 5, 5)",
+   "boxShadow": "none",
+   "transitionProperty": "transform, box-shadow"
+  },
+  "activeMatch": true,
+  "afterTap": "[{\"c\":\"sm-hint sm-hint--tap\",\"id\":\"\",\"d\":false,\"t\":\"แตะตรงนี้เพื่อเ\"},{\"c\":\"game-btn game-btn-primary sm-hold\",\"id\":\"ss-hold\",\"d\":false,\"t\":\"หรือกดปุ่มนี้ค้\"}]",
+  "holdVisible": true,
+  "holdRest": {
+   "transform": "none",
+   "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+   "transitionProperty": "transform, box-shadow"
+  },
+  "holdDisabled": false,
+  "holdHover": {
+   "transform": "none",
+   "boxShadow": "rgba(20, 20, 43, 0.3) 7px 7px 0px 0px",
+   "transitionProperty": "transform, box-shadow"
+  },
+  "holdHoverMatch": true,
+  "holdPressed": {
+   "transform": "none",
+   "boxShadow": "none",
+   "transitionProperty": "transform, box-shadow"
+  },
+  "holdActive": true
+ },
+ "reducedMatch": true,
+ "siamsi_reduced": {
+  "primaryId": "ss-intent-done",
+  "primaryRest": {
+   "transform": "none",
+   "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+   "transitionProperty": "box-shadow"
+  },
+  "primaryHover": {
+   "transform": "none",
+   "boxShadow": "rgba(20, 20, 43, 0.3) 7px 7px 0px 0px",
+   "transitionProperty": "box-shadow"
+  },
+  "hoverMatch": true,
+  "primaryPressed": {
+   "transform": "none",
+   "boxShadow": "none",
+   "transitionProperty": "box-shadow"
+  },
+  "activeMatch": true,
+  "afterTap": "[{\"c\":\"sm-hint sm-hint--tap\",\"id\":\"\",\"d\":false,\"t\":\"แตะตรงนี้เพื่อเ\"},{\"c\":\"game-btn game-btn-primary sm-hold\",\"id\":\"ss-hold\",\"d\":false,\"t\":\"หรือกดปุ่มนี้ค้\"}]",
+  "holdVisible": true,
+  "holdRest": {
+   "transform": "none",
+   "boxShadow": "rgba(20, 20, 43, 0.3) 5px 5px 0px 0px",
+   "transitionProperty": "box-shadow"
+  },
+  "holdDisabled": false,
+  "holdHover": {
+   "transform": "none",
+   "boxShadow": "rgba(20, 20, 43, 0.3) 7px 7px 0px 0px",
+   "transitionProperty": "box-shadow"
+  },
+  "holdHoverMatch": true,
+  "holdPressed": {
+   "transform": "none",
+   "boxShadow": "none",
+   "transitionProperty": "box-shadow"
+  },
+  "holdActive": true
+ }
+}
