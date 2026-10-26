@@ -229,6 +229,12 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
     border-block-end: 2.5px solid var(--color-line-strong);
   }
 
+  /* gh#288 owner pick 2026-10-26: on the accent band the hover stays ink (muted on punch was 3.15:1,
+     ink is 5.35:1); the underline from `main a:hover` is still the cue. (0,4,1) outranks it. */
+  .cat-head a:hover {
+    color: var(--color-line-strong);
+  }
+
   .cat-head-inner {
     max-width: 1280px;
     margin-inline: auto;

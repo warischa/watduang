@@ -181,3 +181,15 @@ test('gh#288: pop cards carry .ui-press, link hover is muted plus underline, car
     assert.doesNotMatch(body, /--color-primary/, `--color-primary is no longer a hover colour: ${sel.trim()}`);
   }
 });
+
+// gh#288 owner pick 2026-10-26 — on the accent band the link hover stays ink: muted on the party
+// punch is 3.15:1, ink is 5.35:1. `.cat-head a:hover` scopes to (0,4,1) and outranks `main a:hover`
+// (0,3,2), so the band override needs no `main` prefix; the underline still comes from `main a:hover`.
+test('gh#288: a link on the accent band hovers ink, not muted', () => {
+  const css = pageCode.slice(pageCode.indexOf('<style>'));
+  const bandHover = css.match(/\.cat-head a:hover\s*\{([^}]*)\}/);
+  assert.ok(bandHover, 'the band link hover override is declared');
+  assert.match(bandHover[1], /color:\s*var\(--color-line-strong\)/);
+  assert.doesNotMatch(bandHover[1], /text-decoration:\s*none/, 'the underline cue must survive on the band');
+  assert.match(pageSrc, /<header class="cat-head">[\s\S]*?<p class="breadcrumb"><a href="\/">/, 'positive control: the breadcrumb link sits inside the band');
+});
