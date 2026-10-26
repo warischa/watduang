@@ -165,8 +165,14 @@ split, so 390x844 got the 320-only squeeze. The fit probe read 0px both ways, an
 
 Several gates parse `dist/` by literal shape. `scripts/landing-claims-check.mjs` matched a card's whole
 `class` attribute, so adding a second class token hid every category card. `scripts/home-page-probe.mjs`
-counts every element whose box passes the viewport edge, clipped or not, so a transform-moved overdraw
-layer reds it while the page never scrolls sideways. Both surfaced only in the full suite (gh#288 Phase 3).
+then counted every box past the viewport edge, so a clipped overdraw layer redded it (it now gates the
+forced scroll width plus interactive elements). Both surfaced only in the full suite (gh#288 Phase 3).
 A brief that adds a class token to existing markup, or an element larger than its container, names the
 gates that read that markup: `grep -rn '<the old literal>' scripts/`. It must also name the probe whose
 detector an overdraw box would trip.
+
+## A hover or press transform moves the hit box
+
+A control whose script ends a gesture on `pointerleave` loses it when CSS moves the box under a still
+pointer: siamsi's hold button stopped charging (gh#288 Phase 3b REFUTE). Before adding a transform to a
+control, grep its game module for `pointerleave|pointerout`; a held control takes the shadow-only form.
