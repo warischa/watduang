@@ -127,3 +127,122 @@ test('gh#288 the game top bar link hover is muted ink plus a 2px underline', () 
     assert.doesNotMatch(body, /--color-primary/, `--color-primary is no longer a hover colour: ${sel.trim()}`);
   }
 });
+
+// gh#288 Phase 3b — the fortune game buttons' hover and press, owner pick A (2026-10-26). The values
+// are the board's frame btn-a, copied; the transition mirrors .ui-press in web.css token for token.
+// Fortune buttons never carry .ui-press (their rest shadow is translucent, not ink), so the page's
+// own global block owns the motion, and nothing here may touch a disabled control: the arm gate
+// renders a control disabled for its window, and a press on it must not move or underline it.
+function flattenRules(css, media = null) {
+  const out = [];
+  let i = 0;
+  while (i < css.length) {
+    const open = css.indexOf('{', i);
+    if (open === -1) break;
+    const prelude = css.slice(i, open).trim();
+    const close = matchBraceEnd(css, open);
+    assert.ok(close !== -1, `unbalanced braces after: ${prelude}`);
+    const inner = css.slice(open + 1, close);
+    if (prelude.startsWith('@media')) out.push(...flattenRules(inner, prelude.replace(/^@media\s*/, '')));
+    else out.push({ media, sel: prelude, body: inner.trim() });
+    i = close + 1;
+  }
+  return out;
+}
+
+const gamePageRules = flattenRules(
+  gamePage.slice(gamePage.indexOf('<style is:global>') + '<style is:global>'.length, gamePage.lastIndexOf('</style>'))
+    .replace(/\/\*[\s\S]*?\*\//g, ''),
+);
+/** declarations of the one rule with this selector under this media prelude (null = top level) */
+function declsOf(sel, media = null) {
+  const hits = gamePageRules.filter((r) => r.sel === sel && r.media === media);
+  assert.equal(hits.length, 1, `exactly one rule for "${sel}" under ${media ?? 'no media'}, found ${hits.length}`);
+  return hits[0].body.split(';').map((d) => d.trim().replace(/\s+/g, ' ')).filter(Boolean);
+}
+const RM = '(prefers-reduced-motion: reduce)';
+const HOVER = '(hover: hover)';
+const RM_HOVER = '(prefers-reduced-motion: reduce) and (hover: hover)';
+const PRIMARY = '.game-btn-primary';
+const SECONDARY = '.game-btn-secondary';
+const NOT_OFF = ':not(:disabled)';
+
+test('gh#288 fortune button motion: the global block parses into rules (positive control)', () => {
+  assert.ok(gamePageRules.some((r) => r.sel === '.game-btn-primary' && r.media === null), 'primary rest rule found');
+  assert.ok(gamePageRules.some((r) => r.sel === '.game-btn-secondary:disabled'), 'secondary disabled rule found');
+});
+
+test('gh#288 fortune buttons: primary hover and press carry the board values', () => {
+  assert.deepEqual(declsOf(`${PRIMARY}:hover${NOT_OFF}`, HOVER), [
+    'transform: translate(-2px, -2px)',
+    'box-shadow: 7px 7px 0 rgba(20, 20, 43, 0.3)',
+  ]);
+  assert.deepEqual(declsOf(`${PRIMARY}:active${NOT_OFF}`), [
+    'transform: translate(5px, 5px)',
+    'box-shadow: none',
+  ]);
+});
+
+test('gh#288 fortune buttons: secondary hover underlines, press drops 2px with no underline', () => {
+  assert.deepEqual(declsOf(`${SECONDARY}:hover${NOT_OFF}`, HOVER), [
+    'text-decoration: underline',
+    'text-decoration-thickness: 2px',
+    'text-underline-offset: 3px',
+  ]);
+  assert.deepEqual(declsOf(`${SECONDARY}:active${NOT_OFF}`), [
+    'transform: translate(0, 2px)',
+    'text-decoration: none',
+  ]);
+});
+
+test('gh#288 fortune buttons: reduced motion never transforms; primary keeps shadow-only, secondary press underlines', () => {
+  assert.deepEqual(declsOf(`${PRIMARY}:hover${NOT_OFF}`, RM_HOVER), [
+    'transform: none',
+    'box-shadow: 7px 7px 0 rgba(20, 20, 43, 0.3)',
+  ]);
+  assert.deepEqual(declsOf(`${PRIMARY}:active${NOT_OFF}`, RM), ['transform: none', 'box-shadow: none']);
+  assert.deepEqual(declsOf(`${SECONDARY}:active${NOT_OFF}`, RM), [
+    'transform: none',
+    'text-decoration: underline',
+    'text-decoration-thickness: 2px',
+    'text-underline-offset: 3px',
+  ]);
+});
+
+test('gh#288 fortune buttons: transition mirrors .ui-press tokens, reduced form is shadow-only', () => {
+  const norm = (a) => a.join(';');
+  assert.equal(
+    norm(declsOf('.game-btn')).includes('transition: transform var(--motion-ui) var(--ease-out), box-shadow var(--motion-ui) var(--ease-out)'),
+    true,
+    'normal transition on .game-btn',
+  );
+  assert.deepEqual(declsOf('.game-btn', RM), ['transition: box-shadow var(--motion-rm-quick) var(--ease-rm)']);
+});
+
+test('gh#288 fortune buttons: no hover or press rule can reach a disabled control', () => {
+  const states = gamePageRules.filter((r) => /:(hover|active)\b/.test(r.sel));
+  assert.ok(states.length >= 7, `positive control: hover/press rules exist, found ${states.length}`);
+  for (const r of states) {
+    assert.ok(r.sel.endsWith(NOT_OFF), `state rule must exclude disabled controls: ${r.sel}`);
+  }
+  for (const r of states.filter((x) => x.media === null || x.media === HOVER)) {
+    assert.doesNotMatch(r.sel, /\.game-btn(?![-\w])/, `state rules name a variant, never the bare .game-btn: ${r.sel}`);
+  }
+  for (const r of states.filter((x) => x.media === HOVER || x.media === RM_HOVER)) {
+    assert.match(r.sel, /:hover/, `hover media holds only hover rules: ${r.sel}`);
+  }
+});
+
+test('gh#288 fortune buttons: a state rule is declared after its normal-motion twin so reduced motion and press win by order', () => {
+  const idx = (sel, media) => gamePageRules.findIndex((r) => r.sel === sel && r.media === media);
+  for (const v of [PRIMARY, SECONDARY]) {
+    const hover = idx(`${v}:hover${NOT_OFF}`, HOVER);
+    const hoverRm = idx(`${v}:hover${NOT_OFF}`, RM_HOVER); // primary only: the secondary hover has no transform to cancel
+    const active = idx(`${v}:active${NOT_OFF}`, null);
+    const activeRm = idx(`${v}:active${NOT_OFF}`, RM);
+    assert.ok(hover !== -1, `${v}: hover rule found`);
+    if (v === PRIMARY) assert.ok(hoverRm > hover, `${v}: reduced hover after hover`);
+    assert.ok(active > Math.max(hover, hoverRm), `${v}: press after every hover, so a pressed hovered button shows the press`);
+    assert.ok(activeRm > active, `${v}: reduced press after press`);
+  }
+});

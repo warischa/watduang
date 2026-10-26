@@ -152,6 +152,11 @@ const { game } = Astro.props as { game: GameModule };
     border: 2.5px solid var(--color-line-strong);
     font-family: var(--font-display);
     cursor: pointer;
+    /* the same tokens as .ui-press in web.css; the fortune buttons do not carry that class because
+       their rest shadow is translucent, not ink */
+    transition:
+      transform var(--motion-ui) var(--ease-out),
+      box-shadow var(--motion-ui) var(--ease-out);
   }
 
   .game-btn:disabled {
@@ -183,5 +188,59 @@ const { game } = Astro.props as { game: GameModule };
   .game-btn-secondary:disabled {
     color: rgba(20, 20, 43, 0.45);
     border: 2.5px dashed rgba(20, 20, 43, 0.35);
+  }
+
+  /* gh#288 — hover and press, owner pick A. The state rules exclude :disabled: the arm gate renders
+     a control disabled for its window and a press on it must neither move nor underline it. Press is
+     declared after every hover so a pressed, hovered button shows the press. */
+  @media (hover: hover) {
+    .game-btn-primary:hover:not(:disabled) {
+      transform: translate(-2px, -2px);
+      box-shadow: 7px 7px 0 rgba(20, 20, 43, 0.3);
+    }
+
+    .game-btn-secondary:hover:not(:disabled) {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 3px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .game-btn {
+      transition: box-shadow var(--motion-rm-quick) var(--ease-rm);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) and (hover: hover) {
+    .game-btn-primary:hover:not(:disabled) {
+      transform: none;
+      box-shadow: 7px 7px 0 rgba(20, 20, 43, 0.3);
+    }
+  }
+
+  .game-btn-primary:active:not(:disabled) {
+    transform: translate(5px, 5px);
+    box-shadow: none;
+  }
+
+  .game-btn-secondary:active:not(:disabled) {
+    transform: translate(0, 2px);
+    text-decoration: none;
+  }
+
+  /* reduced motion: nothing moves; the secondary press shows the underline the hover shows */
+  @media (prefers-reduced-motion: reduce) {
+    .game-btn-primary:active:not(:disabled) {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .game-btn-secondary:active:not(:disabled) {
+      transform: none;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 3px;
+    }
   }
 </style>
