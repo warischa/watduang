@@ -1,0 +1,70 @@
+{
+  "mod": "base-5adba52.mjs",
+  "judge": [
+    {
+      "w": 320,
+      "green": true,
+      "sw": 320,
+      "cw": 320,
+      "interactiveOver": "absent"
+    },
+    {
+      "w": 390,
+      "green": true,
+      "sw": 390,
+      "cw": 390,
+      "interactiveOver": "absent"
+    },
+    {
+      "w": 1440,
+      "green": true,
+      "sw": 1440,
+      "cw": 1440,
+      "interactiveOver": "absent"
+    }
+  ],
+  "important": [
+    {
+      "w": 320,
+      "before": [
+        "clip",
+        "important"
+      ],
+      "after": [
+        "clip",
+        "",
+        "clip",
+        ""
+      ],
+      "forcedHtml": "visible"
+    },
+    {
+      "w": 390,
+      "before": [
+        "clip",
+        "important"
+      ],
+      "after": [
+        "clip",
+        "",
+        "clip",
+        ""
+      ],
+      "forcedHtml": "visible"
+    },
+    {
+      "w": 1440,
+      "before": [
+        "clip",
+        "important"
+      ],
+      "after": [
+        "clip",
+        "",
+        "clip",
+        ""
+      ],
+      "forcedHtml": "visible"
+    }
+  ]
+}

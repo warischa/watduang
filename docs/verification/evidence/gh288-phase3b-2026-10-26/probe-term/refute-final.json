@@ -1,0 +1,82 @@
+{
+  "mod": "home-page-probe.mjs",
+  "judge": [
+    {
+      "w": 320,
+      "green": false,
+      "sw": 320,
+      "cw": 320,
+      "interactiveOver": [
+        {
+          "tag": "button",
+          "cls": "",
+          "right": 422.671875
+        }
+      ]
+    },
+    {
+      "w": 390,
+      "green": false,
+      "sw": 390,
+      "cw": 390,
+      "interactiveOver": [
+        {
+          "tag": "button",
+          "cls": "",
+          "right": 422.671875
+        }
+      ]
+    },
+    {
+      "w": 1440,
+      "green": true,
+      "sw": 1440,
+      "cw": 1440,
+      "interactiveOver": []
+    }
+  ],
+  "important": [
+    {
+      "w": 320,
+      "before": [
+        "clip",
+        "important"
+      ],
+      "after": [
+        "clip",
+        "important",
+        "clip",
+        ""
+      ],
+      "forcedHtml": "visible"
+    },
+    {
+      "w": 390,
+      "before": [
+        "clip",
+        "important"
+      ],
+      "after": [
+        "clip",
+        "important",
+        "clip",
+        ""
+      ],
+      "forcedHtml": "visible"
+    },
+    {
+      "w": 1440,
+      "before": [
+        "clip",
+        "important"
+      ],
+      "after": [
+        "clip",
+        "important",
+        "clip",
+        ""
+      ],
+      "forcedHtml": "visible"
+    }
+  ]
+}

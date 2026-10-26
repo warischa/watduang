@@ -6,7 +6,7 @@
     "shelfColumnsAsDrawn": true,
     "shelfOneImagePerTile": true,
     "artLoaded": true,
-    "overflowDetectorCalibration": "plain and root-clip legs red on all 5 widths",
+    "overflowDetectorCalibration": "plain, root-clip and clipped-control legs red on all 5 widths",
     "motion": {
       "state": "reduced",
       "allDecorationStopped": true,
@@ -49,7 +49,8 @@
         "bodyOverflowX": "visible",
         "scrollWidth": 320,
         "clientWidth": 320,
-        "innerWidth": 320
+        "innerWidth": 320,
+        "interactiveOver": []
       },
       "overflowDiagnostic": {
         "count": 1,
@@ -76,7 +77,8 @@
         "bodyOverflowX": "visible",
         "scrollWidth": 390,
         "clientWidth": 390,
-        "innerWidth": 390
+        "innerWidth": 390,
+        "interactiveOver": []
       },
       "overflowDiagnostic": {
         "count": 1,
@@ -103,7 +105,8 @@
         "bodyOverflowX": "visible",
         "scrollWidth": 768,
         "clientWidth": 768,
-        "innerWidth": 768
+        "innerWidth": 768,
+        "interactiveOver": []
       },
       "overflowDiagnostic": {
         "count": 1,
@@ -130,7 +133,8 @@
         "bodyOverflowX": "visible",
         "scrollWidth": 1024,
         "clientWidth": 1024,
-        "innerWidth": 1024
+        "innerWidth": 1024,
+        "interactiveOver": []
       },
       "overflowDiagnostic": {
         "count": 1,
@@ -157,7 +161,8 @@
         "bodyOverflowX": "visible",
         "scrollWidth": 1440,
         "clientWidth": 1440,
-        "innerWidth": 1440
+        "innerWidth": 1440,
+        "interactiveOver": []
       },
       "overflowDiagnostic": {
         "count": 1,
@@ -186,6 +191,8 @@
       "plainRed": true,
       "clipRed": true,
       "clipHidUnforced": true,
+      "controlRed": true,
+      "controlHidFromExtent": true,
       "plain": {
         "unforced": {
           "scrollWidth": 480,
@@ -196,7 +203,8 @@
           "bodyOverflowX": "visible",
           "scrollWidth": 480,
           "clientWidth": 320,
-          "innerWidth": 480
+          "innerWidth": 480,
+          "interactiveOver": []
         }
       },
       "clipped": {
@@ -209,7 +217,28 @@
           "bodyOverflowX": "visible",
           "scrollWidth": 480,
           "clientWidth": 320,
-          "innerWidth": 480
+          "innerWidth": 480,
+          "interactiveOver": []
+        }
+      },
+      "control": {
+        "unforced": {
+          "scrollWidth": 320,
+          "clientWidth": 320
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 320,
+          "clientWidth": 320,
+          "innerWidth": 320,
+          "interactiveOver": [
+            {
+              "tag": "button",
+              "cls": "",
+              "right": 502.671875
+            }
+          ]
         }
       }
     },
@@ -219,6 +248,8 @@
       "plainRed": true,
       "clipRed": true,
       "clipHidUnforced": true,
+      "controlRed": true,
+      "controlHidFromExtent": true,
       "plain": {
         "unforced": {
           "scrollWidth": 585,
@@ -229,7 +260,8 @@
           "bodyOverflowX": "visible",
           "scrollWidth": 585,
           "clientWidth": 390,
-          "innerWidth": 585
+          "innerWidth": 585,
+          "interactiveOver": []
         }
       },
       "clipped": {
@@ -242,7 +274,28 @@
           "bodyOverflowX": "visible",
           "scrollWidth": 585,
           "clientWidth": 390,
-          "innerWidth": 585
+          "innerWidth": 585,
+          "interactiveOver": []
+        }
+      },
+      "control": {
+        "unforced": {
+          "scrollWidth": 390,
+          "clientWidth": 390
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "innerWidth": 390,
+          "interactiveOver": [
+            {
+              "tag": "button",
+              "cls": "",
+              "right": 607.671875
+            }
+          ]
         }
       }
     },
@@ -252,6 +305,8 @@
       "plainRed": true,
       "clipRed": true,
       "clipHidUnforced": true,
+      "controlRed": true,
+      "controlHidFromExtent": true,
       "plain": {
         "unforced": {
           "scrollWidth": 1152,
@@ -262,7 +317,8 @@
           "bodyOverflowX": "visible",
           "scrollWidth": 1152,
           "clientWidth": 768,
-          "innerWidth": 1152
+          "innerWidth": 1152,
+          "interactiveOver": []
         }
       },
       "clipped": {
@@ -275,7 +331,28 @@
           "bodyOverflowX": "visible",
           "scrollWidth": 1152,
           "clientWidth": 768,
-          "innerWidth": 1152
+          "innerWidth": 1152,
+          "interactiveOver": []
+        }
+      },
+      "control": {
+        "unforced": {
+          "scrollWidth": 768,
+          "clientWidth": 768
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "innerWidth": 768,
+          "interactiveOver": [
+            {
+              "tag": "button",
+              "cls": "",
+              "right": 1174.671875
+            }
+          ]
         }
       }
     },
@@ -285,6 +362,8 @@
       "plainRed": true,
       "clipRed": true,
       "clipHidUnforced": true,
+      "controlRed": true,
+      "controlHidFromExtent": true,
       "plain": {
         "unforced": {
           "scrollWidth": 1536,
@@ -295,7 +374,8 @@
           "bodyOverflowX": "visible",
           "scrollWidth": 1536,
           "clientWidth": 1024,
-          "innerWidth": 1536
+          "innerWidth": 1536,
+          "interactiveOver": []
         }
       },
       "clipped": {
@@ -308,7 +388,28 @@
           "bodyOverflowX": "visible",
           "scrollWidth": 1536,
           "clientWidth": 1024,
-          "innerWidth": 1536
+          "innerWidth": 1536,
+          "interactiveOver": []
+        }
+      },
+      "control": {
+        "unforced": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "innerWidth": 1024,
+          "interactiveOver": [
+            {
+              "tag": "button",
+              "cls": "",
+              "right": 1558.671875
+            }
+          ]
         }
       }
     },
@@ -318,6 +419,8 @@
       "plainRed": true,
       "clipRed": true,
       "clipHidUnforced": true,
+      "controlRed": true,
+      "controlHidFromExtent": true,
       "plain": {
         "unforced": {
           "scrollWidth": 2160,
@@ -328,7 +431,8 @@
           "bodyOverflowX": "visible",
           "scrollWidth": 2160,
           "clientWidth": 1440,
-          "innerWidth": 2160
+          "innerWidth": 2160,
+          "interactiveOver": []
         }
       },
       "clipped": {
@@ -341,7 +445,28 @@
           "bodyOverflowX": "visible",
           "scrollWidth": 2160,
           "clientWidth": 1440,
-          "innerWidth": 2160
+          "innerWidth": 2160,
+          "interactiveOver": []
+        }
+      },
+      "control": {
+        "unforced": {
+          "scrollWidth": 1440,
+          "clientWidth": 1440
+        },
+        "forced": {
+          "htmlOverflowX": "visible",
+          "bodyOverflowX": "visible",
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "innerWidth": 1440,
+          "interactiveOver": [
+            {
+              "tag": "button",
+              "cls": "",
+              "right": 2182.671875
+            }
+          ]
         }
       }
     }

@@ -22,13 +22,20 @@
 //      (a clipping ancestor, clip-path, contain: paint, a transformed containing block) is a set the
 //      browser owns, so the probe never models it. The per-element list of boxes whose right edge
 //      passes the viewport edge is kept, UN-GATED, as a diagnostic that names a red's culprit.
+//      One per-element term IS gated: a rendered interactive element (link, button, form control,
+//      summary, focusable tabindex) whose right edge passes the viewport edge, read in the same
+//      forced state. A control clipped inside a descendant never reaches the root's scroll extent,
+//      yet sits where no player can reach it. The force restores each inline overflow-x with its
+//      priority, so an inline !important survives the probe.
 //      Void is "the width did not apply" (clientWidth read before the force differs from the width
 //      asked), never innerWidth: overflow grows innerWidth, and a real overflow must report as this
-//      verdict's red, not as a void run. Calibrated per width, both must red or the run fails loudly:
-//      (a) an injected 150vw element; (b) the same element under an injected html, body
+//      verdict's red, not as a void run. Calibrated per width, all three must red or the run fails
+//      loudly: (a) an injected 150vw element; (b) the same element under an injected html, body
 //      { overflow-x: clip }, which hides it from an unforced reading (asserted, or the leg proves
-//      nothing) and must still red through the force. A detector that cannot see the overflow it
-//      exists to catch measures nothing.
+//      nothing) and must still red through the force; (c) a button pushed 150vw right inside an
+//      overflow: hidden box, which leaves the scroll extent equal (asserted) and must red through the
+//      interactive term alone. A detector that cannot see the overflow it exists to catch measures
+//      nothing.
 //   2. ONE_AD_SLOT. Exactly one reserved slot, and no rail at any width (owner ruling 2026-10-04 on
 //      gh#244). Its height is measured border-inclusive: the canvas content height plus its two 3px
 //      dashed borders, 250 + 6 at desktop and 100 + 6 at or below 1099px.
@@ -79,18 +86,40 @@ export const MEASURE = `
   // emulation and it does not shrink back, so every other read above and here precedes the force.
   const innerWidth = window.innerWidth;
   const unforced = { scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth };
-  const inline = { html: doc.style.overflowX, body: document.body.style.overflowX };
-  doc.style.overflowX = 'visible';
-  document.body.style.overflowX = 'visible';
+  // Save value AND priority, so an inline !important survives the restore.
+  const saved = [doc, document.body].map((el) => ({
+    el,
+    value: el.style.getPropertyValue('overflow-x'),
+    priority: el.style.getPropertyPriority('overflow-x'),
+  }));
+  saved.forEach(({ el }) => el.style.setProperty('overflow-x', 'visible'));
+  // A control clipped inside a descendant never reaches the root's scroll extent, yet a player can
+  // still not reach it. Only interactive elements are gated here; decorative layers stay in the
+  // un-gated diagnostic. Not rendered (display none, not visible, zero size) is not a control.
+  const interactiveOver = [...document.querySelectorAll(
+    'a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])',
+  )].filter((el) => {
+    const cs = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    return cs.display !== 'none' && cs.visibility === 'visible' && r.width > 0 && r.height > 0 &&
+      r.right > doc.clientWidth + 0.5;
+  }).map((el) => ({
+    tag: el.tagName.toLowerCase(),
+    cls: (el.className && String(el.className).slice(0, 60)) || '',
+    right: el.getBoundingClientRect().right,
+  }));
   const forced = {
     htmlOverflowX: getComputedStyle(doc).overflowX,
     bodyOverflowX: getComputedStyle(document.body).overflowX,
     scrollWidth: doc.scrollWidth,
     clientWidth: doc.clientWidth,
     innerWidth: window.innerWidth,
+    interactiveOver,
   };
-  doc.style.overflowX = inline.html;
-  document.body.style.overflowX = inline.body;
+  saved.forEach(({ el, value, priority }) => {
+    if (value) el.style.setProperty('overflow-x', value, priority);
+    else el.style.removeProperty('overflow-x');
+  });
   return {
     innerWidth,
     clientWidth: unforced.clientWidth,
@@ -196,13 +225,16 @@ export const noScroll = (row) => {
   const f = row?.forced;
   return !!f && typeof f.scrollWidth === 'number' && typeof f.clientWidth === 'number' &&
     f.htmlOverflowX === 'visible' && f.bodyOverflowX === 'visible' &&
-    f.scrollWidth === f.clientWidth && f.innerWidth === f.clientWidth;
+    f.scrollWidth === f.clientWidth && f.innerWidth === f.clientWidth &&
+    Array.isArray(f.interactiveOver) && f.interactiveOver.length === 0;
 };
 
 const OVERFLOW_DIV = `document.body.insertAdjacentHTML('afterbegin',
   '<div id="probe-overflow" style="width:150vw;height:1px"></div>');`;
 const ROOT_CLIP = `document.head.insertAdjacentHTML('beforeend',
   '<style id="probe-root-clip">html, body { overflow-x: clip }</style>');`;
+const CLIPPED_CONTROL = `document.body.insertAdjacentHTML('afterbegin',
+  '<div id="probe-clipped-control" style="overflow:hidden"><button style="margin-left:150vw">x</button></div>');`;
 
 export default async function (session) {
   const rows = [];
@@ -221,6 +253,9 @@ export default async function (session) {
     await session.evaluate(`${ROOT_CLIP} ${OVERFLOW_DIV} return true;`);
     const clipped = (await session.evaluate(MEASURE)).value ?? null;
     await session.nav(`${BASE}/`);
+    await session.evaluate(`${CLIPPED_CONTROL} return true;`);
+    const control = (await session.evaluate(MEASURE)).value ?? null;
+    await session.nav(`${BASE}/`);
     const clean = await session.evaluate(MEASURE);
     // The clip leg counts only if the clip really hid the overflow from an unforced reading; a leg
     // that reds without the force step proves nothing about the force step.
@@ -231,15 +266,23 @@ export default async function (session) {
     const redByExtent = (m) => !!m?.forced && !noScroll(m) && m.forced.scrollWidth !== m.forced.clientWidth;
     const plainRed = redByExtent(plain);
     const clipRed = redByExtent(clipped);
+    // The clipped-control leg must red through the interactive term alone: its scroll extent stays
+    // equal (asserted), so a red here is the term the extent cannot see, never the extent again.
+    const controlHidFromExtent = !!control?.forced && control.forced.scrollWidth === control.forced.clientWidth;
+    const controlRed = !!control?.forced && !noScroll(control) &&
+      (control.forced.interactiveOver ?? []).length > 0;
     const reading = (m) => m && { unforced: m.unforced, forced: m.forced };
     calibration.push({
       width,
-      sawInjectedOverflow: plainRed && clipRed && clipHidUnforced,
+      sawInjectedOverflow: plainRed && clipRed && clipHidUnforced && controlRed && controlHidFromExtent,
       plainRed,
       clipRed,
       clipHidUnforced,
+      controlRed,
+      controlHidFromExtent,
       plain: reading(plain),
       clipped: reading(clipped),
+      control: reading(control),
     });
     rows.push(clean.value ?? { innerWidth: width, note: 'null measure' });
     if (width === 320) art = (await session.evaluate(ART)).value ?? { note: 'null art measure' };
@@ -307,7 +350,7 @@ export default async function (session) {
       shelfColumnsAsDrawn: widthVerdicts.every((w) => w.shelfColumnsAsDrawn),
       shelfOneImagePerTile: shelf.shelfTiles > 0 && shelf.shelfImages === shelf.shelfTiles,
       artLoaded: !!art && art.images > 0 && Array.isArray(art.broken) && art.broken.length === 0,
-      overflowDetectorCalibration: calibrationClean ? `plain and root-clip legs red on all ${WIDTHS.length} widths` : 'CALIBRATION FAILED',
+      overflowDetectorCalibration: calibrationClean ? `plain, root-clip and clipped-control legs red on all ${WIDTHS.length} widths` : 'CALIBRATION FAILED',
       motion: motionVerdict,
       scrollReveal: revealVerdict,
     },
