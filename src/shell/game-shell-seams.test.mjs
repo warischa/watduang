@@ -246,3 +246,62 @@ test('gh#288 fortune buttons: a state rule is declared after its normal-motion t
     assert.ok(activeRm > active, `${v}: reduced press after press`);
   }
 });
+
+// gh#288 REFUTE — a HELD control (its hold stops on pointerleave, no pointer capture) must never
+// move under a stationary pointer, so no hover or press rule may give it a transform. The held set
+// is read from src/games, not named here: a control whose element gets a pointerleave handler.
+function heldClasses() {
+  const dir = new URL('../games/', import.meta.url);
+  const held = [];
+  for (const f of readdirSync(dir).filter((n) => n.endsWith('.ts'))) {
+    const src = readFileSync(new URL(f, dir), 'utf8');
+    for (const [, v, cls] of src.matchAll(/(\w+)\.className\s*=\s*'([^']+)'/g)) {
+      if (new RegExp(`on\\(\\s*${v}\\s*,\\s*'pointerleave'`).test(src)) held.push(cls.split(/\s+/));
+    }
+  }
+  return held;
+}
+
+/** final `transform` of an enabled element carrying `classes`, in the given state and mode; the
+ *  cascade is specificity (classes + state pseudo-classes + a :not(:disabled)) then source order */
+function finalTransform(classes, { hover, active, reduced }) {
+  let best = null;
+  gamePageRules.forEach((r, order) => {
+    if (r.media === HOVER && !hover) return;
+    if (r.media === RM && !reduced) return;
+    if (r.media === RM_HOVER && !(reduced && hover)) return;
+    if (/(?<!:not\()\s*:disabled/.test(r.sel.replace(':not(:disabled)', ''))) return;
+    const bare = r.sel.replace(':not(:disabled)', '');
+    const cls = [...bare.matchAll(/\.[\w-]+/g)].map((m) => m[0].slice(1));
+    if (!cls.every((c) => classes.includes(c))) return;
+    const states = [...bare.matchAll(/:(hover|active)\b/g)].map((m) => m[1]);
+    if (states.includes('hover') && !hover) return;
+    if (states.includes('active') && !active) return;
+    const m = r.body.match(/(?:^|;)\s*transform:\s*([^;]+)/);
+    if (!m) return;
+    const spec = cls.length + states.length + (r.sel.includes(':not(:disabled)') ? 1 : 0);
+    if (!best || spec > best.spec || (spec === best.spec && order > best.order)) best = { spec, order, value: m[1].trim() };
+  });
+  return best ? best.value : 'none';
+}
+
+test('gh#288 held controls: no hover or press state, in either motion mode, gives them a transform', () => {
+  const held = heldClasses();
+  assert.ok(held.some((c) => c.includes('sm-hold')), `positive control: the held set found siamsi's hold button, got ${JSON.stringify(held)}`);
+  assert.equal(
+    finalTransform(['game-btn', 'game-btn-primary'], { hover: true, active: true, reduced: false }),
+    'translate(5px, 5px)',
+    'positive control: a tapped primary button does move when pressed',
+  );
+  for (const classes of held) {
+    for (const reduced of [false, true]) {
+      for (const [hover, active] of [[true, false], [false, true], [true, true]]) {
+        assert.equal(
+          finalTransform(classes, { hover, active, reduced }),
+          'none',
+          `held .${classes.join('.')} must not transform (hover ${hover}, active ${active}, reduced ${reduced})`,
+        );
+      }
+    }
+  }
+});
