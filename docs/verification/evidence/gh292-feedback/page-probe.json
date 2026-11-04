@@ -1,0 +1,735 @@
+{
+  "site": "http://localhost:4331",
+  "results": {
+    "feedback@320": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "sideways": false,
+      "robots": null,
+      "h1": "บอกผู้พัฒนาหน่อย",
+      "feedbackLinks": [],
+      "controls": [
+        {
+          "id": "fb-message",
+          "w": 252,
+          "h": 140,
+          "fontPx": 16,
+          "right": 286
+        },
+        {
+          "id": "fb-email",
+          "w": 252,
+          "h": 54,
+          "fontPx": 16,
+          "right": 286
+        },
+        {
+          "id": "BUTTON",
+          "w": 252,
+          "h": 56,
+          "fontPx": 17,
+          "right": 286
+        },
+        {
+          "id": "game-name",
+          "w": 252,
+          "h": 54,
+          "fontPx": 16,
+          "right": 286
+        },
+        {
+          "id": "game-message",
+          "w": 252,
+          "h": 140,
+          "fontPx": 16,
+          "right": 286
+        },
+        {
+          "id": "game-email",
+          "w": 252,
+          "h": 54,
+          "fontPx": 16,
+          "right": 286
+        },
+        {
+          "id": "BUTTON",
+          "w": 252,
+          "h": 56,
+          "fontPx": 17,
+          "right": 286
+        }
+      ],
+      "forms": [
+        {
+          "action": "/api/feedback",
+          "method": "post",
+          "kind": "feedback"
+        },
+        {
+          "action": "/api/feedback",
+          "method": "post",
+          "kind": "game"
+        }
+      ],
+      "cards": [
+        {
+          "left": 14,
+          "top": 340,
+          "w": 292
+        },
+        {
+          "left": 14,
+          "top": 831,
+          "w": 292
+        }
+      ],
+      "honeypot": [
+        {
+          "w": 153,
+          "h": 21,
+          "tab": -1
+        },
+        {
+          "w": 153,
+          "h": 21,
+          "tab": -1
+        }
+      ]
+    },
+    "feedback@1024": {
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "sideways": false,
+      "robots": null,
+      "h1": "บอกผู้พัฒนาหน่อย",
+      "feedbackLinks": [],
+      "controls": [
+        {
+          "id": "fb-message",
+          "w": 956,
+          "h": 140,
+          "fontPx": 16,
+          "right": 990
+        },
+        {
+          "id": "fb-email",
+          "w": 956,
+          "h": 54,
+          "fontPx": 16,
+          "right": 990
+        },
+        {
+          "id": "BUTTON",
+          "w": 956,
+          "h": 56,
+          "fontPx": 17,
+          "right": 990
+        },
+        {
+          "id": "game-name",
+          "w": 956,
+          "h": 54,
+          "fontPx": 16,
+          "right": 990
+        },
+        {
+          "id": "game-message",
+          "w": 956,
+          "h": 140,
+          "fontPx": 16,
+          "right": 990
+        },
+        {
+          "id": "game-email",
+          "w": 956,
+          "h": 54,
+          "fontPx": 16,
+          "right": 990
+        },
+        {
+          "id": "BUTTON",
+          "w": 956,
+          "h": 56,
+          "fontPx": 17,
+          "right": 990
+        }
+      ],
+      "forms": [
+        {
+          "action": "/api/feedback",
+          "method": "post",
+          "kind": "feedback"
+        },
+        {
+          "action": "/api/feedback",
+          "method": "post",
+          "kind": "game"
+        }
+      ],
+      "cards": [
+        {
+          "left": 14,
+          "top": 289,
+          "w": 996
+        },
+        {
+          "left": 14,
+          "top": 779,
+          "w": 996
+        }
+      ],
+      "honeypot": [
+        {
+          "w": 153,
+          "h": 21,
+          "tab": -1
+        },
+        {
+          "w": 153,
+          "h": 21,
+          "tab": -1
+        }
+      ]
+    },
+    "feedback@1440": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "sideways": false,
+      "robots": null,
+      "h1": "บอกผู้พัฒนาหน่อย",
+      "feedbackLinks": [],
+      "controls": [
+        {
+          "id": "fb-message",
+          "w": 564,
+          "h": 140,
+          "fontPx": 16,
+          "right": 686
+        },
+        {
+          "id": "fb-email",
+          "w": 564,
+          "h": 54,
+          "fontPx": 16,
+          "right": 686
+        },
+        {
+          "id": "BUTTON",
+          "w": 139,
+          "h": 56,
+          "fontPx": 17,
+          "right": 261
+        },
+        {
+          "id": "game-name",
+          "w": 564,
+          "h": 54,
+          "fontPx": 16,
+          "right": 1318
+        },
+        {
+          "id": "game-message",
+          "w": 564,
+          "h": 140,
+          "fontPx": 16,
+          "right": 1318
+        },
+        {
+          "id": "game-email",
+          "w": 564,
+          "h": 54,
+          "fontPx": 16,
+          "right": 1318
+        },
+        {
+          "id": "BUTTON",
+          "w": 144,
+          "h": 56,
+          "fontPx": 17,
+          "right": 898
+        }
+      ],
+      "forms": [
+        {
+          "action": "/api/feedback",
+          "method": "post",
+          "kind": "feedback"
+        },
+        {
+          "action": "/api/feedback",
+          "method": "post",
+          "kind": "game"
+        }
+      ],
+      "cards": [
+        {
+          "left": 98,
+          "top": 346,
+          "w": 612
+        },
+        {
+          "left": 730,
+          "top": 346,
+          "w": 612
+        }
+      ],
+      "honeypot": [
+        {
+          "w": 153,
+          "h": 21,
+          "tab": -1
+        },
+        {
+          "w": 153,
+          "h": 21,
+          "tab": -1
+        }
+      ]
+    },
+    "sent@320": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "sideways": false,
+      "robots": "noindex",
+      "h1": "ได้รับแล้ว ขอบคุณนะ",
+      "feedbackLinks": [
+        {
+          "text": "ส่งอีกเรื่อง",
+          "w": 121,
+          "h": 48,
+          "left": 154,
+          "right": 275
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "sent@1024": {
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "sideways": false,
+      "robots": "noindex",
+      "h1": "ได้รับแล้ว ขอบคุณนะ",
+      "feedbackLinks": [
+        {
+          "text": "ส่งอีกเรื่อง",
+          "w": 121,
+          "h": 48,
+          "left": 154,
+          "right": 275
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "sent@1440": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "sideways": false,
+      "robots": "noindex",
+      "h1": "ได้รับแล้ว ขอบคุณนะ",
+      "feedbackLinks": [
+        {
+          "text": "ส่งอีกเรื่อง",
+          "w": 138,
+          "h": 48,
+          "left": 239,
+          "right": 377
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "failed@320": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "sideways": false,
+      "robots": "noindex",
+      "h1": "ส่งไม่สำเร็จ",
+      "feedbackLinks": [
+        {
+          "text": "กลับไปหน้าส่งความเห็น",
+          "w": 199,
+          "h": 48,
+          "left": 14,
+          "right": 213
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "failed@1024": {
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "sideways": false,
+      "robots": "noindex",
+      "h1": "ส่งไม่สำเร็จ",
+      "feedbackLinks": [
+        {
+          "text": "กลับไปหน้าส่งความเห็น",
+          "w": 199,
+          "h": 48,
+          "left": 14,
+          "right": 213
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "failed@1440": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "sideways": false,
+      "robots": "noindex",
+      "h1": "ส่งไม่สำเร็จ",
+      "feedbackLinks": [
+        {
+          "text": "กลับไปหน้าส่งความเห็น",
+          "w": 226,
+          "h": 48,
+          "left": 80,
+          "right": 306
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "404@320": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "sideways": false,
+      "robots": "noindex",
+      "h1": "ไม่พบหน้านี้",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 157,
+          "h": 48,
+          "left": 14,
+          "right": 171
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "404@1024": {
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "sideways": false,
+      "robots": "noindex",
+      "h1": "ไม่พบหน้านี้",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 157,
+          "h": 48,
+          "left": 154,
+          "right": 311
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "404@1440": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "sideways": false,
+      "robots": "noindex",
+      "h1": "ไม่พบหน้านี้",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 179,
+          "h": 48,
+          "left": 239,
+          "right": 418
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "party@320": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "sideways": false,
+      "robots": null,
+      "h1": "สุ่มคนโดน",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 284,
+          "h": 72,
+          "left": 18,
+          "right": 302
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "party@1024": {
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "sideways": false,
+      "robots": null,
+      "h1": "สุ่มคนโดน",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 988,
+          "h": 72,
+          "left": 18,
+          "right": 1006
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "party@1440": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "sideways": false,
+      "robots": null,
+      "h1": "สุ่มคนโดน",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 460,
+          "h": 72,
+          "left": 80,
+          "right": 540
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "fortune@320": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "sideways": false,
+      "robots": null,
+      "h1": "ดูดวง",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 284,
+          "h": 72,
+          "left": 18,
+          "right": 302
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "fortune@1024": {
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "sideways": false,
+      "robots": null,
+      "h1": "ดูดวง",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 988,
+          "h": 72,
+          "left": 18,
+          "right": 1006
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "fortune@1440": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "sideways": false,
+      "robots": null,
+      "h1": "ดูดวง",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 460,
+          "h": 72,
+          "left": 80,
+          "right": 540
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "tools@320": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "sideways": false,
+      "robots": null,
+      "h1": "เครื่องมือสุ่ม",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 213,
+          "h": 72,
+          "left": 18,
+          "right": 231
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "tools@1024": {
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "sideways": false,
+      "robots": null,
+      "h1": "เครื่องมือสุ่ม",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 213,
+          "h": 72,
+          "left": 191,
+          "right": 404
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "tools@1440": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "sideways": false,
+      "robots": null,
+      "h1": "เครื่องมือสุ่ม",
+      "feedbackLinks": [
+        {
+          "text": "ติชม / เสนอเกม",
+          "w": 213,
+          "h": 72,
+          "left": 271,
+          "right": 484
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "home@320": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "sideways": false,
+      "robots": null,
+      "h1": "อย่าหาทำแต่ถ้าว่างก็มาเลย",
+      "feedbackLinks": [
+        {
+          "text": "ส่งความเห็น →",
+          "w": 292,
+          "h": 56,
+          "left": 14,
+          "right": 306
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "home@1024": {
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "sideways": false,
+      "robots": null,
+      "h1": "อย่าหาทำแต่ถ้าว่างก็มาเลย",
+      "feedbackLinks": [
+        {
+          "text": "ส่งความเห็น →",
+          "w": 996,
+          "h": 56,
+          "left": 14,
+          "right": 1010
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    },
+    "home@1440": {
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "sideways": false,
+      "robots": null,
+      "h1": "อย่าหาทำแต่ถ้าว่างก็มาเลย",
+      "feedbackLinks": [
+        {
+          "text": "ส่งความเห็น →",
+          "w": 160,
+          "h": 56,
+          "left": 1201,
+          "right": 1360
+        }
+      ],
+      "controls": [],
+      "forms": [],
+      "cards": [],
+      "honeypot": []
+    }
+  },
+  "submit": {
+    "fill": {
+      "value": "submitted"
+    },
+    "landedOn": "http://localhost:4331/feedback/sent/",
+    "captured": {
+      "method": "POST",
+      "type": "application/x-www-form-urlencoded",
+      "body": "kind=game&website=&game_name=%E0%B9%80%E0%B8%81%E0%B8%A1%E0%B8%97%E0%B8%B2%E0%B8%A2%E0%B8%84%E0%B8%B3%E0%B9%83%E0%B8%9A%E0%B9%89+%22%E0%B8%AD%E0%B8%B1%E0%B8%8D%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%81%E0%B8%B2%E0%B8%A8%22&message=%3D1%2B1+%E0%B9%81%E0%B8%96%E0%B8%A7%E0%B8%AA%E0%B8%AD%E0%B8%87%0D%0A%E0%B8%9A%E0%B8%A3%E0%B8%A3%E0%B8%97%E0%B8%B1%E0%B8%94%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88&email="
+    },
+    "parsed": {
+      "action": "store",
+      "record": {
+        "kind": "game",
+        "game_name": "เกมทายคำใบ้ \"อัญประกาศ\"",
+        "message": "=1+1 แถวสอง\r\nบรรทัดใหม่",
+        "email": ""
+      }
+    },
+    "row": "\"1970-01-01T00:00:00.000Z\",\"game\",\"เกมทายคำใบ้ \"\"อัญประกาศ\"\"\",\"'=1+1 แถวสอง\r\nบรรทัดใหม่\",\"\"\r\n"
+  },
+  "emptyRefused": {
+    "valid": false,
+    "message": true
+  }
+}

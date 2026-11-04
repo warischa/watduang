@@ -1,0 +1,19 @@
+---
+// gh#292: where the feedback endpoint sends a visitor after a stored post (and after a tripped
+// honeypot, which stores nothing). Copy is the proposal sheet's COPY block. noindex: a thank-you
+// page is thin content with nothing a search should land on.
+import Base from '../../layouts/Base.astro';
+import PageChrome from '../../components/PageChrome.astro';
+import FeedbackResult from '../../components/FeedbackResult.astro';
+---
+
+<Base title="ได้รับแล้ว ขอบคุณนะ — วัดดวง" description="ผู้พัฒนาจะอ่านเร็วๆ นี้" noindex chrome>
+  <PageChrome>
+    <FeedbackResult
+      heading="ได้รับแล้ว ขอบคุณนะ"
+      lead="ผู้พัฒนาจะอ่านเร็วๆ นี้"
+      primary={{ label: 'กลับหน้าแรก', href: '/' }}
+      secondary={{ label: 'ส่งอีกเรื่อง', href: '/feedback/' }}
+    />
+  </PageChrome>
+</Base>

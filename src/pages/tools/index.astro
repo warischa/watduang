@@ -5,7 +5,8 @@
 // page-3 — a HOME direction, superseded for the home page by direction C (design/HomeArcade.dc.html,
 // gh#87, ADR-0034's recorded reversal). So the values below are the category page's, which are an
 // artboard's own (ADR-0033); no colour, radius, size or shadow is invented here.
-// Every Thai string is read from src/tools/manifest.ts or already lived on this page — none is new.
+// Every Thai string is read from src/tools/manifest.ts or already lived on this page, except the
+// feedback card label (gh#292, its proposal sheet's COPY block).
 // The accent is toolsGroup.accentVar resolved through --page-accent, never a hex.
 // No script of any kind (ADR-0005) — this page needs none.
 import Base from '../../layouts/Base.astro';
@@ -45,7 +46,28 @@ import PageChrome from '../../components/PageChrome.astro';
         }
       </ul>
 
-      <p class="back"><a class="back-link ui-press" href="/">กลับหน้าแรก</a></p>
+      {/* gh#292 (L2, design/Gh292FeedbackProposals.dc.html): the feedback card sits beside the back
+          link, since this page has no cross-link row; white, the color-bg token, as on the category pages. */}
+      <p class="back">
+        <a class="back-link ui-press" href="/">กลับหน้าแรก</a>
+        <a class="back-link back-link-feedback ui-press" href="/feedback/">
+          ติชม / เสนอเกม
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12h13"></path
+            ><path d="M12 5l7 7-7 7"></path>
+          </svg>
+        </a>
+      </p>
     </div>
   </main>
   </PageChrome>
@@ -181,6 +203,9 @@ import PageChrome from '../../components/PageChrome.astro';
 
   .back {
     margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
   }
 
   .back-link {
@@ -198,6 +223,12 @@ import PageChrome from '../../components/PageChrome.astro';
     font-size: 19px;
     color: var(--color-line-strong);
     box-sizing: border-box;
+  }
+
+  /* gh#292: the category page's cross-card shape (arrow after the label, 12px gap) on white. */
+  .back-link-feedback {
+    gap: 12px;
+    background: var(--color-bg);
   }
 
   /* Both pop cards keep their ink and take no underline; the link hover above is for text links. The

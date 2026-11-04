@@ -12,7 +12,8 @@
 // is categories label, the lead line is whenToUse, the intro card is intro, the games-list heading
 // is listHeading (per-category, ADR-0034 — gh#104 box 5), every card body is that game's own
 // tagline, and the Base metadata is the category seo. PAGE COPY, with no manifest field behind it:
-// the three pills, the cross-link section label, the card call to action, and the breadcrumb.
+// the three pills, the cross-link section label, the card call to action, and the breadcrumb, plus
+// the feedback cross-card label (gh#292, its proposal sheet's COPY block).
 //
 // The accent paints without a per-page colour value anywhere: meta.accent holds the NAME ('gold' /
 // 'punch'), and --page-accent resolves it through var(--accent-<name>) — never the slug (which
@@ -157,6 +158,25 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
             ))}
             <a class="cross-card ui-press" href={toolsGroup.href} style={`--cross-accent: var(${toolsGroup.accentVar});`}>
               เครื่องมือสุ่ม
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12h13"></path
+                ><path d="M12 5l7 7-7 7"></path>
+              </svg>
+            </a>
+            {/* gh#292 (L2, design/Gh292FeedbackProposals.dc.html): the feedback page. White, the
+                color-bg token, because it owns no category accent to borrow. */}
+            <a class="cross-card ui-press" href="/feedback/" style="--cross-accent: var(--color-bg);">
+              ติชม / เสนอเกม
               <svg
                 width="20"
                 height="20"

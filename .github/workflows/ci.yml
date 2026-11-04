@@ -332,6 +332,16 @@ jobs:
           grep -qE '^# pass [1-9]' /tmp/unit-tests.txt \
             || { echo 'Unit tests: 0 tests ran — the glob matched nothing (gh#45)'; exit 1; }
 
+      # services/feedback (ADR-0074) sits outside the site build, so its tests are their own step with
+      # their own non-zero count: folded into the step above, a glob that matched nothing here would
+      # hide inside the site's pass count — the gh#45 shape again.
+      - name: Feedback function unit tests (gh#292)
+        run: |
+          node --test 'services/*/src/**/*.test.mjs' 2>&1 | tee /tmp/services-tests.txt
+          [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
+          grep -qE '^# pass [1-9]' /tmp/services-tests.txt \
+            || { echo 'Feedback function tests: 0 tests ran — the glob matched nothing (gh#45)'; exit 1; }
+
       # astro check writes .astro/ type files, never dist/ — running it here, before Build,
       # makes it structurally impossible for this verification step to invalidate the dist/
       # artifact that every gate below reads. gh#38.

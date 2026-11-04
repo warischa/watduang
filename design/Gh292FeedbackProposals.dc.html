@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    /* gh#292 proposal sheet: the feedback page (two directions, A and B, each at 1440 and 320), its two result
+       pages, and three link placements (L1 home band, L2 cross-card, L3 text line). Not a page.
+       Faces: the self-hosted subsets, relative path, so Thai wraps here where it wraps on the site.
+       Colours: tokens.css values only (#14142b line-strong, #fff6e0 ground-warm, #ffffff color-bg, #ffcc00 accent-gold,
+       #ff3d7f accent-punch, #2b7bff accent-sky, #3d3b5c color-muted) plus the category card-cta rule rgba(20,20,43,0.2).
+       Sizes reuse shipped values: pop card 2.5px rule, 16px radius, 4px 4px 0 0 shadow, 22px padding; head band 52px
+       block padding, 58px/30px H1, 19px lead; cross-card 72px, Mitr 500 19px; chrome 84px top bar, 96px/72px footer.
+       New values, all named in the notes: 16px field text (keeps iOS from zooming), 56px submit pill. The focus ring is the
+       site's own (--focus-ring 3px solid ink, --focus-offset 3px, src/styles/web.css).
+       Thai copy on this sheet is NEW (owner request 2026-11-04) and is listed in the COPY block; the owner's pick
+       approves it. Strings marked (existing) are copied from src. */
+    @font-face { font-family: 'Sarabun'; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-weight: 500; src: url('../public/fonts/mitr-medium-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    body { margin: 0; font-family: 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif; background: #e9e6dc; }
+    a { color: inherit; text-decoration: none; }
+    .sheet { width: 1520px; padding: 40px; box-sizing: border-box; }
+    .note { font: 13px/1.6 ui-monospace, Menlo, monospace; color: #14142b; margin: 0 0 12px; max-width: 1440px; }
+    .note b { font-weight: 700; }
+    .label { font: 700 18px/1.4 ui-monospace, Menlo, monospace; color: #14142b; margin: 48px 0 12px; }
+    .row { display: flex; gap: 40px; align-items: flex-start; }
+
+    /* page frame */
+    .frame { background: #fff6e0; color: #14142b; box-shadow: 0 0 0 1px #14142b; }
+    .w1440 { width: 1440px; }
+    .w320 { width: 320px; }
+    .top { background: #14142b; padding-inline: 18px; font-family: 'Mitr', sans-serif; }
+    .top-in { max-width: 1280px; margin: 0 auto; height: 84px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { font-weight: 700; font-size: 32px; color: #ffcc00; }
+    .pills { display: flex; gap: 12px; font-weight: 600; font-size: 17px; }
+    .pill { border-radius: 999px; padding: 9px 20px; color: #14142b; }
+    .w320 .top { padding: 12px 14px; }
+    .w320 .top-in { height: auto; display: block; }
+    .w320 .brand { font-size: 26px; }
+    .w320 .pills { gap: 6px; margin-top: 10px; font-size: 14px; }
+    .w320 .pill { padding: 6px 12px; }
+    .foot { background: #14142b; color: #ffcc00; height: 96px; display: grid; place-items: center; font: 700 26px 'Mitr', sans-serif; }
+    .w320 .foot { height: 72px; font-size: 22px; }
+
+    .head { background: #ffcc00; border-bottom: 2.5px solid #14142b; padding: 52px 18px; }
+    .head-in { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    .head h1 { margin: 0; font: 600 58px/1.2 'Mitr', sans-serif; letter-spacing: -1px; }
+    .head p { margin: 0; font-size: 19px; line-height: 1.6; max-width: 760px; }
+    .w320 .head { padding: 36px 14px; }
+    .w320 .head h1 { font-size: 30px; letter-spacing: 0; }
+    .w320 .head p { font-size: 16px; }
+
+    .body { max-width: 1280px; margin: 0 auto; padding: 40px 18px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px; }
+    .w320 .body { padding: 28px 14px 40px; gap: 24px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+    .w320 .grid2 { grid-template-columns: 1fr; }
+
+    .card { background: #ffffff; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 0 #14142b; overflow: hidden; }
+    .card-head { padding: 18px 22px; border-bottom: 2.5px solid #14142b; font: 600 22px/1.3 'Mitr', sans-serif; }
+    .card-body { padding: 22px; display: flex; flex-direction: column; gap: 18px; }
+    .w320 .card-head { padding: 14px 18px; font-size: 20px; }
+    .w320 .card-body { padding: 18px; }
+
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field-label { font: 500 17px/1.3 'Mitr', sans-serif; }
+    .field-hint { font-size: 14px; line-height: 1.5; color: #3d3b5c; }
+    .input, .area { border: 2.5px solid #14142b; border-radius: 8px; background: #ffffff; font: 16px/1.6 'Sarabun', sans-serif; color: #3d3b5c; padding: 12px 14px; box-sizing: border-box; width: 100%; }
+    .input { min-height: 52px; }
+    .area { min-height: 140px; }
+    .focus { outline: 3px solid #14142b; outline-offset: 3px; color: #14142b; }
+    .submit { align-self: flex-start; display: inline-flex; align-items: center; min-height: 56px; padding: 0 26px; border-radius: 999px; background: #14142b; color: #ffcc00; font: 600 17px 'Mitr', sans-serif; }
+    .w320 .submit { align-self: stretch; justify-content: center; }
+    .privacy { font-size: 15px; line-height: 1.65; color: #3d3b5c; max-width: 860px; margin: 0; }
+    .w320 .privacy { font-size: 14px; }
+
+    .seg { display: flex; gap: 10px; flex-wrap: wrap; }
+    .seg span { display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border: 2.5px solid #14142b; border-radius: 999px; font: 500 16px 'Mitr', sans-serif; background: #ffffff; }
+    .seg .on { background: #ff3d7f; box-shadow: 3px 3px 0 0 #14142b; }
+
+    .back { display: inline-flex; align-items: center; min-height: 72px; padding: 0 24px; background: #fff6e0; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 0 #14142b; font: 500 19px 'Mitr', sans-serif; align-self: flex-start; box-sizing: border-box; }
+
+    /* link placements */
+    .kicker { font: 600 18px 'Mitr', sans-serif; letter-spacing: 1px; color: #3d3b5c; margin: 0 0 16px; }
+    .cross { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .w320 .cross { grid-template-columns: 1fr; }
+    .xcard { display: flex; align-items: center; justify-content: space-between; min-height: 72px; padding: 0 24px; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 0 #14142b; font: 500 19px 'Mitr', sans-serif; box-sizing: border-box; }
+    .band { background: #14142b; color: #fff6e0; padding: 48px 18px; }
+    .band-in { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .band h2 { margin: 0; font: 700 28px/1.25 'Mitr', sans-serif; color: #ffcc00; }
+    .band p { margin: 8px 0 0; font-size: 17px; line-height: 1.6; }
+    .band .cta { display: inline-flex; align-items: center; min-height: 56px; padding: 0 26px; border-radius: 999px; background: #ffcc00; color: #14142b; font: 600 17px 'Mitr', sans-serif; white-space: nowrap; }
+    .w320 .band { padding: 36px 14px; }
+    .w320 .band-in { display: block; }
+    .w320 .band h2 { font-size: 24px; }
+    .w320 .band p { font-size: 16px; }
+    .w320 .band .cta { margin-top: 18px; display: flex; justify-content: center; }
+    .textlink { font: 500 17px 'Mitr', sans-serif; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+    .ghost { color: #3d3b5c; font: 13px ui-monospace, Menlo, monospace; border: 2px dashed #3d3b5c; padding: 10px 14px; border-radius: 8px; }
+  </style>
+</helmet>
+
+<div class="sheet">
+  <div class="note" style="font-size: 20px; font-weight: 700;">gh#292 · feedback page · proposals A / B + result pages + link placements L1 / L2 / L3</div>
+  <div class="note">Owner rulings already taken (gh#292): one page, two sections · own form, CSV on Azure Blob · optional email · 6-month retention · links on the home page and on the category pages + tools hub. <b>Pick:</b> one page direction (A or B) and the link styles for each placement.</div>
+  <div class="note">Both directions: a native HTML form posting to /api/feedback. No page script (ADR-0005). After sending, the server answers with a redirect to the "sent" page. A hidden honeypot field is not drawn. Message 2000 chars max, game name 120, email 254 (HTML maxlength + server check).</div>
+
+  <!-- ===================================================== A · 1440 -->
+  <div class="label">A · two cards, two forms · 1440</div>
+  <div class="frame w1440">
+    <div class="top"><div class="top-in"><span class="brand">วัดดวง</span><span class="pills"><span class="pill" style="background:#ffcc00">ดูดวง</span><span class="pill" style="background:#ff3d7f">สุ่มคนโดน</span><span class="pill" style="background:#2b7bff">เครื่องมือสุ่ม</span></span></div></div>
+    <div class="head"><div class="head-in">
+      <h1>บอกผู้พัฒนาหน่อย</h1>
+      <p>ชอบอะไร อยากให้แก้ตรงไหน หรืออยากได้เกมใหม่ เขียนมาได้เลย ผู้พัฒนาอ่านเองทุกข้อความ</p>
+    </div></div>
+    <div class="body">
+      <div class="grid2">
+        <div class="card">
+          <div class="card-head" style="background:#ffcc00">ติชม / แจ้งปัญหา</div>
+          <div class="card-body">
+            <div class="field"><span class="field-label">ข้อความ</span><div class="area focus">เช่น เกมไหนสนุก ตรงไหนใช้ยาก หรือเจออะไรแปลกๆ</div></div>
+            <div class="field"><span class="field-label">อีเมล (ไม่บังคับ)</span><div class="input"></div><span class="field-hint">กรอกถ้าอยากให้ตอบกลับ</span></div>
+            <span class="submit">ส่งความเห็น</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head" style="background:#ff3d7f">เสนอเกมใหม่</div>
+          <div class="card-body">
+            <div class="field"><span class="field-label">ชื่อเกมหรือไอเดีย</span><div class="input">เช่น เกมทายคำใบ้</div></div>
+            <div class="field"><span class="field-label">เล่นยังไง</span><div class="area">เล่าคร่าวๆ ใครโดน แพ้ยังไง</div></div>
+            <div class="field"><span class="field-label">อีเมล (ไม่บังคับ)</span><div class="input"></div><span class="field-hint">กรอกถ้าอยากให้ตอบกลับ</span></div>
+            <span class="submit">ส่งไอเดียเกม</span>
+          </div>
+        </div>
+      </div>
+      <p class="privacy">เราเก็บข้อความและอีเมล (ถ้ากรอก) ไว้อ่านและตอบกลับเท่านั้น ไม่ส่งต่อให้ใคร และลบอัตโนมัติภายใน 6 เดือน อยากให้ลบก่อนนั้น ส่งคำขอผ่านหน้านี้พร้อมอีเมลที่ใช้</p>
+      <a class="back">กลับหน้าแรก</a>
+    </div>
+    <div class="foot">วัดดวง</div>
+  </div>
+
+  <!-- ===================================================== A · 320 and B · 320 -->
+  <div class="label">A · 320 (left) · B · 320 (right)</div>
+  <div class="row">
+    <div class="frame w320">
+      <div class="top"><div class="top-in"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background:#ffcc00">ดูดวง</span><span class="pill" style="background:#ff3d7f">สุ่มคนโดน</span><span class="pill" style="background:#2b7bff">เครื่องมือสุ่ม</span></div></div></div>
+      <div class="head"><div class="head-in"><h1>บอกผู้พัฒนาหน่อย</h1><p>ชอบอะไร อยากให้แก้ตรงไหน หรืออยากได้เกมใหม่ เขียนมาได้เลย ผู้พัฒนาอ่านเองทุกข้อความ</p></div></div>
+      <div class="body">
+        <div class="grid2">
+          <div class="card">
+            <div class="card-head" style="background:#ffcc00">ติชม / แจ้งปัญหา</div>
+            <div class="card-body">
+              <div class="field"><span class="field-label">ข้อความ</span><div class="area">เช่น เกมไหนสนุก ตรงไหนใช้ยาก หรือเจออะไรแปลกๆ</div></div>
+              <div class="field"><span class="field-label">อีเมล (ไม่บังคับ)</span><div class="input"></div><span class="field-hint">กรอกถ้าอยากให้ตอบกลับ</span></div>
+              <span class="submit">ส่งความเห็น</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head" style="background:#ff3d7f">เสนอเกมใหม่</div>
+            <div class="card-body">
+              <div class="field"><span class="field-label">ชื่อเกมหรือไอเดีย</span><div class="input">เช่น เกมทายคำใบ้</div></div>
+              <div class="field"><span class="field-label">เล่นยังไง</span><div class="area">เล่าคร่าวๆ ใครโดน แพ้ยังไง</div></div>
+              <div class="field"><span class="field-label">อีเมล (ไม่บังคับ)</span><div class="input"></div><span class="field-hint">กรอกถ้าอยากให้ตอบกลับ</span></div>
+              <span class="submit">ส่งไอเดียเกม</span>
+            </div>
+          </div>
+        </div>
+        <p class="privacy">เราเก็บข้อความและอีเมล (ถ้ากรอก) ไว้อ่านและตอบกลับเท่านั้น ไม่ส่งต่อให้ใคร และลบอัตโนมัติภายใน 6 เดือน อยากให้ลบก่อนนั้น ส่งคำขอผ่านหน้านี้พร้อมอีเมลที่ใช้</p>
+        <a class="back">กลับหน้าแรก</a>
+      </div>
+      <div class="foot">วัดดวง</div>
+    </div>
+
+    <div class="frame w320">
+      <div class="top"><div class="top-in"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background:#ffcc00">ดูดวง</span><span class="pill" style="background:#ff3d7f">สุ่มคนโดน</span><span class="pill" style="background:#2b7bff">เครื่องมือสุ่ม</span></div></div></div>
+      <div class="head"><div class="head-in"><h1>บอกผู้พัฒนาหน่อย</h1><p>ชอบอะไร อยากให้แก้ตรงไหน หรืออยากได้เกมใหม่ เขียนมาได้เลย ผู้พัฒนาอ่านเองทุกข้อความ</p></div></div>
+      <div class="body">
+        <div class="card">
+          <div class="card-body">
+            <div class="field"><span class="field-label">อยากส่งเรื่องอะไร</span><div class="seg"><span>ติชม / แจ้งปัญหา</span><span class="on">เสนอเกมใหม่</span></div></div>
+            <div class="field"><span class="field-label">ชื่อเกมหรือไอเดีย</span><div class="input">เช่น เกมทายคำใบ้</div></div>
+            <div class="field"><span class="field-label">ข้อความ</span><div class="area">เล่าคร่าวๆ ใครโดน แพ้ยังไง</div></div>
+            <div class="field"><span class="field-label">อีเมล (ไม่บังคับ)</span><div class="input"></div><span class="field-hint">กรอกถ้าอยากให้ตอบกลับ</span></div>
+            <span class="submit">ส่ง</span>
+          </div>
+        </div>
+        <p class="privacy">เราเก็บข้อความและอีเมล (ถ้ากรอก) ไว้อ่านและตอบกลับเท่านั้น ไม่ส่งต่อให้ใคร และลบอัตโนมัติภายใน 6 เดือน อยากให้ลบก่อนนั้น ส่งคำขอผ่านหน้านี้พร้อมอีเมลที่ใช้</p>
+        <a class="back">กลับหน้าแรก</a>
+      </div>
+      <div class="foot">วัดดวง</div>
+    </div>
+
+    <div style="width: 680px;">
+      <div class="note"><b>A</b> - two pop cards, each its own form and submit. The card head carries the accent: gold for feedback, punch for a game idea. 1440: side by side; 320: stacked, feedback first. The first card is drawn with its focus ring, the site's own keyboard ring (3px ink, 3px offset; gh#288).</div>
+      <div class="note"><b>B</b> - one card, one form. A two-pill chooser (native radio buttons, punch fill when chosen). "ชื่อเกมหรือไอเดีย" shows only while "เสนอเกมใหม่" is chosen, done in CSS with :has() and no script; the message placeholder follows the choice the same way. Shorter page, one submit. Cost: the chooser is one more tap, and a browser without :has() shows the game-name field always (it stays optional).</div>
+      <div class="note"><b>Both:</b> fields are 16px text so iOS does not zoom on focus; inputs 52px tall, submit 56px (both clear 44x44). Submit is full width at 320. The privacy line sits once, under the form(s). The back link reuses the tools hub's back-link card.</div>
+    </div>
+  </div>
+
+  <!-- ===================================================== B · 1440 -->
+  <div class="label">B · one form with a chooser · 1440</div>
+  <div class="frame w1440">
+    <div class="top"><div class="top-in"><span class="brand">วัดดวง</span><span class="pills"><span class="pill" style="background:#ffcc00">ดูดวง</span><span class="pill" style="background:#ff3d7f">สุ่มคนโดน</span><span class="pill" style="background:#2b7bff">เครื่องมือสุ่ม</span></span></div></div>
+    <div class="head"><div class="head-in"><h1>บอกผู้พัฒนาหน่อย</h1><p>ชอบอะไร อยากให้แก้ตรงไหน หรืออยากได้เกมใหม่ เขียนมาได้เลย ผู้พัฒนาอ่านเองทุกข้อความ</p></div></div>
+    <div class="body">
+      <div class="card" style="max-width: 760px;">
+        <div class="card-body">
+          <div class="field"><span class="field-label">อยากส่งเรื่องอะไร</span><div class="seg"><span class="on" style="background:#ffcc00">ติชม / แจ้งปัญหา</span><span>เสนอเกมใหม่</span></div></div>
+          <div class="field"><span class="field-label">ข้อความ</span><div class="area focus">เช่น เกมไหนสนุก ตรงไหนใช้ยาก หรือเจออะไรแปลกๆ</div></div>
+          <div class="field"><span class="field-label">อีเมล (ไม่บังคับ)</span><div class="input"></div><span class="field-hint">กรอกถ้าอยากให้ตอบกลับ</span></div>
+          <span class="submit">ส่ง</span>
+        </div>
+      </div>
+      <p class="privacy">เราเก็บข้อความและอีเมล (ถ้ากรอก) ไว้อ่านและตอบกลับเท่านั้น ไม่ส่งต่อให้ใคร และลบอัตโนมัติภายใน 6 เดือน อยากให้ลบก่อนนั้น ส่งคำขอผ่านหน้านี้พร้อมอีเมลที่ใช้</p>
+      <a class="back">กลับหน้าแรก</a>
+    </div>
+    <div class="foot">วัดดวง</div>
+  </div>
+  <div class="note" style="margin-top: 12px;">B at 1440 with "ติชม / แจ้งปัญหา" chosen: the chosen pill takes that section's accent (gold here, punch for a game idea), and the game-name field is hidden. The card is capped at 760px so a line of input stays readable.</div>
+
+  <!-- ===================================================== result pages -->
+  <div class="label">Result pages · 320 · /feedback/sent/ (left) and /feedback/failed/ (right) · both noindex</div>
+  <div class="row">
+    <div class="frame w320">
+      <div class="top"><div class="top-in"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background:#ffcc00">ดูดวง</span><span class="pill" style="background:#ff3d7f">สุ่มคนโดน</span><span class="pill" style="background:#2b7bff">เครื่องมือสุ่ม</span></div></div></div>
+      <div class="body" style="padding: 56px 14px 72px; gap: 0;">
+        <h1 style="margin:0; font: 700 28px/1.2 'Mitr', sans-serif;">ได้รับแล้ว ขอบคุณนะ</h1>
+        <p style="margin: 10px 0 0; font-size: 16px; line-height: 1.6; color: #3d3b5c;">ผู้พัฒนาจะอ่านเร็วๆ นี้</p>
+        <div style="display:flex; gap: 10px; flex-wrap: wrap; margin-top: 24px;">
+          <a style="display:inline-flex; align-items:center; min-height:48px; padding:0 22px; border-radius:999px; background:#14142b; color:#ffcc00; font: 600 16px 'Mitr', sans-serif;">กลับหน้าแรก</a>
+          <a style="display:inline-flex; align-items:center; min-height:48px; padding:0 22px; border-radius:999px; border:2.5px solid #14142b; box-sizing:border-box; font: 600 16px 'Mitr', sans-serif;">ส่งอีกเรื่อง</a>
+        </div>
+      </div>
+      <div class="foot">วัดดวง</div>
+    </div>
+    <div class="frame w320">
+      <div class="top"><div class="top-in"><span class="brand">วัดดวง</span><div class="pills"><span class="pill" style="background:#ffcc00">ดูดวง</span><span class="pill" style="background:#ff3d7f">สุ่มคนโดน</span><span class="pill" style="background:#2b7bff">เครื่องมือสุ่ม</span></div></div></div>
+      <div class="body" style="padding: 56px 14px 72px; gap: 0;">
+        <h1 style="margin:0; font: 700 28px/1.2 'Mitr', sans-serif;">ส่งไม่สำเร็จ</h1>
+        <p style="margin: 10px 0 0; font-size: 16px; line-height: 1.6; color: #3d3b5c;">ลองใหม่อีกครั้ง หรือกลับมาส่งทีหลังนะ</p>
+        <div style="display:flex; gap: 10px; flex-wrap: wrap; margin-top: 24px;">
+          <a style="display:inline-flex; align-items:center; min-height:48px; padding:0 22px; border-radius:999px; background:#14142b; color:#ffcc00; font: 600 16px 'Mitr', sans-serif;">กลับไปหน้าส่งความเห็น</a>
+        </div>
+      </div>
+      <div class="foot">วัดดวง</div>
+    </div>
+    <div style="width: 680px;">
+      <div class="note">Both reuse the 404 page's layout (design/NotFound320.dc.html): D's section-head type and the see-all pill. Desktop is the same column at the 1280px track, as the 404 desktop board does. "ส่งไม่สำเร็จ" is where the server sends a visitor when storage fails or a field breaks a rule the browser did not stop (required + maxlength stop most). A tripped honeypot gets the "sent" page and stores nothing, so a bot learns nothing.</div>
+    </div>
+  </div>
+
+  <!-- ===================================================== link placements -->
+  <div class="label">L1 · home page: an ink band between the tools row and the FAQ · 1440 and 320</div>
+  <div class="frame w1440">
+    <div class="ghost" style="margin: 16px 18px;">... home: tools row ("เครื่องมือสุ่ม" section) ends here ...</div>
+    <div class="band"><div class="band-in">
+      <div><h2>มีเกมในใจ อยากให้ทำ?</h2><p>เสนอเกมใหม่ หรือบอกว่าอยากให้แก้อะไร ผู้พัฒนาอ่านทุกข้อความ</p></div>
+      <a class="cta">ส่งความเห็น →</a>
+    </div></div>
+    <div class="ghost" style="margin: 16px 18px;">... home: FAQ, then the footer ...</div>
+  </div>
+  <div class="row" style="margin-top: 20px;">
+    <div class="frame w320">
+      <div class="ghost" style="margin: 12px 14px;">... tools row ...</div>
+      <div class="band"><div class="band-in">
+        <div><h2>มีเกมในใจ อยากให้ทำ?</h2><p>เสนอเกมใหม่ หรือบอกว่าอยากให้แก้อะไร ผู้พัฒนาอ่านทุกข้อความ</p></div>
+        <a class="cta">ส่งความเห็น →</a>
+      </div></div>
+      <div class="ghost" style="margin: 12px 14px;">... FAQ ...</div>
+    </div>
+    <div style="width: 680px;">
+      <div class="note"><b>L1</b> - the home page's own dark-row treatment (the party row is already an ink band), gold H2 and a gold CTA pill on ink (11.93:1, the 404 pill pair inverted). One link, static chrome, outside every play surface. It sits after the last content row so it never pushes a game row below the first screen.</div>
+      <div class="note"><b>Alternative L1b</b> (not drawn): the same copy as a plain ground-coloured pop card instead of a full-bleed band - quieter, reads as one more tile. Say "L1b" to take it.</div>
+    </div>
+  </div>
+
+  <div class="label">L2 · category pages + tools hub: one more cross-card in the existing "ไปที่อื่นต่อ" row · 1440 and 320</div>
+  <div class="row">
+    <div class="frame" style="width: 1000px; padding: 32px 18px; box-sizing: border-box;">
+      <h2 class="kicker">ไปที่อื่นต่อ</h2>
+      <div class="cross">
+        <a class="xcard" style="background:#ffcc00">ดูดวง <span>→</span></a>
+        <a class="xcard" style="background:#2b7bff">เครื่องมือสุ่ม <span>→</span></a>
+        <a class="xcard" style="background:#ffffff">ติชม / เสนอเกม <span>→</span></a>
+      </div>
+    </div>
+    <div class="frame w320" style="padding: 24px 14px; box-sizing: border-box;">
+      <h2 class="kicker">ไปที่อื่นต่อ</h2>
+      <div class="cross">
+        <a class="xcard" style="background:#ffcc00">ดูดวง <span>→</span></a>
+        <a class="xcard" style="background:#2b7bff">เครื่องมือสุ่ม <span>→</span></a>
+        <a class="xcard" style="background:#ffffff">ติชม / เสนอเกม <span>→</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="note" style="margin-top: 12px;"><b>L2</b> - drawn on the party page ("ไปที่อื่นต่อ" row, existing). The new card is white (#ffffff color-bg) so it does not borrow a category accent it does not own. On the tools hub, which has no cross row, the same card sits beside "กลับหน้าแรก" in the back-link row. At 1440 the third card wraps to a second row of the 2-column grid.</div>
+
+  <div class="label">L3 · category pages + tools hub: a text line under the last section (the lighter alternative to L2) · 320</div>
+  <div class="row">
+    <div class="frame w320" style="padding: 24px 14px; box-sizing: border-box;">
+      <a class="back" style="margin-bottom: 20px;">กลับหน้าแรก</a>
+      <div><a class="textlink">มีไอเดียเกม? บอกผู้พัฒนา</a></div>
+    </div>
+    <div style="width: 680px;">
+      <div class="note"><b>L3</b> - one underlined text link, Mitr 500 17px, padded to a 44px tap row. Lowest visual weight, easiest to miss. Pick L2 or L3 for these pages, not both.</div>
+    </div>
+  </div>
+
+  <!-- ===================================================== copy -->
+  <div class="label">COPY · every new Thai string on this sheet</div>
+  <div class="note">Page: "บอกผู้พัฒนาหน่อย" · "ชอบอะไร อยากให้แก้ตรงไหน หรืออยากได้เกมใหม่ เขียนมาได้เลย ผู้พัฒนาอ่านเองทุกข้อความ" · "ติชม / แจ้งปัญหา" · "เสนอเกมใหม่" · "ข้อความ" · "เช่น เกมไหนสนุก ตรงไหนใช้ยาก หรือเจออะไรแปลกๆ" · "ชื่อเกมหรือไอเดีย" · "เช่น เกมทายคำใบ้" · "เล่นยังไง" · "เล่าคร่าวๆ ใครโดน แพ้ยังไง" · "อีเมล (ไม่บังคับ)" · "กรอกถ้าอยากให้ตอบกลับ" · "ส่งความเห็น" · "ส่งไอเดียเกม" (A) · "อยากส่งเรื่องอะไร" · "ส่ง" (B) · privacy: "เราเก็บข้อความและอีเมล (ถ้ากรอก) ไว้อ่านและตอบกลับเท่านั้น ไม่ส่งต่อให้ใคร และลบอัตโนมัติภายใน 6 เดือน อยากให้ลบก่อนนั้น ส่งคำขอผ่านหน้านี้พร้อมอีเมลที่ใช้"</div>
+  <div class="note">Results: "ได้รับแล้ว ขอบคุณนะ" · "ผู้พัฒนาจะอ่านเร็วๆ นี้" · "ส่งอีกเรื่อง" · "ส่งไม่สำเร็จ" · "ลองใหม่อีกครั้ง หรือกลับมาส่งทีหลังนะ" · "กลับไปหน้าส่งความเห็น". Links: "มีเกมในใจ อยากให้ทำ?" · "เสนอเกมใหม่ หรือบอกว่าอยากให้แก้อะไร ผู้พัฒนาอ่านทุกข้อความ" · "ส่งความเห็น →" (L1) · "ติชม / เสนอเกม" (L2) · "มีไอเดียเกม? บอกผู้พัฒนา" (L3).</div>
+  <div class="note">Existing, copied from src: "วัดดวง" · "ดูดวง" · "สุ่มคนโดน" · "เครื่องมือสุ่ม" · "ไปที่อื่นต่อ" · "กลับหน้าแรก". Meta (not drawn): title "ติชมและเสนอเกม — วัดดวง", description "ติชม แจ้งปัญหา หรือเสนอเกมใหม่ให้ผู้พัฒนาวัดดวง อ่านเองทุกข้อความ".</div>
+</div>
+</x-dc>
+</body>
+</html>

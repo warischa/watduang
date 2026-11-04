@@ -1,0 +1,17 @@
+---
+// gh#292: where the feedback endpoint sends a visitor when a post breaks a server rule or storage
+// fails. Copy is the proposal sheet's COPY block. noindex, for the same reason as the sent page.
+import Base from '../../layouts/Base.astro';
+import PageChrome from '../../components/PageChrome.astro';
+import FeedbackResult from '../../components/FeedbackResult.astro';
+---
+
+<Base title="ส่งไม่สำเร็จ — วัดดวง" description="ลองใหม่อีกครั้ง หรือกลับมาส่งทีหลังนะ" noindex chrome>
+  <PageChrome>
+    <FeedbackResult
+      heading="ส่งไม่สำเร็จ"
+      lead="ลองใหม่อีกครั้ง หรือกลับมาส่งทีหลังนะ"
+      primary={{ label: 'กลับไปหน้าส่งความเห็น', href: '/feedback/' }}
+    />
+  </PageChrome>
+</Base>

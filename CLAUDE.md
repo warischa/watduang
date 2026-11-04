@@ -21,7 +21,7 @@ Full detail: [#6](https://github.com/warischa/watduang/issues/6)
 
 **Content** — no images of bottles, cans, or branded glasses **anywhere, including OG images and thumbnails** (that alone triggers Thai Alcohol Act §32/1) · no dares that push players toward real physical harm (a genuine AdSense account-termination risk) · no brands, no shop links, no alcohol affiliates · keep profanity in check · no age gate needed.
 
-**Portability** — the build must produce pure static `dist/`, and everything Azure-specific must live in exactly 2 files (`staticwebapp.config.json` + the deploy step) · CI proves it with `npx serve dist/` · no SWA auth · no Azure SDK in the build · all paths relative.
+**Portability** — the build must produce pure static `dist/`, and everything Azure-specific must live in `staticwebapp.config.json`, the deploy step, and `services/feedback/` (the linked `/api` Function App, outside the build: ADR-0074) · CI proves it with `npx serve dist/` · no SWA auth · no Azure SDK in the build · all paths relative.
 
 **CSP** — must let AdSense through, or ads silently fail to render (do not copy `admin-tools-dev`'s CSP verbatim — that site is deliberately strict because PDPA is its selling point) · page scripts must never inline: ADR-0005.
 

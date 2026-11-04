@@ -1,0 +1,112 @@
+---
+// gh#292: the 404 page and the two pages the feedback endpoint redirects to (/feedback/sent/,
+// /feedback/failed/): a heading, a lead and one or two pill links.
+// Layout and values are the 404 page's (design/NotFoundDesktop.dc.html, design/NotFound320.dc.html),
+// which the proposal sheet's result boards reuse; the second link is the sheet's outline pill.
+// It renders the <main> only: each page renders Base itself, so the noindex it passes stays visible
+// to src/pages/noindex.test.mjs, which reads page sources. No script.
+
+interface ResultLink {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  heading: string;
+  lead: string;
+  primary: ResultLink;
+  secondary?: ResultLink;
+}
+
+const { heading, lead, primary, secondary } = Astro.props as Props;
+---
+
+<main>
+  <h1>{heading}</h1>
+  <p>{lead}</p>
+  <div class="links">
+    <a class="pill pill-solid" href={primary.href}>{primary.label}</a>
+    {secondary && <a class="pill pill-outline" href={secondary.href}>{secondary.label}</a>}
+  </div>
+</main>
+
+<style>
+  main {
+    background: var(--color-ground-warm);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    padding: 120px max(14px, calc((100% - 1280px) / 2)) 140px;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 44px;
+    line-height: 1.15;
+  }
+
+  p {
+    margin: 12px 0 0;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--color-muted);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 32px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    box-sizing: border-box;
+    padding: 0 26px;
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    text-decoration: none;
+  }
+
+  .pill-solid {
+    background: var(--color-line-strong);
+    color: var(--accent-gold);
+  }
+
+  .pill-outline {
+    border: 2.5px solid var(--color-line-strong);
+    color: var(--color-line-strong);
+  }
+
+  @media (max-width: 1099px) {
+    main {
+      min-height: 360px;
+      box-sizing: border-box;
+      padding: 56px 14px 72px;
+    }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    p {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    .links {
+      margin-top: 24px;
+    }
+
+    .pill {
+      padding: 0 22px;
+      font-size: 16px;
+    }
+  }
+</style>

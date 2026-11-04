@@ -493,6 +493,10 @@ const BASELINE_PAGE_ENTRIES = [
   'tool/team/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
   'tool/wheel/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
   'tools/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  // gh#292 -- the feedback page and its two result pages are web pages, so they load the same chunk.
+  'feedback/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'feedback/sent/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'feedback/failed/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
   'game/bangkok-drift/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
   'game/bangkok-drift/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/cannon-flag/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',

@@ -541,6 +541,12 @@
     "ไม่ใช่เกม ตอบทันทีในกดเดียว ใครจ่าย ใครไปก่อน แบ่งทีมยังไง": {
       "source": "design/HubNeutral.dc.html",
       "baseline": "d7ce37fcd8b61090416b4dbe753aa6d89138b3ae"
+    },
+    "ติชม": {
+      "source": "design/Gh292FeedbackProposals.dc.html"
+    },
+    "เสนอเกม": {
+      "source": "design/Gh292FeedbackProposals.dc.html"
     }
   }
 }

@@ -161,7 +161,8 @@ test('gh#288: pop cards carry .ui-press, link hover is muted plus underline, car
   const css = pageCode.slice(pageCode.indexOf('<style>'));
   assert.match(pageSrc, /class="game-card ui-press"/, '.game-card must carry .ui-press');
   const crossTags = [...pageSrc.matchAll(/class="cross-card[^"]*"/g)].map((m) => m[0]);
-  assert.equal(crossTags.length, 2, 'positive control: both cross-card anchors found');
+  // Three source anchors: the mapped sibling-category card, the tools card, and the feedback card (gh#292).
+  assert.equal(crossTags.length, 3, 'positive control: all three cross-card anchors found');
   for (const tag of crossTags) assert.equal(tag, 'class="cross-card ui-press"');
 
   const linkHover = css.match(/main a:hover\s*\{([^}]*)\}/);

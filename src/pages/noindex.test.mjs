@@ -34,12 +34,25 @@ test('404.astro passes noindex to Base', () => {
   assert.match(src, PASSES_NOINDEX, '404.astro must render <Base noindex ...> so crawlers get noindex');
 });
 
+// gh#292 widened the set from 404 alone to also cover the feedback endpoint's two redirect targets,
+// thin result pages nobody should land on from a search. Listed by path, so the next page that gains
+// noindex still reds here unless someone adds it on purpose.
+const NOINDEX_PAGES = ['404.astro', join('feedback', 'sent.astro'), join('feedback', 'failed.astro')].map((f) =>
+  join(pagesDir, f),
+);
+
+test('every listed noindex page passes noindex to Base', () => {
+  for (const page of NOINDEX_PAGES) {
+    assert.match(readFileSync(page, 'utf8'), PASSES_NOINDEX, `${page} must render <Base noindex ...>`);
+  }
+});
+
 test('no other page under src/pages passes noindex — a soft-404 fix must not deindex the real site', () => {
   const offenders = listPages(pagesDir)
-    .filter((f) => f !== join(pagesDir, '404.astro'))
+    .filter((f) => !NOINDEX_PAGES.includes(f))
     .filter((f) => PASSES_NOINDEX.test(readFileSync(f, 'utf8')));
 
-  assert.deepEqual(offenders, [], 'only 404.astro may pass noindex to Base');
+  assert.deepEqual(offenders, [], 'only the NOINDEX_PAGES set may pass noindex to Base');
 });
 
 // The page-level checks above are half the invariant. The other half lives in Base.astro itself:

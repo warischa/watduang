@@ -35,6 +35,10 @@
     {
       "id": "page-9",
       "name": "gh#264 · หน้าผู้เล่นกลาง (ADR-0071)"
+    },
+    {
+      "id": "page-10",
+      "name": "gh#292 · ติชมและเสนอเกม · proposals"
     }
   ],
   "artboards": [
@@ -442,6 +446,15 @@
       "y": 0,
       "w": 1800,
       "h": 5035
+    },
+    {
+      "file": "Gh292FeedbackProposals.dc.html",
+      "title": "gh#292 feedback page · A / B + links L1 / L2 / L3",
+      "page": "page-10",
+      "x": 0,
+      "y": 0,
+      "w": 1520,
+      "h": 6400
     }
   ],
   "annotations": [

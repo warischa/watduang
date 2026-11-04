@@ -9,7 +9,8 @@
 // Manifest-held copy (game names, taglines, tool names and descriptions, hub headings and bodies,
 // the popular heading) is read at build time and never retyped. The hero, the see-all label, the
 // FAQ and the ad placeholder are the live page's own copy, approved for reuse (owner ruling
-// 2026-10-04 on gh#243); this page invents no Thai. All motion is CSS only (ADR-0005: no inline
+// 2026-10-04 on gh#243); this page invents no Thai, except the feedback band (gh#292, the copy
+// its proposal sheet's owner pick approved). All motion is CSS only (ADR-0005: no inline
 // page script); today's motion stops under prefers-reduced-motion, newer effects reduce.
 import Base from '../layouts/Base.astro';
 import PageChrome from '../components/PageChrome.astro';
@@ -156,6 +157,18 @@ const featured = withArt(featuredGame);
       </Section>
     </div>
 
+    {/* gh#292 (L1, design/Gh292FeedbackProposals.dc.html): the way to the feedback page, an ink band
+        after the last content row so it never pushes a game row down. */}
+    <div class="band band-feedback">
+      <div class="wrap feedback-row">
+        <div class="feedback-copy">
+          <h2>มีเกมในใจ อยากให้ทำ?</h2>
+          <p>เสนอเกมใหม่ หรือบอกว่าอยากให้แก้อะไร ผู้พัฒนาอ่านทุกข้อความ</p>
+        </div>
+        <a class="feedback-cta" href="/feedback/">ส่งความเห็น →</a>
+      </div>
+    </div>
+
     <section class="wrap faq" aria-labelledby="faq">
       <h2 id="faq">คำถามที่เจอบ่อย</h2>
       <div class="faq-item">
@@ -232,6 +245,59 @@ const featured = withArt(featuredGame);
 
   .row {
     margin-top: 96px;
+  }
+
+  /* gh#292 L1: the sheet's band values. The band keeps the party band's ink ground and its gold
+     focus ring (web.css); 48px block padding, a 28px gold H2 on a 17px light lead, and the gold
+     56px pill with ink text, the 404 pill pair inverted. */
+  .band-feedback {
+    padding-block: 48px;
+  }
+
+  .feedback-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .feedback-copy {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .feedback-copy h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1.25;
+    color: var(--surface-sun);
+  }
+
+  .feedback-copy p {
+    margin: 8px 0 0;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--color-ground-warm);
+  }
+
+  .feedback-cta {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    padding: 0 26px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: var(--surface-sun);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    white-space: nowrap;
+    text-decoration: none;
   }
 
   .grid-fortune {
@@ -360,6 +426,27 @@ const featured = withArt(featuredGame);
 
     .row {
       margin-top: 40px;
+    }
+
+    .band-feedback {
+      padding-block: 36px;
+    }
+
+    .feedback-row {
+      display: block;
+    }
+
+    .feedback-copy h2 {
+      font-size: 24px;
+    }
+
+    .feedback-copy p {
+      font-size: 16px;
+    }
+
+    .feedback-cta {
+      display: flex;
+      margin-top: 18px;
     }
 
     .grid-fortune {

@@ -5,7 +5,8 @@ export default defineConfig({
   site: 'https://watduang.com',
   build: { format: 'directory' },
   trailingSlash: 'always',
-  integrations: [sitemap()],
+  // gh#292: the feedback endpoint's two result pages are noindex, so they stay out of the sitemap too.
+  integrations: [sitemap({ filter: (page) => !/\/feedback\/(sent|failed)\/$/.test(page) })],
   // CSP script-src has no 'unsafe-inline' — Astro would otherwise inline small page
   // scripts (no imports, under assetsInlineLimit) and CSP would silently block them.
   vite: {
