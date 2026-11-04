@@ -68,6 +68,10 @@ a same-origin native form post needs no CSP change.
   and keeps entries for removed files, and a stale `src/functions/*.mjs` would still load under the
   `main` glob. Then prove it the same way as the first deploy: one POST through the site origin
   lands a 303 and one row. The install stays outside the repo on purpose, because gates walk the tree.
+- The SWA `/api` proxy answers any `Transfer-Encoding: chunked` request with a 500 "Backend call
+  failure" before the function sees it (measured live 2026-11-04, even a tiny body; no row
+  written). A browser's native form post always sends Content-Length, so only hand-made requests
+  hit it; a probe of the oversize path must send Content-Length, or it measures the proxy.
 - Accepted residual: the endpoint has no rate limiter. The honeypot, the field caps and the body
   cap bound one post, not a flood; the part rollover keeps a flood from blocking real posts for
   the rest of the month, up to 20 parts.
