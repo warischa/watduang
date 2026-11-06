@@ -267,8 +267,39 @@ test('the pass-on control is the primary control and carries game-btn-primary', 
     const classes = (pass.className ?? '').split(/\s+/);
     assert.ok(classes.includes('game-btn'), `tb-pass is not a shared game-btn: ${pass.className}`);
     assert.ok(classes.includes('game-btn-primary'), `tb-pass is not the primary control: ${pass.className}`);
-    assert.equal(pass.textContent, 'ส่งต่อ');
+    // gh#295 A3: the label names who the phone goes to next (the first holder is the first player).
+    assert.equal(pass.textContent, 'ส่งให้ บี →');
 
+    game.dispose();
+  } finally {
+    Date.now = realDateNow;
+  }
+});
+
+// gh#295 A3: a pass to the wrong person names the wrong loser, and the order was never on screen. The
+// pass button now names the NEXT holder, follows every pass, and wraps from the last player to the
+// first. It carries a name only: the gh#151 snapshot test below compares the whole ticking screen
+// between a 30s and a 90s fuse, which covers this label too.
+test('gh#295: the pass button names the next holder and follows the pass order round the circle', (t) => {
+  const realDateNow = Date.now;
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = fakeDocument.createElement('div');
+  try {
+    let fakeNow = 1_700_000_000_000;
+    Date.now = () => fakeNow;
+    game.mount(stage, makeCtx(['เอ', 'บี', 'ซี']));
+    t.mock.timers.tick(ARM_WINDOW_MS + 1);
+    byId(stage, 'tb-start').click();
+    const pass = byId(stage, 'tb-pass');
+    assert.ok(pass, 'the ticking screen carries no pass-on control');
+    const seen = [pass.textContent];
+    for (let i = 0; i < 3; i += 1) {
+      pass.click();
+      seen.push(pass.textContent);
+    }
+    assert.deepEqual(seen, ['ส่งให้ บี →', 'ส่งให้ ซี →', 'ส่งให้ เอ →', 'ส่งให้ บี →']);
+    // Three passes round a circle of three: the phone is back with the first player.
+    assert.ok(deepText(stage).includes('ตอนนี้อยู่ที่ เอ'), 'the holder line no longer follows the pass');
     game.dispose();
   } finally {
     Date.now = realDateNow;

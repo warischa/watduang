@@ -212,7 +212,13 @@ function renderTicking(): void {
   warn.hidden = true;
   stage.appendChild(warn);
 
-  const passBtn = el('button', 'ส่งต่อ');
+  // gh#295 A3: the button names who the phone goes to NEXT. The pass order was never on screen, so a
+  // pass to the wrong person named the wrong loser. A name and nothing else: no count, no position
+  // in the round, nothing derived from the clock (gh#151). Written through textContent only -- names
+  // are typed by players (ADR-0026). The one-player fallback (no roster at all) has nobody to name.
+  const passLabel = (): string =>
+    players.length > 1 ? `ส่งให้ ${players[(holder + 1) % players.length]} →` : 'ส่งต่อ';
+  const passBtn = el('button', passLabel());
   passBtn.id = 'tb-pass';
   passBtn.type = 'button';
   passBtn.className = 'game-btn game-btn-primary';
@@ -220,10 +226,11 @@ function renderTicking(): void {
     if (phase !== 'ticking') return;
     holder = (holder + 1) % players.length;
     who.textContent = `ตอนนี้อยู่ที่ ${players[holder]}`;
+    passBtn.textContent = passLabel();
   });
   stage.appendChild(passBtn);
 
-  const foot = el('p', 'กดปุ่ม "ส่งต่อ" แล้วส่งมือถือให้คนถัดไปทันที ห้ามถือค้างไว้');
+  const foot = el('p', 'กดปุ่มแล้วส่งมือถือให้คนที่มีชื่อบนปุ่มทันที ห้ามถือค้างไว้');
   foot.className = 'tb-foot';
   stage.appendChild(foot);
 
@@ -437,7 +444,7 @@ const game: GameModule = {
     steps: [
       'นั่งเป็นวง เลือกจำนวนคนเล่นหรือเลือกชื่อจากกลุ่มเดิม แล้วกดเริ่มจับเวลา',
       'ฟิวส์จะเดินแบบสุ่ม เสียงติ๊กจะถี่ขึ้นเรื่อยๆ เมื่อใกล้ระเบิด',
-      'กดปุ่ม "ส่งต่อ" แล้วส่งมือถือให้คนถัดไปทันที ห้ามถือค้างไว้',
+      'กดปุ่มส่ง แล้วส่งมือถือให้คนที่มีชื่อบนปุ่มทันที ห้ามถือค้างไว้',
       'พอระเบิดดัง คนที่ถือมือถืออยู่คือคนแพ้ กด "เล่นอีกรอบ" เพื่อเริ่มใหม่',
     ],
   },

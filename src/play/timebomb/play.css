@@ -326,6 +326,15 @@ body {
   color: var(--tb-muted);
 }
 
+/* gh#295 A3: the pass button carries the next holder's name, which a player types. One line always:
+   the canvas is already at its floor at 320x568, so a wrapped label would push the ticking screen
+   into scroll. A long name is cut with an ellipsis rather than overrunning the button. */
+#tb-pass {
+  padding-inline: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .tb-warn {
   font-weight: 600;
   color: var(--tb-danger);
