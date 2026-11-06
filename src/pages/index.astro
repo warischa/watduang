@@ -18,6 +18,7 @@ import HomeHero from '../components/landing/HomeHero.astro';
 import Section from '../components/landing/Section.astro';
 import ArtTile from '../components/landing/ArtTile.astro';
 import TextTile from '../components/landing/TextTile.astro';
+import { keepThaiWords } from '../components/thai-keep';
 import { categories } from '../games/categories';
 import { games, popularGames, popularGroup, featuredGame } from '../games/manifest';
 import { tools, toolsGroup } from '../tools/manifest';
@@ -27,7 +28,7 @@ import type { Category, GameModule } from '../games/types';
 // play route wherever one exists (ADR-0050 ruling 2).
 const gameTile = (game: GameModule) => ({
   title: game.names.th,
-  desc: game.tagline,
+  desc: keepThaiWords(game.tagline),
   href: game.playRoute ?? `/game/${game.id}/`,
   art: game.cardArt ?? null,
   art2x: game.cardArt2x ?? null,

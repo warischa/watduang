@@ -31,6 +31,7 @@ import type { CategoryMeta } from '../../games/categories';
 import type { Category, GameModule } from '../../games/types';
 import { games as allGames } from '../../games/manifest';
 import { toolsGroup } from '../../tools/manifest';
+import { keepThaiWords } from '../../components/thai-keep';
 
 export function getStaticPaths() {
   const keys = Object.keys(categories) as Category[];
@@ -107,7 +108,7 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
                   />
                 )}
                 <h3>{game.names.th}</h3>
-                <p>{game.tagline}</p>
+                <p>{keepThaiWords(game.tagline)}</p>
                 <span class="card-cta">
                   เล่นเลย
                   <svg
