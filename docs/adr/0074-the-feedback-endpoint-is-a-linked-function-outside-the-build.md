@@ -82,3 +82,7 @@ a same-origin native form post needs no CSP change.
 - Windows Consumption needs `WEBSITE_NODE_DEFAULT_VERSION=~22`. `~24` resolved to an old Node that
   failed at startup on 2026-11-04 (host status: "Use of const in strict mode"). Node 22 reaches end
   of life on 2027-04-30; retest `~24` before then.
+  **Amended 2026-11-06:** the app ran a 32-bit worker (`use32BitWorkerProcess=true`). With the worker
+  set to 64-bit, `~24` runs `C:\Program Files\nodejs\24.22.1\node.exe` and live POSTs return 303 with
+  one row each. The app now runs 64-bit on `~24`. Evidence:
+  `docs/verification/evidence/gh292-feedback/node24-2026-11-06.md`.
