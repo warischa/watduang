@@ -351,6 +351,54 @@ body {
   color: var(--tb-muted);
 }
 
+/* ---- result screens (gh#295 A2) ----------------------------------------------------------------
+   The boom screen and the round-end idle screen used to show the loser as one 16px line among
+   others. The loser's name is the result, so it is the largest text on the boom screen and leads
+   the idle screen. Every selector carries .stage-screen: the shared `.stage-screen p` rule above
+   sets margin and line-height at that specificity, and a bare class would lose to it.
+   A name is typed by a player, so a long unbroken one wraps anywhere rather than overrunning the
+   column at 320px. */
+.stage-screen .tb-boom-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 26px;
+  letter-spacing: 1px;
+  line-height: 1.2;
+  color: var(--tb-flame);
+}
+.stage-screen .tb-boom-loser,
+.stage-screen .tb-last-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+.stage-screen .tb-boom-loser {
+  /* 40px at 320, 47px at 390, capped at 56px until the desktop block raises it. */
+  font-size: clamp(40px, 12vw, 56px);
+  color: var(--tb-ink);
+}
+.stage-screen .tb-boom-verdict {
+  font-size: 15px;
+  color: var(--tb-muted);
+}
+.stage-screen .tb-last-label {
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: var(--tb-muted);
+}
+.stage-screen .tb-last-name {
+  font-size: 34px;
+  color: var(--tb-flame);
+}
+/* The name and the line that qualifies it read as one block: pull them inside the screen's gap. */
+.stage-screen .tb-boom-loser + .tb-boom-verdict,
+.stage-screen .tb-last-label + .tb-last-name {
+  margin-block-start: -14px;
+}
+
 /* ================================================================================================
    gh#183 — DESKTOP FILL. Appended as one block; no rule above this line is modified or reordered.
    One `@media (min-width: 1100px)` block, the single desktop breakpoint gh#180 fixed. This project's
@@ -487,5 +535,18 @@ body {
   body .ps-danger {
     padding-inline: 18px;
     font-size: 18px;
+  }
+  /* gh#295 A2: the result screens' type, scaled with the rest of the desktop column. */
+  .stage-screen .tb-boom-title {
+    font-size: 32px;
+  }
+  .stage-screen .tb-boom-loser {
+    font-size: 72px;
+  }
+  .stage-screen .tb-boom-verdict {
+    font-size: 18px;
+  }
+  .stage-screen .tb-last-name {
+    font-size: 44px;
   }
 }

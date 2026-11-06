@@ -306,6 +306,59 @@ test('gh#295: the pass button names the next holder and follows the pass order r
   }
 });
 
+/** Plays one round to the boom screen with a fixed roster; returns the stage left on screen. */
+function playToBoom(t, players) {
+  let fakeNow = 1_700_000_000_000;
+  Date.now = () => fakeNow;
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx(players));
+  t.mock.timers.tick(ARM_WINDOW_MS + 1);
+  byId(stage, 'tb-start').click();
+  fakeNow += FUSE_MAX_MS + 1;
+  assert.ok(pendingFrame, 'setup: arm() did not schedule a frame');
+  pendingFrame();
+  assert.ok(byId(stage, 'tb-again'), 'setup: the round never reached the boom screen');
+  return stage;
+}
+
+// gh#295 A2 (a). The loser is the result, so the loser's name is its own element -- styled as the
+// screen's hero by class in the route sheet -- and carries the name and nothing else. No element on
+// the boom screen sets an inline style: the headline's size used to be an inline font-size.
+test('gh#295: the boom screen gives the loser a hero element of their own, styled by class', (t) => {
+  const realDateNow = Date.now;
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const stage = playToBoom(t, ['เอ', 'บี', 'ซี']);
+    const hero = stage.children.find((c) => c.className === 'tb-boom-loser');
+    assert.ok(hero, `the boom screen has no .tb-boom-loser element: ${stageText(stage)}`);
+    assert.equal(hero.textContent, 'เอ', 'the hero element must carry the loser name alone');
+    const styled = stage.children.filter((c) => c.getAttribute('style') !== null).map((c) => c.textContent);
+    assert.deepEqual(styled, [], 'an element on the boom screen still sets an inline style');
+    game.dispose();
+  } finally {
+    Date.now = realDateNow;
+  }
+});
+
+// gh#295 A2 (c). The round-end idle screen (reached by "เล่นอีกรอบ") names last round's loser in an
+// element of its own rather than inside a third body paragraph.
+test('gh#295: the round-end idle screen names last round\'s loser in an element of its own', (t) => {
+  const realDateNow = Date.now;
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const stage = playToBoom(t, ['เอ', 'บี', 'ซี']);
+    byId(stage, 'tb-again').click();
+    assert.ok(byId(stage, 'tb-start'), 'setup: "เล่นอีกรอบ" did not land on the idle screen');
+    const last = stage.children.find((c) => c.className === 'tb-last-name');
+    assert.ok(last, `the idle screen has no .tb-last-name element: ${stageText(stage)}`);
+    assert.equal(last.textContent, 'เอ');
+    assert.equal(stage.children.indexOf(last) < stage.children.indexOf(byId(stage, 'tb-start')), true);
+    game.dispose();
+  } finally {
+    Date.now = realDateNow;
+  }
+});
+
 test('no navigation target (no <a>) renders inside #stage on any screen', (t) => {
   const realDateNow = Date.now;
   t.mock.timers.enable({ apis: ['setTimeout'] });

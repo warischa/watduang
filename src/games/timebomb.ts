@@ -140,10 +140,19 @@ function renderIdle(): void {
   stage.className = 'stage-screen';
 
   const names = gameCtx?.session.players ?? [];
+  // A ghost tap on "เล่นอีกรอบ" remounts straight into this screen — still say who just lost. First on
+  // the screen and in a line of its own (gh#295): it is the result of the round just played, not a
+  // third line of instructions. Direct children of the stage, as every line here is.
+  if (lastLoser) {
+    const label = el('p', 'รอบที่แล้ว คนแพ้คือ');
+    label.className = 'tb-last-label';
+    stage.appendChild(label);
+    const last = el('p', lastLoser);
+    last.className = 'tb-last-name';
+    stage.appendChild(last);
+  }
   stage.appendChild(el('p', `วง ${names.length || '-'} คน — ส่งมือถือวนไปเรื่อยๆ`));
   stage.appendChild(el('p', 'กดเริ่มแล้วฟิวส์จะเดิน ไม่มีใครรู้ว่าจะระเบิดตอนไหน'));
-  // A ghost tap on "เล่นอีกรอบ" remounts straight into this screen — still say who just lost.
-  if (lastLoser) stage.appendChild(el('p', `รอบที่แล้ว ${lastLoser} แพ้ — ถือมือถืออยู่ตอนระเบิด`));
 
   const startBtn = el('button', 'เริ่มจับเวลา');
   startBtn.id = 'tb-start';
@@ -245,8 +254,18 @@ function renderBoom(): void {
   fuseFillEl = null;
 
   lastLoser = players[holder];
-  stage.appendChild(el('p', 'ตูม!', 'font-size:2rem;font-weight:700'));
-  stage.appendChild(el('p', `${lastLoser} ถือมือถืออยู่ตอนระเบิด — แพ้รอบนี้`));
+  // gh#295: the loser is the result, so the name is the hero of this screen -- its own line, sized
+  // by class in the route sheet -- and the headline and the verdict sit around it. Sizes live in
+  // CSS only: the headline used to carry an inline font-size.
+  const title = el('p', 'ตูม!');
+  title.className = 'tb-boom-title';
+  stage.appendChild(title);
+  const loser = el('p', lastLoser);
+  loser.className = 'tb-boom-loser';
+  stage.appendChild(loser);
+  const verdict = el('p', 'ถือมือถืออยู่ตอนระเบิด — แพ้รอบนี้');
+  verdict.className = 'tb-boom-verdict';
+  stage.appendChild(verdict);
 
   const again = el('button', 'เล่นอีกรอบ');
   again.id = 'tb-again';

@@ -25,10 +25,11 @@ import { armAllButtons } from '../../games/_arm-gate.ts';
 import { isMuted, setMuted } from '../../shell/audio.ts';
 import { loadRoster } from '../../shell/roster';
 import { loadSession } from '../../shell/session';
-import { mountPlayerScreen, type Player } from '../_player-screen/player-screen.ts';
+import { mountPlayerScreen, type Player, type PlayerScreen } from '../_player-screen/player-screen.ts';
 // The drawn play surface. It reads the engine's fuse element and holds no clock of its own — see the
 // header of that file for why that split is what keeps the absolute deadline the only clock.
 import { startBombCanvas } from './bomb-canvas.ts';
+import { closeStaleEditConfirm } from './stale-edit-confirm.ts';
 
 const setupEl = document.getElementById('tb-setup');
 const stageEl = document.getElementById('tb-stage');
@@ -39,6 +40,8 @@ const muteEl = document.getElementById('tb-mute') as HTMLButtonElement | null;
 
 /** Who this round plays with, in the order the shared screen handed them over (roster order). */
 let playing: string[] = [];
+/** The shared player screen, once mounted. Held here because the stage observer needs its gate. */
+let playerScreen: PlayerScreen | null = null;
 
 /** The context the engine mounts against. Shaped like the solo context in src/pages/game/[id].astro:
  *  the fields this route owns are answered here, and the one fact that belongs to the whole site —
@@ -77,7 +80,13 @@ function announceFromStage(stage: HTMLElement): void {
     return;
   }
   if (stage.querySelector('#tb-again')) {
-    const result = stage.querySelectorAll('p')[1]?.textContent?.trim();
+    // Every line after the headline: the loser, then what happened to them (gh#295 split the two
+    // so the name can be the screen's hero).
+    const result = Array.from(stage.querySelectorAll('p'))
+      .slice(1)
+      .map((p) => p.textContent?.trim() ?? '')
+      .filter(Boolean)
+      .join(' ');
     liveEl.textContent = result ? `ระเบิดแล้ว ${result}` : 'ระเบิดแล้ว';
     return;
   }
@@ -112,14 +121,18 @@ function roundActive(): boolean {
 
 if (canvasEl) startBombCanvas(canvasEl);
 if (stageEl) {
-  new MutationObserver(() => announceFromStage(stageEl)).observe(stageEl, { childList: true });
+  new MutationObserver(() => {
+    announceFromStage(stageEl);
+    // gh#295: a mid-round confirm still open when the bomb goes off asks about a round that is over.
+    if (playerScreen && stageEl.querySelector('#tb-again')) closeStaleEditConfirm(document, playerScreen.arm);
+  }).observe(stageEl, { childList: true });
 }
 
 if (setupEl) {
   // Range from the module's own declared players field, so this screen can never offer a count the
   // manifest does not claim; the shared screen clamps into it and owns the 20 ceiling. Read inline
   // on purpose: scripts/seat-cap-check.mjs proves this hand-off structurally.
-  const screen = mountPlayerScreen({
+  playerScreen = mountPlayerScreen({
     root: setupEl,
     range: game.players,
     onStart: begin,
@@ -127,7 +140,7 @@ if (setupEl) {
     abortRound: putAwayRound,
     onOpen: putAwayRound,
   });
-  screen.open();
+  playerScreen.open();
 }
 
 /** gh#165. The toggle's face, re-read from the stored flag rather than from a local boolean: the flag

@@ -22,7 +22,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { mountOnPage, revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { closeStaleEditConfirm } from './stale-edit-confirm.ts';
 
 const MAIN = path.join(import.meta.dirname, 'main.ts');
 const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
@@ -109,3 +110,53 @@ test('gh#165: the sound toggle is armed at first paint, not just at a reveal', (
 
 // The shared screen's reveal paths, driven over THIS route's markup and read off THIS route's header.
 revealPathCases({ test, assert, routeMarkup: MARKUP, rootId: 'tb-setup', headerId: 'tb-mute', label: 'timebomb' });
+
+// gh#295 A2 (d). The mid-round confirm ("เล่นรอบนี้ต่อ" / end the round) asks about a round that is
+// running. When the fuse runs out under it, the question is void -- there is no round left to keep
+// playing -- so the route closes it. That close is a reveal (ADR-0057): the boom screen and the header
+// come out from under the dialog, and a finger already on its way to the dialog's answer lands on
+// them. The close must arm both, through the screen's own gate.
+// The engine's boom screen is stood in for by one button with its id; the engine itself is not run.
+async function confirmOpenAtDetonation(t) {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const page = await mountOnPage({ routeMarkup: MARKUP, rootId: 'tb-setup', roster: ['ต้น', 'มายด์'], round: true });
+  const dialog = page.byId('ps-edit-dialog');
+  page.doc.dispatchEvent({ type: page.ps.EDIT_EVENT });
+  assert.equal(dialog.open, true, 'setup: a live round did not ask first');
+  const again = page.doc.createElement('button');
+  again.setAttribute('id', 'tb-again');
+  page.byId('tb-stage').append(again);
+  t.mock.timers.tick(401);
+  assert.equal(page.byId('tb-mute').disabled, false, 'setup: the header must be live before the close');
+  assert.equal(again.disabled, false, 'setup: the boom control must be live before the close');
+  page.live.round = false; // the fuse ran out
+  return { page, dialog, again };
+}
+
+test('gh#295: the bomb going off closes the mid-round confirm, and the close arms what it uncovers', async (t) => {
+  const { page, dialog, again } = await confirmOpenAtDetonation(t);
+  assert.equal(closeStaleEditConfirm(page.doc, page.screen.arm), true);
+  assert.equal(dialog.open, false, 'the confirm still offers to keep playing a round that is over');
+  assert.equal(page.byId('tb-mute').disabled, true, 'the close did not arm the header it uncovered');
+  assert.equal(again.disabled, true, 'the close did not arm the boom screen it uncovered');
+  t.mock.timers.tick(401);
+  assert.equal(again.disabled, false, 'the boom control never came back after the window');
+});
+
+test('gh#295: with no confirm open, the detonation closer does nothing and arms nothing', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const page = await mountOnPage({ routeMarkup: MARKUP, rootId: 'tb-setup', roster: ['ต้น', 'มายด์'] });
+  t.mock.timers.tick(401);
+  assert.equal(closeStaleEditConfirm(page.doc, page.screen.arm), false);
+  assert.equal(page.byId('tb-mute').disabled, false, 'a closer with nothing to close armed the header anyway');
+});
+
+// The wiring: the stage observer runs the closer when the boom screen appears, with the screen's own
+// gate. Sliced to the observer callback first, so another call elsewhere cannot keep this green.
+test('gh#295: main.ts runs the closer from the stage observer when the boom screen appears', () => {
+  const at = source.indexOf('new MutationObserver(');
+  assert.ok(at > -1, 'the stage observer is gone — this test measures nothing');
+  const body = source.slice(at, source.indexOf('.observe(stageEl', at));
+  assert.match(body, /querySelector\('#tb-again'\)/, 'the observer no longer recognises the boom screen');
+  assert.match(body, /closeStaleEditConfirm\(document, playerScreen\.arm\)/, 'the observer does not close the stale confirm');
+});

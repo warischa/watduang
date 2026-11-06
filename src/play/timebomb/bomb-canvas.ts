@@ -15,6 +15,11 @@
 // deadline is a countdown a player can read (owner ruling 2026-08-30). Burning, flickering and
 // sparking are what say the fuse is lit. Everything that moves here is off performance.now(), which is
 // absolute and cosmetic, so a throttled tab resumes where the wall clock is.
+//
+// The one timed thing is the detonation burst (gh#295): a flash, a shake and a blast that grows to
+// its resting size over BOOM_MS. It is timed from the moment this renderer first sees the boom
+// screen -- after the round is over -- and runs the same whatever the fuse was, so it carries nothing
+// about the deadline. Under prefers-reduced-motion it is skipped and the resting frame is drawn at once.
 
 /** Screen state, derived from what the engine currently has on the stage — the renderer owns no
  *  state machine of its own. #tb-fuse exists only on the ticking screen, #tb-again only after the
@@ -119,6 +124,18 @@ export function bombLayout(width: number, height: number): BombLayout {
   };
 }
 
+/** How long the detonation burst takes to settle into its resting frame. */
+export const BOOM_MS = 650;
+
+/** The burst's moving terms at `progress` (0 = the instant of detonation, 1 = at rest): how hard the
+ *  scene shakes, how far the blast has grown, how bright the flash over it is. At 1 every term is at
+ *  rest -- no shake, full size, no flash -- which is the frame reduced motion draws straight away. */
+export function boomMotion(progress: number): { shake: number; grow: number; flash: number } {
+  const p = Math.min(1, Math.max(0, progress));
+  const rest = 1 - p;
+  return { shake: rest * rest, grow: 1 - rest * rest * rest * 0.65, flash: rest * rest * rest };
+}
+
 export interface BombCanvas {
   /** Draws one frame of the current surface — exported so a probe can force a frame without rAF. */
   drawOnce(): void;
@@ -136,6 +153,8 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
   let rafId = 0;
   let lastSurface: Surface = 'off';
   let lastPainted: Surface | null = null;
+  /** performance.now() when this renderer first saw the boom screen; 0 when it is not up. */
+  let boomAt = 0;
 
   function resize(): void {
     const rect = canvas.getBoundingClientRect();
@@ -148,7 +167,7 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
     canvas.height = Math.max(1, Math.round(rect.height * dpr));
   }
 
-  function paint(exploded: boolean): void {
+  function paint(): void {
     if (!ctx || width === 0 || height === 0) return;
     const reduced = reduceQuery?.matches === true;
     // Cosmetic only. performance.now() is absolute like the fuse itself, so a throttled tab resumes
@@ -274,40 +293,115 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
     ctx.fill();
     ctx.restore();
 
-    // 7. Detonation: one bright ring plus a wash, drawn as a final resting frame rather than an
-    //    animation — the round is already over and the result is announced in the DOM below.
-    if (exploded) {
-      ctx.save();
-      ctx.globalAlpha = 0.85;
-      // Sized to fade out INSIDE the canvas box: a wash still bright at the edge is clipped square by
-      // the element bounds and reads as a lit rectangle rather than a blast (measured on the 320px
-      // reduced-motion capture, where the corners were visibly cut).
-      const boomR = Math.min(radius * 2.1, Math.min(width, height) * 0.48);
-      const boomGrad = ctx.createRadialGradient(0, 0, radius * 0.2, 0, 0, boomR);
-      boomGrad.addColorStop(0, 'rgba(255, 237, 213, 0.95)');
-      boomGrad.addColorStop(0.45, 'rgba(249, 115, 22, 0.5)');
-      boomGrad.addColorStop(1, 'rgba(249, 115, 22, 0)');
-      ctx.fillStyle = boomGrad;
-      ctx.beginPath();
-      ctx.arc(0, 0, boomR, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
-      ctx.lineWidth = Math.max(2, radius * 0.05);
-      ctx.beginPath();
-      ctx.arc(0, 0, radius * 1.45, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
+    ctx.restore();
+    ctx.restore();
+  }
 
+  /** The detonation. The bomb is gone: a scorch where it stood, a jagged blast with a wash behind it
+   *  and a ring around it, and over the first moments a shake and a white flash. `progress` runs 0..1
+   *  over BOOM_MS; at 1 nothing moves, and that resting frame is what reduced motion gets. */
+  function paintBoom(progress: number, ageMs: number): void {
+    if (!ctx || width === 0 || height === 0) return;
+    const { cx, groundY, radius } = bombLayout(width, height);
+    const cy = groundY - radius * 1.05;
+    const m = boomMotion(progress);
+    const amp = radius * 0.15 * m.shake;
+    const dx = amp * Math.sin(ageMs * 0.09);
+    const dy = amp * Math.cos(ageMs * 0.13);
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, width, height);
+    ctx.save();
+    ctx.translate(dx, dy);
+
+    // Scorch: the ground shadow, wider and darker, where the bomb stood.
+    ctx.save();
+    ctx.translate(cx, groundY + radius * 0.08);
+    ctx.scale(1, 0.26);
+    const scorch = ctx.createRadialGradient(0, 0, radius * 0.1, 0, 0, radius * 1.15);
+    scorch.addColorStop(0, 'rgba(2, 6, 16, 0.9)');
+    scorch.addColorStop(1, 'rgba(2, 6, 16, 0)');
+    ctx.fillStyle = scorch;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 1.15, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
+
+    // Sized to fade out INSIDE the canvas box: a wash still bright at the edge is clipped square by
+    // the element bounds and reads as a lit rectangle rather than a blast (measured on the 320px
+    // reduced-motion capture, where the corners were visibly cut). The room is measured from the
+    // blast centre to the nearest edge, since the centre is not the middle of the box.
+    const room = Math.min(cx, width - cx, cy, height - cy) - 2;
+    const boomR = Math.max(1, Math.min(radius * 2.1, room) * m.grow);
+    ctx.translate(cx, cy);
+
+    const wash = ctx.createRadialGradient(0, 0, boomR * 0.1, 0, 0, boomR);
+    wash.addColorStop(0, 'rgba(255, 237, 213, 0.95)');
+    wash.addColorStop(0.45, 'rgba(249, 115, 22, 0.35)');
+    wash.addColorStop(1, 'rgba(249, 115, 22, 0)');
+    ctx.fillStyle = wash;
+    ctx.beginPath();
+    ctx.arc(0, 0, boomR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // The blast: a jagged star, long and short points alternating so it reads as torn, not drawn.
+    const points = 12;
+    const outer = boomR * 0.8;
+    ctx.beginPath();
+    for (let i = 0; i < points * 2; i += 1) {
+      const a = (i / (points * 2)) * Math.PI * 2 - Math.PI / 2;
+      const r = i % 2 === 1 ? outer * 0.48 : i % 4 === 0 ? outer : outer * 0.78;
+      ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    }
+    ctx.closePath();
+    const star = ctx.createRadialGradient(0, 0, 0, 0, 0, outer);
+    star.addColorStop(0, '#fffbeb');
+    star.addColorStop(0.35, '#fde047');
+    star.addColorStop(0.75, '#f97316');
+    star.addColorStop(1, 'rgba(220, 38, 38, 0.85)');
+    ctx.fillStyle = star;
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+    ctx.lineWidth = Math.max(2, radius * 0.05);
+    ctx.beginPath();
+    ctx.arc(0, 0, Math.min(radius * 1.45, boomR * 0.95), 0, Math.PI * 2);
+    ctx.stroke();
     ctx.restore();
+
+    // The flash sits over everything and is gone well before the burst settles. Radial, and faded out
+    // before the nearest edge for the same reason as the wash: a flat fill lights the canvas box up
+    // as a rectangle (the first capture of this burst did exactly that).
+    if (m.flash > 0.01) {
+      const reach = Math.max(1, room);
+      const flash = ctx.createRadialGradient(cx, cy, 0, cx, cy, reach);
+      flash.addColorStop(0, `rgba(255, 247, 230, ${(0.95 * m.flash).toFixed(3)})`);
+      flash.addColorStop(0.6, `rgba(255, 247, 230, ${(0.5 * m.flash).toFixed(3)})`);
+      flash.addColorStop(1, 'rgba(255, 247, 230, 0)');
+      ctx.fillStyle = flash;
+      ctx.fillRect(0, 0, width, height);
+    }
+    ctx.restore();
+  }
+
+  /** 0..1 through the burst. Reduced motion, and a boom this renderer never saw begin (a probe's
+   *  drawOnce before the first frame), get the resting frame. */
+  function boomProgress(): number {
+    if (reduceQuery?.matches === true || boomAt === 0) return 1;
+    return (performance.now() - boomAt) / BOOM_MS;
+  }
+
+  function draw(surface: Surface): void {
+    if (surface === 'boom') paintBoom(boomProgress(), boomAt === 0 ? 0 : performance.now() - boomAt);
+    else paint();
   }
 
   function drawOnce(): void {
     const surface = readSurface();
     if (surface === 'off') return;
     resize();
-    paint(surface === 'boom');
+    draw(surface);
   }
 
   function frame(): void {
@@ -322,17 +416,20 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
       // resize() writes canvas.width, which CLEARS the backing store — so the reduced-motion
       // paint-once bookkeeping has to be reset here or a re-entered surface stays blank.
       lastPainted = null;
+      boomAt = surface === 'boom' ? performance.now() : 0;
       if (surface !== 'off') resize();
     }
 
     if (surface !== 'off') {
       // Under reduced motion every term in paint() is a constant, so a second frame of the same
       // surface would paint the identical image — one paint per surface is the whole picture, and
-      // skipping the rest saves a full redraw per frame on the devices least able to afford one. Never
-      // skipped otherwise: the wobble and the spark's flicker are what need those frames.
-      if (!(reduceQuery?.matches === true && lastPainted === surface)) {
-        paint(surface === 'boom');
-        lastPainted = surface;
+      // skipping the rest saves a full redraw per frame on the devices least able to afford one. The
+      // burst's resting frame is the same case with motion on: once it settles nothing moves. Never
+      // skipped otherwise: the wobble, the spark's flicker and the burst are what need those frames.
+      const still = reduceQuery?.matches === true || (surface === 'boom' && boomProgress() >= 1);
+      if (!(still && lastPainted === surface)) {
+        draw(surface);
+        lastPainted = still ? surface : null;
       }
     }
     rafId = requestAnimationFrame(frame);

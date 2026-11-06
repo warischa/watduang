@@ -12,7 +12,7 @@
 // layout that mis-reserves its own room reds here.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { bombLayout, MOTION } from './bomb-canvas.ts';
+import { BOOM_MS, bombLayout, boomMotion, MOTION } from './bomb-canvas.ts';
 
 // The 120px floor at 320x568 (the canvas min-block-size), the phone and desktop boxes measured on the
 // built route, and the extremes either side: a tall narrow box and a short wide one.
@@ -67,4 +67,22 @@ test('gh#151: the cord length is a fixed multiple of the radius at every box siz
     return Number((Math.hypot(L.tipX, L.tipY - L.baseY) / L.radius).toFixed(6));
   });
   assert.equal(new Set(ratios).size, 1, `cord chord / radius differs across boxes: ${ratios.join(', ')}`);
+});
+
+// gh#295 A2 (b). The detonation burst settles into a resting frame with nothing left moving: that
+// frame is both where the full-motion burst ends and what reduced motion draws straight away, so the
+// two cannot drift apart. Before it settles, every term is moving.
+test('gh#295: the detonation burst comes to rest -- no shake, full size, no flash -- and is moving before that', () => {
+  for (const p of [1, 1.5, 40]) {
+    assert.deepEqual(boomMotion(p), { shake: 0, grow: 1, flash: 0 }, `boomMotion(${p}) is not at rest`);
+  }
+  const start = boomMotion(0);
+  assert.ok(start.shake > 0.5 && start.flash > 0.5 && start.grow < 0.5, `the burst starts at rest: ${JSON.stringify(start)}`);
+  let last = boomMotion(0);
+  for (let p = 0.1; p <= 1.0001; p += 0.1) {
+    const m = boomMotion(p);
+    assert.ok(m.shake <= last.shake && m.flash <= last.flash && m.grow >= last.grow, `the burst reverses at ${p.toFixed(1)}`);
+    last = m;
+  }
+  assert.ok(BOOM_MS >= 200 && BOOM_MS <= 1000, `a burst of ${BOOM_MS}ms is not "a few hundred ms"`);
 });
