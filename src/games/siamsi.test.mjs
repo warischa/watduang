@@ -348,6 +348,38 @@ test('gh#97: with no motion sensor the press-and-hold reaches the same ติ้
   game.dispose();
 });
 
+// gh#295 A5: the hold had pointer listeners only, so a keyboard (or switch) user could focus the
+// button and never draw. Space or Enter held down is the same hold; auto-repeat keydowns must not
+// restart the interval (a repeat faster than HOLD_STEP_MS would starve it), and a key tap is a tap.
+test('gh#295: Space or Enter held on the hold button reaches the same ติ้ว; a key tap does not', (t) => {
+  t.mock.timers.enable(timers);
+  for (const key of [' ', 'Enter']) {
+    const stage = fakeDocument.createElement('div');
+    game.mount(stage, makeCtx([]));
+    t.mock.timers.tick(ARM_DELAY_MS + 1);
+    byId(stage, 'ss-intent-done').click();
+    const hold = byId(stage, 'ss-hold');
+    t.mock.timers.tick(ARM_DELAY_MS + 1);
+
+    const down = (repeat) => hold.dispatch('keydown', { key, repeat, preventDefault() {} });
+    const up = () => hold.dispatch('keyup', { key, preventDefault() {} });
+
+    down(false);
+    up();
+    t.mock.timers.tick(HOLD_STEP_MS * SHAKE_TARGET * 2);
+    assert.equal(byId(stage, 'ss-open-slip'), null, `a ${JSON.stringify(key)} tap released a ติ้ว`);
+
+    down(false);
+    for (let i = 0; i < SHAKE_TARGET * 8; i++) {
+      t.mock.timers.tick(Math.floor(HOLD_STEP_MS / 4));
+      down(true);
+    }
+    t.mock.timers.tick(HOLD_STEP_MS);
+    assert.ok(byId(stage, 'ss-open-slip'), `holding ${JSON.stringify(key)} never released the ติ้ว`);
+    game.dispose();
+  }
+});
+
 // gh#288 follow-up: a control whose hold stops on pointerleave must register as held, so the shell
 // stylesheet never gives it a hover or press transform. The set comes from live listeners, not text.
 test('gh#288: every element bound to pointerleave on the hold screen carries game-btn-held', (t) => {

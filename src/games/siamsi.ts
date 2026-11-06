@@ -536,6 +536,24 @@ function renderShake(): void {
   on(hold, 'pointerup', stopHold);
   on(hold, 'pointercancel', stopHold);
   on(hold, 'pointerleave', stopHold);
+  // gh#295 A5: the keyboard path to the same hold. Space or Enter held down charges exactly like a
+  // held finger. Auto-repeat keydowns are ignored, not restarted: startHold() clears and re-creates the
+  // interval, so a repeat faster than HOLD_STEP_MS would starve it forever. Losing focus ends the hold,
+  // the keyboard twin of pointerleave. Same disabled check as the pointer channel, same reason.
+  const isHoldKey = (e: Event): boolean => {
+    const k = (e as KeyboardEvent).key;
+    return k === ' ' || k === 'Enter';
+  };
+  on(hold, 'keydown', (e) => {
+    if (!isHoldKey(e)) return;
+    e.preventDefault();
+    if ((e as KeyboardEvent).repeat) return;
+    if (!hold.disabled) startHold(hold);
+  });
+  on(hold, 'keyup', (e) => {
+    if (isHoldKey(e)) stopHold();
+  });
+  on(hold, 'blur', stopHold);
   stage.appendChild(hold);
 
   stage.appendChild(el('p', NOTE_SHAKE));
