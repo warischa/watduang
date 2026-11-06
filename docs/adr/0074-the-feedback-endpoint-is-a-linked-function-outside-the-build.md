@@ -61,8 +61,16 @@ a same-origin native form post needs no CSP change.
   a different one):
 
   ```bash
-  B=$(mktemp -d) && Z="$(mktemp -d)/feedback.zip" && cp -R services/feedback/. "$B/" && rm -f "$B"/src/*.test.mjs && (cd "$B" && npm ci --omit=dev --no-audit --no-fund && zip -qr "$Z" . -x '.funcignore') && az functionapp deployment source config-zip -n func-watduang-feedback -g rg-watduang --subscription "<rg-watduang subscription id>" --src "$Z"
+  B=$(mktemp -d) && Z="$(mktemp -d)/feedback.zip" && cp -R services/feedback/. "$B/" && rm -f "$B"/src/*.test.mjs && (cd "$B" && npm ci --omit=dev --no-audit --no-fund && zip -qr "$Z" . -x '.funcignore') && az functionapp config appsettings set -n func-watduang-feedback -g rg-watduang --subscription "<rg-watduang subscription id>" --settings WEBSITE_RUN_FROM_PACKAGE=1 -o none && az functionapp deployment source config-zip -n func-watduang-feedback -g rg-watduang --subscription "<rg-watduang subscription id>" --src "$Z"
   ```
+
+  **The app runs from package (`WEBSITE_RUN_FROM_PACKAGE=1`, added 2026-11-06, gh#294).** Extracted
+  onto the app's file share, the 82 MB of `node_modules` made a cold start outlast the SWA `/api`
+  proxy, which gives up at about 45s with a 500 "Backend call failure". The first post after idle
+  was lost. Run from the mounted zip, a fresh host answered in 8.3s, 9.8s and 11.5s. Never remove
+  the setting. A cold-start probe needs a host start in `LogFiles/eventlog.xml`:
+  `az functionapp restart` does not reliably cold-start the app, but an app-setting change does.
+  Evidence: `docs/verification/evidence/gh294-cold-start/2026-11-06.md`.
 
   The archive goes to a fresh directory every build: `zip -r` into an existing archive updates it
   and keeps entries for removed files, and a stale `src/functions/*.mjs` would still load under the
