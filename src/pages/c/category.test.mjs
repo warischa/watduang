@@ -75,7 +75,9 @@ test('the page renders label, whenToUse, intro and taglines by interpolation', (
   assert.match(pageSrc, /\{meta\.intro\}/, 'the intro card must render intro by interpolation');
   assert.match(pageSrc, /\{meta\.listHeading\}/, 'the games-list heading must render listHeading by interpolation');
   assert.match(pageSrc, /\{game\.names\.th\}/, 'a card title must render names.th by interpolation');
-  assert.match(pageSrc, /\{game\.tagline\}/, 'a card body must render the tagline by interpolation');
+  // gh#295 A6 admits exactly one wrapper, the render-time Thai word joiner. Its argument is still the
+  // manifest field, so a retyped tagline (or the wrapper around a literal) stays red.
+  assert.match(pageSrc, /\{(?:game\.tagline|keepThaiWords\(game\.tagline\))\}/, 'a card body must render the tagline by interpolation');
 });
 
 test('the accent resolves from the manifest accent NAME, never the slug, never a hex', () => {

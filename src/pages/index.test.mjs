@@ -95,7 +95,8 @@ test('the home page reads game names and taglines from the games manifest', () =
   // gh#75: the grouped cards feed the same two fields through the model, and the featured card's own
   // interpolation above would otherwise satisfy the two assertions on its own.
   assert.match(pageSrc, /title:\s*game\.names\.th\b/, 'the card model must take its title from the games manifest');
-  assert.match(pageSrc, /desc:\s*game\.tagline\b/, 'the card model must take its body from the games manifest');
+  // gh#295 A6 admits exactly one wrapper, the render-time Thai word joiner, around the same field.
+  assert.match(pageSrc, /desc:\s*(?:game\.tagline\b|keepThaiWords\(game\.tagline\))/, 'the card model must take its body from the games manifest');
   // gh#159: the featured card that used to carry `{featured.names.th}` in the markup is gone, so the
   // two loose scans above now match the card model itself. The markup end of the invariant is
   // therefore pinned here explicitly rather than left to those regexes: model field fed by the
