@@ -6,6 +6,11 @@ dist/
 !.env.example
 .DS_Store
 *.log
+
+# impeccable (design skill): keep only the project config (telemetry off). Its runs write critique
+# snapshots and a seed ledger here; those are per-machine, the dated evidence dirs are the record.
+.impeccable/*
+!.impeccable/config.json
 .claude/worktrees/
 
 # Probe screenshots regenerate on every evidence run — the JSON logs are the evidence.
