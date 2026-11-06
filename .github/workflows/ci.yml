@@ -324,10 +324,14 @@ jobs:
       #   node --test 'src/**/*.test.mjs' 'scripts/**/*.test.mjs' | grep '^# tests'
       # No count is written here on purpose: a number in a comment cannot be checked by the step it
       # sits above, and the next test added anywhere would make it silently false.
+      # Zero-test files (gh#293): node counts an emptied or describe-only *.test.mjs as one passing
+      # test, so the pass grep below cannot see it. The custom reporter reds any file node ran that
+      # registered no test; no numeric floor, the predicate is per file. Any --test-reporter flag
+      # drops node's default TAP, so TAP is named explicitly: the pass grep below reads it.
       # PIPESTATUS, not $? — after a pipe, $? is tee's status and is always 0 (agent CI-verification doc).
       - name: Unit tests
         run: |
-          node --test 'src/**/*.test.mjs' 'scripts/**/*.test.mjs' 2>&1 | tee /tmp/unit-tests.txt
+          node --test --test-reporter=tap --test-reporter-destination=stdout --test-reporter=./scripts/zero-test-files-reporter.mjs --test-reporter-destination=stderr 'src/**/*.test.mjs' 'scripts/**/*.test.mjs' 2>&1 | tee /tmp/unit-tests.txt
           [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
           grep -qE '^# pass [1-9]' /tmp/unit-tests.txt \
             || { echo 'Unit tests: 0 tests ran — the glob matched nothing (gh#45)'; exit 1; }
@@ -335,9 +339,10 @@ jobs:
       # services/feedback (ADR-0074) sits outside the site build, so its tests are their own step with
       # their own non-zero count: folded into the step above, a glob that matched nothing here would
       # hide inside the site's pass count — the gh#45 shape again.
+      # Same zero-test-file reporter and explicit TAP as the step above (gh#293).
       - name: Feedback function unit tests (gh#292)
         run: |
-          node --test 'services/*/src/**/*.test.mjs' 2>&1 | tee /tmp/services-tests.txt
+          node --test --test-reporter=tap --test-reporter-destination=stdout --test-reporter=./scripts/zero-test-files-reporter.mjs --test-reporter-destination=stderr 'services/*/src/**/*.test.mjs' 2>&1 | tee /tmp/services-tests.txt
           [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
           grep -qE '^# pass [1-9]' /tmp/services-tests.txt \
             || { echo 'Feedback function tests: 0 tests ran — the glob matched nothing (gh#45)'; exit 1; }
