@@ -20,7 +20,9 @@
   --ps-ink: #fff;
   --ps-muted: #8fa7bf;
   --ps-accent: #2ecc71;
-  --ps-on-accent: #ffffff;
+  /* gh#295 A4: the mockup's white label measured 2.1:1 on this green (the start button and the active
+     seat pill). A deep green ink keeps the button's colour and reads at about 8:1. */
+  --ps-on-accent: #062416;
 }
 
 /* The shared player screen's root, an overlay over the 3D stage like the setup screen it comes

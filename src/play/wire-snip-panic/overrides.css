@@ -23,6 +23,13 @@
   min-block-size: 44px;
 }
 
+/* gh#295 A4: the mockup's .btn-primary sets a white label over a #06b6d4 to #0284c7 gradient, measured
+   2.8:1 on the menu's start button. The same direction one step darker keeps the white label at 4.5:1
+   or better across the whole gradient. */
+.btn-primary {
+  background: linear-gradient(135deg, #0e7490, #0369a1);
+}
+
 /* ADR-0071 ruling 8: the shared player screen reads --ps-* and this route maps them onto the
    mockup's own palette (style.css's :root tokens). The card ground is already opaque here, so the
    dialogs' solid panel takes the same token. --ps-on-accent is the literal the mockup's own
