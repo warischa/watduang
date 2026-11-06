@@ -76,3 +76,27 @@ Party routes (detector, rendered 390): white on `#2ecc71` 2.1:1 (croc-bite) · w
 
 Not covered: real devices, Safari/WebKit, audio, 320 for the A reviews of home/fortune/tools, focus
 states, and every party route except timebomb for design review.
+
+## A-row fixes: the instruments that proved them (2026-11-06)
+
+- **A6, the Thai mid-word break.** Root cause: Chrome's ICU dictionary segments the tagline as
+  `อ่า|นขำๆ` and `จิ๊บจ๊อ|ยอะ|ไร`, and the line breaker uses those boundaries. Node's ICU segments it
+  the same way. The gh#262 meter (Intl.Segmenter) shares that dictionary, so it is **blind to this class
+  by construction**. Its replacement for a named word is `thai-word-sweep.mjs`: widths 300 to 1440 in
+  steps of 5, on `/`, `/c/fortune/` and `/game/daily-fortune/`, failing on any listed word that spans
+  two line boxes.
+  - Unfixed build: 72 broken widths on `/` and 45 on `/c/fortune/` (including 360 and 375).
+  - Fixed build: 0 and 0, with both words still found (found=2).
+  - The fix glues every grapheme cluster with U+2060 at render time. It is engine-independent, and only
+    Chrome was measured.
+- **A5, held-key scroll** (REFUTE #3). `siamsi-held-key-scroll.mjs` holds Space through the stick's
+  release with real CDP key events and auto-repeat. Before: scrollY went 0 → 831 once focus fell to
+  the body. After: it stays at 0, and the stick still releases.
+- **Timebomb, A1 to A3:** see the commit messages. The must-reds were the pixel probe and the engine
+  tests, red on the old code.
+
+**Residual (not fixed, recorded):**
+- `#tb-pass` truncates with an ellipsis, so two 24-character names sharing a prefix can show the same
+  label.
+- With two 24-character Latin names, the ticking screen scrolls 41px at 320x568. This predates gh#295;
+  the old build gives the same 41px.
