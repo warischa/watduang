@@ -48,3 +48,9 @@ inline-script gate is the real check; this grep is a convenience that reads like
 Generalises: a detector that cannot distinguish "one match" from "several matches on one line" is
 not measuring the thing its name claims, and a check whose pass condition is "unchanged" inherits
 every blind spot of the thing it counts.
+
+**8. Scroll-reveal content is invisible to a probe that never scrolls.** The landing pages keep
+below-the-fold sections at opacity 0 until they intersect the viewport. A full-page screenshot taken
+without scrolling came back blank below the hero, and the gh#262 probe counted 10 targets on `/` where
+`dist/index.html` has 34 `<a` (2026-11-06, gh#295). Scroll the page through in half-viewport steps
+before any capture or count. Calibrate against a static count of the built HTML.
