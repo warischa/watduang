@@ -34,6 +34,91 @@ function perspective(depth: number): number {
   return focal / (focal + depth);
 }
 
+/** Everything paint() positions, in CSS pixels, before the cosmetic motion (sway, tilt, hover).
+ *  A pure function of the canvas box and nothing else: no time, no fuse, no round. */
+export interface BombLayout {
+  cx: number;
+  groundY: number;
+  radius: number;
+  capW: number;
+  capH: number;
+  /** The cord, as offsets from the bomb centre: base on the cap, one control point, the burning tip. */
+  baseY: number;
+  ctrlX: number;
+  ctrlY: number;
+  tipX: number;
+  tipY: number;
+  sparkR: number;
+  /** The spark glow's shadowBlur, sized with the bomb so a small bomb does not carry a huge halo. */
+  glow: number;
+}
+
+/** The cosmetic motion paint() adds on top of the layout, as worst-case bounds. The layout reserves
+ *  room for them so a swaying, hovering bomb still never crosses the box. */
+export const MOTION = { sway: 2, hover: 2, tilt: 0.02 } as const;
+
+/** Cord shape, in units of the cord's own length, which is a fixed multiple of the radius (gh#151:
+ *  the cord never shortens). Leaning sideways rather than straight up is what lets the whole lit cord
+ *  fit in the 120px floor box at a usable bomb size: the old upright cord put its tip 2.1 radii above
+ *  the centre, which no layout of the box could keep on screen. */
+const CORD_LEN = 1.15;
+const CORD_TIP = { x: 0.8, y: -0.55 };
+const CORD_CTRL = { x: 0.12, y: -0.6 };
+const SPARK_R = 0.07;
+/** The spark never shrinks below this, so a small bomb still shows a lit point. */
+const SPARK_MIN = 2.5;
+const GLOW_PER_R = 0.18;
+const GLOW_MIN = 4;
+/** Clear space kept between the drawing and every edge of the box. */
+const EDGE_PAD = 2;
+
+/** Lays the bomb out INSIDE the box: radius from both axes, then the whole composition (glowing
+ *  spark on top, ground shadow at the bottom) centred vertically. The radius never exceeds what the
+ *  route has always drawn, so a box that already fitted keeps its bomb size. */
+export function bombLayout(width: number, height: number): BombLayout {
+  // The bomb sits at a FIXED depth. It used to rise toward the viewer as the fuse burned, which made
+  // its drawn size a readout of the time left (gh#151) -- this is that projection taken at the start.
+  const legacyR = Math.min(width * 0.3, height * 0.3) * perspective(120) * 1.25;
+
+  // Extents in units of r, measured from the ground line. Above it: the bomb centre sits 1.05 r up,
+  // the cord base 1.182 r above that, the tip CORD_TIP.y cord lengths higher, the spark disc on top,
+  // and the tilt can lift the tip by its horizontal offset times the tilt angle. Below it: the shadow
+  // ellipse (centre 0.08 r down, vertical radius 1.15 r squashed to 0.26).
+  const tipUp = 1.182 - CORD_TIP.y * CORD_LEN;
+  const above = 1.05 + tipUp + SPARK_R + CORD_TIP.x * CORD_LEN * MOTION.tilt + GLOW_PER_R;
+  const below = 0.08 + 1.15 * 0.26;
+  const fixedV = MOTION.hover + GLOW_MIN + SPARK_MIN + EDGE_PAD * 2;
+  const fitH = (height - fixedV) / (above + below);
+  // Across: the shadow spreads 1.15 r each side and the tip reaches CORD_TIP.x cord lengths right,
+  // plus what the tilt swings it out by (its height above the centre times the angle).
+  const right = Math.max(1.15, CORD_TIP.x * CORD_LEN + SPARK_R + GLOW_PER_R + tipUp * MOTION.tilt);
+  const fitW = (width - (MOTION.sway + GLOW_MIN + SPARK_MIN + EDGE_PAD) * 2) / (2 * right);
+  const radius = Math.max(1, Math.min(legacyR, fitH, fitW));
+
+  const glow = Math.max(GLOW_MIN, radius * GLOW_PER_R);
+  const sparkR = Math.max(SPARK_MIN, radius * SPARK_R);
+  const top = radius * (above - GLOW_PER_R - SPARK_R) + sparkR + glow + MOTION.hover;
+  const bottom = radius * below;
+  const groundY = top + (height - top - bottom) / 2;
+  const capH = radius * 0.26;
+  const baseY = -radius - capH * 0.7;
+  const len = radius * CORD_LEN;
+  return {
+    cx: width / 2,
+    groundY,
+    radius,
+    capW: radius * 0.34,
+    capH,
+    baseY,
+    ctrlX: len * CORD_CTRL.x,
+    ctrlY: baseY + len * CORD_CTRL.y,
+    tipX: len * CORD_TIP.x,
+    tipY: baseY + len * CORD_TIP.y,
+    sparkR,
+    glow,
+  };
+}
+
 export interface BombCanvas {
   /** Draws one frame of the current surface — exported so a probe can force a frame without rAF. */
   drawOnce(): void;
@@ -74,18 +159,15 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, width, height);
 
-    const cx = width / 2;
-    const groundY = height * 0.78;
-    // The bomb sits at a FIXED depth. It used to rise toward the viewer as the fuse burned, which made
-    // its drawn size a readout of the time left (gh#151) — this constant is that same projection taken
-    // at the start of the round.
-    const scale = perspective(120);
-    const radius = Math.min(width * 0.30, height * 0.30) * scale * 1.25;
+    // gh#295: every position comes from bombLayout(), which fits the lit cord and its glow inside the
+    // box. The spark used to sit above the top edge at every size, so the bomb never looked lit.
+    const layout = bombLayout(width, height);
+    const { cx, groundY, radius } = layout;
     // Pass-the-phone motion: a slow sway and a breathing hover, at ONE fixed rate. The rate used to
     // quicken with the fuse, which is a countdown a player can watch just as well as a shrinking bar.
-    const sway = reduced ? 0 : Math.sin(t * 1.1) * 2;
-    const tilt = reduced ? 0 : Math.sin(t * 0.7) * 0.02;
-    const hover = reduced ? 0 : Math.sin(t * 1.4) * 2;
+    const sway = reduced ? 0 : Math.sin(t * 1.1) * MOTION.sway;
+    const tilt = reduced ? 0 : Math.sin(t * 0.7) * MOTION.tilt;
+    const hover = reduced ? 0 : Math.sin(t * 1.4) * MOTION.hover;
     const cy = groundY - radius * 1.05 + hover;
 
     // 1. Ground shadow — an ELLIPSE, not a circle: that foreshortening is what puts the bomb on a
@@ -165,37 +247,30 @@ export function startBombCanvas(canvas: HTMLCanvasElement): BombCanvas {
     // 5. The fuse cord, drawn at a CONSTANT length with the spark riding its end. Its length used to
     //    shrink in proportion to the time left — exactly the readable countdown gh#151 removes. The
     //    cord now says the fuse is lit and nothing more.
-    const capW = radius * 0.34;
-    const capH = radius * 0.26;
+    const { capW, capH, baseY, ctrlX, ctrlY, tipX, tipY } = layout;
     ctx.fillStyle = '#1c2533';
     ctx.beginPath();
     ctx.rect(-capW / 2, -radius - capH * 0.75, capW, capH);
     ctx.fill();
 
-    const fuseLen = radius * 1.15;
-    const baseX = 0;
-    const baseY = -radius - capH * 0.7;
-    const tipX = baseX + fuseLen * 0.75;
-    const tipY = baseY - fuseLen * 0.8;
-    if (fuseLen > 1) {
-      ctx.strokeStyle = '#c9a227';
-      ctx.lineWidth = Math.max(2, radius * 0.055);
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(baseX, baseY);
-      ctx.quadraticCurveTo(baseX + fuseLen * 0.1, baseY - fuseLen * 0.6, tipX, tipY);
-      ctx.stroke();
-    }
+    ctx.strokeStyle = '#c9a227';
+    ctx.lineWidth = Math.max(2, radius * 0.055);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(0, baseY);
+    ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
+    ctx.stroke();
 
     // 6. Spark at the burning end. shadowBlur is the glow; under reduced motion it stops flickering
     //    but stays lit, because it is the thing that says the fuse is still burning.
     const flicker = reduced ? 1 : 0.75 + Math.abs(Math.sin(t * 22)) * 0.25;
     ctx.save();
     ctx.shadowColor = 'rgba(245, 158, 11, 0.9)';
-    ctx.shadowBlur = 18 * flicker; // a fixed glow: it used to grow with the fuse, which read as a gauge
+    // A glow sized with the bomb and nothing else: it used to grow with the fuse, which read as a gauge.
+    ctx.shadowBlur = layout.glow * flicker;
     ctx.fillStyle = '#fde68a';
     ctx.beginPath();
-    ctx.arc(tipX, tipY, Math.max(2.5, radius * 0.07 * flicker), 0, Math.PI * 2);
+    ctx.arc(tipX, tipY, Math.max(2.5, layout.sparkR * flicker), 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 

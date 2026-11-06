@@ -20,6 +20,15 @@
 // CALIBRATION, and it is not optional — a probe's first green proves nothing. Stub the renderer's
 // paint() to `return;`, rebuild, and run this: it must report drawn:false. Restore, rebuild, run
 // again: drawn:true. Both runs are recorded in the ticket.
+//
+// gh#295 A1: the fuse spark used to be drawn ABOVE the canvas at every size, so a drawn:true read
+// still showed an unlit bomb. The ticking read now also reports `spark`: how many device pixels carry
+// the spark's core colour, and how many inked pixels touch the top, left and right edges (a clipped
+// cord or glow lands there). Exit 0 needs drawn AND sparkInside. The spark is sized from the canvas
+// box, so the read is taken at the viewport this probe is told to use:
+//   TB_VIEWPORT=390x844 TB_DPR=3 BASE=... node src/play/timebomb/canvas-pixels-probe.mjs 9226
+// Default 320x640 at dpr 2, as before. Calibrated on the pre-fix build: spark core 0 at 320x568,
+// 390x844 and 1280x800, with the cord inked on the top row.
 const [PORT = '9222', SHOT = ''] = process.argv.slice(2);
 const BASE = process.env.BASE ?? 'http://localhost:4326';
 
@@ -79,7 +88,25 @@ const READ_PIXELS = `
     }
   }
   const total = img.length / 4;
+  // gh#295 A1. Core colour of the spark (a pale yellow); nothing else on the ticking frame is that
+  // yellow with that little blue. Edge ink: any pixel with alpha on the top row, the left column or the
+  // right column -- the bomb, cord and glow are all meant to sit inside the box. The bottom row is not
+  // read: the ground shadow is a gradient that fades to nothing and may legitimately reach it.
+  let sparkCore = 0;
+  const edge = { top: 0, left: 0, right: 0 };
+  for (let p = 0; p < total; p++) {
+    const i = p * 4;
+    const r = img[i], g = img[i + 1], b = img[i + 2], a = img[i + 3];
+    if (a > 200 && r > 240 && g > 215 && b > 110 && b < 170) sparkCore++;
+    if (a > 8) {
+      const x = p % c.width, y = Math.floor(p / c.width);
+      if (y === 0) edge.top++;
+      if (x === 0) edge.left++;
+      if (x === c.width - 1) edge.right++;
+    }
+  }
   return {
+    spark: { core: sparkCore, edge },
     present: true, hidden: c.hidden,
     backingStore: { w: c.width, h: c.height },
     cssBox: { w: Math.round(c.getBoundingClientRect().width), h: Math.round(c.getBoundingClientRect().height) },
@@ -100,10 +127,12 @@ if (reduced) await send('Emulation.setEmulatedMedia', { features: [{ name: 'pref
 const p = new Promise((r) => { loadResolve = r; });
 await send('Page.navigate', { url });
 await p;
-await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 640, deviceScaleFactor: 2, mobile: true });
+const [VW, VH] = (process.env.TB_VIEWPORT ?? '320x640').split('x').map(Number);
+const DPR = Number(process.env.TB_DPR ?? '2');
+await send('Emulation.setDeviceMetricsOverride', { width: VW, height: VH, deviceScaleFactor: DPR, mobile: VW < 1100 });
 await sleep(900);
 
-const out = { url, reducedRequested: reduced };
+const out = { url, reducedRequested: reduced, viewport: { w: VW, h: VH, dpr: DPR } };
 // gh#264: the start button is the shared player screen's now (ADR-0071), mounted into #tb-setup.
 out.begin = (await evaluate(CLICK_WHEN_ARMED('#tb-setup [data-ps=start]'))).value;
 await sleep(700);
@@ -154,6 +183,9 @@ const px = out.pixels ?? {};
 // A blank canvas reports coverage 0 and one colour. Thresholds sit far above that and far below a
 // full-bleed fill, so neither "nothing ran" nor "one flat rect" can pass.
 out.drawn = px.present === true && px.hidden === false && px.coverage > 0.02 && px.distinctColours >= 8;
+// A lit spark is a disc of a few CSS px; 12 device px is far below its area at dpr 1 and far above 0.
+const sp = px.spark ?? { core: 0, edge: { top: 1, left: 1, right: 1 } };
+out.sparkInside = sp.core >= 12 && sp.edge.top === 0 && sp.edge.left === 0 && sp.edge.right === 0;
 
 if (SHOT) {
   const { writeFile } = await import('node:fs/promises');
@@ -164,4 +196,4 @@ if (SHOT) {
 
 console.log(JSON.stringify(out, null, 2));
 ws.close();
-process.exit(out.drawn ? 0 : 1);
+process.exit(out.drawn && out.sparkInside ? 0 : 1);

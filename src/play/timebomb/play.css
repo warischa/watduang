@@ -408,6 +408,8 @@ body {
    grows by exactly 414 / 320 = 1.29x, and `.tb-setup` and `.stage-screen` measure 560px (38.9%, up
    from 420px / 29.2%). Any of those being wrong falsifies this block.
 
+   gh#295: the radius arithmetic above predates bombLayout() in bomb-canvas.ts, which also caps the
+   radius so the lit cord and its glow fit inside the box. The 1.29x figure is that older formula's.
    NOTE FOR THE FIT PROBE OWNER: this is the one route in this batch where the measured width fill
    goes DOWN, because a full-bleed canvas is being given a cap. That is the fix, not a regression. */
 @media (min-width: 1100px) {
