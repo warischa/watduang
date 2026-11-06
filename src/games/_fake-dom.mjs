@@ -168,11 +168,18 @@ export class FakeElement {
 /** A fake `document`. `dispatched` records every dispatchEvent() so tests can assert what the game
  *  asked the page for (watduang:change-players, watduang:round-started). Reset it per test. */
 export function makeDocument() {
+  const listeners = {};
   const doc = {
     dispatched: [],
     createElement(tag) { return new FakeElement(String(tag).toLowerCase(), doc); },
     dispatchEvent(event) { doc.dispatched.push(event); return true; },
     dispatchedTypes() { return doc.dispatched.map((e) => e.type); },
+    // gh#295: document-level listeners (siamsi swallows a held key's repeats here). fire() plays the
+    // part of an event that reached the document; listenerCount() lets a test catch a leak.
+    addEventListener(type, fn) { (listeners[type] ??= []).push(fn); },
+    removeEventListener(type, fn) { listeners[type] = (listeners[type] || []).filter((f) => f !== fn); },
+    fire(type, ...args) { (listeners[type] || []).slice().forEach((fn) => fn(...args)); },
+    listenerCount(type) { return (listeners[type] || []).length; },
   };
   return doc;
 }

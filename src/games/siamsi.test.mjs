@@ -376,7 +376,19 @@ test('gh#295: Space or Enter held on the hold button reaches the same ติ้�
     }
     t.mock.timers.tick(HOLD_STEP_MS);
     assert.ok(byId(stage, 'ss-open-slip'), `holding ${JSON.stringify(key)} never released the ติ้ว`);
+
+    // The release swaps the button away and focus falls to the body, where the still-held key's
+    // repeats would scroll the page off the number screen (measured in Chrome: scrollY 0 -> 831).
+    // Until its keyup, the held key's default action is swallowed at the document; after, never.
+    let prevented = 0;
+    const repeatAtDocument = () => fakeDocument.fire('keydown', { key, repeat: true, preventDefault() { prevented++; } });
+    repeatAtDocument();
+    assert.equal(prevented, 1, `a held ${JSON.stringify(key)} repeat reached the page unswallowed after the release`);
+    fakeDocument.fire('keyup', { key });
+    repeatAtDocument();
+    assert.equal(prevented, 1, `${JSON.stringify(key)} is still swallowed after its keyup`);
     game.dispose();
+    assert.equal(fakeDocument.listenerCount('keydown'), 0, 'dispose left a document keydown listener behind');
   }
 });
 

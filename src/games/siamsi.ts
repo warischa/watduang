@@ -548,6 +548,7 @@ function renderShake(): void {
     if (!isHoldKey(e)) return;
     e.preventDefault();
     if ((e as KeyboardEvent).repeat) return;
+    heldKey = (e as KeyboardEvent).key;
     if (!hold.disabled) startHold(hold);
   });
   on(hold, 'keyup', (e) => {
@@ -745,9 +746,25 @@ function openSlip(): void {
   renderSlip();
 }
 
+/** gh#295: the key that started a keyboard hold, until its keyup. A held key outlives the button:
+ *  the release swaps #ss-hold away, focus falls to the body, and the key's auto-repeat would then
+ *  scroll the page off the number screen. The document swallows that key's default until keyup. */
+let heldKey: string | null = null;
+
+function swallowHeldKey(e: Event): void {
+  if (heldKey !== null && (e as KeyboardEvent).key === heldKey) e.preventDefault();
+}
+
+function releaseHeldKey(e: Event): void {
+  if ((e as KeyboardEvent).key === heldKey) heldKey = null;
+}
+
 function mountInto(stage: HTMLElement, ctx: GameContext): void {
   stageEl = stage;
   gameCtx = ctx;
+  heldKey = null;
+  on(document, 'keydown', swallowHeldKey);
+  on(document, 'keyup', releaseHeldKey);
   phase = 'intent';
   intent = 'any';
   charge = 0;
