@@ -1,23 +1,24 @@
-// gh#295 A6. The browser breaks Thai lines at its ICU dictionary's word boundaries, and that dictionary
+// gh#295 A6. The browser breaks Thai lines at its own dictionary's word boundaries, and that dictionary
 // misses some everyday words: it reads one as two and the line breaker splits it, e.g. the daily-fortune
-// tagline wrapped mid-word at 325-415px on the home page and the fortune category page.
+// tagline wrapped mid-word at 325-415px on the home page and the fortune category page (Chrome).
 //
-// keepThaiWords() inserts U+2060 WORD JOINER at exactly the boundaries ICU invents INSIDE a listed word,
-// so those boundaries stop being break opportunities. The visible text is unchanged, and the joiner is
-// added at render time, so the manifest copy (and the OG lock that pins it) stays byte-exact.
+// keepThaiWords() puts U+2060 WORD JOINER between every grapheme cluster of a listed word, so no engine
+// can break inside it, whatever its dictionary says (Chrome, WebKit and Firefox need not agree on where
+// a word ends). Grapheme clusters keep every mark, and SARA AM, on its base: no joiner can orphan one into
+// a dotted circle. The visible text is unchanged, and the joiner is added at render time, so the manifest
+// copy (and the OG lock that pins it) stays byte-exact.
 //
-// The list is a set this repo owns, grown one word at a time: ICU's dictionary is not ours, so no rule
-// can enumerate every word it splits. An Intl.Segmenter-based meter shares the browser's dictionary and
-// is blind to these breaks by construction; only a rendered check of a named word can see one.
-const WJ = '⁠';
+// The list is a set this repo owns, grown one word at a time: a browser dictionary is not ours, so no
+// rule can enumerate every word one splits. An Intl.Segmenter-based meter shares the browser's dictionary
+// and is blind to these breaks by construction; only a rendered check of a named word can see one.
+const WJ = '\u2060';
 
 export const KEEP_WORDS: readonly string[] = ['อ่านขำๆ', 'จิ๊บจ๊อยอะไร'];
 
-const seg = new Intl.Segmenter('th', { granularity: 'word' });
+const graphemes = new Intl.Segmenter('th', { granularity: 'grapheme' });
 
 function glue(word: string): string {
-  const cuts = new Set([...seg.segment(word)].map((s) => s.index).filter((i) => i > 0));
-  return [...word].map((ch, i) => (cuts.has(i) ? WJ : '') + ch).join('');
+  return [...graphemes.segment(word)].map((g) => g.segment).join(WJ);
 }
 
 const GLUED = KEEP_WORDS.map((w) => [w, glue(w)] as const);
