@@ -21,10 +21,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { closerCases, revealPathCases } from '../_player-screen/screen-harness.mjs';
+import { closerCases, makePage, revealPathCases } from '../_player-screen/screen-harness.mjs';
 import { sliceBlock } from '../_dom-stub.mjs';
-import { armAllButtons } from '../../games/_arm-gate.ts';
-import cursedNumber from '../../games/cursed-number.ts';
+import { ARM_DELAY_MS, armAllButtons } from '../../games/_arm-gate.ts';
+import cursedNumber, { CursedNumberGameModel } from '../../games/cursed-number.ts';
 
 const MAIN = path.join(import.meta.dirname, 'main.js');
 const MARKUP = fs.readFileSync(path.join(import.meta.dirname, 'markup.html'), 'utf8');
@@ -123,4 +123,102 @@ closerCases({
     page.byId('rulesModal').classList.add('active');
     closeRules();
   },
+});
+
+// The pass-the-phone moment, driven for real. The ready tap reveals #screenSelection, and on that
+// screen the one control that matters is confirm: a stale second contact on it locks in a guess
+// nobody chose. Two writes reach confirm in that one task -- showScreen's gate and
+// syncSelectionUI's `disabled = false` -- and whichever runs last wins. Enabled after the gate, it
+// is live inside the window; enabled before, the gate holds it and hands it back after quiet.
+// Real bytes for every method on the path (sliced from main.js), the route's own markup, the real
+// gate on its timer alone (no pointer stamp: this pins ORDER, not the input clock of ADR-0059).
+// Stubbed: sound, fx, announce, and the render-only helpers that write innerHTML, a sink this fake
+// DOM refuses by design.
+function readyPath(t) {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const doc = makePage(MARKUP);
+  for (const node of doc.body.descendants()) node.style = { setProperty() {}, removeProperty() {} };
+  const win = { scrollTo() {} };
+  const method = (header) => {
+    const body = sliceBlock(source, header);
+    assert.ok(body, `${header} is gone from main.js -- this test measures nothing`);
+    return new Function('document', 'armAllButtons', 'window', `return function ${body};`)(doc, armAllButtons, win);
+  };
+  const handler = (id) => {
+    const header = `document.getElementById('${id}').addEventListener('click', () =>`;
+    const body = sliceBlock(source, header);
+    assert.ok(body, `the ${id} click handler is gone from main.js -- this test measures nothing`);
+    return new Function('document', 'armAllButtons', 'window', `return function () { ${body}); };`)(doc, armAllButtons, win);
+  };
+  const quiet = new Proxy({}, { get: () => () => {} });
+  const game = new CursedNumberGameModel();
+  game.setCustomRandom((lo) => lo); // cursed number at the floor, first seat starts: every mid guess is safe
+  game.startNewGame();
+  const app = {
+    game,
+    sound: quiet,
+    fx: quiet,
+    currentScreen: null,
+    keypadBuffer: '',
+    announce() {},
+    renderPlayerStrip() {},
+    setupSafeResultScreen() {},
+    setupGameOverScreen() {},
+    setupForcedRevealScreen() {},
+    showScreen: method('showScreen(screenId)'),
+    syncSelectionUI: method('syncSelectionUI()'),
+    setSelectedNumber: method('setSelectedNumber(val, updateSlider = true)'),
+    handleConfirmGuess: method('handleConfirmGuess()'),
+    setupHandoffScreen: method('setupHandoffScreen()'),
+  };
+  handler('readyBtn').call(app);
+  handler('passToNextBtn').call(app);
+  const confirm = doc.getElementById('confirmLockBtn');
+  confirm.addEventListener('click', () => app.handleConfirmGuess());
+  app.setupHandoffScreen();
+  app.showScreen('screenHandoff');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  return { app, doc, confirm, byId: (id) => doc.getElementById(id) };
+}
+
+// One turn from the ready tap to a confirmed guess, asserted at every step that can go wrong.
+function playTurn(t, page, turn) {
+  const { app, confirm, byId } = page;
+  assert.equal(byId('readyBtn').click(), true, `turn ${turn}: ready is live on the handoff screen`);
+  assert.equal(app.currentScreen, 'screenSelection');
+  assert.equal(confirm.disabled, true, `turn ${turn}: confirm is live inside the arm window after ready`);
+  const before = app.game.history.length;
+  assert.equal(confirm.click(), false, `turn ${turn}: a ghost tap inside the window reached confirm`);
+  t.mock.timers.tick(ARM_DELAY_MS - 1);
+  assert.equal(confirm.disabled, true, `turn ${turn}: confirm came back before the window ended`);
+  assert.equal(app.game.history.length, before, `turn ${turn}: a guess was locked inside the window`);
+  t.mock.timers.tick(2);
+  assert.equal(confirm.disabled, false, `turn ${turn}: confirm never came back after quiet`);
+  assert.equal(confirm.click(), true, `turn ${turn}: a deliberate tap after the window was refused`);
+  assert.equal(app.game.history.length, before + 1, `turn ${turn}: the deliberate tap confirmed nothing`);
+  assert.equal(app.currentScreen, 'screenSafeResult');
+}
+
+test('the ready tap holds confirm for the arm window on turn 1, then a deliberate tap confirms', (t) => {
+  const page = readyPath(t);
+  assert.equal(page.confirm.disabled, false, 'turn 1 starts with confirm enabled in the markup');
+  playTurn(t, page, 1);
+});
+
+test('the ready tap holds confirm for the arm window on every later turn too', (t) => {
+  const page = readyPath(t);
+  // Turn 1 is only played through here, never asserted: the case above owns it, and asserting it
+  // again would let a turn-1 failure mask whether the later turns red on their own.
+  page.byId('readyBtn').click();
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(page.confirm.click(), true, 'turn 1: confirm never came back to play the turn through');
+  assert.equal(page.app.currentScreen, 'screenSafeResult');
+  assert.equal(page.confirm.disabled, true, 'the lock press leaves confirm disabled, the state turn 2 starts from');
+  for (const turn of [2, 3]) {
+    t.mock.timers.tick(ARM_DELAY_MS + 1);
+    assert.equal(page.byId('passToNextBtn').click(), true, `turn ${turn}: pass-to-next is live`);
+    assert.equal(page.app.currentScreen, 'screenHandoff');
+    t.mock.timers.tick(ARM_DELAY_MS + 1);
+    playTurn(t, page, turn);
+  }
 });

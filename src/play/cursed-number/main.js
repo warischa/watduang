@@ -32,7 +32,10 @@ import cursedNumber, { CursedNumberGameModel, seatColorVar } from '../../games/c
 import { MASCOTS } from '../_mascots.ts';
 // Ghost-tap gate (ADR-0014/ADR-0017). This route never rebuilds a stage: it reveals pre-existing
 // markup, and it does so on FOUR paths, each wired to armAllButtons at the reveal itself.
-//   1. showScreen()  -- toggles `.screen.active`. Every screen-to-screen move.
+//   1. showScreen()  -- toggles `.screen.active`. Every screen-to-screen move. It covers a control
+//      only if the caller's own writes to it land BEFORE the call: a `disabled = false` after it
+//      undoes the gate. The ready tap is the case that bit -- confirm is enabled by syncSelectionUI,
+//      so that runs first (see the readyBtn handler).
 //   2. the rulesBtn handler -- `#rulesModal.classList.add('active')`, 2 buttons, no showScreen.
 //   3. setInputMode() -- shows #sliderModeContainer / #keypadModeContainer by `style.display`
 //      INSIDE a screen that is already up, so showScreen's call has long since armed and left.
@@ -525,8 +528,14 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
         // Handoff Screen
         document.getElementById('readyBtn').addEventListener('click', () => {
           this.sound.playClick(600);
-          this.showScreen('screenSelection');
+          // ORDER IS LOAD-BEARING. syncSelectionUI ends by clearing `disabled` on confirm, and
+          // showScreen arms the screen; whichever runs last wins. Sync first, so confirm is enabled
+          // when the gate collects it: the gate HOLDS it for the window and hands it back after
+          // quiet. Sync second would undo the gate on exactly the control that matters -- this is
+          // the pass-the-phone moment, so a stale second contact on ready would lock in the midpoint
+          // as a guess nobody chose. Nothing in syncSelectionUI reads layout or the active screen.
           this.syncSelectionUI();
+          this.showScreen('screenSelection');
         });
 
         // Selection Screen Tabs
