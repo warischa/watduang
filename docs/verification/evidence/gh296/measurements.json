@@ -1,0 +1,996 @@
+[
+  {
+    "name": "board-wheel-1280",
+    "kind": "board",
+    "tool": "wheel",
+    "requestedWidth": 1280,
+    "url": "file:///Users/waris.c/claude/free-game/design/ToolWheelDesktop.dc.html",
+    "innerWidth": 1280,
+    "scrollWidth": 1440,
+    "clientWidth": 1280,
+    "docHeight": 3030,
+    "toolArea": {
+      "selector": "div[style=\"width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 940px \"]",
+      "x": 80,
+      "w": 1280
+    },
+    "mainColumn": {
+      "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;\"]",
+      "x": 80,
+      "w": 940
+    },
+    "sideBySideColumns": 2,
+    "columnLeftXs": [
+      80,
+      1060
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;",
+        "x": 80,
+        "w": 940
+      },
+      {
+        "selector": "div[style=\"position: sticky; top: 24px; display: flex; flex-",
+        "x": 1060,
+        "w": 300
+      }
+    ],
+    "maxWidthCap": null,
+    "firstInternalGrid": {
+      "selector": "div[style=\"display: grid; grid-template-columns: 460px 1fr; gap: 30px; align-items: center;\"]",
+      "tracks": "460px 394px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 1,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/board-wheel-1280-part0.jpg",
+        "bytes": 135331
+      },
+      {
+        "f": "docs/verification/evidence/gh296/board-wheel-1280-part1.jpg",
+        "bytes": 86764
+      }
+    ]
+  },
+  {
+    "name": "page-wheel-1280",
+    "kind": "page",
+    "tool": "wheel",
+    "requestedWidth": 1280,
+    "url": "http://127.0.0.1:4391/tool/wheel/",
+    "innerWidth": 1280,
+    "scrollWidth": 1280,
+    "clientWidth": 1280,
+    "docHeight": 2705,
+    "toolArea": {
+      "selector": "div.wheel-column",
+      "x": 352,
+      "w": 576
+    },
+    "mainColumn": {
+      "selector": "div.wheel-column",
+      "x": 352,
+      "w": 576
+    },
+    "sideBySideColumns": 1,
+    "columnLeftXs": [
+      368
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "section",
+        "x": 368,
+        "w": 544
+      },
+      {
+        "selector": "nav.wheel-next",
+        "x": 368,
+        "w": 544
+      },
+      {
+        "selector": "div.ad-slot[style=\"min-height: 250px;\"]",
+        "x": 368,
+        "w": 544
+      },
+      {
+        "selector": "section",
+        "x": 368,
+        "w": 544
+      }
+    ],
+    "maxWidthCap": {
+      "selector": "div.wheel-column",
+      "computedMaxWidth": "544px"
+    },
+    "firstInternalGrid": null,
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 0,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/page-wheel-1280.jpg",
+        "bytes": 120828
+      }
+    ]
+  },
+  {
+    "name": "board-wheel-1440",
+    "kind": "board",
+    "tool": "wheel",
+    "requestedWidth": 1440,
+    "url": "file:///Users/waris.c/claude/free-game/design/ToolWheelDesktop.dc.html",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "docHeight": 3030,
+    "toolArea": {
+      "selector": "div[style=\"width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 940px \"]",
+      "x": 80,
+      "w": 1280
+    },
+    "mainColumn": {
+      "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;\"]",
+      "x": 80,
+      "w": 940
+    },
+    "sideBySideColumns": 2,
+    "columnLeftXs": [
+      80,
+      1060
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;",
+        "x": 80,
+        "w": 940
+      },
+      {
+        "selector": "div[style=\"position: sticky; top: 24px; display: flex; flex-",
+        "x": 1060,
+        "w": 300
+      }
+    ],
+    "maxWidthCap": null,
+    "firstInternalGrid": {
+      "selector": "div[style=\"display: grid; grid-template-columns: 460px 1fr; gap: 30px; align-items: center;\"]",
+      "tracks": "460px 394px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 1,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/board-wheel-1440-part0.jpg",
+        "bytes": 141076
+      },
+      {
+        "f": "docs/verification/evidence/gh296/board-wheel-1440-part1.jpg",
+        "bytes": 88760
+      }
+    ]
+  },
+  {
+    "name": "page-wheel-1440",
+    "kind": "page",
+    "tool": "wheel",
+    "requestedWidth": 1440,
+    "url": "http://127.0.0.1:4391/tool/wheel/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "docHeight": 2705,
+    "toolArea": {
+      "selector": "div.wheel-column",
+      "x": 432,
+      "w": 576
+    },
+    "mainColumn": {
+      "selector": "div.wheel-column",
+      "x": 432,
+      "w": 576
+    },
+    "sideBySideColumns": 1,
+    "columnLeftXs": [
+      448
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "section",
+        "x": 448,
+        "w": 544
+      },
+      {
+        "selector": "nav.wheel-next",
+        "x": 448,
+        "w": 544
+      },
+      {
+        "selector": "div.ad-slot[style=\"min-height: 250px;\"]",
+        "x": 448,
+        "w": 544
+      },
+      {
+        "selector": "section",
+        "x": 448,
+        "w": 544
+      }
+    ],
+    "maxWidthCap": {
+      "selector": "div.wheel-column",
+      "computedMaxWidth": "544px"
+    },
+    "firstInternalGrid": null,
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 0,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/page-wheel-1440.jpg",
+        "bytes": 124212
+      }
+    ]
+  },
+  {
+    "name": "board-number-1280",
+    "kind": "board",
+    "tool": "number",
+    "requestedWidth": 1280,
+    "url": "file:///Users/waris.c/claude/free-game/design/ToolNumberDesktop.dc.html",
+    "innerWidth": 1280,
+    "scrollWidth": 1440,
+    "clientWidth": 1280,
+    "docHeight": 2512,
+    "toolArea": {
+      "selector": "div[style=\"width: 1280px; margin-inline: auto; padding-block: 44px 20px;\"]",
+      "x": 80,
+      "w": 1280
+    },
+    "mainColumn": {
+      "selector": "div[style=\"width: 940px; display: flex; flex-direction: column; gap: 16px;\"]",
+      "x": 80,
+      "w": 940
+    },
+    "sideBySideColumns": 1,
+    "columnLeftXs": [
+      80
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div[style=\"width: 940px; display: flex; flex-direction: colu",
+        "x": 80,
+        "w": 940
+      }
+    ],
+    "maxWidthCap": null,
+    "firstInternalGrid": {
+      "selector": "div.card",
+      "tracks": "427px 427px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": false,
+      "notoThai": true
+    },
+    "jsErrors": 0,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/board-number-1280-part0.jpg",
+        "bytes": 85152
+      },
+      {
+        "f": "docs/verification/evidence/gh296/board-number-1280-part1.jpg",
+        "bytes": 92809
+      }
+    ]
+  },
+  {
+    "name": "page-number-1280",
+    "kind": "page",
+    "tool": "number",
+    "requestedWidth": 1280,
+    "url": "http://127.0.0.1:4391/tool/number/",
+    "innerWidth": 1280,
+    "scrollWidth": 1280,
+    "clientWidth": 1280,
+    "docHeight": 1529,
+    "toolArea": {
+      "selector": "div.tool-column",
+      "x": 170,
+      "w": 940
+    },
+    "mainColumn": {
+      "selector": "div.tool-column",
+      "x": 170,
+      "w": 940
+    },
+    "sideBySideColumns": 1,
+    "columnLeftXs": [
+      170
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "section.tool-module",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "nav.number-next",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "div.ad-slot[style=\"min-height: 250px;\"]",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "section",
+        "x": 170,
+        "w": 940
+      }
+    ],
+    "maxWidthCap": {
+      "selector": "div.tool-column",
+      "computedMaxWidth": "940px"
+    },
+    "firstInternalGrid": {
+      "selector": "section.tool-module",
+      "tracks": "427px 427px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 0,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/page-number-1280.jpg",
+        "bytes": 86530
+      }
+    ]
+  },
+  {
+    "name": "board-number-1440",
+    "kind": "board",
+    "tool": "number",
+    "requestedWidth": 1440,
+    "url": "file:///Users/waris.c/claude/free-game/design/ToolNumberDesktop.dc.html",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "docHeight": 2512,
+    "toolArea": {
+      "selector": "div[style=\"width: 1280px; margin-inline: auto; padding-block: 44px 20px;\"]",
+      "x": 80,
+      "w": 1280
+    },
+    "mainColumn": {
+      "selector": "div[style=\"width: 940px; display: flex; flex-direction: column; gap: 16px;\"]",
+      "x": 80,
+      "w": 940
+    },
+    "sideBySideColumns": 1,
+    "columnLeftXs": [
+      80
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div[style=\"width: 940px; display: flex; flex-direction: colu",
+        "x": 80,
+        "w": 940
+      }
+    ],
+    "maxWidthCap": null,
+    "firstInternalGrid": {
+      "selector": "div.card",
+      "tracks": "427px 427px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": false,
+      "notoThai": true
+    },
+    "jsErrors": 0,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/board-number-1440-part0.jpg",
+        "bytes": 88270
+      },
+      {
+        "f": "docs/verification/evidence/gh296/board-number-1440-part1.jpg",
+        "bytes": 95355
+      }
+    ]
+  },
+  {
+    "name": "page-number-1440",
+    "kind": "page",
+    "tool": "number",
+    "requestedWidth": 1440,
+    "url": "http://127.0.0.1:4391/tool/number/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "docHeight": 1529,
+    "toolArea": {
+      "selector": "div.tool-column",
+      "x": 250,
+      "w": 940
+    },
+    "mainColumn": {
+      "selector": "div.tool-column",
+      "x": 250,
+      "w": 940
+    },
+    "sideBySideColumns": 1,
+    "columnLeftXs": [
+      250
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "section.tool-module",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "nav.number-next",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "div.ad-slot[style=\"min-height: 250px;\"]",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "section",
+        "x": 250,
+        "w": 940
+      }
+    ],
+    "maxWidthCap": {
+      "selector": "div.tool-column",
+      "computedMaxWidth": "940px"
+    },
+    "firstInternalGrid": {
+      "selector": "section.tool-module",
+      "tracks": "427px 427px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 0,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/page-number-1440.jpg",
+        "bytes": 89300
+      }
+    ]
+  },
+  {
+    "name": "board-draw-1280",
+    "kind": "board",
+    "tool": "draw",
+    "requestedWidth": 1280,
+    "url": "file:///Users/waris.c/claude/free-game/design/ToolDrawDesktop.dc.html",
+    "innerWidth": 1280,
+    "scrollWidth": 1440,
+    "clientWidth": 1280,
+    "docHeight": 1497,
+    "toolArea": {
+      "selector": "div[style=\"width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 940px \"]",
+      "x": 80,
+      "w": 1280
+    },
+    "mainColumn": {
+      "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;\"]",
+      "x": 80,
+      "w": 940
+    },
+    "sideBySideColumns": 2,
+    "columnLeftXs": [
+      80,
+      1060
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;",
+        "x": 80,
+        "w": 940
+      },
+      {
+        "selector": "div[style=\"position: sticky; top: 24px; display: flex; flex-",
+        "x": 1060,
+        "w": 300
+      }
+    ],
+    "maxWidthCap": null,
+    "firstInternalGrid": {
+      "selector": "div[style=\"display: grid; grid-template-columns: 1fr 1fr; gap: 30px;\"]",
+      "tracks": "427px 427px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 1,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/board-draw-1280.jpg",
+        "bytes": 99167
+      }
+    ]
+  },
+  {
+    "name": "page-draw-1280",
+    "kind": "page",
+    "tool": "draw",
+    "requestedWidth": 1280,
+    "url": "http://127.0.0.1:4391/tool/draw/",
+    "innerWidth": 1280,
+    "scrollWidth": 1280,
+    "clientWidth": 1280,
+    "docHeight": 2481,
+    "toolArea": {
+      "selector": "div.tool-column",
+      "x": 170,
+      "w": 940
+    },
+    "mainColumn": {
+      "selector": "div.tool-column",
+      "x": 170,
+      "w": 940
+    },
+    "sideBySideColumns": 1,
+    "columnLeftXs": [
+      170
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "section.tool-module",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "nav.draw-next",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "div.ad-slot[style=\"min-height: 250px;\"]",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "section",
+        "x": 170,
+        "w": 940
+      }
+    ],
+    "maxWidthCap": {
+      "selector": "div.tool-column",
+      "computedMaxWidth": "940px"
+    },
+    "firstInternalGrid": {
+      "selector": "div.draw-grid",
+      "tracks": "427px 427px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 0,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/page-draw-1280.jpg",
+        "bytes": 122923
+      }
+    ]
+  },
+  {
+    "name": "board-draw-1440",
+    "kind": "board",
+    "tool": "draw",
+    "requestedWidth": 1440,
+    "url": "file:///Users/waris.c/claude/free-game/design/ToolDrawDesktop.dc.html",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "docHeight": 1497,
+    "toolArea": {
+      "selector": "div[style=\"width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 940px \"]",
+      "x": 80,
+      "w": 1280
+    },
+    "mainColumn": {
+      "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;\"]",
+      "x": 80,
+      "w": 940
+    },
+    "sideBySideColumns": 2,
+    "columnLeftXs": [
+      80,
+      1060
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;",
+        "x": 80,
+        "w": 940
+      },
+      {
+        "selector": "div[style=\"position: sticky; top: 24px; display: flex; flex-",
+        "x": 1060,
+        "w": 300
+      }
+    ],
+    "maxWidthCap": null,
+    "firstInternalGrid": {
+      "selector": "div[style=\"display: grid; grid-template-columns: 1fr 1fr; gap: 30px;\"]",
+      "tracks": "427px 427px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 1,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/board-draw-1440.jpg",
+        "bytes": 104852
+      }
+    ]
+  },
+  {
+    "name": "page-draw-1440",
+    "kind": "page",
+    "tool": "draw",
+    "requestedWidth": 1440,
+    "url": "http://127.0.0.1:4391/tool/draw/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "docHeight": 2481,
+    "toolArea": {
+      "selector": "div.tool-column",
+      "x": 250,
+      "w": 940
+    },
+    "mainColumn": {
+      "selector": "div.tool-column",
+      "x": 250,
+      "w": 940
+    },
+    "sideBySideColumns": 1,
+    "columnLeftXs": [
+      250
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "section.tool-module",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "nav.draw-next",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "div.ad-slot[style=\"min-height: 250px;\"]",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "section",
+        "x": 250,
+        "w": 940
+      }
+    ],
+    "maxWidthCap": {
+      "selector": "div.tool-column",
+      "computedMaxWidth": "940px"
+    },
+    "firstInternalGrid": {
+      "selector": "div.draw-grid",
+      "tracks": "427px 427px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 0,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/page-draw-1440.jpg",
+        "bytes": 126678
+      }
+    ]
+  },
+  {
+    "name": "board-team-1280",
+    "kind": "board",
+    "tool": "team",
+    "requestedWidth": 1280,
+    "url": "file:///Users/waris.c/claude/free-game/design/ToolTeamDesktop.dc.html",
+    "innerWidth": 1280,
+    "scrollWidth": 1440,
+    "clientWidth": 1280,
+    "docHeight": 1363,
+    "toolArea": {
+      "selector": "div[style=\"width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 940px \"]",
+      "x": 80,
+      "w": 1280
+    },
+    "mainColumn": {
+      "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;\"]",
+      "x": 80,
+      "w": 940
+    },
+    "sideBySideColumns": 2,
+    "columnLeftXs": [
+      80,
+      1060
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;",
+        "x": 80,
+        "w": 940
+      },
+      {
+        "selector": "div[style=\"position: sticky; top: 24px; display: flex; flex-",
+        "x": 1060,
+        "w": 300
+      }
+    ],
+    "maxWidthCap": null,
+    "firstInternalGrid": {
+      "selector": "div[style=\"height: 250px; overflow-y: auto; box-sizing: border-box; display: grid; grid-tem\"]",
+      "tracks": "433px 433px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 1,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/board-team-1280.jpg",
+        "bytes": 84906
+      }
+    ]
+  },
+  {
+    "name": "page-team-1280",
+    "kind": "page",
+    "tool": "team",
+    "requestedWidth": 1280,
+    "url": "http://127.0.0.1:4391/tool/team/",
+    "innerWidth": 1280,
+    "scrollWidth": 1280,
+    "clientWidth": 1280,
+    "docHeight": 2382,
+    "toolArea": {
+      "selector": "div.tool-column",
+      "x": 170,
+      "w": 940
+    },
+    "mainColumn": {
+      "selector": "div.tool-column",
+      "x": 170,
+      "w": 940
+    },
+    "sideBySideColumns": 1,
+    "columnLeftXs": [
+      170
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "section.tool-module",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "nav.team-next",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "div.ad-slot[style=\"min-height: 250px;\"]",
+        "x": 170,
+        "w": 940
+      },
+      {
+        "selector": "section",
+        "x": 170,
+        "w": 940
+      }
+    ],
+    "maxWidthCap": {
+      "selector": "div.tool-column",
+      "computedMaxWidth": "940px"
+    },
+    "firstInternalGrid": {
+      "selector": "div.team-cards",
+      "tracks": "431px 431px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 0,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/page-team-1280.jpg",
+        "bytes": 117910
+      }
+    ]
+  },
+  {
+    "name": "board-team-1440",
+    "kind": "board",
+    "tool": "team",
+    "requestedWidth": 1440,
+    "url": "file:///Users/waris.c/claude/free-game/design/ToolTeamDesktop.dc.html",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "docHeight": 1363,
+    "toolArea": {
+      "selector": "div[style=\"width: 1280px; margin-inline: auto; display: grid; grid-template-columns: 940px \"]",
+      "x": 80,
+      "w": 1280
+    },
+    "mainColumn": {
+      "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;\"]",
+      "x": 80,
+      "w": 940
+    },
+    "sideBySideColumns": 2,
+    "columnLeftXs": [
+      80,
+      1060
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div[style=\"display: flex; flex-direction: column; gap: 36px;",
+        "x": 80,
+        "w": 940
+      },
+      {
+        "selector": "div[style=\"position: sticky; top: 24px; display: flex; flex-",
+        "x": 1060,
+        "w": 300
+      }
+    ],
+    "maxWidthCap": null,
+    "firstInternalGrid": {
+      "selector": "div[style=\"height: 250px; overflow-y: auto; box-sizing: border-box; display: grid; grid-tem\"]",
+      "tracks": "433px 433px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 1,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/board-team-1440.jpg",
+        "bytes": 90425
+      }
+    ]
+  },
+  {
+    "name": "page-team-1440",
+    "kind": "page",
+    "tool": "team",
+    "requestedWidth": 1440,
+    "url": "http://127.0.0.1:4391/tool/team/",
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "docHeight": 2382,
+    "toolArea": {
+      "selector": "div.tool-column",
+      "x": 250,
+      "w": 940
+    },
+    "mainColumn": {
+      "selector": "div.tool-column",
+      "x": 250,
+      "w": 940
+    },
+    "sideBySideColumns": 1,
+    "columnLeftXs": [
+      250
+    ],
+    "topLevelBlocks": [
+      {
+        "selector": "div",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "section.tool-module",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "nav.team-next",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "div.ad-slot[style=\"min-height: 250px;\"]",
+        "x": 250,
+        "w": 940
+      },
+      {
+        "selector": "section",
+        "x": 250,
+        "w": 940
+      }
+    ],
+    "maxWidthCap": {
+      "selector": "div.tool-column",
+      "computedMaxWidth": "940px"
+    },
+    "firstInternalGrid": {
+      "selector": "div.team-cards",
+      "tracks": "431px 431px"
+    },
+    "imagesBroken": 0,
+    "fonts": {
+      "mitr": true,
+      "notoThai": true
+    },
+    "jsErrors": 0,
+    "files": [
+      {
+        "f": "docs/verification/evidence/gh296/page-team-1440.jpg",
+        "bytes": 121607
+      }
+    ]
+  }
+]
