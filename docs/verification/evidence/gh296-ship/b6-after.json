@@ -1,0 +1,619 @@
+{
+  "probe": "gh296-b6-wheel-names-feedback",
+  "base": "http://localhost:4402",
+  "n": 14,
+  "pass": true,
+  "fails": [],
+  "legs": [
+    {
+      "name": "390x844 three names tap",
+      "w": 390,
+      "h": 844,
+      "names": "ก\\nข\\nค",
+      "how": "tap",
+      "reduce": false,
+      "before": {
+        "x": 195,
+        "y": 814.0625,
+        "scrollY": 1021,
+        "reduce": false
+      },
+      "settledScrollY": 398,
+      "after": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "scrollY": 398,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": 0.1875,
+            "bottom": 358.1875,
+            "height": 358
+          },
+          "wheel-note": {
+            "top": 438.1875,
+            "bottom": 510.1875,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 526.1875,
+            "bottom": 586.1875,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": null
+      }
+    },
+    {
+      "name": "320x568 three names tap",
+      "w": 320,
+      "h": 568,
+      "names": "ก\\nข\\nค",
+      "how": "tap",
+      "reduce": false,
+      "before": {
+        "x": 160,
+        "y": 537.96875,
+        "scrollY": 973,
+        "reduce": false
+      },
+      "settledScrollY": 425,
+      "after": {
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "scrollY": 425,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.421875,
+            "bottom": 287.578125,
+            "height": 288
+          },
+          "wheel-note": {
+            "top": 367.578125,
+            "bottom": 439.578125,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 455.578125,
+            "bottom": 515.578125,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": "label เอาคนที่ออกแล้วออกจากวงล้อ"
+      }
+    },
+    {
+      "name": "320x568 one name tap",
+      "w": 320,
+      "h": 568,
+      "names": "ก",
+      "how": "tap",
+      "reduce": false,
+      "before": {
+        "x": 160,
+        "y": 537.96875,
+        "scrollY": 973,
+        "reduce": false
+      },
+      "settledScrollY": 425,
+      "after": {
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "scrollY": 425,
+        "chips": 1,
+        "noteLen": 117,
+        "spinDisabled": true,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.421875,
+            "bottom": 287.578125,
+            "height": 288
+          },
+          "wheel-note": {
+            "top": 367.578125,
+            "bottom": 439.578125,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 455.578125,
+            "bottom": 515.578125,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": "label เอาคนที่ออกแล้วออกจากวงล้อ"
+      }
+    },
+    {
+      "name": "390x844 reduced motion sync",
+      "w": 390,
+      "h": 844,
+      "names": "ก\\nข\\nค",
+      "how": "sync",
+      "reduce": true,
+      "before": {
+        "x": 195,
+        "y": 814.0625,
+        "scrollY": 1021,
+        "reduce": true
+      },
+      "sync": {
+        "y0": 1021,
+        "y1": 398
+      },
+      "settledScrollY": 398,
+      "after": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "scrollY": 398,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": 0.1875,
+            "bottom": 358.1875,
+            "height": 358
+          },
+          "wheel-note": {
+            "top": 438.1875,
+            "bottom": 510.1875,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 526.1875,
+            "bottom": 586.1875,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": null
+      }
+    },
+    {
+      "name": "320x568 reduced motion sync",
+      "w": 320,
+      "h": 568,
+      "names": "ก\\nข\\nค",
+      "how": "sync",
+      "reduce": true,
+      "before": {
+        "x": 160,
+        "y": 537.96875,
+        "scrollY": 973,
+        "reduce": true
+      },
+      "sync": {
+        "y0": 973,
+        "y1": 425
+      },
+      "settledScrollY": 425,
+      "after": {
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "scrollY": 425,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.421875,
+            "bottom": 287.578125,
+            "height": 288
+          },
+          "wheel-note": {
+            "top": 367.578125,
+            "bottom": 439.578125,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 455.578125,
+            "bottom": 515.578125,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": "label เอาคนที่ออกแล้วออกจากวงล้อ"
+      }
+    },
+    {
+      "name": "390x844 normal motion sync (control)",
+      "w": 390,
+      "h": 844,
+      "names": "ก\\nข\\nค",
+      "how": "sync",
+      "reduce": false,
+      "before": {
+        "x": 195,
+        "y": 814.0625,
+        "scrollY": 1021,
+        "reduce": false
+      },
+      "sync": {
+        "y0": 1021,
+        "y1": 1021
+      },
+      "settledScrollY": 398,
+      "after": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "scrollY": 398,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": 0.1875,
+            "bottom": 358.1875,
+            "height": 358
+          },
+          "wheel-note": {
+            "top": 438.1875,
+            "bottom": 510.1875,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 526.1875,
+            "bottom": 586.1875,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": null
+      }
+    },
+    {
+      "name": "1100x900 three names tap",
+      "w": 1100,
+      "h": 900,
+      "names": "ก\\nข\\nค",
+      "how": "tap",
+      "reduce": false,
+      "mobile": false,
+      "before": {
+        "x": 550,
+        "y": 870.359375,
+        "scrollY": 743,
+        "reduce": false
+      },
+      "settledScrollY": 374,
+      "after": {
+        "innerWidth": 1100,
+        "innerHeight": 900,
+        "scrollY": 374,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.015625,
+            "bottom": 399.984375,
+            "height": 400
+          },
+          "wheel-note": {
+            "top": 98.984375,
+            "bottom": 170.984375,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 186.984375,
+            "bottom": 250.984375,
+            "height": 64
+          }
+        },
+        "underControlAfterScroll": "textarea#name-input "
+      }
+    },
+    {
+      "name": "1280x900 three names tap",
+      "w": 1280,
+      "h": 900,
+      "names": "ก\\nข\\nค",
+      "how": "tap",
+      "reduce": false,
+      "mobile": false,
+      "before": {
+        "x": 640,
+        "y": 870.359375,
+        "scrollY": 743,
+        "reduce": false
+      },
+      "settledScrollY": 374,
+      "after": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "scrollY": 374,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.015625,
+            "bottom": 399.984375,
+            "height": 400
+          },
+          "wheel-note": {
+            "top": 98.984375,
+            "bottom": 170.984375,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 186.984375,
+            "bottom": 250.984375,
+            "height": 64
+          }
+        },
+        "underControlAfterScroll": "textarea#name-input "
+      }
+    },
+    {
+      "name": "1440x900 three names tap",
+      "w": 1440,
+      "h": 900,
+      "names": "ก\\nข\\nค",
+      "how": "tap",
+      "reduce": false,
+      "mobile": false,
+      "before": {
+        "x": 720,
+        "y": 870.359375,
+        "scrollY": 743,
+        "reduce": false
+      },
+      "settledScrollY": 374,
+      "after": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "scrollY": 374,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.015625,
+            "bottom": 399.984375,
+            "height": 400
+          },
+          "wheel-note": {
+            "top": 98.984375,
+            "bottom": 170.984375,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 186.984375,
+            "bottom": 250.984375,
+            "height": 64
+          }
+        },
+        "underControlAfterScroll": "textarea#name-input "
+      }
+    },
+    {
+      "name": "1100x900 one name tap",
+      "w": 1100,
+      "h": 900,
+      "names": "ก",
+      "how": "tap",
+      "reduce": false,
+      "mobile": false,
+      "before": {
+        "x": 550,
+        "y": 870.359375,
+        "scrollY": 743,
+        "reduce": false
+      },
+      "settledScrollY": 374,
+      "after": {
+        "innerWidth": 1100,
+        "innerHeight": 900,
+        "scrollY": 374,
+        "chips": 1,
+        "noteLen": 117,
+        "spinDisabled": true,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.015625,
+            "bottom": 399.984375,
+            "height": 400
+          },
+          "wheel-note": {
+            "top": 98.984375,
+            "bottom": 170.984375,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 186.984375,
+            "bottom": 250.984375,
+            "height": 64
+          }
+        },
+        "underControlAfterScroll": "textarea#name-input "
+      }
+    },
+    {
+      "name": "1100x900 reduced motion sync",
+      "w": 1100,
+      "h": 900,
+      "names": "ก\\nข\\nค",
+      "how": "sync",
+      "reduce": true,
+      "mobile": false,
+      "before": {
+        "x": 550,
+        "y": 870.359375,
+        "scrollY": 743,
+        "reduce": true
+      },
+      "sync": {
+        "y0": 743,
+        "y1": 374
+      },
+      "settledScrollY": 374,
+      "after": {
+        "innerWidth": 1100,
+        "innerHeight": 900,
+        "scrollY": 374,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.015625,
+            "bottom": 399.984375,
+            "height": 400
+          },
+          "wheel-note": {
+            "top": 98.984375,
+            "bottom": 170.984375,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 186.984375,
+            "bottom": 250.984375,
+            "height": 64
+          }
+        },
+        "underControlAfterScroll": "textarea#name-input "
+      }
+    },
+    {
+      "name": "1280x900 reduced motion sync",
+      "w": 1280,
+      "h": 900,
+      "names": "ก\\nข\\nค",
+      "how": "sync",
+      "reduce": true,
+      "mobile": false,
+      "before": {
+        "x": 640,
+        "y": 870.359375,
+        "scrollY": 743,
+        "reduce": true
+      },
+      "sync": {
+        "y0": 743,
+        "y1": 374
+      },
+      "settledScrollY": 374,
+      "after": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "scrollY": 374,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.015625,
+            "bottom": 399.984375,
+            "height": 400
+          },
+          "wheel-note": {
+            "top": 98.984375,
+            "bottom": 170.984375,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 186.984375,
+            "bottom": 250.984375,
+            "height": 64
+          }
+        },
+        "underControlAfterScroll": "textarea#name-input "
+      }
+    },
+    {
+      "name": "1440x900 reduced motion sync",
+      "w": 1440,
+      "h": 900,
+      "names": "ก\\nข\\nค",
+      "how": "sync",
+      "reduce": true,
+      "mobile": false,
+      "before": {
+        "x": 720,
+        "y": 870.359375,
+        "scrollY": 743,
+        "reduce": true
+      },
+      "sync": {
+        "y0": 743,
+        "y1": 374
+      },
+      "settledScrollY": 374,
+      "after": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "scrollY": 374,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.015625,
+            "bottom": 399.984375,
+            "height": 400
+          },
+          "wheel-note": {
+            "top": 98.984375,
+            "bottom": 170.984375,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 186.984375,
+            "bottom": 250.984375,
+            "height": 64
+          }
+        },
+        "underControlAfterScroll": "textarea#name-input "
+      }
+    },
+    {
+      "name": "1280x900 normal motion sync (control)",
+      "w": 1280,
+      "h": 900,
+      "names": "ก\\nข\\nค",
+      "how": "sync",
+      "reduce": false,
+      "mobile": false,
+      "before": {
+        "x": 640,
+        "y": 870.359375,
+        "scrollY": 743,
+        "reduce": false
+      },
+      "sync": {
+        "y0": 743,
+        "y1": 743
+      },
+      "settledScrollY": 374,
+      "after": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "scrollY": 374,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -0.015625,
+            "bottom": 399.984375,
+            "height": 400
+          },
+          "wheel-note": {
+            "top": 98.984375,
+            "bottom": 170.984375,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": 186.984375,
+            "bottom": 250.984375,
+            "height": 64
+          }
+        },
+        "underControlAfterScroll": "textarea#name-input "
+      }
+    }
+  ]
+}

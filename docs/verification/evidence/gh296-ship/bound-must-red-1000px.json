@@ -1,0 +1,288 @@
+{
+  "probe": "gh296-below-bound-style-diff",
+  "A": "http://localhost:4401",
+  "B": "http://localhost:4402",
+  "pass": false,
+  "fails": [
+    "1099x900: 196 diffs"
+  ],
+  "legs": [
+    {
+      "viewport": "320x568",
+      "mobile": true,
+      "elementsA": 88,
+      "elementsB": 88,
+      "propsPerElement": 47,
+      "diffCount": 0,
+      "diffs": []
+    },
+    {
+      "viewport": "390x844",
+      "mobile": true,
+      "elementsA": 88,
+      "elementsB": 88,
+      "propsPerElement": 47,
+      "diffCount": 0,
+      "diffs": []
+    },
+    {
+      "viewport": "768x1024",
+      "mobile": true,
+      "elementsA": 88,
+      "elementsB": 88,
+      "propsPerElement": 47,
+      "diffCount": 0,
+      "diffs": []
+    },
+    {
+      "viewport": "1099x900",
+      "mobile": false,
+      "elementsA": 88,
+      "elementsB": 88,
+      "propsPerElement": 47,
+      "diffCount": 196,
+      "diffs": [
+        {
+          "el": "main.tool-page[1]",
+          "prop": "height",
+          "A": "2476.83px",
+          "B": "2199.83px"
+        },
+        {
+          "el": "main.tool-page[1]",
+          "prop": "rect",
+          "A": "0,109,1099,2476.83",
+          "B": "0,109,1099,2199.83"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "box-sizing",
+          "A": "content-box",
+          "B": "border-box"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "width",
+          "A": "544px",
+          "B": "940px"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "height",
+          "A": "2321.64px",
+          "B": "2076.64px"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "max-width",
+          "A": "544px",
+          "B": "940px"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "margin-right",
+          "A": "261.5px",
+          "B": "79.5px"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "margin-left",
+          "A": "261.5px",
+          "B": "79.5px"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "padding-top",
+          "A": "16px",
+          "B": "44px"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "padding-right",
+          "A": "16px",
+          "B": "0px"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "padding-bottom",
+          "A": "16px",
+          "B": "20px"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "padding-left",
+          "A": "16px",
+          "B": "0px"
+        },
+        {
+          "el": "div.wheel-column[1]",
+          "prop": "rect",
+          "A": "261.5,232.19,576,2353.64",
+          "B": "79.5,232.19,940,2076.64"
+        },
+        {
+          "el": "section#wheel[1]",
+          "prop": "display",
+          "A": "block",
+          "B": "grid"
+        },
+        {
+          "el": "section#wheel[1]",
+          "prop": "width",
+          "A": "544px",
+          "B": "940px"
+        },
+        {
+          "el": "section#wheel[1]",
+          "prop": "height",
+          "A": "1626.88px",
+          "B": "1369.88px"
+        },
+        {
+          "el": "section#wheel[1]",
+          "prop": "grid-template-columns",
+          "A": "none",
+          "B": "28.5px 460px 30px 393px 28.5px"
+        },
+        {
+          "el": "section#wheel[1]",
+          "prop": "grid-template-rows",
+          "A": "none",
+          "B": "28.5px 44px 8px 23px 76px 88px 146px 44px 23px 136px 28.5px 36px 688.875px"
+        },
+        {
+          "el": "section#wheel[1]",
+          "prop": "rect",
+          "A": "277.5,248.19,544,1626.88",
+          "B": "79.5,276.19,940,1369.88"
+        },
+        {
+          "el": "section#wheel[1]",
+          "prop": "before",
+          "A": "none",
+          "B": "\"\""
+        },
+        {
+          "el": "div.wheel-head[1]",
+          "prop": "width",
+          "A": "544px",
+          "B": "62.3281px"
+        },
+        {
+          "el": "div.wheel-head[1]",
+          "prop": "height",
+          "A": "30px",
+          "B": "41px"
+        },
+        {
+          "el": "div.wheel-head[1]",
+          "prop": "min-height",
+          "A": "0px",
+          "B": "auto"
+        },
+        {
+          "el": "div.wheel-head[1]",
+          "prop": "margin-bottom",
+          "A": "6px",
+          "B": "0px"
+        },
+        {
+          "el": "div.wheel-head[1]",
+          "prop": "align-self",
+          "A": "auto",
+          "B": "center"
+        },
+        {
+          "el": "div.wheel-head[1]",
+          "prop": "justify-self",
+          "A": "auto",
+          "B": "start"
+        },
+        {
+          "el": "div.wheel-head[1]",
+          "prop": "grid-row-start",
+          "A": "auto",
+          "B": "2"
+        },
+        {
+          "el": "div.wheel-head[1]",
+          "prop": "grid-column-start",
+          "A": "auto",
+          "B": "2"
+        },
+        {
+          "el": "div.wheel-head[1]",
+          "prop": "grid-column-end",
+          "A": "auto",
+          "B": "5"
+        },
+        {
+          "el": "div.wheel-head[1]",
+          "prop": "rect",
+          "A": "277.5,248.19,544,30",
+          "B": "108,306.19,62.33,41"
+        },
+        {
+          "el": "h2#wheel-heading[1]",
+          "prop": "width",
+          "A": "45.5469px",
+          "B": "62.3281px"
+        },
+        {
+          "el": "h2#wheel-heading[1]",
+          "prop": "height",
+          "A": "30px",
+          "B": "41px"
+        },
+        {
+          "el": "h2#wheel-heading[1]",
+          "prop": "font-size",
+          "A": "19px",
+          "B": "26px"
+        },
+        {
+          "el": "h2#wheel-heading[1]",
+          "prop": "rect",
+          "A": "277.5,248.19,45.55,30",
+          "B": "108,306.19,62.33,41"
+        },
+        {
+          "el": "div.wheel-mode[1]",
+          "prop": "width",
+          "A": "544px",
+          "B": "519.531px"
+        },
+        {
+          "el": "div.wheel-mode[1]",
+          "prop": "min-height",
+          "A": "0px",
+          "B": "auto"
+        },
+        {
+          "el": "div.wheel-mode[1]",
+          "prop": "margin-top",
+          "A": "8px",
+          "B": "0px"
+        },
+        {
+          "el": "div.wheel-mode[1]",
+          "prop": "margin-bottom",
+          "A": "16px",
+          "B": "0px"
+        },
+        {
+          "el": "div.wheel-mode[1]",
+          "prop": "align-self",
+          "A": "auto",
+          "B": "center"
+        },
+        {
+          "el": "div.wheel-mode[1]",
+          "prop": "justify-self",
+          "A": "auto",
+          "B": "end"
+        }
+      ]
+    }
+  ]
+}

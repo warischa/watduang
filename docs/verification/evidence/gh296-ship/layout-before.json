@@ -1,0 +1,357 @@
+{
+  "probe": "gh296-desktop-layout",
+  "base": "http://localhost:4401",
+  "pass": false,
+  "fails": [
+    "1100: column 576px, want 940",
+    "1100: disc track 544px, want 460",
+    "1100: controls not right of the disc track by the 30px gap",
+    "1100: no card drawn",
+    "1100: name panel not below the card by 36px",
+    "1100: name panel 544px, want 940",
+    "1100: controls midline 915.5 vs disc midline 563.5",
+    "1280: column 576px, want 940",
+    "1280: disc track 544px, want 460",
+    "1280: controls not right of the disc track by the 30px gap",
+    "1280: no card drawn",
+    "1280: name panel not below the card by 36px",
+    "1280: name panel 544px, want 940",
+    "1280: controls midline 915.5 vs disc midline 563.5",
+    "1440: column 576px, want 940",
+    "1440: disc track 544px, want 460",
+    "1440: controls not right of the disc track by the 30px gap",
+    "1440: no card drawn",
+    "1440: name panel not below the card by 36px",
+    "1440: name panel 544px, want 940",
+    "1440: controls midline 915.5 vs disc midline 563.5"
+  ],
+  "rows": [
+    {
+      "width": 1100,
+      "innerWidth": 1100,
+      "scrollWidth": 1100,
+      "clientWidth": 1100,
+      "over": 0,
+      "column": {
+        "l": 262,
+        "t": 249.5,
+        "w": 576,
+        "h": 2359.7
+      },
+      "wheel": {
+        "l": 278,
+        "t": 265.5,
+        "w": 544,
+        "h": 1626.9
+      },
+      "head": {
+        "l": 278,
+        "t": 265.5,
+        "w": 544,
+        "h": 30
+      },
+      "mode": {
+        "l": 278,
+        "t": 303.5,
+        "w": 544,
+        "h": 44
+      },
+      "stage": {
+        "l": 278,
+        "t": 363.5,
+        "w": 544,
+        "h": 400
+      },
+      "disc": {
+        "l": 350,
+        "t": 363.5,
+        "w": 400,
+        "h": 400
+      },
+      "result": {
+        "l": 278,
+        "t": 779.5,
+        "w": 544,
+        "h": 60
+      },
+      "note": {
+        "l": 278,
+        "t": 843.5,
+        "w": 544,
+        "h": 72
+      },
+      "actions": {
+        "l": 278,
+        "t": 931.5,
+        "w": 544,
+        "h": 60
+      },
+      "toggle": {
+        "l": 278,
+        "t": 1007.5,
+        "w": 544,
+        "h": 44
+      },
+      "names": {
+        "l": 278,
+        "t": 1067.5,
+        "w": 544,
+        "h": 120
+      },
+      "entry": {
+        "l": 278,
+        "t": 1203.5,
+        "w": 544,
+        "h": 688.9
+      },
+      "nav": {
+        "l": 278,
+        "t": 1892.4,
+        "w": 544,
+        "h": 244
+      },
+      "ad": {
+        "l": 278,
+        "t": 2136.4,
+        "w": 544,
+        "h": 250
+      },
+      "howto": {
+        "l": 278,
+        "t": 2419.8,
+        "w": 544,
+        "h": 173.4
+      },
+      "adMinHeight": "250px",
+      "card": {
+        "content": "none",
+        "gridRow": "auto/auto",
+        "width": "auto",
+        "height": "auto",
+        "border": "0px",
+        "shadow": "none"
+      },
+      "controlsTop": 779.5,
+      "controlsBottom": 1051.5,
+      "modeRows": 1
+    },
+    {
+      "width": 1280,
+      "innerWidth": 1280,
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "over": 0,
+      "column": {
+        "l": 352,
+        "t": 249.5,
+        "w": 576,
+        "h": 2359.7
+      },
+      "wheel": {
+        "l": 368,
+        "t": 265.5,
+        "w": 544,
+        "h": 1626.9
+      },
+      "head": {
+        "l": 368,
+        "t": 265.5,
+        "w": 544,
+        "h": 30
+      },
+      "mode": {
+        "l": 368,
+        "t": 303.5,
+        "w": 544,
+        "h": 44
+      },
+      "stage": {
+        "l": 368,
+        "t": 363.5,
+        "w": 544,
+        "h": 400
+      },
+      "disc": {
+        "l": 440,
+        "t": 363.5,
+        "w": 400,
+        "h": 400
+      },
+      "result": {
+        "l": 368,
+        "t": 779.5,
+        "w": 544,
+        "h": 60
+      },
+      "note": {
+        "l": 368,
+        "t": 843.5,
+        "w": 544,
+        "h": 72
+      },
+      "actions": {
+        "l": 368,
+        "t": 931.5,
+        "w": 544,
+        "h": 60
+      },
+      "toggle": {
+        "l": 368,
+        "t": 1007.5,
+        "w": 544,
+        "h": 44
+      },
+      "names": {
+        "l": 368,
+        "t": 1067.5,
+        "w": 544,
+        "h": 120
+      },
+      "entry": {
+        "l": 368,
+        "t": 1203.5,
+        "w": 544,
+        "h": 688.9
+      },
+      "nav": {
+        "l": 368,
+        "t": 1892.4,
+        "w": 544,
+        "h": 244
+      },
+      "ad": {
+        "l": 368,
+        "t": 2136.4,
+        "w": 544,
+        "h": 250
+      },
+      "howto": {
+        "l": 368,
+        "t": 2419.8,
+        "w": 544,
+        "h": 173.4
+      },
+      "adMinHeight": "250px",
+      "card": {
+        "content": "none",
+        "gridRow": "auto/auto",
+        "width": "auto",
+        "height": "auto",
+        "border": "0px",
+        "shadow": "none"
+      },
+      "controlsTop": 779.5,
+      "controlsBottom": 1051.5,
+      "modeRows": 1
+    },
+    {
+      "width": 1440,
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "over": 0,
+      "column": {
+        "l": 432,
+        "t": 249.5,
+        "w": 576,
+        "h": 2359.7
+      },
+      "wheel": {
+        "l": 448,
+        "t": 265.5,
+        "w": 544,
+        "h": 1626.9
+      },
+      "head": {
+        "l": 448,
+        "t": 265.5,
+        "w": 544,
+        "h": 30
+      },
+      "mode": {
+        "l": 448,
+        "t": 303.5,
+        "w": 544,
+        "h": 44
+      },
+      "stage": {
+        "l": 448,
+        "t": 363.5,
+        "w": 544,
+        "h": 400
+      },
+      "disc": {
+        "l": 520,
+        "t": 363.5,
+        "w": 400,
+        "h": 400
+      },
+      "result": {
+        "l": 448,
+        "t": 779.5,
+        "w": 544,
+        "h": 60
+      },
+      "note": {
+        "l": 448,
+        "t": 843.5,
+        "w": 544,
+        "h": 72
+      },
+      "actions": {
+        "l": 448,
+        "t": 931.5,
+        "w": 544,
+        "h": 60
+      },
+      "toggle": {
+        "l": 448,
+        "t": 1007.5,
+        "w": 544,
+        "h": 44
+      },
+      "names": {
+        "l": 448,
+        "t": 1067.5,
+        "w": 544,
+        "h": 120
+      },
+      "entry": {
+        "l": 448,
+        "t": 1203.5,
+        "w": 544,
+        "h": 688.9
+      },
+      "nav": {
+        "l": 448,
+        "t": 1892.4,
+        "w": 544,
+        "h": 244
+      },
+      "ad": {
+        "l": 448,
+        "t": 2136.4,
+        "w": 544,
+        "h": 250
+      },
+      "howto": {
+        "l": 448,
+        "t": 2419.8,
+        "w": 544,
+        "h": 173.4
+      },
+      "adMinHeight": "250px",
+      "card": {
+        "content": "none",
+        "gridRow": "auto/auto",
+        "width": "auto",
+        "height": "auto",
+        "border": "0px",
+        "shadow": "none"
+      },
+      "controlsTop": 779.5,
+      "controlsBottom": 1051.5,
+      "modeRows": 1
+    }
+  ]
+}

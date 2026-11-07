@@ -464,6 +464,141 @@ import ToolHeader from '../../components/ToolHeader.astro';
       font-size: 21px;
     }
   }
+
+  /* gh#296, owner ruling 2026-11-07: from the desktop bound up, the page ships the ToolWheelDesktop
+     board's 940px main card, wheel left and controls right; the name panel stays below the card and
+     the board's ad rail is NOT shipped (ADR-0004). 1100px is the bound draw, team and number use, so
+     every rule here sits inside it and the phone and tablet layouts are untouched.
+     The column mirrors draw's .tool-column desktop box. Its children keep their block flow; only the
+     card-to-panel distance takes the board's 36px column gap.
+     No element wraps the card, so section#wheel is the grid and the card is drawn by its ::before.
+     Every child takes an explicit cell; a new child of the section needs one too, or it lands in an
+     implicit row below the name panel. Columns: inset, disc 460px, gap 30px, controls, inset; the
+     inset is the board's 26px padding plus the card's 2.5px border, so the content box matches
+     draw's .tool-module. Rows:
+       1 inset · 2 heading + mode radios · 3 the board's 8px heading margin · 4 spacer ·
+       5 result · 6 note · 7 actions · 8 checkbox · 9 spacer · 10 entered-names list · 11 inset ·
+       12 the board's 36px gap · 13 name panel.
+     The two 1fr spacers centre the controls against the disc (the board's align-items: center)
+     without stretching the rows between them. Decisions the board does not draw, each recorded on
+     gh#296: the mode radios sit in the heading row, where the board's main card prints the mode
+     caption; the entered-names list spans the card under both tracks, since the board draws no list
+     and in the controls track it would outgrow the disc; the result bar keeps its gh#120 60px bound
+     and its gh#262 pre-spin slot, and the radios and checkbox keep their gh#262 24px drawing. */
+  @media (min-width: 1100px) {
+    .wheel-column {
+      width: 100%;
+      max-width: 940px;
+      margin-inline: auto;
+      box-sizing: border-box;
+      padding: 44px 0 20px 0;
+    }
+
+    #wheel {
+      display: grid;
+      grid-template-columns: calc(26px + 2.5px) 460px 30px minmax(0, 1fr) calc(26px + 2.5px);
+      grid-template-rows:
+        calc(26px + 2.5px) auto 8px 1fr auto auto auto auto 1fr auto calc(26px + 2.5px)
+        36px auto;
+    }
+
+    #wheel::before {
+      content: '';
+      grid-row: 1 / 12;
+      grid-column: 1 / -1;
+      background: var(--color-ground-warm);
+      border: 2.5px solid var(--color-line-strong);
+      border-radius: 20px;
+      box-shadow: 5px 5px 0 var(--color-line-strong);
+    }
+
+    .wheel-head {
+      grid-row: 2;
+      grid-column: 2 / 5;
+      justify-self: start;
+      align-self: center;
+      margin: 0;
+    }
+
+    .wheel-head h2 {
+      font-size: 26px;
+    }
+
+    .wheel-mode {
+      grid-row: 2;
+      grid-column: 2 / 5;
+      justify-self: end;
+      align-self: center;
+      margin: 0;
+    }
+
+    .wheel-mode-option,
+    .wheel-toggle label {
+      font-size: 15px;
+    }
+
+    .wheel-stage {
+      grid-row: 4 / 10;
+      grid-column: 2;
+      align-self: center;
+      margin: 0;
+    }
+
+    .wheel-result {
+      grid-row: 5;
+      grid-column: 4;
+      margin: 0 0 16px 0;
+    }
+
+    .wheel-note {
+      grid-row: 6;
+      grid-column: 4;
+      margin: 0 0 16px 0;
+    }
+
+    .wheel-actions {
+      grid-row: 7;
+      grid-column: 4;
+      flex-direction: column;
+      gap: 10px;
+      margin: 0 0 16px 0;
+    }
+
+    :where(.wheel-spin) {
+      min-height: 64px;
+      font-size: 22px;
+      box-shadow: 5px 5px 0 var(--color-line-strong);
+    }
+
+    :where(.wheel-stop) {
+      min-height: 64px;
+      font-size: 22px;
+      box-shadow: 5px 5px 0 rgba(20, 20, 43, 0.3);
+    }
+
+    .wheel-reset {
+      min-height: 56px;
+      font-size: 18px;
+      border-radius: 16px;
+    }
+
+    .wheel-toggle {
+      grid-row: 8;
+      grid-column: 4;
+      margin: 0;
+    }
+
+    .wheel-names {
+      grid-row: 10;
+      grid-column: 2 / 5;
+      margin: 16px 0 0 0;
+    }
+
+    #wheel > :global(#tool-name-entry) {
+      grid-row: 13;
+      grid-column: 1 / -1;
+    }
+  }
 </style>
 
 <script>

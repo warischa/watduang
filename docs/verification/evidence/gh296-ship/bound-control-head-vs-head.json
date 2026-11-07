@@ -1,0 +1,45 @@
+{
+  "probe": "gh296-below-bound-style-diff",
+  "A": "http://localhost:4401",
+  "B": "http://localhost:4402",
+  "pass": true,
+  "fails": [],
+  "legs": [
+    {
+      "viewport": "320x568",
+      "mobile": true,
+      "elementsA": 88,
+      "elementsB": 88,
+      "propsPerElement": 47,
+      "diffCount": 0,
+      "diffs": []
+    },
+    {
+      "viewport": "390x844",
+      "mobile": true,
+      "elementsA": 88,
+      "elementsB": 88,
+      "propsPerElement": 47,
+      "diffCount": 0,
+      "diffs": []
+    },
+    {
+      "viewport": "768x1024",
+      "mobile": true,
+      "elementsA": 88,
+      "elementsB": 88,
+      "propsPerElement": 47,
+      "diffCount": 0,
+      "diffs": []
+    },
+    {
+      "viewport": "1099x900",
+      "mobile": false,
+      "elementsA": 88,
+      "elementsB": 88,
+      "propsPerElement": 47,
+      "diffCount": 0,
+      "diffs": []
+    }
+  ]
+}

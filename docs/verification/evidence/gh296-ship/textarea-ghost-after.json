@@ -1,0 +1,213 @@
+{
+  "probe": "gh296-desktop-textarea-ghost",
+  "base": "http://localhost:4402",
+  "gapMs": 120,
+  "pass": true,
+  "fails": [],
+  "legs": [
+    {
+      "name": "1100x900 reduced motion",
+      "point": {
+        "x": 550,
+        "y": 870
+      },
+      "pre": {
+        "scrollY": 743,
+        "under": "button#name-start",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 0
+      },
+      "after": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      },
+      "control": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "textarea#name-input",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      }
+    },
+    {
+      "name": "1100x900 normal motion",
+      "point": {
+        "x": 550,
+        "y": 870
+      },
+      "pre": {
+        "scrollY": 743,
+        "under": "button#name-start",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 0
+      },
+      "after": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      },
+      "control": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "textarea#name-input",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      }
+    },
+    {
+      "name": "1280x900 reduced motion",
+      "point": {
+        "x": 640,
+        "y": 870
+      },
+      "pre": {
+        "scrollY": 743,
+        "under": "button#name-start",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 0
+      },
+      "after": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      },
+      "control": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "textarea#name-input",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      }
+    },
+    {
+      "name": "1280x900 normal motion",
+      "point": {
+        "x": 640,
+        "y": 870
+      },
+      "pre": {
+        "scrollY": 743,
+        "under": "button#name-start",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 0
+      },
+      "after": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      },
+      "control": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "textarea#name-input",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      }
+    },
+    {
+      "name": "1440x900 reduced motion",
+      "point": {
+        "x": 720,
+        "y": 870
+      },
+      "pre": {
+        "scrollY": 743,
+        "under": "button#name-start",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 0
+      },
+      "after": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      },
+      "control": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "textarea#name-input",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      }
+    },
+    {
+      "name": "1440x900 normal motion",
+      "point": {
+        "x": 720,
+        "y": 870
+      },
+      "pre": {
+        "scrollY": 743,
+        "under": "button#name-start",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 0
+      },
+      "after": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "body",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      },
+      "control": {
+        "scrollY": 374,
+        "under": "textarea#name-input",
+        "active": "textarea#name-input",
+        "elim": false,
+        "result": "",
+        "rotation": "",
+        "chips": 3
+      }
+    }
+  ]
+}

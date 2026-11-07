@@ -1,0 +1,155 @@
+{
+  "probe": "gh296-desktop-mode-b",
+  "base": "http://localhost:4402",
+  "pass": true,
+  "fails": [],
+  "rows": [
+    {
+      "width": 1100,
+      "modeB": {
+        "innerWidth": 1100,
+        "innerHeight": 900,
+        "sw": 1100,
+        "cw": 1100,
+        "stopShown": true,
+        "controlsH": 428,
+        "discMid": 199.984375,
+        "controlsMid": 199.984375,
+        "disc": [
+          -0.015625,
+          399.984375
+        ],
+        "note": 61.984375,
+        "spinBottom": 213.984375,
+        "result": {
+          "text": "",
+          "w": 393,
+          "h": 60,
+          "border": "dashed"
+        },
+        "controlsW": 393
+      },
+      "filled": {
+        "innerWidth": 1100,
+        "innerHeight": 900,
+        "sw": 1100,
+        "cw": 1100,
+        "stopShown": false,
+        "controlsH": 354,
+        "discMid": 185.984375,
+        "controlsMid": 185.984375,
+        "disc": [
+          -14.015625,
+          385.984375
+        ],
+        "note": 84.984375,
+        "spinBottom": 236.984375,
+        "result": {
+          "text": "ค",
+          "w": 393,
+          "h": 60,
+          "border": "none"
+        },
+        "controlsW": 393
+      }
+    },
+    {
+      "width": 1280,
+      "modeB": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "sw": 1280,
+        "cw": 1280,
+        "stopShown": true,
+        "controlsH": 428,
+        "discMid": 199.984375,
+        "controlsMid": 199.984375,
+        "disc": [
+          -0.015625,
+          399.984375
+        ],
+        "note": 61.984375,
+        "spinBottom": 213.984375,
+        "result": {
+          "text": "",
+          "w": 393,
+          "h": 60,
+          "border": "dashed"
+        },
+        "controlsW": 393
+      },
+      "filled": {
+        "innerWidth": 1280,
+        "innerHeight": 900,
+        "sw": 1280,
+        "cw": 1280,
+        "stopShown": false,
+        "controlsH": 354,
+        "discMid": 185.984375,
+        "controlsMid": 185.984375,
+        "disc": [
+          -14.015625,
+          385.984375
+        ],
+        "note": 84.984375,
+        "spinBottom": 236.984375,
+        "result": {
+          "text": "ข",
+          "w": 393,
+          "h": 60,
+          "border": "none"
+        },
+        "controlsW": 393
+      }
+    },
+    {
+      "width": 1440,
+      "modeB": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "sw": 1440,
+        "cw": 1440,
+        "stopShown": true,
+        "controlsH": 428,
+        "discMid": 199.984375,
+        "controlsMid": 199.984375,
+        "disc": [
+          -0.015625,
+          399.984375
+        ],
+        "note": 61.984375,
+        "spinBottom": 213.984375,
+        "result": {
+          "text": "",
+          "w": 393,
+          "h": 60,
+          "border": "dashed"
+        },
+        "controlsW": 393
+      },
+      "filled": {
+        "innerWidth": 1440,
+        "innerHeight": 900,
+        "sw": 1440,
+        "cw": 1440,
+        "stopShown": false,
+        "controlsH": 354,
+        "discMid": 185.984375,
+        "controlsMid": 185.984375,
+        "disc": [
+          -14.015625,
+          385.984375
+        ],
+        "note": 84.984375,
+        "spinBottom": 236.984375,
+        "result": {
+          "text": "ข",
+          "w": 393,
+          "h": 60,
+          "border": "none"
+        },
+        "controlsW": 393
+      }
+    }
+  ]
+}

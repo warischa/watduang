@@ -1,0 +1,215 @@
+{
+  "probe": "gh296-b3-tool-header-inset",
+  "base": "http://localhost:4402",
+  "n": 20,
+  "phonePad": {
+    "wheel": 20,
+    "number": 20,
+    "draw": 20,
+    "team": 20
+  },
+  "pass": true,
+  "fails": [],
+  "rows": [
+    {
+      "page": "wheel",
+      "width": 320,
+      "innerWidth": 320,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 320,
+      "clientWidth": 320
+    },
+    {
+      "page": "wheel",
+      "width": 390,
+      "innerWidth": 390,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 390,
+      "clientWidth": 390
+    },
+    {
+      "page": "wheel",
+      "width": 1100,
+      "innerWidth": 1100,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1100,
+      "clientWidth": 1100
+    },
+    {
+      "page": "wheel",
+      "width": 1280,
+      "innerWidth": 1280,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1280,
+      "clientWidth": 1280
+    },
+    {
+      "page": "wheel",
+      "width": 1440,
+      "innerWidth": 1440,
+      "h1Left": 80,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "page": "number",
+      "width": 320,
+      "innerWidth": 320,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 320,
+      "clientWidth": 320
+    },
+    {
+      "page": "number",
+      "width": 390,
+      "innerWidth": 390,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 390,
+      "clientWidth": 390
+    },
+    {
+      "page": "number",
+      "width": 1100,
+      "innerWidth": 1100,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1100,
+      "clientWidth": 1100
+    },
+    {
+      "page": "number",
+      "width": 1280,
+      "innerWidth": 1280,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1280,
+      "clientWidth": 1280
+    },
+    {
+      "page": "number",
+      "width": 1440,
+      "innerWidth": 1440,
+      "h1Left": 80,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "page": "draw",
+      "width": 320,
+      "innerWidth": 320,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 320,
+      "clientWidth": 320
+    },
+    {
+      "page": "draw",
+      "width": 390,
+      "innerWidth": 390,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 390,
+      "clientWidth": 390
+    },
+    {
+      "page": "draw",
+      "width": 1100,
+      "innerWidth": 1100,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1100,
+      "clientWidth": 1100
+    },
+    {
+      "page": "draw",
+      "width": 1280,
+      "innerWidth": 1280,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1280,
+      "clientWidth": 1280
+    },
+    {
+      "page": "draw",
+      "width": 1440,
+      "innerWidth": 1440,
+      "h1Left": 80,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "page": "team",
+      "width": 320,
+      "innerWidth": 320,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 320,
+      "clientWidth": 320
+    },
+    {
+      "page": "team",
+      "width": 390,
+      "innerWidth": 390,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 390,
+      "clientWidth": 390
+    },
+    {
+      "page": "team",
+      "width": 1100,
+      "innerWidth": 1100,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1100,
+      "clientWidth": 1100
+    },
+    {
+      "page": "team",
+      "width": 1280,
+      "innerWidth": 1280,
+      "h1Left": 20,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1280,
+      "clientWidth": 1280
+    },
+    {
+      "page": "team",
+      "width": 1440,
+      "innerWidth": 1440,
+      "h1Left": 80,
+      "innerPadLeft": 20,
+      "innerPadRight": 20,
+      "scrollWidth": 1440,
+      "clientWidth": 1440
+    }
+  ]
+}
