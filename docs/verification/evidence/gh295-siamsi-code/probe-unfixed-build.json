@@ -1,0 +1,85 @@
+{
+  "390x844": {
+    "rest": {
+      "innerWidth": 390,
+      "ellipseFills": [
+        "var(--color-ground-warm)"
+      ]
+    },
+    "shake": {
+      "onShake": true
+    },
+    "walk": {
+      "ok": true
+    },
+    "slipAlign": {
+      "innerWidth": 390,
+      "aspectCount": 4,
+      "aspect": [
+        "center",
+        "center",
+        "center",
+        "center"
+      ],
+      "closing": "center",
+      "verse": "center"
+    },
+    "kept": {
+      "slipStays": false,
+      "sameNode": false,
+      "animsRightAfter": null,
+      "disabledAtOnce": true,
+      "againArmedLater": true,
+      "keepGone": true,
+      "tieGone": true,
+      "order": [
+        "P",
+        "ss-again"
+      ],
+      "doneText": "เก็บใบนี้ไว้แล้ว ขอให้เป็นกำลังใจไปทั้งวัน",
+      "doneAlign": "center"
+    }
+  },
+  "320x568": {
+    "rest": {
+      "innerWidth": 320,
+      "ellipseFills": [
+        "var(--color-ground-warm)"
+      ]
+    },
+    "shake": {
+      "onShake": true
+    },
+    "walk": {
+      "ok": true
+    },
+    "slipAlign": {
+      "innerWidth": 320,
+      "aspectCount": 4,
+      "aspect": [
+        "center",
+        "center",
+        "center",
+        "center"
+      ],
+      "closing": "center",
+      "verse": "center"
+    },
+    "kept": {
+      "slipStays": false,
+      "sameNode": false,
+      "animsRightAfter": null,
+      "disabledAtOnce": true,
+      "againArmedLater": true,
+      "keepGone": true,
+      "tieGone": true,
+      "order": [
+        "P",
+        "ss-again"
+      ],
+      "doneText": "เก็บใบนี้ไว้แล้ว ขอให้เป็นกำลังใจไปทั้งวัน",
+      "doneAlign": "center"
+    }
+  },
+  "consoleErrors": []
+}

@@ -26,6 +26,7 @@ import game, {
   DONE_KEEP,
   DONE_TIE,
   BTN_AGAIN,
+  NOTE_SLIP,
 } from './siamsi.ts';
 import { ASPECT_LABEL, INTENT_LABEL, SLIPS } from './_siamsi-deck.ts';
 import { ARM_DELAY_MS } from './_arm-gate.ts';
@@ -246,6 +247,151 @@ test('gh#97: the other closing action ties the slip away, and also ends in place
   byId(stage, 'ss-tie').click();
   assert.ok(allText(stage).includes(DONE_TIE), 'tying the slip away said nothing');
   assert.ok(byId(stage, 'ss-again'), 'tying the slip away offered no restart');
+  // gh#295 B5 changed the keep path only: a tied slip is left behind, so it leaves the screen.
+  assert.equal(q(stage, 'sm-slip'), null, 'tying the slip away left the slip on screen');
+  game.dispose();
+});
+
+// ---- gh#295 B5: keeping a slip keeps it on screen ----
+
+/** Mounts, walks the real controls to the slip screen, and returns the stage. */
+function walkToSlip(t) {
+  t.mock.timers.enable(timers);
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx([]));
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  byId(stage, 'ss-intent-done').click();
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  byId(stage, 'ss-hold').dispatch('pointerdown');
+  t.mock.timers.tick(HOLD_STEP_MS * SHAKE_TARGET + 1);
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  byId(stage, 'ss-open-slip').click();
+  return stage;
+}
+
+// Owner pick, gh#295 board B5 option A: the slip panel stays where it is; the keep and tie buttons and
+// the footnote under them are replaced by the kept line and the restart, below the panel.
+test('gh#295 B5: keeping the slip leaves the same slip on screen, with the kept line and the restart under it', (t) => {
+  const stage = walkToSlip(t);
+  const panel = q(stage, 'sm-slip');
+  assert.ok(panel, 'the walk never reached the slip');
+  assert.ok(allText(stage).includes(NOTE_SLIP), 'the slip screen lost its footnote before keep');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  byId(stage, 'ss-keep').click();
+
+  assert.equal(q(stage, 'sm-slip'), panel, 'keeping the slip removed or rebuilt the slip panel');
+  assert.equal(stage.children[0], panel, 'the kept slip is no longer the first thing on the screen');
+  // .wd-reveal runs on every insertion, and putting the panel back re-inserts it: still carrying the
+  // class, the slip the reader just kept would fade and grow in a second time.
+  assert.ok(!panel.className.split(/\s+/).includes('wd-reveal'), 'the kept slip replays its reveal');
+  assert.equal(byId(stage, 'ss-keep'), null, 'the keep button is still on screen after keeping');
+  assert.equal(byId(stage, 'ss-tie'), null, 'the tie button is still on screen after keeping');
+  assert.ok(!allText(stage).includes(NOTE_SLIP), 'the keep-or-tie footnote is still on screen after keeping');
+  const line = stage.children[1];
+  assert.equal(line && line.tagName, 'p', 'the kept line is not the paragraph right under the slip');
+  assert.equal(line.textContent, DONE_KEEP);
+  const again = stage.children[2];
+  assert.equal(again && again.id, 'ss-again', 'the restart is not right under the kept line');
+  assert.equal(again.textContent, BTN_AGAIN);
+  assert.equal(stage.children.length, 3, 'something else is left on the kept screen');
+  game.dispose();
+});
+
+// Reveal path (ADR-0057 / ADR-0059): the restart appears under the finger that tapped keep, so it is a
+// revealed control and must sit disabled for the arm window like every other one on this route.
+test('gh#295 B5: the restart revealed under a kept slip is disabled inside the arm window', (t) => {
+  const stage = walkToSlip(t);
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  byId(stage, 'ss-keep').click();
+  assert.ok(q(stage, 'sm-slip'), 'precondition: the kept slip is not on screen, so this is not the kept path');
+
+  const again = byId(stage, 'ss-again');
+  assert.ok(again, 'keeping the slip offered no restart');
+  assert.equal(again.disabled, true, 'the restart under the kept slip is live inside the arm window');
+  again.click();
+  assert.equal(byId(stage, 'ss-intent-done'), null, 'a disabled restart under the kept slip fired anyway');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(again.disabled, false, 'the restart under the kept slip never armed');
+  again.click();
+  assert.ok(byId(stage, 'ss-intent-done'), 'the armed restart under the kept slip did not restart');
+  game.dispose();
+});
+
+// ---- gh#295 B2: the vessel is a red lacquer tube, not a glass ----
+// Owner pick, gh#295 board B2 option A. Every expected string is copied from the board's option-A frames.
+// The order matters as much as the values: the dark mouth is drawn UNDER the sticks and the body OVER
+// them, so the sticks rise out of the tube instead of a dark blob covering their bases.
+
+const STICK = (x, y, h) =>
+  `<rect x="${x}" y="${y}" width="9" height="${h}" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>`;
+const MOUTH = (cx, cy) =>
+  `<ellipse cx="${cx}" cy="${cy}" rx="42" ry="13" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse>`;
+const BAND = (x0, x1, top, bottom, width) =>
+  `<path d="M${x0} ${top} A42 13 0 0 0 ${x1} ${top} V${bottom} A42 13 0 0 1 ${x0} ${bottom} Z" fill="${width === 3 ? 'var(--color-primary)' : 'var(--accent-gold)'}" stroke="var(--color-line-strong)" stroke-width="${width}" stroke-linejoin="round"></path>`;
+
+const VESSEL_REST =
+  '<svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true">' +
+  MOUTH(98, 72) + STICK(66, 52, 80) + STICK(84, 46, 86) + STICK(102, 50, 82) + STICK(120, 48, 84) +
+  BAND(56, 140, 72, 185, 3) + BAND(56, 140, 72, 83, 2.5) + BAND(56, 140, 128, 134, 2.5) +
+  '</svg>';
+
+const VESSEL_SHAKE =
+  '<svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true">' +
+  MOUTH(98, 110) +
+  '<g class="sm-sticks">' +
+  STICK(66, 26, 112) + STICK(84, 14, 124) + STICK(102, 32, 106) + STICK(120, 20, 118) +
+  '<rect x="86" y="-14" width="11" height="150" rx="5.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
+  '<rect x="86" y="-14" width="11" height="22" rx="5.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
+  '</g>' +
+  BAND(56, 140, 110, 225, 3) + BAND(56, 140, 110, 121, 2.5) + BAND(56, 140, 166, 172, 2.5) +
+  '</svg>';
+
+const VESSEL_LANDING = (numeral) =>
+  '<svg width="240" height="240" viewBox="0 0 240 240" fill="none" aria-hidden="true">' +
+  '<g style="transform: rotate(-12deg); transform-origin: 150px 180px;">' +
+  MOUTH(150, 86) + STICK(118, 66, 60) + STICK(136, 60, 66) + STICK(154, 64, 62) +
+  BAND(108, 192, 86, 185, 3) + BAND(108, 192, 86, 97, 2.5) + BAND(108, 192, 136, 142, 2.5) +
+  '</g>' +
+  '<g class="sm-fallen" style="transform: rotate(-7deg); transform-origin: 100px 196px;">' +
+  '<rect x="16" y="182" width="150" height="13" rx="6.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
+  '<rect x="16" y="182" width="24" height="13" rx="6.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
+  `<text x="118" y="193" font-family="var(--font-display)" font-size="13" font-weight="500" fill="var(--color-line-strong)" text-anchor="middle">${numeral}</text>` +
+  '</g>' +
+  '</svg>';
+
+/** The glass cues the board names, plus option A's own bands, checked on one rendered drawing. */
+function assertTube(svg, { mouth, lip, waist }, where) {
+  assert.ok(!svg.includes('fill="var(--color-ground-warm)"'), `${where}: a cream foam ellipse is still drawn`);
+  assert.ok(!svg.includes('opacity="0.35"'), `${where}: a translucent fill line is still drawn`);
+  assert.ok(!svg.includes('var(--page-accent)'), `${where}: the body still fills with the gold page accent`);
+  assert.ok(!/ h84 l-9 /.test(svg), `${where}: the tapered tumbler body is still drawn`);
+  assert.ok(svg.includes(lip), `${where}: option A's gold lip band is missing`);
+  assert.ok(svg.includes(waist), `${where}: option A's gold waist band is missing`);
+  assert.ok(svg.indexOf(mouth) > -1 && svg.indexOf(mouth) < svg.indexOf('<rect'), `${where}: the dark mouth is not drawn under the sticks`);
+}
+
+test('gh#295 B2: all three vessel drawings are option A of the board, value for value', (t) => {
+  t.mock.timers.enable(timers);
+  const stage = fakeDocument.createElement('div');
+  game.mount(stage, makeCtx([]));
+
+  const rest = q(stage, 'sm-barrel').innerHTML;
+  assertTube(rest, { mouth: MOUTH(98, 72), lip: BAND(56, 140, 72, 83, 2.5), waist: BAND(56, 140, 128, 134, 2.5) }, 'rest');
+  assert.equal(rest, VESSEL_REST, 'rest: the drawing is not the board option-A frame');
+
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  byId(stage, 'ss-intent-done').click();
+  const shake = q(stage, 'sm-barrel').innerHTML;
+  assertTube(shake, { mouth: MOUTH(98, 110), lip: BAND(56, 140, 110, 121, 2.5), waist: BAND(56, 140, 166, 172, 2.5) }, 'shake');
+  assert.equal(shake, VESSEL_SHAKE, 'shake: the drawing is not the board option-A frame');
+
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  byId(stage, 'ss-hold').dispatch('pointerdown');
+  t.mock.timers.tick(HOLD_STEP_MS * SHAKE_TARGET + 1);
+  const numeral = q(stage, 'sm-number-thai').textContent;
+  const landing = q(stage, 'sm-barrel--landed').innerHTML;
+  assertTube(landing, { mouth: MOUTH(150, 86), lip: BAND(108, 192, 86, 97, 2.5), waist: BAND(108, 192, 136, 142, 2.5) }, 'landing');
+  assert.equal(landing, VESSEL_LANDING(numeral), 'landing: the drawing is not the board option-A frame');
   game.dispose();
 });
 
@@ -584,7 +730,9 @@ test('#42: every screen disables its controls at render and arms one window late
   assert.equal(keep.disabled, true, 'keeping the slip must be gated — it throws the read away');
   assert.equal(tie.disabled, true, 'tying the slip away must be gated — it throws the read away');
   keep.click();
-  assert.ok(q(stage, 'sm-slip'), 'a disabled keep button fired anyway');
+  // gh#295 B5: the slip survives an armed keep too, so its presence no longer tells the two apart.
+  // The restart appearing is what only a fired keep produces.
+  assert.equal(byId(stage, 'ss-again'), null, 'a disabled keep button fired anyway');
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   keep.click();
 

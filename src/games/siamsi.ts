@@ -98,29 +98,35 @@ function on(target: EventTarget, type: string, handler: EventListener): void {
   cleanup.push(() => target.removeEventListener(type, handler));
 }
 
-// The barrel is vector art only — inline SVG, no raster asset (gh#78). The accent-coloured body path
-// fills var(--page-accent), a presentation attribute referencing a custom property; it resolves
-// because the shell defines --page-accent on <main> above the stage (GameLayout.astro). The stick
-// wood #f7e6c4 and the marked tip #d6336c are literals with no token, as the canvas has them. Every
-// coordinate below is the canvas value.
+// The barrel is vector art only — inline SVG, no raster asset (gh#78). gh#295 B2 (owner pick, option A
+// of design/Gh295Siamsi.dc.html) redrew the vessel as a red lacquer tube: the shipped tapered body, its
+// cream rim over the stick bases and its two faint straight lines read as a glass of beer, which Thai
+// Alcohol Act section 32/1 bars. Now: a straight-sided body in var(--color-primary), a gold lip band and
+// a thin gold waist band in var(--accent-gold), and a dark open mouth in var(--color-line-strong) drawn
+// UNDER the sticks so they rise out of it. Presentation attributes referencing custom properties
+// resolve from tokens.css. The stick wood #f7e6c4 and the marked tip #d6336c are literals with no
+// token, as the canvas has them. Every coordinate below is the board value; the svg boxes, the sticks,
+// the marked stick's exit, the rattle origin, the tip-back and the fallen stick are unchanged.
 
-/** The barrel at rest, upright, no stick raised — design/SiamsiIntent.dc.html. */
+/** The barrel at rest, upright, no stick raised — design/SiamsiIntent.dc.html, vessel per gh#295 B2. */
 const BARREL_REST_SVG =
   '<svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true">' +
+  '<ellipse cx="98" cy="72" rx="42" ry="13" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse>' +
   '<rect x="66" y="52" width="9" height="80" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
   '<rect x="84" y="46" width="9" height="86" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
   '<rect x="102" y="50" width="9" height="82" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
   '<rect x="120" y="48" width="9" height="84" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
-  '<path d="M56 72 h84 l-9 126 h-66 z" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path>' +
-  '<ellipse cx="98" cy="72" rx="42" ry="13" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse>' +
-  '<path d="M70 112 h56" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>' +
-  '<path d="M72 134 h52" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>' +
+  '<path d="M56 72 A42 13 0 0 0 140 72 V185 A42 13 0 0 1 56 185 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path>' +
+  '<path d="M56 72 A42 13 0 0 0 140 72 V83 A42 13 0 0 1 56 83 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path>' +
+  '<path d="M56 128 A42 13 0 0 0 140 128 V134 A42 13 0 0 1 56 134 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path>' +
   '</svg>';
 
-/** The barrel mid-shake, with the marked "ติ้ว" riding clear of the rim — design/SiamsiShake.dc.html.
- *  The sticks carry the rattle class; the whole drawing carries the sensor-driven lean. */
+/** The barrel mid-shake, with the marked "ติ้ว" riding clear of the rim — design/SiamsiShake.dc.html,
+ *  vessel per gh#295 B2. The sticks carry the rattle class; the whole drawing carries the sensor-driven
+ *  lean. */
 const BARREL_SHAKE_SVG =
   '<svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true">' +
+  '<ellipse cx="98" cy="110" rx="42" ry="13" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse>' +
   '<g class="sm-sticks">' +
   '<rect x="66" y="26" width="9" height="112" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
   '<rect x="84" y="14" width="9" height="124" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
@@ -129,24 +135,25 @@ const BARREL_SHAKE_SVG =
   '<rect x="86" y="-14" width="11" height="150" rx="5.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
   '<rect x="86" y="-14" width="11" height="22" rx="5.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
   '</g>' +
-  '<path d="M56 110 h84 l-9 128 h-66 z" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path>' +
-  '<ellipse cx="98" cy="110" rx="42" ry="13" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse>' +
-  '<path d="M70 150 h56" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>' +
-  '<path d="M72 172 h52" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>' +
+  '<path d="M56 110 A42 13 0 0 0 140 110 V225 A42 13 0 0 1 56 225 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path>' +
+  '<path d="M56 110 A42 13 0 0 0 140 110 V121 A42 13 0 0 1 56 121 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path>' +
+  '<path d="M56 166 A42 13 0 0 0 140 166 V172 A42 13 0 0 1 56 172 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path>' +
   '</svg>';
 
-/** The landing — design/SiamsiStick.dc.html. The barrel has tipped back and the "ติ้ว" lies across the
- *  ground, number side up. No ground line is drawn: nothing else on this site draws a floor. */
+/** The landing — design/SiamsiStick.dc.html, vessel per gh#295 B2. The barrel has tipped back and the
+ *  "ติ้ว" lies across the ground, number side up. No ground line is drawn: nothing else on this site
+ *  draws a floor. */
 function stickSvg(numeral: string): string {
   return (
     '<svg width="240" height="240" viewBox="0 0 240 240" fill="none" aria-hidden="true">' +
     '<g style="transform: rotate(-12deg); transform-origin: 150px 180px;">' +
+    '<ellipse cx="150" cy="86" rx="42" ry="13" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse>' +
     '<rect x="118" y="66" width="9" height="60" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
     '<rect x="136" y="60" width="9" height="66" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
     '<rect x="154" y="64" width="9" height="62" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
-    '<path d="M108 86 h84 l-9 112 h-66 z" fill="var(--page-accent)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path>' +
-    '<ellipse cx="150" cy="86" rx="42" ry="13" fill="var(--color-ground-warm)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse>' +
-    '<path d="M122 124 h56" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linecap="round" opacity="0.35"></path>' +
+    '<path d="M108 86 A42 13 0 0 0 192 86 V185 A42 13 0 0 1 108 185 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path>' +
+    '<path d="M108 86 A42 13 0 0 0 192 86 V97 A42 13 0 0 1 108 97 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path>' +
+    '<path d="M108 136 A42 13 0 0 0 192 136 V142 A42 13 0 0 1 108 142 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path>' +
     '</g>' +
     '<g class="sm-fallen" style="transform: rotate(-7deg); transform-origin: 100px 196px;">' +
     '<rect x="16" y="182" width="150" height="13" rx="6.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect>' +
@@ -659,20 +666,21 @@ function renderSlip(): void {
   panel.appendChild(closing);
   stage.appendChild(panel);
 
-  // The real custom, as the two closing actions: keep a good slip, tie away a bad one. Whichever is
-  // tapped, the panel is replaced in place by one line plus the restart — there is no fifth screen.
+  // The real custom, as the two closing actions: keep a good slip, tie away a bad one. Either way the
+  // actions are replaced in place by one line plus the restart — there is no fifth screen. gh#295 B5
+  // (owner pick, option A): a kept slip stays on screen above that line; a tied slip is left behind.
   const keep = el('button', BTN_KEEP);
   keep.id = 'ss-keep';
   keep.type = 'button';
   keep.className = 'game-btn game-btn-primary';
-  on(keep, 'click', () => renderDone(DONE_KEEP));
+  on(keep, 'click', () => renderDone(DONE_KEEP, panel));
   stage.appendChild(keep);
 
   const tie = el('button', BTN_TIE);
   tie.id = 'ss-tie';
   tie.type = 'button';
   tie.className = 'game-btn game-btn-secondary';
-  on(tie, 'click', () => renderDone(DONE_TIE));
+  on(tie, 'click', () => renderDone(DONE_TIE, null));
   stage.appendChild(tie);
 
   stage.appendChild(el('p', NOTE_SLIP));
@@ -684,11 +692,24 @@ function renderSlip(): void {
   cleanup.push(armAllButtons(stage));
 }
 
-/** The end state of the slip screen, not a screen of its own: one line plus the restart. */
-function renderDone(line: string): void {
+/** The end state of the slip screen, not a screen of its own: one line plus the restart, under the
+ *  slip panel when `kept` carries it (the same node, so the slip the reader kept is the one they keep
+ *  seeing), alone when the slip was tied away. */
+function renderDone(line: string, kept: HTMLElement | null): void {
   const stage = stageEl;
   if (!stage) return;
-  stage.replaceChildren();
+  if (kept) {
+    // Putting the panel back re-inserts it, and .wd-reveal runs on every insertion (web.css): the slip
+    // would fade and grow in a second time. Its reveal settled inside the arm window that gated keep,
+    // and the class's end state is the panel's own, so dropping it changes nothing on screen.
+    kept.className = kept.className
+      .split(/\s+/)
+      .filter((c) => c !== 'wd-reveal')
+      .join(' ');
+    stage.replaceChildren(kept);
+  } else {
+    stage.replaceChildren();
+  }
   stage.className = 'stage-screen';
 
   stage.appendChild(el('p', line));
@@ -705,8 +726,9 @@ function renderDone(line: string): void {
   });
   stage.appendChild(again);
 
-  // This screen replaced the slip under the finger that kept or tied it — gate the restart, or that
-  // same contact starts a round nobody chose to start.
+  // The restart lands where the keep and tie buttons were, under the finger that tapped one of them —
+  // a reveal on both paths, kept slip or not (ADR-0057). Gate it, or that same contact starts a round
+  // nobody chose to start. Armed after the replace, so the walk sees only the restart.
   cleanup.push(armAllButtons(stage));
 }
 

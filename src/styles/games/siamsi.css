@@ -302,6 +302,14 @@
   line-height: 1.7;
 }
 
+/* gh#295 B5: the shell's .stage-screen p centres every paragraph; design/SiamsiSlip.dc.html sets the
+   four readings and the closing thought flush-left, so these descendant selectors outrank it (0,2,1
+   and 0,2,0 vs 0,1,1). The verse keeps its own centring, as the canvas draws it. */
+.sm-slip .sm-row p,
+.sm-slip .sm-closing {
+  text-align: start;
+}
+
 /* The closing thought. Every slip carries one, including the "ระวัง" ones — it is what keeps a bad
    draw constructive instead of frightening. */
 .sm-closing {
