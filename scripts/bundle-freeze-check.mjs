@@ -497,6 +497,8 @@ const BASELINE_PAGE_ENTRIES = [
   'feedback/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
   'feedback/sent/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
   'feedback/failed/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  // gh#295 B1 -- the privacy page is a web page too, so it loads the same chunk.
+  'privacy/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
   'game/bangkok-drift/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
   'game/bangkok-drift/play/index.html play.astro_astro_type_script_index_0_lang.js',
   'game/cannon-flag/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',

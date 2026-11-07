@@ -13,7 +13,11 @@
 // and is blind to these breaks by construction; only a rendered check of a named word can see one.
 const WJ = '\u2060';
 
-export const KEEP_WORDS: readonly string[] = ['อ่านขำๆ', 'จิ๊บจ๊อยอะไร'];
+// gh#295 B1 added the privacy policy title's compound and the feedback page's name: the rendered sweep
+// in that ticket's evidence saw Chrome split the first, and the verb that opens the second, across two
+// lines on the policy page at phone widths. The verb alone is one ICU word, split only in context, so
+// the entry is the whole name it sits in.
+export const KEEP_WORDS: readonly string[] = ['อ่านขำๆ', 'จิ๊บจ๊อยอะไร', 'ความเป็นส่วนตัว', 'ติชมและเสนอเกม'];
 
 const graphemes = new Intl.Segmenter('th', { granularity: 'grapheme' });
 

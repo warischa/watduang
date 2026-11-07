@@ -113,3 +113,11 @@ export const featuredGame: GameModule = (() => {
   if (!game.cardArt) throw new Error(`featuredGroup.id: "${featuredGroup.id}" declares no cardArt for the hero`);
   return game;
 })();
+
+// gh#295 B4, owner pick 2026-11-07 (design/Gh295Home.dc.html, option B) — the home page's party shelf
+// lists only the party games the page does not already show above it: the popular row and the featured
+// hero card. A data rule, not a list: registry order, the shown games removed, so a new party game joins
+// the shelf with no edit here, and promoting a game to the row or the hero takes it off the shelf.
+export const shelfGames: GameModule[] = games.filter(
+  (game) => game.category === 'party' && game !== featuredGame && !popularGames.includes(game),
+);

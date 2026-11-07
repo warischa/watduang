@@ -1,0 +1,200 @@
+[
+  {
+    "page": "/privacy/",
+    "w": 320,
+    "innerWidth": 320,
+    "scrollWidth": 320,
+    "clientWidth": 320,
+    "over": 0,
+    "title": "นโยบายความเป็นส่วนตัว — วัดดวง",
+    "robots": null,
+    "canonical": "https://watduang.com/privacy/",
+    "h1Lines": 2,
+    "h1Size": "30px",
+    "links": [
+      "หน้าติชมและเสนอเกม -> /feedback/",
+      "adssettings.google.com -> https://adssettings.google.com",
+      "optout.aboutads.info -> https://optout.aboutads.info/",
+      "หน้าติชมและเสนอเกม -> /feedback/",
+      "กลับหน้าแรก -> /"
+    ],
+    "plinkUnderline": [
+      "underline",
+      "2px"
+    ],
+    "ulIndent": "22px",
+    "footerAnchors": 0,
+    "textEqualsApproved": true,
+    "textLen": 1584,
+    "approvedLen": 1584
+  },
+  {
+    "page": "/ band link",
+    "w": 320,
+    "href": "/privacy/",
+    "text": "นโยบายความเป็นส่วนตัว",
+    "color": "rgb(217, 214, 240)",
+    "fontSize": "14px",
+    "underline": [
+      "underline",
+      "2px"
+    ],
+    "boxHeight": 23.09,
+    "hitTop": true,
+    "hitBottom": true,
+    "hitAboveBand": false,
+    "hitBelowBand": false,
+    "lines": 1
+  },
+  {
+    "page": "/feedback/ line link",
+    "w": 320,
+    "href": "/privacy/",
+    "text": "อ่านนโยบายความเป็นส่วนตัว",
+    "color": "rgb(20, 20, 43)",
+    "fontSize": "14px",
+    "underline": [
+      "underline",
+      "2px"
+    ],
+    "boxHeight": 23.09,
+    "hitTop": true,
+    "hitBottom": true,
+    "hitAboveBand": false,
+    "hitBelowBand": false,
+    "lines": 1
+  },
+  {
+    "page": "/privacy/",
+    "w": 390,
+    "innerWidth": 390,
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "over": 0,
+    "title": "นโยบายความเป็นส่วนตัว — วัดดวง",
+    "robots": null,
+    "canonical": "https://watduang.com/privacy/",
+    "h1Lines": 1,
+    "h1Size": "30px",
+    "links": [
+      "หน้าติชมและเสนอเกม -> /feedback/",
+      "adssettings.google.com -> https://adssettings.google.com",
+      "optout.aboutads.info -> https://optout.aboutads.info/",
+      "หน้าติชมและเสนอเกม -> /feedback/",
+      "กลับหน้าแรก -> /"
+    ],
+    "plinkUnderline": [
+      "underline",
+      "2px"
+    ],
+    "ulIndent": "22px",
+    "footerAnchors": 0,
+    "textEqualsApproved": true,
+    "textLen": 1584,
+    "approvedLen": 1584
+  },
+  {
+    "page": "/ band link",
+    "w": 390,
+    "href": "/privacy/",
+    "text": "นโยบายความเป็นส่วนตัว",
+    "color": "rgb(217, 214, 240)",
+    "fontSize": "14px",
+    "underline": [
+      "underline",
+      "2px"
+    ],
+    "boxHeight": 23.09,
+    "hitTop": true,
+    "hitBottom": true,
+    "hitAboveBand": false,
+    "hitBelowBand": false,
+    "lines": 1
+  },
+  {
+    "page": "/feedback/ line link",
+    "w": 390,
+    "href": "/privacy/",
+    "text": "อ่านนโยบายความเป็นส่วนตัว",
+    "color": "rgb(20, 20, 43)",
+    "fontSize": "14px",
+    "underline": [
+      "underline",
+      "2px"
+    ],
+    "boxHeight": 23.09,
+    "hitTop": true,
+    "hitBottom": true,
+    "hitAboveBand": false,
+    "hitBelowBand": false,
+    "lines": 1
+  },
+  {
+    "page": "/privacy/",
+    "w": 1280,
+    "innerWidth": 1280,
+    "scrollWidth": 1280,
+    "clientWidth": 1280,
+    "over": 0,
+    "title": "นโยบายความเป็นส่วนตัว — วัดดวง",
+    "robots": null,
+    "canonical": "https://watduang.com/privacy/",
+    "h1Lines": 1,
+    "h1Size": "58px",
+    "links": [
+      "หน้าติชมและเสนอเกม -> /feedback/",
+      "adssettings.google.com -> https://adssettings.google.com",
+      "optout.aboutads.info -> https://optout.aboutads.info/",
+      "หน้าติชมและเสนอเกม -> /feedback/",
+      "กลับหน้าแรก -> /"
+    ],
+    "plinkUnderline": [
+      "underline",
+      "2px"
+    ],
+    "ulIndent": "22px",
+    "footerAnchors": 0,
+    "textEqualsApproved": true,
+    "textLen": 1584,
+    "approvedLen": 1584
+  },
+  {
+    "page": "/ band link",
+    "w": 1280,
+    "href": "/privacy/",
+    "text": "นโยบายความเป็นส่วนตัว",
+    "color": "rgb(217, 214, 240)",
+    "fontSize": "15px",
+    "underline": [
+      "underline",
+      "2px"
+    ],
+    "boxHeight": 24.75,
+    "hitTop": true,
+    "hitBottom": true,
+    "hitAboveBand": false,
+    "hitBelowBand": false,
+    "lines": 1
+  },
+  {
+    "page": "/feedback/ line link",
+    "w": 1280,
+    "href": "/privacy/",
+    "text": "อ่านนโยบายความเป็นส่วนตัว",
+    "color": "rgb(20, 20, 43)",
+    "fontSize": "15px",
+    "underline": [
+      "underline",
+      "2px"
+    ],
+    "boxHeight": 24.75,
+    "hitTop": true,
+    "hitBottom": true,
+    "hitAboveBand": false,
+    "hitBelowBand": false,
+    "lines": 1
+  },
+  {
+    "consoleErrors": []
+  }
+]

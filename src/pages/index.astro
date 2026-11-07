@@ -2,15 +2,16 @@
 // gh#244 — the home page becomes canvas D, Toy Shelf (design/HomeShelfDesktop.dc.html and
 // design/HomeShelf320.dc.html; owner pick 2026-10-04 on gh#243). Every value is the artboards' own
 // (ADR-0033), read through the landing tokens in src/styles/tokens.css and the landing components.
-// Structure is ADR-0058 as amended for gh#244: the page lists every party game again as an art
-// shelf, then the fortune and tools rows, each under its own hub heading with a see-all link to its
-// hub — those links are what keep landing-claims-check's per-category link resolvable.
+// Structure is ADR-0058 as amended for gh#244: the page lists the party games as an art shelf, then
+// the fortune and tools rows, each under its own hub heading with a see-all link to its hub — those
+// links are what keep landing-claims-check's per-category link resolvable. Since gh#295 B4 (owner
+// pick 2026-11-07) the shelf drops the games the hero and the popular row already show.
 //
 // Manifest-held copy (game names, taglines, tool names and descriptions, hub headings and bodies,
 // the popular heading) is read at build time and never retyped. The hero, the see-all label, the
 // FAQ and the ad placeholder are the live page's own copy, approved for reuse (owner ruling
 // 2026-10-04 on gh#243); this page invents no Thai, except the feedback band (gh#292, the copy
-// its proposal sheet's owner pick approved). All motion is CSS only (ADR-0005: no inline
+// its proposal sheet's owner pick approved; its policy link label is gh#295 B1's board copy). All motion is CSS only (ADR-0005: no inline
 // page script); today's motion stops under prefers-reduced-motion, newer effects reduce.
 import Base from '../layouts/Base.astro';
 import PageChrome from '../components/PageChrome.astro';
@@ -20,7 +21,7 @@ import ArtTile from '../components/landing/ArtTile.astro';
 import TextTile from '../components/landing/TextTile.astro';
 import { keepThaiWords } from '../components/thai-keep';
 import { categories } from '../games/categories';
-import { games, popularGames, popularGroup, featuredGame } from '../games/manifest';
+import { games, popularGames, popularGroup, featuredGame, shelfGames } from '../games/manifest';
 import { tools, toolsGroup } from '../tools/manifest';
 import type { Category, GameModule } from '../games/types';
 
@@ -121,15 +122,16 @@ const featured = withArt(featuredGame);
     <div class="band">
       <div class="wrap">
         <Section id={partyRow.id} tone="dark" heading={partyRow.heading} body={partyRow.body} href={partyRow.href} linkLabel="ดูทั้งหมด →">
+          {/* gh#295 B4 (design/Gh295Home.dc.html, option B): only the party games not already shown in
+              the hero or the popular row, so no game appears twice and no shelf tile is the highlight. */}
           <div class="grid grid-shelf">
-            {partyRow.games.map((game) => {
+            {shelfGames.map((game) => {
               const card = withArt(game);
               return (
                 <ArtTile
                   href={card.href}
                   title={card.title}
                   art={card.art}
-                  highlight={game === featuredGame}
                 />
               );
             })}
@@ -165,6 +167,9 @@ const featured = withArt(featuredGame);
         <div class="feedback-copy">
           <h2>มีเกมในใจ อยากให้ทำ?</h2>
           <p>เสนอเกมใหม่ หรือบอกว่าอยากให้แก้อะไร ผู้พัฒนาอ่านทุกข้อความ</p>
+          {/* gh#295 B1, placement A (design/Gh295Privacy.dc.html): the way to the privacy policy, under
+              the lead so it never competes with the pill. The footer stays brand-only (gh#247). */}
+          <a class="feedback-privacy" href="/privacy/">{keepThaiWords('นโยบายความเป็นส่วนตัว')}</a>
         </div>
         <a class="feedback-cta" href="/feedback/">ส่งความเห็น →</a>
       </div>
@@ -281,6 +286,26 @@ const featured = withArt(featuredGame);
     font-size: 17px;
     line-height: 1.6;
     color: var(--color-ground-warm);
+  }
+
+  /* gh#295 B1 placement A: the board's band link. 15px body face on the band's soft ink token, a 2px
+     underline at rest, 8px under the lead (the lead's own gap). Short text, so the gh#263 invisible
+     hit area brings it to 44px tall while nothing drawn moves; the band's gold focus ring covers it. */
+  .feedback-privacy {
+    position: relative;
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-on-band-soft);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  .feedback-privacy::after {
+    content: '';
+    position: absolute;
+    inset: calc(50% - 22px) 0;
   }
 
   .feedback-cta {
@@ -443,6 +468,10 @@ const featured = withArt(featuredGame);
 
     .feedback-copy p {
       font-size: 16px;
+    }
+
+    .feedback-privacy {
+      font-size: 14px;
     }
 
     .feedback-cta {

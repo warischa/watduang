@@ -16,6 +16,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { games, popularGroup, popularGames, featuredGame, featuredGroup } from '../games/manifest.ts';
+// Read off the namespace so a missing export reds its own test, not the whole file at import time.
+import * as gamesManifest from '../games/manifest.ts';
 import { categories } from '../games/categories.ts';
 import { tools, toolsGroup } from '../tools/manifest.ts';
 
@@ -170,6 +172,35 @@ test('the popular row is driven by the manifest, not by a game id in the page', 
   for (const game of popularGames) {
     assert.ok(games.includes(game), `${game.id} must be a registered game`);
   }
+});
+
+// gh#295 B4, owner pick 2026-11-07 (design/Gh295Home.dc.html, option B): the party shelf lists only the
+// party games the page does not already show above it, so no game appears twice on the home page. The
+// set is a manifest rule (party games minus the popular row minus the featured card), executed here,
+// never a count written into this file: a new party game grows the shelf by one and stays green.
+test('the party shelf holds every party game not shown above it, and no game appears twice on the page', () => {
+  const { shelfGames } = gamesManifest;
+  assert.ok(Array.isArray(shelfGames), 'the manifest must export the shelf set');
+  const party = games.filter((g) => g.category === 'party');
+  const above = [featuredGame, ...popularGames];
+  for (const g of shelfGames) assert.equal(g.category, 'party', `${g.id}: the shelf is the party row`);
+  assert.deepEqual(shelfGames.filter((g) => above.includes(g)).map((g) => g.id), [], 'a game shown in the hero or the popular row must not repeat on the shelf');
+  assert.equal(shelfGames.length, party.length - new Set(above).size, 'the shelf must drop exactly the games shown above it');
+  // Registry order is kept: the shelf is the party filter with the shown games removed, nothing reordered.
+  assert.deepEqual(shelfGames.map((g) => g.id), party.filter((g) => !above.includes(g)).map((g) => g.id));
+  const fortune = games.filter((g) => g.category === 'fortune');
+  const shown = [...above, ...shelfGames, ...fortune].map((g) => g.id);
+  assert.equal(new Set(shown).size, shown.length, `a game id renders twice on the home page: ${shown.join(', ')}`);
+  // De-duplicating must not drop a party game from the home page altogether.
+  assert.deepEqual(party.filter((g) => !shown.includes(g.id)).map((g) => g.id), [], 'every party game stays on the home page once');
+});
+
+test('the shelf renders the de-duplicated set, with no highlight tile', () => {
+  const shelfBlock = pageBody.match(/<div class="grid grid-shelf">[\s\S]*?<\/div>/)?.[0];
+  assert.ok(shelfBlock, 'positive control: the shelf grid must be found in the template');
+  assert.match(shelfBlock, /\{shelfGames\.map\(/, 'the shelf must iterate the manifest-held shelfGames');
+  assert.doesNotMatch(shelfBlock, /partyRow\.games/, 'iterating the whole party row brings back the duplicates');
+  assert.doesNotMatch(shelfBlock, /highlight=/, 'the featured game left the shelf, so no tile is the highlight (board option B)');
 });
 
 // gh#244: canvas D's tiles carry no category pill. The pill existed because the popular row mixed

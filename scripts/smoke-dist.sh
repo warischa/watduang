@@ -83,7 +83,7 @@ echo "smoke: $BUILT game landing page(s) + $BUILT_PLAY play page(s) (both match 
 # routing can never belong here. The two category pages that took over its job are listed
 # instead: they were not smoke-tested before, which is why deleting one page could break
 # this step at all.
-for path in "/" "/c/fortune/" "/c/party/" "/tools/" "/feedback/" $GAME_PATHS $PLAY_PATHS $TOOL_PATHS; do
+for path in "/" "/c/fortune/" "/c/party/" "/tools/" "/feedback/" "/privacy/" $GAME_PATHS $PLAY_PATHS $TOOL_PATHS; do
   body=$(curl -sf "http://localhost:${PORT}${path}") || { echo "::error::curl failed for ${path}"; status=1; continue; }
   if ! echo "$body" | grep -qi '<title>'; then
     echo "::error::No <title> tag found for ${path}"

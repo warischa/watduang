@@ -1,0 +1,227 @@
+---
+// gh#295 B1: the privacy policy page, design/Gh295Privacy.dc.html (owner picks 2026-11-07: the page
+// and placement A). Laid out like the feedback page: the gold head band, the 1280px body track and the
+// back-link card. The policy wording is the owner-approved text, held as data in
+// src/components/privacy-policy.ts and rendered here line for line; this file types none of it. No
+// script (ADR-0005). The page is meant to be found, so it is indexed and enters the sitemap.
+import Base from '../../layouts/Base.astro';
+import PageChrome from '../../components/PageChrome.astro';
+import { keepThaiWords } from '../../components/thai-keep';
+import { POLICY, linkRuns } from '../../components/privacy-policy';
+---
+
+<Base
+  title="นโยบายความเป็นส่วนตัว — วัดดวง"
+  description={POLICY.lead}
+  chrome
+>
+  <PageChrome>
+  <main>
+    <header class="pv-head">
+      <div class="pv-head-inner">
+        <h1>{keepThaiWords(POLICY.title)}</h1>
+        <p class="lead">{POLICY.lead}</p>
+      </div>
+    </header>
+
+    <div class="pv-body">
+      <div class="policy">
+        {POLICY.sections.map((section) => (
+          <section>
+            <h2>{keepThaiWords(section.heading)}</h2>
+            {section.blocks.map((block) =>
+              block.kind === 'ul' ? (
+                <ul>{block.items.map((item) => <li>{item}</li>)}</ul>
+              ) : (
+                <p>
+                  {linkRuns(block.text).map((run) =>
+                    run.href ? <a class="plink" href={run.href}>{keepThaiWords(run.text)}</a> : run.text,
+                  )}
+                </p>
+              ),
+            )}
+          </section>
+        ))}
+        <p class="updated">{POLICY.updated}</p>
+      </div>
+
+      <p class="pv-back"><a class="pv-back-link ui-press" href="/">กลับหน้าแรก</a></p>
+    </div>
+  </main>
+  </PageChrome>
+</Base>
+
+<style>
+  /* Values are design/Gh295Privacy.dc.html's (ADR-0033). Reused from the feedback page: the gold head
+     band (52px block padding, 58px/30px H1, 19px lead, 760px measure), the 1280px track with 18px
+     gutter, 40px/48px block padding and 28px gap, the 72px back-link card and the 1099px reflow. The
+     prose: section H2 at the feedback card-head size, body at the home band lead size, 8px heading to
+     text, 28px between sections, the date line at the feedback privacy-line size. New on the board:
+     links in prose underline at rest (2px) and the list indents 22px. Keyboard focus is the site ring
+     from web.css. */
+  main {
+    background: var(--color-ground-warm);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+  }
+
+  /* ------------------------------ header -------------------------------- */
+
+  .pv-head {
+    background: var(--accent-gold);
+    color: var(--color-line-strong);
+    border-block-end: 2.5px solid var(--color-line-strong);
+  }
+
+  .pv-head-inner {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 18px;
+    padding-block: 52px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 58px;
+    line-height: 1.2;
+    letter-spacing: -1px;
+  }
+
+  .lead {
+    margin: 0;
+    max-width: 760px;
+    font-size: 19px;
+    line-height: 1.6;
+  }
+
+  /* ------------------------------ body ---------------------------------- */
+
+  .pv-body {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 18px;
+    padding-block: 40px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    box-sizing: border-box;
+  }
+
+  .policy {
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .policy h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 1.3;
+  }
+
+  .policy p,
+  .policy li {
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .policy p {
+    margin: 8px 0 0;
+  }
+
+  .policy ul {
+    margin: 8px 0 0;
+    padding-left: 22px;
+  }
+
+  .plink {
+    color: var(--color-line-strong);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    overflow-wrap: anywhere;
+  }
+
+  .policy .updated {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--color-muted);
+  }
+
+  /* ------------------------------ back link ----------------------------- */
+
+  .pv-back {
+    margin: 0;
+  }
+
+  .pv-back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 72px;
+    padding: 0 24px;
+    background: var(--color-ground-warm);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 19px;
+    color: var(--color-line-strong);
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+
+  /* ------------------------------ reflow -------------------------------- */
+
+  /* The site's 1099px reflow; the narrow values are the board's 390 frame. */
+  @media (max-width: 1099px) {
+    .pv-head-inner {
+      padding-block: 36px;
+      padding-inline: 14px;
+    }
+
+    h1 {
+      font-size: 30px;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      font-size: 16px;
+    }
+
+    .pv-body {
+      padding-inline: 14px;
+      padding-block: 28px 40px;
+      gap: 24px;
+    }
+
+    .policy {
+      gap: 24px;
+    }
+
+    .policy h2 {
+      font-size: 20px;
+    }
+
+    .policy p,
+    .policy li {
+      font-size: 16px;
+    }
+
+    .policy .updated {
+      font-size: 14px;
+    }
+  }
+</style>

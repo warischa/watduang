@@ -3,10 +3,12 @@
 // 2026-11-04): two pop cards, two native forms. Each form posts to /api/feedback, the Function App
 // the SWA links at /api (ADR-0074); the server answers with a 303 to /feedback/sent/ or
 // /feedback/failed/. No script of any kind (ADR-0005), so a same-origin form post needs no CSP edit.
-// Every Thai string is the sheet's COPY block, verbatim. Field caps match the server's LIMITS in
+// Every Thai string is the sheet's COPY block, verbatim, except the policy link label (gh#295 B1's
+// board copy). Field caps match the server's LIMITS in
 // services/feedback/src/record.mjs; the server is the one that holds them.
 import Base from '../../layouts/Base.astro';
 import PageChrome from '../../components/PageChrome.astro';
+import { keepThaiWords } from '../../components/thai-keep';
 
 const PRIVACY =
   'เราเก็บข้อความและอีเมล (ถ้ากรอก) ไว้อ่านและตอบกลับเท่านั้น ไม่ส่งต่อให้ใคร และลบอัตโนมัติภายใน 6 เดือน อยากให้ลบก่อนนั้น ส่งคำขอผ่านหน้านี้พร้อมอีเมลที่ใช้';
@@ -70,7 +72,8 @@ const PRIVACY =
         </form>
       </div>
 
-      <p class="fb-privacy">{PRIVACY}</p>
+      {/* gh#295 B1, placement A (design/Gh295Privacy.dc.html): the policy link closes the privacy line. */}
+      <p class="fb-privacy">{PRIVACY} <a class="fb-privacy-link" href="/privacy/">{keepThaiWords('อ่านนโยบายความเป็นส่วนตัว')}</a></p>
 
       <p class="fb-back"><a class="fb-back-link ui-press" href="/">กลับหน้าแรก</a></p>
     </div>
@@ -262,6 +265,24 @@ const PRIVACY =
     font-size: 15px;
     line-height: 1.65;
     color: var(--color-muted);
+  }
+
+  /* gh#295 B1 placement A: ink with the 2px underline at rest, size inherited from the line. The
+     page's own anchor rule drops underlines and outranks a lone class, so this rule is scoped through
+     the line and states the underline itself. Inline-block keeps the label on
+     one line, so the gh#263 invisible hit area (44px tall, paints nothing) wraps one box. */
+  .fb-privacy .fb-privacy-link {
+    position: relative;
+    display: inline-block;
+    color: var(--color-line-strong);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  .fb-privacy .fb-privacy-link::after {
+    content: '';
+    position: absolute;
+    inset: calc(50% - 22px) 0;
   }
 
   /* ------------------------------ back link ----------------------------- */

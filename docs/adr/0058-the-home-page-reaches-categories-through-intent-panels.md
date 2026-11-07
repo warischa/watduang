@@ -3,6 +3,7 @@
 Status: accepted 2026-09-02 (owner's go for the direction doc's structure, given as the
 continuation goal of the landing-foundation session; see `SESSION-HANDOFF.md` entry S2026-09-03#1).
 **Amended 2026-10-04 for gh#244: the structure below is replaced — read the last section first.**
+**Amended again 2026-11-07 for gh#295 B4: the shelf drops the games shown above it — see the final section.**
 Supersedes the grouped-list structure gh#75 shipped and ADR-0041 left in place.
 
 ## Context
@@ -109,3 +110,20 @@ Rulings taken in the same session, recorded where they live:
 
 **What would flip this** is unchanged in kind: measured evidence that visitors reach games better
 through hub-first panels, from the analytics gh#160 reconciles, or an owner ruling.
+
+## Amended 2026-11-07 for gh#295 B4: the shelf no longer repeats the games above it
+
+The owner picked option B on `design/Gh295Home.dc.html` (popup 2026-11-07). That pick reopens gh#243's
+canvas D in one respect only. On D, four games appeared twice: the three in the popular row, plus the
+featured hero game, which was also the shelf's highlight tile.
+
+**Item 4 now reads:** the party art shelf lists every party game except the popular row and the
+featured game, in manifest order. The manifest exports that set as `shelfGames`, and the page renders
+it with no highlight tile. The other six items, and every consequence above, stand unchanged.
+
+- Measured on the built page (n=3 per width). Before the change the fortune row started at 2911px at
+  390x844, 2785px at 320x568 and 2415px at 1280x800. After it, the same row starts at 2532px, 2467px
+  and 2392px. Evidence: `docs/verification/evidence/gh295-home-code/`.
+- `src/pages/index.test.mjs` pins the shelf to `shelfGames` and asserts that no game slug renders
+  twice on the home page.
+- The h1 is unchanged: the owner kept the 2026-11-04 ruled text on the same popup.
