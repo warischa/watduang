@@ -70,3 +70,15 @@ after the CTA). JPEG q70, all under 140KB. Visible differences:
 
 Not run: the two browser lanes of `scripts/run-workflow-gates.sh`. The fast lane ran: 50 executed,
 0 failed.
+
+## Follow-up 2026-11-07: the foot band (owner popup: fix before deploy)
+
+The entered-names list keeps its fixed 120px bound. Spanning the card under both tracks, it left an empty band about 100–140px tall at the card's foot. It now closes the controls stack (grid row 9, column 4). The disc track spans rows 4–10, so the board's centring holds, and the card is 46px shorter at desktop.
+
+With the list in the stack, the stack is taller than the disc: 490px in mode A, 564px in mode B. The gh#295 names-in scroll brings the disc's top to the viewport's top, so the note sat 6px above the viewport in mode B.
+- **Fix:** `.wheel-disc { scroll-margin-top: 96px }`, inside the same 1100px bound. 96px is not a board value: it is the measured 82px overhang plus slack.
+- **Must-red:** `desktop-mode-b-check` against the build without the margin is RED on "names-in feedback outside the viewport in mode B" at 1100, 1280 and 1440.
+- **Probe change:** `desktop-layout-probe` gained the assertions "name list in the controls column" and "card foot 28.5px below its content". It is RED at d9e3f31 (6 failures: list not in the column, and a midline that moved).
+- **After the fix:** all six probes are green: layout, mode B, textarea ghost, B6 feedback, double-tap ghost, B3 inset. The renders are re-captured.
+
+The below-1100 bound proof was not re-run: every changed rule sits inside the `min-width: 1100px` block, and the only change outside it is a CSS comment.

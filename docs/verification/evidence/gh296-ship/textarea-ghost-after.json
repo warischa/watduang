@@ -12,7 +12,7 @@
         "y": 870
       },
       "pre": {
-        "scrollY": 743,
+        "scrollY": 697,
         "under": "button#name-start",
         "active": "body",
         "elim": false,
@@ -21,7 +21,7 @@
         "chips": 0
       },
       "after": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "body",
         "elim": false,
@@ -30,7 +30,7 @@
         "chips": 3
       },
       "control": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "textarea#name-input",
         "elim": false,
@@ -46,7 +46,7 @@
         "y": 870
       },
       "pre": {
-        "scrollY": 743,
+        "scrollY": 697,
         "under": "button#name-start",
         "active": "body",
         "elim": false,
@@ -55,7 +55,7 @@
         "chips": 0
       },
       "after": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "body",
         "elim": false,
@@ -64,7 +64,7 @@
         "chips": 3
       },
       "control": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "textarea#name-input",
         "elim": false,
@@ -80,7 +80,7 @@
         "y": 870
       },
       "pre": {
-        "scrollY": 743,
+        "scrollY": 697,
         "under": "button#name-start",
         "active": "body",
         "elim": false,
@@ -89,7 +89,7 @@
         "chips": 0
       },
       "after": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "body",
         "elim": false,
@@ -98,7 +98,7 @@
         "chips": 3
       },
       "control": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "textarea#name-input",
         "elim": false,
@@ -114,7 +114,7 @@
         "y": 870
       },
       "pre": {
-        "scrollY": 743,
+        "scrollY": 697,
         "under": "button#name-start",
         "active": "body",
         "elim": false,
@@ -123,7 +123,7 @@
         "chips": 0
       },
       "after": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "body",
         "elim": false,
@@ -132,7 +132,7 @@
         "chips": 3
       },
       "control": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "textarea#name-input",
         "elim": false,
@@ -148,7 +148,7 @@
         "y": 870
       },
       "pre": {
-        "scrollY": 743,
+        "scrollY": 697,
         "under": "button#name-start",
         "active": "body",
         "elim": false,
@@ -157,7 +157,7 @@
         "chips": 0
       },
       "after": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "body",
         "elim": false,
@@ -166,7 +166,7 @@
         "chips": 3
       },
       "control": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "textarea#name-input",
         "elim": false,
@@ -182,7 +182,7 @@
         "y": 870
       },
       "pre": {
-        "scrollY": 743,
+        "scrollY": 697,
         "under": "button#name-start",
         "active": "body",
         "elim": false,
@@ -191,7 +191,7 @@
         "chips": 0
       },
       "after": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "body",
         "elim": false,
@@ -200,7 +200,7 @@
         "chips": 3
       },
       "control": {
-        "scrollY": 374,
+        "scrollY": 323,
         "under": "textarea#name-input",
         "active": "textarea#name-input",
         "elim": false,

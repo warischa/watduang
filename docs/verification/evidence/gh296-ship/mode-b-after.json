@@ -12,15 +12,15 @@
         "sw": 1100,
         "cw": 1100,
         "stopShown": true,
-        "controlsH": 428,
-        "discMid": 199.984375,
-        "controlsMid": 199.984375,
+        "controlsH": 564,
+        "discMid": 295.984375,
+        "controlsMid": 295.984375,
         "disc": [
-          -0.015625,
-          399.984375
+          95.984375,
+          495.984375
         ],
-        "note": 61.984375,
-        "spinBottom": 213.984375,
+        "note": 89.984375,
+        "spinBottom": 241.984375,
         "result": {
           "text": "",
           "w": 393,
@@ -35,15 +35,15 @@
         "sw": 1100,
         "cw": 1100,
         "stopShown": false,
-        "controlsH": 354,
-        "discMid": 185.984375,
-        "controlsMid": 185.984375,
+        "controlsH": 490,
+        "discMid": 258.984375,
+        "controlsMid": 258.984375,
         "disc": [
-          -14.015625,
-          385.984375
+          58.984375,
+          458.984375
         ],
-        "note": 84.984375,
-        "spinBottom": 236.984375,
+        "note": 89.984375,
+        "spinBottom": 241.984375,
         "result": {
           "text": "ค",
           "w": 393,
@@ -61,15 +61,15 @@
         "sw": 1280,
         "cw": 1280,
         "stopShown": true,
-        "controlsH": 428,
-        "discMid": 199.984375,
-        "controlsMid": 199.984375,
+        "controlsH": 564,
+        "discMid": 295.984375,
+        "controlsMid": 295.984375,
         "disc": [
-          -0.015625,
-          399.984375
+          95.984375,
+          495.984375
         ],
-        "note": 61.984375,
-        "spinBottom": 213.984375,
+        "note": 89.984375,
+        "spinBottom": 241.984375,
         "result": {
           "text": "",
           "w": 393,
@@ -84,17 +84,17 @@
         "sw": 1280,
         "cw": 1280,
         "stopShown": false,
-        "controlsH": 354,
-        "discMid": 185.984375,
-        "controlsMid": 185.984375,
+        "controlsH": 490,
+        "discMid": 258.984375,
+        "controlsMid": 258.984375,
         "disc": [
-          -14.015625,
-          385.984375
+          58.984375,
+          458.984375
         ],
-        "note": 84.984375,
-        "spinBottom": 236.984375,
+        "note": 89.984375,
+        "spinBottom": 241.984375,
         "result": {
-          "text": "ข",
+          "text": "ค",
           "w": 393,
           "h": 60,
           "border": "none"
@@ -110,15 +110,15 @@
         "sw": 1440,
         "cw": 1440,
         "stopShown": true,
-        "controlsH": 428,
-        "discMid": 199.984375,
-        "controlsMid": 199.984375,
+        "controlsH": 564,
+        "discMid": 295.984375,
+        "controlsMid": 295.984375,
         "disc": [
-          -0.015625,
-          399.984375
+          95.984375,
+          495.984375
         ],
-        "note": 61.984375,
-        "spinBottom": 213.984375,
+        "note": 89.984375,
+        "spinBottom": 241.984375,
         "result": {
           "text": "",
           "w": 393,
@@ -133,17 +133,17 @@
         "sw": 1440,
         "cw": 1440,
         "stopShown": false,
-        "controlsH": 354,
-        "discMid": 185.984375,
-        "controlsMid": 185.984375,
+        "controlsH": 490,
+        "discMid": 258.984375,
+        "controlsMid": 258.984375,
         "disc": [
-          -14.015625,
-          385.984375
+          58.984375,
+          458.984375
         ],
-        "note": 84.984375,
-        "spinBottom": 236.984375,
+        "note": 89.984375,
+        "spinBottom": 241.984375,
         "result": {
-          "text": "ข",
+          "text": "ค",
           "w": 393,
           "h": 60,
           "border": "none"

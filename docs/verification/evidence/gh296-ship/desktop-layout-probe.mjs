@@ -1,5 +1,5 @@
 // gh#296 desktop layout: at 1100, 1280 and 1440 (mobile:false), /tool/wheel/ ships one 940px column,
-// the disc track 460px left of the controls inside the card, the name panel below the card, the ad
+// the disc track 460px left of the controls (name list last in that stack) inside the card, the name panel below the card, the ad
 // slot and the how-to below that, and no sideways scroll. Read off the page, never typed in.
 //
 // Run: CDP_PORT=9381 PROBE_BASE=http://localhost:4402 PROBE_OUT=<result.json> node scripts/driver.mjs <this file>
@@ -13,7 +13,7 @@ const READ = `
   const wheel = document.getElementById('wheel');
   const before = getComputedStyle(wheel, '::before');
   const de = document.documentElement;
-  const ctl = ['#wheel-result', '#wheel-note', '.wheel-actions', '.wheel-toggle'].map(box);
+  const ctl = ['#wheel-result', '#wheel-note', '.wheel-actions', '.wheel-toggle', '#wheel-names'].map(box);
   return {
     innerWidth, scrollWidth: de.scrollWidth, clientWidth: de.clientWidth,
     over: [...document.querySelectorAll('body *')].filter((e) => e.getBoundingClientRect().right > de.clientWidth + 0.5).length,
@@ -22,7 +22,7 @@ const READ = `
     names: box('#wheel-names'), entry: box('#tool-name-entry'), nav: box('.wheel-next'), ad: box('.ad-slot'), howto: box('#how-to-use'),
     adMinHeight: getComputedStyle(document.querySelector('.ad-slot')).minHeight,
     card: { content: before.content, gridRow: before.gridRowStart + '/' + before.gridRowEnd, width: before.width, height: before.height, border: before.borderTopWidth, shadow: before.boxShadow },
-    controlsTop: ctl[0].t, controlsBottom: ctl[3].t + ctl[3].h,
+    controlsTop: ctl[0].t, controlsBottom: ctl[4].t + ctl[4].h,
     modeRows: new Set([...document.querySelectorAll('.wheel-mode-option')].map((e) => Math.round(e.getBoundingClientRect().top))).size,
   };
 `;
@@ -48,7 +48,12 @@ export default async function (session) {
     if (v.disc.w !== 400) f(`disc ${v.disc.w}px, want 400`);
     if (!(v.result.l >= v.stage.l + v.stage.w + 30 - 0.1)) f('controls not right of the disc track by the 30px gap');
     if (v.card.content === 'none') f('no card drawn');
-    if (!(v.entry.t >= v.names.t + v.names.h + 28.5 + 36 - 0.1)) f('name panel not below the card by 36px');
+    // Owner popup 2026-11-07: no empty full-width band at the card's foot. The name list sits in the
+    // controls column, so the card ends one padding (28.5px) below the taller of disc track and stack.
+    const inner = Math.max(v.stage.t + v.stage.h, v.controlsBottom);
+    if (!(v.names.l >= v.stage.l + v.stage.w + 30 - 0.1)) f('name list not in the controls column');
+    if (Math.abs(v.entry.t - 36 - inner - 28.5) > 1) f(`card foot ${Math.round(v.entry.t - 36 - inner)}px below its content, want 28.5`);
+    if (!(v.entry.t >= inner + 28.5 + 36 - 0.1)) f('name panel not below the card by 36px');
     if (v.entry.w !== 940) f(`name panel ${v.entry.w}px, want 940`);
     if (!(v.nav.t > v.entry.t && v.ad.t > v.nav.t && v.howto.t > v.ad.t)) f('order below the card is not panel, nav, ad, how-to');
     if (v.adMinHeight !== '250px') f(`ad min-height ${v.adMinHeight}`);

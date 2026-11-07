@@ -1,5 +1,5 @@
 // gh#296: the desktop card in mode B and with a filled result, the states the layout probe does not
-// reach. Mode B un-hides the stop control, so the controls stack outgrows the disc and the 1fr spacers
+// reach. The controls stack ends with the entered-names list (owner popup 2026-11-07). Mode B un-hides the stop control, so the controls stack outgrows the disc and the 1fr spacers
 // fall to zero; the disc must still centre on the controls and nothing may scroll sideways. Then the
 // names-in feedback (disc, note, spin) must sit in the viewport, and after one reduced-motion spin in
 // mode A the result bar must be filled, 60px tall, as wide as the controls track.
@@ -9,7 +9,7 @@ import { writeFileSync } from 'node:fs';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const READ = `
   const b = (q) => document.querySelector(q).getBoundingClientRect();
-  const st = b('.wheel-stage'), r = b('#wheel-result'), t = b('.wheel-toggle'), de = document.documentElement;
+  const st = b('.wheel-stage'), r = b('#wheel-result'), t = b('#wheel-names'), de = document.documentElement;
   const res = document.getElementById('wheel-result');
   return { innerWidth, innerHeight, sw: de.scrollWidth, cw: de.clientWidth,
     stopShown: !document.getElementById('wheel-stop').hidden,

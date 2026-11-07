@@ -274,31 +274,31 @@
       "before": {
         "x": 550,
         "y": 870.359375,
-        "scrollY": 743,
+        "scrollY": 697,
         "reduce": false
       },
-      "settledScrollY": 374,
+      "settledScrollY": 323,
       "after": {
         "innerWidth": 1100,
         "innerHeight": 900,
-        "scrollY": 374,
+        "scrollY": 323,
         "chips": 3,
         "noteLen": 0,
         "spinDisabled": false,
         "rects": {
           "wheel-disc": {
-            "top": -0.015625,
-            "bottom": 399.984375,
+            "top": 95.984375,
+            "bottom": 495.984375,
             "height": 400
           },
           "wheel-note": {
-            "top": 98.984375,
-            "bottom": 170.984375,
+            "top": 126.984375,
+            "bottom": 198.984375,
             "height": 72
           },
           "wheel-spin": {
-            "top": 186.984375,
-            "bottom": 250.984375,
+            "top": 214.984375,
+            "bottom": 278.984375,
             "height": 64
           }
         },
@@ -316,31 +316,31 @@
       "before": {
         "x": 640,
         "y": 870.359375,
-        "scrollY": 743,
+        "scrollY": 697,
         "reduce": false
       },
-      "settledScrollY": 374,
+      "settledScrollY": 323,
       "after": {
         "innerWidth": 1280,
         "innerHeight": 900,
-        "scrollY": 374,
+        "scrollY": 323,
         "chips": 3,
         "noteLen": 0,
         "spinDisabled": false,
         "rects": {
           "wheel-disc": {
-            "top": -0.015625,
-            "bottom": 399.984375,
+            "top": 95.984375,
+            "bottom": 495.984375,
             "height": 400
           },
           "wheel-note": {
-            "top": 98.984375,
-            "bottom": 170.984375,
+            "top": 126.984375,
+            "bottom": 198.984375,
             "height": 72
           },
           "wheel-spin": {
-            "top": 186.984375,
-            "bottom": 250.984375,
+            "top": 214.984375,
+            "bottom": 278.984375,
             "height": 64
           }
         },
@@ -358,31 +358,31 @@
       "before": {
         "x": 720,
         "y": 870.359375,
-        "scrollY": 743,
+        "scrollY": 697,
         "reduce": false
       },
-      "settledScrollY": 374,
+      "settledScrollY": 323,
       "after": {
         "innerWidth": 1440,
         "innerHeight": 900,
-        "scrollY": 374,
+        "scrollY": 323,
         "chips": 3,
         "noteLen": 0,
         "spinDisabled": false,
         "rects": {
           "wheel-disc": {
-            "top": -0.015625,
-            "bottom": 399.984375,
+            "top": 95.984375,
+            "bottom": 495.984375,
             "height": 400
           },
           "wheel-note": {
-            "top": 98.984375,
-            "bottom": 170.984375,
+            "top": 126.984375,
+            "bottom": 198.984375,
             "height": 72
           },
           "wheel-spin": {
-            "top": 186.984375,
-            "bottom": 250.984375,
+            "top": 214.984375,
+            "bottom": 278.984375,
             "height": 64
           }
         },
@@ -400,31 +400,31 @@
       "before": {
         "x": 550,
         "y": 870.359375,
-        "scrollY": 743,
+        "scrollY": 697,
         "reduce": false
       },
-      "settledScrollY": 374,
+      "settledScrollY": 323,
       "after": {
         "innerWidth": 1100,
         "innerHeight": 900,
-        "scrollY": 374,
+        "scrollY": 323,
         "chips": 1,
         "noteLen": 117,
         "spinDisabled": true,
         "rects": {
           "wheel-disc": {
-            "top": -0.015625,
-            "bottom": 399.984375,
+            "top": 95.984375,
+            "bottom": 495.984375,
             "height": 400
           },
           "wheel-note": {
-            "top": 98.984375,
-            "bottom": 170.984375,
+            "top": 126.984375,
+            "bottom": 198.984375,
             "height": 72
           },
           "wheel-spin": {
-            "top": 186.984375,
-            "bottom": 250.984375,
+            "top": 214.984375,
+            "bottom": 278.984375,
             "height": 64
           }
         },
@@ -442,35 +442,35 @@
       "before": {
         "x": 550,
         "y": 870.359375,
-        "scrollY": 743,
+        "scrollY": 697,
         "reduce": true
       },
       "sync": {
-        "y0": 743,
-        "y1": 374
+        "y0": 697,
+        "y1": 323
       },
-      "settledScrollY": 374,
+      "settledScrollY": 323,
       "after": {
         "innerWidth": 1100,
         "innerHeight": 900,
-        "scrollY": 374,
+        "scrollY": 323,
         "chips": 3,
         "noteLen": 0,
         "spinDisabled": false,
         "rects": {
           "wheel-disc": {
-            "top": -0.015625,
-            "bottom": 399.984375,
+            "top": 95.984375,
+            "bottom": 495.984375,
             "height": 400
           },
           "wheel-note": {
-            "top": 98.984375,
-            "bottom": 170.984375,
+            "top": 126.984375,
+            "bottom": 198.984375,
             "height": 72
           },
           "wheel-spin": {
-            "top": 186.984375,
-            "bottom": 250.984375,
+            "top": 214.984375,
+            "bottom": 278.984375,
             "height": 64
           }
         },
@@ -488,35 +488,35 @@
       "before": {
         "x": 640,
         "y": 870.359375,
-        "scrollY": 743,
+        "scrollY": 697,
         "reduce": true
       },
       "sync": {
-        "y0": 743,
-        "y1": 374
+        "y0": 697,
+        "y1": 323
       },
-      "settledScrollY": 374,
+      "settledScrollY": 323,
       "after": {
         "innerWidth": 1280,
         "innerHeight": 900,
-        "scrollY": 374,
+        "scrollY": 323,
         "chips": 3,
         "noteLen": 0,
         "spinDisabled": false,
         "rects": {
           "wheel-disc": {
-            "top": -0.015625,
-            "bottom": 399.984375,
+            "top": 95.984375,
+            "bottom": 495.984375,
             "height": 400
           },
           "wheel-note": {
-            "top": 98.984375,
-            "bottom": 170.984375,
+            "top": 126.984375,
+            "bottom": 198.984375,
             "height": 72
           },
           "wheel-spin": {
-            "top": 186.984375,
-            "bottom": 250.984375,
+            "top": 214.984375,
+            "bottom": 278.984375,
             "height": 64
           }
         },
@@ -534,35 +534,35 @@
       "before": {
         "x": 720,
         "y": 870.359375,
-        "scrollY": 743,
+        "scrollY": 697,
         "reduce": true
       },
       "sync": {
-        "y0": 743,
-        "y1": 374
+        "y0": 697,
+        "y1": 323
       },
-      "settledScrollY": 374,
+      "settledScrollY": 323,
       "after": {
         "innerWidth": 1440,
         "innerHeight": 900,
-        "scrollY": 374,
+        "scrollY": 323,
         "chips": 3,
         "noteLen": 0,
         "spinDisabled": false,
         "rects": {
           "wheel-disc": {
-            "top": -0.015625,
-            "bottom": 399.984375,
+            "top": 95.984375,
+            "bottom": 495.984375,
             "height": 400
           },
           "wheel-note": {
-            "top": 98.984375,
-            "bottom": 170.984375,
+            "top": 126.984375,
+            "bottom": 198.984375,
             "height": 72
           },
           "wheel-spin": {
-            "top": 186.984375,
-            "bottom": 250.984375,
+            "top": 214.984375,
+            "bottom": 278.984375,
             "height": 64
           }
         },
@@ -580,35 +580,35 @@
       "before": {
         "x": 640,
         "y": 870.359375,
-        "scrollY": 743,
+        "scrollY": 697,
         "reduce": false
       },
       "sync": {
-        "y0": 743,
-        "y1": 743
+        "y0": 697,
+        "y1": 697
       },
-      "settledScrollY": 374,
+      "settledScrollY": 323,
       "after": {
         "innerWidth": 1280,
         "innerHeight": 900,
-        "scrollY": 374,
+        "scrollY": 323,
         "chips": 3,
         "noteLen": 0,
         "spinDisabled": false,
         "rects": {
           "wheel-disc": {
-            "top": -0.015625,
-            "bottom": 399.984375,
+            "top": 95.984375,
+            "bottom": 495.984375,
             "height": 400
           },
           "wheel-note": {
-            "top": 98.984375,
-            "bottom": 170.984375,
+            "top": 126.984375,
+            "bottom": 198.984375,
             "height": 72
           },
           "wheel-spin": {
-            "top": 186.984375,
-            "bottom": 250.984375,
+            "top": 214.984375,
+            "bottom": 278.984375,
             "height": 64
           }
         },

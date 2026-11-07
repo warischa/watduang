@@ -262,32 +262,32 @@
       "mobile": false,
       "geometry": {
         "cta": {
-          "top": 1583.359375,
-          "bottom": 1643.359375,
+          "top": 1537.359375,
+          "bottom": 1597.359375,
           "left": 98,
           "right": 1002
         },
         "label": {
-          "top": 706.984375,
-          "bottom": 750.984375,
+          "top": 683.984375,
+          "bottom": 727.984375,
           "left": 598.5,
           "right": 991.5
         },
         "disc": {
-          "top": 373.984375,
-          "bottom": 773.984375,
+          "top": 418.984375,
+          "bottom": 818.984375,
           "left": 138.5,
           "right": 538.5
         },
         "reduce": true
       },
-      "scrollBefore": 1258,
+      "scrollBefore": 1280,
       "tapPoint": {
         "x": 611,
-        "y": 355
+        "y": 287
       },
       "preTap": {
-        "scrollY": 1258,
+        "scrollY": 1280,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด \"ใส่ชื่อลงวงล้อ\"",
@@ -298,14 +298,14 @@
         "active": "body"
       },
       "afterDoubleTap": {
-        "scrollY": 374,
+        "scrollY": 323,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "",
         "result": "",
         "rotation": "",
         "chips": 3,
-        "underPoint": "input#wheel-eliminate",
+        "underPoint": "div",
         "active": "body"
       },
       "control": {
@@ -313,7 +313,7 @@
         "now": true,
         "at": {
           "x": 610.5,
-          "y": 354.984375
+          "y": 382.984375
         }
       }
     },
@@ -325,32 +325,32 @@
       "mobile": false,
       "geometry": {
         "cta": {
-          "top": 1583.359375,
-          "bottom": 1643.359375,
+          "top": 1537.359375,
+          "bottom": 1597.359375,
           "left": 188,
           "right": 1092
         },
         "label": {
-          "top": 706.984375,
-          "bottom": 750.984375,
+          "top": 683.984375,
+          "bottom": 727.984375,
           "left": 688.5,
           "right": 1081.5
         },
         "disc": {
-          "top": 373.984375,
-          "bottom": 773.984375,
+          "top": 418.984375,
+          "bottom": 818.984375,
           "left": 228.5,
           "right": 628.5
         },
         "reduce": true
       },
-      "scrollBefore": 1258,
+      "scrollBefore": 1280,
       "tapPoint": {
         "x": 701,
-        "y": 355
+        "y": 287
       },
       "preTap": {
-        "scrollY": 1258,
+        "scrollY": 1280,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด \"ใส่ชื่อลงวงล้อ\"",
@@ -361,14 +361,14 @@
         "active": "body"
       },
       "afterDoubleTap": {
-        "scrollY": 374,
+        "scrollY": 323,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "",
         "result": "",
         "rotation": "",
         "chips": 3,
-        "underPoint": "input#wheel-eliminate",
+        "underPoint": "div",
         "active": "body"
       },
       "control": {
@@ -376,7 +376,7 @@
         "now": true,
         "at": {
           "x": 700.5,
-          "y": 354.984375
+          "y": 382.984375
         }
       }
     },
@@ -388,32 +388,32 @@
       "mobile": false,
       "geometry": {
         "cta": {
-          "top": 1583.359375,
-          "bottom": 1643.359375,
+          "top": 1537.359375,
+          "bottom": 1597.359375,
           "left": 268,
           "right": 1172
         },
         "label": {
-          "top": 706.984375,
-          "bottom": 750.984375,
+          "top": 683.984375,
+          "bottom": 727.984375,
           "left": 768.5,
           "right": 1161.5
         },
         "disc": {
-          "top": 373.984375,
-          "bottom": 773.984375,
+          "top": 418.984375,
+          "bottom": 818.984375,
           "left": 308.5,
           "right": 708.5
         },
         "reduce": true
       },
-      "scrollBefore": 1258,
+      "scrollBefore": 1280,
       "tapPoint": {
         "x": 781,
-        "y": 355
+        "y": 287
       },
       "preTap": {
-        "scrollY": 1258,
+        "scrollY": 1280,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด \"ใส่ชื่อลงวงล้อ\"",
@@ -424,14 +424,14 @@
         "active": "body"
       },
       "afterDoubleTap": {
-        "scrollY": 374,
+        "scrollY": 323,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "",
         "result": "",
         "rotation": "",
         "chips": 3,
-        "underPoint": "input#wheel-eliminate",
+        "underPoint": "div",
         "active": "body"
       },
       "control": {
@@ -439,7 +439,7 @@
         "now": true,
         "at": {
           "x": 780.5,
-          "y": 354.984375
+          "y": 382.984375
         }
       }
     },
@@ -451,32 +451,32 @@
       "mobile": false,
       "geometry": {
         "cta": {
-          "top": 1583.359375,
-          "bottom": 1643.359375,
+          "top": 1537.359375,
+          "bottom": 1597.359375,
           "left": 98,
           "right": 1002
         },
         "label": {
-          "top": 706.984375,
-          "bottom": 750.984375,
+          "top": 683.984375,
+          "bottom": 727.984375,
           "left": 598.5,
           "right": 991.5
         },
         "disc": {
-          "top": 373.984375,
-          "bottom": 773.984375,
+          "top": 418.984375,
+          "bottom": 818.984375,
           "left": 138.5,
           "right": 538.5
         },
         "reduce": false
       },
-      "scrollBefore": 1258,
+      "scrollBefore": 1280,
       "tapPoint": {
         "x": 611,
-        "y": 355
+        "y": 287
       },
       "preTap": {
-        "scrollY": 1258,
+        "scrollY": 1280,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด \"ใส่ชื่อลงวงล้อ\"",
@@ -487,14 +487,14 @@
         "active": "body"
       },
       "afterDoubleTap": {
-        "scrollY": 374,
+        "scrollY": 323,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "",
         "result": "",
         "rotation": "",
         "chips": 3,
-        "underPoint": "input#wheel-eliminate",
+        "underPoint": "div",
         "active": "body"
       },
       "control": {
@@ -502,7 +502,7 @@
         "now": true,
         "at": {
           "x": 610.5,
-          "y": 354.984375
+          "y": 382.984375
         }
       }
     },
@@ -514,32 +514,32 @@
       "mobile": false,
       "geometry": {
         "cta": {
-          "top": 1583.359375,
-          "bottom": 1643.359375,
+          "top": 1537.359375,
+          "bottom": 1597.359375,
           "left": 188,
           "right": 1092
         },
         "label": {
-          "top": 706.984375,
-          "bottom": 750.984375,
+          "top": 683.984375,
+          "bottom": 727.984375,
           "left": 688.5,
           "right": 1081.5
         },
         "disc": {
-          "top": 373.984375,
-          "bottom": 773.984375,
+          "top": 418.984375,
+          "bottom": 818.984375,
           "left": 228.5,
           "right": 628.5
         },
         "reduce": false
       },
-      "scrollBefore": 1258,
+      "scrollBefore": 1280,
       "tapPoint": {
         "x": 701,
-        "y": 355
+        "y": 287
       },
       "preTap": {
-        "scrollY": 1258,
+        "scrollY": 1280,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด \"ใส่ชื่อลงวงล้อ\"",
@@ -550,14 +550,14 @@
         "active": "body"
       },
       "afterDoubleTap": {
-        "scrollY": 374,
+        "scrollY": 323,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "",
         "result": "",
         "rotation": "",
         "chips": 3,
-        "underPoint": "input#wheel-eliminate",
+        "underPoint": "div",
         "active": "body"
       },
       "control": {
@@ -565,7 +565,7 @@
         "now": true,
         "at": {
           "x": 700.5,
-          "y": 354.984375
+          "y": 382.984375
         }
       }
     },
@@ -577,32 +577,32 @@
       "mobile": false,
       "geometry": {
         "cta": {
-          "top": 1583.359375,
-          "bottom": 1643.359375,
+          "top": 1537.359375,
+          "bottom": 1597.359375,
           "left": 268,
           "right": 1172
         },
         "label": {
-          "top": 706.984375,
-          "bottom": 750.984375,
+          "top": 683.984375,
+          "bottom": 727.984375,
           "left": 768.5,
           "right": 1161.5
         },
         "disc": {
-          "top": 373.984375,
-          "bottom": 773.984375,
+          "top": 418.984375,
+          "bottom": 818.984375,
           "left": 308.5,
           "right": 708.5
         },
         "reduce": false
       },
-      "scrollBefore": 1258,
+      "scrollBefore": 1280,
       "tapPoint": {
         "x": 781,
-        "y": 355
+        "y": 287
       },
       "preTap": {
-        "scrollY": 1258,
+        "scrollY": 1280,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "ยังหมุนไม่ได้ — ใส่ชื่ออย่างน้อย 2 ชื่อ แล้วกด \"ใส่ชื่อลงวงล้อ\"",
@@ -613,14 +613,14 @@
         "active": "body"
       },
       "afterDoubleTap": {
-        "scrollY": 374,
+        "scrollY": 323,
         "eliminateChecked": false,
         "eliminateDisabled": false,
         "note": "",
         "result": "",
         "rotation": "",
         "chips": 3,
-        "underPoint": "input#wheel-eliminate",
+        "underPoint": "div",
         "active": "body"
       },
       "control": {
@@ -628,7 +628,7 @@
         "now": true,
         "at": {
           "x": 780.5,
-          "y": 354.984375
+          "y": 382.984375
         }
       }
     }
