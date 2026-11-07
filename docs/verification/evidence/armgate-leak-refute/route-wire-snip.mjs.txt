@@ -1,0 +1,74 @@
+// Route-shaped repro, wire-snip-panic. Real markup nesting, the route's own showScreen() bytes and
+// setupTurn's own scan-enable + banner-arm tail. Two overlapping gates hold #btn-trigger-scan: the
+// screen gate (built while scan is still disabled from the previous scan -> "owned") and the banner
+// gate (built after the enable). A late contact landing in the screen but OUTSIDE the banner re-holds
+// only the screen gate. Exit 1 = scan stranded; exit 2 = instrument broken.
+import assert from 'node:assert/strict';
+import { sliceBlock } from '/Users/waris.c/claude/free-game/src/play/_dom-stub.mjs';
+import { freshPage, contact, mountMarkup, routeFile } from './harness.mjs';
+
+const SCAN_OFF = "document.getElementById('btn-trigger-scan').disabled = true;";
+
+function routeBits(mode) {
+  const src = routeFile(mode, 'wire-snip-panic', 'main.js');
+  const show = sliceBlock(src, 'function showScreen(screenId)');
+  assert.ok(show && show.includes('armAllButtons(target)'), 'showScreen slice');
+  const setup = sliceBlock(src, 'function setupTurn()');
+  assert.ok(setup, 'setupTurn slice');
+  const a = setup.indexOf("showScreen('screen-game')");
+  const head = "const actionBanner = document.getElementById('turn-action-banner');";
+  const b = setup.indexOf(head);
+  const end = setup.indexOf('armAllButtons(actionBanner);') + 'armAllButtons(actionBanner);'.length;
+  assert.ok(a > -1 && b > a && end > b, 'setupTurn: showScreen(screen-game) before the banner tail');
+  const between = setup.slice(a, b);
+  assert.ok(!/disabled|armAllButtons/.test(between.replace(/\/\/.*$/gm, '')), 'nothing between touches disabled or arms');
+  const tail = setup.slice(b, end);
+  const scan = sliceBlock(src, 'function triggerScanSequence()');
+  assert.ok(scan && scan.includes(SCAN_OFF), 'triggerScanSequence disables scan');
+  return { show, tail, markup: routeFile(mode, 'wire-snip-panic', 'markup.html') };
+}
+
+async function run(mode, { turn, late }) {
+  const { doc, gate, clock } = await freshPage(mode);
+  const bits = routeBits(mode);
+  const { byId, ancestors } = mountMarkup(doc, bits.markup);
+  const showScreen = new Function('document', 'armAllButtons', `${bits.show}; return showScreen;`)(doc, gate.armAllButtons);
+  const tail = new Function('document', 'armAllButtons', bits.tail);
+  const scanBtn = byId.get('btn-trigger-scan');
+  const screen = byId.get('screen-game');
+  const banner = byId.get('turn-action-banner');
+  assert.ok(ancestors(scanBtn).includes(banner) && ancestors(banner).includes(screen), 'scan in banner in screen');
+  if (turn >= 2) new Function('document', SCAN_OFF)(doc); // previous player's scan
+  clock.set(0);
+  contact(doc, [], 0, 80); // the tap that ended the previous turn
+  clock.set(80);
+  showScreen('screen-game');
+  tail(doc, gate.armAllButtons);
+  clock.tick(450); // both timers arm; the second contact is still queued (ADR-0059 stall)
+  let reHeld = null;
+  if (late === 'outside-banner') { contact(doc, ancestors(screen), 300, 380); reHeld = scanBtn.disabled; }
+  if (late === 'on-banner') { contact(doc, ancestors(scanBtn), 300, 380); reHeld = scanBtn.disabled; }
+  clock.tick(2000);
+  const stranded = scanBtn.disabled;
+  // A deliberate tap on scan now: pointerdown first (detaches both gates), then click on a disabled button.
+  let scanned = false;
+  scanBtn.addEventListener('click', () => { scanned = true; });
+  contact(doc, ancestors(scanBtn), 5000, 5080);
+  scanBtn.click();
+  return { mode, turn, late, reHeld, strandedAfterQuiet: stranded, deliberateScanFires: scanned,
+    gateHolds: typeof gate.gateHolds === 'function' ? gate.gateHolds(scanBtn) : 'n/a' };
+}
+
+let defect = false;
+let broken = false;
+for (const mode of ['base', 'head']) {
+  const trig = await run(mode, { turn: 2, late: 'outside-banner' });
+  const onBanner = await run(mode, { turn: 2, late: 'on-banner' });
+  const quiet = await run(mode, { turn: 2, late: null });
+  const t1 = await run(mode, { turn: 1, late: 'outside-banner' });
+  for (const r of [trig, onBanner, quiet, t1]) console.log(JSON.stringify(r));
+  if (trig.reHeld !== true || onBanner.reHeld !== true || t1.reHeld !== true) broken = true;
+  if (onBanner.strandedAfterQuiet || quiet.strandedAfterQuiet || t1.strandedAfterQuiet) broken = true;
+  if (trig.strandedAfterQuiet) defect = true;
+}
+process.exit(broken ? 2 : defect ? 1 : 0);

@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import { FakeElement, makeDocument } from '/Users/waris.c/claude/free-game/src/games/_fake-dom.mjs';
+const doc=makeDocument(); globalThis.document=doc;
+let now=0, seq=0; const timers=new Map();
+globalThis.setTimeout=(fn,delay=0)=>{ const id=++seq;timers.set(id,{fn,at:now+delay});return id; };
+globalThis.clearTimeout=(id)=>timers.delete(id);
+function tick(ms){const end=now+ms;for(;;){const next=[...timers].filter(([,t])=>t.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];if(!next)break;now=next[1].at;timers.delete(next[0]);next[1].fn();}now=end;}
+const {armAllButtons,gateHolds}=await import(process.env.GATE);
+const outer=new FakeElement('section',doc),inner=outer.appendChild(new FakeElement('div',doc)),shared=inner.appendChild(new FakeElement('button',doc));
+shared.disabled=true;
+doc.fire('pointerdown',{timeStamp:0});
+const cancelOuter=armAllButtons(outer);shared.disabled=false;
+tick(450); assert.equal(shared.disabled,false);
+outer.dispatch('pointerdown',{timeStamp:200});assert.equal(shared.disabled,true);
+tick(150); const cancelInner=armAllButtons(inner); // window 600..1000
+assert.equal(shared.disabled,true);
+tick(251); // outer re-arm at 850, inner still held until 1000
+console.log(JSON.stringify({at:now,disabled:shared.disabled,held:gateHolds(shared),innerWindowEnds:1000}));
+try { assert.equal(shared.disabled,true,'older re-held gate released the newer gate at 850 < 1000'); }
+finally { cancelOuter(); cancelInner(); }

@@ -1,0 +1,60 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { makePage } from '/Users/waris.c/claude/free-game/src/play/_player-screen/screen-harness.mjs';
+import { sliceBlock } from '/Users/waris.c/claude/free-game/src/play/_dom-stub.mjs';
+const repo='/Users/waris.c/claude/free-game';
+const source=readFileSync(repo+'/src/play/wire-snip-panic/main.js','utf8').split('\n').filter(l=>!l.trimStart().startsWith('//')).join('\n');
+const doc=makePage(readFileSync(repo+'/src/play/wire-snip-panic/markup.html','utf8'));
+for(const el of doc.body.descendants()) el.style={setProperty(){},removeProperty(){}};
+globalThis.document=doc;
+let now=0,seq=0;const timers=new Map();
+globalThis.setTimeout=(fn,delay=0)=>{const id=++seq;timers.set(id,{fn,at:now+delay});return id;};
+globalThis.clearTimeout=id=>timers.delete(id);
+function tick(ms){const end=now+ms;for(;;){const next=[...timers].filter(([,t])=>t.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];if(!next)break;now=next[1].at;timers.delete(next[0]);next[1].fn();}now=end;}
+const gate=await import(process.env.GATE);
+const compile=(name,args=[],values=[])=>new Function('document','armAllButtons',...args,`return (${sliceBlock(source,name)});`)(doc,gate.armAllButtons,...values);
+const show=compile('function showScreen(screenId)');
+const close=compile('function closeModal(id)',['playerScreen'],[null]);
+const openRules=compile('function openRulesModal()');
+const setup=sliceBlock(source,'function setupTurn()');
+const tailStart=setup.indexOf("const actionBanner = document.getElementById('turn-action-banner');");
+const tailEnd=setup.indexOf('armAllButtons(actionBanner);')+'armAllButtons(actionBanner);'.length;
+const tail=new Function('document','armAllButtons',setup.slice(tailStart,tailEnd));
+const GameState={TURN_WAIT:'TURN_WAIT',SCANNING_HINTS:'SCANNING_HINTS'};
+const game={state:GameState.TURN_WAIT,isSpeedUp:false,flashSequence:[0,1,2],flashDelay:2000};
+const scanHandler=compile('function triggerScanSequence()', ['game','GameState','soundSynth','triggerHaptics','setInterval','flashWire','enterCutDecision'],[game,GameState,{playClick(){}},()=>{},()=>42,()=>{},()=>{}]);
+const win={listeners:{},addEventListener(type,fn){this.listeners[type]=fn;}};
+const keyboard=sliceBlock(source,"window.addEventListener('keydown', (e) =>");
+new Function('window','game','GameState','triggerScanSequence','closeModal',keyboard+');')(win,game,GameState,scanHandler,close);
+const screen=doc.getElementById('screen-game'),scan=doc.getElementById('btn-trigger-scan');
+scan.disabled=true; // previous scan leaves this disabled on turn >=2
+// Execute the same two real gate paths setupTurn runs, with the exact tail bytes.
+doc.dispatchEvent({type:'pointerup',timeStamp:0});show('screen-game');tail(doc,gate.armAllButtons);
+tick(450);assert.equal(scan.disabled,false);
+// A stalled in-window contact outside the action banner re-holds only the screen gate.
+screen.dispatchEvent({type:'pointerdown',timeStamp:300});assert.equal(scan.disabled,true);
+tick(150);
+if(process.env.CASE==='overlap'){
+  // Header rules can open during the screen hold; Escape closes and creates another gate.
+  doc.dispatchEvent({type:'pointerdown',timeStamp:520});
+  doc.dispatchEvent({type:'pointerup',timeStamp:600});
+  openRules();win.listeners.keydown({key:'Escape'});
+} else {
+  // The route's real global Enter handler calls scan even while the native button is held.
+  win.listeners.keydown({key:'Enter'});assert.equal(game.state,GameState.SCANNING_HINTS);
+}
+tick(251);
+const stateAt851={case:process.env.CASE??'scan',at:now,scanDisabled:scan.disabled,state:game.state,gateHolds:gate.gateHolds(scan)};
+if(process.env.CASE==='overlap'){
+  scan.addEventListener('click',scanHandler);
+  tick(49); // t900: still inside the new screen gate's timer window 600..1000
+  doc.dispatchEvent({type:'pointerdown',timeStamp:900});
+  for(let n=scan;n;n=n.parent)n.dispatchEvent({type:'pointerdown',timeStamp:900});
+  doc.dispatchEvent({type:'pointerup',timeStamp:980});
+  const clicked=scan.click();
+  console.log(JSON.stringify({...stateAt851,ghostAt900:clicked,stateAfterGhost:game.state}));
+  assert.equal(game.state,GameState.TURN_WAIT,'a contact inside the new reveal window started the scan');
+}else{
+  console.log(JSON.stringify(stateAt851));
+  assert.equal(scan.disabled,true,'screen gate handed a mid-sequence scan back enabled');
+}

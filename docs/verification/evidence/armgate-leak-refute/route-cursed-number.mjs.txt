@@ -1,0 +1,68 @@
+// Route-shaped repro, cursed-number. Real markup nesting, the route's own showScreen() bytes and its
+// own confirmLockBtn writes; the ordering readyBtn -> showScreen -> syncSelectionUI is asserted on the
+// source, not assumed. Exit 1 = confirm stranded after a turn>=2 ready; exit 2 = instrument broken.
+import assert from 'node:assert/strict';
+import { sliceBlock } from '/Users/waris.c/claude/free-game/src/play/_dom-stub.mjs';
+import { freshPage, contact, mountMarkup, routeFile } from './harness.mjs';
+
+const CONFIRM_OFF = "document.getElementById('confirmLockBtn').disabled = true;";
+const CONFIRM_ON = "document.getElementById('confirmLockBtn').disabled = false;";
+
+function routeBits(mode) {
+  const src = routeFile(mode, 'cursed-number', 'main.js');
+  const show = sliceBlock(src, 'showScreen(screenId)');
+  assert.ok(show && show.includes('armAllButtons(target)'), 'showScreen slice');
+  const ready = sliceBlock(src, "document.getElementById('readyBtn').addEventListener('click', () =>");
+  assert.ok(ready, 'readyBtn handler slice');
+  const a = ready.indexOf("this.showScreen('screenSelection')");
+  const b = ready.indexOf('this.syncSelectionUI()');
+  assert.ok(a > -1 && b > a, 'ready: showScreen(selection) must run BEFORE syncSelectionUI');
+  const sync = sliceBlock(src, 'syncSelectionUI()');
+  assert.ok(sync && sync.includes(CONFIRM_ON) && !sync.includes('armAllButtons'), 'syncSelectionUI enables confirm, arms nothing');
+  const confirm = sliceBlock(src, 'handleConfirmGuess()');
+  assert.ok(confirm && confirm.includes(CONFIRM_OFF), 'handleConfirmGuess disables confirm');
+  return { show: `function ${show}`, markup: routeFile(mode, 'cursed-number', 'markup.html') };
+}
+
+async function run(mode, { turn, late }) {
+  const { doc, gate, clock } = await freshPage(mode);
+  globalThis.window = { scrollTo() {} };
+  const bits = routeBits(mode);
+  const { byId, ancestors } = mountMarkup(doc, bits.markup);
+  const app = { currentScreen: null };
+  const showScreen = new Function('document', 'armAllButtons', 'window', `return ${bits.show}`)(doc, gate.armAllButtons, globalThis.window).bind(app);
+  const confirmBtn = byId.get('confirmLockBtn');
+  const screen = byId.get('screenSelection');
+  assert.ok(ancestors(confirmBtn).includes(screen), 'confirm sits inside #screenSelection');
+  if (turn >= 2) new Function('document', CONFIRM_OFF)(doc); // previous turn's lock press
+  clock.set(0);
+  contact(doc, [], 0, 80); // tap 1 on readyBtn
+  clock.set(80);
+  showScreen('screenSelection');
+  const heldAtArm = confirmBtn.disabled;
+  new Function('document', CONFIRM_ON)(doc); // syncSelectionUI's last write, same task
+  const liveInWindow = !confirmBtn.disabled;
+  clock.tick(450); // arm timer fires; ADR-0059 stall: tap 2 still queued
+  let reHeld = null;
+  if (late) {
+    contact(doc, ancestors(screen), 300, 380); // tap 2, stamped inside the window, delivered late
+    reHeld = confirmBtn.disabled;
+  }
+  clock.tick(2000);
+  const inModeContainers = ['sliderModeContainer', 'keypadModeContainer'].some((id) => ancestors(confirmBtn).includes(byId.get(id)));
+  return { mode, turn, late, heldAtArm, liveInWindow, reHeld, strandedAfterQuiet: confirmBtn.disabled,
+    gateHolds: typeof gate.gateHolds === 'function' ? gate.gateHolds(confirmBtn) : 'n/a', confirmInsideModeContainers: inModeContainers };
+}
+
+let defect = false;
+let broken = false;
+for (const mode of ['base', 'head']) {
+  const t2late = await run(mode, { turn: 2, late: true });
+  const t2quiet = await run(mode, { turn: 2, late: false });
+  const t1late = await run(mode, { turn: 1, late: true });
+  for (const r of [t2late, t2quiet, t1late]) console.log(JSON.stringify(r));
+  if (t2late.reHeld !== true || t1late.reHeld !== true) broken = true;
+  if (t2quiet.strandedAfterQuiet || t1late.strandedAfterQuiet) broken = true;
+  if (t2late.strandedAfterQuiet) defect = true;
+}
+process.exit(broken ? 2 : defect ? 1 : 0);

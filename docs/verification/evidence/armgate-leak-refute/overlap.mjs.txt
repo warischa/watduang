@@ -1,0 +1,18 @@
+// Discriminates fix A (hold path) from fix B (deletion path): gate GA owns C; owner enables C; a
+// second gate GB on an inner stage marks C 200ms later. GA's timer fires while GB's window is open.
+// Prints whether C is live inside GB's window (a ghost hole). Exit 1 if live.
+import { FakeElement } from '/Users/waris.c/claude/free-game/src/games/_fake-dom.mjs';
+import { freshPage, contact } from './harness.mjs';
+const { doc, gate, clock } = await freshPage('head');
+const outer = new FakeElement('section', doc);
+const inner = outer.appendChild(new FakeElement('div', doc));
+const c = inner.appendChild(new FakeElement('button', doc));
+contact(doc, [], 0, 80); clock.set(80);
+c.disabled = true; gate.armAllButtons(outer); c.disabled = false;
+clock.set(200); contact(doc, [], 200, 280); clock.set(280);
+gate.armAllButtons(inner);
+clock.tick(250); // now 530: GA armed at 480, GB arms at 680
+const liveInsideGB = !c.disabled;
+clock.tick(1000);
+console.log(JSON.stringify({ gate: process.env.GATE ?? 'head', liveInsideGB, endEnabled: !c.disabled }));
+process.exit(liveInsideGB ? 1 : 0);

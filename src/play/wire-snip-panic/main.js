@@ -893,6 +893,19 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
 
       game.state = GameState.TURN_WAIT;
 
+      // REVEAL PATH 3 of 5. Scan is re-enabled BEFORE showScreen, and the order is the fix, not a
+      // style choice. On every turn after the first, scan arrives here still disabled by the previous
+      // turn's scan. A gate reads a control already disabled when it is built as the caller's own and
+      // never hands it back, so a scan enabled AFTER showScreen is outside the screen gate's custody:
+      // only the banner's gate below returns it, and only once. A contact the browser stamped inside
+      // the screen's window but delivered after it armed (ADR-0059) lands outside the banner, re-holds
+      // the screen's set, disables scan -- and nothing ever re-enables it: a dead button on the
+      // pass-the-phone moment. Enabled first, scan is collected enabled, so the screen gate holds it
+      // for the whole window, every re-hold included, and hands it back each time it arms.
+      const scanBtn = document.getElementById('btn-trigger-scan');
+      scanBtn.style.display = 'flex';
+      scanBtn.disabled = false;
+
       showScreen('screen-game');
       renderHUDPlayerStrip();
       renderWiresBay();
@@ -908,14 +921,10 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
       
       const actionBanner = document.getElementById('turn-action-banner');
       actionBanner.style.display = 'flex';
-      const scanBtn = document.getElementById('btn-trigger-scan');
-      scanBtn.style.display = 'flex';
-      scanBtn.disabled = false;
 
-      // REVEAL PATH 3 of 5, and it must be armed HERE rather than left to showScreen above: the line
-      // directly above clears `disabled` on the one control this screen offers, which would undo
-      // showScreen's gate on exactly the control that matters most -- this is the pass-the-phone
-      // moment, so the stale contact belongs to the PREVIOUS player. Arming last wins.
+      // The banner is revealed inside a screen already up, so it is armed as a reveal of its own.
+      // Scan does not depend on it any more -- showScreen's gate above already holds scan -- but a
+      // contact on the banner restarts this window too.
       armAllButtons(actionBanner);
 
       // gh#170. What a sighted player already reads off the LCD, and nothing more: the seat, the

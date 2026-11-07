@@ -25,7 +25,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { closerCases, mountOnPage, revealPathCases, settle } from '../_player-screen/screen-harness.mjs';
+import { closerCases, makePage, mountOnPage, revealPathCases, settle } from '../_player-screen/screen-harness.mjs';
 import { sliceBlock } from '../_dom-stub.mjs';
 import { ARM_DELAY_MS, armAllButtons } from '../../games/_arm-gate.ts';
 import wireSnipPanic from '../../games/wire-snip-panic.ts';
@@ -53,7 +53,7 @@ const EXPECTED = new Map([
   ['target', 'showScreen(): the screen-to-screen path, menu/options/game. Armed on the line below.'],
   ['rulesModal', 'openRulesModal(): #modal-rules, 1 close button, opened by 2 controls, never through showScreen. Armed.'],
   ['modal', 'showDetonationModal(): #modal-detonation, 2 buttons, opened on an 850ms timer over the game screen. Armed.'],
-  ['actionBanner', 'setupTurn(): #turn-action-banner, revealed inside a screen already up. Armed LAST, after btn-trigger-scan is re-enabled.'],
+  ['actionBanner', 'setupTurn(): #turn-action-banner, revealed inside a screen already up. Armed; btn-trigger-scan is re-enabled before showScreen, so the screen gate holds it too.'],
   ['scanBtn', 'the button BEING revealed, not a container. Gated through its parent #turn-action-banner, which armAllButtons walks into.'],
   ['presetsGrid', 'NOT a button reveal: every .preset-chip in #penalty-presets-grid is a <div>, and armAllButtons gates <button> only.'],
   ['customInput', 'NOT a button reveal: #input-custom-penalty is a text input, nothing to ghost-tap.'],
@@ -189,9 +189,9 @@ test('closeModal re-arms the screen the modal was covering', () => {
 const OWNED_DISABLED = new Map([
   [
     'scanBtn',
-    'renderTurnStart(): the pass-the-phone screen offers #btn-trigger-scan, enabled. armAllButtons ' +
-      'is called AFTER this write, and the gate treats an ENABLED control as gateable — so the ' +
-      'ghost-tap window still covers it. Setting false, not true, so nothing is preserved here.',
+    'setupTurn(): the pass-the-phone screen offers #btn-trigger-scan, enabled. Written BEFORE ' +
+      "showScreen('screen-game'), so the screen gate collects it ENABLED and holds it through every " +
+      're-hold of its window. Setting false, not true, so nothing is preserved here.',
   ],
   [
     "document.getElementById('btn-trigger-scan')",
@@ -230,6 +230,119 @@ test('gh#188 box 15 — triggerScanSequence sets its state before it disables th
     /if \(e\.key === 'Escape'\) \{\s*\n\s*closeModal\('modal-rules'\);/,
     'the Escape key must dismiss through closeModal — a bare classList.remove leaves the screen ' +
       'behind the modal ungated (ADR-0057)',
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Turn 2 onward: the pass-the-phone screen must not strand #btn-trigger-scan behind a late contact.
+//
+// On every turn after the first, scan arrives at setupTurn still disabled by the previous turn's
+// triggerScanSequence. A gate reads a control that is ALREADY disabled when it is built as the
+// caller's own (gh#188), so if showScreen's gate is built before scan is re-enabled, that gate never
+// hands scan back. The banner's gate does, once -- but a contact the browser stamped inside the
+// screen's window and delivered after it armed (ADR-0059) lands outside the banner, re-holds the
+// SCREEN's set, and disables scan with nothing left to re-enable it: a dead control on the one
+// button this screen offers.
+//
+// Driven, not read: the real setupTurn, showScreen and triggerScanSequence bytes, the real gate, this
+// route's real markup. Turn 1 is played up to its scan so turn 2 inherits the disable the way the
+// game leaves it. Only the engine's collaborators that never touch scan are stubbed.
+//
+// Why there is an anchoring contact before the arm: this file imports the gate before any document
+// exists, so the gate's own pointer recorder is not installed here and a window has no input-clock
+// reference until a contact inside it gives it one. Without that anchor every late contact reads as
+// outside the window and the re-hold never happens -- the case would pass while measuring nothing,
+// which is why it asserts the re-hold before it asserts the recovery.
+const GAME_STATES = { MENU: 'MENU', SETUP: 'SETUP', TURN_WAIT: 'TURN_WAIT', SCANNING_HINTS: 'SCANNING_HINTS' };
+
+function playTurns() {
+  const doc = makePage(MARKUP);
+  for (const el of doc.body.descendants()) el.style = { setProperty() {}, removeProperty() {} };
+  const game = {
+    state: GAME_STATES.SETUP,
+    players: ['A', 'B'],
+    currentPlayerIndex: 0,
+    roundLevel: 1,
+    cutWires: new Set(),
+    currentSequenceStep: 0,
+  };
+  const config = { wireCount: 6, sequence: [0, 1], flashDelay: 520, isSpeedUp: false, timeLimit: 5 };
+  const noop = () => {};
+  const compile = (header, names, values) => {
+    const body = sliceBlock(source, header);
+    assert.ok(body, `${header} is gone — this test measures nothing`);
+    return new Function(...names, `return (${body});`)(...values);
+  };
+  const showScreen = compile('function showScreen(screenId)', ['document', 'armAllButtons'], [doc, armAllButtons]);
+  const announceRound = compile('function announceRound(text)', ['document'], [doc]);
+  const setupTurn = compile(
+    'function setupTurn()',
+    ['document', 'armAllButtons', 'game', 'GameState', 'generateTurnLevel', 'showScreen', 'renderHUDPlayerStrip', 'renderWiresBay', 'announceRound', 'clearInterval'],
+    [doc, armAllButtons, game, GAME_STATES, () => ({ ...config }), showScreen, noop, noop, announceRound, noop],
+  );
+  // setTimeout is shadowed for the scan's own flash schedule only; the gate keeps the mocked global.
+  const triggerScanSequence = compile(
+    'function triggerScanSequence()',
+    ['document', 'game', 'GameState', 'soundSynth', 'triggerHaptics', 'putAwayRound', 'setTimeout', 'setInterval', 'flashWire', 'enterCutDecision'],
+    [doc, game, GAME_STATES, { playClick: noop }, noop, noop, noop, noop, noop, noop],
+  );
+  const scan = doc.getElementById('btn-trigger-scan');
+  scan.addEventListener('click', () => triggerScanSequence());
+  // The harness does not bubble, so a real tap on scan is delivered to every ancestor by hand.
+  const tap = (stamp) => {
+    for (let n = scan; n; n = n.parent) n.dispatchEvent({ type: 'pointerdown', timeStamp: stamp });
+    return scan.click();
+  };
+  return { doc, game, setupTurn, scan, tap, screen: doc.getElementById('screen-game') };
+}
+
+test('the route wires #btn-trigger-scan to triggerScanSequence, the handler the turn-2 case drives', () => {
+  assert.match(
+    source,
+    /getElementById\('btn-trigger-scan'\)\.addEventListener\('click', \(\) => \{\s*\n\s*triggerScanSequence\(\);/,
+  );
+});
+
+test('turn 2: a late in-window contact outside the banner re-holds the screen, and scan still comes back', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { game, setupTurn, scan, tap, screen } = playTurns();
+
+  // Turn 1, played up to its scan.
+  setupTurn();
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(tap(1000), true, 'turn 1: scan must be live after the window, or nothing is measured');
+  assert.equal(game.state, GAME_STATES.SCANNING_HINTS);
+  assert.equal(scan.disabled, true, 'turn 1: the scan disables its own button -- the state turn 2 inherits');
+
+  // Turn 2, the phone passed on.
+  game.currentPlayerIndex = 1;
+  setupTurn();
+  assert.equal(scan.disabled, true, 'scan is held while the pass-the-phone window is open');
+  screen.dispatchEvent({ type: 'pointerdown', timeStamp: 5000 });
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(scan.disabled, false, 'a quiet window hands scan back');
+
+  // Stamped inside the window the anchoring contact opened, delivered after it armed, and landing
+  // on the screen outside the banner.
+  screen.dispatchEvent({ type: 'pointerdown', timeStamp: 5000 + ARM_DELAY_MS - 50 });
+  assert.equal(scan.disabled, true, 'the late contact did not re-hold the screen -- this case measures nothing');
+
+  t.mock.timers.tick(ARM_DELAY_MS * 5);
+  assert.equal(scan.disabled, false, 'scan is dead: the re-held screen gate never handed it back');
+  assert.equal(tap(9000), true, 'a deliberate tap after the quiet window must reach scan');
+  assert.equal(game.state, GAME_STATES.SCANNING_HINTS, 'the deliberate tap did not start the scan');
+});
+
+test('setupTurn re-enables scan BEFORE showScreen builds the pass-the-phone gate', () => {
+  const body = sliceBlock(source, 'function setupTurn()');
+  assert.ok(body, 'setupTurn is gone — this test measures nothing');
+  const enable = body.indexOf('scanBtn.disabled = false;');
+  const reveal = body.indexOf("showScreen('screen-game');");
+  assert.ok(enable > -1 && reveal > -1, 'the scan enable or the screen switch moved out of setupTurn — this test measures nothing');
+  assert.ok(
+    enable < reveal,
+    'scan is re-enabled after showScreen: the screen gate reads it as caller-disabled, and a late ' +
+      'in-window contact outside the banner re-holds it with nothing to hand it back',
   );
 });
 

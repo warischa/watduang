@@ -1,0 +1,236 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { makePage } from '/Users/waris.c/claude/free-game/src/play/_player-screen/screen-harness.mjs';
+import { sliceBlock } from '/Users/waris.c/claude/free-game/src/play/_dom-stub.mjs';
+import { CursedNumberGameModel } from '/Users/waris.c/claude/free-game/src/games/cursed-number.ts';
+
+const repo = '/Users/waris.c/claude/free-game';
+const noop = () => {};
+let leg = 0;
+const sourceFor = (version, route) => {
+  const path = `src/play/${route}/main.js`;
+  const raw = version === 'HEAD'
+    ? execFileSync('git', ['show', `HEAD:${path}`], { cwd: repo, encoding: 'utf8' })
+    : readFileSync(`${repo}/${path}`, 'utf8');
+  return raw.split('\n').filter((line) => !line.trimStart().startsWith('//')).join('\n');
+};
+
+async function pageFor(version, route) {
+  const source = sourceFor(version, route);
+  const doc = makePage(readFileSync(`${repo}/src/play/${route}/markup.html`, 'utf8'));
+  // The stock harness silently misses compound classes. Implement only the selectors used here.
+  for (const node of [doc.body, ...doc.body.descendants()]) {
+    node.style = { setProperty() {}, removeProperty() {} };
+    const fallback = node.matches.bind(node);
+    node.matches = (selector) => selector.split(',').some((sel) => {
+      sel = sel.trim();
+      if (!sel.startsWith('.')) return fallback(sel);
+      const classes = [...sel.matchAll(/\.([\w-]+)/g)].map((m) => m[1]);
+      const attrs = [...sel.matchAll(/\[([\w-]+)(?:="([^"]*)")?\]/g)];
+      return classes.every((c) => node.classes().has(c)) && attrs.every((m) =>
+        m[2] === undefined ? node.hasAttribute(m[1]) : node.getAttribute(m[1]) === m[2]);
+    });
+  }
+  globalThis.document = doc;
+  let now = 0;
+  let id = 0;
+  const timers = new Map();
+  globalThis.setTimeout = (fn, delay = 0) => {
+    const next = ++id;
+    timers.set(next, { fn, at: now + delay });
+    return next;
+  };
+  globalThis.clearTimeout = (key) => timers.delete(key);
+  const tick = (ms) => {
+    const end = now + ms;
+    for (;;) {
+      const next = [...timers].filter(([, t]) => t.at <= end).sort((a, b) => a[1].at - b[1].at)[0];
+      if (!next) break;
+      now = next[1].at;
+      timers.delete(next[0]);
+      next[1].fn();
+    }
+    now = end;
+  };
+  const gate = await import(`${repo}/src/games/_arm-gate.ts?round2=${++leg}`);
+  const winListeners = {};
+  const window = {
+    scrollTo: noop,
+    addEventListener(type, fn) { (winListeners[type] ??= []).push(fn); },
+  };
+  const env = { document: doc, window, armAllButtons: gate.armAllButtons };
+  const compile = (header, method = false, extra = {}) => {
+    const body = sliceBlock(source, header);
+    assert.ok(body, `missing ${header}`);
+    return new Function('env', `with (env) { return (${method ? 'function ' : ''}${body}); }`)({ ...env, ...extra });
+  };
+  const byId = (id) => {
+    const node = doc.getElementById(id);
+    assert.ok(node, `missing #${id}`);
+    return node;
+  };
+  const contact = (node, stamp, up = stamp) => {
+    doc.dispatchEvent({ type: 'pointerdown', timeStamp: stamp });
+    for (let n = node; n; n = n.parent) n.dispatchEvent({ type: 'pointerdown', timeStamp: stamp });
+    doc.dispatchEvent({ type: 'pointerup', timeStamp: up });
+  };
+  const tap = (node, stamp, up = stamp) => { contact(node, stamp, up); return node.click(); };
+  const key = (key) => { for (const fn of winListeners.keydown ?? []) fn({ key }); };
+  return { source, doc, env, compile, byId, contact, tap, key, tick, now: () => now };
+}
+
+async function cursed(version, turn) {
+  const p = await pageFor(version, 'cursed-number');
+  const game = new CursedNumberGameModel();
+  game.setCustomRandom((lo) => lo);
+  game.startNewGame();
+  const quiet = new Proxy({}, { get: () => noop });
+  const app = {
+    game, sound: quiet, fx: quiet, currentScreen: null, keypadBuffer: '', announce: noop,
+    renderPlayerStrip: noop, setupSafeResultScreen: noop, setupGameOverScreen: noop,
+    setupForcedRevealScreen: noop,
+  };
+  for (const header of ['bindEvents()', 'showScreen(screenId)', 'syncSelectionUI()',
+    'setSelectedNumber(val, updateSlider = true)', 'handleConfirmGuess()', 'setupHandoffScreen()',
+    'setInputMode(mode)']) {
+    app[header.slice(0, header.indexOf('('))] = p.compile(header, true);
+  }
+  // Bind the whole original route wiring, including ready, confirm, pass, rules and both closers.
+  app.bindEvents();
+  app.setupHandoffScreen();
+  app.showScreen('screenHandoff');
+  p.tick(401);
+  const confirm = p.byId('confirmLockBtn');
+  const ready = p.byId('readyBtn');
+  for (let n = 1; n < turn; n++) {
+    assert.equal(p.tap(ready, p.now()), true);
+    p.tick(401);
+    assert.equal(p.tap(confirm, p.now()), true);
+    assert.equal(app.currentScreen, 'screenSafeResult');
+    p.tick(401);
+    assert.equal(p.tap(p.byId('passToNextBtn'), p.now()), true);
+    assert.equal(app.currentScreen, 'screenHandoff');
+    p.tick(401);
+  }
+  const revealAt = p.now();
+  assert.equal(p.tap(ready, revealAt), true);
+  assert.equal(app.currentScreen, 'screenSelection');
+  assert.ok(Number.isInteger(game.selectedNumber) && game.selectedNumber >= game.min && game.selectedNumber <= game.max);
+  assert.equal(game.isSubmitting, false);
+  const result = { version, route: 'cursed', turn, heldOnReveal: confirm.disabled };
+  p.tick(450);
+  p.contact(p.byId('screenSelection'), revealAt + 300);
+  assert.equal(confirm.disabled, true, 'positive control: delayed contact re-held confirm');
+  p.tick(401);
+  result.deadAfterLate = confirm.disabled;
+  if (!confirm.disabled) {
+    // Exercise the real rules opener and closer over the selection screen.
+    assert.equal(p.tap(p.byId('rulesBtn'), p.now()), true);
+    p.tick(401);
+    assert.equal(p.tap(p.byId('rulesOkBtn'), p.now()), true);
+    assert.equal(p.byId('rulesModal').classList.contains('active'), false);
+    assert.equal(confirm.disabled, true, 'rules close must hold confirm');
+    p.tick(401);
+    result.deadAfterRules = confirm.disabled;
+    const before = game.history.length;
+    assert.equal(p.tap(confirm, p.now()), true);
+    assert.equal(game.history.length, before + 1);
+    result.deliberateConfirms = true;
+  }
+  return result;
+}
+
+const states = Object.fromEntries(['MENU', 'SETUP', 'TURN_WAIT', 'SCANNING_HINTS', 'CUT_DECISION', 'SAFE_RESOLVE', 'ROUND_OVER'].map((s) => [s, s]));
+async function wire(version, turn, scenario) {
+  const p = await pageFor(version, 'wire-snip-panic');
+  const game = { state: states.SETUP, players: ['A', 'B'], currentPlayerIndex: 0,
+    roundLevel: 1, cutWires: new Set(), currentSequenceStep: 0 };
+  Object.assign(p.env, {
+    game, GameState: states, playerScreen: null, clearInterval: noop,
+    generateTurnLevel: () => ({ wireCount: 6, sequence: [0, 1], flashDelay: 520, isSpeedUp: false, timeLimit: 5 }),
+    renderHUDPlayerStrip: noop, renderWiresBay: noop, soundSynth: { playClick: noop, init: noop },
+    triggerHaptics: noop,
+  });
+  for (const header of ['function showScreen(screenId)', 'function closeModal(id)', 'function openRulesModal()', 'function announceRound(text)']) {
+    const fn = p.compile(header);
+    p.env[fn.name] = fn;
+  }
+  p.env.setupTurn = p.compile('function setupTurn()');
+  // Scan's flash schedule is irrelevant to these sub-second gate cases; only its own timers are inert.
+  p.env.triggerScanSequence = p.compile('function triggerScanSequence()', false, { setTimeout: noop });
+  p.compile('function attachEventListeners()')();
+  const scan = p.byId('btn-trigger-scan');
+  const screen = p.byId('screen-game');
+  for (let n = 1; n < turn; n++) {
+    p.doc.dispatchEvent({ type: 'pointerup', timeStamp: p.now() });
+    p.env.setupTurn();
+    p.tick(401);
+    assert.equal(p.tap(scan, p.now()), true);
+    assert.equal(game.state, states.SCANNING_HINTS);
+    assert.equal(scan.disabled, true);
+    game.currentPlayerIndex = n % game.players.length;
+  }
+  const at = p.now();
+  p.doc.dispatchEvent({ type: 'pointerup', timeStamp: at });
+  p.env.setupTurn();
+  const result = { version, route: 'wire', turn, scenario, heldOnReveal: scan.disabled };
+  p.tick(450);
+  if (scenario === 'quiet-rules') {
+    assert.equal(p.tap(p.byId('btn-rules'), p.now()), true);
+    p.tick(401);
+    assert.equal(p.tap(p.byId('btn-close-rules'), p.now()), true);
+    assert.equal(p.doc.querySelector('.screen.active'), screen, 'positive compound selector control');
+    assert.equal(scan.disabled, true, 'rules close must hold scan');
+    p.tick(401);
+    result.deadAfterQuiet = scan.disabled;
+    if (!scan.disabled) {
+      assert.equal(p.tap(scan, p.now()), true);
+      assert.equal(game.state, states.SCANNING_HINTS);
+      p.key('Escape');
+      p.tick(401);
+      result.liveDuringScan = !scan.disabled;
+      p.key('Enter');
+      assert.equal(game.state, states.SCANNING_HINTS);
+    }
+  } else {
+    p.contact(screen, at + 300);
+    assert.equal(scan.disabled, true, 'positive control: late contact must hold scan');
+    if (scenario === 'late') {
+      p.tick(2000);
+      result.deadAfterQuiet = scan.disabled;
+    } else {
+      p.tick(150);
+      p.doc.dispatchEvent({ type: 'pointerdown', timeStamp: at + 520 });
+      p.doc.dispatchEvent({ type: 'pointerup', timeStamp: at + 600 });
+      assert.equal(p.byId('btn-rules').click(), true);
+      if (scenario === 'overlap') {
+        p.key('Escape');
+        assert.equal(p.doc.querySelector('.screen.active'), screen);
+        p.tick(300);
+        p.tap(scan, at + 900, at + 980);
+        result.ghostScanned = game.state === states.SCANNING_HINTS;
+      } else {
+        p.key('Enter');
+        assert.equal(game.state, states.SCANNING_HINTS);
+        p.tick(251);
+        result.liveDuringScan = !scan.disabled;
+      }
+    }
+  }
+  return result;
+}
+
+const results = [];
+for (const version of ['HEAD', 'candidate']) {
+  for (const turn of [1, 2, 3]) {
+    results.push(await cursed(version, turn));
+    for (const scenario of ['late', 'quiet-rules', 'overlap', 'scan']) results.push(await wire(version, turn, scenario));
+  }
+}
+for (const r of results) console.log(JSON.stringify(r));
+assert.ok(results.filter((r) => r.version === 'candidate').every((r) => !r.deadAfterLate && !r.deadAfterQuiet));
+for (const turn of [1, 2, 3]) {
+  assert.equal(results.find((r) => r.version === 'HEAD' && r.route === 'wire' && r.turn === 1 && r.scenario === 'overlap').ghostScanned, true);
+}
+console.log('RAN same HEAD/candidate detector with original event wiring: 30 scenario executions; no newly introduced failure shape.');

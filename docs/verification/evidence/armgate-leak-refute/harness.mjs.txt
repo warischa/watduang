@@ -1,0 +1,85 @@
+// Shared fake-DOM + fake-clock harness for the arm-gate marker-leak repros.
+// One fresh gate module per leg: `document` must exist at import (lastInputStamp capture), and the
+// module-level WeakSet must not carry markers between legs, so each leg imports with a cache-buster.
+import { readFileSync } from 'node:fs';
+import { FakeElement, makeDocument } from '/Users/waris.c/claude/free-game/src/games/_fake-dom.mjs';
+
+export const REPO = '/Users/waris.c/claude/free-game';
+export const SCRATCH = '/private/tmp/claude-501/-Users-waris-c--claude-spares-spare-vIqMZg/58f69394-e721-448b-b28a-69b59aec3cc6/scratchpad/leak';
+
+export const gatePath = (mode) => (mode === 'base' ? `${SCRATCH}/base/games/_arm-gate.ts` : (process.env.GATE ?? `${REPO}/src/games/_arm-gate.ts`));
+export const routeFile = (mode, route, file) => readFileSync(mode === 'base' ? `${SCRATCH}/base/${route}/${file}` : `${REPO}/src/play/${route}/${file}`, 'utf8');
+
+let leg = 0;
+export async function freshPage(mode) {
+  const doc = makeDocument();
+  let now = 0;
+  let id = 0;
+  const timers = new Map();
+  globalThis.document = doc;
+  globalThis.setTimeout = (fn, ms = 0) => { const k = ++id; timers.set(k, { fn, at: now + ms }); return k; };
+  globalThis.clearTimeout = (k) => { timers.delete(k); };
+  const gate = await import(`${gatePath(mode)}?leg=${++leg}`);
+  const clock = {
+    now: () => now,
+    set(t) { now = t; },
+    tick(ms) {
+      const end = now + ms;
+      for (;;) {
+        const next = [...timers].filter(([, t]) => t.at <= end).sort((a, b) => a[1].at - b[1].at)[0];
+        if (!next) break;
+        now = next[1].at;
+        timers.delete(next[0]);
+        next[1].fn();
+      }
+      now = end;
+    },
+  };
+  return { doc, gate, clock };
+}
+
+/** A real contact: the document capture listeners see both ends, then pointerdown bubbles through
+ *  `path` (innermost first) -- the fake has no bubbling, so the ancestors are named. */
+export function contact(doc, path, downStamp, upStamp = downStamp + 80) {
+  const ev = { timeStamp: downStamp };
+  doc.fire('pointerdown', ev);
+  for (const node of path) node.dispatch('pointerdown', ev);
+  doc.fire('pointerup', { timeStamp: upStamp });
+}
+
+/** Parse a route's markup into fake elements and index them by id. */
+export function mountMarkup(doc, html) {
+  const root = new FakeElement('div', doc);
+  root.innerHTML = html;
+  const byId = new Map();
+  const parent = new Map();
+  const visit = (node) => {
+    const nid = node.getAttribute?.('id');
+    if (nid) { byId.set(nid, node); node.id = nid; }
+    for (const kid of node.children) { parent.set(kid, node); visit(kid); }
+  };
+  visit(root);
+  const ancestors = (node) => { const out = []; for (let n = node; n && n !== root; n = parent.get(n)) out.push(n); return out; };
+  const all = [];
+  const collect = (n) => { for (const k of n.children) { all.push(k); collect(k); } };
+  collect(root);
+  // classList for the route code that toggles .active
+  for (const node of all) {
+    Object.defineProperty(node, 'classList', { configurable: true, get() {
+      const n = this;
+      const list = () => n.className.split(/\s+/).filter(Boolean);
+      return {
+        add: (c) => { n.className = [...new Set([...list(), c])].join(' '); },
+        remove: (c) => { n.className = list().filter((x) => x !== c).join(' '); },
+        contains: (c) => list().includes(c),
+      };
+    } });
+  }
+  doc.getElementById = (x) => byId.get(x) ?? null;
+  doc.querySelectorAll = (sel) => (sel.startsWith('.') ? all.filter((n) => n.className.split(/\s+/).includes(sel.slice(1))) : []);
+  doc.querySelector = (sel) => {
+    const parts = sel.split('.').filter(Boolean);
+    return all.find((n) => parts.every((p) => n.className.split(/\s+/).includes(p))) ?? null;
+  };
+  return { byId, ancestors };
+}

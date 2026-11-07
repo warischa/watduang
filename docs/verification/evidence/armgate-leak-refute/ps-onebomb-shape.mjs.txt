@@ -1,0 +1,50 @@
+// Gate-level repro of the shared player screen inside one-bomb's #menuOverlay (static nesting:
+// #app > #menuOverlay > .menuBox > #ob-player-screen). armSurface = armAllButtons(#app, steppers, onArm)
+// with onArm = { surfaceHeld = false; start.disabled = surfaceHeld || !canStart }. A stepper tap
+// (excepted, but its pointerdown bubbles to #app) makes the roster startable inside the window; onArm
+// enables start; a late in-window contact re-holds; onArm enables start again -> start carries a stale
+// marker while enabled. A name edit then makes start invalid (syncControls, no armSurface), and the
+// how-modal close re-arms #menuOverlay through a BARE gate (armWhatTheModalCovered).
+// Exit 1 = that bare gate hands back an owner-disabled start; exit 2 = instrument broken.
+import { FakeElement } from '/Users/waris.c/claude/free-game/src/games/_fake-dom.mjs';
+import { freshPage, contact } from './harness.mjs';
+
+async function run(mode, late) {
+  const { doc, gate, clock } = await freshPage(mode);
+  const app = new FakeElement('div', doc);
+  const overlay = app.appendChild(new FakeElement('div', doc));
+  const ps = overlay.appendChild(new FakeElement('div', doc));
+  const start = ps.appendChild(new FakeElement('button', doc));
+  const inc = ps.appendChild(new FakeElement('button', doc));
+  let canStart = false;
+  let surfaceHeld = false;
+  const sync = () => { start.disabled = surfaceHeld || !canStart; };
+  sync(); // roster not startable: start owner-disabled
+  contact(doc, [], 0, 80); clock.set(80);
+  surfaceHeld = true;
+  gate.armAllButtons(app, [inc], () => { surfaceHeld = false; sync(); }); // armSurface (e.g. an x tap)
+  clock.set(200); contact(doc, [inc, ps, overlay, app], 200, 260); canStart = true; sync(); // stepper tap in window
+  clock.tick(420); // arm at 600 -> onArm enables start
+  let reHeld = null;
+  if (late) { contact(doc, [inc, ps, overlay, app], 550, 590); reHeld = start.disabled; } // stamped < 600 (window from the stepper hold), delivered after
+  clock.tick(1000);
+  const startEnabledAfterQuiet = !start.disabled;
+  const marked = typeof gate.gateHolds === 'function' ? gate.gateHolds(start) : 'n/a';
+  canStart = false; sync(); // a name edit makes two rows show one name: start invalid
+  clock.set(5000); contact(doc, [], 5000, 5080); clock.set(5080);
+  gate.armAllButtons(overlay); // how-modal close: armWhatTheModalCovered over #menuOverlay, no onArm
+  clock.tick(1000);
+  return { mode, late, reHeld, startEnabledAfterQuiet, staleMarkerWhileEnabled: marked, bareGateHandsBackInvalidStart: !start.disabled };
+}
+
+let defect = false;
+let broken = false;
+for (const mode of ['base', 'head']) {
+  const trig = await run(mode, true);
+  const ctrl = await run(mode, false);
+  for (const r of [trig, ctrl]) console.log(JSON.stringify(r));
+  if (trig.reHeld !== true || !trig.startEnabledAfterQuiet || !ctrl.startEnabledAfterQuiet) broken = true;
+  if (ctrl.bareGateHandsBackInvalidStart) broken = true;
+  if (trig.bareGateHandsBackInvalidStart) defect = true;
+}
+process.exit(broken ? 2 : defect ? 1 : 0);
