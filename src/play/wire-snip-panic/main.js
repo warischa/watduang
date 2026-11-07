@@ -893,15 +893,13 @@ import { isMuted, setMuted } from '../../shell/audio.ts';
 
       game.state = GameState.TURN_WAIT;
 
-      // REVEAL PATH 3 of 5. Scan is re-enabled BEFORE showScreen, and the order is the fix, not a
-      // style choice. On every turn after the first, scan arrives here still disabled by the previous
-      // turn's scan. A gate reads a control already disabled when it is built as the caller's own and
-      // never hands it back, so a scan enabled AFTER showScreen is outside the screen gate's custody:
-      // only the banner's gate below returns it, and only once. A contact the browser stamped inside
-      // the screen's window but delivered after it armed (ADR-0059) lands outside the banner, re-holds
-      // the screen's set, disables scan -- and nothing ever re-enables it: a dead button on the
-      // pass-the-phone moment. Enabled first, scan is collected enabled, so the screen gate holds it
-      // for the whole window, every re-hold included, and hands it back each time it arms.
+      // REVEAL PATH 3 of 5. Scan is re-enabled BEFORE showScreen. On every turn after the first, scan
+      // arrives here still disabled by the previous turn's scan, and a gate reads a control already
+      // disabled when it is built as the caller's own. Enabled first, scan is collected enabled, so
+      // the screen gate holds it from construction for the whole window, every re-hold included, and
+      // hands it back each time it arms. This order shipped as the fix for a dead scan from turn 2
+      // on; since gh#297 the gate also hands back a control a late re-hold took from the caller, so
+      // the order is now defence in depth for that case rather than the only thing preventing it.
       const scanBtn = document.getElementById('btn-trigger-scan');
       scanBtn.style.display = 'flex';
       scanBtn.disabled = false;

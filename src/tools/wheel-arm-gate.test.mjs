@@ -183,9 +183,9 @@ test('a one-name list arriving inside the window leaves spin held after the wind
 });
 
 // The gate snapshots stop as the wheel's own disabled (no spin running at names-in). A behaviour-B
-// spin then enables it, and a late in-window contact re-holds it; the gate never hands an owned
-// control back, so its hold marker outlives the window. The wheel must still release stop once the
-// gate has re-armed, or the hold can never be stopped and never reveals.
+// spin then enables it, and a late in-window contact re-holds it. Before gh#297 the gate never handed
+// that control back and its hold marker outlived the window; it now does. Either way the wheel must
+// release stop once the gate has re-armed, or the hold can never be stopped and never reveals.
 test('a behaviour-B spin keeps a working stop after a late in-window contact re-arms the gate', async () => {
   const p = await page();
   p.modePress();

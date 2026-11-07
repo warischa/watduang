@@ -111,7 +111,14 @@ export const lastInputStamp = (): number | undefined => lastPointerStamp;
  *  ponytail: a WeakSet, so a removed node is collected with no bookkeeping and no teardown call.
  *  Stated ceiling: a caller that disables a control DURING an open window is invisible here -- the
  *  control is already marked gate-disabled, so `arm` hands it back enabled. That case is what `onArm`
- *  is for and it is unchanged by this. */
+ *  is for and it is unchanged by this. The same holds after a re-hold (gh#297): a control the caller
+ *  enabled and a late contact then re-disabled is this gate's to hand back, so a caller that disables
+ *  it again before the window closes also gets it back enabled, and `onArm` re-asserts it.
+ *
+ *  Third ceiling (gh#297): the marker is one bit, not a list of holders. When two gates overlap on a
+ *  control, the older gate's arm enables it inside the newer gate's window, and it stays enabled
+ *  until a contact reaches the stage. A ghost tap IS such a contact and is re-held before its click;
+ *  keyboard activation in that span is not refused. */
 const gateDisabled = new WeakSet<GatedControl>();
 
 /** Is `control` disabled because a gate holds it, not for its caller's own reason? For a page whose
@@ -141,14 +148,22 @@ function armAfterQuiet(
   //
   // `!gateDisabled.has` is what makes it a read of INTENT rather than of state: a control this module
   // disabled and never re-enabled is residue, never an instruction.
-  const ownedDisabled = controls.filter((control) => control.disabled && !gateDisabled.has(control));
+  //
+  // gh#297: the set only ever shrinks, and a control leaves it only when THIS gate writes `disabled`
+  // on it from enabled. So every control this gate held, it hands back: a caller that enabled one of
+  // these after construction and then met a late re-hold no longer gets a dead control. Nothing else
+  // removes a control, so one the caller still has disabled through a re-hold stays the caller's.
+  const ownedDisabled = new Set(controls.filter((control) => control.disabled && !gateDisabled.has(control)));
   // Extracted because the window can now be re-entered AFTER the timer armed the set: a contact the
   // browser stamped inside the window but delivered late has to put the controls back, and it has to
   // do it through the same gateDisabled bookkeeping or the second arm would hand back a control the
   // caller had disabled for its own reason.
   const disableAll = (): void => {
     for (const control of controls) {
-      if (!control.disabled) gateDisabled.add(control);
+      if (!control.disabled) {
+        gateDisabled.add(control);
+        ownedDisabled.delete(control);
+      }
       control.disabled = true;
     }
   };
@@ -164,7 +179,7 @@ function armAfterQuiet(
   const arm = (): void => {
     armed = true;
     for (const control of controls) {
-      if (ownedDisabled.includes(control)) continue;
+      if (ownedDisabled.has(control)) continue;
       control.disabled = false;
       gateDisabled.delete(control);
     }
@@ -193,7 +208,11 @@ function armAfterQuiet(
       return;
     }
     if (ev) stamps.hold(ev);
-    if (armed) disableAll();
+    // gh#297: unconditional. The old `if (armed)` assumed an unarmed gate's controls were still
+    // disabled, but an OLDER gate over the same controls (a modal close re-arms its region inside a
+    // screen gate's renewed window, ADR-0057) can arm and enable them inside this window. This
+    // contact is the ghost's own pointerdown, so re-holding here lands before its click.
+    disableAll();
     armed = false;
     clearTimeout(timer);
     timer = setTimeout(arm, ARM_DELAY_MS);

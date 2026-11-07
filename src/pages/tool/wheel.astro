@@ -648,8 +648,10 @@ import ToolHeader from '../../components/ToolHeader.astro';
   // after its own re-enable, so it cannot release a spin that is running or a one-name wheel.
   // Stop takes the wheel's state alone. The gate snapshots it as the wheel's own disabled (no spin runs
   // at names-in), and it is the one control here the wheel enables later inside the same gate's life:
-  // a re-hold by a late in-window contact then leaves the gate's marker on it after the window, so
-  // gateHolds would read true forever and the hold could never be stopped. Stop needs no gate read:
+  // before gh#297 a re-hold by a late in-window contact left the gate's marker on it for good, so a
+  // gateHolds read here could never release it. The gate now clears that marker when it hands stop
+  // back, but a gate cancelled while holding stop still leaves one until the next gate arms, and a
+  // gateHolds read would strand stop for that span. Stop needs no gate read:
   // it is enabled only by a spin, and a spin cannot start while the gate holds spin and disc.
   function syncControls(): void {
     const left = remaining();

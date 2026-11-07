@@ -160,3 +160,95 @@ test('the anchor covers the whole press — a held transition tap leaves no gap 
     cancel();
   });
 });
+
+// ---- gh#297: two gates over one control, and a late re-hold ---------------------------------------
+// Every close path re-arms its region (ADR-0057), so a modal closed inside a screen gate's renewed
+// window builds a SECOND gate over controls the first still holds. The first gate's timer then arms
+// and enables them inside the second gate's window. What must hold is the ghost-tap invariant: the
+// ghost's own pointerdown re-holds the set before its click is dispatched.
+//
+// Deliberately NOT asserted: that the control stays disabled between the older arm and the ghost.
+// The gate does not promise that (stated ceiling on armAfterQuiet), and pinning today's value here
+// would red a later fix that does.
+
+test('gh#297: an older gate arming inside a newer gate window cannot hand the ghost a live control', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  await withFakeDocument('overlap', async ({ armAllButtons, ARM_DELAY_MS: delay }, contact) => {
+    let fired = 0;
+    const { stage, btn } = makeStage();
+    btn.addEventListener('click', () => { fired += 1; });
+
+    contact('pointerdown', 0);
+    contact('pointerup', 0);
+    const cancelOlder = armAllButtons(stage); // window ends at 400
+    t.mock.timers.tick(delay + 50); // t=450, armed at 400
+    assert.equal(btn.disabled, false, 'positive control: the older gate armed on a quiet window');
+
+    // A late contact stamped inside the older window: it re-holds and renews that window to 700. Its
+    // timer is rescheduled to t=850 because the handler ran at t=450.
+    stage.dispatch('pointerdown', { timeStamp: 300 });
+    assert.equal(btn.disabled, true, 'positive control: the late contact re-held the older gate');
+
+    // The modal close: a deliberate contact at 520..600 and a second gate over the same stage, whose
+    // window runs to 1000.
+    t.mock.timers.tick(150); // t=600
+    contact('pointerdown', 520);
+    contact('pointerup', 600);
+    const cancelNewer = armAllButtons(stage);
+
+    t.mock.timers.tick(251); // t=851: the older gate's timer arms
+    // The ghost, stamped at 900, inside the newer window only.
+    stage.dispatch('pointerdown', { timeStamp: 900 });
+    btn.click();
+    assert.equal(fired, 0, 'the ghost activated a control the newer gate still held');
+    assert.equal(btn.disabled, true, 'the ghost met a live control inside the newer window');
+
+    t.mock.timers.tick(delay + 1);
+    assert.equal(btn.disabled, false, 'the newer gate never handed the control back after its window');
+    cancelOlder();
+    cancelNewer();
+  });
+});
+
+test('gh#297: a control the caller enabled after construction is handed back after a late re-hold', (t) => {
+  // The dead-control class: the gate read the control as the caller's own disable at construction,
+  // the caller then enabled it, and a late re-hold disabled it again. That disable is the gate's, so
+  // the gate must hand it back.
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { stage, btn } = makeStage();
+  btn.disabled = true;
+  const cancel = armAllButtons(stage);
+  stage.dispatch('pointerdown', { timeStamp: 0 });
+  t.mock.timers.tick(ARM_DELAY_MS + 50);
+  assert.equal(btn.disabled, true, 'positive control: the caller-disabled control was not handed back');
+
+  btn.disabled = false; // the caller's own enable, e.g. the next turn readying it
+  stage.dispatch('pointerdown', { timeStamp: 300 });
+  assert.equal(btn.disabled, true, 'positive control: the late contact re-held the enabled control');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(btn.disabled, false, 'the late re-hold left a dead control');
+  cancel();
+});
+
+test('gh#297: a control the caller disabled stays disabled through a late re-hold', (t) => {
+  // The other half of the same set: the gate must never take over a disable it did not write. A gate
+  // that drops its whole skip-set on a re-hold passes the case above and reds here.
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const stage = new FakeElement('div');
+  const live = new FakeElement('button');
+  const capped = new FakeElement('button');
+  stage.appendChild(live);
+  stage.appendChild(capped);
+  capped.disabled = true; // a count pill at its cap
+  const cancel = armAllButtons(stage);
+  stage.dispatch('pointerdown', { timeStamp: 0 });
+  t.mock.timers.tick(ARM_DELAY_MS + 50);
+  assert.equal(live.disabled, false, 'positive control: the window armed the live control');
+
+  stage.dispatch('pointerdown', { timeStamp: 300 });
+  assert.equal(live.disabled, true, 'positive control: the late contact re-held');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(live.disabled, false, 'positive control: the re-held control came back');
+  assert.equal(capped.disabled, true, 'the re-hold handed back a control the caller had disabled');
+  cancel();
+});

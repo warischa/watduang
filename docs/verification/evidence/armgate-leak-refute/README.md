@@ -29,6 +29,9 @@ Every script is saved as `.txt`, so the repo's tooling does not run it. Copy one
 - `wire-rehold.mjs.txt`, `overlap-after-rehold.mjs.txt`, `player-rehold.mjs.txt`: REFUTE round-1 detectors. `wire-rehold`'s `closeModal` armed nothing on `screen-harness`, which has no compound-class `matches()`; `wire-variant` corrects that.
 - `round2.mjs.txt`: the REFUTE round-2 detector. Its verdict was RES=PASS: no introduced defect. It also reports that on wire-snip the gh#297 overlap and the mid-sequence scan now reach turns 1 to 3. On HEAD they reached turn 1 only, because the dead scan masked turns 2 and 3.
 
+- `wire-variant-post-ae7b73b.mjs.txt`: `wire-variant` adapted for ae7b73b, where HEAD is order c. Run it with `ORDER=c` only.
+- `gh297-fix-e.md`: gh#297 fix E as shipped. It holds the two readings, the enable-site enumeration with a verdict per site, and the measurements.
+
 ## Still open
 
 - gh#297: the overlap ghost.

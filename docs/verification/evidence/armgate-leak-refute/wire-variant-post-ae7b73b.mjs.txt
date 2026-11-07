@@ -1,0 +1,73 @@
+// gh#297 copy of wire-variant.mjs.txt, adapted 2026-11-07 for ae7b73b: setupTurn now enables scan BEFORE showScreen,
+// so HEAD IS order c. Run ORDER=c only; ORDER=head now measures nothing (its enable-in-tail premise is gone).
+// Variant of docs/verification/evidence/armgate-leak-refute/wire-rehold.mjs.txt.
+// env: GATE=<gate path> TURN=1|2 ORDER=head|c CASE=dead|overlap|scan
+//   TURN=2: scan starts disabled (previous scan). TURN=1: enabled (markup default).
+//   ORDER=c: candidate C -- scanBtn.disabled=false runs BEFORE showScreen; tail keeps everything else.
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { makePage } from '/Users/waris.c/claude/free-game/src/play/_player-screen/screen-harness.mjs';
+import { sliceBlock } from '/Users/waris.c/claude/free-game/src/play/_dom-stub.mjs';
+const repo = '/Users/waris.c/claude/free-game';
+const TURN = Number(process.env.TURN ?? 2), ORDER = process.env.ORDER ?? 'head', CASE = process.env.CASE ?? 'dead';
+const source = readFileSync(repo + '/src/play/wire-snip-panic/main.js', 'utf8').split('\n').filter(l => !l.trimStart().startsWith('//')).join('\n');
+const doc = makePage(readFileSync(repo + '/src/play/wire-snip-panic/markup.html', 'utf8'));
+for (const el of doc.body.descendants()) el.style = { setProperty() {}, removeProperty() {} };
+globalThis.document = doc; doc.querySelector = (sel) => { const cs = sel.split(".").filter(Boolean); if (sel.startsWith(".") && cs.length > 1) return doc.body.descendants().find((n) => cs.every((c) => n.classes().has(c))) ?? null; return doc.body.querySelector(sel); };
+let now = 0, seq = 0; const timers = new Map();
+globalThis.setTimeout = (fn, delay = 0) => { const id = ++seq; timers.set(id, { fn, at: now + delay }); return id; };
+globalThis.clearTimeout = id => timers.delete(id);
+function tick(ms) { const end = now + ms; for (;;) { const next = [...timers].filter(([, t]) => t.at <= end).sort((a, b) => a[1].at - b[1].at)[0]; if (!next) break; now = next[1].at; timers.delete(next[0]); next[1].fn(); } now = end; }
+const gate0 = await import(process.env.GATE); const arms = []; const gate = { ...gate0, armAllButtons: (stage, ...r) => { arms.push((stage.getAttribute && stage.getAttribute("id")) || stage.id || stage.tagName); return gate0.armAllButtons(stage, ...r); } };
+const compile = (name, args = [], values = []) => new Function('document', 'armAllButtons', ...args, `return (${sliceBlock(source, name)});`)(doc, gate.armAllButtons, ...values);
+const show = compile('function showScreen(screenId)');
+const close = compile('function closeModal(id)', ['playerScreen'], [null]);
+const openRules = compile('function openRulesModal()');
+const setup = sliceBlock(source, 'function setupTurn()');
+const tailStart = setup.indexOf("const actionBanner = document.getElementById('turn-action-banner');");
+const tailEnd = setup.indexOf('armAllButtons(actionBanner);') + 'armAllButtons(actionBanner);'.length;
+let tailSrc = setup.slice(tailStart, tailEnd);
+const ENABLE = 'scanBtn.disabled = false;';
+if (ORDER === 'c') assert.ok(!tailSrc.includes(ENABLE), 'ae7b73b: tail no longer carries the enable');
+if (ORDER === 'c') tailSrc = tailSrc.replace(ENABLE, '');
+const tail = new Function('document', 'armAllButtons', tailSrc);
+const GameState = { TURN_WAIT: 'TURN_WAIT', SCANNING_HINTS: 'SCANNING_HINTS' };
+const game = { state: GameState.TURN_WAIT, isSpeedUp: false, flashSequence: [0, 1, 2], flashDelay: 2000 };
+const scanHandler = compile('function triggerScanSequence()', ['game', 'GameState', 'soundSynth', 'triggerHaptics', 'setInterval', 'flashWire', 'enterCutDecision'], [game, GameState, { playClick() {} }, () => {}, () => 42, () => {}, () => {}]);
+const win = { listeners: {}, addEventListener(type, fn) { this.listeners[type] = fn; } };
+const keyboard = sliceBlock(source, "window.addEventListener('keydown', (e) =>");
+new Function('window', 'game', 'GameState', 'triggerScanSequence', 'closeModal', keyboard + ');')(win, game, GameState, scanHandler, close);
+const screen = doc.getElementById('screen-game'), scan = doc.getElementById('btn-trigger-scan');
+scan.disabled = TURN >= 2;
+doc.dispatchEvent({ type: 'pointerup', timeStamp: 0 });
+if (ORDER === 'c') scan.disabled = false;
+show('screen-game');
+const heldByScreenGate = scan.disabled;
+tail(doc, gate.armAllButtons);
+tick(450); assert.equal(scan.disabled, false, 'quiet path hands scan back');
+screen.dispatchEvent({ type: 'pointerdown', timeStamp: 300 }); assert.equal(scan.disabled, true, 'late contact re-holds');
+const out = { gate: process.env.GATE.includes('committed') ? 'committed' : 'worktree', TURN, ORDER, CASE, heldByScreenGate };
+if (CASE === 'dead') {
+  tick(3000);
+  out.scanDisabledAfterQuiet = scan.disabled; out.gateHolds = gate.gateHolds(scan);
+  out.verdict = scan.disabled ? 'RED dead control' : 'green';
+} else if (CASE === 'overlap') {
+  tick(150);
+  doc.dispatchEvent({ type: 'pointerdown', timeStamp: 520 }); doc.dispatchEvent({ type: 'pointerup', timeStamp: 600 });
+  openRules(); win.listeners.keydown({ key: 'Escape' });
+  tick(251); out.at = now; out.scanDisabledAt851 = scan.disabled;
+  scan.addEventListener('click', scanHandler);
+  tick(49);
+  doc.dispatchEvent({ type: 'pointerdown', timeStamp: 900 });
+  let reached = false; screen.addEventListener("pointerdown", () => { reached = true; }); for (let n = scan; n; n = n.parent ?? n.parentNode ?? n.parentElement) n.dispatchEvent({ type: "pointerdown", timeStamp: 900 }); out.ghostReachedScreen = reached;
+  doc.dispatchEvent({ type: 'pointerup', timeStamp: 980 });
+  out.scanDisabledAtGhostPointerdown = scan.disabled; scan.click();
+  out.stateAfterGhostAt900 = game.state;
+  out.verdict = game.state === GameState.TURN_WAIT ? 'green' : 'RED ghost@900 scanned inside newer window';
+} else {
+  tick(150);
+  win.listeners.keydown({ key: 'Enter' }); assert.equal(game.state, GameState.SCANNING_HINTS);
+  tick(251); out.at = now; out.scanDisabledAt851 = scan.disabled; out.state = game.state;
+  out.verdict = scan.disabled ? 'green' : 'RED mid-scan button handed back enabled (state guard still refuses action)';
+}
+out.arms = arms; console.log(JSON.stringify(out));

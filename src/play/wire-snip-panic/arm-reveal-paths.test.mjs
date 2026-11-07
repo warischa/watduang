@@ -238,11 +238,12 @@ test('gh#188 box 15 — triggerScanSequence sets its state before it disables th
 //
 // On every turn after the first, scan arrives at setupTurn still disabled by the previous turn's
 // triggerScanSequence. A gate reads a control that is ALREADY disabled when it is built as the
-// caller's own (gh#188), so if showScreen's gate is built before scan is re-enabled, that gate never
-// hands scan back. The banner's gate does, once -- but a contact the browser stamped inside the
-// screen's window and delivered after it armed (ADR-0059) lands outside the banner, re-holds the
-// SCREEN's set, and disables scan with nothing left to re-enable it: a dead control on the one
-// button this screen offers.
+// caller's own (gh#188). Before gh#297, if showScreen's gate was built before scan was re-enabled, a
+// contact the browser stamped inside the screen's window and delivered after it armed (ADR-0059)
+// landed outside the banner, re-held the SCREEN's set, and disabled scan with nothing left to
+// re-enable it: a dead control on the one button this screen offers. The gate now hands back what a
+// re-hold took, and the setupTurn order below is kept as defence in depth; this case pins the
+// outcome either way.
 //
 // Driven, not read: the real setupTurn, showScreen and triggerScanSequence bytes, the real gate, this
 // route's real markup. Turn 1 is played up to its scan so turn 2 inherits the disable the way the
@@ -341,8 +342,8 @@ test('setupTurn re-enables scan BEFORE showScreen builds the pass-the-phone gate
   assert.ok(enable > -1 && reveal > -1, 'the scan enable or the screen switch moved out of setupTurn — this test measures nothing');
   assert.ok(
     enable < reveal,
-    'scan is re-enabled after showScreen: the screen gate reads it as caller-disabled, and a late ' +
-      'in-window contact outside the banner re-holds it with nothing to hand it back',
+    'scan is re-enabled after showScreen: the screen gate reads it as caller-disabled and no longer ' +
+      'holds it from construction (defence in depth since gh#297; see the setupTurn comment)',
   );
 });
 
