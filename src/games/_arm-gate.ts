@@ -85,7 +85,13 @@ export function inputClockGate() {
  *  anchors to that tap, so the stamp window can close before the timer does and a ghost delivered
  *  after a long enough stall is accepted — dice-loser arms its revealed next-button one roll-length
  *  after the roll tap under reduced motion, which is the shape to measure against. Inferred from
- *  source, never measured; recorded here so the next reader tests it rather than trusting this line. */
+ *  source, never measured; recorded here so the next reader tests it rather than trusting this line.
+ *
+ *  gh#297 widened the same ceiling to an unarmed gate: `restart` skips the re-hold for a contact
+ *  stamped past an anchored window, so a stale anchor can also make a ghost read as deliberate while
+ *  an OLDER gate's pending timer arms the control inside this gate's timer window. REFUTE round 2
+ *  found no route that builds that shape (every timer- or observer-built gate lands on nodes whose
+ *  previous gate is already armed and detached, or torn down); inferred, not measured. */
 let lastPointerStamp: number | undefined;
 if (typeof document !== 'undefined') {
   const note = (ev: Event): void => {

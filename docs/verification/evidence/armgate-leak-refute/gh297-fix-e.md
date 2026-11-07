@@ -57,3 +57,9 @@ The set is every file under `src/` that imports `armAllButtons` and writes `.dis
 - **Finding 2 (doc):** corrected above. It covered siamsi's press-driven hold and the wheel radios, which are not in `also`.
 - **Finding 3 (hypothesis, no route):** two gates both own a caller-disabled control, the caller enables it in the window, a contact lands, the gate that wrote the hold is cancelled before arming, and the survivor arms. The control is then stranded. Every canceller in the repo either rebuilds the nodes or cancels and re-arms sequentially, never alongside a live overlapping gate, so no route reaches this. Recorded as a ceiling. A caller that starts cancelling one of two overlapping gates must re-read this.
 - **Finding 4 (coverage):** case 7 now also asserts `gateHolds(btn) === false` after the hand-back.
+
+## REFUTE round 2 on ad66831 (2026-11-07): RES=PASS
+
+The reviewer re-ran all four round-1 findings: F1, F2 and F4 are closed, and F3 stays a ceiling. A contact the gate treats as deliberate re-anchors the window, so that contact's own ghost 200ms later is refused (S7). A third overlapping gate with a stale anchor still re-holds (S8). `npm test` passes 1511/1511 on a clean `git archive ad66831`.
+
+**One hypothesis (S6), no route:** a gate built by a non-pointer render anchors to a stale `lastInputStamp`. If an older gate's pending timer arms inside this gate's timer window, a ghost stamped past the stale window can read as deliberate. This widens the existing stale-anchor ceiling, and is recorded in the `lastInputStamp` comment. No code change: every timer- or observer-built gate in the repo lands on nodes whose previous gate is armed and detached, or torn down.
