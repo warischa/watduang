@@ -21,7 +21,7 @@ On both routes the control is enabled when the gate collects it, so the gate hol
 Every script is saved as `.txt`, so the repo's tooling does not run it. Copy one to `.mjs` to run it. `harness.mjs.txt` names a machine-local scratch path; change it before you run anything.
 
 - `route-cursed-number.mjs.txt`, `route-wire-snip.mjs.txt`, `ps-onebomb-shape.mjs.txt`, `harness.mjs.txt`: the audit's repros. They run on a fake DOM with a fake clock, and the env `GATE=<path>` selects the gate under test.
-- `wire-variant.mjs.txt`: the fork's corrected wire-snip detector, with env `GATE`, `TURN`, `ORDER` and `CASE`. On HEAD's gate it gives:
+- `wire-variant.mjs.txt`: the fork's corrected wire-snip detector, with env `GATE`, `TURN`, `ORDER` and `CASE`. **Stale since ae7b73b:** that commit moved the scan enable ahead of `showScreen`, so this copy's `ORDER=head` leg measures nothing now. Use `wire-variant-post-ae7b73b.mjs.txt`. The verdicts below were recorded on the gate as it was before ae7b73b:
   - `TURN=1 ORDER=head CASE=overlap`: RED. This is the pre-existing overlap ghost, gh#297.
   - `TURN=2 ORDER=head CASE=dead`: RED, the dead scan.
   - `TURN=2 ORDER=c CASE=dead`: green.
@@ -34,4 +34,4 @@ Every script is saved as `.txt`, so the repo's tooling does not run it. Copy one
 
 ## Still open
 
-- gh#297 and gh#298: fixed locally (fix E, then the `gateHolds` read). Not closed until REFUTE clears and the deploy is live.
+- Nothing. gh#297 and gh#298 shipped in `478288a` (deployed 2026-11-07; the live site is byte-identical to the build) and are closed. REFUTE round 2 returned RES=PASS. The remaining ceilings are recorded in `gh297-fix-e.md` and in the gate's comments.
