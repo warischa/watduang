@@ -84,6 +84,7 @@ const EXCLUDED = {
   'src/components/GameNav.astro': 'site-wide chrome, shared with game and fortune pages; the ticket enumerated the tool surfaces only',
   'src/components/PageChrome.astro': 'site-wide chrome (canvas D top bar and footer, gh#255), rendered on every non-play page; its copy is the home canvas copy, not a tool surface gh#112 enumerated',
   'src/shell/lock.ts': 'shell primitive, no player-facing copy channel of its own',
+  'src/games/_arm-gate.ts': 'shared ghost-tap gate primitive with no player-facing copy (0 Thai characters, no imports); the wheel tool reaches it since gh#295 B6',
 };
 
 /** Closed vocabulary for a row's `source`. Empty or out-of-vocabulary is a failure. */

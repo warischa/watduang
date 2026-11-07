@@ -1,0 +1,38 @@
+import assert from 'node:assert/strict';
+
+const root = '/Users/waris.c/claude/free-game/docs/verification/evidence/';
+const paths = [
+  'gh295-home-code/privacy-page-probe.mjs',
+  'gh295-home-code/home-offsets-probe.mjs',
+  'gh295-home-code/thai-word-sweep.mjs',
+  'gh295-siamsi-code/siamsi-probe.driver.mjs',
+];
+const rows = [];
+for (const path of paths) {
+  const { default: probe } = await import(root + path);
+  const session = {
+    consoleErrors: [{ kind: 'exception', text: 'forced regression' }],
+    async setWidth() {}, async nav() {}, async wipe() {}, async screenshot() {},
+    async evaluate(expr) {
+      if (expr.includes('policyText')) return { value: {
+        innerWidth: 999, scrollWidth: 500, clientWidth: 320,
+        robots: 'noindex', policyText: 'WRONG POLICY', footerAnchors: 1,
+      } };
+      if (expr.includes('gameHrefCounts')) return { value: {
+        innerWidth: 999, gameHrefsTwice: ['/game/croc-bite/play/'], shelfCount: 14, highlightTiles: 1,
+      } };
+      if (expr.includes('aspectCount')) return { value: { aspectCount: 4, aspect: ['center', 'center', 'center', 'center'], closing: 'center' } };
+      if (expr.includes('slipStays')) return { value: {
+        slipStays: false, sameNode: false, disabledAtOnce: false, againArmedLater: false,
+      } };
+      if (expr.includes('found, hits')) return { value: { found: 1, hits: [{ word: 'broken-word', lines: 2 }] } };
+      return { value: { error: 'forced page failure', hitTop: false, hitBottom: false } };
+    },
+  };
+  let rejected = false;
+  let value;
+  try { value = await probe(session); } catch { rejected = true; }
+  rows.push({ path, rejected, returnedData: value !== undefined && value !== null, anyRunErrored: value?.anyRunErrored === true });
+}
+console.log(JSON.stringify(rows, null, 2));
+assert.ok(rows.every(r => r.rejected || r.anyRunErrored), 'evidence probes must reject forced bad outcomes instead of printing success-shaped output');

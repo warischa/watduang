@@ -136,3 +136,85 @@ test('every go-button rest rule that sets box-shadow or cursor is wrapped in :wh
   }
   assert.ok(checked >= 10, `only ${checked} go-button rest selectors found: the scan is looking at the wrong shape`);
 });
+
+// gh#295 B3: the desktop band must keep the phone form's inline padding, or the h1 sits on the
+// viewport edge from 1100px until the 1280px column has room to centre. Read both padding
+// shorthands off the component and compare their inline halves, so no number is typed here.
+test('ToolHeader desktop band keeps the phone inline padding', () => {
+  const css = read('../components/ToolHeader.astro').replace(/\/\*[\s\S]*?\*\//g, '');
+  const at = css.indexOf('@media (min-width: 1100px)');
+  assert.ok(at > 0, 'no 1100px desktop block in ToolHeader');
+  const pad = (s) => {
+    const m = s.match(/\.tool-band-inner\s*\{[^}]*?\bpadding:\s*([^;]+);/);
+    assert.ok(m, 'no .tool-band-inner padding shorthand');
+    const v = m[1].trim().split(/\s+/);
+    assert.equal(v.length, 4, `padding "${m[1]}" is not the four-value form`);
+    return { right: v[1], left: v[3] };
+  };
+  const phone = pad(css.slice(0, at));
+  const desktop = pad(css.slice(at));
+  assert.notEqual(phone.left, '0', 'phone form lost its inline padding');
+  assert.deepEqual(desktop, phone, 'desktop inline padding differs from the phone form');
+});
+
+// gh#295 B6: the name panel sits below the disc, so pressing its CTA left the redrawn disc, the
+// status note and the spin control above the viewport. The start listener brings the disc into view;
+// render() must not, because it also runs on the eliminate and mode toggles.
+test('wheel: the names-in listener scrolls the disc into view, instant under reduced motion', () => {
+  const js = script(page.wheel);
+  const at = js.indexOf("addEventListener('watduang:start'");
+  assert.ok(at > 0, 'wheel: no watduang:start listener');
+  const listener = js.slice(at, js.indexOf('\n  });', at));
+  assert.match(listener, /\bdisc\.scrollIntoView\(\{[^}]*block:\s*'nearest'/, 'wheel: start listener does not bring the disc into view');
+  assert.match(listener, /behavior:\s*reduceMotion\.matches\s*\?\s*'auto'\s*:\s*'smooth'/, 'wheel: scroll is not instant under reduced motion');
+  const renderAt = js.indexOf('function render()');
+  const renderBody = js.slice(renderAt, js.indexOf('\n  }\n', renderAt));
+  assert.doesNotMatch(renderBody, /scrollIntoView|scrollTo|scrollBy/, 'wheel: render() must not scroll');
+});
+
+// gh#295 B6 follow-on: the names-in scroll moves the page under the finger, so the second contact of a
+// double-tap on the CTA lands on a control the scroll brought there (measured: the eliminate checkbox,
+// and the name textarea mid-scroll). The start listener arms the wheel section with the shared gate:
+// every button by discovery except the CTA itself (it holds focus, and ADR-0016 never yanks a focused
+// control), plus the two non-button controls named.
+test('wheel: the names-in listener arms the wheel section, checkbox and textarea included', () => {
+  const js = script(page.wheel);
+  assert.match(js, /import\s*\{[^}]*\barmAllButtons\b[^}]*\}\s*from\s*'..\/..\/games\/_arm-gate'/, 'wheel: armAllButtons not imported from the shared gate');
+  const at = js.indexOf("addEventListener('watduang:start'");
+  const listener = js.slice(at, js.indexOf('\n  });', at));
+  assert.match(listener, /armAllButtons\(\s*wheelSection\s*,\s*\[\s*startBtn\s*\]\s*,\s*syncControls\s*,\s*\[\s*eliminateBox\s*,\s*nameInput\s*\]\s*\)/, 'wheel: start listener does not arm the section with the CTA excepted and the checkbox and textarea added');
+  assert.match(listener, /disarmNames\?\.\(\)/, 'wheel: a previous names-in gate is not cancelled before re-arming');
+});
+
+test('the shared gate disables the extra non-button controls it is handed, then hands them back', async () => {
+  const { armAllButtons, ARM_DELAY_MS } = await import('../games/_arm-gate.ts');
+  const listeners = [];
+  const stage = { children: [], addEventListener: (t, f) => listeners.push(f), removeEventListener: () => {} };
+  const box = { tagName: 'INPUT', disabled: false, children: [] };
+  const area = { tagName: 'TEXTAREA', disabled: false, children: [] };
+  const held = { tagName: 'INPUT', disabled: true, children: [] };
+  const cancel = armAllButtons(stage, [], undefined, [box, area, held]);
+  assert.equal(box.disabled, true, 'checkbox not disabled inside the window');
+  assert.equal(area.disabled, true, 'textarea not disabled inside the window');
+  await new Promise((r) => setTimeout(r, ARM_DELAY_MS + 50));
+  assert.equal(box.disabled, false, 'checkbox not handed back after the window');
+  assert.equal(area.disabled, false, 'textarea not handed back after the window');
+  assert.equal(held.disabled, true, 'a control the caller had disabled came back enabled');
+  cancel();
+});
+
+test('the "เล่นเกมต่อ" GameNav sits after the tool section and before #how-to-use on all four pages', () => {
+  for (const name of PAGES) {
+    const src = markup(page[name]);
+    const open = src.search(new RegExp(`<section\\b[^>]*\\bid="${name}"`));
+    assert.ok(open >= 0, `${name}: no <section id="${name}"> in the template`);
+    const close = src.indexOf('</section>', open);
+    assert.ok(close > open, `${name}: tool section is never closed`);
+    assert.equal(src.slice(open + 1, close).includes('<section'), false, `${name}: a nested section makes the first close tag the wrong boundary`);
+    const nav = src.indexOf('<GameNav');
+    const howTo = src.indexOf('<section id="how-to-use"');
+    assert.ok(nav >= 0 && howTo >= 0, `${name}: GameNav or #how-to-use missing`);
+    assert.ok(nav > close, `${name}: GameNav is still inside the tool section`);
+    assert.ok(nav < howTo, `${name}: GameNav does not precede #how-to-use`);
+  }
+});

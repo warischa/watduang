@@ -54,9 +54,10 @@ const REVEAL_TIMEOUT_MS = 15000;
 // line — and starts the round through the real CTA click (never dispatches watduang:start directly —
 // the trigger is what wires up `players`/render(), per docs/agents/browser-verification.md's "seed
 // through the trigger" trap). Setting .value fires no 'input' event, so the persistence listener is
-// nudged by hand; the CTA re-parses the box anyway, so the START path is still the real one. It then
-// ticks the eliminate checkbox with a real click (fires the same 'change' listener a tap would), and
-// spins 3 times so an elimination happens between spins, judging the disc at each reveal.
+// nudged by hand; the CTA re-parses the box anyway, so the START path is still the real one. It waits
+// out the names-in ghost-tap hold, then ticks the eliminate checkbox with a real click (fires the same
+// 'change' listener a tap would), and spins 3 times so an elimination happens between spins, judging
+// the disc at each reveal.
 const PAGE_BODY = `
   const storageKey = 'watduang:tool:wheel-names';
   const seeded = localStorage.getItem(storageKey);
@@ -67,13 +68,28 @@ const PAGE_BODY = `
   input.value = ${JSON.stringify(NAMES)}.join('\\n');
   input.dispatchEvent(new Event('input', { bubbles: true }));
   document.getElementById('name-start').click();
-  document.getElementById('wheel-eliminate').click();
-
+  const eliminateBox = document.getElementById('wheel-eliminate');
   const spinBtn = document.getElementById('wheel-spin');
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  // Names-in scrolls the disc into view and the page's ghost-tap gate then holds the wheel's controls
+  // for one window (ADR-0016, gh#295): a contact that soon after the CTA is the second half of a
+  // double-tap, and the page must swallow it. No player ticks and spins in the same task as the CTA,
+  // so wait for the hold to lift, on the control's own state rather than a fixed sleep, and fail
+  // loud if it never does: a control left disabled for good is a real defect, not a slow page.
+  const heldFrom = performance.now();
+  while (spinBtn.disabled || eliminateBox.disabled) {
+    if (performance.now() - heldFrom > 5000) throw new Error('names-in hold never lifted (spin disabled: ' + spinBtn.disabled + ', eliminate disabled: ' + eliminateBox.disabled + ')');
+    await sleep(25);
+  }
+  const heldMs = Math.round(performance.now() - heldFrom);
+  eliminateBox.click();
+  // Without the tick no wedge leaves between spins, and the shorter-list redraw (defect 1) is never
+  // exercised while every assertion below still passes. So a swallowed tick is a dead run, not a pass.
+  if (!eliminateBox.checked) throw new Error('the eliminate tick did not land (disabled: ' + eliminateBox.disabled + ')');
+
   const resultEl = document.getElementById('wheel-result');
   const svg = document.querySelector('#wheel-disc svg');
   const group = document.querySelector('#wheel-group');
-  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const running = () => group.getAnimations().filter((a) => a.playState === 'running').length;
 
   // Hit-test the REAL rendered geometry: the 12 o'clock axis, inset well inside the rim so a
@@ -123,7 +139,7 @@ const PAGE_BODY = `
     for (let k = 0; k < 200 && running() > 0; k++) await sleep(50);
     spins.push({ spin: i + 1, ...reading, endMs: endAt === null ? null : Math.round(endAt - clickedAt) });
   }
-  return { innerWidth, spins };
+  return { innerWidth, heldMs, spins };
 `;
 
 export default async function (session) {

@@ -112,11 +112,22 @@ export const lastInputStamp = (): number | undefined => lastPointerStamp;
  *  Stated ceiling: a caller that disables a control DURING an open window is invisible here -- the
  *  control is already marked gate-disabled, so `arm` hands it back enabled. That case is what `onArm`
  *  is for and it is unchanged by this. */
-const gateDisabled = new WeakSet<HTMLButtonElement>();
+const gateDisabled = new WeakSet<GatedControl>();
+
+/** Is `control` disabled because a gate holds it, not for its caller's own reason? For a page whose
+ *  own render also writes `disabled` on gated controls (gh#295, the wheel tool): that render must not
+ *  hand back a control a window still holds, and only this module knows, because a late in-window
+ *  contact (ADR-0059) re-holds the set without telling the caller. Residue left by a cancelled gate
+ *  also reads as held until the next gate on those nodes arms. */
+export const gateHolds = (control: GatedControl): boolean => gateDisabled.has(control);
+
+/** Every control the gate can hold: anything with a native `disabled`. Buttons are found by
+ *  armAllButtons; the other kinds only ever arrive by name through its `also` list (gh#295). */
+type GatedControl = HTMLButtonElement | HTMLInputElement | HTMLTextAreaElement;
 
 function armAfterQuiet(
   stage: HTMLElement,
-  controls: readonly HTMLButtonElement[],
+  controls: readonly GatedControl[],
   onArm?: () => void,
 ): () => void {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -214,11 +225,17 @@ function armAfterQuiet(
  *  window -- gh#188's snapshot only reads the state at construction -- which would offer an invalid
  *  roster as startable. Excepting such a control instead would leave it with no ghost-tap guard at all, so the
  *  hook re-asserts the owner's state rather than opting the control out of the gate. Default
- *  `undefined` — the gate's behaviour for every caller that omits it is byte-for-byte what it was. */
+ *  `undefined` — the gate's behaviour for every caller that omits it is byte-for-byte what it was.
+ *
+ *  `also` names non-button controls to hold in the same window: discovery finds buttons only, and a
+ *  checkbox or textarea the page moves under the finger needs the same guard (gh#295, the wheel tool
+ *  scrolls on names-in). Named, not discovered, so no existing caller starts gating its inputs.
+ *  Default empty: every caller that omits it is unchanged. */
 export function armAllButtons(
   stage: HTMLElement,
   except: readonly HTMLButtonElement[] = [],
   onArm?: () => void,
+  also: readonly (HTMLInputElement | HTMLTextAreaElement)[] = [],
 ): () => void {
   const found: HTMLButtonElement[] = [];
   const walk = (node: Element): void => {
@@ -229,5 +246,5 @@ export function armAllButtons(
     }
   };
   walk(stage);
-  return armAfterQuiet(stage, found.filter((btn) => !except.includes(btn)), onArm);
+  return armAfterQuiet(stage, [...found.filter((btn) => !except.includes(btn)), ...also], onArm);
 }

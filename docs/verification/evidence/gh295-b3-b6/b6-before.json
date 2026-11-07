@@ -1,0 +1,288 @@
+{
+  "probe": "gh295-b6-wheel-names-feedback",
+  "base": "http://localhost:9344",
+  "n": 6,
+  "pass": false,
+  "fails": [
+    "390x844 three names tap: #wheel-disc top -622.8125 bottom -264.8125 outside 0..844",
+    "390x844 three names tap: #wheel-note top -184.8125 bottom -112.8125 outside 0..844",
+    "390x844 three names tap: #wheel-spin top -96.8125 bottom -36.8125 outside 0..844",
+    "320x568 three names tap: #wheel-disc top -548.421875 bottom -260.421875 outside 0..568",
+    "320x568 three names tap: #wheel-note top -180.421875 bottom -108.421875 outside 0..568",
+    "320x568 three names tap: #wheel-spin top -92.421875 bottom -32.421875 outside 0..568",
+    "320x568 one name tap: #wheel-disc top -548.421875 bottom -260.421875 outside 0..568",
+    "320x568 one name tap: #wheel-note top -180.421875 bottom -108.421875 outside 0..568",
+    "320x568 one name tap: #wheel-spin top -92.421875 bottom -32.421875 outside 0..568",
+    "390x844 reduced motion sync: #wheel-disc top -622.8125 bottom -264.8125 outside 0..844",
+    "390x844 reduced motion sync: #wheel-note top -184.8125 bottom -112.8125 outside 0..844",
+    "390x844 reduced motion sync: #wheel-spin top -96.8125 bottom -36.8125 outside 0..844",
+    "390x844 reduced motion sync: scroll not instant under reduced motion (1021 -> 1021 synchronously)",
+    "320x568 reduced motion sync: #wheel-disc top -548.421875 bottom -260.421875 outside 0..568",
+    "320x568 reduced motion sync: #wheel-note top -180.421875 bottom -108.421875 outside 0..568",
+    "320x568 reduced motion sync: #wheel-spin top -92.421875 bottom -32.421875 outside 0..568",
+    "320x568 reduced motion sync: scroll not instant under reduced motion (973 -> 973 synchronously)",
+    "390x844 normal motion sync (control): #wheel-disc top -622.8125 bottom -264.8125 outside 0..844",
+    "390x844 normal motion sync (control): #wheel-note top -184.8125 bottom -112.8125 outside 0..844",
+    "390x844 normal motion sync (control): #wheel-spin top -96.8125 bottom -36.8125 outside 0..844"
+  ],
+  "legs": [
+    {
+      "name": "390x844 three names tap",
+      "w": 390,
+      "h": 844,
+      "names": "ก\\nข\\nค",
+      "how": "tap",
+      "reduce": false,
+      "before": {
+        "x": 195,
+        "y": 814.0625,
+        "scrollY": 1021,
+        "reduce": false
+      },
+      "settledScrollY": 1021,
+      "after": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "scrollY": 1021,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -622.8125,
+            "bottom": -264.8125,
+            "height": 358
+          },
+          "wheel-note": {
+            "top": -184.8125,
+            "bottom": -112.8125,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": -96.8125,
+            "bottom": -36.8125,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": "button#name-start ใส่ชื่อลงวงล้อ"
+      }
+    },
+    {
+      "name": "320x568 three names tap",
+      "w": 320,
+      "h": 568,
+      "names": "ก\\nข\\nค",
+      "how": "tap",
+      "reduce": false,
+      "before": {
+        "x": 160,
+        "y": 537.96875,
+        "scrollY": 973,
+        "reduce": false
+      },
+      "settledScrollY": 973,
+      "after": {
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "scrollY": 973,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -548.421875,
+            "bottom": -260.421875,
+            "height": 288
+          },
+          "wheel-note": {
+            "top": -180.421875,
+            "bottom": -108.421875,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": -92.421875,
+            "bottom": -32.421875,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": "button#name-start ใส่ชื่อลงวงล้อ"
+      }
+    },
+    {
+      "name": "320x568 one name tap",
+      "w": 320,
+      "h": 568,
+      "names": "ก",
+      "how": "tap",
+      "reduce": false,
+      "before": {
+        "x": 160,
+        "y": 537.96875,
+        "scrollY": 973,
+        "reduce": false
+      },
+      "settledScrollY": 973,
+      "after": {
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "scrollY": 973,
+        "chips": 1,
+        "noteLen": 117,
+        "spinDisabled": true,
+        "rects": {
+          "wheel-disc": {
+            "top": -548.421875,
+            "bottom": -260.421875,
+            "height": 288
+          },
+          "wheel-note": {
+            "top": -180.421875,
+            "bottom": -108.421875,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": -92.421875,
+            "bottom": -32.421875,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": "button#name-start ใส่ชื่อลงวงล้อ"
+      }
+    },
+    {
+      "name": "390x844 reduced motion sync",
+      "w": 390,
+      "h": 844,
+      "names": "ก\\nข\\nค",
+      "how": "sync",
+      "reduce": true,
+      "before": {
+        "x": 195,
+        "y": 814.0625,
+        "scrollY": 1021,
+        "reduce": true
+      },
+      "sync": {
+        "y0": 1021,
+        "y1": 1021
+      },
+      "settledScrollY": 1021,
+      "after": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "scrollY": 1021,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -622.8125,
+            "bottom": -264.8125,
+            "height": 358
+          },
+          "wheel-note": {
+            "top": -184.8125,
+            "bottom": -112.8125,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": -96.8125,
+            "bottom": -36.8125,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": "button#name-start ใส่ชื่อลงวงล้อ"
+      }
+    },
+    {
+      "name": "320x568 reduced motion sync",
+      "w": 320,
+      "h": 568,
+      "names": "ก\\nข\\nค",
+      "how": "sync",
+      "reduce": true,
+      "before": {
+        "x": 160,
+        "y": 537.96875,
+        "scrollY": 973,
+        "reduce": true
+      },
+      "sync": {
+        "y0": 973,
+        "y1": 973
+      },
+      "settledScrollY": 973,
+      "after": {
+        "innerWidth": 320,
+        "innerHeight": 568,
+        "scrollY": 973,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -548.421875,
+            "bottom": -260.421875,
+            "height": 288
+          },
+          "wheel-note": {
+            "top": -180.421875,
+            "bottom": -108.421875,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": -92.421875,
+            "bottom": -32.421875,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": "button#name-start ใส่ชื่อลงวงล้อ"
+      }
+    },
+    {
+      "name": "390x844 normal motion sync (control)",
+      "w": 390,
+      "h": 844,
+      "names": "ก\\nข\\nค",
+      "how": "sync",
+      "reduce": false,
+      "before": {
+        "x": 195,
+        "y": 814.0625,
+        "scrollY": 1021,
+        "reduce": false
+      },
+      "sync": {
+        "y0": 1021,
+        "y1": 1021
+      },
+      "settledScrollY": 1021,
+      "after": {
+        "innerWidth": 390,
+        "innerHeight": 844,
+        "scrollY": 1021,
+        "chips": 3,
+        "noteLen": 0,
+        "spinDisabled": false,
+        "rects": {
+          "wheel-disc": {
+            "top": -622.8125,
+            "bottom": -264.8125,
+            "height": 358
+          },
+          "wheel-note": {
+            "top": -184.8125,
+            "bottom": -112.8125,
+            "height": 72
+          },
+          "wheel-spin": {
+            "top": -96.8125,
+            "bottom": -36.8125,
+            "height": 60
+          }
+        },
+        "underControlAfterScroll": "button#name-start ใส่ชื่อลงวงล้อ"
+      }
+    }
+  ]
+}

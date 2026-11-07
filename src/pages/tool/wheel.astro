@@ -80,14 +80,14 @@ import ToolHeader from '../../components/ToolHeader.astro';
           for, and it must be the first thing on screen. draw and team keep the panel above. This is a
           deliberate deviation from both wheel artboards under design/, owner-decided (ADR-0033). */}
       <ToolNameEntry heading="ชื่อในวง" storageKey="watduang:tool:wheel-names" ctaLabel="ใส่ชื่อลงวงล้อ" />
-
-      {/* The path into a game sits right next to the tool, not below the ad — #11 says this is the
-           whole reason the tool exists. Tools keep no roster of their own by design (ADR-0039), so
-           the heading drops the "ด้วยวงเดิม" claim, matching draw/team/number. gh#94: the shared group
-           lives in exactly one category, so the list narrows to it — the slug is the ONE thing a tool
-           page states, because nothing on this page declares a category for the nav to read. */}
-      <GameNav navClass="wheel-next" category="party" heading="เล่นเกมต่อ" />
     </section>
+
+    {/* The path into a game sits right next to the tool, not below the ad — #11 says this is the
+         whole reason the tool exists. Tools keep no roster of their own by design (ADR-0039), so
+         the heading drops the "ด้วยวงเดิม" claim, matching draw/team/number. gh#94: the shared group
+         lives in exactly one category, so the list narrows to it — the slug is the ONE thing a tool
+         page states, because nothing on this page declares a category for the nav to read. */}
+    <GameNav navClass="wheel-next" category="party" heading="เล่นเกมต่อ" />
 
     {/* The ad always sits below the tool (ADR-0004) · min-height reserves the space up front so content
         doesn't jump on load, and nothing may be injected above the content.
@@ -477,6 +477,7 @@ import ToolHeader from '../../components/ToolHeader.astro';
   } from '../../tools/wheel';
   import { type NameSlot } from '../../tools/name-list';
   import { WheelRound } from '../../tools/wheel-round';
+  import { armAllButtons, gateHolds } from '../../games/_arm-gate';
 
   const disc = document.getElementById('wheel-disc') as HTMLButtonElement;
   const group = document.querySelector<SVGGElement>('#wheel-group')!;
@@ -492,6 +493,9 @@ import ToolHeader from '../../components/ToolHeader.astro';
   const stopBtn = document.getElementById('wheel-stop') as HTMLButtonElement;
   const resetBtn = document.getElementById('wheel-reset') as HTMLButtonElement;
   const eliminateBox = document.getElementById('wheel-eliminate') as HTMLInputElement;
+  const wheelSection = document.getElementById('wheel') as HTMLElement;
+  const startBtn = document.getElementById('name-start') as HTMLButtonElement;
+  const nameInput = document.getElementById('name-input') as HTMLTextAreaElement;
   const modeEls = Array.from(document.querySelectorAll<HTMLInputElement>('input[name="wheel-mode"]'));
 
   const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -518,6 +522,8 @@ import ToolHeader from '../../components/ToolHeader.astro';
   // computed FROM the picked name, never read back off the wheel to decide the answer.
   let rotation = 0;
   let spinTimer = 0;
+  // Canceller of the gate the last names-in armed, so a quick second names-in replaces it.
+  let disarmNames: (() => void) | undefined;
   // Detaches the listener revealOnLanding() is waiting on; a no-op while nothing is landing.
   let stopAwaitingLanding: () => void = () => {};
   // True while the disc is frozen on the geometry `rotation` encodes for a reveal that already
@@ -635,6 +641,27 @@ import ToolHeader from '../../components/ToolHeader.astro';
     resultEl.replaceChildren(fresh);
   }
 
+  // Two writers own `disabled` on these controls: the wheel, from its own state (spinning, mode, too
+  // few names), and the names-in arm gate, which may hold any of them for one window. The result is
+  // the OR of the two, and this is the only place the wheel writes it, so neither hands back what the
+  // other holds: a mode change inside the window cannot release spin, and the gate's onArm runs this
+  // after its own re-enable, so it cannot release a spin that is running or a one-name wheel.
+  // Stop takes the wheel's state alone. The gate snapshots it as the wheel's own disabled (no spin runs
+  // at names-in), and it is the one control here the wheel enables later inside the same gate's life:
+  // a re-hold by a late in-window contact then leaves the gate's marker on it after the window, so
+  // gateHolds would read true forever and the hold could never be stopped. Stop needs no gate read:
+  // it is enabled only by a spin, and a spin cannot start while the gate holds spin and disc.
+  function syncControls(): void {
+    const left = remaining();
+    // Spin still works with one person left — the last person deserves their own result like everyone else, not an unannounced leftover.
+    const blocked = spinning || !(round.size >= 2 && left.length > 0);
+    spinBtn.disabled = blocked || gateHolds(spinBtn);
+    disc.disabled = blocked || gateHolds(disc);
+    stopBtn.hidden = mode() !== 'press';
+    stopBtn.disabled = !pressMode;
+    for (const el of modeEls) el.disabled = spinning;
+  }
+
   function render(): void {
     namesEl.innerHTML = '';
     const roster = round.list();
@@ -650,13 +677,7 @@ import ToolHeader from '../../components/ToolHeader.astro';
     }
 
     const left = remaining();
-    // Spin still works with one person left — the last person deserves their own result like everyone else, not an unannounced leftover.
-    const canSpin = round.size >= 2 && left.length > 0;
-    spinBtn.disabled = spinning || !canSpin;
-    disc.disabled = spinBtn.disabled;
-    stopBtn.hidden = mode() !== 'press';
-    stopBtn.disabled = !pressMode;
-    for (const el of modeEls) el.disabled = spinning;
+    syncControls();
 
     if (spinning) {
       // behaviour B paints its own canvas copy over this, in spin()
@@ -859,6 +880,18 @@ import ToolHeader from '../../components/ToolHeader.astro';
     group.style.transform = '';
     drawWheel(remaining());
     render();
+    // gh#295: the name panel sits below the disc, so the reader pressing its CTA would otherwise see
+    // nothing change: the redrawn disc, the status note and the spin control are all above the
+    // viewport. Only this event scrolls (render() also runs on the eliminate and mode toggles), and
+    // 'nearest' leaves the page still when the disc is already on screen. Instant under reduced motion.
+    disc.scrollIntoView({ block: 'nearest', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    // That scroll moves the page under the finger, so the second contact of a double-tap on the CTA
+    // lands on whatever arrived there: measured, the eliminate checkbox (it ticked) and, mid-scroll,
+    // the name textarea (it took focus). The shared gate (ADR-0016) holds every button in the section
+    // plus those two for one window after the CTA release. The CTA itself is left out: it holds focus,
+    // and a ghost landing back on it only re-sends the same names.
+    disarmNames?.();
+    disarmNames = armAllButtons(wheelSection, [startBtn], syncControls, [eliminateBox, nameInput]);
   });
 
   disc.addEventListener('click', spin);

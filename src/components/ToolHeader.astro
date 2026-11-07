@@ -57,13 +57,15 @@ const { title, tagline } = Astro.props as Props;
       border-bottom-width: 5px;
     }
 
+    /* gh#295: the board draws only a 1440 artboard, where the centred 1280 column leaves the h1 80px
+       in. Below 1320 that column had no inset and the h1 sat on the viewport edge. The phone form's
+       inline 20px carries over, and max-width stays a content-box width, so the padding sits outside
+       the 1280 column: the 1440 position is unchanged and narrower desktops keep a 20px inset. */
     .tool-band-inner {
       gap: 0;
       margin-inline: auto;
       max-width: 1280px;
-      width: 100%;
-      box-sizing: border-box;
-      padding: 40px 0 36px 0;
+      padding: 40px 20px 36px 20px;
     }
 
     .tool-band h1 {
