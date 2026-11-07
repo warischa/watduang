@@ -12,7 +12,7 @@
 //
 // The underscore keeps this directory out of the play-route set every gate derives from the manifest:
 // it is shared code under src/play/, not a route.
-import { armAllButtons } from '../../games/_arm-gate.ts';
+import { armAllButtons, gateHolds } from '../../games/_arm-gate.ts';
 import { applyRosterOps, loadGroup, loadRoster, migrateLegacyList, saveGroup, type RosterOp } from '../../shell/roster.ts';
 import { hasVisibleChar } from '../../tools/name-list.ts';
 import { MASCOTS, resetCastNames } from '../_mascots.ts';
@@ -811,7 +811,14 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
    *  the controls back while the newer window is still open. While a window is open `surfaceHeld`
    *  keeps syncControls from enabling start or add -- a stepper tap (never gated) re-renders inside
    *  the window, and without it that render would hand start back early. The onArm hook clears it and
-   *  re-asserts this file's own state, which a tap may have changed during the window. */
+   *  re-asserts this file's own state, which a tap may have changed during the window.
+   *
+   *  gh#298: `surfaceHeld` covers the first window only. A late in-window contact (ADR-0059) re-holds
+   *  the set after onArm cleared it, and the gate does not tell this file, so syncControls also reads
+   *  `gateHolds`: a start or add the re-hold took stays held until that renewed window arms. Ceiling:
+   *  a control this file had disabled itself when the re-hold landed is not the gate's, so a render in
+   *  the renewed window can enable it. A ghost on it is still refused, because its own pointerdown
+   *  re-holds the set before its click (gh#297). */
   let cancelSurfaceGate: (() => void) | undefined;
   let surfaceHeld = false;
   const armSurface = (): void => {
@@ -829,8 +836,8 @@ export function mountPlayerScreen(options: MountOptions): PlayerScreen {
   };
 
   function syncControls(): void {
-    start.disabled = surfaceHeld || starting || !canStart(state);
-    add.disabled = surfaceHeld || starting || !canAdd(state);
+    start.disabled = surfaceHeld || gateHolds(start) || starting || !canStart(state);
+    add.disabled = surfaceHeld || gateHolds(add) || starting || !canAdd(state);
     dec.disabled = starting || state.mode !== 'first' || state.count <= state.min;
     inc.disabled = starting || state.mode !== 'first' || state.count >= state.max;
     // The row controls are only ever DISABLED here, never enabled: every way out of a start rebuilds

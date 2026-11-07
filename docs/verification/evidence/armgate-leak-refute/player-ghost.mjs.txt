@@ -1,0 +1,26 @@
+// gh#298: player-rehold.mjs.txt plus a ghost contact and click on start inside the renewed window.
+// 2026-11-07, GATE=<path>: HEAD gate e8fdab0~1 -> started 1 (ghost fires); fix-E gate e8fdab0 -> started 0.
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { makePage, installStorage, settle } from '/Users/waris.c/claude/free-game/src/play/_player-screen/screen-harness.mjs';
+const repo='/Users/waris.c/claude/free-game';
+const {build}=createRequire(repo+'/package.json')('esbuild');
+const doc=makePage('<div id="app"><section id="root" hidden></section></div>');
+installStorage();globalThis.document=doc;globalThis.window={addEventListener(){},removeEventListener(){}};
+let now=0,seq=0;const timers=new Map();
+globalThis.setTimeout=(fn,delay=0)=>{const id=++seq;timers.set(id,{fn,at:now+delay});return id;};
+globalThis.clearTimeout=id=>timers.delete(id);
+function tick(ms){const end=now+ms;for(;;){const next=[...timers].filter(([,t])=>t.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];if(!next)break;now=next[1].at;timers.delete(next[0]);next[1].fn();}now=end;}
+const out=await build({entryPoints:[repo+'/src/play/_player-screen/player-screen.ts'],bundle:true,platform:'node',format:'esm',write:false,plugins:[{name:'gate-under-review',setup(b){b.onResolve({filter:/_arm-gate\.ts$/},()=>({path:process.env.GATE}));}}]});
+const ps=await import('data:text/javascript;base64,'+Buffer.from(out.outputFiles[0].text).toString('base64'));
+const root=doc.getElementById('root');const started=[];
+const screen=ps.mountPlayerScreen({root,range:[2,10],onStart:players=>started.push(players),roundActive:()=>false,abortRound(){}});
+await screen.open();await settle();
+const app=doc.getElementById('app');const part=name=>root.querySelector(`[data-ps="${name}"]`);
+app.dispatchEvent({type:'pointerdown',timeStamp:1000});tick(450);
+assert.equal(part('start').disabled,false);
+app.dispatchEvent({type:'pointerdown',timeStamp:1200});assert.equal(part('start').disabled,true);
+// The count steppers are excluded intentionally and their real click handler runs render+syncControls.
+assert.equal(part('inc').click(),true);
+console.log(JSON.stringify({at:now,startDisabled:part('start').disabled,count:part('count-num').textContent}));
+app.dispatchEvent({type:"pointerdown",timeStamp:1300});const startDisabledAtGhost=part("start").disabled;part("start").click();await settle();console.log(JSON.stringify({ghost:{startDisabledAtGhost,started:started.length}}));

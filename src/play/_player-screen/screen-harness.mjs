@@ -297,6 +297,28 @@ export function revealPathCases({ test, assert, routeMarkup, rootId, headerId, l
     liveNow(page.part('start'), 'start');
   });
 
+  // gh#298: a contact the browser stamped inside the window but delivered after it armed (ADR-0059)
+  // re-holds the surface without telling the screen. A stepper tap in the renewed window re-renders,
+  // and that render must not hand start back while the gate still holds it. The anchoring contact is
+  // on the surface because this harness imports the gate once, so its document recorder may belong to
+  // an earlier page; the stage contact gives this window its own input-clock reference.
+  test(`${label}: a late in-window contact re-holds start, and a stepper tap does not hand it back early`, async (t) => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const page = await mountOnPage({ routeMarkup, rootId });
+    page.screen.open();
+    await settle();
+    const surface = page.root.closest('#app, #app-container, #appRoot') ?? page.doc.body;
+    surface.dispatchEvent({ type: 'pointerdown', timeStamp: 1000 });
+    expire(t);
+    liveNow(page.part('start'), 'start');
+    surface.dispatchEvent({ type: 'pointerdown', timeStamp: 1000 + QUIET - 50 });
+    armedNow(page.part('start'), 'start after the late contact -- this case measures nothing');
+    assert.equal(page.part('inc').click(), true, 'the stepper is never gated');
+    armedNow(page.part('start'), 'start after a stepper re-render inside the renewed window');
+    expire(t);
+    liveNow(page.part('start'), 'start');
+  });
+
   // gh#264 REFUTE finding 6: every saved-row rebuild puts NEW controls under the finger. Two contacts
   // 100ms apart, the second landing on the rebuilt control, must not act twice -- on a tick (which
   // would toggle straight back), on the add row (a second row), and on the rows an x moved up.

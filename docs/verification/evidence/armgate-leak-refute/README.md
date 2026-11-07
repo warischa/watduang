@@ -28,11 +28,10 @@ Every script is saved as `.txt`, so the repo's tooling does not run it. Copy one
 - `overlap-generic.mjs.txt`, `gateE-worktree.ts.txt`: candidate E for gh#297. Not shipped.
 - `wire-rehold.mjs.txt`, `overlap-after-rehold.mjs.txt`, `player-rehold.mjs.txt`: REFUTE round-1 detectors. `wire-rehold`'s `closeModal` armed nothing on `screen-harness`, which has no compound-class `matches()`; `wire-variant` corrects that.
 - `round2.mjs.txt`: the REFUTE round-2 detector. Its verdict was RES=PASS: no introduced defect. It also reports that on wire-snip the gh#297 overlap and the mid-sequence scan now reach turns 1 to 3. On HEAD they reached turn 1 only, because the dead scan masked turns 2 and 3.
-
 - `wire-variant-post-ae7b73b.mjs.txt`: `wire-variant` adapted for ae7b73b, where HEAD is order c. Run it with `ORDER=c` only.
 - `gh297-fix-e.md`: gh#297 fix E as shipped. It holds the two readings, the enable-site enumeration with a verdict per site, and the measurements.
+- `player-ghost.mjs.txt`: gh#298. At HEAD's gate a ghost on start, inside the renewed window, fires. With fix E (`e8fdab0`) it is refused. What gh#298 still had to fix was the visible state: start rendered live inside that window. The fix makes `syncControls` read `gateHolds`. The must-red is the shared case in `screen-harness.mjs`'s `revealPathCases`: 14 of 14 routes red before the fix, and red again with the read removed.
 
 ## Still open
 
-- gh#297: the overlap ghost.
-- gh#298: player-screen re-enables start inside a renewed window.
+- gh#297 and gh#298: fixed locally (fix E, then the `gateHolds` read). Not closed until REFUTE clears and the deploy is live.
