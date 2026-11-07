@@ -1,3 +1,18 @@
 {
-  "telemetry": false
+  "telemetry": false,
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "design/*.dc.html"
+        ],
+        "createdAt": "2026-11-07T05:47:17.580Z",
+        "reason": "project: boards paint --color-ground-warm #fff6e0 from src/styles/tokens.css, the site's page ground (ADR-0069); canvas is source of truth (ADR-0033)"
+      }
+    ]
+  }
 }

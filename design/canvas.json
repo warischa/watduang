@@ -39,6 +39,10 @@
     {
       "id": "page-10",
       "name": "gh#292 · ติชมและเสนอเกม · proposals"
+    },
+    {
+      "id": "page-11",
+      "name": "gh#295 · siamsi vessel · home shelf · privacy page (approved 2026-11-07)"
     }
   ],
   "artboards": [
@@ -455,6 +459,33 @@
       "y": 0,
       "w": 1520,
       "h": 6400
+    },
+    {
+      "file": "Gh295Siamsi.dc.html",
+      "title": "gh#295 B2 vessel + B5 keep-slip · A picked",
+      "page": "page-11",
+      "x": 0,
+      "y": 0,
+      "w": 1520,
+      "h": 9369
+    },
+    {
+      "file": "Gh295Home.dc.html",
+      "title": "gh#295 B4 home shelf · B picked, h1 kept",
+      "page": "page-11",
+      "x": 1600,
+      "y": 0,
+      "w": 1520,
+      "h": 13450
+    },
+    {
+      "file": "Gh295Privacy.dc.html",
+      "title": "gh#295 B1 privacy page + placement · A picked",
+      "page": "page-11",
+      "x": 3200,
+      "y": 0,
+      "w": 1520,
+      "h": 6349
     }
   ],
   "annotations": [

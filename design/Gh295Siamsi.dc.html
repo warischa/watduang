@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    /* gh#295 proposal board, rows B2 (the siamsi vessel) and B5 (the keep-slip half). Owner picks by popup;
+       code is then built from the picked values (ADR-0033). Board chrome is English, monospace; every Thai
+       string in a frame is copied verbatim from src (see the COPY SOURCES row). Sources are named by symbol. */
+    body { margin: 0; font-family: system-ui, sans-serif; background: #ffffff; }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 400; src: url('../public/fonts/mitr-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 500; src: url('../public/fonts/mitr-medium-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    /* ---- board chrome ---- */
+    .bd-banner { padding: 32px 40px; background: #14142b; color: #ffcc00; }
+    .bd-banner-1 { font: 700 24px/1.3 ui-monospace, Menlo, monospace; }
+    .bd-banner-2 { margin-top: 8px; font: 14px/1.6 ui-monospace, Menlo, monospace; color: #fff6e0; max-width: 1480px; }
+    .bd-status { display: block; max-width: 1480px; margin-top: 12px; padding: 4px 10px; font: 700 14px/1.3 ui-monospace, Menlo, monospace; background: #ffcc00; color: #14142b; }
+    .bd-row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .bd-row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .bd-row h3 { margin: 26px 0 10px; font: 700 15px/1.4 ui-monospace, Menlo, monospace; }
+    .bd-why { margin: 0 0 20px; font: 13px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1480px; }
+    .bd-row code { font: 600 12px ui-monospace, Menlo, monospace; background: #fff6e0; padding: 0 3px; }
+    .bd-row q { font-family: 'Sarabun', sans-serif; font-size: 14px; color: #14142b; }
+    .bd-cands { display: flex; gap: 26px; align-items: flex-start; flex-wrap: wrap; }
+    .bd-cand { display: flex; flex-direction: column; gap: 8px; }
+    .bd-tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; max-width: 420px; }
+    .bd-opt { font: 700 22px/1.3 ui-monospace, Menlo, monospace; color: #14142b; }
+    .bd-opt span { display: inline-block; margin-left: 10px; padding: 2px 8px; font-size: 12px; vertical-align: middle; background: #ffcc00; border: 2px solid #14142b; }
+    .bd-opt span.bd-res { background: #14142b; color: #ffcc00; border: 0; border-radius: 999px; padding: 2px 10px; }
+    .bd-opt span.bd-res.no { background: #ffffff; color: #14142b; border: 1.5px solid #14142b; padding: 1px 9px; text-decoration: line-through; }
+    .bd-note { font: 12px/1.65 ui-monospace, Menlo, monospace; color: #14142b; border: 2px solid #14142b; padding: 12px 14px; background: #fff6e0; max-width: 520px; box-sizing: border-box; }
+    .bd-note b { font-weight: 700; }
+    .bd-new { display: inline-block; padding: 0 4px; background: #d6336c; color: #ffffff; font-weight: 700; }
+    .bd-table { border-collapse: collapse; font: 12px/1.55 ui-monospace, Menlo, monospace; max-width: 1520px; }
+    .bd-table th, .bd-table td { border: 2px solid #14142b; padding: 7px 10px; text-align: left; vertical-align: top; }
+    .bd-table th { background: #14142b; color: #fff6e0; }
+    .bd-arrow { align-self: center; font: 700 30px/1.3 ui-monospace, Menlo, monospace; color: #14142b; padding: 0 4px; }
+
+    /* ---- frames ---- */
+    .bd-cap { box-shadow: 0 0 0 1px #14142b; background-repeat: no-repeat; background-color: #ffffff; }
+    .bd-play { box-sizing: border-box; padding: 28px 20px; background: var(--page-accent); box-shadow: 0 0 0 1px #14142b; }
+    .bd-panelbox { box-sizing: border-box; padding: 12px 20px 18px; background: var(--page-accent); box-shadow: 0 0 0 1px #14142b; }
+    .bd-play, .bd-panelbox { --page-accent: var(--accent-gold); font-family: var(--font-sans); font-size: 16px; color: var(--color-text); }
+    /* static frames: the rattle and the fall are not replayed (their values are unchanged by every option) */
+    .bd-play .sm-sticks, .bd-play .sm-fallen, .bd-panelbox .sm-sticks, .bd-panelbox .sm-fallen { animation: none; }
+
+    /* ---- REPLAY: shipped values, copied unchanged from tokens.css, the shell rules on the game route
+       (.stage-screen, .game-btn family) and siamsi.css (.sm-barrel, .sm-slip family). Order kept as the
+       built page resolves it: the shell paragraph rule first, so the slip's own paragraph rules win where
+       they tie and the closing line stays centred exactly as built. ---- */
+    :root {
+      --color-text: #14142b;
+      --color-primary: #d6336c;
+      --accent-gold: #ffcc00;
+      --color-ground-warm: #fff6e0;
+      --color-line-strong: #14142b;
+      --font-sans: 'Sarabun', 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
+      --font-display: 'Mitr', 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+    }
+    .stage-screen { display: flex; flex-direction: column; align-items: center; gap: 22px; width: 100%; }
+    .stage-screen p { margin: 0; text-align: center; }
+    .game-btn { width: 100%; border-radius: 16px; border: 2.5px solid var(--color-line-strong); font-family: var(--font-display); cursor: pointer; }
+    .game-btn-primary { min-height: 64px; background: var(--color-line-strong); color: var(--color-ground-warm); font-weight: 500; font-size: 22px; box-shadow: 5px 5px 0 rgba(20, 20, 43, 0.3); }
+    .game-btn-secondary { min-height: 56px; background: transparent; font-weight: 400; font-size: 17px; color: var(--color-text); margin-block-start: -12px; }
+    .sm-barrel { display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 260px; background: var(--color-ground-warm); border: 2.5px solid var(--color-line-strong); border-radius: 20px; box-shadow: 5px 5px 0 var(--color-line-strong); overflow: hidden; perspective: 600px; }
+    .sm-barrel svg { transform-style: preserve-3d; }
+    .sm-barrel--landed { align-items: center; }
+    .sm-sticks { transform-origin: 98px 110px; }
+    .sm-slip { width: 100%; box-sizing: border-box; background: var(--color-ground-warm); border: 2.5px solid var(--color-line-strong); border-radius: 20px; box-shadow: 5px 5px 0 var(--color-line-strong); padding: 20px 18px; text-align: left; }
+    .sm-slip-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2.5px dashed var(--color-line-strong); padding-bottom: 12px; }
+    .sm-slip-number { font-family: var(--font-display); font-weight: 600; font-size: 34px; line-height: 1; }
+    .sm-grade { font-size: 14px; font-weight: 700; border: 2px solid var(--color-line-strong); border-radius: 999px; padding: 4px 14px; background: var(--page-accent); }
+    .sm-verse { margin: 16px 0 0 0; font-family: var(--font-display); font-weight: 400; font-size: 16px; line-height: 2; text-align: center; }
+    .sm-rows { border-top: 2.5px dashed var(--color-line-strong); margin-top: 18px; padding-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .sm-row { display: flex; gap: 10px; }
+    .sm-row-bar { width: 5px; border-radius: 999px; background: var(--color-line-strong); opacity: 0.15; flex-shrink: 0; }
+    .sm-row-label { font-family: var(--font-display); font-weight: 500; font-size: 14px; }
+    .sm-row p { margin: 2px 0 0 0; font-size: 14px; line-height: 1.7; }
+    .sm-closing { margin: 16px 0 0 0; padding-top: 14px; border-top: 2.5px dashed var(--color-line-strong); font-size: 13px; line-height: 1.7; opacity: 0.7; }
+
+    /* ---- B5 option B only: the kept line written into the slip. Every value is an existing one:
+       the dashed rule, margin, padding and line-height 1.7 are .sm-closing's; the face, weight and size are .sm-row-label's. ---- */
+    .bd-kept-line { margin: 16px 0 0 0; padding-top: 14px; border-top: 2.5px dashed var(--color-line-strong); font-family: var(--font-display); font-weight: 500; font-size: 14px; line-height: 1.7; }
+  </style>
+</helmet>
+
+<div class="bd-banner">
+  <div class="bd-banner-1">gh#295 · siamsi · B2 the vessel · B5 what keeping a slip does</div>
+  <div class="bd-banner-2">B2: the shipped vessel reads as a glass of beer (yellow tapered tumbler, cream "foam" ellipse over the stick bases, two faint straight fill lines). Thai Alcohol Act §32/1 bars anything that reads as a glass, tumbler, can or bottle. Options A–C redraw it as a กระบอกเซียมซี. B5: tapping the keep button throws the slip away. Options A–B keep it on screen. B5's text-alignment half is NOT on this board: it ships from design/SiamsiSlip.dc.html.</div>
+  <div class="bd-banner-2">TODAY frames are crops of the BUILT page (dist/ built 2026-11-06 18:20, after the last src commit b36b9b1 at 17:42), headless Chrome under prefers-reduced-motion: reduce emulation. PROPOSED frames replay the shipped CSS values; only the drawn parts named per option differ.</div>
+  <div class="bd-status">Approval result 2026-11-07: B2 vessel A (red lacquer tube, same width) is PICKED; B (slender bamboo section) and C (tall ink lacquer tube) were NOT PICKED. B5 keep-slip A (slip stays, actions swap) is PICKED; B (kept line joins the slip) was NOT PICKED. Unpicked frames stay below as history. Frames labelled PROPOSED are the approved looks for the picked options. Renders as approved: docs/verification/evidence/gh295-boards-2026-11-07/</div>
+</div>
+
+<!-- ======================= B2 TODAY, 390 ======================= -->
+<div class="bd-row">
+  <h2>B2 · TODAY · 390 · the three screens that draw the vessel (captured from dist/)</h2>
+  <p class="bd-why">The same tumbler is drawn three times in siamsi.ts: BARREL_REST_SVG (the ตั้งจิต screen), BARREL_SHAKE_SVG (the เขย่า screen) and stickSvg (the landing screen, tipped back). What reads as a glass: (a) the body tapers to a narrower base, (b) a cream filled ellipse sits over the stick bases like foam, (c) two straight lines at opacity 0.35 read as fill marks, (d) the body is yellow (var(--page-accent) resolves to --accent-gold on this page). The tipped one on the landing screen reads as a spilled cup.</p>
+  <div class="bd-cands">
+    <div class="bd-cand">
+      <div class="bd-tag">TODAY · rest (BARREL_REST_SVG) · ตั้งจิต screen</div>
+      <div class="bd-cap" style="width: 390px; height: 640px; background-image: url('../docs/verification/evidence/gh295-boards-2026-11-07/siamsi-today/390-intent.jpg');"></div>
+    </div>
+    <div class="bd-cand">
+      <div class="bd-tag">TODAY · shake (BARREL_SHAKE_SVG) · hint shows the HINT_ENABLE_SHAKE variant (no sensor in headless)</div>
+      <div class="bd-cap" style="width: 390px; height: 670px; background-image: url('../docs/verification/evidence/gh295-boards-2026-11-07/siamsi-today/390-shake.jpg');"></div>
+    </div>
+    <div class="bd-cand">
+      <div class="bd-tag">TODAY · landing (stickSvg) · the vessel tipped back</div>
+      <div class="bd-cap" style="width: 390px; height: 630px; background-image: url('../docs/verification/evidence/gh295-boards-2026-11-07/siamsi-today/390-landing.jpg');"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= B2 TODAY, desktop ======================= -->
+<div class="bd-row">
+  <h2>B2 · TODAY · desktop 1440 · rest and shake (captured from dist/, shown 1:1)</h2>
+  <p class="bd-why">On desktop the panel stretches to the stage width; the vessel keeps its 200px drawing, centred. Every option below keeps that box, so the desktop panel changes only in the drawing.</p>
+  <div class="bd-cand">
+    <div class="bd-tag">TODAY · 1440 · rest</div>
+    <div class="bd-cap" style="width: 1440px; height: 610px; background-image: url('../docs/verification/evidence/gh295-boards-2026-11-07/siamsi-today/1440-intent.jpg');"></div>
+    <div class="bd-tag" style="margin-top: 18px;">TODAY · 1440 · shake</div>
+    <div class="bd-cap" style="width: 1440px; height: 660px; background-image: url('../docs/verification/evidence/gh295-boards-2026-11-07/siamsi-today/1440-shake.jpg');"></div>
+  </div>
+</div>
+
+<!-- ======================= B2 option A ======================= -->
+<div class="bd-row">
+  <div class="bd-opt">A · red lacquer tube, same width<span class="bd-res">PICKED 2026-11-07</span></div>
+  <p class="bd-why">A: straight-sided red tube with a gold lip band, a thin gold waist band and a dark open mouth the sticks rise out of; same width, same sticks, same box. The smallest change of the three.</p>
+  <div class="bd-cands">
+    <div class="bd-cand">
+      <div class="bd-tag">A · rest · 390 panel</div>
+      <div class="bd-panelbox" style="width: 390px;"><div class="sm-barrel">
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true"><ellipse cx="98" cy="72" rx="42" ry="13" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><rect x="66" y="52" width="9" height="80" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="84" y="46" width="9" height="86" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="102" y="50" width="9" height="82" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="120" y="48" width="9" height="84" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><path d="M56 72 A42 13 0 0 0 140 72 V185 A42 13 0 0 1 56 185 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M56 72 A42 13 0 0 0 140 72 V83 A42 13 0 0 1 56 83 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M56 128 A42 13 0 0 0 140 128 V134 A42 13 0 0 1 56 134 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+      </div></div>
+    </div>
+    <div class="bd-cand">
+      <div class="bd-tag">A · shake · 390 panel</div>
+      <div class="bd-panelbox" style="width: 390px;"><div class="sm-barrel">
+<svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true"><ellipse cx="98" cy="110" rx="42" ry="13" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><g class="sm-sticks"><rect x="66" y="26" width="9" height="112" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="84" y="14" width="9" height="124" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="102" y="32" width="9" height="106" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="120" y="20" width="9" height="118" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="86" y="-14" width="11" height="150" rx="5.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="86" y="-14" width="11" height="22" rx="5.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect></g><path d="M56 110 A42 13 0 0 0 140 110 V225 A42 13 0 0 1 56 225 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M56 110 A42 13 0 0 0 140 110 V121 A42 13 0 0 1 56 121 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M56 166 A42 13 0 0 0 140 166 V172 A42 13 0 0 1 56 172 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+      </div></div>
+    </div>
+    <div class="bd-cand">
+      <div class="bd-tag">A · landing · 390 panel · same tip-back transform as today</div>
+      <div class="bd-panelbox" style="width: 390px;"><div class="sm-barrel sm-barrel--landed">
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" aria-hidden="true"><g style="transform: rotate(-12deg); transform-origin: 150px 180px;"><ellipse cx="150" cy="86" rx="42" ry="13" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><rect x="118" y="66" width="9" height="60" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="136" y="60" width="9" height="66" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="154" y="64" width="9" height="62" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><path d="M108 86 A42 13 0 0 0 192 86 V185 A42 13 0 0 1 108 185 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M108 86 A42 13 0 0 0 192 86 V97 A42 13 0 0 1 108 97 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M108 136 A42 13 0 0 0 192 136 V142 A42 13 0 0 1 108 142 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></g><g class="sm-fallen" style="transform: rotate(-7deg); transform-origin: 100px 196px;"><rect x="16" y="182" width="150" height="13" rx="6.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="16" y="182" width="24" height="13" rx="6.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><text x="118" y="193" font-family="var(--font-display)" font-size="13" font-weight="500" fill="var(--color-line-strong)" text-anchor="middle">๒๓</text></g></svg>
+      </div></div>
+    </div>
+    <div class="bd-note">
+      <b>A · what changes</b> (all three drawings)<br>
+      body: tapered <code>h84 l-9 … h-66</code> → straight <code>V</code> sides at x 56 / 140 with an elliptical base (rx 42 ry 13); bottom stays at today's floor (rest 198, shake 238, landing 198)<br>
+      body fill: var(--page-accent) → var(--color-primary) (token)<br>
+      rim ellipse: cream fill drawn OVER the sticks → var(--color-line-strong) mouth drawn UNDER them (same cx/cy/rx/ry)<br>
+      two straight 0.35 lines → removed<br>
+      added: gold lip band (11px) and gold waist band (6px; rest y 128, shake y 166, landing y 136), var(--accent-gold), full opacity, curved with the tube. No base band: a rim at both ends of a squat cylinder read as a tin can in the first draft<br>
+      watch: the proportion stays today's (84 wide, about 1:1.5), the closest of the three to a pencil cup or can<br>
+      unchanged: svg boxes 200×200 / 200×240 / 240×240, every stick, the marked stick's exit (x 86, y −14), .sm-sticks origin 98px 110px, the landing tip-back, the fallen stick<br>
+      NEW VALUE: none
+    </div>
+  </div>
+  <div class="bd-tag" style="margin-top: 22px;">A · shake · desktop panel (box unchanged: full stage width, 260px)</div>
+  <div class="bd-panelbox" style="width: 1440px;"><div class="sm-barrel">
+<svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true"><ellipse cx="98" cy="110" rx="42" ry="13" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><g class="sm-sticks"><rect x="66" y="26" width="9" height="112" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="84" y="14" width="9" height="124" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="102" y="32" width="9" height="106" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="120" y="20" width="9" height="118" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="86" y="-14" width="11" height="150" rx="5.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="86" y="-14" width="11" height="22" rx="5.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect></g><path d="M56 110 A42 13 0 0 0 140 110 V225 A42 13 0 0 1 56 225 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M56 110 A42 13 0 0 0 140 110 V121 A42 13 0 0 1 56 121 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M56 166 A42 13 0 0 0 140 166 V172 A42 13 0 0 1 56 172 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+  </div></div>
+</div>
+
+<!-- ======================= B2 option B ======================= -->
+<div class="bd-row">
+  <div class="bd-opt">B · slender bamboo section, sticks fanned<span class="bd-res no">NOT PICKED 2026-11-07</span></div>
+  <p class="bd-why">B: slender bamboo section (52 wide) in the sticks' own wood colour with two thin nodes and a dark open mouth; sticks fanned as in C. The first draft kept today's width and read as a keg (two hoops on a squat wooden cylinder), so B takes C's slender geometry.</p>
+  <div class="bd-cands">
+    <div class="bd-cand">
+      <div class="bd-tag">B · rest · 390 panel</div>
+      <div class="bd-panelbox" style="width: 390px;"><div class="sm-barrel">
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true"><ellipse cx="98" cy="72" rx="26" ry="8" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><rect x="93.5" y="50" width="9" height="60" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-10 98 190)"></rect><rect x="93.5" y="44" width="9" height="66" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-5 98 190)"></rect><rect x="93.5" y="56" width="9" height="54" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(2 98 190)"></rect><rect x="93.5" y="46" width="9" height="64" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(6 98 190)"></rect><rect x="93.5" y="52" width="9" height="58" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(10 98 190)"></rect><path d="M72 72 A26 8 0 0 0 124 72 V190 A26 8 0 0 1 72 190 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M70 113 A28 8 0 0 0 126 113 V117 A28 8 0 0 1 70 117 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M70 153 A28 8 0 0 0 126 153 V157 A28 8 0 0 1 70 157 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+      </div></div>
+    </div>
+    <div class="bd-cand">
+      <div class="bd-tag">B · shake · 390 panel</div>
+      <div class="bd-panelbox" style="width: 390px;"><div class="sm-barrel">
+<svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true"><ellipse cx="98" cy="110" rx="26" ry="8" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><g class="sm-sticks"><rect x="93.5" y="24" width="9" height="126" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-10 98 230)"></rect><rect x="93.5" y="16" width="9" height="134" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-5 98 230)"></rect><rect x="93.5" y="30" width="9" height="120" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(2 98 230)"></rect><rect x="93.5" y="20" width="9" height="130" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(6 98 230)"></rect><rect x="93.5" y="28" width="9" height="122" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(10 98 230)"></rect><rect x="86" y="-14" width="11" height="150" rx="5.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="86" y="-14" width="11" height="22" rx="5.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect></g><path d="M72 110 A26 8 0 0 0 124 110 V230 A26 8 0 0 1 72 230 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M70 153 A28 8 0 0 0 126 153 V157 A28 8 0 0 1 70 157 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M70 198 A28 8 0 0 0 126 198 V202 A28 8 0 0 1 70 202 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+      </div></div>
+    </div>
+    <div class="bd-cand">
+      <div class="bd-tag">B · landing · 390 panel · same tip-back transform as today</div>
+      <div class="bd-panelbox" style="width: 390px;"><div class="sm-barrel sm-barrel--landed">
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" aria-hidden="true"><g style="transform: rotate(-12deg); transform-origin: 150px 180px;"><ellipse cx="150" cy="86" rx="26" ry="8" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><rect x="145.5" y="66" width="9" height="54" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-10 150 190)"></rect><rect x="145.5" y="60" width="9" height="60" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-5 150 190)"></rect><rect x="145.5" y="70" width="9" height="50" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(2 150 190)"></rect><rect x="145.5" y="62" width="9" height="58" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(6 150 190)"></rect><rect x="145.5" y="68" width="9" height="52" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(10 150 190)"></rect><path d="M124 86 A26 8 0 0 0 176 86 V190 A26 8 0 0 1 124 190 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M122 123 A28 8 0 0 0 178 123 V127 A28 8 0 0 1 122 127 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M122 158 A28 8 0 0 0 178 158 V162 A28 8 0 0 1 122 162 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></g><g class="sm-fallen" style="transform: rotate(-7deg); transform-origin: 100px 196px;"><rect x="16" y="182" width="150" height="13" rx="6.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="16" y="182" width="24" height="13" rx="6.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><text x="118" y="193" font-family="var(--font-display)" font-size="13" font-weight="500" fill="var(--color-line-strong)" text-anchor="middle">๒๓</text></g></svg>
+      </div></div>
+    </div>
+    <div class="bd-note">
+      <b>B · what changes</b> (all three drawings)<br>
+      body: tapered 84 wide → straight 52 wide (x 72–124 upright, 124–176 tipped), elliptical mouth and base rx 26 ry 8 (was rx 42 ry 13); floors unchanged (rest 198, shake 238, landing 198)<br>
+      body fill: var(--page-accent) → #f7e6c4, the stick wood literal already in siamsi.ts (not a new value)<br>
+      rim: cream fill over the sticks → var(--color-line-strong) mouth under them<br>
+      two straight 0.35 lines → removed<br>
+      added: two nodes, rx 28 (2px proud of each wall), 4px tall, full opacity; rest y 113 / 153, shake y 153 / 198, landing y 123 / 158<br>
+      plain sticks: same fan as C (5 sticks at x 93.5, rotate −10/−5/2/6/10 deg about the tube's base centre)<br>
+      unchanged: the boxes, the marked stick and its exit (x 86, y −14), .sm-sticks origin 98px 110px, the tip-back, the fallen stick<br>
+      watch: the wood body sits on the cream panel ground (#f7e6c4 on var(--color-ground-warm)); the ink outline carries the shape<br>
+      NEW VALUE: none
+    </div>
+  </div>
+  <div class="bd-tag" style="margin-top: 22px;">B · shake · desktop panel (box unchanged)</div>
+  <div class="bd-panelbox" style="width: 1440px;"><div class="sm-barrel">
+<svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true"><ellipse cx="98" cy="110" rx="26" ry="8" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><g class="sm-sticks"><rect x="93.5" y="24" width="9" height="126" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-10 98 230)"></rect><rect x="93.5" y="16" width="9" height="134" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-5 98 230)"></rect><rect x="93.5" y="30" width="9" height="120" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(2 98 230)"></rect><rect x="93.5" y="20" width="9" height="130" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(6 98 230)"></rect><rect x="93.5" y="28" width="9" height="122" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(10 98 230)"></rect><rect x="86" y="-14" width="11" height="150" rx="5.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="86" y="-14" width="11" height="22" rx="5.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect></g><path d="M72 110 A26 8 0 0 0 124 110 V230 A26 8 0 0 1 72 230 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M70 153 A28 8 0 0 0 126 153 V157 A28 8 0 0 1 70 157 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M70 198 A28 8 0 0 0 126 198 V202 A28 8 0 0 1 70 202 Z" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+  </div></div>
+</div>
+
+<!-- ======================= B2 option C ======================= -->
+<div class="bd-row">
+  <div class="bd-opt">C · tall ink lacquer tube, sticks fanned<span class="bd-res no">NOT PICKED 2026-11-07</span></div>
+  <p class="bd-why">C: narrower, taller ink tube (52 wide) with gold lip and base bands and a red waist band, five plain sticks fanned out of the mouth the way a full temple tube holds them; the marked stick keeps today's exit point.</p>
+  <div class="bd-cands">
+    <div class="bd-cand">
+      <div class="bd-tag">C · rest · 390 panel</div>
+      <div class="bd-panelbox" style="width: 390px;"><div class="sm-barrel">
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" aria-hidden="true"><ellipse cx="98" cy="72" rx="26" ry="8" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><rect x="93.5" y="50" width="9" height="60" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-10 98 190)"></rect><rect x="93.5" y="44" width="9" height="66" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-5 98 190)"></rect><rect x="93.5" y="56" width="9" height="54" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(2 98 190)"></rect><rect x="93.5" y="46" width="9" height="64" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(6 98 190)"></rect><rect x="93.5" y="52" width="9" height="58" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(10 98 190)"></rect><path d="M72 72 A26 8 0 0 0 124 72 V190 A26 8 0 0 1 72 190 Z" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M72 72 A26 8 0 0 0 124 72 V82 A26 8 0 0 1 72 82 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M72 128 A26 8 0 0 0 124 128 V134 A26 8 0 0 1 72 134 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M72 178 A26 8 0 0 0 124 178 V190 A26 8 0 0 1 72 190 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+      </div></div>
+    </div>
+    <div class="bd-cand">
+      <div class="bd-tag">C · shake · 390 panel</div>
+      <div class="bd-panelbox" style="width: 390px;"><div class="sm-barrel">
+<svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true"><ellipse cx="98" cy="110" rx="26" ry="8" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><g class="sm-sticks"><rect x="93.5" y="24" width="9" height="126" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-10 98 230)"></rect><rect x="93.5" y="16" width="9" height="134" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-5 98 230)"></rect><rect x="93.5" y="30" width="9" height="120" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(2 98 230)"></rect><rect x="93.5" y="20" width="9" height="130" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(6 98 230)"></rect><rect x="93.5" y="28" width="9" height="122" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(10 98 230)"></rect><rect x="86" y="-14" width="11" height="150" rx="5.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="86" y="-14" width="11" height="22" rx="5.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect></g><path d="M72 110 A26 8 0 0 0 124 110 V230 A26 8 0 0 1 72 230 Z" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M72 110 A26 8 0 0 0 124 110 V120 A26 8 0 0 1 72 120 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M72 166 A26 8 0 0 0 124 166 V172 A26 8 0 0 1 72 172 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M72 218 A26 8 0 0 0 124 218 V230 A26 8 0 0 1 72 230 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+      </div></div>
+    </div>
+    <div class="bd-cand">
+      <div class="bd-tag">C · landing · 390 panel · same tip-back transform as today</div>
+      <div class="bd-panelbox" style="width: 390px;"><div class="sm-barrel sm-barrel--landed">
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" aria-hidden="true"><g style="transform: rotate(-12deg); transform-origin: 150px 180px;"><ellipse cx="150" cy="86" rx="26" ry="8" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><rect x="145.5" y="66" width="9" height="54" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-10 150 190)"></rect><rect x="145.5" y="60" width="9" height="60" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-5 150 190)"></rect><rect x="145.5" y="70" width="9" height="50" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(2 150 190)"></rect><rect x="145.5" y="62" width="9" height="58" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(6 150 190)"></rect><rect x="145.5" y="68" width="9" height="52" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(10 150 190)"></rect><path d="M124 86 A26 8 0 0 0 176 86 V190 A26 8 0 0 1 124 190 Z" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M124 86 A26 8 0 0 0 176 86 V96 A26 8 0 0 1 124 96 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M124 138 A26 8 0 0 0 176 138 V144 A26 8 0 0 1 124 144 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M124 178 A26 8 0 0 0 176 178 V190 A26 8 0 0 1 124 190 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></g><g class="sm-fallen" style="transform: rotate(-7deg); transform-origin: 100px 196px;"><rect x="16" y="182" width="150" height="13" rx="6.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="16" y="182" width="24" height="13" rx="6.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><text x="118" y="193" font-family="var(--font-display)" font-size="13" font-weight="500" fill="var(--color-line-strong)" text-anchor="middle">๒๓</text></g></svg>
+      </div></div>
+    </div>
+    <div class="bd-note">
+      <b>C · what changes</b> (all three drawings)<br>
+      body: tapered 84 wide → straight 52 wide (x 72–124 upright, 124–176 tipped), elliptical mouth and base rx 26 ry 8 (was rx 42 ry 13); floors unchanged (rest 198, shake 238, landing 198)<br>
+      body fill: var(--page-accent) → var(--color-line-strong) (token)<br>
+      rim: cream fill over the sticks → ink mouth under them<br>
+      two straight 0.35 lines → removed<br>
+      added: gold lip and base bands var(--accent-gold), red waist band var(--color-primary)<br>
+      plain sticks: 4 upright at x 66/84/102/120 → 5 at x 93.5, fanned by rotate −10/−5/2/6/10 deg about the tube's base centre (98,190 rest · 98,230 shake · 150,190 landing); tops rest y 44–56, shake y 16–30, landing y 60–70<br>
+      unchanged: the boxes, the marked stick (x 86, y −14, 11×150, tip 22), .sm-sticks origin 98px 110px, the tip-back, the fallen stick<br>
+      NEW VALUE: none
+    </div>
+  </div>
+  <div class="bd-tag" style="margin-top: 22px;">C · shake · desktop panel (box unchanged)</div>
+  <div class="bd-panelbox" style="width: 1440px;"><div class="sm-barrel">
+<svg width="200" height="240" viewBox="0 0 200 240" fill="none" aria-hidden="true"><ellipse cx="98" cy="110" rx="26" ry="8" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3"></ellipse><g class="sm-sticks"><rect x="93.5" y="24" width="9" height="126" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-10 98 230)"></rect><rect x="93.5" y="16" width="9" height="134" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(-5 98 230)"></rect><rect x="93.5" y="30" width="9" height="120" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(2 98 230)"></rect><rect x="93.5" y="20" width="9" height="130" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(6 98 230)"></rect><rect x="93.5" y="28" width="9" height="122" rx="4.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5" transform="rotate(10 98 230)"></rect><rect x="86" y="-14" width="11" height="150" rx="5.5" fill="#f7e6c4" stroke="var(--color-line-strong)" stroke-width="2.5"></rect><rect x="86" y="-14" width="11" height="22" rx="5.5" fill="#d6336c" stroke="var(--color-line-strong)" stroke-width="2.5"></rect></g><path d="M72 110 A26 8 0 0 0 124 110 V230 A26 8 0 0 1 72 230 Z" fill="var(--color-line-strong)" stroke="var(--color-line-strong)" stroke-width="3" stroke-linejoin="round"></path><path d="M72 110 A26 8 0 0 0 124 110 V120 A26 8 0 0 1 72 120 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M72 166 A26 8 0 0 0 124 166 V172 A26 8 0 0 1 72 172 Z" fill="var(--color-primary)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path><path d="M72 218 A26 8 0 0 0 124 218 V230 A26 8 0 0 1 72 230 Z" fill="var(--accent-gold)" stroke="var(--color-line-strong)" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+  </div></div>
+</div>
+
+<!-- ======================= B2 §32/1 check ======================= -->
+<div class="bd-row">
+  <h2>B2 · §32/1 read, per option</h2>
+  <table class="bd-table">
+    <tr><th>reads-as-glass cue</th><th>TODAY</th><th>A</th><th>B</th><th>C</th></tr>
+    <tr><td>tapered tumbler silhouette</td><td>yes</td><td>no · straight</td><td>no · straight, 2.5:1 tall</td><td>no · straight, 2.5:1 tall</td></tr>
+    <tr><td>foam rim (cream fill over the stick bases)</td><td>yes</td><td>no · dark mouth under the sticks</td><td>no · dark mouth</td><td>no · dark mouth</td></tr>
+    <tr><td>fill lines (straight, translucent)</td><td>yes · two at 0.35</td><td>no · curved bands, opaque</td><td>no · nodes proud of the wall</td><td>no · curved bands, opaque</td></tr>
+    <tr><td>can / keg read (squat cylinder with rims or hoops)</td><td>n/a</td><td>weakest of the three · squat 1:1.5, lip + waist band, no base rim</td><td>no · slender, thin nodes</td><td>no · slender</td></tr>
+    <tr><td>liquid-coloured body (yellow / amber / transparent)</td><td>yes · gold</td><td>no · red</td><td>no · wood</td><td>no · ink</td></tr>
+    <tr><td>handle · neck · can lip</td><td>none</td><td>none</td><td>none</td><td>none</td></tr>
+  </table>
+</div>
+
+<!-- ======================= B5 TODAY ======================= -->
+<div class="bd-row">
+  <h2>B5 · TODAY · 390 · what the keep button does (captured from dist/)</h2>
+  <p class="bd-why">In renderSlip the keep button (BTN_KEEP) calls renderDone(DONE_KEEP); renderDone empties the stage with replaceChildren(), so the slip panel is thrown away and one line plus BTN_AGAIN is left. The tie button (BTN_TIE) does the same with DONE_TIE. The copy says "kept" while the screen has just removed the slip. The text-alignment half of B5 is not drawn here (design/SiamsiSlip.dc.html owns it); the frames below keep today's alignment as built.</p>
+  <div class="bd-cands">
+    <div class="bd-cand">
+      <div class="bd-tag">TODAY · slip screen (slip 23, intent ไม่เจาะจง)</div>
+      <div class="bd-cap" style="width: 390px; height: 860px; background-image: url('../docs/verification/evidence/gh295-boards-2026-11-07/siamsi-today/390-slip.jpg');"></div>
+    </div>
+    <div class="bd-arrow">→</div>
+    <div class="bd-cand">
+      <div class="bd-tag">TODAY · after tapping the keep button: the slip is gone</div>
+      <div class="bd-cap" style="width: 390px; height: 240px; background-image: url('../docs/verification/evidence/gh295-boards-2026-11-07/siamsi-today/390-kept.jpg');"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= B5 PROPOSED ======================= -->
+<div class="bd-row">
+  <h2>B5 · PROPOSED · 390 · what keeping a slip looks like (replayed from shipped CSS)</h2>
+  <p class="bd-why">Both options change the keep path only. The tie path stays as built: the slip goes and DONE_TIE plus BTN_AGAIN are left, because tying a slip away IS leaving it behind. Both reuse existing copy; no new Thai.</p>
+  <div class="bd-cands">
+    <div class="bd-cand">
+      <div class="bd-opt">A · slip stays, actions swap<span class="bd-res">PICKED 2026-11-07</span></div>
+      <div class="bd-tag">A: the slip panel stays where it is; the keep and tie buttons and NOTE_SLIP are replaced by DONE_KEEP plus BTN_AGAIN, which land where the buttons were.</div>
+      <div class="bd-play" style="width: 390px;"><div class="stage-screen">
+        <div class="sm-slip">
+          <div class="sm-slip-head"><span class="sm-slip-number">๒๓</span><span class="sm-grade">พอใช้</span></div>
+          <p class="sm-verse"><span>จดหมายที่เขียนค้าง ยังวางอยู่บนโต๊ะ</span><br><span>คำที่ยังไม่ได้ส่ง ไม่มีใครได้อ่าน</span><br><span>เขียนต่อให้จบวันนี้ แล้วใจจะโล่งขึ้น</span><br><span>บางเรื่องรอไม่ได้นาน เท่าที่เราคิดว่ารอได้</span></p>
+          <div class="sm-rows">
+            <div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">การงาน</span><p>มีเรื่องที่ต้องแจ้งใครสักคนค้างอยู่ บอกเสียวันนี้</p></div></div>
+            <div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">การเงิน</span><p>เรื่องที่ยังไม่ได้เคลียร์กับใคร คุยให้จบจะได้ไม่ค้างใจ</p></div></div>
+            <div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">ความรัก</span><p>คำที่อยากพูดค้างไว้นาน พูดออกไปแล้วจะเบาขึ้น</p></div></div>
+            <div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">สุขภาพ</span><p>เรื่องค้างใจทำให้หลับไม่สนิท จัดการสักเรื่องก่อนนอน</p></div></div>
+          </div>
+          <p class="sm-closing">เรื่องค้างไม่หนักตอนทำ แต่หนักตอนแบกไว้เฉยๆ</p>
+        </div>
+        <p>เก็บใบนี้ไว้แล้ว ขอให้เป็นกำลังใจไปทั้งวัน</p>
+        <button type="button" class="game-btn game-btn-primary">เสี่ยงใหม่</button>
+      </div></div>
+      <div class="bd-note">A · values: none new. The line and button are renderDone's own nodes, appended after the panel instead of replacing it. Stage gap 22px as built.</div>
+    </div>
+    <div class="bd-cand">
+      <div class="bd-opt">B · kept line joins the slip<span class="bd-res no">NOT PICKED 2026-11-07</span></div>
+      <div class="bd-tag">B: the slip stays and DONE_KEEP is written inside it as its last section, so a screenshot of the slip carries it; only BTN_AGAIN is left below.</div>
+      <div class="bd-play" style="width: 390px;"><div class="stage-screen">
+        <div class="sm-slip">
+          <div class="sm-slip-head"><span class="sm-slip-number">๒๓</span><span class="sm-grade">พอใช้</span></div>
+          <p class="sm-verse"><span>จดหมายที่เขียนค้าง ยังวางอยู่บนโต๊ะ</span><br><span>คำที่ยังไม่ได้ส่ง ไม่มีใครได้อ่าน</span><br><span>เขียนต่อให้จบวันนี้ แล้วใจจะโล่งขึ้น</span><br><span>บางเรื่องรอไม่ได้นาน เท่าที่เราคิดว่ารอได้</span></p>
+          <div class="sm-rows">
+            <div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">การงาน</span><p>มีเรื่องที่ต้องแจ้งใครสักคนค้างอยู่ บอกเสียวันนี้</p></div></div>
+            <div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">การเงิน</span><p>เรื่องที่ยังไม่ได้เคลียร์กับใคร คุยให้จบจะได้ไม่ค้างใจ</p></div></div>
+            <div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">ความรัก</span><p>คำที่อยากพูดค้างไว้นาน พูดออกไปแล้วจะเบาขึ้น</p></div></div>
+            <div class="sm-row"><span class="sm-row-bar"></span><div><span class="sm-row-label">สุขภาพ</span><p>เรื่องค้างใจทำให้หลับไม่สนิท จัดการสักเรื่องก่อนนอน</p></div></div>
+          </div>
+          <p class="sm-closing">เรื่องค้างไม่หนักตอนทำ แต่หนักตอนแบกไว้เฉยๆ</p>
+          <p class="bd-kept-line">เก็บใบนี้ไว้แล้ว ขอให้เป็นกำลังใจไปทั้งวัน</p>
+        </div>
+        <button type="button" class="game-btn game-btn-primary">เสี่ยงใหม่</button>
+      </div></div>
+      <div class="bd-note">B · values: none new. The kept line takes .sm-closing's dashed rule, 16px margin, 14px padding and 1.7 line-height, and .sm-row-label's face (var(--font-display) 500, 14px), at full opacity. Being a paragraph on the stage, it stays centred by .stage-screen p as built; the alignment fix from design/SiamsiSlip.dc.html would apply to it too.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= COPY SOURCES ======================= -->
+<div class="bd-row">
+  <h2>COPY SOURCES · every Thai string on this board</h2>
+  <table class="bd-table">
+    <tr><th>string</th><th>source</th></tr>
+    <tr><td><q>เก็บใบนี้ไว้แล้ว ขอให้เป็นกำลังใจไปทั้งวัน</q></td><td>src/games/siamsi.ts · DONE_KEEP</td></tr>
+    <tr><td><q>เสี่ยงใหม่</q></td><td>src/games/siamsi.ts · BTN_AGAIN</td></tr>
+    <tr><td><q>ไม่เจาะจง</q> (frame label only)</td><td>src/games/_siamsi-deck.ts · INTENT_LABEL.any</td></tr>
+    <tr><td><q>การงาน</q> <q>การเงิน</q> <q>ความรัก</q> <q>สุขภาพ</q></td><td>src/games/_siamsi-deck.ts · ASPECT_LABEL, in readingOrder('any')</td></tr>
+    <tr><td>slip 23: <q>พอใช้</q>, the four verse lines, the four readings, the closing line</td><td>src/games/_siamsi-deck.ts · SLIPS, the entry with number 23 (grade, verse, readings, closing)</td></tr>
+    <tr><td><q>๒๓</q></td><td>src/games/_siamsi-deck.ts · thaiNumeral(23)</td></tr>
+    <tr><td><q>ตั้งจิต</q> <q>เขย่า</q> (annotation screen names only)</td><td>src/games/siamsi.ts · the screen names in the renderIntent / renderShake doc comments</td></tr>
+    <tr><td><q>กระบอกเซียมซี</q> (annotation term only, not player copy)</td><td>gh#295 body, row B2 (not in src)</td></tr>
+    <tr><td>every Thai string inside the TODAY crops</td><td>the built page dist/game/siamsi/index.html (pixels, not retyped)</td></tr>
+    <tr><td>INVENTED Thai</td><td>none</td></tr>
+  </table>
+</div>
+
+</x-dc>
+</body>
+</html>

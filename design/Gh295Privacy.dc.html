@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    /* gh#295 row B1 proposal sheet: a privacy page (/privacy/) at 1440 and 390, in the site shell, plus where its
+       link lives (A: home feedback band + the feedback page's privacy line, B: footer link, C: both). Not a page.
+       Faces: the self-hosted subsets, relative path, so Thai wraps here where it wraps on the site.
+       Colours: tokens.css values only (#14142b line-strong/ink, #fff6e0 ground-warm, #ffffff color-bg, #ffcc00
+       accent-gold/surface-sun, #ff3d7f accent-punch, #2b7bff accent-sky, #3d3b5c color-muted/ink-soft, #d9d6f0
+       ink-on-band-soft, #c9c3a8 ad-line). Sizes reuse shipped values: the feedback page's gold head band, body track,
+       back-link card and privacy line (src/pages/feedback/index.astro); the home feedback band (src/pages/index.astro,
+       gh#292); the PageChrome top bar and footer (src/components/PageChrome.astro). Every new literal is tagged
+       NEW VALUE in the notes and the value table. The three slots that were open (controller, contact, date) are filled by the owner popup
+       of 2026-11-07; no board marker remains.
+       Thai: the whole policy block, the link label and the page title were INVENTED (owner ruling 2026-11-07: the agent
+       drafts, the owner approves) and the policy block is now APPROVED as drawn; every other Thai string is copied verbatim from src, listed in COPY SOURCES.
+       The policy text also lives as plain text beside the renders (privacy-approved-th.txt), so a wording edit needs no
+       re-render; the two must stay equal. */
+    @font-face { font-family: 'Sarabun'; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-weight: 500; src: url('../public/fonts/mitr-medium-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    body { margin: 0; font-family: 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif; background: #e9e6dc; }
+    .sheet { width: 1520px; padding: 0 0 40px; box-sizing: border-box; background: #ffffff; color: #14142b; }
+    .top { padding: 32px 40px; background: #14142b; color: #ffcc00; }
+    .top .t1 { font: 700 26px/1.3 ui-monospace, Menlo, monospace; }
+    .top .t2 { margin-top: 6px; font: 14px/1.5 ui-monospace, Menlo, monospace; color: #fff6e0; max-width: 1440px; }
+    .row { padding: 36px 40px; border-bottom: 3px dashed #14142b; }
+    .row h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .row h3 { margin: 26px 0 10px; font: 700 15px/1.3 ui-monospace, Menlo, monospace; }
+    .note { font: 12.5px/1.6 ui-monospace, Menlo, monospace; color: #3d3b5c; margin: 0 0 10px; max-width: 1440px; }
+    .note b { color: #14142b; }
+    .flag { display: inline-block; font: 700 13px/1.4 ui-monospace, Menlo, monospace; background: #ff3d7f; color: #14142b; padding: 3px 10px; border-radius: 999px; margin: 0 8px 10px 0; }
+    .flag.ink { background: #14142b; color: #ffcc00; }
+    .flag.line { background: #ffffff; box-shadow: 0 0 0 1.5px #14142b; }
+    .pair { display: flex; gap: 40px; align-items: flex-start; }
+    .side { flex: 1; min-width: 0; }
+    table.vals { border-collapse: collapse; font: 12px/1.5 ui-monospace, Menlo, monospace; width: 1440px; }
+    table.vals th, table.vals td { border: 1px solid #14142b; padding: 4px 8px; text-align: left; vertical-align: top; }
+    table.vals th { background: #14142b; color: #ffcc00; }
+    table.vals td.new { background: #ffcc00; font-weight: 700; }
+
+    /* ONE FRAME = one viewport width. box-shadow draws the edge without taking width. */
+    .frame { position: relative; background: #fff6e0; color: #14142b; box-shadow: 0 0 0 1px #14142b; overflow: hidden; }
+    .w1440 { width: 1440px; }
+    .w390 { width: 390px; }
+    .dim { position: absolute; right: 6px; top: 4px; z-index: 5; font: 600 12px/1 ui-monospace, Menlo, monospace; color: #14142b; background: #ffffff; padding: 4px 8px; box-shadow: 0 0 0 1px #14142b; }
+    .ctx { font: 600 12px/1 ui-monospace, Menlo, monospace; color: #3d3b5c; padding: 14px 18px; border-top: 1px dashed #3d3b5c; border-bottom: 1px dashed #3d3b5c; background: #fff6e0; }
+
+    /* ---- page content: Sarabun body, Mitr display (tokens --font-sans / --font-display) ---- */
+    .pg { font-family: 'Sarabun', 'Noto Sans Thai', sans-serif; }
+    .pg *, .pg *::before, .pg *::after { box-sizing: border-box; }
+    .pg a { color: inherit; text-decoration: none; }
+
+    /* PageChrome top bar and footer (PageChrome.astro: 84px row at 1440, the <=1099px block below) */
+    .bar { background: #14142b; padding-inline: 18px; font-family: 'Mitr', sans-serif; }
+    .bar .in { max-width: 1280px; margin: 0 auto; height: 84px; display: flex; align-items: center; justify-content: space-between; }
+    .bar .brand { font-weight: 700; font-size: 32px; color: #ffcc00; }
+    .bar .pills { display: flex; gap: 12px; font-weight: 600; font-size: 17px; }
+    .bar .pill { border-radius: 999px; padding: 9px 20px; color: #14142b; }
+    .w390 .bar { padding: 12px 14px; }
+    .w390 .bar .in { height: auto; display: block; }
+    .w390 .bar .brand { font-size: 26px; }
+    .w390 .bar .pills { gap: 6px; margin-top: 10px; font-size: 14px; flex-wrap: wrap; }
+    .w390 .bar .pill { padding: 6px 12px; }
+    .foot { background: #14142b; padding-inline: 18px; font-family: 'Mitr', sans-serif; }
+    .foot .in { max-width: 1280px; margin: 0 auto; height: 96px; display: flex; align-items: center; justify-content: center; }
+    .foot .fbrand { font-weight: 700; font-size: 26px; color: #ffcc00; }
+    .w390 .foot { padding: 0 14px; }
+    .w390 .foot .in { height: 72px; }
+    .w390 .foot .fbrand { font-size: 22px; }
+
+    /* Privacy page = the feedback page's layout (feedback/index.astro .fb-head / .fb-body / .fb-back-link) */
+    .head { background: #ffcc00; border-bottom: 2.5px solid #14142b; }
+    .head .hin { max-width: 1280px; margin: 0 auto; padding: 52px 18px; display: flex; flex-direction: column; gap: 16px; }
+    .head h1 { margin: 0; font: 600 58px/1.2 'Mitr', sans-serif; letter-spacing: -1px; }
+    .head .lead { margin: 0; max-width: 760px; font-size: 19px; line-height: 1.6; }
+    .track { max-width: 1280px; margin: 0 auto; padding-inline: 18px; }
+    .track.t1 { padding-top: 40px; }
+    .track.t2 { padding-top: 28px; padding-bottom: 48px; }
+    .policy-body { max-width: 760px; display: flex; flex-direction: column; gap: 28px; }
+    .policy-body h2 { margin: 0; font: 600 22px/1.3 'Mitr', sans-serif; }
+    .policy-body p, .policy-body li { font-size: 17px; line-height: 1.6; }
+    .policy-body p { margin: 8px 0 0; }
+    .policy-body ul { margin: 8px 0 0; padding-left: 22px; }
+    .policy-body .plink { color: #14142b; text-decoration: underline; text-decoration-thickness: 2px; overflow-wrap: anywhere; }
+    .policy-body .updated { margin: 0; font-size: 15px; line-height: 1.65; color: #3d3b5c; }
+    .fill { display: inline-block; font: 700 12px/1.5 ui-monospace, Menlo, monospace; color: #14142b; background: #ffffff; border: 2px dashed #c9c3a8; padding: 4px 8px; }
+    .back { display: inline-flex; align-items: center; justify-content: center; min-height: 72px; padding: 0 24px; background: #fff6e0; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 0 #14142b; font: 500 19px 'Mitr', sans-serif; color: #14142b; }
+    .w390 .head .hin { padding: 36px 14px; }
+    .w390 .head h1 { font-size: 30px; letter-spacing: 0; }
+    .w390 .head .lead { font-size: 16px; }
+    .w390 .track { padding-inline: 14px; }
+    .w390 .track.t1 { padding-top: 28px; }
+    .w390 .track.t2 { padding-top: 24px; padding-bottom: 40px; }
+    .w390 .policy-body { gap: 24px; }
+    .w390 .policy-body h2 { font-size: 20px; }
+    .w390 .policy-body p, .w390 .policy-body li { font-size: 16px; }
+    .w390 .policy-body .updated { font-size: 14px; }
+
+    /* Option A: the home feedback band (index.astro .band-feedback / .feedback-row / .feedback-copy / .feedback-cta) */
+    .hband { background: #14142b; padding-block: 48px; }
+    .hband .wrap { width: min(1280px, 100% - 28px); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .hband h2 { margin: 0; font: 700 28px/1.25 'Mitr', sans-serif; color: #ffcc00; }
+    .hband p { margin: 8px 0 0; font-size: 17px; line-height: 1.6; color: #fff6e0; }
+    .hband .plink-band { display: inline-block; margin-top: 8px; font-size: 15px; line-height: 1.65; color: #d9d6f0; text-decoration: underline; text-decoration-thickness: 2px; }
+    .hband .cta { flex: none; display: inline-flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 26px; border-radius: 999px; background: #ffcc00; color: #14142b; font: 600 17px 'Mitr', sans-serif; white-space: nowrap; }
+    .w390 .hband { padding-block: 36px; }
+    .w390 .hband .wrap { display: block; }
+    .w390 .hband h2 { font-size: 24px; }
+    .w390 .hband p { font-size: 16px; }
+    .w390 .hband .plink-band { font-size: 14px; }
+    .w390 .hband .cta { display: flex; margin-top: 18px; }
+
+    /* Option A, second half: the feedback page's privacy line (feedback/index.astro .fb-privacy, <=1099px size) */
+    .fbx { padding: 24px 14px 40px; display: flex; flex-direction: column; gap: 24px; }
+    .fbx .fbp { margin: 0; font-size: 14px; line-height: 1.65; color: #3d3b5c; }
+    .fbx .fbp a { color: #14142b; text-decoration: underline; text-decoration-thickness: 2px; }
+
+    /* Option B: the footer carries a link beside the brand */
+    .foot.withlink .in { gap: 24px; }
+    .foot .flink { font-family: 'Sarabun', sans-serif; font-size: 15px; line-height: 1.65; color: #d9d6f0; text-decoration: underline; text-decoration-thickness: 2px; }
+    .w390 .foot.withlink .in { gap: 16px; }
+    .w390 .foot .flink { font-size: 14px; }
+  </style>
+</helmet>
+
+<div class="sheet">
+  <div class="top">
+    <div class="t1">gh#295 B1 · privacy page + where its link lives · proposal board</div>
+    <div class="t2">Approval result 2026-11-07: placement A (home feedback band + the feedback page's privacy line; the footer stays brand-only per gh#247) is PICKED; B (footer link) and C (A and B together) were NOT PICKED, their sections stay below as history. The policy wording is APPROVED with three fills: controller "ผู้พัฒนาวัดดวง"; contact is the feedback page only (the slot reads "ส่งข้อความผ่านหน้าติชมและเสนอเกม"); last-updated is the deploy date, drawn as the date in the approved text. The approved text is docs/verification/evidence/gh295-boards-2026-11-07/privacy-approved-th.txt and both policy blocks below equal it. Code is built from the approved values (ADR-0033). The text was drafted by an agent and is NOT legal advice. Every frame replays shipped CSS values; new literals are tagged NEW VALUE.</div>
+  </div>
+
+  <!-- ===================================================================== POLICY 1440 -->
+  <div class="row">
+    <h2>1 · The privacy page, /privacy/, at 1440</h2>
+    <span class="flag ink">APPROVED 2026-11-07 — equals privacy-approved-th.txt</span><span class="flag line">policy block = h1 + lead + sections + date line</span>
+    <p class="note">Layout is the feedback page's: gold head band (52px block padding, 58px Mitr 600 H1, 19px lead, 760px measure), the 1280px track with 18px gutter, the 72px back-link card. The prose is new: section H2 at the feedback card-head size (Mitr 600 22px, 20px narrow), body at the home band lead size (17px/1.6, 16px narrow), 8px heading-to-text gap, 28px between sections (the feedback body gap). <b>NEW VALUE</b>: links in prose underline at rest (2px, the approved hover thickness); list indent 22px.</p>
+    <div class="frame w1440 pg">
+      <span class="dim">1440</span>
+      <header class="bar"><div class="in"><span class="brand">วัดดวง</span><span class="pills"><span class="pill" style="background:#ffcc00">ดูดวง</span><span class="pill" style="background:#ff3d7f">สุ่มคนโดน</span><span class="pill" style="background:#2b7bff">เครื่องมือสุ่ม</span></span></div></header>
+      <div id="policy-1440" class="policy">
+        <header class="head"><div class="hin">
+          <h1>นโยบายความเป็นส่วนตัว</h1>
+          <p class="lead">วัดดวงเล่นได้โดยไม่ต้องสมัครสมาชิกและไม่ต้องล็อกอิน หน้านี้บอกว่าเว็บไซต์เก็บข้อมูลอะไร เก็บไว้ที่ไหน และคุณจัดการได้อย่างไร</p>
+        </div></header>
+        <div class="track t1"><div class="policy-body">
+          <section>
+            <h2>ข้อมูลที่อยู่ในเครื่องของคุณ</h2>
+            <p>เพื่อให้เล่นต่อได้โดยไม่ต้องพิมพ์ใหม่ เว็บไซต์จำสิ่งเหล่านี้ไว้ในเบราว์เซอร์ของคุณเอง</p>
+            <ul>
+              <li>ชื่อผู้เล่นที่คุณใส่</li>
+              <li>รายชื่อในเครื่องมือสุ่ม และช่วงตัวเลขล่าสุด</li>
+              <li>การตั้งค่าเกม และการเปิดปิดเสียง</li>
+            </ul>
+            <p>ข้อมูลของรอบที่กำลังเล่นอยู่เก็บไว้เฉพาะในแท็บนั้น และหายไปเมื่อปิดแท็บ ข้อมูลทั้งหมดนี้ไม่ถูกส่งออกจากเครื่องของคุณ คุณลบได้ทุกเมื่อด้วยการล้างข้อมูลเว็บไซต์ในการตั้งค่าเบราว์เซอร์</p>
+          </section>
+          <section>
+            <h2>ข้อมูลที่คุณส่งมาเอง</h2>
+            <p>ถ้าคุณส่งความเห็นหรือเสนอเกมผ่าน<a class="plink" href="#">หน้าติชมและเสนอเกม</a> เราจะได้รับข้อความที่คุณเขียน ชื่อเกมที่เสนอ อีเมลถ้าคุณกรอก และเวลาที่ส่ง เราใช้ข้อมูลนี้เพื่ออ่านและตอบกลับคุณ ข้อมูลเก็บในระบบจัดเก็บข้อมูลที่เว็บไซต์เช่าใช้ และมีเพียงผู้พัฒนาวัดดวงที่อ่าน เก็บไว้นานเท่าไรและขอลบได้อย่างไร ดูได้ที่หน้านั้น</p>
+          </section>
+          <section>
+            <h2>คุกกี้และโฆษณา</h2>
+            <p>เว็บไซต์นี้ไม่ได้ตั้งคุกกี้เอง แต่อาจแสดงโฆษณาจาก Google ผู้ให้บริการภายนอก รวมถึง Google อาจใช้คุกกี้เพื่อแสดงโฆษณาตามการเข้าชมเว็บไซต์นี้และเว็บไซต์อื่นที่คุณเคยเข้า</p>
+            <p>คุณปิดโฆษณาที่ปรับตามความสนใจได้ที่ <a class="plink" href="#">adssettings.google.com</a> และปิดคุกกี้ของผู้ให้บริการภายนอกได้ที่ <a class="plink" href="#">optout.aboutads.info</a></p>
+            <p>ถ้าเราใช้เครือข่ายโฆษณาอื่นนอกจาก Google จะระบุชื่อไว้ที่หน้านี้</p>
+          </section>
+          <section>
+            <h2>สิทธิของคุณ</h2>
+            <p>คุณขอดู ขอแก้ไข ขอลบ หรือคัดค้านการใช้ข้อมูลที่คุณส่งมาได้ และร้องเรียนต่อสำนักงานคณะกรรมการคุ้มครองข้อมูลส่วนบุคคลได้ ส่งคำขอผ่านช่องทางติดต่อด้านล่าง</p>
+          </section>
+          <section>
+            <h2>ติดต่อ</h2>
+            <p>ผู้ดูแลข้อมูล: ผู้พัฒนาวัดดวง</p>
+            <p>ช่องทางติดต่อ: ส่งข้อความผ่าน<a class="plink" href="#">หน้าติชมและเสนอเกม</a></p>
+          </section>
+          <section>
+            <h2>การเปลี่ยนแปลง</h2>
+            <p>ถ้านโยบายนี้เปลี่ยน เราจะแก้ที่หน้านี้และเปลี่ยนวันที่ด้านล่าง</p>
+          </section>
+          <p class="updated">ปรับปรุงล่าสุด 7 พฤศจิกายน 2569</p>
+        </div></div>
+      </div>
+      <div class="track t2"><a class="back" href="#">กลับหน้าแรก</a></div>
+      <footer class="foot"><div class="in"><span class="fbrand">วัดดวง</span></div></footer>
+    </div>
+  </div>
+
+  <!-- ===================================================================== POLICY 390 + ENUMERATION -->
+  <div class="row">
+    <h2>2 · The same page at 390, and what each sentence rests on</h2>
+    <span class="flag ink">APPROVED 2026-11-07 — equals privacy-approved-th.txt</span>
+    <div class="pair">
+      <div class="frame w390 pg">
+        <span class="dim">390</span>
+        <header class="bar"><div class="in"><span class="brand">วัดดวง</span><span class="pills"><span class="pill" style="background:#ffcc00">ดูดวง</span><span class="pill" style="background:#ff3d7f">สุ่มคนโดน</span><span class="pill" style="background:#2b7bff">เครื่องมือสุ่ม</span></span></div></header>
+        <div id="policy-390" class="policy">
+          <header class="head"><div class="hin">
+            <h1>นโยบายความเป็นส่วนตัว</h1>
+            <p class="lead">วัดดวงเล่นได้โดยไม่ต้องสมัครสมาชิกและไม่ต้องล็อกอิน หน้านี้บอกว่าเว็บไซต์เก็บข้อมูลอะไร เก็บไว้ที่ไหน และคุณจัดการได้อย่างไร</p>
+          </div></header>
+          <div class="track t1"><div class="policy-body">
+            <section>
+              <h2>ข้อมูลที่อยู่ในเครื่องของคุณ</h2>
+              <p>เพื่อให้เล่นต่อได้โดยไม่ต้องพิมพ์ใหม่ เว็บไซต์จำสิ่งเหล่านี้ไว้ในเบราว์เซอร์ของคุณเอง</p>
+              <ul>
+                <li>ชื่อผู้เล่นที่คุณใส่</li>
+                <li>รายชื่อในเครื่องมือสุ่ม และช่วงตัวเลขล่าสุด</li>
+                <li>การตั้งค่าเกม และการเปิดปิดเสียง</li>
+              </ul>
+              <p>ข้อมูลของรอบที่กำลังเล่นอยู่เก็บไว้เฉพาะในแท็บนั้น และหายไปเมื่อปิดแท็บ ข้อมูลทั้งหมดนี้ไม่ถูกส่งออกจากเครื่องของคุณ คุณลบได้ทุกเมื่อด้วยการล้างข้อมูลเว็บไซต์ในการตั้งค่าเบราว์เซอร์</p>
+            </section>
+            <section>
+              <h2>ข้อมูลที่คุณส่งมาเอง</h2>
+              <p>ถ้าคุณส่งความเห็นหรือเสนอเกมผ่าน<a class="plink" href="#">หน้าติชมและเสนอเกม</a> เราจะได้รับข้อความที่คุณเขียน ชื่อเกมที่เสนอ อีเมลถ้าคุณกรอก และเวลาที่ส่ง เราใช้ข้อมูลนี้เพื่ออ่านและตอบกลับคุณ ข้อมูลเก็บในระบบจัดเก็บข้อมูลที่เว็บไซต์เช่าใช้ และมีเพียงผู้พัฒนาวัดดวงที่อ่าน เก็บไว้นานเท่าไรและขอลบได้อย่างไร ดูได้ที่หน้านั้น</p>
+            </section>
+            <section>
+              <h2>คุกกี้และโฆษณา</h2>
+              <p>เว็บไซต์นี้ไม่ได้ตั้งคุกกี้เอง แต่อาจแสดงโฆษณาจาก Google ผู้ให้บริการภายนอก รวมถึง Google อาจใช้คุกกี้เพื่อแสดงโฆษณาตามการเข้าชมเว็บไซต์นี้และเว็บไซต์อื่นที่คุณเคยเข้า</p>
+              <p>คุณปิดโฆษณาที่ปรับตามความสนใจได้ที่ <a class="plink" href="#">adssettings.google.com</a> และปิดคุกกี้ของผู้ให้บริการภายนอกได้ที่ <a class="plink" href="#">optout.aboutads.info</a></p>
+              <p>ถ้าเราใช้เครือข่ายโฆษณาอื่นนอกจาก Google จะระบุชื่อไว้ที่หน้านี้</p>
+            </section>
+            <section>
+              <h2>สิทธิของคุณ</h2>
+              <p>คุณขอดู ขอแก้ไข ขอลบ หรือคัดค้านการใช้ข้อมูลที่คุณส่งมาได้ และร้องเรียนต่อสำนักงานคณะกรรมการคุ้มครองข้อมูลส่วนบุคคลได้ ส่งคำขอผ่านช่องทางติดต่อด้านล่าง</p>
+            </section>
+            <section>
+              <h2>ติดต่อ</h2>
+              <p>ผู้ดูแลข้อมูล: ผู้พัฒนาวัดดวง</p>
+              <p>ช่องทางติดต่อ: ส่งข้อความผ่าน<a class="plink" href="#">หน้าติชมและเสนอเกม</a></p>
+            </section>
+            <section>
+              <h2>การเปลี่ยนแปลง</h2>
+              <p>ถ้านโยบายนี้เปลี่ยน เราจะแก้ที่หน้านี้และเปลี่ยนวันที่ด้านล่าง</p>
+            </section>
+            <p class="updated">ปรับปรุงล่าสุด 7 พฤศจิกายน 2569</p>
+          </div></div>
+        </div>
+        <div class="track t2"><a class="back" href="#">กลับหน้าแรก</a></div>
+        <footer class="foot"><div class="in"><span class="fbrand">วัดดวง</span></div></footer>
+      </div>
+
+      <div class="side">
+        <p class="note"><b>WHAT THE SITE STORES OR SENDS TODAY</b> (enumerated by grepping src for localStorage, sessionStorage, document.cookie, fetch(, indexedDB and sendBeacon, tests and probes excluded; plus every form action):</p>
+        <p class="note">· localStorage, on the device only: the shared player roster and group (src/shell/roster.ts, keys watduang:roster / watduang:group); one name list per name tool (src/tools/name-list.ts via ToolNameEntry.astro); the number tool's last range (tool/number.astro, watduang:tool:number-range); the mute flag (src/shell/audio.ts, watduang:muted); per-game settings on three play routes (zero-trigger, wire-snip-panic, short-stick: penalty mode, stick counts) and croc-bite's motion and particle prefs. → policy bullets 1 to 3.</p>
+        <p class="note">· sessionStorage: one record for the round in play (src/shell/session.ts, watduang:session: players, who has played, checkpoint), self-expiring after 6h and scoped to the tab. → "หายไปเมื่อปิดแท็บ".</p>
+        <p class="note">· Cookies: none set by site code (0 hits for document.cookie). Live response headers were NOT probed (no DNS from the sandbox), so a hosting-layer cookie is not ruled out. → "ไม่ได้ตั้งคุกกี้เอง" says "itself" on purpose.</p>
+        <p class="note">· Network: 0 fetch( calls in shipped src; no third-party script, font or iframe (fonts are self-hosted; Base.astro loads nothing external). The ONE outbound write is the native form POST from /feedback/ to /api/feedback (services/feedback, ADR-0074), which stores received_at, kind, game_name, message, email (services/feedback record.mjs COLUMNS) in a storage blob. No IP or user agent column. → section 2.</p>
+        <p class="note">· Retention of feedback is stated by the feedback page's own PRIVACY line; the policy points there and does NOT restate it, so the two can never disagree.</p>
+        <p class="note">· Analytics: Cloudflare Web Analytics is chosen but NOT wired (gh#160), so the policy says nothing about analytics. Add a section the day it is wired. Ads: no publisher ID yet (gh#29), so every ad sentence says "อาจ" (may).</p>
+        <p class="note"><b>ADSENSE REQUIRED CONTENT</b> (support.google.com/adsense/answer/1348695, research 2026-11-07): Google's ad cookies; third-party vendors including Google using cookies based on prior visits to this and other sites; opt-out at adssettings.google.com (href https://adssettings.google.com) and optout.aboutads.info (href https://optout.aboutads.info/); other ad networks named (none today). All four are in section 3.</p>
+        <p class="note"><b>PDPA s.23 NOTICE ITEMS</b> (unofficial translation): purposes (play on without retyping; read and reply; ads) · data collected (sections 1, 2, 3) · retention (until you clear it; until the tab closes; the feedback page) · recipients (only the developer reads feedback; ad vendors via their own cookies) · controller and contact (section 5: developer of วัดดวง; the feedback page) · rights incl. complaint to the PDPC (section 4).</p>
+        <p class="note"><b>NOT STATED, owner or legal call</b>: the legal basis for each purpose; cross-border transfer (where the feedback blob and Google's ad systems sit); whether hosting access logs exist (UNVERIFIED, not readable from src). This draft is not legal advice.</p>
+        <p class="note"><b>Filled slots (owner 2026-11-07)</b>: (1) controller name, "ผู้พัฒนาวัดดวง"; (2) contact channel, the feedback page only (no email is published anywhere in src; the feedback page is already the stated channel for a deletion request); (3) the last-updated date, the deploy date, drawn as the date in the approved text.</p>
+        <p class="note"><b>Links in the block</b>: "หน้าติชมและเสนอเกม" → /feedback/; the two opt-out domains → the hrefs above, opening in the same tab like every other site link. The page title would be "นโยบายความเป็นส่วนตัว — วัดดวง", the feedback page's title pattern (INVENTED).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== PLACEMENT A -->
+  <div class="row">
+    <h2><span style="display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 1px 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace;">PICKED 2026-11-07</span> 3 · Placement A · no footer link: home feedback band + the feedback page's privacy line</h2>
+    <span class="flag ink">keeps gh#247 owner ruling 2026-10-04 (footer = brand only)</span>
+    <p class="note">A1: the home feedback band (gh#292) gains one text link under its lead, before the pill. A2: the feedback page's existing privacy line gains a trailing link. Reach: the policy is linked from 2 pages (/ and /feedback/); every other web page is one hop away through the top-bar brand. Play routes link nowhere either way (no PageChrome). <b>NEW VALUE</b>: the band link, 15px (14px narrow) Sarabun in #d9d6f0 (--ink-on-band-soft) with a 2px underline at rest, 8px above it (the lead's own gap); the line link, ink with the same underline. Both are short text links, so each needs the 44px invisible hit area of the gh#263 pseudo-element pattern; the band's gold focus ring already covers the band.</p>
+    <h3>A1 · home band at 1440</h3>
+    <div class="frame w1440 pg">
+      <span class="dim">1440</span>
+      <div class="ctx">… tools row above (unchanged)</div>
+      <div class="hband"><div class="wrap">
+        <div>
+          <h2>มีเกมในใจ อยากให้ทำ?</h2>
+          <p>เสนอเกมใหม่ หรือบอกว่าอยากให้แก้อะไร ผู้พัฒนาอ่านทุกข้อความ</p>
+          <a class="plink-band" href="#">นโยบายความเป็นส่วนตัว</a>
+        </div>
+        <a class="cta" href="#">ส่งความเห็น →</a>
+      </div></div>
+      <div class="ctx">FAQ below (unchanged) …</div>
+    </div>
+    <h3>A1 at 390 · A2 the feedback page's privacy line at 390</h3>
+    <div class="pair">
+      <div class="frame w390 pg">
+        <span class="dim">390</span>
+        <div class="ctx">… tools row above</div>
+        <div class="hband"><div class="wrap">
+          <div>
+            <h2>มีเกมในใจ อยากให้ทำ?</h2>
+            <p>เสนอเกมใหม่ หรือบอกว่าอยากให้แก้อะไร ผู้พัฒนาอ่านทุกข้อความ</p>
+            <a class="plink-band" href="#">นโยบายความเป็นส่วนตัว</a>
+          </div>
+          <a class="cta" href="#">ส่งความเห็น →</a>
+        </div></div>
+        <div class="ctx">FAQ below …</div>
+      </div>
+      <div class="frame w390 pg">
+        <span class="dim">390</span>
+        <div class="ctx">… the two feedback forms above</div>
+        <div class="fbx">
+          <p class="fbp">เราเก็บข้อความและอีเมล (ถ้ากรอก) ไว้อ่านและตอบกลับเท่านั้น ไม่ส่งต่อให้ใคร และลบอัตโนมัติภายใน 6 เดือน อยากให้ลบก่อนนั้น ส่งคำขอผ่านหน้านี้พร้อมอีเมลที่ใช้ <a href="#">อ่านนโยบายความเป็นส่วนตัว</a></p>
+          <p style="margin:0"><a class="back" href="#">กลับหน้าแรก</a></p>
+        </div>
+      </div>
+      <div class="side">
+        <p class="note"><b>Why the band</b>: it is the home page's one "about this site" surface and already the precedent for a non-game link (gh#292); the link sits under the lead so it never competes with the gold pill.</p>
+        <p class="note"><b>Why the feedback line</b>: it is the only place the site already talks about personal data, and the policy points back to it for retention, so the two pages link each other.</p>
+        <p class="note"><b>Variant noted, not drawn</b>: the home FAQ answer that already says names stay on the device ("ไม่ต้อง ไม่มีการล็อกอิน ชื่อที่ใส่เก็บอยู่ในเครื่องของคุณเอง") could carry the link instead of the band.</p>
+        <p class="note"><b>Main risk</b>: reach. If the AdSense site review expects the policy linked from every page, A is not enough. That expectation was NOT verified against the AdSense page; the Required-content article asks for the policy and its disclosures, and says nothing checked here about link placement.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== PLACEMENT B -->
+  <div class="row">
+    <h2><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-11-07</span> 4 · Placement B · a footer link beside the brand, on every page that renders PageChrome</h2>
+    <span class="flag">reverses gh#247 owner ruling 2026-10-04 ("Footer links: drop them. The footer carries only the brand, as canvas D draws it.")</span>
+    <p class="note">The footer keeps its height (96px, 72px narrow) and centring; the brand and one link sit in a row. Reach: every web page (PageChrome renders the footer on all of them, the solo landings included); play routes render no footer. <b>NEW VALUE</b>: row gap 24px (16px narrow); link 15px (14px narrow) Sarabun in #d9d6f0 (--ink-on-band-soft), 2px underline at rest; 44px invisible hit area (gh#263 pattern); the focus ring on the ink footer would take the gold the home band uses.</p>
+    <h3>B at 1440 · TODAY and B at 390</h3>
+    <div class="frame w1440 pg">
+      <span class="dim">1440</span>
+      <footer class="foot withlink"><div class="in"><span class="fbrand">วัดดวง</span><a class="flink" href="#">นโยบายความเป็นส่วนตัว</a></div></footer>
+    </div>
+    <div class="pair" style="margin-top: 20px;">
+      <div class="cand">
+        <p class="note"><b>TODAY</b> · 390</p>
+        <div class="frame w390 pg"><span class="dim">390</span><footer class="foot"><div class="in"><span class="fbrand">วัดดวง</span></div></footer></div>
+      </div>
+      <div class="cand">
+        <p class="note"><b>B</b> · 390</p>
+        <div class="frame w390 pg"><span class="dim">390</span><footer class="foot withlink"><div class="in"><span class="fbrand">วัดดวง</span><a class="flink" href="#">นโยบายความเป็นส่วนตัว</a></div></footer></div>
+      </div>
+      <div class="side">
+        <p class="note"><b>Why</b>: the footer is where a visitor and a reviewer look for a privacy policy, and it reaches every web page with one edit in one component.</p>
+        <p class="note"><b>Cost</b>: it undoes a recorded owner ruling, and the footer stops being brand-only. If later rows want about or contact links too, this is where they would pile up.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== PLACEMENT C -->
+  <div class="row">
+    <h2><span style="display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; text-decoration: line-through;">NOT PICKED 2026-11-07</span> 5 · Placement C · A and B together</h2>
+    <span class="flag">reverses gh#247 owner ruling 2026-10-04 (it contains B)</span>
+    <p class="note">The A1 band link, the A2 feedback-line link and the B footer link, each exactly as drawn above; no new frame and no value beyond A's and B's. Reach: every web page, plus the two pages where data is discussed. Cost: B's cost, plus two more link sites to keep in step.</p>
+    <p class="note"><b>Agent read, not a pick</b>: A keeps the ruling and puts the link where personal data is already discussed; its open question is reach, which only B settles. If the owner wants the policy reachable from every page, B alone is the smaller change than C.</p>
+  </div>
+
+  <!-- ===================================================================== VALUES + COPY -->
+  <div class="row" style="border-bottom: 0;">
+    <h2>6 · Values, copy sources, not covered</h2>
+    <table class="vals">
+      <tr><th>where</th><th>property</th><th>value</th><th>source</th></tr>
+      <tr><td>page head</td><td>band</td><td>#ffcc00, 2.5px #14142b bottom rule, 52px / 36px block padding, 18px / 14px gutter</td><td>feedback/index.astro .fb-head</td></tr>
+      <tr><td>page head</td><td>h1 / lead</td><td>Mitr 600 58px/1.2 -1px · 30px narrow / 19px/1.6, 16px narrow, 760px measure</td><td>feedback/index.astro h1, .lead</td></tr>
+      <tr><td>page body</td><td>track</td><td>1280px max, 18px / 14px gutter, 40px / 28px top, 48px / 40px bottom, 28px / 24px gap</td><td>feedback/index.astro .fb-body</td></tr>
+      <tr><td>page body</td><td>section h2</td><td>Mitr 600 22px/1.3 · 20px narrow</td><td>feedback/index.astro .fb-card-head</td></tr>
+      <tr><td>page body</td><td>text</td><td>17px/1.6 · 16px narrow, 8px under its heading</td><td>index.astro .feedback-copy p</td></tr>
+      <tr><td>page body</td><td>date line</td><td>15px/1.65 #3d3b5c · 14px narrow</td><td>feedback/index.astro .fb-privacy</td></tr>
+      <tr><td>page body</td><td>back link</td><td>72px card, 2.5px rule, 16px radius, 4px 4px 0 0 shadow, Mitr 500 19px, "กลับหน้าแรก"</td><td>feedback/index.astro .fb-back-link</td></tr>
+      <tr><td>page body</td><td>prose link</td><td class="new">NEW VALUE: underline at rest, 2px thick, ink</td><td>thickness = approved hover A (Gh288MotionSheet)</td></tr>
+      <tr><td>page body</td><td>list</td><td class="new">NEW VALUE: 22px indent, 8px above</td><td>none (no list exists on a web page)</td></tr>
+      <tr><td>A1 band</td><td>link</td><td class="new">NEW VALUE: Sarabun 15px/1.65 · 14px narrow, #d9d6f0, 2px underline, 8px above</td><td>colour = --ink-on-band-soft token</td></tr>
+      <tr><td>A2 line</td><td>link</td><td class="new">NEW VALUE: appended to .fb-privacy, ink, 2px underline</td><td>size inherits .fb-privacy</td></tr>
+      <tr><td>B footer</td><td>row</td><td class="new">NEW VALUE: gap 24px · 16px narrow; link Sarabun 15px · 14px, #d9d6f0, 2px underline</td><td>height 96px / 72px unchanged (PageChrome.astro)</td></tr>
+      <tr><td>A, B</td><td>hit area</td><td>44px invisible pseudo-element, paints nothing</td><td>PageChrome.astro gh#263 pattern</td></tr>
+    </table>
+    <p class="note" style="margin-top: 14px;"><b>COPY SOURCES</b> (every non-invented Thai string on this board, verbatim). PageChrome.astro: "วัดดวง", "ดูดวง", "สุ่มคนโดน", "เครื่องมือสุ่ม". index.astro: "มีเกมในใจ อยากให้ทำ?", "เสนอเกมใหม่ หรือบอกว่าอยากให้แก้อะไร ผู้พัฒนาอ่านทุกข้อความ", "ส่งความเห็น →", the FAQ answer "ไม่ต้อง ไม่มีการล็อกอิน ชื่อที่ใส่เก็บอยู่ในเครื่องของคุณเอง". feedback/index.astro: the PRIVACY constant (whole), "กลับหน้าแรก", "ติชมและเสนอเกม" (its page title, reused inside the link text "หน้าติชมและเสนอเกม").</p>
+    <p class="note"><b>Agent-written Thai, policy block APPROVED 2026-11-07</b>: the whole policy block in sections 1 and 2 (also at privacy-approved-th.txt beside the renders), the link labels "นโยบายความเป็นส่วนตัว" and "อ่านนโยบายความเป็นส่วนตัว", the page title "นโยบายความเป็นส่วนตัว — วัดดวง", and the Thai date line.</p>
+    <p class="note"><b>NOT COVERED</b>: live response headers (cookies from the hosting layer) were not probed; whether AdSense review needs a site-wide link is not verified; Safari and Firefox; real AdSense (gh#29); the meta description for /privacy/ (written with the code, from the approved lead); legal review.</p>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
