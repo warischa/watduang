@@ -56,6 +56,10 @@ export function inputClockGate() {
     hold: (ev: { timeStamp: number }): void => anchor(ev.timeStamp),
     /** Was this event dispatched at or after the end of the window? */
     isOpen: (ev: { timeStamp: number }): boolean => openAt === undefined || ev.timeStamp >= openAt,
+    /** Does the window have an input-clock reference at all? Without one `isOpen` reads true for
+     *  everything, which is safe where it decides to STOP holding and unsafe where it would decide
+     *  to skip a hold (gh#297). */
+    anchored: (): boolean => openAt !== undefined,
   };
 }
 
@@ -207,12 +211,16 @@ function armAfterQuiet(
       stage.removeEventListener('pointerdown', restart);
       return;
     }
+    // gh#297: no longer gated on `armed`. The old `if (armed)` assumed an unarmed gate's controls
+    // were still disabled, but an OLDER gate over the same controls (a modal close re-arms its region
+    // inside a screen gate's renewed window, ADR-0057) can arm and enable them inside this window. A
+    // contact inside the window is the ghost's own pointerdown, so re-holding here lands before its
+    // click. The one contact that skips the re-hold is one the input clock puts past an anchored
+    // window: that tap is deliberate, delivered while a stall still holds this gate's expired timer,
+    // and disabling under it would swallow it (REFUTE finding 1). No bare event, no anchor: hold.
+    const deliberate = !armed && ev !== undefined && stamps.anchored() && stamps.isOpen(ev);
     if (ev) stamps.hold(ev);
-    // gh#297: unconditional. The old `if (armed)` assumed an unarmed gate's controls were still
-    // disabled, but an OLDER gate over the same controls (a modal close re-arms its region inside a
-    // screen gate's renewed window, ADR-0057) can arm and enable them inside this window. This
-    // contact is the ghost's own pointerdown, so re-holding here lands before its click.
-    disableAll();
+    if (!deliberate) disableAll();
     armed = false;
     clearTimeout(timer);
     timer = setTimeout(arm, ARM_DELAY_MS);

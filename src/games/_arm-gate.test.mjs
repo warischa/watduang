@@ -10,7 +10,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { FakeElement } from './_fake-dom.mjs';
-import { ARM_DELAY_MS, armAllButtons } from './_arm-gate.ts';
+import { ARM_DELAY_MS, armAllButtons, gateHolds } from './_arm-gate.ts';
 
 /** A stage with one button in it, the shape every render function hands armAllButtons. */
 function makeStage() {
@@ -227,6 +227,7 @@ test('gh#297: a control the caller enabled after construction is handed back aft
   assert.equal(btn.disabled, true, 'positive control: the late contact re-held the enabled control');
   t.mock.timers.tick(ARM_DELAY_MS + 1);
   assert.equal(btn.disabled, false, 'the late re-hold left a dead control');
+  assert.equal(gateHolds(btn), false, 'the handed-back control still reads as held');
   cancel();
 });
 
@@ -251,4 +252,59 @@ test('gh#297: a control the caller disabled stays disabled through a late re-hol
   assert.equal(live.disabled, false, 'positive control: the re-held control came back');
   assert.equal(capped.disabled, true, 'the re-hold handed back a control the caller had disabled');
   cancel();
+});
+
+test('gh#297 REFUTE 1: a deliberate tap stamped past both windows lands, even before the newer timer runs', async (t) => {
+  // The overlap again, but the next contact is deliberate: stamped after the newer window ends,
+  // delivered while a stall still holds the newer gate's expired timer. The newer gate has not armed,
+  // and the control is live from the older gate's arm. Re-holding here would disable it under the
+  // finger; the input clock already says this window is over.
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  await withFakeDocument('overlap-deliberate', async ({ armAllButtons, ARM_DELAY_MS: delay, gateHolds }, contact) => {
+    let fired = 0;
+    const { stage, btn } = makeStage();
+    btn.addEventListener('click', () => { fired += 1; });
+    contact('pointerdown', 0);
+    contact('pointerup', 0);
+    const cancelOlder = armAllButtons(stage);
+    t.mock.timers.tick(delay + 50);
+    stage.dispatch('pointerdown', { timeStamp: 300 });
+    t.mock.timers.tick(150);
+    contact('pointerdown', 520);
+    contact('pointerup', 600);
+    const cancelNewer = armAllButtons(stage); // window ends at 1000
+    t.mock.timers.tick(251); // the older gate arms; the newer timer is still pending
+    assert.equal(btn.disabled, false, 'positive control: the older gate armed the control');
+
+    stage.dispatch('pointerdown', { timeStamp: 1050 });
+    assert.equal(btn.disabled, false, 'a deliberate tap past both windows was disabled under the finger');
+    btn.click();
+    assert.equal(fired, 1, 'the deliberate tap did not land');
+    assert.equal(gateHolds(btn), false, 'the control still reads as held after the deliberate tap');
+    cancelOlder();
+    cancelNewer();
+  });
+});
+
+test('gh#297 REFUTE 1: with no input-clock anchor, a stamped contact in an overlap is still re-held', (t) => {
+  // No document here, so neither gate has an anchor and `isOpen` reads true for every stamp. The
+  // deliberate-tap exception must not fire on that: an unanchored window cannot tell a ghost from a
+  // deliberate tap, so it holds (fails closed).
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let fired = 0;
+  const { stage, btn } = makeStage();
+  btn.addEventListener('click', () => { fired += 1; });
+  const cancelOlder = armAllButtons(stage); // timer at 400
+  t.mock.timers.tick(200);
+  const cancelNewer = armAllButtons(stage); // timer at 600
+  t.mock.timers.tick(250); // t=450: the older gate armed and enabled the control
+  assert.equal(btn.disabled, false, 'positive control: the older gate armed inside the newer window');
+
+  stage.dispatch('pointerdown', { timeStamp: 450 });
+  btn.click();
+  assert.equal(fired, 0, 'an unanchored window let a stamped contact through as deliberate');
+  t.mock.timers.tick(ARM_DELAY_MS + 1);
+  assert.equal(btn.disabled, false, 'the newer gate never handed the control back');
+  cancelOlder();
+  cancelNewer();
 });

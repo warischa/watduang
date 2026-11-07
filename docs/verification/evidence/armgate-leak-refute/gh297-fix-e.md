@@ -10,6 +10,7 @@
 E re-holds on the ghost's pointerdown. That only helps a control that acts on `click`. Every control that writes `disabled` on a gated page was checked; none acts on press:
 
 - cannon-flag's fire button acts on `mousedown`/`touchstart`, but it is in `rapidTapControls()`, which the panel gate's `except` list excludes.
+- siamsi's hold button (`renderShake` in `src/games/siamsi.ts`) registers `pointerdown`/`pointerup` and sits inside a collected stage. It self-guards on `hold.disabled`, and every siamsi render calls `stage.replaceChildren()`, so no two gates ever share that node and the overlap cannot reach it. (Corrected by REFUTE finding 2; the first draft said no gated control acts on press.)
 - No other gated control registers `pointerdown`, `mousedown` or `touchstart`. The stage-level `pointerdown` listeners (bangkok-drift steering, freeze-tap surface, croc-bite and one-bomb canvases) are on canvases or stages, not on gated buttons.
 
 E rests on the same physical premise as the rest of the restart leg: a contact on a disabled button still bubbles `pointerdown` to the stage. The owner ruled on gh#232 that this premise stays unmeasured at runtime.
@@ -31,7 +32,7 @@ The set is every file under `src/` that imports `armAllButtons` and writes `.dis
 | love-match `sync`: open button | yes | no (answers are gated) | yes, until all three are answered | same as croc-bite |
 | player-screen `syncControls`: start, add | yes | they compute `surfaceHeld`, which is true for the whole first window | yes | unchanged; the re-hold after an arm is gh#298 |
 | player-screen `syncControls`: dec, inc | no (`steppers()` is excepted) | n/a | n/a | unaffected |
-| wheel `syncControls`: spin, disc (OR `gateHolds`), stop, mode radios | yes (the radios through `also`) | yes (when a spin ends) | yes | `onArm` re-asserts. A stop that a re-hold took is now handed back and its marker cleared |
+| wheel `syncControls`: spin, disc (OR `gateHolds`), stop, mode radios | spin, disc and stop yes; the mode radios NO (`also` names only the eliminate box and the name input; corrected by REFUTE finding 2) | yes (when a spin ends) | yes | `onArm` re-asserts. A stop that a re-hold took is now handed back and its marker cleared |
 
 ## Measurements (fake DOM, fake clock)
 
@@ -49,3 +50,10 @@ The set is every file under `src/` that imports `armAllButtons` and writes `.dis
   | scan | RED | RED (pre-existing, identical at HEAD) |
 
 - `npm test`: 1495/1495 with E, including all 14 routes' `arm-reveal-paths`.
+
+## REFUTE round 1 (2026-11-07): RES=FAIL on one low finding, fixed
+
+- **Finding 1 (introduced by E, fixed):** under an overlap plus a stall spanning the newer gate's timer, a deliberate tap stamped past both windows was disabled under the finger. `restart` now skips the re-hold only for an unarmed gate whose window is anchored and whose contact is stamped past it. `inputClockGate().anchored()` was added because an unanchored `isOpen` reads true for every stamp. Two new cases cover it: the deliberate tap lands; with no anchor, a stamped contact is still re-held. Mutants: removing the narrowing turns case 9 RED; removing the anchor check turns case 10 RED.
+- **Finding 2 (doc):** corrected above. It covered siamsi's press-driven hold and the wheel radios, which are not in `also`.
+- **Finding 3 (hypothesis, no route):** two gates both own a caller-disabled control, the caller enables it in the window, a contact lands, the gate that wrote the hold is cancelled before arming, and the survivor arms. The control is then stranded. Every canceller in the repo either rebuilds the nodes or cancels and re-arms sequentially, never alongside a live overlapping gate, so no route reaches this. Recorded as a ceiling. A caller that starts cancelling one of two overlapping gates must re-read this.
+- **Finding 4 (coverage):** case 7 now also asserts `gateHolds(btn) === false` after the hand-back.
