@@ -43,6 +43,14 @@
     {
       "id": "page-11",
       "name": "gh#295 · siamsi vessel · home shelf · privacy page (approved 2026-11-07)"
+    },
+    {
+      "id": "page-12",
+      "name": "gh#302 · prize draw event · A POSTER / B NIGHT STAGE (awaiting owner)"
+    },
+    {
+      "id": "page-13",
+      "name": "gh#303 · prize draw games, the company-party category page and home row (approved 2026-11-11)"
     }
   ],
   "artboards": [
@@ -486,6 +494,78 @@
       "y": 0,
       "w": 1520,
       "h": 6349
+    },
+    {
+      "file": "Gh302Setup.dc.html",
+      "title": "gh#302 setup page · A picked 2026-11-11",
+      "page": "page-12",
+      "x": 0,
+      "y": 0,
+      "w": 1520,
+      "h": 14420
+    },
+    {
+      "file": "Gh302Projector.dc.html",
+      "title": "gh#302 projected frames 1920x1080 · B picked 2026-11-11",
+      "page": "page-12",
+      "x": 1600,
+      "y": 0,
+      "w": 1520,
+      "h": 15503
+    },
+    {
+      "file": "Gh302Phone.dc.html",
+      "title": "gh#302 phone join, reveal, claim · A picked 2026-11-11",
+      "page": "page-12",
+      "x": 3200,
+      "y": 0,
+      "w": 1520,
+      "h": 12604
+    },
+    {
+      "file": "Gh303Fireworks.dc.html",
+      "title": "gh#303 countdown fireworks 1920x1080 · APPROVED 2026-11-11: F1 A FIVE BURSTS, F2 A SIDE BY SIDE PICKED",
+      "page": "page-13",
+      "x": 0,
+      "y": 0,
+      "w": 1520,
+      "h": 26218
+    },
+    {
+      "file": "Gh303Cards.dc.html",
+      "title": "gh#303 deal-the-whole-room cards 1920x1080 · APPROVED 2026-11-11: C1 B ALL AT ONCE PICKED",
+      "page": "page-13",
+      "x": 1600,
+      "y": 0,
+      "w": 1520,
+      "h": 17404
+    },
+    {
+      "file": "Gh303Ladder.dc.html",
+      "title": "gh#303 lane-picking ladder final 1920x1080 · APPROVED 2026-11-11: L1 B DEPTH, ONE AT A TIME PICKED",
+      "page": "page-13",
+      "x": 3200,
+      "y": 0,
+      "w": 1520,
+      "h": 15372
+    },
+    {
+      "file": "CatCompany-partyPop.dc.html",
+      "title": "gh#303 company-party category page 1440 (slug company-party) · APPROVED 2026-11-11: K1 A LILAC PICKED",
+      "page": "page-13",
+      "x": 4800,
+      "y": 0,
+      "w": 1520,
+      "h": 8808
+    },
+    {
+      "file": "Gh303Home.dc.html",
+      "title": "gh#303 company-party home row 1440 and 320 · APPROVED 2026-11-11: K1 A LILAC PICKED",
+      "page": "page-13",
+      "x": 6400,
+      "y": 0,
+      "w": 1520,
+      "h": 6054
     }
   ],
   "annotations": [
