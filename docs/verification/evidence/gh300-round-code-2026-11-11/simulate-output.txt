@@ -1,0 +1,37 @@
+code-length {"cut":9,"cutExample":"267545271","deal":12,"dealExample":"469953165001","parsed":{"kind":"cut","seed":"26754","cut":527}}
+schedule n=50 [50,20,10,7,5]
+schedule n=52 [52,20,10,7,5]
+schedule n=200 [200,100,50,20,5]
+tries n=50 round=1 50->20 events=20000 {"cut":{"mean":1.026,"p99":2,"max":3},"idealCut":{"mean":1.024,"p99":2,"max":4},"deal":{"mean":1.05,"p99":2,"max":4}}
+tries n=50 round=2 20->10 events=20000 {"cut":{"mean":1.011,"p99":2,"max":3},"idealCut":{"mean":1.01,"p99":1,"max":3},"deal":{"mean":1.009,"p99":1,"max":3}}
+tries n=50 round=3 10->7 events=20000 {"cut":{"mean":1.006,"p99":1,"max":3},"idealCut":{"mean":1.005,"p99":1,"max":2},"deal":{"mean":1.009,"p99":1,"max":2}}
+tries n=50 round=4 7->5 events=20000 {"cut":{"mean":1.003,"p99":1,"max":2},"idealCut":{"mean":1.004,"p99":1,"max":2},"deal":{"mean":1.008,"p99":1,"max":3}}
+tries n=50 all-rounds events=20000 {"cut":{"mean":1.011,"p99":2,"max":3},"deal":{"mean":1.019,"p99":2,"max":4}}
+tries n=52 round=1 52->20 events=20000 {"cut":{"mean":1.028,"p99":2,"max":3},"idealCut":{"mean":1.026,"p99":2,"max":3},"deal":{"mean":1.055,"p99":2,"max":4}}
+tries n=52 round=2 20->10 events=20000 {"cut":{"mean":1.011,"p99":2,"max":3},"idealCut":{"mean":1.01,"p99":1,"max":3},"deal":{"mean":1.011,"p99":2,"max":3}}
+tries n=52 round=3 10->7 events=20000 {"cut":{"mean":1.005,"p99":1,"max":3},"idealCut":{"mean":1.004,"p99":1,"max":2},"deal":{"mean":1.011,"p99":2,"max":3}}
+tries n=52 round=4 7->5 events=20000 {"cut":{"mean":1.004,"p99":1,"max":2},"idealCut":{"mean":1.004,"p99":1,"max":3},"deal":{"mean":1.006,"p99":1,"max":2}}
+tries n=52 all-rounds events=20000 {"cut":{"mean":1.012,"p99":2,"max":3},"deal":{"mean":1.021,"p99":2,"max":4}}
+tries n=200 round=1 200->100 events=20000 {"cut":{"mean":1.106,"p99":2,"max":4},"idealCut":{"mean":1.102,"p99":2,"max":6},"deal":{"mean":1.108,"p99":2,"max":4}}
+tries n=200 round=2 100->50 events=20000 {"cut":{"mean":1.052,"p99":2,"max":4},"idealCut":{"mean":1.049,"p99":2,"max":4},"deal":{"mean":1.053,"p99":2,"max":4}}
+tries n=200 round=3 50->20 events=20000 {"cut":{"mean":1.026,"p99":2,"max":3},"idealCut":{"mean":1.025,"p99":2,"max":5},"deal":{"mean":1.052,"p99":2,"max":3}}
+tries n=200 round=4 20->5 events=20000 {"cut":{"mean":1.01,"p99":2,"max":2},"idealCut":{"mean":1.013,"p99":2,"max":3},"deal":{"mean":1.02,"p99":2,"max":3}}
+tries n=200 all-rounds events=20000 {"cut":{"mean":1.049,"p99":2,"max":4},"deal":{"mean":1.058,"p99":2,"max":4}}
+phone==host n=50 events=2000 {"compared":400000,"mismatched":0}
+phone==host n=52 events=2000 {"compared":416000,"mismatched":0}
+phone==host n=200 events=2000 {"compared":1600000,"mismatched":0}
+reach-final fair n=200 events=40000 {"p":0.025,"maxAbsZ":2.66,"maxRelDeviation":0.083,"se":0.00078}
+reach-final biased-x0.90 n=200 events=40000 {"p":0.025,"maxAbsZ":16.91,"maxRelDeviation":0.528,"se":0.00078}
+reach-final biased-x0.97 n=200 events=40000 {"p":0.025,"maxAbsZ":5.16,"maxRelDeviation":0.161,"se":0.00078}
+reach-final no-finaliser n=200 events=40000 {"p":0.025,"maxAbsZ":19.25,"maxRelDeviation":0.601,"se":0.00078}
+reach-final fair n=50 events=40000 {"p":0.1,"maxAbsZ":2.78,"maxRelDeviation":0.0417,"se":0.0015}
+enumeration-control {"enumerationVsHostSeeds":"300/300"}
+sweep n=200 keep=100 rosters=300 prngSeed=200 secPerRoster=0.87 {"rosters":300,"zCount":60000,"meanValidSeeds":90632,"pooledSdZ":0.9942,"fracAbsZOver3":0.0028,"maxAbsZ":{"median":2.93,"p90":3.53,"max":4.27},"worstDeviation":{"median":0.00486,"p90":0.00586,"max":0.00709}}
+sweep n=300 keep=100 rosters=150 prngSeed=300 secPerRoster=1.23 {"rosters":150,"zCount":45000,"meanValidSeeds":86381,"pooledSdZ":0.9994,"fracAbsZOver3":0.00267,"maxAbsZ":{"median":3.02,"p90":3.52,"max":4.17},"worstDeviation":{"median":0.00485,"p90":0.00565,"max":0.0067}}
+final-code orders=2000 {"unencodable":0,"seedsScanned":{"median":2109,"p99":14323,"max":25477}}
+cards n=200 events=2000 {"rounds":8000,"exactUnderBothRules":8000,"cardCompared":740000,"cardMatches":740000,"decksNeededPerRound":["200->100: mean 19.5 max 32","100->50: mean 10.9 max 19","50->20: mean 5.4 max 11","20->5: mean 2.4 max 5"]}
+cards n=52 events=2000 {"rounds":8000,"exactUnderBothRules":8000,"cardCompared":178000,"cardMatches":178000,"decksNeededPerRound":["52->20: mean 5.4 max 13","20->10: mean 3.3 max 8","10->7: mean 2.2 max 4","7->5: mean 1.7 max 3"]}
+cards n=37 events=2000 {"rounds":8000,"exactUnderBothRules":8000,"cardCompared":148000,"cardMatches":148000,"decksNeededPerRound":["37->20: mean 4.8 max 10","20->10: mean 3.3 max 7","10->7: mean 2.2 max 4","7->5: mean 1.8 max 3"]}
+elapsed-seconds 493.259
+checks failed: 0
+exit 0

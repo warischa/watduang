@@ -1,0 +1,11 @@
+enumeration-control {"enumerationVsHostSeeds":"300/300"}
+CHECK FAILED: sweep n=200 keep=100 rosters=300 prngSeed=200 secPerRoster=0.87: pooled z SD 5.464389275740473 outside 0.97,1.03
+CHECK FAILED: sweep n=200 keep=100 rosters=300 prngSeed=200 secPerRoster=0.87: fraction |z| > 3 0.006683333333333334 outside 0.0017,0.0037
+CHECK FAILED: sweep n=200 keep=100 rosters=300 prngSeed=200 secPerRoster=0.87: max |z| 301.49461023374863 above 5
+sweep n=200 keep=100 rosters=300 prngSeed=200 secPerRoster=0.87 {"rosters":300,"zCount":60000,"meanValidSeeds":90639,"pooledSdZ":5.4644,"fracAbsZOver3":0.00668,"maxAbsZ":{"median":2.96,"p90":3.76,"max":301.49},"worstDeviation":{"median":0.00491,"p90":0.00624,"max":0.5}}
+CHECK FAILED: sweep n=300 keep=100 rosters=150 prngSeed=300 secPerRoster=1.23: pooled z SD 6.290643074157238 outside 0.97,1.03
+CHECK FAILED: sweep n=300 keep=100 rosters=150 prngSeed=300 secPerRoster=1.23: fraction |z| > 3 0.007822222222222222 outside 0.0017,0.0037
+CHECK FAILED: sweep n=300 keep=100 rosters=150 prngSeed=300 secPerRoster=1.23: max |z| 416.0288451537946 above 5
+sweep n=300 keep=100 rosters=150 prngSeed=300 secPerRoster=1.23 {"rosters":150,"zCount":45000,"meanValidSeeds":86387,"pooledSdZ":6.2906,"fracAbsZOver3":0.00782,"maxAbsZ":{"median":3.04,"p90":3.77,"max":416.03},"worstDeviation":{"median":0.00488,"p90":0.00605,"max":0.66667}}
+checks failed: 6
+exit 1

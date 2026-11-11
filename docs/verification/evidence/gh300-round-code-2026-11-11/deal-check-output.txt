@@ -1,0 +1,8 @@
+fate-known-at-deal n=200 ["200->100: know-in 0, know-out 0, in suspense 200","100->50: know-in 0, know-out 0, in suspense 100","50->20: know-in 0, know-out 10, in suspense 40","20->5: know-in 0, know-out 10, in suspense 10"]
+fate-known-at-deal n=52 ["52->20: know-in 0, know-out 12, in suspense 40","20->10: know-in 0, know-out 0, in suspense 20","10->7: know-in 4, know-out 0, in suspense 6","7->5: know-in 3, know-out 0, in suspense 4"]
+fate-known-at-deal n=50 ["50->20: know-in 0, know-out 10, in suspense 40","20->10: know-in 0, know-out 0, in suspense 20","10->7: know-in 4, know-out 0, in suspense 6","7->5: know-in 3, know-out 0, in suspense 4"]
+fate-known-at-deal n=37 ["37->20: know-in 3, know-out 0, in suspense 34","20->10: know-in 0, know-out 0, in suspense 20","10->7: know-in 4, know-out 0, in suspense 6","7->5: know-in 3, know-out 0, in suspense 4"]
+exact-deal-round1 n=200 keep=100 seeds=100000 {"validSeeds":90616,"rule0":{"maxAbsDeviation":0.00462,"sd":0.0018},"rule1":{"maxAbsDeviation":0.00462,"sd":0.0018},"theorySd":0.00166,"bound":0.0083}
+exact-deal-round1 n=50 keep=20 seeds=100000 {"validSeeds":95095,"rule0":{"maxAbsDeviation":0.00354,"sd":0.0017},"rule1":{"maxAbsDeviation":0.00386,"sd":0.0017},"theorySd":0.00159,"bound":0.00794}
+exact-deal-round1 n=20 keep=5 seeds=100000 {"validSeeds":98040,"rule0":{"maxAbsDeviation":0.00255,"sd":0.0015},"rule1":{"maxAbsDeviation":0.00373,"sd":0.0017},"theorySd":0.00138,"bound":0.00691}
+checks failed: 0
