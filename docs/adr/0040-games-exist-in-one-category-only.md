@@ -1,6 +1,9 @@
 # ADR-0040 — เกม exist in one หมวด only; ดูดวง and เครื่องมือ are not เกม
 
 Date: 2026-08-25 · Status: accepted · Owner decision
+Amended by: [ADR-0075](0075-a-third-category-company-party-games-holds-games-for-an-organiser-and-a-room.md) —
+เกม now also exist in the เกมงานเลี้ยงบริษัท หมวด (2026-11-11); the 2–10 range and phone-passing stay
+true of `party` only. Everything below is the text as accepted.
 
 Completes [ADR-0039](0039-the-shared-roster-belongs-to-one-category-not-to-the-site.md), which moved
 the shared roster and the 2–10 range to the สุ่มคนโดน หมวด. Narrows the premise of

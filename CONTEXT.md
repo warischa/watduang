@@ -45,7 +45,7 @@ _Avoid_: treating an empty tick-set as an error state — it is the count-only p
 
 **เกม**:
 What a วง plays together: has rounds, has turn order, ends in an outcome shared by the วง. One เกม is one file and one URL.
-Since ADR-0040, เกม exist in the ปาร์ตี้ หมวด alone — a page in วัดดวง is a การดูดวง, not a เกม.
+Since ADR-0075, เกม exist in the ปาร์ตี้ and เกมงานเลี้ยงบริษัท หมวด alone — a page in วัดดวง is a การดูดวง, not a เกม. In เกมงานเลี้ยงบริษัท the MC's cut schedule stands in for turn order and the room, not a วง, shares the outcome.
 _Avoid_: มินิเกม, โหมด (a โหมด is something that lives inside a เกม)
 
 **การดูดวง**:
@@ -75,3 +75,33 @@ _Avoid_: random, ดวงชะตา, and calling anything in this หมว�
 **ปาร์ตี้ (`party`)**:
 A เกม whose result is "ใครโดน". People who come to this หมวด are searching for a เครื่องมือ that decides for their วง, even though the mechanism inside is the same drawing of chance as the วัดดวง หมวด.
 _Avoid_: เกมกลุ่ม (a search query, not a หมวด name), สันทนาการ
+
+**เกมงานเลี้ยงบริษัท (company party games)**:
+A หมวด of เกม that an organiser runs for a room on one projected screen — an **event**. People who come here type "จับรางวัล", "จับฉลากรางวัลปีใหม่" or "เกมงานเลี้ยงบริษัท". Not the ปาร์ตี้ หมวด: the 2–10 range and phone-passing are true of ปาร์ตี้ only (ADR-0075, amending ADR-0040). Its terms are the six below. Copy avoids the words that read as gambling (the AdSense risk), and card visuals avoid casino styling (felt table, chips, money).
+_Avoid_: ปาร์ตี้บริษัท (reads as the ปาร์ตี้ หมวด), เกมกลุ่ม, and หวย · ลอตเตอรี่ · เสี่ยงโชค · ไพ่ป๊อก · แทง · เดิมพัน · ไฮโล
+
+Player-facing Thai wording for the terms below is not fixed — the canvas tickets set it. Until then code, issues and comments use the English term.
+
+**event**:
+One run of the หมวด: setup → elimination rounds → final → result, driven by one MC on a projected screen. Holds one roster of present people, one event name, one cut schedule and 1–5 prizes.
+_Avoid_: วง (a วง is people sharing one phone, an event's audience is a room), session, game (an event runs เกม, it is not one), draw, lottery
+
+**elimination round**:
+One round that cuts the remaining names down to the next number on the cut schedule. Every remaining name has equal odds; any choice handed to a player (a lane, a card) is theatre and never changes them (gh#299). The MC picks the เกม per round.
+_Avoid_: heat, stage (`#stage` is the play surface), knockout
+
+**final**:
+The one เกม after the last elimination round, played by the finalists, whose result is the prize holders. Not a numbered elimination round.
+_Avoid_: last round, round 5, grand round
+
+**finalist**:
+One of the 5 names left after the last elimination round. A finalist is not yet a winner: the final decides who holds which prize.
+_Avoid_: winner (a name that took a prize), survivor (any name still in during elimination), contestant
+
+**cut schedule**:
+The list of head counts the elimination rounds step through, e.g. 200 → 100 → 50 → 20 → 5. Proposed from the head count, editable by the MC before the start, 4 rounds, ending at 5.
+_Avoid_: bracket (implies seeding and pairing), tournament, ladder (the ทางแยกเลือกเส้น เกม has one)
+
+**round code**:
+The code the main screen shows at each reveal in QR mode; a phone works out its own fate from it and its join identity, with no server call at reveal time (gh#299 decision 5, unproven).
+_Avoid_: PIN (the event PIN in the join QR is a different thing, used at join), OTP, lottery number, เลขรางวัล

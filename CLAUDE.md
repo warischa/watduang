@@ -1,8 +1,8 @@
 # วัดดวง · watduang.com
 
 Free Thai-first entertainment on one phone. Revenue from Google AdSense.
-**เกม live in the สุ่มคนโดน หมวด only** — rounds, turn order, a shared roster, 2–10 players, phone passed around.
-The ดูดวง หมวด and the randomizer เครื่องมือ are **not เกม**: one person, one answer, no roster. Confirmed: ADR-0040.
+**เกม live in the สุ่มคนโดน หมวด** — rounds, turn order, a shared roster, 2–10 players, phone passed around — and in the company-party หมวด (ADR-0075).
+The ดูดวง หมวด and the randomizer เครื่องมือ are **not เกม**: one person, one answer, no roster. ADR-0040.
 Never state 2–10 players or phone-passing as a fact about the whole site — it is true of one หมวด, and only where that หมวด is the subject.
 English brand: **PartyPick** — lives at `/en/`, no second domain. Confirmed: ADR-0006.
 
