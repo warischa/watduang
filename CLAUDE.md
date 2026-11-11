@@ -77,7 +77,7 @@ record no longer what was written.
 
 Before writing code: use the vocabulary in `CONTEXT.md` and respect `docs/adr/` · labels: `docs/agents/triage-labels.md` · domain: `docs/agents/domain.md` · src-edit rules: `docs/agents/src-edit-rules.md` · porting a game from a mockup: `docs/agents/porting-a-mockup-game.md`
 
-⚠ **The `ui-ux-pro-max` plugin is an audit instrument here**: it measures the built site against its rules, while design values still come only from the canvas (ADR-0033). Owner ruling 2026-10-04: audit → owner picks → canvas → code. Last run: `docs/verification/evidence/ui-audit-2026-10-06-gh262/`
+⚠ **The `ui-ux-pro-max` plugin is an audit instrument here, and a design input on gh#299's tickets**: canvas proposals take its rules, never its palette or fonts; design values still come only from the canvas (ADR-0033). Owner rulings 2026-10-04 (audit → owner picks → canvas → code) and 2026-11-11. Last run: `docs/verification/evidence/ui-audit-2026-10-06-gh262/`
 
 ⚠ Before writing a BRIEF for an agent — never hand it a source path with a line number. A brief's
 citations are content, not context: the agent copies them into the comments it writes and reds
