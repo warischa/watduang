@@ -65,7 +65,7 @@ instead of inferring it:
 
 ```bash
 gh api "repos/warischa/watduang/actions/runs/<run-id>/jobs" \
-  --jq '.jobs[0].steps[] | "\(.conclusion)  \(.name)"'
+  --jq '.jobs[]|.name as $j|.steps[]|"\(.conclusion) \($j): \(.name)"'
 ```
 
 Used on 2026-08-19 to confirm the three deploy steps reported `skipped` on run 32269327426, and that
