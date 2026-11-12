@@ -40,6 +40,21 @@ This directory holds the shadow step only. Nothing here gates a deploy.
 2. Run `node compare.mjs <packed-dir> <lanes-root>`.
 3. Read wall time from the jobs API, compared with the packed step.
 
+## Shadow result on GitHub (SHA e5677fb, `ci/probe-matrix`, n=1)
+
+Files: `calibration-compare-output.txt` and `calibration-timings.txt`.
+
+- **Rows:**
+  - 32/32 leg verdicts are the same, and the play-exit and play-exit-guard summaries are the same (0 UNMEASURED both sides).
+  - 41 of 42 fit rows are identical. The base has 14 routes, with no prize-draw.
+  - The one differing row is cursed-number 390x844: 283px at press 6 packed, 231px at press 3 matrix. The packed arm flips between exactly these two values on its own: earlier packed CI runs read 231 twice and 283 twice. This is run-to-run variance in which screen is worst, not a matrix effect. The row is an owner-ruled exception and never reds on px.
+- **Leg seconds:** per leg within ±10s of packed. Running alone on a runner neither sped up nor slowed down any leg, so the legs are timer-bound, not CPU-bound.
+- **Wall time:**
+  - packed `ci` run: 883s, of which the probe step was 721s;
+  - shadow run: 601s (dist 22s, longest lane lane4 at 556s job wall, verdict 17s).
+- **Estimate for a switch where the probe lanes run beside the static gates:** about 10–10.5 min per run against 14.7 (inferred). The long poles are lane4 556s, fit2 499s and lane2 462s.
+- **Estimate if those are split:** about 6–7 min (inferred). That means more fit shards and lane2/lane4 each in two. It is an instrument change that needs its own shadow run.
+
 ## Not yet decided
 
 - Whether the gate moves to the matrix. That waits on a MATCH, or on differences that are explained.

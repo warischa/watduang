@@ -1,0 +1,27 @@
+# Shadow calibration timings, read with gh on 2026-11-12, SHA e5677fb (ci/probe-matrix)
+
+## runs
+43165835621 ci success 2026-11-12T06:06:41Z -> 2026-11-12T06:21:24Z = 883s
+43165835700 probe-matrix-shadow success 2026-11-12T06:06:41Z -> 2026-11-12T06:16:42Z = 601s
+
+## packed (ci.yml build job, probe steps)
+build job 879s
+  721s Browser probes against the deployed artifact (gh#122)
+  27s WebGL play surfaces actually draw (ADR-0051 pixel readback)
+
+## shadow jobs (job wall incl. setup)
+22s dist
+371s lanes (fit0)
+364s lanes (fit1)
+499s lanes (fit2)
+252s lanes (lane1)
+462s lanes (lane2)
+307s lanes (lane3)
+556s lanes (lane4)
+17s verdict
+
+## the one differing row across earlier PACKED CI runs (cursed-number 390x844)
+packed run 43150614193: scrolls YES   231px | worst of 7 screen(s): press 3
+packed run 43154745524: scrolls YES   283px | worst of 7 screen(s): press 6
+packed run 42378263557: scrolls YES   283px | worst of 7 screen(s): press 6
+packed run 42376969725: scrolls YES   231px | worst of 7 screen(s): press 3
