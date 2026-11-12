@@ -1,0 +1,44 @@
+# Real CI observations, read with gh on 2026-11-12, SHA 9d81e2c617e78793dbd25de3c7581963a321c0d9
+
+## runs at this SHA
+43152430948 push ci/probe-reuse-check attempt=1 completed/cancelled
+43150614193 push ci/probe-reuse attempt=2 completed/success
+
+## run 43150614193 jobs, every attempt (probe-gated + publish steps)
+attempt 1 job=success
+  success  Decide whether the browser probes can add anything  1s
+  success  Give the runner a Thai face (gh#287)  10s
+  success  Browser probes against the deployed artifact (gh#122)  774s
+  success  WebGL play surfaces actually draw (ADR-0051 pixel readback)  34s
+  success  Publish the dist digest the probes passed on  1s
+attempt 2 job=success
+  success  Decide whether the browser probes can add anything  2s
+  success  Give the runner a Thai face (gh#287)  10s
+  success  Browser probes against the deployed artifact (gh#122)  725s
+  success  WebGL play surfaces actually draw (ADR-0051 pixel readback)  25s
+  success  Publish the dist digest the probes passed on  1s
+
+## run 43150614193 attempt 1 lookup
+probe-scope: dist digest 36f7ee9381c909ff8b0c95a12c2e3297cbeedcee92aa0604b954543d70b07133
+probe-reuse (report only, decides nothing on a branch): run=true
+probe-reuse (report only, decides nothing on a branch): reason: no other run of this workflow at this SHA
+probe-scope: no usable base commit — failing safe, probes run
+
+## run 43150614193 attempt 2 lookup
+probe-scope: dist digest 36f7ee9381c909ff8b0c95a12c2e3297cbeedcee92aa0604b954543d70b07133
+probe-reuse (report only, decides nothing on a branch): run=true
+probe-reuse (report only, decides nothing on a branch): reason: no run at this SHA measured this dist: run 43152430948: completed/cancelled
+probe-scope: no usable base commit — failing safe, probes run
+
+## run 43152430948 (check branch, second runner) lookup
+probe-scope: dist digest 36f7ee9381c909ff8b0c95a12c2e3297cbeedcee92aa0604b954543d70b07133
+probe-reuse (report only, decides nothing on a branch): run=false
+probe-reuse (report only, decides nothing on a branch): reason: run 43150614193 (ci/probe-reuse, attempt 1) passed every probe-gated step on dist digest 36f7ee9381c909ff8b0c95a12c2e3297cbeedcee92aa0604b954543d70b07133
+probe-scope: no usable base commit — failing safe, probes run
+
+## artifacts on run 43150614193 after the re-run
+dist-digest-36f7ee9381c909ff8b0c95a12c2e3297cbeedcee92aa0604b954543d70b07133-a2 expired=false
+
+## repo-level lookup by name
+-a1: total_count=0
+-a2: total_count=1

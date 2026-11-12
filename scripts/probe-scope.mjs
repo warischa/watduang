@@ -61,9 +61,8 @@ const parse = (text) => text.split('\n').filter((l) => l.length > 0);
 // `failure() && ...` upload) is not a measurement and is not in the set.
 const PROBE_GATE = "steps.probe-scope.outputs.run == 'true'";
 const WORKFLOW_PATH = '.github/workflows/ci.yml';
-// Suffixed with the attempt: upload-artifact's action.yml says it fails on a name that already
-// exists unless told to delete it, and the REST list returns every attempt's artifacts, so the
-// suffix keeps a re-run publishable and binds the digest to the attempt that measured it.
+// Suffixed with the attempt, so the match binds the digest to the attempt that measured it. On a
+// real re-run (run 43150614193, 2026-11-12) `-a2` published green and `-a1` was no longer listed.
 const DIGEST_ARTIFACT = (hex, attempt) => `dist-digest-${hex}-a${attempt}`;
 
 // Conditions that name the gate but gate no measurement: the failure-time upload and the digest

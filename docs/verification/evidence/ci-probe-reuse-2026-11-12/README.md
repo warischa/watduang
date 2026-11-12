@@ -35,8 +35,15 @@ Two builds of one tree on this Mac gave the same digest: 204 files, cold and war
 - **REFUTE round 2 (last):** FAIL. The round-1 findings were all CLOSED; four new spot-fixes were found and fixed in d691121.
 - **Unreviewed:** the round-2 fixes had no third round. The largest of them are the rewritten `gatedSteps` parser and the job-level red rule.
 
+## Real CI (2026-11-12, branch rebased onto origin/main 478288a, SHA 9d81e2c)
+
+Details in `real-ci-output.txt`.
+
+- **Run 43150614193 (`ci/probe-reuse`, attempt 1):** green. The full probe lane passed (774s); `dist-digest-36f7…-a1` was published. Its report-only lookup ran with the workflow token and read this run's own in-flight job: "no other run at this SHA".
+- **Run 43152430948 (`ci/probe-reuse-check`, same SHA, a second runner):** the same digest. Its lookup said `run=false`, naming run 43150614193, so a main push of this SHA would have skipped the probes. Cancelled after that step on purpose; a cancelled run is not a red.
+- **Re-run of 43150614193 (attempt 2):** green. `-a2` was published. Afterwards `-a1` was listed neither on the run nor on the repo.
+- **Digest across machines:** the runner's digest equals this Mac's digest of the 568ba85 tree. The two dist/ trees match because gh#300's modules reach no page; that equality is inferred, not compared file by file.
+
 ## Not proven
 
-- The lookup, the digest publish and the match on a real CI run.
-- Whether two GitHub runners build the same digest. If they do not, reuse never fires; that fails safe and saves nothing.
-- The full browser probe lane on this branch.
+- A real main push taking the skip. The branch lookup runs the same function, but the main path's `emit` has only run in the local harness.
