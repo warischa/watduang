@@ -1,0 +1,28 @@
+== clean tree at origin/main  (expect: NOT OWED (empty diff))
+   final:   probe scope: NOT OWED -- empty diff: nothing changed, from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d27 (origin/m
+   runner-r1.sh: probe scope: NOT OWED -- empty diff: nothing changed, from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d27 (origin/m
+   runner-r2.sh: probe scope: NOT OWED -- empty diff: nothing changed, from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d27 (origin/m
+== docs edit + untracked docs file  (expect: NOT OWED)
+   final:   probe scope: NOT OWED -- all 2 changed paths are inert, from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d27 (origin
+   runner-r1.sh: probe scope: NOT OWED -- all 2 changed paths are inert, from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d27 (origin
+   runner-r2.sh: probe scope: NOT OWED -- all 2 changed paths are inert, from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d27 (origin
+== same + one untracked src file  (expect: owed)
+   final:   probe scope: owed -- first non-inert path: src/zz-untracked.txt (since merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d
+   runner-r1.sh: probe scope: owed -- first non-inert path: src/zz-untracked.txt (from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d2
+   runner-r2.sh: probe scope: owed -- first non-inert path: src/zz-untracked.txt (from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d2
+== one tracked src byte  (expect: owed)
+   final:   probe scope: owed -- first non-inert path: src/pages/index.astro (since merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4
+   runner-r1.sh: probe scope: owed -- first non-inert path: src/pages/index.astro (from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d
+   runner-r2.sh: probe scope: owed -- first non-inert path: src/pages/index.astro (from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d
+== src change staged, working tree reverted (MM)  (expect: owed)
+   final:   probe scope: owed -- first non-inert path: src/pages/index.astro (since merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4
+   runner-r1.sh: probe scope: NOT OWED -- empty diff: nothing changed, from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d27 (origin/m
+   runner-r2.sh: probe scope: owed -- first non-inert path: src/pages/index.astro (from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d
+== unpushed src commit + a local tag named origin/main at HEAD  (expect: owed)
+   final:   probe scope: owed -- first non-inert path: src/pages/index.astro (since merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4
+   runner-r1.sh: probe scope: NOT OWED -- empty diff: nothing changed, from merge-base da5ee431650fdde2183e4ea86be2aca0e33aa753 (origin/m
+   runner-r2.sh: probe scope: owed -- first non-inert path: src/pages/index.astro (from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d
+== unpushed src commit, index and working tree reverted to base, docs edit  (expect: owed)
+   final:   probe scope: owed -- first non-inert path: src/pages/index.astro (since merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4
+   runner-r1.sh: probe scope: NOT OWED -- all 1 changed paths are inert, from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d27 (origin
+   runner-r2.sh: probe scope: NOT OWED -- all 1 changed paths are inert, from merge-base 568ba85670ae00894b1f4530fe8b35c8a58b4d27 (origin

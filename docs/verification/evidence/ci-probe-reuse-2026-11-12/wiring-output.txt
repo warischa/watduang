@@ -1,0 +1,32 @@
+dist digest of this tree: 36f7ee9381c909ff8b0c95a12c2e3297cbeedcee92aa0604b954543d70b07133
+== main push, fake gh: one green push run with this digest -> reuse (run=false)  rc=0  output: 1 run= line(s): run=false 
+   probe-scope: main — run=false
+   probe-scope: main — reason: run 111 (batch/fake, attempt 1) passed every probe-gated step on dist digest 36f7ee9381c909ff8b0c95a12c2e3297cbeedcee92aa0604b954543d70b07133
+== main push, fake gh: digest differs -> run  rc=0  output: 1 run= line(s): run=true 
+   probe-scope: main — run=true
+   probe-scope: main — reason: no run at this SHA measured this dist: run 111: no live artifact for this dist digest from its latest attempt
+== main push, fake gh: probe step red -> run  rc=0  output: 1 run= line(s): run=true 
+   probe-scope: main — run=true
+   probe-scope: main — reason: run 111 attempt 1: "Browser probes against the deployed artifact (gh#122)" failure (job undefined) at this SHA
+== main push, gh fails and prints run=false on stderr -> run  rc=0  output: 1 run= line(s): run=true 
+   probe-scope: main — run=true (the lookup failed — failing safe)
+== main push, real API at 478288a (past runs carry no digest artifact) -> run  rc=0  output: 1 run= line(s): run=true 
+   probe-scope: main — run=true
+   probe-scope: main — reason: no run at this SHA measured this dist: run 42378263557: no live artifact for this dist digest from its latest attempt; run 42376969725: no live artifact for thi
+== main push, lookup crashes (bad sha) -> run  rc=0  output: 1 run= line(s): run=true 
+   probe-scope: main — run=true (the lookup failed — failing safe)
+== main, not a push -> run  rc=0  output: 1 run= line(s): run=true 
+   probe-scope: main — run=true (not a push)
+== branch push, docs-only diff ce720a6..7cefc99 -> skip (unchanged rule)  rc=0  output: 1 run= line(s): run=false 
+   probe-reuse (report only, decides nothing on a branch): run=true
+   probe-reuse (report only, decides nothing on a branch): reason: no other run of this workflow at this SHA
+   probe-scope: run=false
+   probe-scope: reason: all 4 changed paths are inert
+== branch push, src diff f181241..568ba85 -> run (unchanged rule)  rc=0  output: 1 run= line(s): run=true 
+   probe-reuse (report only, decides nothing on a branch): run=true
+   probe-reuse (report only, decides nothing on a branch): reason: no other run of this workflow at this SHA
+   probe-scope: run=true
+   probe-scope: reason: first non-inert path: src/prize-draw/cards.test.mjs
+== main push, no dist/ (digest fails), fake gh green -> run  rc=0  output: 1 run= line(s): run=true 
+   probe-scope: main — run=true
+   probe-scope: main — reason: no dist digest

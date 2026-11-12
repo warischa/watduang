@@ -1,0 +1,10 @@
+478288a branch+main pair, main excluded, no artifact (past runs carry none)
+  gated=3 runs=2 -> run=true | no run at this SHA measured this dist: run 42376969725: no live artifact for this dist digest from its latest attempt
+478288a same, digest artifact injected on the branch run -> reuse
+  gated=3 runs=2 -> run=false | run 42376969725 (batch/gh297-298-296, attempt 1) passed every probe-gated step on dist digest eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+478288a same, artifact injected but main digest differs -> run
+  gated=3 runs=2 -> run=true | no run at this SHA measured this dist: run 42376969725: no live artifact for this dist digest from its latest attempt
+7390261 run 33491962091: attempt 1 red, attempt 2 green -> run
+  gated=1 runs=1 -> run=true | run 33491962091 attempt 1: "Browser probes against the deployed artifact (gh#122)" failure (job failure) at this SHA
+aee4377 only run is the excluded one -> run
+  gated=3 runs=1 -> run=true | no other run of this workflow at this SHA

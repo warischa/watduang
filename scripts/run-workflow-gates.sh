@@ -76,9 +76,9 @@
 # THE PROBE SCOPE (2026-11-12, owner pick). CI skips the probe-gated steps on a branch push whose
 # every changed path is inert (scripts/probe-scope.mjs, gh#270), but this script ran them anyway, so
 # a docs-only commit paid the ~9-minute browser lane (542s, n=4, docs/agents/ci-verification.md) for
-# a verdict no CI run would ask of that diff. It now asks the SAME resolver about the diff from the
-# merge-base of HEAD and origin/main to the working tree, untracked files included -- the widest diff
-# this tree can carry to a push, the same base the citation range uses for the same reason. All
+# a verdict no CI run would ask of that diff. It now asks the SAME resolver about every path that
+# differs from the merge-base of HEAD and origin/main in HEAD, in the index or in the working tree,
+# untracked files included -- the widest diff this tree can carry to a push. All
 # inert -> the steps gated on exactly `steps.probe-scope.outputs.run == 'true'` are NOT OWED: each is
 # printed, counted apart from not-executed, and the exit can be 0. Anything else -- one non-inert
 # path, no merge-base, a list or resolver that fails, a resolver that fails its own selftest -- leaves
@@ -267,7 +267,7 @@ if scope_base=$(git merge-base HEAD refs/remotes/origin/main 2>/dev/null); then
       probe_owed=no
       probe_note="NOT OWED -- $scope_reason, from merge-base $scope_base (origin/main) to HEAD, the index and the working tree, untracked files included; CI skips these steps on a branch push of such a diff"
     else
-      probe_note="owed -- $scope_reason (from merge-base $scope_base to the working tree)"
+      probe_note="owed -- $scope_reason (since merge-base $scope_base, in HEAD, the index or the working tree)"
     fi
   else
     probe_note="owed -- listing the changed paths or the resolver failed, failing safe"

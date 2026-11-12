@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+// Test double for `gh api`, fixtures only: one green push run on a branch at the asked SHA.
+const path = process.argv[3] ?? '';
+const sha = (path.match(/head_sha=([0-9a-f]{40})/) ?? [])[1];
+const repo = { full_name: 'warischa/watduang' };
+const G = ['Give the runner a Thai face (gh#287)', 'Browser probes against the deployed artifact (gh#122)', 'WebGL play surfaces actually draw (ADR-0051 pixel readback)'];
+if (sha) console.log(JSON.stringify({ total_count: 1, workflow_runs: [{ id: 111, head_sha: sha, path: '.github/workflows/ci.yml', event: 'push', head_branch: 'batch/fake', status: 'completed', conclusion: 'success', run_attempt: 1, repository: repo, head_repository: repo }] }));
+else if (/\/jobs/.test(path)) console.log(JSON.stringify({ total_count: 1, jobs: [{ run_attempt: 1, steps: G.map((name) => ({ name, conclusion: process.env.FAKE_RED === name ? 'failure' : 'success' })) }] }));
+else if (/\/artifacts/.test(path)) console.log(JSON.stringify({ total_count: 1, artifacts: [{ name: `dist-digest-${process.env.FAKE_DIGEST}-a1`, expired: false }] }));
+else { console.error('fake gh: unexpected ' + path); process.exit(1); }

@@ -605,8 +605,10 @@ jobs:
       # probes just passed on, published as an artifact NAME so main matches it with one list call.
       # success() means every earlier step passed, the probe-gated ones included. Seven days covers
       # a branch run read before its main push; an expired one just means main measures again. The
-      # attempt suffix is load-bearing: upload-artifact fails on a name already in the run (its
-      # `overwrite` input defaults to false), so a re-run of a green-probe run would otherwise go red.
+      # attempt suffix: upload-artifact's action.yml says it fails when an artifact of that name
+      # already exists (`overwrite` defaults to false), and the REST list returns every attempt's
+      # artifacts, so the suffix keeps a re-run publishable and lets main bind the digest to the
+      # candidate's latest attempt. Whether a re-run would really collide is not yet observed.
       - name: Publish the dist digest the probes passed on
         if: success() && steps.probe-scope.outputs.run == 'true' && steps.probe-scope.outputs.dist_digest != ''
         uses: actions/upload-artifact@v7

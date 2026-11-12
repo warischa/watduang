@@ -1,0 +1,8 @@
+full local suite, final runner, tree = origin/main 478288a + one docs/runbook.md edit; wall 62s
+rc=0
+probe scope: NOT OWED -- all 1 changed paths are inert, from merge-base 478288a1feecdb7b42a7636f142b248f02254bf9 (origin/main) to HEAD, the index and the working tree, untracked files included; CI skips these steps on a branch push of such a diff
+NOT-OWED  Browser probes against the deployed artifact (gh#122)  (probe scope: every changed path since origin/main is inert)
+NOT-OWED  WebGL play surfaces actually draw (ADR-0051 pixel readback)  (probe scope: every changed path since origin/main is inert)
+declared=55  executed=50  failed=0  not-executed=0  not-owed=2  not-runnable-here=3
+LOCAL GATES PASSED -- and this covers ONLY the 50 step(s) executed above. 2 probe-gated step(s) NOT OWED -- all 1 changed paths are inert, from merge-base 478288a1feecdb7b42a7636f142b248f02254bf9 (origin/main) to HEAD, the index and the working tree, untracked files included; CI skips these steps on a branch push of such a diff.
+PASS lines: 50
