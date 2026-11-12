@@ -69,6 +69,16 @@ CDP_4="${PROBE_CDP_PORT_4:-9348}"
 # and buy no headroom for the legs that needed it. Lower it only if a FIT ROW misreads, per the paragraph
 # above; the arm window is no longer a reason to.
 FIT_SHARDS=3
+# The probe matrix (PROBE_LANES / PROBE_AGGREGATE, below) gives each fit shard a runner of its own, so its
+# shard count is its own: PROBE_FIT_SHARDS, honoured only in those two modes. The packed run keeps 3.
+if [ -n "${PROBE_FIT_SHARDS:-}" ]; then
+  if [ -z "${PROBE_LANES:-}${PROBE_AGGREGATE:-}" ]; then
+    echo "::error::PROBE_FIT_SHARDS is a matrix setting (PROBE_LANES or PROBE_AGGREGATE); the packed run keeps FIT_SHARDS=${FIT_SHARDS}."
+    exit 1
+  fi
+  if ! [[ "$PROBE_FIT_SHARDS" =~ ^[1-9][0-9]*$ ]]; then echo "::error::PROBE_FIT_SHARDS=${PROBE_FIT_SHARDS} is not a shard count."; exit 1; fi
+  FIT_SHARDS="$PROBE_FIT_SHARDS"
+fi
 FIT_LANE_CDPS="${PROBE_CDP_FIT_PORTS:-9349 9350}"
 # driver.mjs's nav() waits on Page.loadEventFired with NO timeout -- a URL that never fires load hangs
 # forever, and in CI that burns the whole job budget instead of failing. Per-leg watchdog below.
@@ -87,7 +97,7 @@ n_fit=1
 for cdp in $FIT_LANE_CDPS; do
   if [ "$n_fit" -lt "$FIT_SHARDS" ]; then FIT_ACTIVE_CDPS="$FIT_ACTIVE_CDPS $cdp"; n_fit=$((n_fit + 1)); fi
 done
-if [ "$n_fit" -ne "$FIT_SHARDS" ]; then
+if [ -z "${PROBE_LANES:-}${PROBE_AGGREGATE:-}" ] && [ "$n_fit" -ne "$FIT_SHARDS" ]; then
   echo "::error::FIT_SHARDS=${FIT_SHARDS} needs $((FIT_SHARDS - 1)) port(s) in FIT_LANE_CDPS but only got: ${FIT_LANE_CDPS}. Add a port or lower FIT_SHARDS -- a shard with no lane would silently not run."
   exit 1
 fi
@@ -123,37 +133,66 @@ fi
 # gh#268, 30 -> 32: play-top-band joined lane2 and play-top-band-control joined lane4 (a pair split
 # across lanes for balance; see the notes there). The count is now the 26 probe/standalone lines
 # outside fit_pair, plus 2 x FIT_SHARDS.
-EXPECTED_LEGS=32
-N_LANES=$((4 + FIT_SHARDS))
+# 2026-11-12, the probe matrix: the 26 stays the human-maintained pin; the shard term is now multiplied out
+# here, because the matrix runs more shards than the packed run (32 legs at FIT_SHARDS=3).
+NON_FIT_LEGS=26
+EXPECTED_LEGS=$((NON_FIT_LEGS + 2 * FIT_SHARDS))
 
 # --- lane mode and aggregate mode: the probe matrix (owner pick 2026-11-12, shadow first) ----------
-# PROBE_LANES=<lane> runs ONE lane on a runner of its own: lane1..lane4, or fitK (shard K of FIT_SHARDS,
-# reported as lane(5+K) exactly as the packed run names it). Only that lane's browsers start, and there is
+# PROBE_LANES=<group> runs ONE matrix group on a runner of its own: exit, overflow, topband, nav, home,
+# firstscreen (each a fixed set of legs taken from the packed lanes by label, so every leg keeps its packed
+# definition), or fitK (shard K of FIT_SHARDS). Only that group's browsers start, and there is
 # no barrier -- the barrier exists because the packed lanes share one runner's CPU, and this lane shares
 # nothing. The run-level checks are NOT applied in lane mode: EXPECTED_LEGS and the fit-route union are
 # facts about the whole run, so one lane passing proves neither. PROBE_AGGREGATE="<dir> ..." applies them
 # to the union of every lane's output directory instead (the matrix's verdict job), and starts no server
 # and no browser. Unset, both: the packed run, unchanged.
-# NOT YET CALIBRATED: a lane alone on a runner sees less CPU pressure than the packed run, and the fit
-# rows and lane1's arm windows were measured under that pressure. The play-top-band pair is also split
-# across lane2 and lane4, which on a matrix means two runners, not two browsers on one. Until a shadow
-# run on the same SHA matches the packed run, lane mode is evidence, never the verdict.
+# CALIBRATED 2026-11-12 (docs/verification/evidence/ci-probe-matrix-2026-11-12/): lanes alone on runners
+# read the packed run's verdicts, play-exit summaries and fit rows, and every leg's seconds within 10s --
+# the legs are timer-bound, not CPU-bound. The groups split lane2 and lane4 further and reunite the
+# play-top-band pair in one browser; every leg sits in exactly one group, which the pinned EXPECTED_LEGS
+# proves on every aggregate (a leg in no group or in two moves the count).
 PROBE_LANES="${PROBE_LANES:-}"
 PROBE_AGGREGATE="${PROBE_AGGREGATE:-}"
 if [ -n "$PROBE_LANES" ] && [ -n "$PROBE_AGGREGATE" ]; then
   echo "::error::PROBE_LANES and PROBE_AGGREGATE are two different runs -- set one."
   exit 1
 fi
+MATRIX_GROUPS="exit overflow topband nav home firstscreen"
+if [ -n "$PROBE_LANES$PROBE_AGGREGATE" ]; then
+  EXPECTED_LANES="$MATRIX_GROUPS $(seq -f 'fit%g' 0 $((FIT_SHARDS - 1)) | tr '\n' ' ')"
+else
+  EXPECTED_LANES="$(seq -f 'lane%g' 1 $((4 + FIT_SHARDS)) | tr '\n' ' ')"
+fi
+# Which legs a matrix group keeps, and from which packed lane; empty = the whole lane. probe() and
+# standalone() skip every other leg without a trace, so a label missing here is a leg no group runs --
+# and the aggregate's EXPECTED_LEGS reds on it.
+keep_leg() { # label -> 0 when the current group keeps it (no group = keep every leg)
+  [ -z "${MATRIX_KEEP:-}" ] && return 0
+  case " $MATRIX_KEEP " in *" $1 "*) return 0 ;; *) return 1 ;; esac
+}
+run_matrix_group() { # group
+  case "$1" in
+    exit)        MATRIX_KEEP=""; lane1 ;;
+    overflow)    MATRIX_KEEP="narrow-overflow narrow-overflow-control ad-reflow ad-reflow-control strip-chip-visibility strip-chip-visibility-control"; lane2 ;;
+    topband)     MATRIX_KEEP="play-top-band"; lane2; MATRIX_KEEP="play-top-band-control"; lane4 ;;
+    nav)         MATRIX_KEEP=""; lane3 ;;
+    home)        MATRIX_KEEP="wheel-pointer-name home-page-normal home-page-reduced live-region-floor live-region-floor-control control-floor control-floor-control"; lane4 ;;
+    firstscreen) MATRIX_KEEP="no-webgl-first-screen player-screen-face"; lane4 ;;
+  esac
+}
 LANE_CDPS=""
 if [ -n "$PROBE_LANES" ]; then
+  # The packed lanes name their own ports, so a group starts the ports its source lanes use.
   case "$PROBE_LANES" in
-    lane1) LANE_CDPS="$CDP_1" ;;
-    lane2) LANE_CDPS="$CDP_2" ;;
-    lane3) LANE_CDPS="$CDP_3" ;;
-    lane4) LANE_CDPS="$CDP_4" ;;
+    exit) LANE_CDPS="$CDP_1" ;;
+    overflow) LANE_CDPS="$CDP_2" ;;
+    topband) LANE_CDPS="$CDP_2 $CDP_4" ;;
+    nav) LANE_CDPS="$CDP_3" ;;
+    home|firstscreen) LANE_CDPS="$CDP_4" ;;
     *)
       if ! [[ "$PROBE_LANES" =~ ^fit[0-9]+$ ]] || [ "${PROBE_LANES#fit}" -ge "$FIT_SHARDS" ]; then
-        echo "::error::PROBE_LANES=${PROBE_LANES} is not a lane: lane1..lane4 or fit0..fit$((FIT_SHARDS - 1))."
+        echo "::error::PROBE_LANES=${PROBE_LANES} is not a matrix group: ${MATRIX_GROUPS} or fit0..fit$((FIT_SHARDS - 1))."
         exit 1
       fi
       # Shard K rides CDP_3 in lane mode: the port is free on a runner of its own.
@@ -168,21 +207,32 @@ fi
 # every manifest play route on both sides. Defined here so aggregate mode can call it before anything
 # below starts a server or a browser.
 run_verdict() {
-  for n in $(seq 1 "$N_LANES"); do
-    echo "--- lane$n ---"
-    cat "$OUT_DIR/lane$n.log" 2>/dev/null || echo "(lane$n produced no log)"
+  for n in $EXPECTED_LANES; do
+    echo "--- $n ---"
+    cat "$OUT_DIR/$n.log" 2>/dev/null || echo "($n produced no log)"
   done
   MISSING_LANES=""
-  for n in $(seq 1 "$N_LANES"); do
-    if [ ! -s "$OUT_DIR/lane$n.pass" ] && [ ! -s "$OUT_DIR/lane$n.fail" ]; then MISSING_LANES="$MISSING_LANES lane$n"; fi
+  for n in $EXPECTED_LANES; do
+    if [ ! -s "$OUT_DIR/$n.pass" ] && [ ! -s "$OUT_DIR/$n.fail" ]; then MISSING_LANES="$MISSING_LANES $n"; fi
+  done
+  # A result file for a lane this run did not schedule is a stale or foreign output, never a bonus leg.
+  for f in "$OUT_DIR"/*.pass "$OUT_DIR"/*.fail; do
+    [ -e "$f" ] || continue
+    n=$(basename "$f"); n="${n%.*}"
+    case " $EXPECTED_LANES " in *" $n "*) ;; *) echo "::error::ci-probes: $(basename "$f") is from a lane this run does not schedule (expected:${EXPECTED_LANES})."; exit 1 ;; esac
   done
   if [ -n "$MISSING_LANES" ]; then
     echo "::error::ci-probes: lane(s) that reported no leg at all:${MISSING_LANES} -- a lane that never ran reads like a quiet green. Logs in ${OUT_DIR}"
     exit 1
   fi
   # --- aggregate ---------------------------------------------------------------------------------
-  PASS_LABELS=$(cat "$OUT_DIR"/lane?.pass 2>/dev/null || true)
-  FAIL_LABELS=$(cat "$OUT_DIR"/lane?.fail 2>/dev/null || true)
+  PASS_LABELS=$(for n in $EXPECTED_LANES; do cat "$OUT_DIR/$n.pass" 2>/dev/null; done || true)
+  FAIL_LABELS=$(for n in $EXPECTED_LANES; do cat "$OUT_DIR/$n.fail" 2>/dev/null; done || true)
+  DUP_LABELS=$(printf '%s\n%s\n' "$PASS_LABELS" "$FAIL_LABELS" | grep . | sort | uniq -d || true)
+  if [ -n "$DUP_LABELS" ]; then
+    echo "::error::ci-probes: leg(s) reported more than once: $(echo $DUP_LABELS) -- a leg in two groups, or a lane counted twice."
+    exit 1
+  fi
   N_PASS=$(printf '%s\n' "$PASS_LABELS" | grep -c . || true)
   N_FAIL=$(printf '%s\n' "$FAIL_LABELS" | grep -c . || true)
   LEGS=$((N_PASS + N_FAIL))
@@ -238,13 +288,14 @@ run_verdict() {
 # The target must start empty, and no file may arrive from two lanes: a lane reported twice (a re-run job,
 # a copied directory) would double its legs and could hide a lane that never reported.
 if [ -n "$PROBE_AGGREGATE" ]; then
-  for f in "$OUT_DIR"/lane*.pass "$OUT_DIR"/lane*.fail "$OUT_DIR"/play-screen-fit*.log; do
+  for f in "$OUT_DIR"/*.pass "$OUT_DIR"/*.fail "$OUT_DIR"/play-screen-fit*.log; do
     if [ -e "$f" ]; then echo "::error::ci-probes: ${OUT_DIR} already holds lane results ($(basename "$f")) -- aggregate into an empty directory."; exit 1; fi
   done
   for d in $PROBE_AGGREGATE; do
     if [ ! -d "$d" ]; then echo "::error::ci-probes: aggregate input ${d} is not a directory."; exit 1; fi
     found=0
-    for f in "$d"/lane*.pass "$d"/lane*.fail "$d"/lane*.log "$d"/play-screen-fit*.log; do
+    lane_logs=$(for n in $EXPECTED_LANES; do printf '%s ' "$d/$n.log"; done)
+    for f in "$d"/*.pass "$d"/*.fail $lane_logs "$d"/play-screen-fit*.log; do
       [ -e "$f" ] || continue
       b=$(basename "$f")
       if [ -e "$OUT_DIR/$b" ]; then echo "::error::ci-probes: ${b} arrives from two lane outputs (second: ${d})."; exit 1; fi
@@ -267,7 +318,7 @@ fi
 # (reduced motion) serves lane4 only.
 if [ -n "$PROBE_LANES" ]; then
   BROWSER_CDPS="$LANE_CDPS"
-  NEED_B=$([ "$PROBE_LANES" = lane4 ] && echo 1 || echo 0)
+  NEED_B=$([ "$PROBE_LANES" = home ] && echo 1 || echo 0)
 else
   BROWSER_CDPS="$CDP_1 $CDP_2 $CDP_3 $CDP_4 $FIT_ACTIVE_CDPS"
   NEED_B=1
@@ -349,6 +400,7 @@ fi
 # aggregates from those files after the lanes join. LANE is set at the top of each lane function.
 probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
   label="$1"; file="$2"; cdp="$3"; shift 3
+  if ! keep_leg "$label"; then return 0; fi
   out="$OUT_DIR/$label.json"
   err="$OUT_DIR/$label.err"
   echo "probe: $label ($file)"
@@ -381,7 +433,7 @@ probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
   summary_fields=$(printf '%s\n' "$msg" | grep '^SUMMARY_FIELDS ' | sed 's/^SUMMARY_FIELDS //' || true)
   reason=$(printf '%s\n' "$msg" | grep -v '^SUMMARY_FIELDS ' || true)
   if [ -n "$summary_fields" ]; then
-    echo "LEG_SUMMARY $LANE $label $summary_fields"
+    echo "LEG_SUMMARY ${MATRIX_LANE:-$LANE} $label $summary_fields"
   fi
   # gh#202 follow-up: per-leg wall time, machine-readable. Rebalancing lanes by eye does not work --
   # the only per-lane figure anyone had was measured on one Mac on one day, and a rebalance proposed
@@ -389,13 +441,13 @@ probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
   # must stay together or its control sees a different browser). Grep LEG_SECONDS out of a CI run
   # before moving anything.
   leg_el=$(( $(date +%s) - leg_t0 ))
-  echo "LEG_SECONDS $LANE $label $leg_el"
+  echo "LEG_SECONDS ${MATRIX_LANE:-$LANE} $label $leg_el"
   if [ "$vrc" -eq 0 ]; then
     echo "  PASS  $label (${leg_el}s)"
-    echo "$label" >> "$OUT_DIR/$LANE.pass"
+    echo "$label" >> "$OUT_DIR/${MATRIX_LANE:-$LANE}.pass"
   else
     echo "::error::probe FAIL: ${label} -- ${reason}"
-    echo "$label" >> "$OUT_DIR/$LANE.fail"
+    echo "$label" >> "$OUT_DIR/${MATRIX_LANE:-$LANE}.fail"
   fi
 }
 
@@ -410,6 +462,7 @@ probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
 # control leg) and the meta-gate audits node-invoked steps only.
 standalone() { # label, command...
   label="$1"; shift
+  if ! keep_leg "$label"; then return 0; fi
   echo "probe: $label (standalone)"
   leg_t0=$(date +%s)
   ( "$@" ) > "$OUT_DIR/$label.log" 2>&1 &
@@ -422,20 +475,20 @@ standalone() { # label, command...
   set -e
   { kill "$watchdog" && wait "$watchdog"; } 2> /dev/null || true
   leg_el=$(( $(date +%s) - leg_t0 ))
-  echo "LEG_SECONDS $LANE $label $leg_el"
+  echo "LEG_SECONDS ${MATRIX_LANE:-$LANE} $label $leg_el"
   if [ "$rc" -eq 0 ]; then
     echo "  PASS  $label (${leg_el}s)"
     # A green leg's log is otherwise swallowed; surface its warnings as job annotations (gh#182: the
     # fit probe reports px drift on KNOWN_OVERFLOW rows this way and never reds on it).
     grep -E '^::(warning|notice)::' "$OUT_DIR/$label.log" || true
-    echo "$label" >> "$OUT_DIR/$LANE.pass"
+    echo "$label" >> "$OUT_DIR/${MATRIX_LANE:-$LANE}.pass"
   else
     # ERRORS FIRST, then the tail. gh#202 lost an hour to this line: a tail of 3 on a failing fit
     # probe returned three ::warning:: lines and NO ::error::, so the CI log said the leg failed and
     # showed nothing that could have caused it -- the real reason was only in the uploaded artifact.
     # A failing leg's error lines are the one thing that must never need a download to read.
     echo "::error::probe FAIL: ${label} -- exit ${rc}: $(grep -h '^::error::' "$OUT_DIR/$label.log" 2>/dev/null | head -n 5 | tr '\n' ' ')$(tail -n 3 "$OUT_DIR/$label.log" | tr '\n' ' ')"
-    echo "$label" >> "$OUT_DIR/$LANE.fail"
+    echo "$label" >> "$OUT_DIR/${MATRIX_LANE:-$LANE}.fail"
   fi
 }
 
@@ -594,14 +647,14 @@ rm -f "$OUT_DIR"/play-screen-fit*.log
 # The lane's own verdict only: a failing leg or a lane that reported nothing reds here; whether the run
 # as a whole is complete is PROBE_AGGREGATE's question, asked of every lane's output together.
 if [ -n "$PROBE_LANES" ]; then
-  rm -f "$OUT_DIR"/lane?.pass "$OUT_DIR"/lane?.fail
+  rm -f "$OUT_DIR"/*.pass "$OUT_DIR"/*.fail
+  ln="$PROBE_LANES"
+  # Every leg of the group reports under the group's name, whichever packed lane it was taken from.
+  MATRIX_LANE="$ln"
   if [[ "$PROBE_LANES" =~ ^fit ]]; then
-    shard="${PROBE_LANES#fit}"
-    ln="lane$((5 + shard))"
-    fit_lane "$shard" "$CDP_3" "$ln" > "$OUT_DIR/$ln.log" 2>&1 &
+    fit_lane "${PROBE_LANES#fit}" "$CDP_3" "$ln" > "$OUT_DIR/$ln.log" 2>&1 &
   else
-    ln="$PROBE_LANES"
-    "$PROBE_LANES" > "$OUT_DIR/$ln.log" 2>&1 &
+    run_matrix_group "$PROBE_LANES" > "$OUT_DIR/$ln.log" 2>&1 &
   fi
   lane_pid=$!
   set +e
@@ -647,8 +700,8 @@ wait "$LANE1_PID"
 wait "$LANE3_PID"
 set -e
 echo "ci-probes: phase two -- fit lanes released after $(( $(date +%s) - PHASE_T0 ))s (lane1 and lane3 joined)"
-# One lane per fit shard, numbered on from lane4 so the lane?.pass/lane?.fail glob and the per-lane log
-# dump below keep working without a second naming scheme. Shard 0 takes lane3's now-idle Chrome; the rest
+# One lane per fit shard, numbered on from lane4 so EXPECTED_LANES (lane1..lane(4+FIT_SHARDS)) and the
+# per-lane log dump in run_verdict keep working without a second naming scheme. Shard 0 takes lane3's now-idle Chrome; the rest
 # take the Chromes bound for them in FIT_ACTIVE_CDPS, so the port list is still one per shard past shard 0.
 fit_shard=0
 for cdp in "$CDP_3" $FIT_ACTIVE_CDPS; do

@@ -54,7 +54,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lane: [lane1, lane2, lane3, lane4, fit0, fit1, fit2]
+        # The split layout (2026-11-12): lane2 and lane4 regrouped, the play-top-band pair reunited, 5 fit shards.
+        lane: [exit, overflow, topband, nav, home, firstscreen, fit0, fit1, fit2, fit3, fit4]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -86,7 +87,7 @@ jobs:
       - name: Run lane ${{ matrix.lane }} alone
         run: |
           t0=$(date +%s)
-          PROBE_LANES='${{ matrix.lane }}' PROBE_OUT_DIR="${{ runner.temp }}/lane" bash scripts/ci-probes.sh
+          PROBE_FIT_SHARDS=5 PROBE_LANES='${{ matrix.lane }}' PROBE_OUT_DIR="${{ runner.temp }}/lane" bash scripts/ci-probes.sh
           echo "LANE_WALL ${{ matrix.lane }} $(( $(date +%s) - t0 ))"
       - name: Keep the lane output
         if: always()
@@ -121,4 +122,4 @@ jobs:
           dirs=$(ls -d "${{ runner.temp }}"/lanes/*/ | tr '\n' ' ')
           echo "lane outputs: $dirs"
           mkdir -p "${{ runner.temp }}/aggregate"
-          PROBE_AGGREGATE="$dirs" PROBE_OUT_DIR="${{ runner.temp }}/aggregate" bash scripts/ci-probes.sh
+          PROBE_FIT_SHARDS=5 PROBE_AGGREGATE="$dirs" PROBE_OUT_DIR="${{ runner.temp }}/aggregate" bash scripts/ci-probes.sh
