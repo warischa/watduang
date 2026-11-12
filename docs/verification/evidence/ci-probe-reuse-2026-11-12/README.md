@@ -31,8 +31,8 @@ Two builds of one tree on this Mac gave the same digest: 204 files, cold and war
 
 ## Review
 
-- **REFUTE round 1:** FAIL. Four spot-fixes, fixed in 67674d9.
-- **REFUTE round 2 (last):** FAIL. The round-1 findings were all CLOSED; four new spot-fixes were found and fixed in d691121.
+- **REFUTE round 1:** FAIL. Four spot-fixes, fixed in f1154f0 (branch `ci/probe-reuse`: 67674d9).
+- **REFUTE round 2 (last):** FAIL. The round-1 findings were all CLOSED; four new spot-fixes were found and fixed in a1b5f40 (branch `ci/probe-reuse`: d691121).
 - **Unreviewed:** the round-2 fixes had no third round. The largest of them are the rewritten `gatedSteps` parser and the job-level red rule.
 
 ## Real CI (2026-11-12, branch rebased onto origin/main 478288a, SHA 9d81e2c)
