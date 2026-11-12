@@ -1,0 +1,37 @@
+## UI Pro Max Search Results
+**Domain:** ux | **Query:** touch target size mobile
+**Source:** ux-guidelines.csv | **Found:** 3 results
+
+### Result 1
+- **Category:** Touch
+- **Issue:** Touch Target Size
+- **Platform:** Mobile
+- **Description:** Touch target guidance depends on platform and web context
+- **Do:** Use 44pt on iOS and 48dp on Android; for web use the separate WCAG Target Size rule
+- **Don't:** Treat one unit or minimum as universal across platforms
+- **Code Example Good:** iOS 44pt; Android 48dp; Web 24 CSS px plus WCAG exceptions
+- **Code Example Bad:** w-6 h-6 buttons
+- **Severity:** High
+
+### Result 2
+- **Category:** Touch
+- **Issue:** Touch Spacing
+- **Platform:** Mobile
+- **Description:** Adjacent touch targets need adequate spacing
+- **Do:** Minimum 8px gap between touch targets
+- **Don't:** Tightly packed clickable elements
+- **Code Example Good:** gap-2 between buttons
+- **Code Example Bad:** gap-0 or gap-1
+- **Severity:** Medium
+
+### Result 3
+- **Category:** Responsive
+- **Issue:** Touch Friendly
+- **Platform:** Web
+- **Description:** Mobile layouts need touch-sized targets
+- **Do:** Increase touch targets on mobile
+- **Don't:** Same tiny buttons on mobile
+- **Code Example Good:** Larger buttons on mobile
+- **Code Example Bad:** Desktop-sized targets on mobile
+- **Severity:** High
+

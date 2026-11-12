@@ -1,0 +1,250 @@
+/* The plain 2D reveal of the prize draw (gh#304). Every value is the picked direction B NIGHT STAGE of
+   design/Gh302Projector.dc.html (owner pick 2026-11-11, ADR-0033), frames proj-round, proj-reveal and
+   proj-result, at the frame's authored 1920x1080; the whole frame is scaled to the screen by reveal.ts's
+   fitFrame. Colours are tokens where the board's VALUES row names one; the three values the board picked
+   with no token (the raised night surface, the dimmed name, the gold glow) are named once here. */
+
+.pd-scaled {
+  --pd-raised: #23214d; /* VALUES: raised surface, bottom of the night gradient (picked 2026-11-11) */
+  --pd-dim: #9a97c0; /* VALUES: a name that did not pass (picked 2026-11-11) */
+  --pd-glow: rgba(255, 204, 0, 0.45); /* VALUES: the gold glow (picked 2026-11-11) */
+  --pd-veil: rgba(20, 20, 43, 0.78); /* VALUES: the veil over the field (picked 2026-11-11) */
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 1920px;
+  block-size: 1080px;
+  transform-origin: 0 0;
+  transform: translate(var(--pd-x, 0px), var(--pd-y, 0px)) scale(var(--pd-scale, 1));
+}
+
+.pd-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--color-line-strong) 0%, var(--pd-raised) 100%);
+  color: var(--ink-light);
+  font-family: var(--font-sans);
+}
+
+.pd-top {
+  block-size: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 56px;
+}
+.pd-ev {
+  font: 600 36px/1.2 var(--font-display);
+  color: var(--ink-on-band-soft);
+}
+.pd-dots {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font: 600 30px/1 var(--font-display);
+}
+.pd-rl {
+  margin-inline-end: 14px;
+}
+.pd-dots i {
+  box-sizing: border-box;
+  inline-size: 22px;
+  block-size: 22px;
+  border-radius: 50%;
+  border: 3px solid var(--ink-on-band-soft);
+}
+.pd-dots i.done {
+  background: var(--ink-on-band-soft);
+}
+.pd-dots i.on {
+  background: var(--accent-gold);
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 18px var(--pd-glow);
+}
+.pd-dots i.fin {
+  inline-size: 36px;
+  border-radius: 999px;
+}
+
+.pd-field {
+  position: absolute;
+  inset-inline: 56px;
+  inset-block-start: 96px;
+  block-size: 724px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-auto-rows: 32px;
+  gap: 4px 10px;
+  align-content: center;
+}
+
+.pd-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  font: 400 20px/1 var(--font-sans);
+  border-radius: 999px;
+  background: var(--pd-raised);
+  color: var(--ink-light);
+  padding: 0 8px;
+}
+/* Passed: gold and bold; did not pass: dimmed and struck through. Never colour alone (board RULES row). */
+.pd-marked .pd-chip.in,
+.pd-legend .pd-chip.in {
+  font-weight: 700;
+  background: var(--accent-gold);
+  color: var(--color-line-strong);
+  box-shadow: 0 0 16px var(--pd-glow);
+}
+.pd-marked .pd-chip.out,
+.pd-legend .pd-chip.out {
+  text-decoration: line-through;
+  background: transparent;
+  color: var(--pd-dim);
+  box-shadow: inset 0 0 0 2px var(--pd-raised);
+}
+
+/* A winner's name is one run the fit rule measures; it wraps only through .nm-wrap. This rule sits above
+   .nm-wrap on purpose: both are one class, so source order decides, and a later nowrap would cancel the
+   wrap that the fit rule's last resort asks for. */
+.pd-wn {
+  white-space: nowrap;
+}
+
+/* The fit rule's last resort (names-dom.ts): past its floor a name wraps rather than clips. */
+.nm-wrap {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.05;
+}
+.nm-wrap .nm {
+  overflow-wrap: anywhere;
+}
+
+.pd-low {
+  position: absolute;
+  inset-inline: 56px;
+  inset-block-end: 30px;
+  block-size: 220px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 40px;
+}
+.pd-lk {
+  font: 600 30px/1.35 var(--font-display);
+  color: var(--ink-on-band-soft);
+}
+.pd-gname {
+  font: 700 50px/1.2 var(--font-display);
+  color: var(--accent-gold);
+}
+.pd-flow {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  font: 700 150px/1 var(--font-display);
+}
+.pd-to {
+  color: var(--accent-gold);
+  text-shadow: 0 0 24px var(--pd-glow);
+}
+.pd-flow small {
+  font: 600 44px/1 var(--font-display);
+  color: var(--ink-on-band-soft);
+}
+.pd-arrow {
+  stroke: var(--accent-gold);
+}
+.pd-rt {
+  text-align: right;
+}
+.pd-legend {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+.pd-legend div {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font: 400 30px/1 var(--font-sans);
+  color: var(--ink-on-band-soft);
+}
+.pd-legend .pd-chip {
+  inline-size: 150px;
+  block-size: 44px;
+  font-size: 30px;
+}
+
+.pd-spot {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 120px;
+  text-align: center;
+}
+.pd-spot h2 {
+  margin: 0 0 18px;
+  font: 600 40px/1.2 var(--font-display);
+  color: var(--ink-light);
+}
+.pd-spot .pd-pz {
+  font: 600 44px/1.25 var(--font-display);
+  color: var(--ink-on-band-soft);
+}
+.pd-spot .pd-wn {
+  margin-block-start: 10px;
+  font: 700 132px/1.1 var(--font-display);
+  color: var(--accent-gold);
+  text-shadow: 0 0 30px var(--pd-glow);
+}
+.pd-wcards {
+  position: absolute;
+  inset-inline: 56px;
+  inset-block-start: 560px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+.pd-wcard {
+  background: var(--pd-raised);
+  border-radius: 24px;
+  padding: 28px;
+}
+.pd-wcard .pd-pz {
+  font: 600 30px/1.3 var(--font-display);
+  color: var(--ink-on-band-soft);
+}
+.pd-wcard .pd-wn {
+  margin-block-start: 12px;
+  font: 700 52px/1.15 var(--font-display);
+}
+/* The reveal's motion: one wave across the field in roster order (proj-reveal's motion note). The wave
+   step is not on the board; 4ms per name is a stand-in listed for the owner (gh#304 evidence README). */
+@media (prefers-reduced-motion: no-preference) {
+  .pd-field .pd-chip {
+    transition:
+      background-color var(--motion-reveal) ease-out,
+      color var(--motion-reveal) ease-out,
+      box-shadow var(--motion-reveal) ease-out;
+    transition-delay: calc(var(--wave, 0) * 4ms);
+  }
+}
+/* Reduced motion: a single fade to the end state (--motion-rm-fade), never a removal (ADR-0046). */
+@media (prefers-reduced-motion: reduce) {
+  .pd-field.pd-fade {
+    animation: pd-fade var(--motion-rm-fade) ease-out;
+  }
+}
+@keyframes pd-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

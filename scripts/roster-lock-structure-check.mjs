@@ -26,6 +26,16 @@
 // or a template with an interpolation (`watduang:${ns}`) — and it reads comments as code, so a
 // commented-out mention outside the allow-list fails the gate and a human decides.
 //
+// The prize-draw event key (gh#304) has the same sole-writer rule, closed tighter: its one writer is
+// src/prize-event/event.ts's withEventLock, which fails closed (no unlocked fallback, unlike withLock), and
+// the `tx.write` it hands out is the only setItem of that key. Every other writer (the setup page, every
+// projector tab) goes through it. The key is exported as a constant, so a second writer would name the
+// import, not the literal; condition 4 reads every src/** file's imports of it from event.ts (named, aliased
+// or as a namespace) and flags any `.setItem(` call on those names or on the literal, and requires event.ts
+// itself to hold exactly one `.setItem(`, inside withEventLock. DISCLOSED CEILING: a key handed on through a
+// variable or a parameter (`const k = STORAGE_KEY; s.setItem(k, ...)`) is not seen, and scripts/** (browser
+// probes that seed a fixture event in a test page) is outside the scan, as it is for the roster key.
+//
 //   node scripts/roster-lock-structure-check.mjs             -> scan every src/** importer of the shared
 //                                                              withLock, plus src/** for key ownership
 //   node scripts/roster-lock-structure-check.mjs --selftest  -> both-direction calibration on temp fixtures
@@ -195,6 +205,65 @@ function checkKeyOwnership(files) {
 }
 
 // ---------------------------------------------------------------------------
+// Condition 4: the prize-draw event key has exactly one setItem, inside event.ts's withEventLock.
+// ---------------------------------------------------------------------------
+const EVENT_KEY_OWNER = 'src/prize-event/event.ts';
+const EVENT_KEY_LITERAL_RE = /(['"`])watduang:prize-draw:event\1/g;
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** The names a file can reach the event key by: its imports of STORAGE_KEY from event.ts, under any alias or
+ *  namespace, plus STORAGE_KEY itself in the owner, where it is declared. */
+function eventKeyNames(relPath, text) {
+  const names = relPath === EVENT_KEY_OWNER ? ['STORAGE_KEY'] : [];
+  const fromEvent = String.raw`\s*from\s*(['"])(?:[^'"]*\/)?event(?:\.ts)?\2`;
+  for (const m of text.matchAll(new RegExp(String.raw`import\s*(?:type\s+)?\{([^}]*)\}` + fromEvent, 'g'))) {
+    for (const spec of m[1].split(',')) {
+      const s = spec.trim().match(/^STORAGE_KEY(?:\s+as\s+([A-Za-z_$][\w$]*))?$/);
+      if (s) names.push(s[1] ?? 'STORAGE_KEY');
+    }
+  }
+  for (const m of text.matchAll(new RegExp(String.raw`import\s*\*\s*as\s+([A-Za-z_$][\w$]*)` + fromEvent, 'g'))) {
+    names.push(`${m[1]}.STORAGE_KEY`);
+  }
+  return names;
+}
+
+function checkEventKeyWriter(files) {
+  const violations = [];
+  const lineOf = (text, idx) => text.slice(0, idx).split('\n').length;
+  const push = (relPath, text, idx, rule) =>
+    violations.push({ file: relPath, line: lineOf(text, idx), rule, snippet: text.split('\n')[lineOf(text, idx) - 1].trim() });
+  let owner = null;
+  for (const { relPath, text } of files) {
+    if (relPath === EVENT_KEY_OWNER) owner = text;
+    else for (const m of text.matchAll(EVENT_KEY_LITERAL_RE)) push(relPath, text, m.index, `the event key written as a literal outside ${EVENT_KEY_OWNER}`);
+    const names = eventKeyNames(relPath, text);
+    if (relPath === EVENT_KEY_OWNER || !names.length) continue;
+    const callRe = new RegExp(String.raw`\.setItem\(\s*(?:${names.map(escapeRe).join('|')})(?![\w$])`, 'g');
+    for (const m of text.matchAll(callRe)) push(relPath, text, m.index, `a second writer of the event key: setItem outside ${EVENT_KEY_OWNER}'s withEventLock`);
+  }
+  if (owner === null) {
+    violations.push({ file: EVENT_KEY_OWNER, line: 0, rule: 'the event key owner is missing: the sole-writer scan checked nothing', snippet: '' });
+    return violations;
+  }
+  const head = owner.match(/export function withEventLock\([\s\S]*?\)\s*:\s*[^{;]*\{/);
+  if (!head) {
+    violations.push({ file: EVENT_KEY_OWNER, line: 0, rule: 'no withEventLock(...) { found: the sole-writer scan went blind', snippet: '' });
+    return violations;
+  }
+  const open = head.index + head[0].length - 1;
+  const close = matchBraces(owner).get(open);
+  const sets = [...owner.matchAll(/\.setItem\(/g)].map((m) => m.index);
+  for (const idx of sets) {
+    if (close === undefined || !within(idx, open, close)) push(EVENT_KEY_OWNER, owner, idx, 'a setItem in event.ts outside withEventLock');
+  }
+  if (sets.length !== 1) {
+    violations.push({ file: EVENT_KEY_OWNER, line: 0, rule: `event.ts holds ${sets.length} setItem calls; the one writer is exactly one, in withEventLock`, snippet: '' });
+  }
+  return violations;
+}
+
+// ---------------------------------------------------------------------------
 // Self-test: temp fixtures under os.tmpdir(), never repo content — never touches src/, dist/, or
 // the working tree. Calibrated both ways per condition: a clean fixture passes, each planted
 // violation is flagged. EVERY lock-structure fixture runs TWICE, once per call shape: the
@@ -354,6 +423,49 @@ function selftest() {
   assert.deepEqual(checkKeyOwnership(goodTemplateLiteral), [], 'a template literal in an allowed file, and a different key elsewhere, must both stay clean');
   console.log('PASS known-good fixture (3, template literal): allowed-file backtick key and a different key elsewhere stay clean');
 
+  // --- Condition 4, known-good: the shipped shape. event.ts's one setItem inside withEventLock; a screen
+  // that imports the key for the lock name and reads; a file writing another key. ---
+  const ownerGood = [
+    "export const STORAGE_KEY = 'watduang:prize-draw:event';",
+    'export function readEvent(storage) { return storage.getItem(STORAGE_KEY); }',
+    'export function withEventLock(locks, storage, fn: (tx: EventTx) => void): Promise<boolean> {',
+    '  const tx = { write(state) { try { storage.setItem(STORAGE_KEY, encodeEvent(state)); return true; } catch { return false; } } };',
+    '  return locks.request(STORAGE_KEY, () => fn(tx));',
+    '}',
+  ].join('\n');
+  const eventGood = [
+    { relPath: 'src/prize-event/event.ts', text: ownerGood },
+    { relPath: 'src/play/prize-draw/stage.ts', text: "import { STORAGE_KEY, withEventLock } from '../../prize-event/event.ts';\nconst k = changed === STORAGE_KEY;\nstorage.getItem(STORAGE_KEY);" },
+    { relPath: 'src/pages/tool/number.ts', text: "import { STORAGE_KEY } from './number-store.ts';\nlocalStorage.setItem(STORAGE_KEY, '1');" },
+  ];
+  assert.deepEqual(checkEventKeyWriter(eventGood), [], 'the shipped one-writer shape must report zero violations');
+  console.log('PASS known-good fixture (4): one setItem in withEventLock; a reader of the key and another module\'s STORAGE_KEY stay clean');
+
+  // --- Condition 4, known-bad: each way a second writer can be written. ---
+  const plants = {
+    'a second setItem through the import': ['src/play/prize-draw/stage.ts', "import { STORAGE_KEY } from '../../prize-event/event.ts';\nstorage.setItem(STORAGE_KEY, encodeEvent(next));"],
+    'an aliased import': ['src/prize-event/setup-page.ts', "import { createEvent, STORAGE_KEY as EV } from './event.ts';\nwin.localStorage.setItem( EV, raw);"],
+    'a namespace import': ['src/prize-event/setup-page.ts', "import * as E from './event';\nwin.localStorage.setItem(E.STORAGE_KEY, raw);"],
+    'the key as a literal': ['src/play/prize-draw/stage.ts', "storage.setItem(`watduang:prize-draw:event`, raw);"],
+    'a second setItem in event.ts, outside withEventLock': [
+      'src/prize-event/event.ts',
+      ownerGood + '\nexport function saveEvent(storage, state) { storage.setItem(STORAGE_KEY, encodeEvent(state)); return true; }',
+    ],
+  };
+  for (const [what, [relPath, text]] of Object.entries(plants)) {
+    const files = [...eventGood.filter((f) => f.relPath !== relPath), { relPath, text }];
+    const v = checkEventKeyWriter(files);
+    assert.ok(v.some((x) => x.file === relPath && x.line > 0), `${what} must be flagged at its line`);
+    console.log(`PASS known-bad fixture (4): ${what} is flagged`);
+  }
+  // A scan that loses the owner, or its withEventLock, must say so rather than read green.
+  assert.ok(checkEventKeyWriter(eventGood.slice(1)).some((x) => x.rule.includes('missing')), 'a missing owner must fail');
+  assert.ok(
+    checkEventKeyWriter([{ relPath: 'src/prize-event/event.ts', text: ownerGood.replace('withEventLock', 'withLockRenamed') }]).some((x) => x.rule.includes('blind')),
+    'an owner without withEventLock must fail'
+  );
+  console.log('PASS blind-scan fixtures (4): a missing owner and a renamed withEventLock both fail');
+
   // Fixtures live under a temp dir purely to satisfy "hermetic" — the checks above run on
   // in-memory strings and touch no disk at all, but write one throwaway file to prove the
   // hermeticity claim, then remove it.
@@ -414,17 +526,24 @@ async function main() {
     console.error(`${v.file}:${v.line} · ${v.rule} · ${v.snippet}`);
     anyFail = true;
   }
+  for (const v of checkEventKeyWriter(files)) {
+    console.error(`${v.file}:${v.line} · ${v.rule} · ${v.snippet}`);
+    anyFail = true;
+  }
 
   if (anyFail) {
     console.error(
       '\nADR-0010 roster/checkpoint lock: the re-read must sit inside the withLock critical section, ' +
-        'the critical section must stay synchronous, and roster.ts must stay the sole writer of the roster key.'
+        'the critical section must stay synchronous, and roster.ts must stay the sole writer of the roster key. ' +
+        'gh#304: the prize-draw event key has one setItem, inside event.ts withEventLock.'
     );
     process.exit(1);
   }
+  const eventReaders = files.filter((f) => f.relPath !== EVENT_KEY_OWNER && eventKeyNames(f.relPath, f.text).length).length;
   console.log(
     `roster-lock-structure-check: lock structure clean in ${lockCallers.length} withLock caller(s) ` +
-      `(${lockCallers.map((f) => f.relPath).join(', ')}); roster-key ownership clean`
+      `(${lockCallers.map((f) => f.relPath).join(', ')}); roster-key ownership clean; event key: one setItem, ` +
+      `in ${EVENT_KEY_OWNER} withEventLock, and no setItem on it in the ${eventReaders} other file(s) importing it`
   );
 }
 

@@ -31,6 +31,8 @@ import crocBite from './croc-bite.ts';
 // path segment is no promise to a reader). It was delisted 2026-08-28 while the old two-person page
 // dead-ended every solo visitor; the rebuilt module asks for nobody's name.
 import loveMatch from './love-match.ts';
+// gh#304 — the first game of the company-party category (ADR-0075): the New Year prize draw.
+import prizeDraw from './prize-draw.ts';
 // pick-loser is GONE, not delisted (gh#154, owner decision 2026-08-30: too simple to be interesting).
 // The module, its test and its OG image are deleted; /game/pick-loser 301s to /c/party/ in
 // public/staticwebapp.config.json. Its one reusable part, pickLoser(), already lives in
@@ -54,10 +56,16 @@ export const games: GameModule[] = [
   bangkokDrift,
   crocBite,
   loveMatch,
+  prizeDraw,
 ];
 
 export const byId = (id: string): GameModule | undefined =>
   games.find((g) => g.id === id);
+
+/** Where every link to a game lands (cards, nav): its setup page when it has one (gh#304), else its play
+ *  route, else its /game/<id>/ landing. One expression, so no link renderer can pick a different door. */
+export const entryHref = (game: Pick<GameModule, 'id' | 'playRoute' | 'setupRoute'>): string =>
+  game.setupRoute ?? game.playRoute ?? `/game/${game.id}/`;
 
 // gh#159 / ADR-0052 — the home page's popular row. Popularity is measured off-site by analytics and
 // the resulting order is BAKED IN HERE at build time: nothing counts at runtime, nothing is stored

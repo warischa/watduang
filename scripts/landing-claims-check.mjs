@@ -359,9 +359,10 @@ function scanHomeArtSrcset(distDir, gameList = games, stats = { homeArt: 0 }) {
     return [{ page: '(home)', kind: 'missing-home', text: 'dist/index.html: not built (home art srcset check)' }];
   }
   const html = fs.readFileSync(homePath, 'utf8');
-  // A card is the game its anchor href names (the play route where the game has one), never the game its
+  // A card is the game its anchor href names (entryHref in manifest.ts: setup page, else play route, else
+  // landing — gh#304), never the game its
   // img src happens to match: an img from another game under this card's anchor must not pass.
-  const byHref = new Map(gameList.map((g) => [g.playRoute ?? `/game/${g.id}/`, g]));
+  const byHref = new Map(gameList.map((g) => [g.setupRoute ?? g.playRoute ?? `/game/${g.id}/`, g]));
   const problems = [];
   const cards = homeArtCards(html).map((c) => ({ ...c, game: byHref.get(c.href) }));
   const idsOf = (list) => JSON.stringify(list.map((c) => c.game?.id ?? `(href ${c.href})`));
@@ -412,8 +413,39 @@ function scanHomeArtSrcset(distDir, gameList = games, stats = { homeArt: 0 }) {
   return problems;
 }
 
+// ---- ads: never on a play route; on a game's setup page when the game says ads (gh#304) ----------
+// Owned set: the manifest's playRoute and setupRoute values. Issue #13 (amendment 8) puts no ad on the
+// play screen, and gh#299 decision 10 puts the event's ads on its setup page only, never on the projected
+// screen. An ad slot is any of the markers the site's slots carry today (the .ad-slot / .ad-label class,
+// the "ช่องโฆษณา" placeholder) or an AdSense request (adsbygoogle, pagead2), so a real unit that replaces
+// the placeholder (gh#29) is still seen. The setup page is the positive control: a marker set that stopped
+// matching the site's own slot would leave the play-route half green over nothing, so it reds there.
+const AD_MARK = /class="[^"]*\bad-(?:slot|label)\b|ช่องโฆษณา|adsbygoogle|pagead2/;
+const pageOf = (route) => `${route.replace(/^\/+|\/+$/g, '')}/index.html`;
+function scanAds(distDir, gameList = games) {
+  const problems = [];
+  for (const g of gameList) {
+    if (g.playRoute) {
+      const file = path.join(distDir, pageOf(g.playRoute));
+      if (fs.existsSync(file) && AD_MARK.test(fs.readFileSync(file, 'utf8'))) {
+        problems.push({ page: g.id, kind: 'ad-on-play-route', text: `dist/${pageOf(g.playRoute)}: carries an ad slot — a play route never does (issue #13, gh#299 decision 10)` });
+      }
+    }
+    if (g.setupRoute && g.ads) {
+      const file = path.join(distDir, pageOf(g.setupRoute));
+      if (!fs.existsSync(file)) {
+        problems.push({ page: g.id, kind: 'setup-missing', text: `dist/${pageOf(g.setupRoute)}: not built while the module declares setupRoute` });
+      } else if (!AD_MARK.test(fs.readFileSync(file, 'utf8'))) {
+        problems.push({ page: g.id, kind: 'setup-ad-missing', text: `dist/${pageOf(g.setupRoute)}: no ad slot while the module declares ads: true — the setup page is where its ads render` });
+      }
+    }
+  }
+  return problems;
+}
+
 function scanAll(distDir, stats) {
   return [
+    ...scanAds(distDir),
     ...scanCategoryFilter(distDir),
     ...scanCopy(distDir),
     ...scanHomeLinks(distDir),
@@ -457,7 +489,7 @@ function categoryPageHtml({ gameIds, h1, lead, intro }, cardInner) {
 const srcsetOf = (g) => `/art/${g.cardArt} 1x, /art/${g.cardArt2x} 2x`;
 function homePageHtml(slugs, gameList = games) {
   const links = slugs.map((s) => `<a href="/c/${s}/" class="chrome-pill">x</a>`).join('');
-  const hrefOf = (g) => g.playRoute ?? `/game/${g.id}/`;
+  const hrefOf = (g) => g.setupRoute ?? g.playRoute ?? `/game/${g.id}/`;
   const art = (g, extra = '') => `<img src="/art/${g.cardArt}" srcset="${srcsetOf(g)}" alt=""${extra}>`;
   const hero = `<a class="featured" href="${hrefOf(featuredGame)}">${art(featuredGame, ' width="361" height="320" fetchpriority="high"')}</a>`;
   const popular = popularGames
@@ -482,6 +514,14 @@ function buildFixtureDist(
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'index.html'), categoryPageHtml(data, cardInner));
   }
+  // gh#304: the legs vary the first two categories only; every later one gets its known-good page, so a
+  // third category does not red every leg for a page the leg never meant to omit.
+  for (const slug of categorySlugs.slice(2).filter((s) => !(s in categoryData))) {
+    const dir = path.join(root, 'c', slug);
+    fs.mkdirSync(dir, { recursive: true });
+    const gameIds = gameList.filter((g) => g.category === slug).map((g) => g.id);
+    fs.writeFileSync(path.join(dir, 'index.html'), categoryPageHtml({ gameIds, h1: categories[slug].label, lead: categories[slug].whenToUse, intro: categories[slug].intro }, cardInner));
+  }
   // Every declared card art gets a stub file, so the known-good fixture stays green under
   // scanCardArt — the calibrated file-missing red deletes one of these.
   for (const g of gameList) {
@@ -498,6 +538,12 @@ function buildFixtureDist(
     const dir = path.join(root, 'game', g.id, 'play');
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, 'index.html'), '<html></html>');
+  }
+  // gh#304: every setup page, with the site's ad slot when its game says ads.
+  for (const g of games) {
+    if (!g.setupRoute) continue;
+    fs.mkdirSync(path.join(root, pageOf(g.setupRoute), '..'), { recursive: true });
+    fs.writeFileSync(path.join(root, pageOf(g.setupRoute)), g.ads ? '<html><div class="ad-slot" aria-hidden="true">ช่องโฆษณา</div></html>' : '<html></html>');
   }
 }
 
@@ -544,7 +590,8 @@ function selftest() {
     reset();
 
     // calibration 3: home page carries no link at all to slugB (a marker never even shipped).
-    buildFixtureDist(tmp, { [slugA]: copyOf(slugA, gamesA), [slugB]: copyOf(slugB, gamesB) }, [slugA]);
+    // Every other category stays linked (gh#304: a third category is not part of this leg's question).
+    buildFixtureDist(tmp, { [slugA]: copyOf(slugA, gamesA), [slugB]: copyOf(slugB, gamesB) }, categorySlugs.filter((s) => s !== slugB));
     const unlinked = scanAll(tmp).filter((p) => p.kind === 'unlinked');
     assert.equal(unlinked.length, 1, `expected exactly one unlinked problem, got ${unlinked.length}`);
     console.log(`PASS calibrated red — home page missing a category link: ${unlinked[0].text}`);
@@ -570,6 +617,28 @@ function selftest() {
       reset();
     }
 
+    // calibration 5b (gh#304): an ad slot on a play route, and a setup page that lost its ad slot.
+    {
+      const routed = games.find((g) => g.setupRoute && g.ads) ?? games.find((g) => g.playRoute);
+      buildFixtureDist(tmp, { [slugA]: copyOf(slugA, gamesA), [slugB]: copyOf(slugB, gamesB) });
+      fs.writeFileSync(path.join(tmp, pageOf(routed.playRoute)), '<html><div class="ad-slot" aria-hidden="true">ช่องโฆษณา</div></html>');
+      const onPlay = scanAll(tmp);
+      assert.deepEqual(onPlay.map((p) => p.kind), ['ad-on-play-route'], `an ad on a play route must be the one problem, got ${JSON.stringify(onPlay)}`);
+      console.log(`PASS calibrated red — ad slot on a play route: ${onPlay[0].text}`);
+      reset();
+      const setup = games.find((g) => g.setupRoute && g.ads);
+      if (setup) {
+        buildFixtureDist(tmp, { [slugA]: copyOf(slugA, gamesA), [slugB]: copyOf(slugB, gamesB) });
+        fs.writeFileSync(path.join(tmp, pageOf(setup.setupRoute)), '<html><main>no slot</main></html>');
+        const noAd = scanAll(tmp);
+        assert.deepEqual(noAd.map((p) => p.kind), ['setup-ad-missing'], `a setup page without its slot must be the one problem, got ${JSON.stringify(noAd)}`);
+        console.log(`PASS calibrated red — setup page lost its ad slot: ${noAd[0].text}`);
+        reset();
+      } else {
+        console.log('SKIP calibration 5b second half — no game declares a setupRoute with ads');
+      }
+    }
+
     // calibrations 6-12: card art (gh#241). Run on a game list that declares art on exactly one
     // game — the first real declaring game if the manifest has one, else a stand-in — and strips it
     // from every other game, so this scan is calibrated whatever the manifest holds today (gh#242
@@ -591,7 +660,10 @@ function selftest() {
     const artGood = scanCardArt(tmp, artList, artStats);
     assert.deepEqual(artGood, [], `known-good card art must report zero problems, got:\n${artGood.map((p) => p.text).join('\n')}`);
     assert.equal(artStats.withArt, 1, `known-good card art: the scan must COUNT the one art card it saw, got ${artStats.withArt}`);
-    assert.equal(artStats.withoutArt, gamesA.length + gamesB.length - 1, 'known-good card art: every other card must be counted as carrying none');
+    // Every category page is built (the first two by the leg, the rest by buildFixtureDist, gh#304), so
+    // every manifest game's card is counted.
+    const cardsBuilt = categorySlugs.reduce((n, slug) => n + games.filter((g) => g.category === slug).length, 0);
+    assert.equal(artStats.withoutArt, cardsBuilt - 1, 'known-good card art: every other card must be counted as carrying none');
     console.log(`PASS known-good card art: ${artPick.id} carries its one declared img, ${artStats.withoutArt} other card(s) carry none`);
     reset();
 
@@ -715,7 +787,7 @@ function selftest() {
       ['home-art-popular-set', 'data-variant renamed on every popular tile', goodHome.replaceAll('data-variant="popular"', 'data-variant="pop"'), 1],
       ['home-art-popular-set', 'every popular tile deleted', goodHome.replace(new RegExp(popRe.source, 'g'), ''), 1],
       ['home-art-popular-set', 'one popular tile deleted', goodHome.replace(popRe, ''), judgedGood - 1],
-      ['home-art-popular-set', 'the first popular tile is the hero game, anchor and img alike', goodHome.replace(popRe, `<a class="tile" data-variant="popular" href="${featuredGame.playRoute ?? `/game/${featuredGame.id}/`}">${heroImgOf(heroGame).replace(' fetchpriority="high"', '')}</a>`), judgedGood],
+      ['home-art-popular-set', 'the first popular tile is the hero game, anchor and img alike', goodHome.replace(popRe, `<a class="tile" data-variant="popular" href="${featuredGame.setupRoute ?? featuredGame.playRoute ?? `/game/${featuredGame.id}/`}">${heroImgOf(heroGame).replace(' fetchpriority="high"', '')}</a>`), judgedGood],
       ['home-art-hero-set', 'a second a.featured card', goodHome.replace(heroCard, heroCard + heroCard.replace(' fetchpriority="high"', '')), judgedGood + 1],
       ['home-art-hero-set', 'the hero card renamed away from a.featured', goodHome.replace('<a class="featured"', '<a class="hero"'), judgedGood - 1],
     ];

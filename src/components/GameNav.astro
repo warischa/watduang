@@ -1,5 +1,5 @@
 ---
-import { games } from '../games/manifest';
+import { entryHref, games } from '../games/manifest';
 import { categories } from '../games/categories';
 import type { Category } from '../games/types';
 
@@ -56,7 +56,8 @@ const groups = category
 
 <nav class={navClass} aria-label={heading}>
   {/* gh#149 — `playRoute ?? /game/<id>/`, the same fallback src/pages/index.astro and
-      src/pages/c/[category].astro already use. A game with a play route has no landing page left to
+      src/pages/c/[category].astro already use; since gh#304 all three read entryHref() in manifest.ts,
+      which puts a game's setup page (setupRoute) first. A game with a play route has no landing page left to
       link (ADR-0050 ruling 2), so spelling the landing URL here would put a 301 in the crawlable
       chrome ADR-0014 relies on. WHICH games are listed is unchanged and is not this ticket's to
       change (ADR-0043, gh#111) — only where each link points. Every group stays inside this one
@@ -65,7 +66,7 @@ const groups = category
   {groups.map((group) => (
     <Fragment>
       <h3>{group.label}</h3>
-      <ul>{group.items.map((g) => <li><a href={g.playRoute ?? `/game/${g.id}/`}>{g.names.th}</a></li>)}</ul>
+      <ul>{group.items.map((g) => <li><a href={entryHref(g)}>{g.names.th}</a></li>)}</ul>
     </Fragment>
   ))}
 </nav>

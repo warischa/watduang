@@ -18,7 +18,9 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = path.join(root, 'src/games/manifest.ts');
 const categoriesPath = path.join(root, 'src/games/categories.ts');
 // Categories whose card artboard holds the art slot; every game in one must declare cardArt (gh#242).
-const ART_CATEGORIES = ['party'];
+// company-party (ADR-0075) joined with its first cover (the event card): every game in it must declare art,
+// so each later company-party game ships its cover webp pair in the same change that adds its module.
+const ART_CATEGORIES = ['party', 'company-party'];
 
 // Games that must never generate an ad request at all, keyed by id, valued by the reason. A game NOT
 // in here may set ads either way — that is a revenue choice and no gate's business.
@@ -220,6 +222,13 @@ function validateGames(games, checkRoot, categories, noAdRequest = NO_AD_REQUEST
       }
     }
 
+    // gh#304: a setup page is the door to a play route, at the game's own /game/<id>/ (which the shell
+    // does not build for a routed game), so links that read entryHref() resolve. Nothing else is legal.
+    if (g?.setupRoute !== undefined) {
+      if (!g?.playRoute) err('setupRoute', 'is set without a playRoute — a setup page is the door to a play route');
+      else if (isStr(g?.id) && g.setupRoute !== `/game/${g.id}/`) err('setupRoute', `is "${g.setupRoute}", must be "/game/${g.id}/"`);
+    }
+
     if (!isFn(g?.mount)) err('mount', 'must be a function');
     if (!isFn(g?.dispose)) err('dispose', 'must be a function');
     if (g?.onVisibility !== undefined && !isFn(g.onVisibility)) {
@@ -339,6 +348,19 @@ function selftest() {
       'a game with a playRoute and no firstScreenReserve must report zero violations',
     );
     console.log('PASS known-good: a playRoute game without firstScreenReserve reports zero violations');
+
+    // --- gh#304: setupRoute, both directions. ---
+    assert.deepEqual(
+      validateGames([{ ...goodGame(), playRoute: '/game/happy-game/play/', setupRoute: '/game/happy-game/' }], tmpDir, partyOnly),
+      [],
+      'a setupRoute at /game/<id>/ beside a playRoute must report zero violations',
+    );
+    assert.match(validateGames([{ ...goodGame(), setupRoute: '/game/happy-game/' }], tmpDir, partyOnly).join('\n'), /setupRoute.*without a playRoute/);
+    assert.match(
+      validateGames([{ ...goodGame(), playRoute: '/game/happy-game/play/', setupRoute: '/setup/' }], tmpDir, partyOnly).join('\n'),
+      /setupRoute.*must be "\/game\/happy-game\/"/,
+    );
+    console.log('PASS setupRoute: legal beside a playRoute at /game/<id>/; red without one and red elsewhere');
 
     // --- known-good: gh#253 — a party landing (no playRoute, not [1, 1]) without the field is the legal
     // shape: it mounts on the start event, so it must not reserve. goodGame is exactly that. ---

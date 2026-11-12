@@ -90,6 +90,12 @@ const ANY_TOKEN_RE = /(--[A-Za-z0-9_-]+)\s*:\s*(#[0-9a-fA-F]{3,8})\b/g;
 // Single-level object literals only — a category entry (nested `seo: {}`) cannot match, and does not
 // need to: it declares an accent NAME, and is read as the registry below, not as a consumer.
 const OBJ_RE = /\{[^{}]*\}/g;
+// gh#304: the accents a value copy is NOT required to carry. --accent-lilac is the company-party
+// category accent (gh#303); the wheel's segment palette is a copy of the other accents and stays
+// untouched. Named here, one token, not a pattern: an exemption is a decision, and a second token
+// needs its own line. The exempt hex still marks a file as a value copy (CLASS V query), and a swap into
+// it still reds, because the member it replaced goes missing.
+const NOT_COPIED_ACCENTS = new Set(['--accent-lilac']);
 
 // COMMENTS ARE BLANKED BEFORE ANY QUERY RUNS, and this is load-bearing, not tidiness: a checker cannot
 // tell use from mention, and this repo's comments discuss the gh#74/gh#85 defect by name
@@ -214,7 +220,12 @@ export function parseRegistry(categoriesTs, manifestTs) {
  */
 export function audit(files, { accents, byHex }, registry) {
   const errors = [];
-  const canonicalHexes = [...new Set(accents.values())];
+  const allHexes = [...new Set(accents.values())];
+  // The set a value copy must carry whole is every --accent-* token EXCEPT the names this gate owns in
+  // NOT_COPIED_ACCENTS. Never derived from the consumers audited: a set read off the surfaces under audit
+  // shrinks when a surface is deleted, and a gate whose expectation shrinks with the evidence cannot fail
+  // on the case it exists for. A token that is not named there joins the set the moment it is defined.
+  const canonicalHexes = [...new Set([...accents].filter(([n]) => !NOT_COPIED_ACCENTS.has(n)).map(([, h]) => h))];
   const hexOwner = new Map([...accents].map(([n, h]) => [h, n]));
   let valueCopies = 0;
   let namedPairs = 0;
@@ -225,7 +236,7 @@ export function audit(files, { accents, byHex }, registry) {
     const hexes = new Set([...text.matchAll(HEX_RE)].map((m) => m[0].toLowerCase()));
 
     // CLASS V
-    if (canonicalHexes.some((h) => hexes.has(h))) {
+    if (allHexes.some((h) => hexes.has(h))) {
       valueCopies++;
       const missing = canonicalHexes.filter((h) => !hexes.has(h));
       if (missing.length) {
@@ -341,6 +352,27 @@ function selftest() {
   assert.match(redV.errors[0], /#ffd27f.*--accent-gold/, 'the red must name the missing accent value and its token');
   assert.match(redV.errors[0], /#ffb703 \(--color-accent\)/, 'the red must name the different-but-valid token value pasted in its place');
   console.log('PASS CLASS V red: one palette member swapped for #ffb703 (--color-accent, a VALID token value) is flagged, and the red names the substitute');
+
+  // gh#304: the one exempt token (--accent-lilac) does not join the copied set, and a swap into it still
+  // reds through the member it replaced.
+  const parsed4 = parseTokens(tokensCss.replace('--color-text', '--accent-lilac:#c9c2ff;--color-text'));
+  assert.deepEqual(audit([palette, pills], parsed4, registry).errors, [], 'a value copy of the trio is complete while the exempt lilac token exists');
+  const swapped = { rel: 'palette.ts', text: palette.text.replace('#7fd8e8', '#c9c2ff') };
+  assert.match(audit([swapped, pills], parsed4, registry).errors.join('\n'), /#7fd8e8 \(--accent-sky\)/, 'a member swapped for the exempt accent still reds, naming the member lost');
+  // An un-named fourth token is NOT exempt: it joins the set and the trio-only palette reds.
+  const parsedMint = parseTokens(tokensCss.replace('--color-text', '--accent-mint:#a8e6cf;--color-text'));
+  assert.match(audit([palette, pills], parsedMint, registry).errors.join('\n'), /#a8e6cf \(--accent-mint\)/, 'a new accent token not named in NOT_COPIED_ACCENTS must be required of every copy');
+  console.log('PASS exempt accent: only the named lilac token is excused from the copied set, a swap into it still reds, an unnamed fourth token is required');
+
+  // gh#304 REFUTE r1: the expectation is owned, not derived from the surfaces audited. Delete the fortune
+  // pill AND swap the palette's gold for another valid token's value: no pair names gold any more, so a
+  // set read off the pairs forgets gold and accepts the palette. Must red, naming the lost gold.
+  const noFortunePill = { rel: 'chrome.astro', text: pills.text.replace("  { label: 'a', href: '/c/fortune/', accent: 'var(--accent-gold)' },\n", '') };
+  assert.ok(!noFortunePill.text.includes('/c/fortune/'), 'the mutant must really have lost the fortune pill, or this leg proves nothing');
+  const goldSwapped = { rel: 'palette.ts', text: palette.text.replace('#ffd27f', '#ffb703') };
+  const redMutant = audit([goldSwapped, noFortunePill], parsed, registry);
+  assert.match(redMutant.errors.join('\n'), /#ffd27f \(--accent-gold\)/, 'a deleted pill plus a swapped palette gold must still red: the expectation does not shrink with the consumers');
+  console.log('PASS deleted pill + swapped gold: the judge mutant reds, the copied set is owned by the gate, not derived from the pills');
 
   const invented = { rel: 'x.astro', text: 'a{color:var(--accent-lime)}' };
   assert.match(audit([palette, pills, invented], parsed, registry).errors.join('\n'), /--accent-lime/, 'an --accent-* name the tokens block does not define is flagged');

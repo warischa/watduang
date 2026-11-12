@@ -15,7 +15,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { games, popularGroup, popularGames, featuredGame, featuredGroup } from '../games/manifest.ts';
+import { entryHref, games, popularGroup, popularGames, featuredGame, featuredGroup } from '../games/manifest.ts';
 // Read off the namespace so a missing export reds its own test, not the whole file at import time.
 import * as gamesManifest from '../games/manifest.ts';
 import { categories } from '../games/categories.ts';
@@ -164,8 +164,15 @@ test('the popular row is driven by the manifest, not by a game id in the page', 
     /byId\(/,
     'no card on this page may be picked by a game id written into the page',
   );
-  // ADR-0050 ruling 2: a promoted card enters the game directly wherever a play route exists.
-  assert.match(pageSrc, /game\.playRoute \?\? `\/game\/\$\{game\.id\}\/`/, 'a card must prefer the play route');
+  // ADR-0050 ruling 2: a promoted card enters the game directly wherever a play route exists. Since
+  // gh#304 the door is entryHref() in the manifest: a game's setup page first (the prize-draw event's
+  // play route has nothing to show until its setup page stored an event), then its play route.
+  assert.match(pageSrc, /href: entryHref\(game\)/, 'a card must take its href from entryHref');
+  for (const game of games) {
+    const want = game.setupRoute ?? game.playRoute ?? `/game/${game.id}/`;
+    assert.equal(entryHref(game), want, `${game.id}: entryHref must prefer the setup page, then the play route`);
+    if (game.playRoute && !game.setupRoute) assert.equal(entryHref(game), game.playRoute, `${game.id}: a card must prefer the play route`);
+  }
   // CLAUDE.md: games live in the party and fortune categories only, and a fortune page or a
   // randomizer tool is not a game — the row promotes GAMES, so every id resolves through the games
   // manifest and a tool or a non-game page can never enter the row.

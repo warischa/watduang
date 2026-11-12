@@ -37,6 +37,7 @@
 //   node scripts/render-suspension-check.mjs             -> audit every party play route
 //   node scripts/render-suspension-check.mjs --selftest  -> both-direction calibration on fixtures
 import fs from 'node:fs';
+import { nonPartyPlayRoutes, outOfScopeLine, refutedOutOfScope } from './non-party-play-routes.mjs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -187,6 +188,9 @@ async function audit() {
   }
   const { results, failures } = auditAll({ routes, declarations });
   failures.unshift(...missing);
+  // gh#304: the routes this gate does not scan, named and re-proved (no shared screen, so no hold).
+  const outside = await nonPartyPlayRoutes(root);
+  failures.push(...refutedOutOfScope(outside, 'render-suspension-check'));
 
   const of = (k) => results.filter((r) => r.klass === k).map((r) => r.id).sort();
   console.log(`render-suspension-check: adapters (${of('adapter').length}): ${of('adapter').join(', ') || 'none'}`);
@@ -197,6 +201,7 @@ async function audit() {
     console.error(`\ngh#272: every party play route follows the player screen's render hold or declares why not. ${failures.length} failure(s).`);
     process.exit(1);
   }
+  console.log(outOfScopeLine(outside, 'render-suspension-check'));
   console.log(
     `render-suspension-check: ${routes.length} party play route(s) declared, every adapter subscribes. ` +
     'NOT covered: which routes use WebGL, and whether anything draws while held -- scripts/webgl-pixels-probe.mjs decides both in the browser.',

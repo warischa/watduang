@@ -55,10 +55,11 @@ PLAY_PATHS=$(for f in dist/game/*/play/index.html; do [ -f "$f" ] || continue; e
 # playRoute owes a landing page, a game with one owes a play page, and every game owes exactly one.
 BUILT=$(printf '%s\n' "$GAME_PATHS" | grep -c . || true)
 BUILT_PLAY=$(printf '%s\n' "$PLAY_PATHS" | grep -c . || true)
-EXPECTED=$(node --input-type=module -e "const {games} = await import('./src/games/manifest.ts'); console.log(games.filter((g) => !g.playRoute).length)")
+# gh#304: a game with a setupRoute also owes a page at /game/<id>/ (its setup page), beside its play page.
+EXPECTED=$(node --input-type=module -e "const {games} = await import('./src/games/manifest.ts'); console.log(games.filter((g) => !g.playRoute || g.setupRoute).length)")
 EXPECTED_PLAY=$(node --input-type=module -e "const {games} = await import('./src/games/manifest.ts'); console.log(games.filter((g) => g.playRoute).length)")
 if [ "$BUILT" -ne "$EXPECTED" ]; then
-  echo "::error::Built $BUILT game landing page(s) but manifest declares $EXPECTED game(s) with no playRoute"
+  echo "::error::Built $BUILT game landing page(s) but manifest declares $EXPECTED game(s) with no playRoute or with a setupRoute"
   exit 1
 fi
 if [ "$BUILT_PLAY" -ne "$EXPECTED_PLAY" ]; then

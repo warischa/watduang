@@ -1,0 +1,3052 @@
+{
+  "s1": {
+    "bangkok-drift": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/bangkok-drift/play/",
+      "pass": true
+    },
+    "cannon-flag": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/cannon-flag/play/",
+      "pass": true
+    },
+    "croc-bite": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/croc-bite/play/",
+      "pass": true
+    },
+    "cursed-number": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/cursed-number/play/",
+      "pass": true
+    },
+    "dice-loser": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/dice-loser/play/",
+      "pass": true
+    },
+    "freeze-tap": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/freeze-tap/play/",
+      "pass": true
+    },
+    "how-close-is-near": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/how-close-is-near/play/",
+      "pass": true
+    },
+    "one-bomb": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/one-bomb/play/",
+      "pass": true
+    },
+    "pinocchio-luck": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/pinocchio-luck/play/",
+      "pass": true
+    },
+    "power-meter": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/power-meter/play/",
+      "pass": true
+    },
+    "prize-draw": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/prize-draw/play/",
+      "pass": true
+    },
+    "short-stick": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/short-stick/play/",
+      "pass": true
+    },
+    "timebomb": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/timebomb/play/",
+      "pass": true
+    },
+    "wire-snip-panic": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/wire-snip-panic/play/",
+      "pass": true
+    },
+    "zero-trigger": {
+      "disabledBeforePress": true,
+      "contactsOnX": [
+        true
+      ],
+      "startedDisabled": true,
+      "pathAfter": "/game/zero-trigger/play/",
+      "pass": true
+    }
+  },
+  "s2": {
+    "cannon-flag": {
+      "pathDuringHold": "/game/cannon-flag/play/",
+      "pathAfterRelease": "/game/cannon-flag/play/",
+      "disabledBeforeControl": false,
+      "pathAfterControl": "/",
+      "passNoNav": true,
+      "passControlNav": true
+    }
+  },
+  "s3": {
+    "cannon-flag": {
+      "landedOnHome": true,
+      "pathAfterBack": "/game/cannon-flag/play/",
+      "pageshowLog": "[{\"persisted\":true}]",
+      "exercisable": true,
+      "disabledBeforeTap": false,
+      "pass": true,
+      "pathAfterTap": "/"
+    }
+  },
+  "s4": {
+    "bangkok-drift": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/bangkok-drift/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 586,
+          "t": 1794380103752.1,
+          "ti": 1794380103751.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 586,
+          "t": 1794380103752.6,
+          "ti": 1794380103751.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380103832.8,
+          "ti": 1794380103832.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380103832.9,
+          "ti": 1794380103832.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380103913.4,
+          "ti": 1794380103912.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380103913.5,
+          "ti": 1794380103912.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380103995.6,
+          "ti": 1794380103994.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380103995.8,
+          "ti": 1794380103994.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380104076.4,
+          "ti": 1794380104075.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380104076.5,
+          "ti": 1794380104075.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380104157.6,
+          "ti": 1794380104157.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380104157.7,
+          "ti": 1794380104157.1,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 80.8,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.6,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.7,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.3,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.3,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        80.2,
+        80.5,
+        82.1,
+        80.6,
+        81.1
+      ],
+      "maxGap": 82.1,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        80.8,
+        80.6,
+        81.7,
+        81.3,
+        81.3
+      ],
+      "maxInputGap": 81.7,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "cannon-flag": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/cannon-flag/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        0,
+        1,
+        0,
+        1,
+        1
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 586,
+          "t": 1794380107922.6,
+          "ti": 1794380107921,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 586,
+          "t": 1794380107923.4,
+          "ti": 1794380107921.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380108007,
+          "ti": 1794380108002.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380108007.2,
+          "ti": 1794380108002.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380108089.3,
+          "ti": 1794380108083.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380108089.4,
+          "ti": 1794380108083.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380108173.2,
+          "ti": 1794380108164.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380108173.3,
+          "ti": 1794380108164.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380108257.3,
+          "ti": 1794380108245.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380108257.5,
+          "ti": 1794380108245.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380108340.2,
+          "ti": 1794380108326.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380108340.4,
+          "ti": 1794380108326.4,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 81.2,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.7,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.2,
+          "disabled": true
+        },
+        {
+          "inputGap": 81,
+          "disabled": true
+        },
+        {
+          "inputGap": 81,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        83.6,
+        82.1,
+        83.8,
+        84,
+        82.7
+      ],
+      "maxGap": 84,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        81.2,
+        80.7,
+        81.2,
+        81,
+        81
+      ],
+      "maxInputGap": 81.2,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "croc-bite": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/croc-bite/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 548,
+          "t": 1794380112079.5,
+          "ti": 1794380112078.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 548,
+          "t": 1794380112079.9,
+          "ti": 1794380112078.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380112223.7,
+          "ti": 1794380112159.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380112223.8,
+          "ti": 1794380112159.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380112274.1,
+          "ti": 1794380112240.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380112274.2,
+          "ti": 1794380112240.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380112340.1,
+          "ti": 1794380112321.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380112340.2,
+          "ti": 1794380112321.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380112423.6,
+          "ti": 1794380112402.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380112423.7,
+          "ti": 1794380112402.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380112506.1,
+          "ti": 1794380112483.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380112506.3,
+          "ti": 1794380112483.5,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 80.7,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.3,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.6,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.9,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.4,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        143.8,
+        50.3,
+        65.9,
+        83.4,
+        82.4
+      ],
+      "maxGap": 143.8,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        80.7,
+        81.3,
+        80.6,
+        80.9,
+        81.4
+      ],
+      "maxInputGap": 81.4,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "cursed-number": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/cursed-number/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 530,
+          "t": 1794380116212.3,
+          "ti": 1794380116211.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 530,
+          "t": 1794380116212.7,
+          "ti": 1794380116211.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380116322.9,
+          "ti": 1794380116292.7,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380116323,
+          "ti": 1794380116292.7,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380116406.1,
+          "ti": 1794380116373.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380116406.2,
+          "ti": 1794380116373.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380116471.8,
+          "ti": 1794380116454.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380116471.9,
+          "ti": 1794380116454.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380116556.3,
+          "ti": 1794380116536.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380116556.6,
+          "ti": 1794380116536.7,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380116638.3,
+          "ti": 1794380116618.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380116638.4,
+          "ti": 1794380116618.6,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 81.1,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.1,
+          "disabled": true
+        },
+        {
+          "inputGap": 81,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.7,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.8,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        110.2,
+        83.1,
+        65.6,
+        84.4,
+        81.7
+      ],
+      "maxGap": 110.2,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        81.1,
+        81.1,
+        81,
+        81.7,
+        81.8
+      ],
+      "maxInputGap": 81.8,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "dice-loser": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/dice-loser/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 586,
+          "t": 1794380120361.1,
+          "ti": 1794380120360.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 586,
+          "t": 1794380120361.6,
+          "ti": 1794380120360.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380120442.4,
+          "ti": 1794380120441.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380120442.6,
+          "ti": 1794380120441.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380120524.2,
+          "ti": 1794380120523.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380120524.3,
+          "ti": 1794380120523.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380120605.5,
+          "ti": 1794380120605,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380120605.6,
+          "ti": 1794380120605,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380120687,
+          "ti": 1794380120686.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380120687.1,
+          "ti": 1794380120686.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380120768.7,
+          "ti": 1794380120768,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380120768.8,
+          "ti": 1794380120768.1,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 81.3,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.7,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.4,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.4,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.5,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        80.8,
+        81.6,
+        81.2,
+        81.4,
+        81.6
+      ],
+      "maxGap": 81.6,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        81.3,
+        81.7,
+        81.4,
+        81.4,
+        81.5
+      ],
+      "maxInputGap": 81.7,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "freeze-tap": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/freeze-tap/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        0,
+        1,
+        1,
+        1,
+        6
+      ],
+      "maxDispatchLagMs": 6,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 586,
+          "t": 1794380124533.4,
+          "ti": 1794380124532.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 586,
+          "t": 1794380124536.4,
+          "ti": 1794380124532.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380124622,
+          "ti": 1794380124612.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380124622,
+          "ti": 1794380124612.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380124705.7,
+          "ti": 1794380124692.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380124705.8,
+          "ti": 1794380124692.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380124788.3,
+          "ti": 1794380124773.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380124788.5,
+          "ti": 1794380124773.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380124858.6,
+          "ti": 1794380124854.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380124858.8,
+          "ti": 1794380124854.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380124959.9,
+          "ti": 1794380124940.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380124960,
+          "ti": 1794380124940.8,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 79.8,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.6,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.9,
+          "disabled": true
+        },
+        {
+          "inputGap": 81,
+          "disabled": true
+        },
+        {
+          "inputGap": 85.9,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        85.6,
+        83.7,
+        82.5,
+        70.1,
+        101.1
+      ],
+      "maxGap": 101.1,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        79.8,
+        80.6,
+        80.9,
+        81,
+        85.9
+      ],
+      "maxInputGap": 85.9,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "how-close-is-near": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/how-close-is-near/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 574,
+          "t": 1794380128693,
+          "ti": 1794380128692.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 574,
+          "t": 1794380128693.4,
+          "ti": 1794380128692.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380128788.8,
+          "ti": 1794380128773.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380128789,
+          "ti": 1794380128773.7,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380128872.2,
+          "ti": 1794380128855,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380128872.3,
+          "ti": 1794380128855,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380128938.4,
+          "ti": 1794380128936.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380128938.5,
+          "ti": 1794380128936.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380129022.5,
+          "ti": 1794380129017.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380129022.6,
+          "ti": 1794380129017.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380129104.8,
+          "ti": 1794380129098.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380129105,
+          "ti": 1794380129098.4,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 81.2,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.3,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.2,
+          "disabled": true
+        },
+        {
+          "inputGap": 81,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.2,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        95.4,
+        83.2,
+        66.1,
+        84,
+        82.2
+      ],
+      "maxGap": 95.4,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        81.2,
+        81.3,
+        81.2,
+        81,
+        81.2
+      ],
+      "maxInputGap": 81.3,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "one-bomb": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/one-bomb/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        0,
+        1,
+        1,
+        1,
+        1
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 469,
+          "t": 1794380132872.5,
+          "ti": 1794380132871.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 469,
+          "t": 1794380132873,
+          "ti": 1794380132871.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380132971.7,
+          "ti": 1794380132953.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380132971.8,
+          "ti": 1794380132953.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380133054.7,
+          "ti": 1794380133034.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380133054.8,
+          "ti": 1794380133034.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380133138.4,
+          "ti": 1794380133115.7,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380133138.5,
+          "ti": 1794380133115.7,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380133221.5,
+          "ti": 1794380133197,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380133221.6,
+          "ti": 1794380133197,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380133304.8,
+          "ti": 1794380133278.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380133304.8,
+          "ti": 1794380133278.2,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 81.6,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.4,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.9,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.3,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.2,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        98.7,
+        82.9,
+        83.6,
+        83,
+        83.2
+      ],
+      "maxGap": 98.7,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        81.6,
+        81.4,
+        80.9,
+        81.3,
+        81.2
+      ],
+      "maxInputGap": 81.6,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "pinocchio-luck": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/pinocchio-luck/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 576,
+          "t": 1794380137017.9,
+          "ti": 1794380137017.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 576,
+          "t": 1794380137018.6,
+          "ti": 1794380137017.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380137121.5,
+          "ti": 1794380137098.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380137121.6,
+          "ti": 1794380137098.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380137204.3,
+          "ti": 1794380137179.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380137204.4,
+          "ti": 1794380137179.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380137287.6,
+          "ti": 1794380137261.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380137287.6,
+          "ti": 1794380137261.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380137371.9,
+          "ti": 1794380137341.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380137371.9,
+          "ti": 1794380137341.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380137454.5,
+          "ti": 1794380137422.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380137454.6,
+          "ti": 1794380137422.8,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 81.1,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.2,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.5,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.4,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.3,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        102.9,
+        82.7,
+        83.2,
+        84.3,
+        82.6
+      ],
+      "maxGap": 102.9,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        81.1,
+        81.2,
+        81.5,
+        80.4,
+        81.3
+      ],
+      "maxInputGap": 81.5,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "power-meter": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/power-meter/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 510,
+          "t": 1794380141240.8,
+          "ti": 1794380141240,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 510,
+          "t": 1794380141241.3,
+          "ti": 1794380141240.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380141337.8,
+          "ti": 1794380141321,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380141337.9,
+          "ti": 1794380141321,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380141404.3,
+          "ti": 1794380141401.8,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380141404.4,
+          "ti": 1794380141401.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380141487.9,
+          "ti": 1794380141483.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380141488.1,
+          "ti": 1794380141483.5,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380141571.1,
+          "ti": 1794380141564.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380141571.3,
+          "ti": 1794380141564.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380141654.8,
+          "ti": 1794380141646.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380141654.9,
+          "ti": 1794380141646.1,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 80.9,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.8,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.6,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.4,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.2,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        96.5,
+        66.4,
+        83.5,
+        83,
+        83.5
+      ],
+      "maxGap": 96.5,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        80.9,
+        80.8,
+        81.6,
+        81.4,
+        81.2
+      ],
+      "maxInputGap": 81.6,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "prize-draw": {
+      "unsettled": null,
+      "triggerSelected": false,
+      "transitionSent": false,
+      "sentCount": 5,
+      "burstDownCount": 1,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit"
+      ],
+      "pathAfterBurst": "/",
+      "stillInRound": false,
+      "dispatchLags": null,
+      "maxDispatchLagMs": null,
+      "overlayAtX": "chrome-brand",
+      "topBeforeDeliberate": "chrome-brand",
+      "disabledBeforeDeliberate": null,
+      "pathAfterDeliberate": "/",
+      "attempts": 2,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380147583.4,
+          "ti": 1794380147582.1,
+          "top": "play-exit",
+          "disabled": false
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380147584,
+          "ti": 1794380147582.1,
+          "top": "play-exit",
+          "disabled": false
+        }
+      ],
+      "downs": [],
+      "defectContacts": [],
+      "gaps": [],
+      "maxGap": null,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [],
+      "maxInputGap": null,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": false,
+      "isVoid": false,
+      "transitionObserved": false,
+      "paired": false,
+      "outcome": "no-trigger",
+      "passNoNav": false,
+      "passDeliberateNav": false
+    },
+    "short-stick": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/short-stick/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 320,
+          "t": 1794380152200.9,
+          "ti": 1794380152200.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 320,
+          "t": 1794380152201.5,
+          "ti": 1794380152200.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380152286.6,
+          "ti": 1794380152281.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380152286.8,
+          "ti": 1794380152281.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380152370.5,
+          "ti": 1794380152362.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380152370.6,
+          "ti": 1794380152362.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380152454.1,
+          "ti": 1794380152443.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380152454.2,
+          "ti": 1794380152443.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380152537.3,
+          "ti": 1794380152524.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380152537.4,
+          "ti": 1794380152524.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380152622.1,
+          "ti": 1794380152605.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380152622.3,
+          "ti": 1794380152605.4,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 81.4,
+          "disabled": true
+        },
+        {
+          "inputGap": 81,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.8,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.5,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.5,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        85.1,
+        83.7,
+        83.5,
+        83.1,
+        84.7
+      ],
+      "maxGap": 85.1,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        81.4,
+        81,
+        80.8,
+        81.5,
+        80.5
+      ],
+      "maxInputGap": 81.5,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "timebomb": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/timebomb/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 586,
+          "t": 1794380156312,
+          "ti": 1794380156310.7,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 586,
+          "t": 1794380156313,
+          "ti": 1794380156310.7,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380156403.8,
+          "ti": 1794380156392,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380156403.8,
+          "ti": 1794380156392,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380156487,
+          "ti": 1794380156473.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380156487,
+          "ti": 1794380156473.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380156570.2,
+          "ti": 1794380156554.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380156570.3,
+          "ti": 1794380156554.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380156637,
+          "ti": 1794380156635.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380156637.1,
+          "ti": 1794380156635.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380156720.3,
+          "ti": 1794380156716.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380156720.3,
+          "ti": 1794380156716.9,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 81.3,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.1,
+          "disabled": true
+        },
+        {
+          "inputGap": 81,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.8,
+          "disabled": true
+        },
+        {
+          "inputGap": 81,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        90.8,
+        83.2,
+        83.2,
+        66.7,
+        83.2
+      ],
+      "maxGap": 90.8,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        81.3,
+        81.1,
+        81,
+        81.8,
+        81
+      ],
+      "maxInputGap": 81.8,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "wire-snip-panic": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/wire-snip-panic/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        0,
+        1,
+        1
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 526,
+          "t": 1794380160471.3,
+          "ti": 1794380160470.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 526,
+          "t": 1794380160474.2,
+          "ti": 1794380160470.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380160553.2,
+          "ti": 1794380160551.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380160553.2,
+          "ti": 1794380160551.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380160637.1,
+          "ti": 1794380160632.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380160637.3,
+          "ti": 1794380160632.2,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380160720.6,
+          "ti": 1794380160712.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380160720.8,
+          "ti": 1794380160712.4,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380160803.9,
+          "ti": 1794380160792.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380160804.2,
+          "ti": 1794380160792.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380160887.8,
+          "ti": 1794380160874.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380160888,
+          "ti": 1794380160874.4,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 80.6,
+          "disabled": true
+        },
+        {
+          "inputGap": 81,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.2,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.5,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.4,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        79,
+        83.9,
+        83.3,
+        83.1,
+        83.6
+      ],
+      "maxGap": 83.9,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        80.6,
+        81,
+        80.2,
+        80.5,
+        81.4
+      ],
+      "maxInputGap": 81.4,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    },
+    "zero-trigger": {
+      "unsettled": null,
+      "triggerSelected": true,
+      "transitionSent": true,
+      "sentCount": 5,
+      "burstDownCount": 5,
+      "topBeforeBurst": "play-exit",
+      "topsDuringBurst": [
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit",
+        "play-exit"
+      ],
+      "pathAfterBurst": "/game/zero-trigger/play/",
+      "stillInRound": true,
+      "dispatchLags": [
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "maxDispatchLagMs": 1,
+      "overlayAtX": "play-exit",
+      "topBeforeDeliberate": "play-exit",
+      "disabledBeforeDeliberate": false,
+      "pathAfterDeliberate": "/",
+      "attempts": 1,
+      "armDelayMs": 400,
+      "cpuThrottle": 1,
+      "timeline": [
+        {
+          "kind": "down",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 499,
+          "t": 1794380164629.7,
+          "ti": 1794380164629,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "mouse",
+          "x": 160,
+          "y": 499,
+          "t": 1794380164630.7,
+          "ti": 1794380164629,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380164719.9,
+          "ti": 1794380164710.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380164719.9,
+          "ti": 1794380164710.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380164803.3,
+          "ti": 1794380164791.6,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380164803.4,
+          "ti": 1794380164791.7,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380164886.3,
+          "ti": 1794380164871.9,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380164886.4,
+          "ti": 1794380164872.1,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380164969.8,
+          "ti": 1794380164953,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380164969.9,
+          "ti": 1794380164953,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "down",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380165037.2,
+          "ti": 1794380165034.3,
+          "top": "play-exit",
+          "disabled": true
+        },
+        {
+          "kind": "up",
+          "pointerType": "touch",
+          "x": 28,
+          "y": 28,
+          "t": 1794380165037.3,
+          "ti": 1794380165034.3,
+          "top": "play-exit",
+          "disabled": true
+        }
+      ],
+      "downs": [
+        {
+          "inputGap": 81.6,
+          "disabled": true
+        },
+        {
+          "inputGap": 81,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.2,
+          "disabled": true
+        },
+        {
+          "inputGap": 80.9,
+          "disabled": true
+        },
+        {
+          "inputGap": 81.3,
+          "disabled": true
+        }
+      ],
+      "defectContacts": [],
+      "gaps": [
+        89.2,
+        83.4,
+        82.9,
+        83.4,
+        67.3
+      ],
+      "maxGap": 89.2,
+      "gapsOverArmDelay": 0,
+      "inputGaps": [
+        81.6,
+        81,
+        80.2,
+        80.9,
+        81.3
+      ],
+      "maxInputGap": 81.6,
+      "inputGapsOverArmDelay": 0,
+      "inputTimesMeasured": true,
+      "isVoid": false,
+      "transitionObserved": true,
+      "paired": true,
+      "outcome": "measured",
+      "passNoNav": true,
+      "passDeliberateNav": true
+    }
+  }
+}
+  FAIL s4/prize-draw: PRECONDITION NOT MET after 2 attempt(s), NOT a guard defect -- findTransitionTrigger found nothing to press on the settled page, so no transition was pressed -- fix the finder, do not skip the leg; no burst contact was scored (presses logged 1, pathname after burst /)
+  FAIL s4/prize-draw: PRECONDITION NOT MET -- its precondition is a burst after an observed transition, and this pass had none
+play-exit-guard: 15 route(s) checked, 48 scenario leg(s) judged (47/47 required, 1/1 optional), 2 failed, 0 UNMEASURED (blocks, like a failure -- each one names its own cause above), 0 not exercisable

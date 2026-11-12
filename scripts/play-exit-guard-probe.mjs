@@ -327,12 +327,18 @@ const XSTATE = `
 // definition and cap the fit probe uses (imported, never retyped): the attribute present (open or
 // closed) and the pending marker absent. Nothing is lost by waiting -- the fit probe reds anything
 // actionable painted in that gap. At the cap the reason comes back and the caller reds by route name.
-const { awaitPlayerScreenSettled } = await import('./play-screen-fit-probe.mjs');
+const { awaitPlayerScreenSettled, hasRouteSeed, routeSeed } = await import('./play-screen-fit-probe.mjs');
 const settleFails = [];
 
 const gotoIdleArmed = async (s, route) => {
   const url = `${BASE}/game/${route}/play/`;
   await s.nav(url);
+  // gh#304: a route that shows nothing to press until something is stored is seeded (the fit probe's own
+  // seed) and reloaded, or the walk finds no transition to drive.
+  if (hasRouteSeed(url)) {
+    await s.evaluate(routeSeed(url));
+    await s.nav(url);
+  }
   await s.setup320();
   const why = await awaitPlayerScreenSettled(s.evaluate);
   await sleep(800); // > ARM_DELAY_MS (400ms), so the X is armed and idle at the start of each scenario

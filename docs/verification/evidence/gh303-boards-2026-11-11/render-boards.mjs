@@ -41,7 +41,7 @@ const EXPECT = {
   Gh303Fireworks: { A: FW, B: FW, F: ['fw-fallback', 'fwf-fallback'] },
   Gh303Cards: { A: CD, B: CD, F: ['cd-fallback', 'cd-code'] },
   Gh303Ladder: { A: LD, B: LD, F: ['ld-fallback', 'ld-few'] },
-  'CatCompany-partyPop': { A: ['cat-1440'], B: ['cat-1440'] },
+  'CatCompany-partyPop': { A: ['cat-1440', 'cat-event-1099', 'cat-event-320'], B: ['cat-1440'] },
   Gh303Home: { A: ['home-1440', 'home-320'], B: ['home-1440', 'home-320'] },
 };
 // Smallest non-name text allowed inside a picked frame, in px at the rendered size. Projector frames: 30px (names are judged by their
@@ -56,6 +56,8 @@ const PROBE = (floor) => `(async () => {
   // Load every declared face, used or not, so a missing or broken font file shows as status "error".
   await Promise.allSettled([...document.fonts].map((f) => f.load()));
   await document.fonts.ready;
+  // Every image settles (loaded or failed) before anything is measured or captured.
+  await Promise.all([...document.images].map((i) => i.complete ? null : new Promise((r) => { i.addEventListener('load', r); i.addEventListener('error', r); })));
   for (let i = 0; i < 50 && document.documentElement.dataset.fitDone !== '1'; i++) await new Promise((r) => setTimeout(r, 100));
   await new Promise((r) => setTimeout(r, 300));
   const de = document.documentElement;
@@ -235,7 +237,8 @@ const PROBE = (floor) => `(async () => {
   const nocut = [...document.querySelectorAll('[data-frame]')].filter((e) => e.getBoundingClientRect().height <= ${SLICE})
     .map((e) => { const r = e.getBoundingClientRect(); return { top: Math.round(r.top + scrollY), bottom: Math.round(r.bottom + scrollY) }; });
   return { innerWidth, scrollWidth: de.scrollWidth, clientWidth: de.clientWidth, height: de.scrollHeight, nocut, fonts, frames, text, flat, pick, nRoles: roles.length,
-    templates: document.querySelectorAll('template').length, grammar: [...grammar] };
+    templates: document.querySelectorAll('template').length, grammar: [...grammar],
+    brokenImages: pickedFrames.flatMap((fr) => [...fr.querySelectorAll('img')].filter((i) => !i.complete || !i.naturalWidth).map((i) => fr.dataset.dir + '/' + fr.dataset.frame + ' ' + i.getAttribute('src'))) };
 })()`;
 
 function scanText(text) {
@@ -303,6 +306,7 @@ async function run(file) {
   }
   if (!m.pick) problems.push('board names no picked option (data-pick)');
   if (m.pick && !m.nRoles) problems.push(`no VALUES roles for the picked option ${m.pick}`);
+  for (const b of m.brokenImages) problems.push('image did not load in ' + b);
   for (const g of m.grammar.slice(0, 8)) problems.push('grammar: ' + g);
   if (m.grammar.length > 8) problems.push('grammar: ' + (m.grammar.length - 8) + ' more outside the grammar');
   if (m.templates) problems.push(`${m.templates} <template> element(s) on the board: their text escapes the rendered scan`);

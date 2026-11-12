@@ -21,7 +21,7 @@ import ArtTile from '../components/landing/ArtTile.astro';
 import TextTile from '../components/landing/TextTile.astro';
 import { keepThaiWords } from '../components/thai-keep';
 import { categories } from '../games/categories';
-import { games, popularGames, popularGroup, featuredGame, shelfGames } from '../games/manifest';
+import { entryHref, games, popularGames, popularGroup, featuredGame, shelfGames } from '../games/manifest';
 import { tools, toolsGroup } from '../tools/manifest';
 import type { Category, GameModule } from '../games/types';
 
@@ -30,7 +30,7 @@ import type { Category, GameModule } from '../games/types';
 const gameTile = (game: GameModule) => ({
   title: game.names.th,
   desc: keepThaiWords(game.tagline),
-  href: game.playRoute ?? `/game/${game.id}/`,
+  href: entryHref(game),
   art: game.cardArt ?? null,
   art2x: game.cardArt2x ?? null,
 });
@@ -59,11 +59,13 @@ const categoryRow = (cat: Category) => ({
   accentVar: `--accent-${categories[cat].accent}` as const,
   games: games.filter((game) => game.category === cat),
 });
-const ROW_ORDER: Category[] = ['party', 'fortune'];
+// gh#303 K2 (owner pick 2026-11-11, design/Gh303Home.dc.html, A): the company-party row is typographic
+// like the fortune row and sits between the fortune row and the tools row.
+const ROW_ORDER: Category[] = ['party', 'fortune', 'company-party'];
 for (const cat of Object.keys(categories) as Category[]) {
   if (!ROW_ORDER.includes(cat)) throw new Error(`home: category "${cat}" has no row on the home page`);
 }
-const [partyRow, fortuneRow] = ROW_ORDER.map(categoryRow);
+const [partyRow, fortuneRow, companyRow] = ROW_ORDER.map(categoryRow);
 
 // Tools are not a category (ADR-0032): their row links the tools hub, never a /c/<slug>/ URL, and
 // renders the tools hub heading once — the duplicate h2 gh#192 (i) removed does not come back.
@@ -145,6 +147,16 @@ const featured = withArt(featuredGame);
         <div class="grid grid-fortune">
           {fortuneRow.games.map(gameTile).map((card) => (
             <TextTile kind="fortune" href={card.href} title={card.title} desc={card.desc} accentVar={fortuneRow.accentVar} />
+          ))}
+        </div>
+      </Section>
+    </div>
+
+    <div class="wrap row">
+      <Section id={companyRow.id} heading={companyRow.heading} body={companyRow.body} href={companyRow.href} linkLabel="ดูทั้งหมด →">
+        <div class="grid grid-company">
+          {companyRow.games.map(gameTile).map((card) => (
+            <TextTile kind="company-party" href={card.href} title={card.title} desc={card.desc} accentVar={companyRow.accentVar} />
           ))}
         </div>
       </Section>
@@ -338,6 +350,13 @@ const featured = withArt(featuredGame);
     margin-top: -20px;
   }
 
+  /* gh#303 K2, design/Gh303Home.dc.html frame home-1440 (A): four columns, 24px apart. */
+  .grid-company {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+    margin-top: -20px;
+  }
+
   .faq {
     margin-top: 96px;
     display: grid;
@@ -488,6 +507,13 @@ const featured = withArt(featuredGame);
     .grid-tools {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
+      margin-top: 16px;
+    }
+
+    /* frame home-320 (A): one column, 14px apart. */
+    .grid-company {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
       margin-top: 16px;
     }
 

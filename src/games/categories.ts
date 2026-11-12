@@ -30,6 +30,9 @@ export interface CategoryMeta {
   listHeading: string;
   /** Accent NAME, not a colour value — the page/token layer resolves it to real colours */
   accent: string;
+  /** gh#303 K4: the third pill under the category page's lead. Per category because "มือถือเครื่องเดียว"
+   *  is false of the company-party event (a projector, not one phone passed around; ADR-0075). */
+  thirdPill: string;
   /** Does a group of players carry on from one game in this category into the next? gh#94: only
    *  the party category does — its games share a roster and a turn order (ADR-0040). The fortune
    *  category's games are one person, one answer, so their nav neither filters to the category nor
@@ -60,6 +63,7 @@ export const categories: Record<Category, CategoryMeta> = {
     intro: 'รวมคำทำนายดูดวงฟรีบนมือถือเครื่องเดียว เสี่ยงเซียมซี หรือเปิดดวงประจำวัน ไม่ต้องโหลดแอป ไม่ต้องสมัคร',
     listHeading: 'คำทำนายในหมวดนี้',
     accent: 'gold',
+    thirdPill: 'มือถือเครื่องเดียว',
     carriesGroup: false,
     seo: {
       title: 'ดูดวงออนไลน์ฟรี — เซียมซี ดวงวันนี้ | วัดดวง',
@@ -74,10 +78,33 @@ export const categories: Record<Category, CategoryMeta> = {
     intro: 'รวมเกมสุ่มคนโดนสำหรับวงเพื่อน จับไม้สั้น ระเบิดเวลา หรือสุ่มคนโดนแบบตรง ๆ ตัดสินว่าใครจ่าย ใครเริ่ม ใครโดน ด้วยมือถือเครื่องเดียว',
     listHeading: 'เกมในหมวดนี้',
     accent: 'punch',
+    thirdPill: 'มือถือเครื่องเดียว',
     carriesGroup: true,
     seo: {
       title: 'เกมสุ่มคนโดน เล่นฟรีในวงเพื่อน | วัดดวง',
       description: 'รวมเกมสุ่มคนโดนเล่นฟรี จับไม้สั้น ระเบิดเวลา สุ่มคนโดน ตัดสินว่าใครจ่ายใครเริ่ม บนมือถือเครื่องเดียว',
+    },
+  },
+  // ADR-0075 (gh#301), wired by gh#304. The label is the owner's own name for the category (gh#299
+  // decision 1); `label`, `whenToUse`, `hubHeading`, `hubBody`, `intro` and `listHeading` appear verbatim
+  // on the picked gh#303 boards, whose copy the owner approved (K5); `seo.*` is on no board and is listed
+  // for approval in the gh#304 evidence README. None of them may claim a 2-10 range or phone-passing
+  // (ADR-0075), and none uses a word CONTEXT.md bars as reading like gambling.
+  // gh#303 (owner picks 2026-11-11, design/CatCompany-partyPop.dc.html and design/Gh303Home.dc.html, both
+  // A LILAC): K1 the accent, K4 the third pill; K5 approved every string here as it stands.
+  'company-party': {
+    label: 'เกมงานเลี้ยงบริษัท',
+    whenToUse: 'จับรางวัลปีใหม่บนจอใหญ่ ให้ทั้งห้องลุ้นไปด้วยกัน',
+    hubHeading: 'เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่',
+    hubBody: 'พิธีกรคุมจอใหญ่จอเดียว คัดชื่อออกทีละรอบจนได้ผู้รับรางวัล',
+    intro: 'คัดออกทีละรอบจนเหลือ 5 คนสุดท้าย แล้วชิงรางวัลบนจอใหญ่ ทุกคนมีโอกาสเท่ากันทุกรอบ',
+    listHeading: 'เกมในหมวดนี้',
+    accent: 'lilac',
+    thirdPill: 'ขึ้นจอโปรเจกเตอร์ได้',
+    carriesGroup: false,
+    seo: {
+      title: 'เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่ | วัดดวง',
+      description: 'จับรางวัลปีใหม่ในงานเลี้ยงบริษัทบนจอใหญ่ คัดชื่อออกทีละรอบจนเหลือ 5 คนสุดท้าย แล้วชิงรางวัล ทุกคนมีโอกาสเท่ากันทุกรอบ',
     },
   },
 };

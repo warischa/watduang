@@ -96,7 +96,9 @@ const NAV_LINK_IDS = (nav) => new Set([...nav.matchAll(/href="\/game\/([^"/]+)\/
 
 // The pages this route actually builds: a game with a playRoute has no landing page (its 301 lives in
 // public/staticwebapp.config.json), so the manifest's own length stopped being the expected count.
-const landingGames = games.filter((g) => !g.playRoute);
+// gh#304: a game with a setupRoute is entered through its own page at /game/<id>/, which carries the
+// same GameNav, so it is scanned like a landing.
+const landingGames = games.filter((g) => !g.playRoute || g.setupRoute);
 
 // `root` is a parameter only so the page-count calibration below can point it at an empty temp dir
 // without rebuilding dist/. Every real caller uses the default.

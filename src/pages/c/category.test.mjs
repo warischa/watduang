@@ -92,10 +92,17 @@ test('the accent resolves from the manifest accent NAME, never the slug, never a
 });
 
 test('the pills, cross-link section label, card call to action and breadcrumb are page copy', () => {
-  const pageCopy = ['ไม่ต้องโหลดแอป', 'ไม่ต้องสมัคร', 'มือถือเครื่องเดียว', 'ไปที่อื่นต่อ', 'เล่นเลย', 'หน้าแรก'];
+  // gh#303 K4 (owner pick 2026-11-11): the third pill differs per category ("มือถือเครื่องเดียว" is false of
+  // the company-party event), so it moved to the manifest and renders from meta.thirdPill; the other two
+  // pills, and the event card's call to action (K3), stay page copy.
+  const pageCopy = ['ไม่ต้องโหลดแอป', 'ไม่ต้องสมัคร', 'ไปที่อื่นต่อ', 'เล่นเลย', 'หน้าแรก', 'เริ่มจัดงาน'];
   for (const piece of pageCopy) {
     assert.ok(pageSrc.includes(piece), `the page copy piece must sit on the page as a literal: ${piece}`);
   }
+  assert.match(pageSrc, /<li>\{meta\.thirdPill\}<\/li>/, 'the third pill must render the manifest field by interpolation');
+  assert.equal(categories.party.thirdPill, 'มือถือเครื่องเดียว', 'party keeps the pill it rendered, byte-identical');
+  assert.equal(categories.fortune.thirdPill, 'มือถือเครื่องเดียว', 'fortune keeps the pill it rendered, byte-identical');
+  assert.equal(categories['company-party'].thirdPill, 'ขึ้นจอโปรเจกเตอร์ได้', 'gh#303 K4: the picked pill, verbatim');
   // And the inverse: no manifest field is added to hold any of it (gh#88 criterion 3 — a field
   // added here is a field with one reader).
   assert.doesNotMatch(categoriesSrc, /\b(cta|breadcrumb|pill|sectionLabel|kicker)\s*[:?]/, 'CategoryMeta must not grow a field to hold page copy');

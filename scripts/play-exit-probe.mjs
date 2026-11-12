@@ -225,8 +225,22 @@ const evaluate = async (body) => {
 // hidden and reports a finder miss that is not one. So each pass waits for the screen to settle with
 // the fit probe's own helper and cap (imported, never retyped), and a route that never settles is
 // UNMEASURED by name with the helper's reason -- never measured mid-boot.
-const { awaitPlayerScreenSettled } = await import('./play-screen-fit-probe.mjs');
-const nav = async (url) => { await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'local_storage' }); const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); };
+const { awaitPlayerScreenSettled, hasRouteSeed, routeSeed } = await import('./play-screen-fit-probe.mjs');
+// gh#304: a route that shows nothing to press until something is stored (the prize-draw projector, before
+// its setup page stored an event) is seeded after the wipe and reloaded, with the fit probe's own seed.
+const nav = async (url) => {
+  await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'local_storage' });
+  let p = new Promise((r) => { loadResolve = r; });
+  await send('Page.navigate', { url });
+  await p;
+  if (hasRouteSeed(url)) {
+    await send('Runtime.evaluate', { expression: `(() => { ${routeSeed(url)} })()`, returnByValue: true });
+    p = new Promise((r) => { loadResolve = r; });
+    await send('Page.navigate', { url });
+    await p;
+  }
+  await sleep(900);
+};
 // Both halves of the contact go on the wire together and only the PAIR is awaited. Awaiting the
 // touchStart ack before writing the touchEnd put a CDP round trip INSIDE every contact, and a second
 // one between contacts in the burst loop below -- so the gap the burst was measured at was the 80ms

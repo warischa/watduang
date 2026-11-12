@@ -313,6 +313,9 @@ function gamePageClasses(gameList) {
   for (const g of gameList) {
     if (g.playRoute) out.set(`${g.playRoute.replace(/^\/+|\/+$/g, '')}/index.html`, 'play');
     else out.set(`game/${g.id}/index.html`, 'solo');
+    // gh#304: a setup page is a normal site page (PageChrome, ads), so it is held to the every-other-page
+    // terms; derived from the setupRoute VALUE like the play page above.
+    if (g.setupRoute) out.set(`${g.setupRoute.replace(/^\/+|\/+$/g, '')}/index.html`, 'chrome');
   }
   return out;
 }

@@ -87,7 +87,7 @@ export function keyOf(el) {
 
 /** One route's failures. Pure over its inputs, so the selftest drives it on fixture strings.
  *  `declared` is the entry's firstScreenRoots. */
-export function auditRoute({ id, markup, declared }) {
+export function auditRoute({ id, markup, declared, mountsPlayerScreen = true }) {
   const failures = [];
   const fail = (why) => failures.push(`${id}: ${why}`);
   if (!declared || typeof declared !== 'object' || Array.isArray(declared)) {
@@ -98,7 +98,12 @@ export function auditRoute({ id, markup, declared }) {
     if (!ROLES.has(role)) fail(`declares ${key} as '${role}', which is not a role (${[...ROLES].join(' | ')})`);
   }
   const declaredMounts = Object.keys(declared).filter((k) => declared[k] === 'ps-mount');
-  if (declaredMounts.length !== 1) fail(`declares ${declaredMounts.length} player-screen mounts (ps-mount); exactly one is required`);
+  // gh#304: the shared player screen is the party category's roster (ADR-0039); a route in a category
+  // whose group does not carry on (the company-party event, ADR-0075) has no screen to mount, and a
+  // ps-mount there would be a declaration nothing answers. Keyed on the category's carriesGroup flag,
+  // never on a slug, so a fourth category answers the question by declaring that flag.
+  if (mountsPlayerScreen && declaredMounts.length !== 1) fail(`declares ${declaredMounts.length} player-screen mounts (ps-mount); exactly one is required`);
+  if (!mountsPlayerScreen && declaredMounts.length !== 0) fail(`declares ${declaredMounts.length} player-screen mount(s) (ps-mount), but its category has no shared player screen; none is allowed`);
 
   const frag = parseFragment(markup);
   const frontier = new Map(); // element -> role, for every element the walk reached
@@ -164,7 +169,9 @@ export function auditRoute({ id, markup, declared }) {
 
 async function audit() {
   const { games } = await import(pathToFileURL(path.join(root, 'src/games/manifest.ts')).href);
+  const { categories } = await import(pathToFileURL(path.join(root, 'src/games/categories.ts')).href);
   const routed = games.filter((g) => g.playRoute);
+  const noScreen = [];
   const failures = [];
   if (routed.length === 0) {
     console.error('first-screen-roots-check: the manifest yields no play route -- an empty work set is a failure, not a pass');
@@ -181,7 +188,9 @@ async function audit() {
       continue;
     }
     const markup = fs.readFileSync(markupPath, 'utf8');
-    failures.push(...auditRoute({ id: g.id, markup, declared: g.firstScreenRoots }));
+    const mountsPlayerScreen = categories[g.category]?.carriesGroup === true;
+    if (!mountsPlayerScreen) noScreen.push(g.id);
+    failures.push(...auditRoute({ id: g.id, markup, declared: g.firstScreenRoots, mountsPlayerScreen }));
     const roles = Object.values(g.firstScreenRoots ?? {});
     counts.push(`${g.id} ${roles.filter((r) => r === HELD).length}/${roles.length}`);
   }
@@ -190,7 +199,7 @@ async function audit() {
     console.error(`\ngh#269: every first-screen element of a play route is declared, and the player-screen mount is never inside a held gameplay root. ${failures.length} failure(s).`);
     process.exit(1);
   }
-  console.log(`first-screen-roots-check: ${routed.length} play route(s), every frontier element declared (gameplay/declared): ${counts.join(', ')}.`);
+  console.log(`first-screen-roots-check: ${routed.length} play route(s), every frontier element declared (gameplay/declared): ${counts.join(', ')}. ${noScreen.length} of them in a category with no shared player screen, held to zero ps-mount: ${noScreen.join(', ') || 'none'}.`);
   console.log('first-screen-roots-check: NOT covered -- that a held root is really hidden in a browser (the browser lane reads computed visibility), a display:contents root with a child override, content a script inserts outside every root, and whether each role was judged right.');
 }
 
@@ -236,6 +245,13 @@ function selftest() {
   assert.match(run(good, { declared: { ...declared, '#app': 'chrome' } }), /mount #players is off the frontier and not inside a pre-open root/);
   assert.match(run(good, { declared: { ...declared, '#live': 'ps-mount' } }), /declares 2 player-screen mounts/);
   console.log('PASS mount: off the frontier outside pre-open, two declared mounts red');
+
+  // gh#304: a route whose category has no shared player screen holds zero mounts, and says so both ways.
+  const noMount = Object.fromEntries(Object.entries(declared).map(([k, v]) => [k, v === 'ps-mount' ? 'chrome' : v]));
+  assert.deepEqual(auditRoute({ id: 'fx', markup: good, declared: noMount, mountsPlayerScreen: false }), [], 'a screenless route with no mount must pass');
+  assert.match(auditRoute({ id: 'fx', markup: good, declared, mountsPlayerScreen: false }).join('\n'), /no shared player screen; none is allowed/);
+  assert.match(auditRoute({ id: 'fx', markup: good, declared: noMount }).join('\n'), /declares 0 player-screen mounts/);
+  console.log('PASS screenless category: zero mounts pass there, one mount reds there, zero mounts still red on a party route');
   console.log('first-screen-roots-check --selftest: all legs passed');
 }
 

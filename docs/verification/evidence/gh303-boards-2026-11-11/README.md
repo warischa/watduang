@@ -17,8 +17,7 @@ Five boards in `design/`. The game boards use gh#302's picked B NIGHT STAGE, off
 
 - **F1:** card ranks 30px Mitr 700 beside a 24px suit, 6 columns of 40px rows; fireworks prize labels and legend chips 30px; `ld-few` redrawn in B. Non-name text under 30px fails in picked and F frames.
 - **F2:** `lib.mjs` copies the gh#302 event (200 invited, 196 joined; rounds 196 to 100, 100 to 50, then 20, then 5). Each judged field carries `data-expect="total/passed"`, checked by the render.
-- **F3:** values by role (`roles.mjs`, a VALUES BY ROLE row on each board). Found a real defect: a failed card kept a red rank.
-- **F4:** a name or code box sits inside its parent and every clipping ancestor, both axes. **F5:** pseudo-element `content` other than `""`/`none`/`normal` fails, as does any `<template>`. **F6:** the driver fails a green plant, an unapplied plant or a red control (an inert renderer: exit 1). The "field spare" claim was removed.
+- **F3:** values by role (`roles.mjs`); found a failed card keeping a red rank. **F4:** names and codes inside every clipping ancestor, both axes. **F5:** pseudo-element `content` other than `""`/`none`/`normal` fails, as does any `<template>`. **F6:** the driver fails a green plant, an unapplied plant or a red control (an inert renderer: exit 1). The "field spare" claim was removed.
 
 ## REFUTE round 2 (the last round)
 
@@ -30,6 +29,10 @@ Five boards in `design/`. The game boards use gh#302's picked B NIGHT STAGE, off
 - **Frames rewritten to fit it:** card suits are inline paths (no `<symbol>`/`<use>`); the rocket trail is a gold taper (no gradient); faded bursts, ladder lanes, the glow (every glow drawn before any path, so none covers another path) and the result's 25% track are solids pre-composited over the ground midpoint #1c1b3c (no opacity); plates, lane plates and slots centre by a negative margin (no transform); the category pills are spans (no list items). The unpicked ladder A keeps its fog gradient: history, and the grammar binds picked frames only.
 - **Exclusive ownership:** each property an element renders must be listed by exactly one matching role row; no row is a wildcard (the white-text and ink defaults are gone). Card ranks and suits have a row per state (black, red, failed, face down). The no-owner and two-owner branches went red on the real boards against the round-1 role table (once, not a standing plant).
 
+## AMENDMENT APPROVED 2026-11-11: event card art (owner popup)
+
+Owner ruling: the K3 event card carries cover art like the party cards: `images/IMG_04_002.png`, shipped as `public/art/prize-draw.webp` (273x320), drawn from that file as an `<img class="game-card-art">`, the card's first child. At 1440 it sits beside the copy in a 273x320 box; stacked (new frames `cat-event-1099` at the live break and `cat-event-320`) it sits above the copy in the party slot (100% x 160px, contain, no radius, no ground; the live break values otherwise). No new paint, so no new role row; the two box sizes are VALUES rows. The grammar admits `<img>` only from `../public/art/*.webp`; the render waits for every image and fails one that does not load. Reds: a missing file gives `image did not load in A/cat-event-320`; a non-art source gives `img src="../public/og/prize-draw.png" is outside the grammar`. `landing-claims-check` reads the built page, not this board: the live event card still needs the img.
+
 ## Boards and render slices
 
 | Board (slices) | Frame: slice |
@@ -37,10 +40,10 @@ Five boards in `design/`. The game boards use gh#302's picked B NIGHT STAGE, off
 | `Gh303Fireworks` (14) | elimination: idle A 1, B 2; countdown A 2, B 3; reveal A 3, B 4; result A 4, B 5; reduced motion A 5, B 6; fallback 6. Final: idle 7, reveal 8, result 9, reduced motion 10 (A and B each); fallback 11; then tables |
 | `Gh303Cards` (10) | idle A 1, B 2; code 2; rule 3; reveal 4; result 5; reduced motion 6 (A and B each); fallback 7; then tables |
 | `Gh303Ladder` (9) | idle A 1, B 2; reveal A 2, B 3; result A 3, B 4; reduced motion A 4, B 5; `ld-few` 5; fallback 6; then tables |
-| `CatCompany-partyPop` (6) | page at 1440: A 2, B 3; then tables |
+| `CatCompany-partyPop` (6) | page at 1440: A 2, B 3; event card stacked at 1099 and 320: 4; then tables |
 | `Gh303Home` (4) | 1440: A 1, B 2; 320 A and B 2; then tables |
 
-Renders are `<Board>-<n>.jpg` here, heights 26218 / 17404 / 15372 / 8808 / 6054 at 1600px (the page-13 artboards in `design/canvas.json`). **Why CatCompany-partyPop:** `src/pages/c/category.test.mjs` derives a category's board from its slug (`Cat` + capitalised slug + `Pop.dc.html`) and requires `.game-card-art` there once the category sets `cardArt`; gh#304 wired `company-party`. The rule is byte-identical to `CatPartyPop` and the page. Thai in a frame is proposed copy unless the board's COPY SOURCES row marks it verbatim.
+Renders are `<Board>-<n>.jpg` here, heights 26218 / 17404 / 15372 / 10460 / 6054 at 1600px (the page-13 artboards in `design/canvas.json`). **Why CatCompany-partyPop:** `src/pages/c/category.test.mjs` derives a category's board from its slug (`Cat` + capitalised slug + `Pop.dc.html`) and requires `.game-card-art` there once the category sets `cardArt`; gh#304 wired `company-party`. The rule is byte-identical to `CatPartyPop` and the page. Thai in a frame is proposed copy unless the board's COPY SOURCES row marks it verbatim.
 
 **Against gh#302's picked board** (`design/Gh302Projector.dc.html` B, diffed 2026-11-11): the fallback frames use its values unchanged (10 columns, 32px rows, NAME FIT floor 14px, 220px band, prize-1 floor 96px, the code card, the round dots). The game frames' departures are on each VALUES row: lanterns 8 columns, 27px rows, 18px floor; cards 6 columns, 40px rows, 16px floor; a 190px band.
 
@@ -59,7 +62,7 @@ Edit the generator (`make-boards.mjs`, `lib.mjs`, `stage.mjs`, `roles.mjs`, `gra
 
 ## Must-red
 
-`mustred.mjs` feeds `assertEvent` two broken events, then copies a board per plant into `<scratch>/gh303-mr/<plant>/design/` (with `public/` linked), plants one fault and runs the render (`CHECK_ONLY=1`). A plant counts only if the render exits 1 AND reports its own check's line. Last run: both controls green, all 31 plants red on their own line (29 board, 2 source), exit 0. With an inert renderer it exits 1 (29 UNEXPECTED); a plant red on another check's line counts as UNEXPECTED (seen once, exit 1).
+`mustred.mjs` feeds `assertEvent` two broken events, then copies a board per plant into `<scratch>/gh303-mr/<plant>/design/` (with `public/` linked), plants one fault and runs the render (`CHECK_ONLY=1`). A plant counts only if the render exits 1 AND reports its own check's line. Last run: both controls green, all 33 plants red on their own line (31 board, 2 source), exit 0. With an inert renderer (29 board plants then) it exits 1, all 29 UNEXPECTED; a plant red on another check's line counts as UNEXPECTED (seen once, exit 1).
 
 | Check | Plant: its line |
 |---|---|
@@ -76,13 +79,7 @@ Run against the round-1 render, the white rank on a red card and the 50px text a
 
 **Inherited, not counted:** each board logs one `ERR_FILE_NOT_FOUND` for `design/support.js`, which the canvas tool supplies. **Source scan** (`thai-scan.mjs`): a foreign letter or mark, an invisible character, a numeric character reference or a barred word fails; clean on all five boards, every script here and this README.
 
-## NAME FIT
-
-The gh#302 rule: 12 grapheme clusters at most; a name shrinks 1px at a time to its floor without 2% slack, then wraps to a second line; each floor keeps 12 x W and 12 x U+0E12 on one line; 12 x U+0E12 U+0E33 wraps. All three are drawn among the names and finalists. Each board's NAME FIT row lists every surface.
-
-## Design input
-
-ui-ux-pro-max 2.13.0, one intent per query, over `--domain ux`, `--domain gsap` and `--stack threejs`; WCAG 2.3.1 is applied from outside the skill. Each board's RULES CHECKED row lists them.
+**NAME FIT** (gh#302): 12 grapheme clusters at most; shrink 1px to the floor, then two lines; 12 x W and 12 x U+0E12 stay on one line, 12 x U+0E12 U+0E33 wraps; each board's NAME FIT row lists every surface. **Design input:** ui-ux-pro-max 2.13.0 (ux, gsap, threejs; WCAG 2.3.1 from outside the skill), listed in each RULES CHECKED row.
 
 ## Not covered
 

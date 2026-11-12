@@ -2,7 +2,7 @@
 // shared F frames). The generator writes only what is listed here, and render-boards.mjs fails anything else it finds
 // in a picked frame: an element, an attribute, an attribute value, a CSS longhand or a CSS value outside these lists.
 // This is a set this directory owns, so it closes; a list of what the browser can paint would never close.
-// Forbidden by omission: <use>, <symbol>, <defs>, gradients and patterns (no url() paint), <text>, <img>, <template>,
+// Forbidden by omission: <use>, <symbol>, <defs>, gradients and patterns (no url() paint), <text>, <template>,
 // list items and ::marker, opacity, fill-opacity and stroke-opacity, zoom and the individual scale/rotate/translate
 // properties, filters, masks, clip paths, blend modes, animations and transitions, and generated content.
 // Values are matched as Chrome serialises them (CSSOM longhands; attributes as written).
@@ -14,13 +14,15 @@ const LEN = '^(-?\\d+(\\.\\d+)?(px|%|em)?|auto|initial|0)$';
 const LENS = '^((-?\\d+(\\.\\d+)?(px|%|em)?|auto|initial)\\s?)+$';
 
 export const GRAMMAR = {
-  html: ['div', 'span', 'i', 'b', 'small', 'h1', 'h2', 'h3', 'p'],
+  html: ['div', 'span', 'i', 'b', 'small', 'h1', 'h2', 'h3', 'p', 'img'],
   svg: ['svg', 'g', 'line', 'circle', 'path', 'rect', 'polyline', 'polygon'],
   // attribute -> value shape; '*' on an element applies to every element; data-* are listed one by one
   attrs: {
     '*': { class: '^[A-Za-z0-9_ -]*$', style: '', 'aria-hidden': '^true$', 'data-frame': '^[a-z0-9-]+$', 'data-dir': '^[ABF]$',
       'data-expect': '^\\d+/\\d+$', 'data-min': `^${NUM}$`, 'data-max': `^${NUM}$` },
     svg: { width: `^${NUM}$`, height: `^${NUM}$`, viewBox: '^[-\\d. ]+$' },
+    // an image only from the site's own shipped art (AMENDMENT 2026-11-11: the event card's cover art)
+    img: { src: '^\\.\\./public/art/[a-z0-9-]+\\.webp$', width: `^${NUM}$`, height: `^${NUM}$`, alt: '^$', decoding: '^async$', loading: '^lazy$' },
     g: { transform: `^(\\s*(translate|scale|rotate)\\(${NUM}([ ,]+${NUM}){0,2}\\))+\\s*$`, fill: PAINT },
     line: { x1: `^${NUM}$`, y1: `^${NUM}$`, x2: `^${NUM}$`, y2: `^${NUM}$`, stroke: PAINT, 'stroke-width': `^${NUM}$`, 'stroke-linecap': '^(round|butt|square)$', 'stroke-dasharray': '^[\\d. ]+$' },
     circle: { cx: `^${NUM}$`, cy: `^${NUM}$`, r: `^${NUM}$`, fill: PAINT, stroke: PAINT, 'stroke-width': `^${NUM}$` },

@@ -113,6 +113,15 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 //   two more lifted/authored play bundles, minus nothing -- no engine was deleted this batch, because
 //   the stage modules stay until gh#149 removes the landing pages that still render them.
 const BASELINE_BASENAMES = [
+  // gh#304 -- the prize-draw event (ADR-0075), four new chunks: event.js (src/prize-event/event.ts,
+  // shared by the setup page, the projector route and the game module), names-dom.js (the name sink,
+  // shared by the setup page and the projector), prize-draw.js (the game module, reached through the
+  // _id_ page's lazy glob like every module) and index.astro_... (the setup page's script). The
+  // projector route's own script folds into the play.astro_... entry like every play route.
+  'event.js',
+  'names-dom.js',
+  'prize-draw.js',
+  'index.astro_astro_type_script_index_0_lang.js',
   // gh#264 / ADR-0071 -- _setup-bridge.js REMOVED. Every play route mounts the shared player screen
   // and PlayExit edits in place, so the bridge module (edit flag + save-on-setup-complete) lost its
   // last importer and was deleted. SET leg only, as the notes below.
@@ -460,7 +469,25 @@ const BASELINE_BASENAMES = [
 // -26668 B is carry that predates Phase 3 — bundled-source commits since the 2026-09-26 pin that never
 // re-pinned because the total stayed in band. n=1 build per tree. Re-pinned in-band on purpose, per the
 // convention above.
-const BASELINE_TOTAL_BYTES = 1080518;
+// Re-pinned 2026-11-11 (gh#304), 1080518 -> 1111368, n=1 local build of this tree, measured with this
+// file's own reachableChunks/summarize over a fresh `npm run build`. SPLIT by a second build of the base
+// commit 7cefc99 (a git-archive copy, same node_modules): base measures 1084518, so +4000 is carry that
+// predates gh#304 and never re-pinned in band, and gh#304's own delta is +26850 (+2.48%): the five
+// prize-draw chunks (setup script 5335, projector script 8751, event 9354, names-dom 989, prize-draw
+// 2263 = 26692) plus +158 in shared chunks (the new manifest and category entries).
+// An earlier pin in the same ticket read 1107799; the +2727 since then is all inside those five chunks,
+// each size MEASURED from the built files, the causes INFERRED except where a build isolates them:
+// event +1021 (the name rule rewritten to the join server's cluster splitter and reason codes, whose
+// literals sit in that chunk), projector +226 (the refit once the bold face loads), setup +1426 of which
+// +1146 and +122 are MEASURED by rebuilds around one edit each (the owner-approved refusal and
+// head-range copy; then the refusal row as one text column) and +158 is setup-page review fixes not
+// separated one by one, prize-draw +54 (manifest entry fields: -3, then +57 MEASURED by a rebuild around
+// the module's cardArt and cardArt2x fields alone, the event card's art). The five sum to +2727 exactly,
+// so the shared chunks did not move. Then +842 MEASURED by a rebuild around the review round's fixes
+// alone: projector +783 (the cross-tab single writer, a storage lock plus a storage-event follower, and
+// announcements through the name sink) and event +59 (readEvent, names unique by nameKey on read); no
+// other chunk moved. Re-stated in band on purpose, per the convention above.
+const BASELINE_TOTAL_BYTES = 1111368;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as
@@ -479,6 +506,13 @@ const BAND = 0.05; // +/-5%
 // RE-BASELINE, like the other two constants, is the intended signal and a deliberate edit: a new
 // game adds its own pairs here.
 const BASELINE_PAGE_ENTRIES = [
+  // gh#304 -- the company-party category page and the prize-draw setup page are web pages (PageChrome);
+  // the setup page adds its own script; the projector route loads the shared exit and its play script.
+  'c/company-party/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'game/prize-draw/index.html PageChrome.astro_astro_type_script_index_0_lang.js',
+  'game/prize-draw/index.html index.astro_astro_type_script_index_0_lang.js',
+  'game/prize-draw/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/prize-draw/play/index.html play.astro_astro_type_script_index_0_lang.js',
   // gh#288 Phase 3 -- PageChrome's web-only script loads on every web page: 12 pages gain this pair and
   // no page loses one. Pages with their own entry chunk keep it; these pairs are additive.
   '404.html PageChrome.astro_astro_type_script_index_0_lang.js',

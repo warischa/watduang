@@ -59,6 +59,33 @@ const CAT_CSS = `
     .cp .foot { background: #14142b; }
     .cp .foot .row { height: 96px; display: flex; align-items: center; justify-content: center; font: 700 24px/1 'Mitr', sans-serif; color: #ffcc00; }`;
 
+// The category page board only (the home board shares CAT_CSS and stays as committed).
+const AMEND_CSS = `
+    /* ---- AMENDMENT 2026-11-11 (owner ruling): the event card's cover art, APPROVED by the owner 2026-11-11 (popup). The art is the card's
+       first child, as on the party cards. 1440: beside the copy, in the art's own 273x320 box (its aspect, contain).
+       Stacked (the live 1099px break and below): above the copy, in the party cards' slot as the .game-card-art rule
+       sets it (100% x 160px, contain, no radius, no ground). The stacked frames carry the live page's own break values. */
+    .cp:not(.stack) .gc.event .game-card-art { flex: none; width: 273px; height: 320px; }
+    .cp.stack { box-sizing: border-box; padding: 32px 18px 40px; }
+    .cp.w1099 { width: 1099px; }
+    .cp.w320 { width: 320px; }
+    .cp.stack .gc.event { flex-direction: column; align-items: stretch; gap: 16px; }
+    .cp.stack .gc.event p { font-size: 16px; }`;
+
+// AMENDMENT 2026-11-11 (owner ruling): the event card's cover art, the picked file shipped as public/art/prize-draw.webp
+// (273x320), drawn from the 1x file. Same class as the party cards' art, so the page gate counts it; the card's first child.
+const EVENT_ART = '<img class="game-card-art" src="../public/art/prize-draw.webp" width="273" height="320" alt="" decoding="async">';
+// The event card (K3), shared by the 1440 page and the stacked frames; the art only on the picked A.
+function eventCard(opt) {
+  const a = ACC[opt];
+  return `<div class="gc event" style="background:${a.bg}; color:${a.fg};">${opt === 'A' ? EVENT_ART : ''}<div class="ev-copy"><h3>${th('จับรางวัลปีใหม่', 'event card: title (prize-draw.ts names.th)', 'g302setup')}</h3><p>${th('คัดออกทีละรอบจนเหลือ 5 คนสุดท้าย แล้วชิงรางวัลบนจอใหญ่', 'event card: line (prize-draw.ts tagline)', 'g302setup')}</p></div><span class="go">${th('เริ่มจัดงาน', 'event card: call to action')}${svg.arrow(22, '#14142b', 2.5)}</span></div>`;
+}
+
+const AMEND = 'AMENDMENT APPROVED 2026-11-11';
+const amendTag = (w) => `<div class="tag"><span class="d">A · LILAC</span><span class="res">${AMEND}</span> · cat-event-${w} · the event card ${w === 1099 ? 'at the 1099px break, stacked' : 'at 320'}<span class="pc">COPY APPROVED</span></div>`;
+// The event card where the live page stacks it: the list heading and the card, in the page's 18px gutters.
+const eventStackFrame = (w) => `<div class="cp stack w${w}" data-frame="cat-event-${w}" data-dir="A"><h2 class="kicker">${th('เกมในหมวดนี้', 'categories.listHeading', 'page')}</h2>${eventCard('A')}</div>`;
+
 function catFrame(opt) {
   const a = ACC[opt];
   const nav = [['ดูดวง', '#ffcc00', 'page'], ['สุ่มคนโดน', '#ff3d7f', 'page'], ['เครื่องมือสุ่ม', '#2b7bff', 'page']]
@@ -70,7 +97,7 @@ function catFrame(opt) {
     ['ทางแยกเลือกเส้น', '5 คนสุดท้ายเลือกเส้นทาง เปิดทางแยกทีละขั้นจนถึงช่องรางวัล'],
   ];
   const card = ([name, tagline], i) => `<div class="gc" style="background:${a.bg}; color:${a.fg};">${i === 0 ? '<div class="game-card-art stub">art slot (.game-card-art): empty until a cardArt file is approved</div>' : ''}<h3>${th(name, 'game name', 'ticket')}</h3><p>${th(tagline, 'game tagline')}</p><span class="cta" style="border-block-start: 2px solid ${a.ctaRule};">${th('เล่นเลย', 'card call to action', 'page')}${ARROW}</span></div>`;
-  const event = `<div class="gc event" style="background:${a.bg}; color:${a.fg};"><div class="ev-copy"><h3>${th('จับรางวัลปีใหม่', 'event card: title (prize-draw.ts names.th)', 'g302setup')}</h3><p>${th('คัดออกทีละรอบจนเหลือ 5 คนสุดท้าย แล้วชิงรางวัลบนจอใหญ่', 'event card: line (prize-draw.ts tagline)', 'g302setup')}</p></div><span class="go">${th('เริ่มจัดงาน', 'event card: call to action')}${svg.arrow(22, '#14142b', 2.5)}</span></div>`;
+  const event = eventCard(opt);
   const cross = [['สุ่มคนโดน', '#ff3d7f'], ['ดูดวง', '#ffcc00'], ['เครื่องมือสุ่ม', '#2b7bff'], ['ติชม / เสนอเกม', '#ffffff']]
     .map(([t, c]) => `<div class="cc" style="background:${c};">${th(t, 'cross-link card', 'page')}${ARROW}</div>`).join('');
   return `<div class="cp" data-frame="cat-1440" data-dir="${opt}">
@@ -151,6 +178,11 @@ const PAGE_VALUES = [
   ['#ffffff', 'feedback cross-link (--color-bg); B text on the accent', 'tokens.css --color-bg / --ink-light'],
   ['rgba(20,20,43,0.2)', 'card call-to-action rule on a light accent', 'the twins\' literal'],
 ];
+// AMENDMENT 2026-11-11: the event card's art box. No new paint: the art carries no radius and no ground.
+const ART_VALUES = [
+  ['273 x 320px, contain', 'event card art beside the copy at 1440', 'AMENDMENT APPROVED 2026-11-11 (the art\'s own size)'],
+  ['100% x 160px, contain, no radius, no ground', 'event card art stacked (1099px break and 320)', 'the .game-card-art rule: src/pages/c/[category].astro and CatPartyPop'],
+];
 const ACC_VALUES = [
   ['#c9c2ff', 'A: header, cards, chrome pill, home tiles', 'PICKED 2026-11-11 (was PROPOSAL (new colour); K1)'],
   ['#23214d', 'B: the same surfaces', 'gh#302 B, picked; as this accent NOT PICKED (K1)'],
@@ -179,7 +211,8 @@ const OWNER = `<div class="pin q"><b>DECISIONS FOR THE OWNER (answered 2026-11-1
 export function buildCategory() {
   resetCopy();
   const rows = [];
-  rows.push(sec('CATEGORY PAGE · 1440 · /c/company-party/ (the slug gh#304 wired)', 'The twin structure of CatPartyPop and CatFortunePop, in the canvas D values the live page ships: chrome bar, accent header with H1, lead, three pills and the intro card, the billboard ad slot, the games list with the art slot on the first specimen card, the cross-links, the 300 x 250 rail. Two additions, both structure (the ticket owns structure, ADR-0033): the full-width event card that leads the list, and a fourth chrome pill. Ads are allowed here: this is a site page, not the projected screen (gh#299 decision 10 bars them from the projector only).', ['A', 'B'].map((o) => [tg(o, ' · cat-1440 · authored and shown at 1440'), catFrame(o)])));
+  rows.push(sec('CATEGORY PAGE · 1440 · /c/company-party/ (the slug gh#304 wired)', 'The twin structure of CatPartyPop and CatFortunePop, in the canvas D values the live page ships: chrome bar, accent header with H1, lead, three pills and the intro card, the billboard ad slot, the games list with the art slot on the first specimen card, the cross-links, the 300 x 250 rail. Two additions, both structure (the ticket owns structure, ADR-0033): the full-width event card that leads the list, and a fourth chrome pill. Ads are allowed here: this is a site page, not the projected screen (gh#299 decision 10 bars them from the projector only).', ['A', 'B'].map((o) => [tg(o, ` · cat-1440 · authored and shown at 1440${o === 'A' ? ` · event card art: ${AMEND}` : ''}`), catFrame(o)])));
+  rows.push(sec(`EVENT CARD ART · ${AMEND}`, 'Owner ruling 2026-11-11: the full-width event card (K3) carries cover art like the party cards. The picked art is images/IMG_04_002.png, shipped as public/art/prize-draw.webp (273 x 320) and prize-draw-2x.webp (546 x 640); drawn here from the 1x file. The art is the card\'s first child with the party cards\' class, .game-card-art. <b>1440</b> (in the page frame above): the art sits beside the copy in its own 273 x 320 box, so it keeps its aspect. <b>Stacked</b>, at the live page\'s 1099px break and at 320: the card turns to a column (the live break values: column, stretch, 16px gap, body text 16px) and the art sits above the copy in the party cards\' slot, full width x 160px, contain, no radius and no ground (the .game-card-art rule as the page and CatPartyPop carry it). These two frames are new: the board never drew the event card below 1440.', [1099, 320].map((w) => [amendTag(w), eventStackFrame(w)])));
   rows.push(`
   <div class="brow">
     <h2>MANIFEST FIELDS · proposed values for the categories.ts entry (gh#304 wires them)</h2>
@@ -200,7 +233,7 @@ export function buildCategory() {
   <div class="brow">
     <h2>VALUES · token or PROPOSAL</h2>
     <p class="why"><b>Every value but the accent is the live page's</b> (src/pages/c/[category].astro, tokens.css): ground #fff6e0, ink #14142b, muted #3d3b5c, 2.5px borders, 16px radius, 4px 4px 0 shadow, H1 Mitr 600 58px, lead 19px, intro 17px/1.8, pills 13px, card titles Mitr 600 22px, bodies 15px (16px at 1099px and under, the twins' phone note, which this board inherits). Kickers are drawn in Mitr 600: the page asks for 500, which no self-hosted file carries. <b>PICKED 2026-11-11 (was PROPOSAL):</b> the accent A #c9c2ff (K1; B #23214d with white text NOT PICKED); the event card (full width, title 30px, line 17px, a gold call to action 52px tall; K3).</p>
-    <div class="cands"><div class="cand">${valuesTable([...PAGE_VALUES, ...ACC_VALUES])}</div><div class="cand">${contrastTable(PAIRS)}</div></div>
+    <div class="cands"><div class="cand">${valuesTable([...PAGE_VALUES, ...ACC_VALUES, ...ART_VALUES])}</div><div class="cand">${contrastTable(PAIRS)}</div></div>
   </div>`);
   rows.push(rulesRow('--domain ux "projector legibility contrast large display distance" (its Color Contrast and Contrast Readability rules), "color not only indicator", "touch target size mobile".', [
     '<b>Color Contrast</b> (4.5:1): every text pair in the table clears it, computed. A\'s lilac takes ink at the same ratio band as the other accents; B\'s white on night is the highest.',
@@ -213,9 +246,9 @@ export function buildCategory() {
     '<b>Rests on:</b> ADR-0075 (a third category that holds เกม; the 2 to 10 range and phone-passing are not claimed here), ADR-0040 as amended, ADR-0033, the owner ruling of 2026-11-11 that this category\'s card and page get a board in this round, gh#299 decisions 1, 2 and 10.',
     '<b>For gh#304:</b> the page still hardcodes the pill "มือถือเครื่องเดียว" for every category (re-read 2026-11-11 after gh#304\'s edits); this category needs a per-category third pill (or none). The page builds this category\'s cross-links from the manifest, so the four cards drawn here are what it would render. The event card shows prize-draw.ts\'s own name and tagline (the approved gh#302 setup h1 and lead); only its call to action is new.',
     '<b>Live values (REFUTE round 2):</b> the page values were re-diffed on 2026-11-11 against the live source, src/pages/c/[category].astro with src/styles/tokens.css and fonts.css, and now match it: pills Sarabun 500 (rendered by the 400 face, the only one below 700, as live), ad slots 2.5px dashed rgba(20,20,43,0.35) with a Mitr 500 label, kicker and cross-link cards Mitr 500, the card call to action at the inherited weight. The pills are drawn as spans, not list items: the board grammar admits no list markers.',
-    '<b>Not drawn:</b> the page at phone width (the twins have none; their phone note applies); art for the cards (the slot is reserved and empty).',
+    '<b>Not drawn:</b> the whole page at phone width (the twins have none; their phone note applies; the event card alone is drawn stacked, AMENDMENT 2026-11-11); art for the game cards (the slot is reserved and empty).',
   ]));
-  return boardDoc('gh#303 · prize draw · the company-party category page', 'gh#303: proposal board, ADR-0033. The Cat<Slug>Pop twin of CatPartyPop and CatFortunePop for the slug company-party.', ['<b style="color: #ffcc00;">APPROVAL RESULT 2026-11-11 (owner popups):</b> K1 accent: <b>A LILAC #c9c2ff</b> PICKED (B NIGHT NOT PICKED, its frames stay below as history). K2: the row between the fortune row and the tools row, typographic, as drawn in A, PICKED. K3: the event as a full-width lead card, PICKED. K4: the pill \"ขึ้นจอโปรเจกเตอร์ได้\", PICKED. K5: all proposed Thai copy APPROVED as it stands. Card cover art is coming (owner ask, 2026-11-11): the art slot stays as drawn until the picked art is forwarded.', ORDER_LINE, OWNER], CAT_CSS, rows, { width: 1520, extraHelmet: ART_RULE, status: 'APPROVED 2026-11-11: A LILAC PICKED', pick: 'A' });
+  return boardDoc('gh#303 · prize draw · the company-party category page', 'gh#303: proposal board, ADR-0033. The Cat<Slug>Pop twin of CatPartyPop and CatFortunePop for the slug company-party.', ['<b style="color: #ffcc00;">APPROVAL RESULT 2026-11-11 (owner popups):</b> K1 accent: <b>A LILAC #c9c2ff</b> PICKED (B NIGHT NOT PICKED, its frames stay below as history). K2: the row between the fortune row and the tools row, typographic, as drawn in A, PICKED. K3: the event as a full-width lead card, PICKED. K4: the pill \"ขึ้นจอโปรเจกเตอร์ได้\", PICKED. K5: all proposed Thai copy APPROVED as it stands. Card cover art is coming (owner ask, 2026-11-11): the art slot stays as drawn until the picked art is forwarded.', ORDER_LINE, OWNER], CAT_CSS + AMEND_CSS, rows, { width: 1520, extraHelmet: ART_RULE, status: 'APPROVED 2026-11-11: A LILAC PICKED', pick: 'A' });
 }
 
 export function buildHome() {

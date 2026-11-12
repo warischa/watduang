@@ -1,0 +1,411 @@
+---
+// gh#304 — the prize-draw SETUP page: a normal site page (ads, SEO), the event's front door. Cards and nav
+// links land here through entryHref() (src/games/manifest.ts reads the game's setupRoute). It builds the
+// event and stores it; the projector route (./play.astro, no ads) reads it back.
+//
+// Design source: direction A POSTER of design/Gh302Setup.dc.html, frames setup-admin and
+// setup-schedule-error (owner pick 2026-11-11, ADR-0033). Every Thai string below is the board's approved
+// copy, verbatim. Two things the board draws are not here yet, both on purpose: the roster-mode toggle
+// (its second option, QR join, is gh#308's, and a toggle offering a mode that does not work would be a
+// dead control), and the QR review list (gh#308). The board draws this page at 1280 only; its narrow
+// layout is this file's and is listed for the owner in the gh#304 evidence README.
+//
+// Not shell-rendered: getStaticPaths in src/pages/game/[id].astro builds no /game/<id>/ page for a game
+// with a playRoute, so this file is the only page at this URL.
+import Base from '../../../layouts/Base.astro';
+import PageChrome from '../../../components/PageChrome.astro';
+import GameNav from '../../../components/GameNav.astro';
+import { byId } from '../../../games/manifest';
+import { categories } from '../../../games/categories';
+import { MAX_PRIZES } from '../../../prize-event/event';
+
+const game = byId('prize-draw');
+if (!game || !game.playRoute) throw new Error('prize-draw is not registered with a playRoute in the manifest');
+const category = categories[game.category];
+const prizeRows = Array.from({ length: MAX_PRIZES }, (_, i) => i + 1);
+const howToJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: game.seo.title,
+  step: game.seo.steps.map((text) => ({ '@type': 'HowToStep', text })),
+};
+---
+
+<Base title={game.seo.title} description={game.seo.description} ogImage={`/og/${game.og}`} chrome>
+  <PageChrome>
+  <main class="su">
+    <div class="wrap">
+      <p class="crumb"><a href={`/c/${game.category}/`}>{category.label}</a></p>
+      <h1 class="h1">{game.names.th}</h1>
+      <p class="lead">คัดออกทีละรอบจนเหลือ 5 คนสุดท้าย แล้วชิงรางวัลบนจอใหญ่ ทุกคนมีโอกาสเท่ากันทุกรอบ</p>
+      {game.ads && <div class="ad-slot" aria-hidden="true">ช่องโฆษณา</div>}
+
+      <form id="pd-setup" novalidate data-play={game.playRoute}>
+        <section class="step" aria-labelledby="pd-h1">
+          <h2 class="step-h" id="pd-h1"><span class="num" aria-hidden="true">1</span>ชื่องาน</h2>
+          <p class="hint" id="pd-event-hint">ขึ้นบนจอใหญ่ตลอดงาน</p>
+          <input id="pd-event" class="field" type="text" autocomplete="off" aria-labelledby="pd-h1" aria-describedby="pd-event-hint" />
+        </section>
+
+        <section class="step" aria-labelledby="pd-h2">
+          <h2 class="step-h" id="pd-h2"><span class="num" aria-hidden="true">2</span>รายชื่อคนในงาน</h2>
+          <p class="hint" id="pd-names-hint">ใส่เฉพาะคนที่มาถึงงานแล้ว ใช้จอใหญ่จอเดียว ไม่ต้องใช้มือถือ</p>
+          <textarea id="pd-names" class="ta" spellcheck="false" autocomplete="off" aria-labelledby="pd-h2" aria-describedby="pd-names-hint pd-names-rule pd-count"></textarea>
+          <div class="count"><span id="pd-names-rule">ชื่อเล่นหรือชื่อจริงก็ได้ บรรทัดละ 1 ชื่อ</span><b id="pd-count">0 ชื่อ</b></div>
+          <div id="pd-names-msg" class="msgs" role="status"></div>
+        </section>
+
+        <section class="step" aria-labelledby="pd-h3">
+          <h2 class="step-h" id="pd-h3"><span class="num" aria-hidden="true">3</span>ตารางคัดออก</h2>
+          <p class="hint">ระบบเสนอให้จากจำนวนคน แก้ตัวเลขได้ก่อนเริ่มงาน 4 รอบคัดออก แล้วรอบชิง 5 คน</p>
+          <div class="sched" id="pd-sched">
+            <div class="box"><div class="val lock" id="pd-s0">0</div><div class="lab"><span>เริ่ม</span><br /><span id="pd-l0">0 คน</span></div></div>
+            {[1, 2, 3].map((i) => (
+              <Fragment>
+                <div class="arr" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M3 12h16M13 5.5l6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+                <div class="box">
+                  <input class="val" id={`pd-s${i}`} type="number" inputmode="numeric" min="1" step="1" aria-label={`หลังรอบ ${i}`} aria-describedby="pd-sched-msg" />
+                  <div class="lab"><span>{`หลังรอบ ${i}`}</span><br /><span id={`pd-l${i}`}>0 คน</span></div>
+                </div>
+              </Fragment>
+            ))}
+            <div class="arr" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M3 12h16M13 5.5l6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+            <div class="box"><div class="val lock" id="pd-s4">5</div><div class="lab"><span>รอบชิง</span><br /><span>5 คน</span></div></div>
+          </div>
+          <div id="pd-sched-msg" class="msgs" role="alert"></div>
+          <div class="row2">
+            <button id="pd-sched-reset" class="btn2" type="button">ใช้ค่าที่ระบบเสนอ</button>
+            <span class="hint">ช่องเส้นประแก้ไม่ได้ เริ่มตามจำนวนคน จบที่ 5 คนในรอบชิง</span>
+          </div>
+        </section>
+
+        <section class="step" aria-labelledby="pd-h4">
+          <h2 class="step-h" id="pd-h4"><span class="num" aria-hidden="true">4</span>รางวัล</h2>
+          <div class="stepper">
+            <button id="pd-prize-minus" class="sb" type="button" aria-label="ลดจำนวนรางวัล" aria-describedby="pd-prize-range">−</button>
+            <span id="pd-prize-count" class="sv" aria-live="polite">5</span>
+            <button id="pd-prize-plus" class="sb" type="button" aria-label="เพิ่มจำนวนรางวัล" aria-describedby="pd-prize-range">+</button>
+            <span id="pd-prize-range" class="sx">รางวัล (1 ถึง 5)</span>
+          </div>
+          <p class="hint">ตั้งชื่อรางวัลที่จะขึ้นจอ</p>
+          {prizeRows.map((i) => (
+            <div class="prize" data-prize-row={i}>
+              <label class="pl" for={`pd-prize-${i}`}>{`รางวัลที่ ${i}`}</label>
+              <input class="field" id={`pd-prize-${i}`} type="text" autocomplete="off" />
+            </div>
+          ))}
+        </section>
+
+        <div id="pd-start-msg" class="msgs" role="alert"></div>
+        <button id="pd-start" class="go" type="submit">เริ่มงาน</button>
+      </form>
+    </div>
+  </main>
+
+  <GameNav navClass="game-next" excludeId={game.id} />
+  <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
+  </PageChrome>
+</Base>
+
+<script>
+  // Bundled, never inline (ADR-0005).
+  import { mountSetup } from '../../../prize-event/setup-page';
+
+  mountSetup(document, window);
+</script>
+
+<style>
+  /* Direction A POSTER of design/Gh302Setup.dc.html (picked 2026-11-11). Literal sizes are the board's;
+     colours are the tokens its VALUES row names. */
+  .su {
+    background: var(--color-ground-warm);
+    color: var(--color-line-strong);
+    font-family: var(--font-sans);
+  }
+  .wrap {
+    max-inline-size: 880px;
+    margin: 0 auto;
+    padding: 48px 20px 64px;
+  }
+  .crumb {
+    margin: 0 0 16px;
+    font: 400 16px/1.4 var(--font-sans);
+  }
+  .crumb a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+    color: var(--color-line-strong);
+  }
+  .h1 {
+    margin: 0;
+    font: 700 48px/1.2 var(--font-display);
+  }
+  .lead {
+    margin: 12px 0 0;
+    font: 400 20px/1.6 var(--font-sans);
+    color: var(--color-muted);
+  }
+  .ad-slot {
+    margin-top: 40px;
+    block-size: 250px;
+    display: grid;
+    place-items: center;
+    border: 3px dashed var(--ad-line);
+    border-radius: 16px;
+    color: var(--color-muted);
+    font: 400 16px/1.4 var(--font-sans);
+  }
+  .step {
+    margin-top: 32px;
+    background: var(--surface-tile);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 20px;
+    box-shadow: 5px 5px 0 var(--color-line-strong);
+    padding: 24px 28px;
+  }
+  .step-h {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 14px;
+    font: 600 24px/1.3 var(--font-display);
+  }
+  .num {
+    box-sizing: border-box;
+    flex: none;
+    inline-size: 40px;
+    block-size: 40px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+    border: 2.5px solid var(--color-line-strong);
+    display: grid;
+    place-items: center;
+    font: 700 20px/1 var(--font-display);
+  }
+  .hint {
+    margin: 0 0 12px;
+    font: 400 16px/1.55 var(--font-sans);
+    color: var(--color-muted);
+  }
+  .field,
+  .ta,
+  .val,
+  .sb,
+  .btn2 {
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 12px;
+    background: var(--surface-tile);
+    color: var(--color-line-strong);
+  }
+  .field {
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: 52px;
+    padding: 0 16px;
+    font: 400 18px/1 var(--font-sans);
+  }
+  .ta {
+    box-sizing: border-box;
+    display: block;
+    inline-size: 100%;
+    block-size: 290px;
+    padding: 12px 16px;
+    font: 400 18px/1.6 var(--font-sans);
+    resize: vertical;
+  }
+  .count {
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font: 400 16px/1.4 var(--font-sans);
+    color: var(--color-muted);
+  }
+  .count b {
+    color: var(--color-line-strong);
+    white-space: nowrap;
+  }
+  .count b.err {
+    outline: 3px solid var(--accent-punch);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  .sched {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .box {
+    inline-size: 118px;
+    text-align: center;
+  }
+  .val {
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: 64px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    font: 700 30px/1 var(--font-display);
+  }
+  .val.lock {
+    background: var(--color-ground-warm);
+    border-style: dashed;
+  }
+  .val.err {
+    border: 3px solid var(--accent-punch);
+  }
+  .lab {
+    margin-top: 6px;
+    font: 400 16px/1.35 var(--font-sans);
+    color: var(--color-muted);
+  }
+  .arr {
+    block-size: 64px;
+    display: grid;
+    place-items: center;
+    color: var(--color-line-strong);
+  }
+  .msgs:empty {
+    display: none;
+  }
+  .row2 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-top: 16px;
+  }
+  .row2 .hint {
+    margin: 0;
+  }
+  .btn2 {
+    box-sizing: border-box;
+    block-size: 52px;
+    padding: 0 20px;
+    font: 600 18px/1 var(--font-display);
+    cursor: pointer;
+  }
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .sb {
+    box-sizing: border-box;
+    flex: none;
+    inline-size: 48px;
+    block-size: 48px;
+    display: grid;
+    place-items: center;
+    font: 700 24px/1 var(--font-display);
+    cursor: pointer;
+  }
+  .sb:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .sv {
+    min-inline-size: 48px;
+    text-align: center;
+    font: 700 32px/1 var(--font-display);
+  }
+  .sx {
+    font: 400 16px/1.4 var(--font-sans);
+    color: var(--color-muted);
+  }
+  .prize {
+    display: grid;
+    grid-template-columns: 116px 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-top: 10px;
+  }
+  .prize[hidden] {
+    display: none;
+  }
+  .pl {
+    font: 600 17px/1.3 var(--font-display);
+  }
+  .go {
+    margin-top: 40px;
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: 64px;
+    display: grid;
+    place-items: center;
+    background: var(--accent-gold);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 16px;
+    box-shadow: 5px 5px 0 var(--color-line-strong);
+    color: var(--color-line-strong);
+    font: 700 24px/1 var(--font-display);
+    cursor: pointer;
+  }
+  .field:focus-visible,
+  .ta:focus-visible,
+  .val:focus-visible,
+  .sb:focus-visible,
+  .btn2:focus-visible,
+  .go:focus-visible {
+    outline: 3px solid var(--accent-punch);
+    outline-offset: 2px;
+  }
+  /* Error rows the setup script builds (setup-page.ts): the board's emsg, icon then text. */
+  .msgs :global(.emsg) {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-top: 14px;
+    font: 700 16px/1.5 var(--font-sans);
+    color: var(--color-line-strong);
+  }
+  .msgs :global(.emsg svg) {
+    flex: none;
+    margin-top: 1px;
+  }
+  /* A refused name's row: the name, then the reason under it, in one column beside the icon. A name can be
+     one unbreakable run (a refused line has no length floor), so it breaks anywhere rather than push the
+     page sideways. */
+  .msgs :global(.emsg-body) {
+    min-width: 0;
+  }
+  .msgs :global(.emsg-name),
+  .msgs :global(.emsg-why) {
+    display: block;
+  }
+  .msgs :global(.emsg-name) {
+    overflow-wrap: anywhere;
+  }
+  .msgs :global(.emsg-disc) {
+    fill: var(--accent-punch);
+  }
+  .msgs :global(.emsg-mark) {
+    stroke: var(--color-line-strong);
+  }
+  .msgs :global(.emsg-dot) {
+    fill: var(--color-line-strong);
+  }
+
+  /* The board draws 1280 only; below 640px (the tokens.css phone boundary) the step cards loosen. */
+  @media (max-width: 639px) {
+    .h1 {
+      font-size: 36px;
+    }
+    .ad-slot {
+      block-size: 100px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+    .step {
+      padding: 20px 16px;
+    }
+    .prize {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+  }
+</style>

@@ -69,6 +69,7 @@
 //   node scripts/player-screen-mount-check.mjs             -> audit every party play route
 //   node scripts/player-screen-mount-check.mjs --selftest  -> both-direction calibration on fixtures
 import fs from 'node:fs';
+import { nonPartyPlayRoutes, outOfScopeLine, refutedOutOfScope } from './non-party-play-routes.mjs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -300,7 +301,11 @@ async function audit() {
     failures.push(`${id}: STALE SETTINGS_KEYS entry -- no party play route by that id; delete it`);
   }
 
+  // gh#304: the routes this gate does not scan, named and re-proved (outside party, no shared screen).
+  const outside = await nonPartyPlayRoutes(root);
+  failures.push(...refutedOutOfScope(outside, 'player-screen-mount-check'));
   const of = (k) => results.filter((r) => r.klass === k).map((r) => r.id).sort();
+  console.log(outOfScopeLine(outside, 'player-screen-mount-check'));
   console.log(`player-screen-mount-check: converted (${of('converted').length}): ${of('converted').join(', ') || 'none'}`);
   console.log(`player-screen-mount-check: PENDING, not yet on the shared screen (${of('pending').length}): ${of('pending').join(', ') || 'none'}`);
   if (failures.length) {

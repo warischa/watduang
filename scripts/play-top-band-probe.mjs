@@ -68,6 +68,10 @@ import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { games } from '../src/games/manifest.ts';
+// gh#304: a route whose category has no shared player screen (the company-party event) is walked with
+// its own seed and its own round-start control, and is judged on what it IS: no shared screen mounted,
+// and a round start that changes the page. The set and the seed are the fit probe's, one definition.
+import { routeSeed, screenlessPlayPaths } from './play-screen-fit-probe.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const BASE = process.env.BASE || 'http://localhost:4631';
@@ -91,6 +95,8 @@ export const CHROME_IDS = ['play-band', 'play-exit', 'play-edit-players', 'play-
 // Route-own controls, probed per route for box 1 (gh#268 2026-10-18 measure.mjs).
 const PRE = { 'short-stick': '#btn-start-setup', 'wire-snip-panic': '#btn-menu-start', 'zero-trigger': '#btn-quick-start' };
 const START = {
+  // gh#304: the MC's reveal control on the prize-draw projector (outside the scaled frame, real pixels).
+  'prize-draw': '.pd-mc button',
   timebomb: '#tb-start', 'short-stick': '#btn-begin-game', 'freeze-tap': '#ruleReadyBtn', 'cannon-flag': '#btn-ready-to-aim',
   'power-meter': '#btn-primary-action', 'dice-loser': '#dl-begin', 'how-close-is-near': '#btnStartGame', 'pinocchio-luck': '#ready',
   'cursed-number': '#startGameBtn', 'wire-snip-panic': '#btn-start-match', 'zero-trigger': '#btn-big-action', 'bangkok-drift': '#readyBtn',
@@ -220,13 +226,15 @@ export default async function run(session) {
     await read(id, 'D1', DESKTOP, []);
     // S2 -- seeded roster, shared screen closed.
     await session.evaluate(`localStorage.clear();sessionStorage.clear();localStorage.setItem('watduang:roster',${JSON.stringify(SEED)});localStorage.setItem('watduang:group',${JSON.stringify(SEED)});return 1;`);
+    const screenless = screenlessPlayPaths().has(`/game/${id}/play/`);
+    if (screenless) await session.evaluate(routeSeed(url));
     await session.setWidth(...PHONE);
     await session.nav(url);
     await session.setWidth(...PHONE);
     await sleep(1800);
     const notes = [];
     if (PRE[id]) { notes.push(`${PRE[id]}:${(await session.evaluate(click(PRE[id]))).value}`); await sleep(1500); }
-    const open = (await session.evaluate(`const b=document.querySelector('[data-ps=start]');return !!b&&b.getBoundingClientRect().width>0;`)).value;
+    const open = !screenless && (await session.evaluate(`const b=document.querySelector('[data-ps=start]');return !!b&&b.getBoundingClientRect().width>0;`)).value;
     if (open) { notes.push(`[data-ps=start]:${(await session.evaluate(click('[data-ps=start]'))).value}`); await sleep(1500); }
     await read(id, 'S2', PHONE, [...notes]);
     // S3 -- the route's own round start.
@@ -266,7 +274,16 @@ export function judge(out) {
       // word instead of 'clicked', and the screen the row names was then never reached.
       const unpressed = (r.notes || []).filter((n) => !n.endsWith(':absent') && !n.endsWith(':clicked'));
       if (unpressed.length) failures.push(`${tag}: control not pressed (${unpressed.join(', ')}) -- the walk did not reach the screen it names`);
-      if (r.state === 'S2' || r.state === 'S3') {
+      if ((r.state === 'S2' || r.state === 'S3') && screenlessPlayPaths().has(`/game/${id}/play/`)) {
+        // gh#304: no shared screen here, so none of its attributes may appear, and the round start must
+        // change the page.
+        const why = [];
+        if (r.sharedScreenOpen !== null && r.sharedScreenOpen !== undefined) why.push(`data-player-screen is ${JSON.stringify(r.sharedScreenOpen)} on a route with no shared player screen`);
+        if (r.state === 'S3' && !(r.notes || []).some((n) => n.endsWith(':clicked'))) why.push('the route round-start control was never pressed');
+        const s2 = rows.find((q) => q.state === 'S2');
+        if (r.state === 'S3' && s2 && r.sig === s2.sig) why.push('the page shows exactly what it showed before the round start, so no round began');
+        if (why.length) failures.push(`${tag}: the transition did not happen -- ${why.join('; ')}`);
+      } else if (r.state === 'S2' || r.state === 'S3') {
         // The state after the press, read from the page: the shared screen closed, the hold released, and
         // the route acknowledged the handover. Each is asserted on its own so the red names the one missing.
         const why = [];

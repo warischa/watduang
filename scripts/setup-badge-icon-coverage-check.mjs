@@ -50,7 +50,14 @@ const REQUIRED_TEST = 'setup-badge-icon.test.mjs';
 // hold an exemption that survives buildsPerSeatRow below. A route with no setup roster row of its own
 // -- one that takes its whole roster from the shared shell panel and renders no per-seat row -- is
 // what this map is for.
-const EXEMPT_ROUTES = new Map();
+const EXEMPT_ROUTES = new Map([
+  // gh#304: the company-party event (ADR-0075) has no seats. Its roster is typed on the setup page (a
+  // normal page outside src/play) or joined by QR (gh#308), never built as a per-seat row on the route;
+  // re-proved every run by buildsPerSeatRow over the directory. Ends the day either directory builds a
+  // name input of its own.
+  ['prize-draw', 'company-party event route: no per-seat setup row; the roster comes from the setup page (gh#304)'],
+  ['_prize-reveal', 'shared 2D reveal of the company-party event: renders names, never a per-seat setup row (gh#304)'],
+]);
 
 /** Does this route source build a per-seat setup roster row of its own?
  *
@@ -182,6 +189,9 @@ function selftest() {
   // with no string to keep in sync by hand. mustRed is a per-leg classification (does this leg
   // assert the gate's fail direction, the reason the gate exists), not a per-assertion one -- a leg
   // that bundles several must-red checks (Leg 6) still counts once, honestly, as one must-red leg.
+  // The fixture legs run with no exemptions unless a leg names its own: the real EXEMPT_ROUTES holds
+  // real route ids (gh#304), which would read as ghosts inside a fixture tree.
+  const NONE = new Map();
   let legCount = 0;
   let mustRedLegCount = 0;
   const leg = (mustRed, run) => {
@@ -195,7 +205,7 @@ function selftest() {
   // Leg 1 -- the green: a declared route on disk with a real test file passes.
   leg(false, () => {
     mkRoute('covered', { test: "import assert from 'node:assert/strict';\nassert.equal(1, 1);\n" });
-    r = audit({ dir: tmp, declared: ['covered'], onDisk: listRouteDirs(tmp) });
+    r = audit({ dir: tmp, declared: ['covered'], onDisk: listRouteDirs(tmp) , exempt: NONE });
     assert.deepEqual(r.violations, [], 'a route with a real test must not violate');
   });
 
@@ -203,7 +213,7 @@ function selftest() {
   // gate exists for, and a green here means the gate is measuring nothing.
   leg(true, () => {
     mkRoute('forgotten');
-    r = audit({ dir: tmp, declared: ['covered', 'forgotten'], onDisk: listRouteDirs(tmp) });
+    r = audit({ dir: tmp, declared: ['covered', 'forgotten'], onDisk: listRouteDirs(tmp) , exempt: NONE });
     assert.equal(r.violations.length, 1, `an untested route must red: ${JSON.stringify(r.violations)}`);
     assert.match(r.violations[0], /^forgotten: no src\/play\/forgotten\//);
   });
@@ -211,7 +221,7 @@ function selftest() {
   // Leg 3 -- MUST-RED: a test file that asserts nothing is not coverage.
   leg(true, () => {
     mkRoute('vacuous', { test: "import test from 'node:test';\ntest('nothing', () => {});\n" });
-    r = audit({ dir: tmp, declared: ['vacuous'], onDisk: ['vacuous'] });
+    r = audit({ dir: tmp, declared: ['vacuous'], onDisk: ['vacuous'] , exempt: NONE });
     assert.match(r.violations[0], /contains no assert\.\* call/);
   });
 
@@ -231,7 +241,7 @@ function selftest() {
 
   // Leg 6 -- MUST-RED both reconciliation directions, and a ghost entry.
   leg(true, () => {
-    r = audit({ dir: tmp, declared: ['ghosted'], onDisk: [] });
+    r = audit({ dir: tmp, declared: ['ghosted'], onDisk: [] , exempt: NONE });
     assert.match(r.violations[0], /has no src\/play\/ghosted\/ directory/);
     r = audit({ dir: tmp, declared: [], onDisk: ['rosterless'], exempt: new Map() });
     assert.match(r.violations.join('\n'), /no game module declares/);
@@ -243,7 +253,7 @@ function selftest() {
   // test. With no test it reds as untested; it never reds as undeclared.
   leg(true, () => {
     mkRoute('_shared');
-    r = audit({ dir: tmp, declared: ['covered'], onDisk: ['_shared', 'covered'] });
+    r = audit({ dir: tmp, declared: ['covered'], onDisk: ['_shared', 'covered'] , exempt: NONE });
     assert.equal(r.violations.length, 1, `a shared dir must red exactly once, for its missing test: ${JSON.stringify(r.violations)}`);
     assert.match(r.violations[0], /^_shared: no src\/play\/_shared\//);
   });
@@ -259,7 +269,7 @@ function selftest() {
   // which the raw regex read as coverage. Found by adversarial review of this gate, 2026-09-05.
   leg(true, () => {
     mkRoute('commented', { test: "import assert from 'node:assert/strict';\n// assert.equal(1, 1);\n" });
-    r = audit({ dir: tmp, declared: ['commented'], onDisk: ['commented'] });
+    r = audit({ dir: tmp, declared: ['commented'], onDisk: ['commented'] , exempt: NONE });
     assert.match(r.violations[0], /contains no assert\.\* call/, 'a commented-out assert is not coverage');
   });
 

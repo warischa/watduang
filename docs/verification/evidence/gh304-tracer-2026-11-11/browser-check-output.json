@@ -1,0 +1,177 @@
+{
+  "viewport": {
+    "w": 1920,
+    "h": 1080,
+    "mm": false
+  },
+  "adsOnStage": 0,
+  "round1": {
+    "boxes": 200,
+    "clipped": [],
+    "wrapped": [
+      {
+        "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+        "px": 14
+      }
+    ],
+    "belowFloor": [],
+    "slackLost": [],
+    "wide": {
+      "W12": {
+        "px": 15,
+        "room": 156,
+        "w": 150,
+        "wrapped": false,
+        "bold": "400"
+      },
+      "DDO_AM12": {
+        "px": 14,
+        "room": 156,
+        "w": 156,
+        "wrapped": true,
+        "bold": "400"
+      }
+    },
+    "screen": "round"
+  },
+  "press1": "clicked",
+  "reveal1": {
+    "boxes": 200,
+    "clipped": [],
+    "wrapped": [
+      {
+        "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+        "px": 14
+      }
+    ],
+    "belowFloor": [],
+    "slackLost": [],
+    "wide": {
+      "W12": {
+        "px": 15,
+        "room": 156,
+        "w": 150,
+        "wrapped": false,
+        "bold": "400"
+      },
+      "DDO_AM12": {
+        "px": 14,
+        "room": 156,
+        "w": 156,
+        "wrapped": true,
+        "bold": "400"
+      }
+    },
+    "screen": "reveal"
+  },
+  "refresh": {
+    "screen": "reveal",
+    "samePassed": true,
+    "passed": 100
+  },
+  "walk": [
+    "clicked",
+    "clicked",
+    "clicked",
+    "clicked",
+    "clicked",
+    "clicked",
+    "clicked",
+    "clicked"
+  ],
+  "result": {
+    "boxes": 5,
+    "clipped": [],
+    "wrapped": [],
+    "belowFloor": [],
+    "slackLost": [],
+    "wide": {},
+    "screen": "result"
+  },
+  "consoleErrors": [],
+  "reducedMotion": {
+    "matches": true,
+    "press": "clicked",
+    "during": {
+      "fade": true,
+      "animation": "pd-fade 0.2s",
+      "chipDelay": "0s",
+      "marked": true
+    }
+  },
+  "motionControl": {
+    "fade": false,
+    "delay0": "0s",
+    "delayLast": "0.796s"
+  },
+  "setup": {
+    "320": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "sideways": 0,
+      "adSlots": 1,
+      "count": "200 ชื่อ",
+      "schedule": [
+        "200",
+        "100",
+        "50",
+        "20"
+      ],
+      "controls": 14,
+      "small": [],
+      "error": {
+        "sched": "หลังรอบ 2 ต้องน้อยกว่าหลังรอบ 1 (100 คน)",
+        "start": "แก้ตารางคัดออกก่อน แล้วจึงเริ่มงานได้",
+        "stored": false
+      }
+    },
+    "1280": {
+      "innerWidth": 1280,
+      "scrollWidth": 1280,
+      "sideways": 0,
+      "adSlots": 1,
+      "count": "200 ชื่อ",
+      "schedule": [
+        "200",
+        "100",
+        "50",
+        "20"
+      ],
+      "controls": 14,
+      "small": [],
+      "error": {
+        "sched": "หลังรอบ 2 ต้องน้อยกว่าหลังรอบ 1 (100 คน)",
+        "start": "แก้ตารางคัดออกก่อน แล้วจึงเริ่มงานได้",
+        "stored": false
+      }
+    }
+  },
+  "boldW12": {
+    "mutant": false,
+    "attempts": 2,
+    "last": {
+      "pre": {
+        "w": 1920,
+        "h": 1080,
+        "boldBefore": true
+      },
+      "press": "clicked",
+      "read": {
+        "found": true,
+        "passed": true,
+        "weight": "700",
+        "boldFaceLoaded": true,
+        "family": "Sarabun",
+        "px": 14,
+        "floor": 14,
+        "room": 156,
+        "w": 147,
+        "wrapClass": false,
+        "lines": 1,
+        "clipped": false
+      }
+    },
+    "notPassed": 1
+  },
+  "consoleErrorsAll": []
+}

@@ -1,0 +1,30 @@
+{
+  "boldW12": {
+    "mutant": false,
+    "attempts": 1,
+    "last": {
+      "pre": {
+        "w": 1920,
+        "h": 1080,
+        "boldBefore": true
+      },
+      "press": "clicked",
+      "read": {
+        "found": true,
+        "passed": true,
+        "weight": "700",
+        "boldFaceLoaded": true,
+        "family": "Sarabun",
+        "px": 14,
+        "floor": 14,
+        "room": 156,
+        "w": 147,
+        "wrapClass": false,
+        "lines": 1,
+        "clipped": false
+      }
+    },
+    "notPassed": 0
+  },
+  "consoleErrors": []
+}

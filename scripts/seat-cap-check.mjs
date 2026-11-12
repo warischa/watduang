@@ -66,6 +66,7 @@
 //       clearTimers, zero-trigger's prepareTurn and rollSharedForbiddenDigit, and the engine timebomb
 //       mounts -- is a tolerant stub, so a seat changed inside one of them reads green.
 import fs from 'node:fs';
+import { nonPartyPlayRoutes, outOfScopeLine, refutedOutOfScope } from './non-party-play-routes.mjs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { stripTypeScriptTypes } from 'node:module';
@@ -826,6 +827,11 @@ async function audit() {
     sharedFailures.push({ id: routeId, detail: `${routeId} has a handoff entry but no party route by that id mounts the shared player screen — delete or re-point the stale entry` });
   }
 
+  // gh#304: the play routes outside party, named and re-proved to mount no shared player screen. Their
+  // range is not a seat count: the company-party event's manifest range IS the setup page's head-count
+  // bound, imported from one constant (src/prize-event/event.ts MIN_HEADS / MAX_HEADS).
+  const outside = await nonPartyPlayRoutes(root);
+  for (const line of refutedOutOfScope(outside, 'seat-cap-check')) sharedFailures.push({ id: 'out-of-scope', detail: line });
   const failures = [...results.flatMap((result) => result.failures), ...sharedFailures];
   const tally = (klass) => results.filter((result) => result.klass === klass).length;
 
@@ -841,6 +847,7 @@ async function audit() {
     process.exit(1);
   }
 
+  console.log(outOfScopeLine(outside, 'seat-cap-check'));
   console.log(
     `seat-cap-check: ${party.length} party game(s), every declared maximum agrees with the seats its engine accepts ` +
     `(${tally('measured')} measured by running the engine's own seat surface, ${tally('located')} read from a count guard, ` +

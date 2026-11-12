@@ -1,0 +1,196 @@
+{
+  "tag": "after",
+  "seed": {
+    "haveWide": true,
+    "at": "revealed",
+    "rounds": 4,
+    "final": true
+  },
+  "viewport": {
+    "w": 1920,
+    "h": 1080
+  },
+  "result": {
+    "screen": "result",
+    "scale": 0.9481481481481482,
+    "frame": {
+      "w": 1920,
+      "h": 1080
+    },
+    "boxes": [
+      {
+        "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+        "px": 132,
+        "floor": 132,
+        "wrapClass": true,
+        "whiteSpace": "normal",
+        "lines": 2,
+        "box": {
+          "w": 1920,
+          "h": 290.4,
+          "room": 1920
+        },
+        "runWidth": 1875.7,
+        "overBoxX": {
+          "left": -22.1,
+          "right": -22.1
+        },
+        "overFrameX": {
+          "left": -22.1,
+          "right": -22.1
+        },
+        "boxOverFrameY": {
+          "top": -251,
+          "bottom": -538.6
+        },
+        "scrollOverflowRaw": {
+          "x": 0,
+          "y": 31
+        },
+        "belowGap": 18.6
+      },
+      {
+        "name": "ญำญำญำญำญำญำญำญำญำญำญำญำ",
+        "px": 35,
+        "floor": 35,
+        "wrapClass": true,
+        "whiteSpace": "normal",
+        "lines": 2,
+        "box": {
+          "w": 378,
+          "h": 80.5,
+          "room": 378
+        },
+        "runWidth": 346.2,
+        "overBoxX": {
+          "left": -15.9,
+          "right": -15.9
+        },
+        "overFrameX": {
+          "left": -99.9,
+          "right": -1473.9
+        },
+        "boxOverFrameY": {
+          "top": -639,
+          "bottom": -360.5
+        },
+        "scrollOverflowRaw": {
+          "x": 0,
+          "y": 6
+        },
+        "belowGap": null
+      },
+      {
+        "name": "Guest 40",
+        "px": 52,
+        "floor": 35,
+        "wrapClass": false,
+        "whiteSpace": "nowrap",
+        "lines": 1,
+        "box": {
+          "w": 378,
+          "h": 59.8,
+          "room": 378
+        },
+        "runWidth": 238.5,
+        "overBoxX": {
+          "left": 0,
+          "right": -139.5
+        },
+        "overFrameX": {
+          "left": -542,
+          "right": -1139.5
+        },
+        "boxOverFrameY": {
+          "top": -639,
+          "bottom": -381.2
+        },
+        "scrollOverflowRaw": {
+          "x": 0,
+          "y": 10
+        },
+        "belowGap": null
+      },
+      {
+        "name": "Guest 28",
+        "px": 52,
+        "floor": 35,
+        "wrapClass": false,
+        "whiteSpace": "nowrap",
+        "lines": 1,
+        "box": {
+          "w": 378,
+          "h": 59.8,
+          "room": 378
+        },
+        "runWidth": 232.6,
+        "overBoxX": {
+          "left": 0,
+          "right": -145.4
+        },
+        "overFrameX": {
+          "left": -1000,
+          "right": -687.4
+        },
+        "boxOverFrameY": {
+          "top": -639,
+          "bottom": -381.2
+        },
+        "scrollOverflowRaw": {
+          "x": 0,
+          "y": 10
+        },
+        "belowGap": null
+      },
+      {
+        "name": "Guest 34",
+        "px": 52,
+        "floor": 35,
+        "wrapClass": false,
+        "whiteSpace": "nowrap",
+        "lines": 1,
+        "box": {
+          "w": 378,
+          "h": 59.8,
+          "room": 378
+        },
+        "runWidth": 231.4,
+        "overBoxX": {
+          "left": 0,
+          "right": -146.6
+        },
+        "overFrameX": {
+          "left": -1458,
+          "right": -230.6
+        },
+        "boxOverFrameY": {
+          "top": -639,
+          "bottom": -381.2
+        },
+        "scrollOverflowRaw": {
+          "x": 0,
+          "y": 10
+        },
+        "belowGap": null
+      }
+    ],
+    "clips": [],
+    "notWrapped": [],
+    "controlWrapped": []
+  },
+  "category": {
+    "found": true,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "h3": {
+      "text": "จับรางวัลปีใหม่",
+      "fontSize": "30px"
+    },
+    "p": {
+      "fontSize": "17px"
+    },
+    "cardWidth": 940
+  },
+  "consoleErrors": []
+}

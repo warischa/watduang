@@ -61,6 +61,9 @@ const plants = [
   ['fill-opacity', 'Gh303Ladder', (s) => s.replace('</style>', '.pj svg.layer circle { fill-opacity: 0.5 !important; }</style>'), /computes fill-opacity 0\.5/],
   ['marker-content', 'CatCompany-partyPop', (s) => s.replace('</style>', '.cp .kicker { display: list-item !important; } .cp .kicker::marker { content: "\\00644"; }</style>'), /pseudo-element ::marker is outside the grammar/],
   ['live-ad-border', 'CatCompany-partyPop', (s) => s.replace('</style>', '.cp .ad { border-color: #c9c3a8 !important; }</style>'), /\(role: ad slots\) renders border-color:#c9c3a8/],
+  // AMENDMENT 2026-11-11: the event card's art must load, and only the site's own art may be drawn
+  ['art-missing', 'CatCompany-partyPop', (s) => s.replaceAll('../public/art/prize-draw.webp', '../public/art/prize-draw-MISSING.webp'), /image did not load in A\/cat-event-320/],
+  ['art-foreign-src', 'CatCompany-partyPop', (s) => s.replaceAll('../public/art/prize-draw.webp', '../public/og/prize-draw.png'), /img src="\.\.\/public\/og\/prize-draw\.png" is outside the grammar/],
   ['white-rank-red-card', 'Gh303Cards', (s) => s.replace('</style>', '.pj .grid .card.up.red .face { color: #ffffff !important; }</style>'), /role: rank on a red card\) renders color:#ffffff/],
 ];
 for (const [name, board, f, want] of plants) {

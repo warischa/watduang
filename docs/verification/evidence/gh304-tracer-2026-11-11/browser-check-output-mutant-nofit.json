@@ -1,0 +1,192 @@
+{
+  "viewport": {
+    "w": 1920,
+    "h": 1080,
+    "mm": false
+  },
+  "adsOnStage": 0,
+  "round1": {
+    "boxes": 200,
+    "clipped": [
+      {
+        "name": "WWWWWWWWWWWW",
+        "px": 20,
+        "room": 156,
+        "w": 199
+      },
+      {
+        "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+        "px": 20,
+        "room": 156,
+        "w": 316
+      }
+    ],
+    "wrapped": [],
+    "belowFloor": [],
+    "slackLost": [
+      {
+        "name": "WWWWWWWWWWWW",
+        "px": 20,
+        "room": 156,
+        "w": 199
+      },
+      {
+        "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+        "px": 20,
+        "room": 156,
+        "w": 316
+      }
+    ],
+    "wide": {
+      "W12": {
+        "px": 20,
+        "room": 156,
+        "w": 199,
+        "wrapped": false,
+        "bold": "400"
+      },
+      "DDO_AM12": {
+        "px": 20,
+        "room": 156,
+        "w": 316,
+        "wrapped": false,
+        "bold": "400"
+      }
+    },
+    "screen": "round"
+  },
+  "press1": "clicked",
+  "reveal1": {
+    "boxes": 200,
+    "clipped": [
+      {
+        "name": "WWWWWWWWWWWW",
+        "px": 20,
+        "room": 156,
+        "w": 210
+      },
+      {
+        "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+        "px": 20,
+        "room": 156,
+        "w": 316
+      }
+    ],
+    "wrapped": [],
+    "belowFloor": [],
+    "slackLost": [
+      {
+        "name": "WWWWWWWWWWWW",
+        "px": 20,
+        "room": 156,
+        "w": 210
+      },
+      {
+        "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+        "px": 20,
+        "room": 156,
+        "w": 316
+      }
+    ],
+    "wide": {
+      "W12": {
+        "px": 20,
+        "room": 156,
+        "w": 210,
+        "wrapped": false,
+        "bold": "700"
+      },
+      "DDO_AM12": {
+        "px": 20,
+        "room": 156,
+        "w": 316,
+        "wrapped": false,
+        "bold": "400"
+      }
+    },
+    "screen": "reveal"
+  },
+  "refresh": {
+    "screen": "reveal",
+    "samePassed": true,
+    "passed": 100
+  },
+  "walk": [
+    "clicked",
+    "clicked",
+    "clicked",
+    "clicked",
+    "clicked",
+    "clicked",
+    "clicked",
+    "clicked"
+  ],
+  "result": {
+    "boxes": 5,
+    "clipped": [],
+    "wrapped": [],
+    "belowFloor": [],
+    "slackLost": [],
+    "wide": {},
+    "screen": "result"
+  },
+  "consoleErrors": [],
+  "reducedMotion": {
+    "matches": true,
+    "press": "clicked",
+    "during": {
+      "fade": true,
+      "animation": "pd-fade 0.2s",
+      "chipDelay": "0s",
+      "marked": true
+    }
+  },
+  "motionControl": {
+    "fade": false,
+    "delay0": "0s",
+    "delayLast": "0.796s"
+  },
+  "setup": {
+    "320": {
+      "innerWidth": 320,
+      "scrollWidth": 320,
+      "sideways": 0,
+      "adSlots": 1,
+      "count": "200 ชื่อ",
+      "schedule": [
+        "200",
+        "100",
+        "50",
+        "20"
+      ],
+      "controls": 14,
+      "small": [],
+      "error": {
+        "sched": "หลังรอบ 2 ต้องน้อยกว่าหลังรอบ 1 (100 คน)",
+        "start": "แก้ตารางคัดออกก่อน แล้วจึงเริ่มงานได้",
+        "stored": false
+      }
+    },
+    "1280": {
+      "innerWidth": 1280,
+      "scrollWidth": 1280,
+      "sideways": 0,
+      "adSlots": 1,
+      "count": "200 ชื่อ",
+      "schedule": [
+        "200",
+        "100",
+        "50",
+        "20"
+      ],
+      "controls": 14,
+      "small": [],
+      "error": {
+        "sched": "หลังรอบ 2 ต้องน้อยกว่าหลังรอบ 1 (100 คน)",
+        "start": "แก้ตารางคัดออกก่อน แล้วจึงเริ่มงานได้",
+        "stored": false
+      }
+    }
+  },
+  "consoleErrorsAll": []
+}

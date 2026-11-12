@@ -117,7 +117,11 @@ function findTriggerElement(text, attr) {
 test("every play route's setup screen has the reset trigger", async () => {
   const repoRoot = path.join(here, '..', '..');
   const { games } = await import(pathToFileURL(path.join(repoRoot, 'src/games/manifest.ts')).href);
-  const routes = games.filter((g) => g.playRoute).map((g) => g.id).sort();
+  const { categories } = await import(pathToFileURL(path.join(repoRoot, 'src/games/categories.ts')).href);
+  // gh#304: the reset trigger is the shared player screen's (the party roster, ADR-0039). A play route in
+  // a category whose group does not carry on has no such screen, so it owes no trigger; it is named in
+  // the test below and re-proved there, never left out silently.
+  const routes = games.filter((g) => g.playRoute && categories[g.category]?.carriesGroup === true).map((g) => g.id).sort();
   assert.ok(routes.length > 0,
     'no play routes derived from src/games/manifest.ts -- refusing to report a vacuous pass on an empty work set');
   assert.deepEqual(Object.keys(RESET_TRIGGER).sort(), routes,
@@ -153,4 +157,18 @@ test("every play route's setup screen has the reset trigger", async () => {
   }
   assert.deepEqual(missing, [], `route(s) missing a reset trigger:\n  ${missing.join('\n  ')}`);
   console.log(`reset-control pin: ${routes.length} play route(s) derived from the manifest`);
+});
+
+test('gh#304: a play route with no shared player screen is named, and really mounts none', async () => {
+  const repoRoot = path.join(here, '..', '..');
+  const { games } = await import(pathToFileURL(path.join(repoRoot, 'src/games/manifest.ts')).href);
+  const { categories } = await import(pathToFileURL(path.join(repoRoot, 'src/games/categories.ts')).href);
+  const screenless = games.filter((g) => g.playRoute && categories[g.category]?.carriesGroup !== true).map((g) => g.id).sort();
+  assert.deepEqual(screenless, ['prize-draw'], 'the routes this pin leaves out changed: decide each one and update this list');
+  for (const id of screenless) {
+    assert.equal(id in RESET_TRIGGER, false, `${id} has a reset trigger entry but no shared screen to open`);
+    for (const file of fs.readdirSync(path.join(here, id)).filter((f) => /\.(html|js|ts)$/.test(f) && !f.includes('.test.'))) {
+      assert.doesNotMatch(fs.readFileSync(path.join(here, id, file), 'utf8'), /_player-screen/, `${id}/${file} references the shared player screen`);
+    }
+  }
 });

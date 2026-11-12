@@ -1,0 +1,98 @@
+/* The prize-draw projector route's page: the night ground around the scaled 1920x1080 frame, the MC's
+   button, the cold screen and the storage notice. The frame itself is src/play/_prize-reveal/reveal.css.
+   Values come from the picked B NIGHT STAGE board (design/Gh302Projector.dc.html); the MC's button and the
+   cold screen have no frame on the board, so they reuse B's own vocabulary (gold action, 999px pill, the
+   52px button floor from the VALUES row) and are listed for the owner in the gh#304 evidence README. */
+
+html,
+body {
+  margin: 0;
+  background: var(--color-line-strong);
+}
+
+/* Fills the screen under the shared play band (PlayExit.astro pads <body> by --play-band). */
+.pd-viewport {
+  position: fixed;
+  inset: var(--play-band) 0 0 0;
+  overflow: hidden;
+}
+
+.pd-sr {
+  position: fixed;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  margin: 0;
+}
+
+/* The MC's control, OUTSIDE the scaled frame: real pixels, so its tap size never shrinks with the screen.
+   Bottom-left, over the low row's left cell, which is empty while no game is picked for the round. */
+.pd-mc {
+  position: absolute;
+  inset-inline-start: 24px;
+  inset-block-end: 24px;
+}
+
+.pd-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 52px;
+  padding: 0 32px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent-gold);
+  color: var(--color-line-strong);
+  font: 600 22px/1.35 var(--font-display);
+  cursor: pointer;
+}
+.pd-go:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.pd-go:focus-visible {
+  outline: 3px solid var(--ink-light);
+  outline-offset: 4px;
+}
+
+.pd-cold {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0 160px;
+  text-align: center;
+  font: 600 44px/1.4 var(--font-display);
+  color: var(--ink-on-band-soft);
+}
+
+/* The storage notice, at real pixels like the MC bar: the board's veil and code-card look (proj-code). */
+.pd-notice {
+  position: fixed;
+  inset: var(--play-band) 0 0 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(20, 20, 43, 0.78); /* VALUES: the veil (picked 2026-11-11) */
+}
+.pd-notice[hidden] {
+  display: none;
+}
+.pd-notice-card {
+  box-sizing: border-box;
+  max-inline-size: 560px;
+  padding: 32px 28px;
+  border: 3px solid var(--accent-gold);
+  border-radius: 24px;
+  background: #23214d; /* VALUES: raised night surface (picked 2026-11-11) */
+  box-shadow: 0 0 60px rgba(255, 204, 0, 0.45); /* VALUES: the gold glow (picked 2026-11-11) */
+  text-align: center;
+}
+.pd-notice-card p {
+  margin: 0 0 18px;
+  font: 400 20px/1.45 var(--font-sans);
+  color: var(--ink-light);
+}

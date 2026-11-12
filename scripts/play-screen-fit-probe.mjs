@@ -182,6 +182,9 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { games } from '../src/games/manifest.ts';
+import { categories } from '../src/games/categories.ts';
+import { STORAGE_KEY as PRIZE_EVENT_KEY, createEvent, encodeEvent } from '../src/prize-event/event.ts';
+import { proposeSchedule } from '../src/prize-draw/schedule.ts';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const DIST = path.join(repoRoot, 'dist');
@@ -244,6 +247,14 @@ const PRESS_CAP = 6;
 // cannon-flag, because these games advance on their own clock and press 1 lands on a different screen
 // each time. It is a report, and a pin on it would flap forever.
 export const FITS_ROWS = new Set([
+  // Added 2026-11-11 (gh#304), the route's own landing change. All three rows measure ZERO on every axis
+  // (scrolls no, clipped 0px, sideways 0px) over 7 screens each, on three consecutive runs on this Mac
+  // (ROUTES_ONLY=prize-draw, the seeded walk storing a 200-name event): fit3.txt, fit4.txt, fit5.txt in
+  // docs/verification/evidence/gh304-tracer-2026-11-11/. The projector frame is scaled whole to the
+  // screen and its one control sits outside the scale, so by construction nothing outgrows a viewport.
+  'prize-draw 320x568',
+  'prize-draw 390x844',
+  'prize-draw 1440x900',
   // Added 2026-09-09 (gh#213), the route's own landing change. All three rows measure ZERO on every
   // axis — scrolls no, clipped 0px, sideways 0px — confirmed on three consecutive probe runs rather
   // than one, because a single green here is a sample and this set GROWS ONLY.
@@ -1170,6 +1181,24 @@ const SEED = `
   return true;
 `;
 
+/** gh#304 -- what a SCREENLESS route needs stored before its first screen is more than a notice. The
+ *  prize-draw projector shows only "no event" until the setup page has stored one, so the seeded walk
+ *  stores the largest event the setup page accepts: 200 names, the field's worst case, through the
+ *  event module's own createEvent (a fixed counter source, so every run measures the same event). */
+function prizeEventSeed() {
+  let n = 0;
+  const rng = { float: () => ((n = (n * 1103515245 + 12345) % 2147483648) / 2147483648), int: (k) => Math.floor(rng.float() * k), hex: (b) => Array.from({ length: b }, () => Math.floor(rng.float() * 256).toString(16).padStart(2, '0')).join('') };
+  const names = Array.from({ length: 200 }, (_, i) => `Guest ${i + 1}`);
+  return encodeEvent(createEvent({ eventName: 'Party 2570', names, schedule: proposeSchedule(200), prizes: ['A', 'B', 'C', 'D', 'E'] }, rng));
+}
+const ROUTE_SEEDS = new Map([['/game/prize-draw/play/', [[PRIZE_EVENT_KEY, prizeEventSeed()]]]]);
+/** Whether `url`'s route needs a stored seed before it shows anything to press (gh#304). */
+export const hasRouteSeed = (url) => ROUTE_SEEDS.has(new URL(url).pathname);
+export const routeSeed = (url) => {
+  const extra = ROUTE_SEEDS.get(new URL(url).pathname) ?? [];
+  return extra.map(([k, v]) => `localStorage.setItem(${JSON.stringify(k)}, ${JSON.stringify(v)});`).join('\n') + '\nreturn true;';
+};
+
 /** localStorage key the forced draw travels on. Read by DRAW_OVERRIDE before any page script runs. */
 const DRAW_KEY = 'watduang:__fit-draw';
 
@@ -1586,6 +1615,7 @@ async function load(session, url, vp, seeded, draw = null) {
   await session.setWidth(vp.w, vp.h);
   await session.wipe(); // on-origin, per docs/agents/browser-verification.md trap 4
   if (seeded) await session.evaluate(SEED);
+  if (seeded) await session.evaluate(routeSeed(url));
   // gh#239 — written after the wipe and before the reload, so DRAW_OVERRIDE reads it on the document
   // the walk actually measures. Left unset, the wipe alone restores the page's own generator.
   if (draw !== null) await session.evaluate(`localStorage.setItem(${JSON.stringify(DRAW_KEY)}, ${JSON.stringify(String(draw))}); return true;`);
@@ -1619,8 +1649,18 @@ export const PLAYER_SCREEN_SETTLE_CAP_MS = 15000;
 const PLAYER_SCREEN_POLL_MS = 100;
 const PLAYER_SCREEN_READ = `
   const de = document.documentElement;
-  return { mounted: de.hasAttribute('${PLAYER_SCREEN_ATTR}'), pending: de.hasAttribute('${PLAYER_SCREEN_PENDING_ATTR}') };
+  return { mounted: de.hasAttribute('${PLAYER_SCREEN_ATTR}'), pending: de.hasAttribute('${PLAYER_SCREEN_PENDING_ATTR}'), path: typeof location === 'undefined' ? '' : location.pathname };
 `;
+
+/** gh#304 -- the play routes that have NO shared player screen to wait for: every manifest playRoute
+ *  whose category's group does not carry on (categories.ts carriesGroup; the shared screen is the party
+ *  roster, ADR-0039). Manifest-owned, so a caller passes no list and cannot forget one. On these routes
+ *  the wait below asks the opposite question: the screen must NOT be mounted, and the row reds by name if
+ *  it is. Every other route waits exactly as before. */
+export function screenlessPlayPaths(list = games, cats = categories) {
+  return new Set(list.filter((g) => g.playRoute && cats[g.category]?.carriesGroup !== true).map((g) => g.playRoute));
+}
+const SCREENLESS = screenlessPlayPaths();
 
 /** null once the player screen has finished any open; otherwise, at the cap, the reason the row reds. */
 export async function awaitPlayerScreenSettled(evaluate, {
@@ -1630,6 +1670,11 @@ export async function awaitPlayerScreenSettled(evaluate, {
   for (;;) {
     const read = await evaluate(PLAYER_SCREEN_READ);
     const v = read.error ? null : read.value;
+    if (v && SCREENLESS.has(v.path)) {
+      return v.mounted
+        ? `${v.path} is a play route with no shared player screen (its category does not carry a group), yet <html> carries ${PLAYER_SCREEN_ATTR} -- the screen mounted where nothing should mount it`
+        : null;
+    }
     if (v?.mounted && !v.pending) return null;
     if (now() >= deadline) {
       const why = read.error ? `the read itself failed (${read.error})`

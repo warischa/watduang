@@ -1,0 +1,32 @@
+---
+// gh#304 — the prize-draw PROJECTOR route: full screen, no ads (gh#299 decision 10), driven by the MC. It
+// shows the event the setup page (./index.astro) stored, through src/play/prize-draw/ (the play surface,
+// ADR-0055) and the shared 2D reveal in src/play/_prize-reveal/.
+//
+// Page chrome only here: the shared exit control and the clipped crawl link (PlayExit.astro) sit outside
+// src/play/**, which is where ADR-0014 puts every navigation target. No PlayerScreen: this route has no
+// party-group roster; the event's roster is its own (ADR-0075).
+//
+// No ad slot, on purpose and under test: scripts/landing-claims-check.mjs (its ads claim) reads the built
+// page and reds an ad slot on any play route.
+import Base from '../../../layouts/Base.astro';
+import PlayExit from '../../../shell/PlayExit.astro';
+import markup from '../../../play/prize-draw/markup.html?raw';
+import '../../../play/_prize-reveal/reveal.css';
+import '../../../play/prize-draw/play.css';
+import { byId } from '../../../games/manifest';
+
+const game = byId('prize-draw');
+if (!game) throw new Error('prize-draw is not registered in the manifest');
+const title = `${game.names.th} — จอใหญ่`;
+---
+
+<Base title={title} description={game.seo.description} ogImage={`/og/${game.og}`} chrome>
+  <PlayExit />
+  <Fragment set:html={markup} />
+</Base>
+
+<script>
+  // Bundled, never inline (ADR-0005).
+  import '../../../play/prize-draw/main.ts';
+</script>

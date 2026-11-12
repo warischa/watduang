@@ -1,0 +1,202 @@
+{
+  "tag": "before",
+  "seed": {
+    "haveWide": true,
+    "at": "revealed",
+    "rounds": 4,
+    "final": true
+  },
+  "viewport": {
+    "w": 1920,
+    "h": 1080
+  },
+  "result": {
+    "screen": "result",
+    "scale": 0.9481481481481482,
+    "frame": {
+      "w": 1920,
+      "h": 1080
+    },
+    "boxes": [
+      {
+        "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+        "px": 132,
+        "floor": 132,
+        "wrapClass": true,
+        "whiteSpace": "nowrap",
+        "lines": 1,
+        "box": {
+          "w": 1920,
+          "h": 145.2,
+          "room": 1920
+        },
+        "runWidth": 2250.9,
+        "overBoxX": {
+          "left": 0,
+          "right": 330.9
+        },
+        "overFrameX": {
+          "left": 0,
+          "right": 330.9
+        },
+        "boxOverFrameY": {
+          "top": -251,
+          "bottom": -683.8
+        },
+        "scrollOverflowRaw": {
+          "x": 331,
+          "y": 31
+        },
+        "belowGap": 163.8
+      },
+      {
+        "name": "ญำญำญำญำญำญำญำญำญำญำญำญำ",
+        "px": 35,
+        "floor": 35,
+        "wrapClass": true,
+        "whiteSpace": "nowrap",
+        "lines": 1,
+        "box": {
+          "w": 378,
+          "h": 40.3,
+          "room": 378
+        },
+        "runWidth": 593.5,
+        "overBoxX": {
+          "left": 0,
+          "right": 215.5
+        },
+        "overFrameX": {
+          "left": -84,
+          "right": -1242.5
+        },
+        "boxOverFrameY": {
+          "top": -639,
+          "bottom": -400.8
+        },
+        "scrollOverflowRaw": {
+          "x": 215,
+          "y": 7
+        },
+        "belowGap": null
+      },
+      {
+        "name": "Guest 40",
+        "px": 52,
+        "floor": 35,
+        "wrapClass": false,
+        "whiteSpace": "nowrap",
+        "lines": 1,
+        "box": {
+          "w": 378,
+          "h": 59.8,
+          "room": 378
+        },
+        "runWidth": 238.5,
+        "overBoxX": {
+          "left": 0,
+          "right": -139.5
+        },
+        "overFrameX": {
+          "left": -542,
+          "right": -1139.5
+        },
+        "boxOverFrameY": {
+          "top": -639,
+          "bottom": -381.2
+        },
+        "scrollOverflowRaw": {
+          "x": 0,
+          "y": 10
+        },
+        "belowGap": null
+      },
+      {
+        "name": "Guest 28",
+        "px": 52,
+        "floor": 35,
+        "wrapClass": false,
+        "whiteSpace": "nowrap",
+        "lines": 1,
+        "box": {
+          "w": 378,
+          "h": 59.8,
+          "room": 378
+        },
+        "runWidth": 232.6,
+        "overBoxX": {
+          "left": 0,
+          "right": -145.4
+        },
+        "overFrameX": {
+          "left": -1000,
+          "right": -687.4
+        },
+        "boxOverFrameY": {
+          "top": -639,
+          "bottom": -381.2
+        },
+        "scrollOverflowRaw": {
+          "x": 0,
+          "y": 10
+        },
+        "belowGap": null
+      },
+      {
+        "name": "Guest 34",
+        "px": 52,
+        "floor": 35,
+        "wrapClass": false,
+        "whiteSpace": "nowrap",
+        "lines": 1,
+        "box": {
+          "w": 378,
+          "h": 59.8,
+          "room": 378
+        },
+        "runWidth": 231.4,
+        "overBoxX": {
+          "left": 0,
+          "right": -146.6
+        },
+        "overFrameX": {
+          "left": -1458,
+          "right": -230.6
+        },
+        "boxOverFrameY": {
+          "top": -639,
+          "bottom": -381.2
+        },
+        "scrollOverflowRaw": {
+          "x": 0,
+          "y": 10
+        },
+        "belowGap": null
+      }
+    ],
+    "clips": [
+      "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+      "ญำญำญำญำญำญำญำญำญำญำญำญำ"
+    ],
+    "notWrapped": [
+      "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+      "ญำญำญำญำญำญำญำญำญำญำญำญำ"
+    ],
+    "controlWrapped": []
+  },
+  "category": {
+    "found": true,
+    "innerWidth": 1440,
+    "scrollWidth": 1440,
+    "clientWidth": 1440,
+    "h3": {
+      "text": "จับรางวัลปีใหม่",
+      "fontSize": "22px"
+    },
+    "p": {
+      "fontSize": "15px"
+    },
+    "cardWidth": 940
+  },
+  "consoleErrors": []
+}

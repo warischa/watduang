@@ -605,7 +605,11 @@ test('main does not delete or bypass the per-screen emission', () => {
   // HERE, with a message saying why, instead of reding the count assertion under its unrelated name.
   const anyFold = Object.values(fixture42).some((r) => (r.screens || []).some((sc) => 'foldVisiblePx' in sc));
   assert.equal(anyFold, false, 'no fixture row may carry foldVisiblePx — the notice count below is derived without fold lines');
-  assert.equal(noticeLines.length, 14 + 39 * 2 + 9, 'all 42 rows must have their reports emitted to production sink');
+  // One composition line per route (its desktop row), two lines per ordinary row, 9 for the three special
+  // rows. Derived from the route count rather than written as 14 + 39 * 2 + 9: gh#304 added the fifteenth
+  // route, and the same three special rows.
+  const nRoutes = playRoutes().length;
+  assert.equal(noticeLines.length, nRoutes + (nRoutes * VIEWPORTS.length - 3) * 2 + 9, `all ${nRoutes * VIEWPORTS.length} rows must have their reports emitted to production sink`);
 
   // The run above proves the DEFAULT sink is wired. It cannot prove the emission contract, because
   // `logged` also carries composition and OK lines, so it can only be checked by sampling — and
@@ -1745,4 +1749,25 @@ test('MUST-RED gh#287 R2-B: a FONT_READ line the child had to send to stderr rea
     assert.equal(run.status, 0, run.stderr);
     assert.match(forwarded.join(''), /^FONT_READ fixture-line$/m);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+// gh#304: a play route whose category has no shared player screen is not waited for; the wait asks the
+// opposite question there, and reds if the screen mounted anyway.
+test('gh#304: the screenless set is every playRoute whose category does not carry a group', () => {
+  const set = fit.screenlessPlayPaths(
+    [{ playRoute: '/game/a/play/', category: 'party' }, { playRoute: '/game/b/play/', category: 'company-party' }, { category: 'company-party' }],
+    { party: { carriesGroup: true }, 'company-party': { carriesGroup: false } },
+  );
+  assert.deepEqual([...set], ['/game/b/play/']);
+  assert.ok(fit.screenlessPlayPaths().has('/game/prize-draw/play/'), 'the real manifest must put the prize-draw projector in the set');
+});
+
+test('MUST-RED gh#304: on a screenless route the wait returns at once, and reds if the screen mounted there', async () => {
+  const path = '/game/prize-draw/play/';
+  let reads = 0;
+  const absent = async () => ((reads += 1), { value: { mounted: false, pending: false, path } });
+  assert.equal(await fit.awaitPlayerScreenSettled(absent, { capMs: 50, pollMs: 1, wait: async () => {} }), null);
+  assert.equal(reads, 1, 'a screenless route must not be polled for a screen that never comes');
+  const present = async () => ({ value: { mounted: true, pending: false, path } });
+  assert.match(await fit.awaitPlayerScreenSettled(present, { capMs: 50, pollMs: 1, wait: async () => {} }), /no shared player screen/);
 });

@@ -53,7 +53,8 @@ export interface GameContext {
 /** Category slug — the key of the categories record in categories.ts (and, from gh#74, the /c/<slug>/)
  *  listing pages). Hand-written on purpose: the record is typed `Record<Category, CategoryMeta>`, so a
  *  category present in only one of the two fails `tsc`, not just scripts/validate-games.mjs. */
-export type Category = 'party' | 'fortune';
+// ADR-0075 admits the third, the company-party category, which holds the prize-draw event (gh#304).
+export type Category = 'party' | 'fortune' | 'company-party';
 
 /** gh#269: what one first-screen element of a play route is. `gameplay` is hidden by the shared hold
  *  (PlayerScreen.astro) until the player screen hands over; `ps-mount` is the root handed to
@@ -144,6 +145,12 @@ export interface GameModuleFields {
    *  static chrome ABOVE the stage, which is where ADR-0014 puts every navigation target.
    *  Absent on a game whose module renders its own screens, which is every other game today. */
   playRoute?: string;
+  /** gh#304: set when the game is entered through its own setup page instead of its play route. The
+   *  prize-draw event is set up on a normal page (ads, SEO) and run on its play route (no ads), so its
+   *  cards and nav links must land on the setup page: a visitor arriving on the play route has no event
+   *  to show. Always `/game/<id>/`, beside a `playRoute` (scripts/validate-games.mjs). Every link to a
+   *  game reads entryHref() in manifest.ts, which prefers this field. */
+  setupRoute?: string;
   /** gh#253 / ADR-0070 — the block size, in CSS px, this game's FIRST screen takes inside #stage, per
    *  width class (phone = below the tokens.css 640px tablet boundary, wide = from it up). GameLayout
    *  emits it as a custom property, and #stage reserves it ONLY until the page script marks the stage
