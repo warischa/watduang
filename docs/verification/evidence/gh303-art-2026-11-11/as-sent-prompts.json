@@ -1,0 +1,253 @@
+{
+ "_about": "Extracted from each Codex session log (~/.codex/sessions/2026/11/11/rollout-*.jsonl): every image_gen call Codex made for one gh303-art render, in order, with the prompt Codex itself wrote for the tool (Codex rewrites the prompt it is given, so these are NOT the registry text). picked = the call whose output sha256 equals the file Codex saved to the requested path, which is the file copied byte-identical to images/. transparent_background_arg is read from the tool-call source Codex wrote; transparentBackground_result from the completed item.",
+ "renders": [
+  {
+   "id": "IMG_04_001",
+   "codex_session": "01a1c95c-263d-7fc2-b63c-bc4c8c85e28b",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "fe6727416aeba5dd6db898ebf15c2c0291af58f08a0348087764f79987a38976",
+   "calls": [
+    {
+     "generation_id": "exec-b0cfaa4a-6f6d-487d-86c8-d149e97d868b",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "e1c44ec0141548fb5aa65646be2143eeda9fd6d846dc98c6475a9e8a662f63e8",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: a square game-card illustration for the grid of a Thai party-game website.\n\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft 3D toy rendering, upper-left studio lighting, smooth rounded forms, saturation, and lightly clear-coated vinyl material finish. DO NOT copy the crocodile or any part of its subject, face, eyes, teeth, or anatomy.\n\nCreate one isolated festive gift-box subject on a fully TRANSPARENT background with true alpha. The subject must name the gift/New Year game at a glance and read clearly at small thumbnail size.\n\nSubject: a chubby toy gift box in front three-quarter view. A rounded cube of festive red (#e63946), with soft lighter red highlights (#ff6b6b). A slightly domed, thick red lid is lifted and tilted open, visibly separated just above the open box. On the lid is a big glossy warm-gold (#f5b301) ribbon bow with pale gold highlights (#ffd966). A broad warm-gold ribbon band crosses the box. A few chunky curled ribbon streamers and solid confetti pieces spring up out of the open top in a compact, joyful New Year burst. Confetti shapes are small rounded squares, discs, and stars; all confetti and streamers are opaque solid toy shapes, in warm gold (#f5b301), cream white (#fff8e8), mint teal (#2ec4b6), and festive red (#e63946). Keep the gift box dominant and the burst compact; one coherent subject. The box is plain: no tag, no label, no pattern.\n\nStyle/medium: SOFT 3D TOY RENDER. Rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion only in subject creases, soft studio key from upper left plus soft fill, small soft specular highlights on glossy surfaces, premium designer toy / modern 3D mobile-game mascot finish. No realistic surface texture. Not photorealistic, no ink outline, not flat vector, not a sticker. Every part is solid and opaque, with clean crisp silhouettes.\n\nComposition: square 1:1 canvas, subject centered with even comfortable margin on all four sides. The entire box, lid, bow, ribbons and every confetti piece fit inside the frame, nothing cropped. Balanced total silhouette readable as a small thumbnail.\n\nColour: use only the specified subject material colours, saturated but softly lit, no overall colour grade, no coloured environmental rim lighting. No large lilac, navy, sky-blue or coral area. The card behind this illustration is coral, so do not use coral (#f89880) as a large area.\n\nStrict constraints: genuine transparent PNG alpha background, no scenery, no solid backdrop, no gradient, no checkerboard pattern drawn into the image. No drop shadow, no cast or contact shadow beneath the subject, no ground, no floor, no reflection. No glow, soft mist, haze or motion blur. Nothing else in frame. No bottle, champagne, wine, glass, cup, can, drink, alcohol, toasting, money, coins, banknotes, envelope or other props. No human figures, hands, human faces, logos, brand marks, watermarks, text, letters or numbers.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "style_ref_in_call": true,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-2765abc0-91ce-4fa1-aa6b-aac4baebba56",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "fe6727416aeba5dd6db898ebf15c2c0291af58f08a0348087764f79987a38976",
+     "prompt_as_sent_to_image_gen": "Edit this gift-box illustration with ONE targeted correction: improve framing and transparent cutout cleanliness.\n\nKeep the current gift box, lifted tilted lid, gold bow, ribbon bands, curled streamers, solid star/disc/square confetti, red/gold/cream/mint palette, front three-quarter view, lighting and soft glossy 3D vinyl toy material exactly as they are. Do not redesign any object. Preserve the complete existing subject.\n\nReframe the ENTIRE subject at a smaller uniform scale, centered on a square 1:1 fully transparent canvas. The topmost bow and lowest box edge must each have approximately 12% of the canvas height of CLEAR FULLY TRANSPARENT margin. Fit all side details too, with generous clear side margins. Make the subject sit centrally with its full silhouette visible. No cropping, including any ribbon or confetti. Keep every object opaque and solid with crisp anti-aliased edges. Remove all stray isolated edge pixels and colour flecks outside the intended objects. Background must be genuinely transparent alpha=0 everywhere outside the subject, with no checkerboard rendered in. Do not add anything. No cast shadow, no contact shadow, no ground, no backdrop, no glow, no haze, no blur, no text or marks.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "style_ref_in_call": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_04_002",
+   "codex_session": "01a1c962-ec7b-74d2-b235-c6da159e841a",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "10cf44b6cad478e9ff4a2fc8d3ad33be6f0e967e1384befbd9be446e26a83d87",
+   "calls": [
+    {
+     "generation_id": "exec-8985558b-a111-453c-b964-57eb84e4c2d5",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "e4cf6ed384cdb756ef966a9b1f8fe5d448f96532df4507140e796202521a788e",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: Square 1:1 game-card illustration for the game grid of a Thai party-game website; readable as a small thumbnail.\n\nInput images: Image 1 (/Users/waris.c/claude/free-game/images/IMG_02_003.png) is a STYLE REFERENCE ONLY. Match its soft 3D toy rendering style, lighting and material finish. Do not copy its crocodile subject, anatomy, eyes, face or green palette.\n\nScene: one isolated lantern-and-gift composition on a fully transparent background with a true alpha channel.\n\nSubject: a chubby round toy paper lantern seen from a slight front three-quarter view, a plump ribbed globe with a gold cap on top and on the bottom, a short gold loop on top and a gold tassel hanging below, with a small toy gift box tied with a gold bow resting against its lower side, a few solid confetti pieces and exactly two small solid star sparkles around them. The lantern is the large dominant object; the gift is a small accessory nestled against its lower side.\nSubject colours: lantern festive red (#e63946) ribs with soft lighter highlights (#ff6b6b); caps, loop and tassel warm gold (#f5b301); gift box mint teal (#2ec4b6) with a warm gold bow (#f5b301); confetti in warm gold, cream white (#fff8e8) and mint teal.\nThe lantern is plain: no character, no symbol, no letter, no pattern painted on it. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur.\n\nStyle/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion only in creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.\n\nComposition/framing: centered composition with visually even clear margin on all four sides, square 1:1 aspect. The whole lantern including loop and hanging tassel, gift, confetti and stars must be fully inside the frame with nothing cropped. Clean silhouette readable as a small thumbnail.\n\nColor palette: use only the subject's own material colours named above, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment. No large lilac, navy or sky-blue area. Coral (#f89880) never as a large area, because the card the art sits on is coral.\n\nConstraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. True transparent PNG alpha outside the solid toy subjects. Nothing else in frame: no bottle, no champagne, no wine, no drinking glass, no can, no cup, no drink of any kind, no alcohol, no toasting, no money, no coins, no banknotes, no envelope, no ground, no other props. NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection. Stars are small solid opaque toy star shapes, not luminous light effects.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "style_ref_in_call": true,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-fd0e1047-7c2e-423c-ab1b-96ce6206affc",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "10cf44b6cad478e9ff4a2fc8d3ad33be6f0e967e1384befbd9be446e26a83d87",
+     "prompt_as_sent_to_image_gen": "Refine the attached lantern-and-gift illustration. Preserve the existing lantern shape, plain festive red ribs, warm gold caps, loop and tassel, mint teal gift with gold bow, exactly two solid gold star sparkles, and the few gold, cream and teal confetti. Preserve the rounded glossy satin 3D toy rendering, soft upper-left key light, gentle shading, colours and front three-quarter view. Do not add or remove subject elements.\n\nMake only these technical refinements:\n1. Give the entire subject group generous transparent breathing room. Reduce its scale so ALL elements, including loop, tassel, stars and confetti, fit comfortably within the central approximately 78 percent of a square 1:1 image, with at least 10 percent completely empty transparent margin on EVERY side. Keep the composition centered.\n2. Clean true PNG alpha: empty background pixels must be fully transparent with alpha zero; every toy part, star and confetti must be fully solid and opaque with alpha 255. Use only a very narrow normal antialiasing transition at silhouette edges. No isolated stray pixels, speckles or haze outside the crisp silhouettes, no partially transparent object surfaces.\n\nNo background, no backdrop, no floor, no contact or cast shadow beneath the subject, no reflection, no glow, no mist, no haze, no motion blur. No extra props, bottles, cans, drinks, alcohol, money, envelopes, people, faces, hands, text, letters, numbers, symbols painted on the lantern, logos, watermark or patterns. No large lilac, navy, sky-blue or coral areas. Deliver a square transparent PNG.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "style_ref_in_call": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_04_003",
+   "codex_session": "01a1c95c-263e-78c1-9469-dbbae3330fbd",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "4c9c344f34eccf00a31cccdab9764a3c1bdefaa8e06f29a5f8d47d84e9849edf",
+   "calls": [
+    {
+     "generation_id": "exec-72ad06fe-6314-4dfc-97fc-03157dd70b38",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "030c731d153a7766e9a1a0cbfb2a13dde1d06d915ae8e1f3664d9c9c158dbc05",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: square 1:1 transparent PNG game-card illustration for a Thai party-game website. Create one cohesive isolated subject group, readable at small thumbnail size.\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft rounded premium 3D mobile-game vinyl/clay toy rendering, smooth satin lightly clear-coated finish, dimensional shading, softly glossy highlights and studio lighting. DO NOT copy the crocodile, character design, eyes, mouth, or any part of its subject.\nScene/backdrop: completely transparent empty background with true alpha, no backdrop, no environment, no floor. Only the requested objects.\nSubject: a chubby toy FIREWORK ROCKET standing upright on exactly three short rounded fins, front three-quarter view. A short plump rounded cylindrical body, festive red #e63946, with exactly one plain cream-white horizontal band #fff8e8. A rounded warm-gold conical tip #f5b301, three warm-gold fins #f5b301, and one short curled warm-tan fuse #d9b98a clearly visible at its base. The silhouette must read instantly as a cute decorative firework rocket. It is an inanimate toy: no face or character.\nExactly two small round toy paper lanterns floating beside the rocket at different heights, festive red #e63946, each with warm-gold #f5b301 caps and short rounded tassels. Plain smooth lantern bodies, no printed patterns. A few small solid five-pointed star-shaped sparks surrounding the cone tip, warm-yellow #ffd966 with solid orange #f59e0b centers. Sparks are solid opaque dimensional toy shapes, no light emission.\nStyle/medium: SOFT 3D TOY RENDER, rounded vinyl or clay with smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion only in object creases, soft studio key light upper left and soft neutral fill, small soft specular highlights. Premium designer toy or modern 3D mobile-game asset. No realistic surface texture, no ink outline, no flat vector, no sticker border.\nComposition: entire group centered in a square canvas, balanced even clear margin on all four sides, all rocket fins, cone, fuse, both lanterns, tassels and sparks fully inside frame, nothing cropped. The rocket dominates; lanterns are secondary. Cohesive compact composition, full subject visible, thumbnail readability.\nPalette: only the subject material colors specified. Saturated but softly lit, neutral lighting, no overall color grading or environmental colored rim light. No large coral #f89880, lilac, navy or sky-blue areas.\nStrict constraints: every object is solid and opaque, crisp clean antialiased edges. True transparent alpha everywhere outside the subject; do not paint a checkerboard. NO glow, mist, haze, smoke, flame, motion blur, cast shadow, contact shadow beneath the subject, drop shadow, ground, floor or reflection. NO bottle, can, champagne, wine, drinking glass, cup, alcohol, drink, toasting, clock face, digits, humans, hands, faces, crocodiles, animals, logos, brands, watermark, text, letters, numbers, symbols or patterns. Nothing else in frame.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "style_ref_in_call": true,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-fa1186c4-b1f8-40eb-ac52-198feede489a",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "4c9c344f34eccf00a31cccdab9764a3c1bdefaa8e06f29a5f8d47d84e9849edf",
+     "prompt_as_sent_to_image_gen": "Revise this generated illustration with ONE targeted correction: FRAMING. Preserve the rocket, exactly three gold fins, cream band, curled tan fuse, two red-and-gold lanterns, three solid yellow/orange star sparks, their toy materials, and soft studio lighting. Make the complete group smaller within the square canvas so there is a generous clear transparent margin of at least 10% of canvas width on ALL FOUR SIDES. Center the group's visual bounds. Keep all objects fully visible. The top star and lowest fin must be comfortably inside this margin, with nothing touching the image edges. Preserve the front three-quarter view and upright rocket.\nThe reference is a finished soft 3D vinyl/clay toy game-card illustration; keep the same subject, design, saturated red/cream/gold palette, smooth satin lightly clear-coated surfaces, small soft highlights and rounded forms. Keep the background completely transparent, true RGBA alpha. Object interiors must be solid fully opaque; only a narrow antialiased contour may be partially transparent. No detached stray pixels. No shadows beneath objects, no floor, no reflection, no haze, no glow, no smoke, no motion blur. No additional props, pattern, symbol, text, numbers, letters, logos, bottles, drinks, humans or faces.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "style_ref_in_call": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_04_004",
+   "codex_session": "01a1c957-b8a4-7273-959c-c68b22c8bb2a",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "19eb8739c00fa74757c61c8f0e27ab39aab7e9a70c6be753fff79252c2f1341e",
+   "calls": [
+    {
+     "generation_id": "exec-8b0371b7-dc79-4bbc-8b4f-d4b253de925b",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "8b7c53468d6eca3f39497aa5f5d27850b1fff2359c20b71d3f2964edeb4ca395",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept\nAsset type: one transparent game-card illustration for the game grid of a Thai party-game website.\n\nCreate one isolated toy firework cluster, frozen in mid-air like a sculpted premium designer toy, clearly readable as a small thumbnail. Square 1:1 composition, entire subject inside the frame, centered with even generous margins on all four sides.\n\nSubject: a chunky round firework starburst, face-on with a slight three-quarter tilt. Thick, smoothly rounded solid rays radiate from a small round center; EVERY ray ends in a little glossy ball. Main burst rays are warm gold (#f5b301) and the ball tips are festive red (#e63946). A smaller second starburst overlaps behind the main one; its thick rounded rays are mint teal (#2ec4b6) and its ball tips are cream white (#fff8e8). A small round toy paper lantern floats just below the bursts, forming a single compact cohesive subject grouping. The lantern is festive red (#e63946), with warm gold caps and a warm gold tassel (#f5b301). The lantern is plain, with no character, no symbol, no letter, no painted pattern.\n\nStyle/medium: SOFT 3D TOY RENDER. Match the supplied style reference's rounded dimensional toy rendering, soft studio lighting, smooth lightly clear-coated material finish and restrained glossy highlights. The reference crocodile is STYLE ONLY; do not copy its subject, anatomy, eyes, face, teeth or silhouette. Soft rounded vinyl or clay, smooth satin surfaces, soft volumetric shading, gentle ambient occlusion only in object creases. Soft studio key light from upper left, soft neutral fill, small soft specular highlights on glossy parts. Premium designer toy / polished modern 3D mobile-game art. No realistic surface texture, not photorealistic, no ink outline, not flat vector, not a sticker.\n\nColor: use the specified material colors, saturated but softly lit, neutral studio illumination. No overall color grade, no colored environmental rim light. No large lilac, navy, sky-blue or coral area. The card behind this asset will be coral; the asset itself has no card or background.\n\nTransparency and solidity: output a PNG with a TRUE alpha channel and a fully transparent background, including all open spaces between the rays. All toy parts are solid and opaque with crisp antialiased edges. No glow, no soft mist, no haze, no smoke, no sparkle dust, no motion blur. No background of any kind, no scenery, no solid backdrop, no gradient, no drawn checkerboard, no drop shadow, no cast or contact shadow beneath the subject, no floor, no ground, no reflection.\n\nNothing else in frame: no bottle, no champagne, no wine, no can, no glass, no cup, no drink of any kind, no alcohol, no toasting, no clock face, no digits, no additional props, no human figures, no hands, no people's faces, no logos, no brand marks, no watermarks, no text, no letters, no numbers.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "style_ref_in_call": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-a48e3a5a-d858-4843-838d-757f3721e6a9",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "19eb8739c00fa74757c61c8f0e27ab39aab7e9a70c6be753fff79252c2f1341e",
+     "prompt_as_sent_to_image_gen": "Clean up this generated game-card artwork for production, preserving the same two sculpted toy firework bursts and the small plain red lantern, their shapes, colors, arrangement, smooth soft 3D material finish and upper-left studio lighting.\n\nThe task is a precise transparent-cutout cleanup. Remove EVERY faint stray pixel, speck, halo and translucent fragment outside the physical toy silhouette. Background and all spaces between rays must be exactly fully transparent (alpha 0), including an empty margin on ALL four edges. Toy interiors must be fully opaque (alpha 255), with partial alpha limited only to crisp edge antialiasing. No mist, glow, dust, haze, soft fringe, shadow, backdrop or reflections. Preserve the colorful saturated material appearance; do not fade the toy itself.\n\nRetain square 1:1 framing. Fit the entire compact toy grouping within the square with comfortable, visually even clear margins, nothing cropped. Main burst has thick warm gold #f5b301 rounded rays, red #e63946 ball tips and a small round center. Smaller overlapping burst behind has mint teal #2ec4b6 rays and cream #fff8e8 ball tips. Plain round red lantern below with gold caps and gold tassel, no painted symbols or pattern. No additional objects, no text, no human features. Output a true-alpha transparent PNG.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "style_ref_in_call": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_04_005",
+   "codex_session": "01a1c95c-263e-7d32-8976-4b8388994b96",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "9a35274564b52cac553fb9aa594afe2263742777d099aa8cdd182b294093cb04",
+   "calls": [
+    {
+     "generation_id": "exec-9747b855-ce7a-43cc-b4ef-a1c973cf9c63",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "f2af99dec6886120fd84fc3ca98a6378eb8ddc7fe4a7193d02b81e98c38b9dc7",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept\nAsset type: one isolated game-card illustration for the game grid of a Thai party-game website, square 1:1 PNG with true transparent alpha.\n\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft 3D toy rendering, studio lighting, rounded volumes, satin lightly clear-coated vinyl material and small soft glossy highlights. Do not copy the crocodile, any animal, its colours or its composition.\n\nSubject: a neat fan of EXACTLY FIVE chubby toy cards seen from a slight front three-quarter view, joined at the base by ONE small round warm-gold rivet and spread like a fan. Four cards show their mint-teal backs; the fifth, frontmost card is tipping over to reveal its blank cream-white face bearing ONE single warm-gold five-point star in the centre. Clearly distinguish all five rounded card slabs. Each card is a thick rounded slab with soft rounded corners. Card backs: mint teal #2ec4b6 with a thin warm-gold #f5b301 inset border and ONE small warm-gold five-point star in the centre. Revealed face: cream white #fff8e8, otherwise blank with ONE warm-gold #f5b301 star in the centre. All card edges cream white #fff8e8. One small round gold rivet at their common base, visibly attached to the fan, not a separate coin. No suit symbols, pips, rank letters, numbers, court figures or any pattern beyond the thin border and single star.\n\nStyle/medium: SOFT 3D TOY RENDER, premium designer vinyl or clay toy / modern 3D mobile-game asset, smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion ONLY in creases and between overlapping cards, upper-left soft studio key and soft neutral fill, small soft specular highlights. Not photorealistic, no realistic surface texture, no ink outline, not flat vector, not a sticker.\n\nComposition: one cohesive subject, centred, even clear margin on all four sides, square 1:1, entire subject inside frame, nothing cropped. Bold simple silhouette and details readable as a small thumbnail. Subject colours saturated but softly lit. Preserve each specified material colour; no whole-image colour grade, no coloured environmental rim light. No large lilac, navy, sky-blue or coral area.\n\nTransparency: fully transparent background, real alpha channel. No background of any kind: no scenery, solid backdrop, gradient, checkerboard artwork, floor, ground, reflection, drop shadow, cast shadow or contact shadow beneath the subject. Every subject part is solid and opaque, crisp edges with only normal edge antialiasing; no glow, haze, soft mist or motion blur.\n\nNothing else in frame: no table, felt, chips, separate tokens, separate coins, money, dice, bottle, can, champagne, glass, cup, drinks, alcohol, human figures, hands, faces, animals, other props, logos, brand marks, watermark, text, letters or numbers.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "style_ref_in_call": true,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-6d5df58b-cd16-4ae6-9050-d888205772f3",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "9a35274564b52cac553fb9aa594afe2263742777d099aa8cdd182b294093cb04",
+     "prompt_as_sent_to_image_gen": "Edit this image with ONE targeted correction: make a pristine production cutout with a perfectly clean transparent alpha channel. Preserve the existing five-card fan, all geometry, colours, stars, rivet, camera angle, soft 3D vinyl-toy materials, lighting, full framing and composition.\n\nThe subject consists of exactly five thick cream-edged rounded toy cards: four mint-teal backs each with one thin gold border and one gold central star; front card cream with one central gold star; all joined by a single small attached round gold rivet at the base. Keep that artwork unchanged.\n\nALPHA CORRECTION: every interior pixel of the solid cards and rivet must be fully opaque (alpha 255). Every pixel outside the actual sharp subject silhouette must be completely transparent (alpha 0), allowing only a narrow ordinary antialiased edge. Eliminate ALL stray white or coloured specks, tiny floating fragments, noisy matte pixels, fuzzy halos, residual white matte, haze and translucent areas outside the cards. Do not add any shadow below the fan, glow, floor, reflection, background or checkerboard artwork. Fully transparent background, true alpha. All five cards remain completely inside the square image. No extra elements, text, letters, numbers, symbols other than the single stars.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "style_ref_in_call": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_04_006",
+   "codex_session": "01a1c962-ec7b-7921-ba5e-2c42799d7e92",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "b4b2c7a2f6e2780504028836c47d96fc8cc28b6049cd7208496e1ce9afd18998",
+   "calls": [
+    {
+     "generation_id": "exec-719738ba-8bc0-4027-a88c-5c7d58b07672",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "9238251873972c408b47bd59fb5cb196aa628d80a38388623bc62cb5c1e2744c",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: square 1:1 transparent PNG game-card illustration for the game grid of a Thai party-game website, readable as a small thumbnail.\n\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft 3D toy rendering, rounded vinyl/clay forms, smooth satin lightly clear-coated finish, softly saturated material colours, soft volumetric shading, gentle ambient occlusion in creases and small soft glossy specular highlights. Do not copy its subject, anatomy, eyes, mouth, character, green palette, or pose.\n\nScene: one isolated cohesive arrangement floating in completely empty transparent space, with no environment.\nSubject: a small chubby toy deck of cards in the centre, with EXACTLY SIX separate face-down toy cards flying out of it in a wide, evenly spaced arc to both sides: three on the left and three on the right, as if being dealt to everyone around a room. Each of the six cards is clearly countable and separated from its neighbours, with a different playful tilt and visible thick cream-white rounded slab edges. Each has soft rounded corners. The central deck is a compact chunky stack of cream-white cards, with a red-backed top card, and must read clearly as a toy deck rather than a box. Arrange the central deck toward the lower centre and six cards arcing upward and outward, forming a balanced centred compact silhouette with generous even outer margins. Keep all artwork fully inside the square, with nothing cropped.\n\nColours and card design: festive red card backs (#e63946), each with ONLY one thin warm-gold inset border (#f5b301) and one small warm-gold five-point star in the centre. Deck and card edges cream white (#fff8e8). No other pattern. Show every airborne card face-down, with the red back and central gold star visible. A few small SOLID chunky confetti pieces float in the gaps between the cards, in warm gold (#f5b301), mint teal (#2ec4b6), and cream white. Confetti must remain secondary.\n\nStyle and lighting: SOFT 3D TOY RENDER, premium designer vinyl/clay toy, modern 3D mobile-game illustration. Smooth clean material surfaces without realistic texture, softly rounded and chubby. Soft studio key light from upper left and a soft fill, gentle self-shading and small soft specular highlights. Material colours remain their own colours; no global colour grade, no environmental coloured rim light. Not photorealistic, not flat vector, not a sticker, no ink outline.\n\nTransparency and hard constraints: true transparent alpha background, absolutely no background pixels or backdrop; no scenery, solid background, gradient, checkerboard, ground, floor, surface, cast shadow, contact shadow, drop shadow, or reflection beneath the subject. Every part is solid and opaque, crisp anti-aliased silhouette, no glow, mist, haze, motion trails, or motion blur. No suit symbols, pips, rank letters, numbers, court figures, text, logos, brand marks, or watermarks. No human figures, hands, faces, animals, or characters. No other props: no table, felt, chips, tokens, coins, money, dice, bottles, cans, champagne, drinking glasses, cups, drinks, or alcohol. No large lilac, navy, sky-blue, or coral area. Only the central deck, six flying cards, and a few small confetti pieces.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "style_ref_in_call": true,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-8a1b3189-65c4-4dca-8bbf-5843a30a8c5c",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "b4b2c7a2f6e2780504028836c47d96fc8cc28b6049cd7208496e1ce9afd18998",
+     "prompt_as_sent_to_image_gen": "Refine the provided card illustration. Preserve the same toy rendering, card design, colours, central deck, EXACTLY SIX flying cards (three left, three right), and small solid confetti. Make only these corrections:\n1. Remove ALL diffuse haze, coloured smears, glow, bloom, low-opacity fringes, soft shadows and wispy pixels from every empty gap and around the entire silhouette. Empty space must have alpha EXACTLY ZERO, all the way up to crisp object outlines. ALL interior object pixels must be FULLY OPAQUE alpha 255, except the narrow 1-pixel anti-aliasing boundary. No coloured aura of any kind. Absolutely no cast or contact shadow under the deck. The red cards, gold borders and stars, cream slab edges, and gold/mint/cream confetti are solid toys.\n2. Recompose the complete arrangement into a roughly SQUARE centred silhouette occupying the central 80 percent of a square canvas, with approximately 10 percent clean transparent margin on ALL FOUR sides. The previous wide arrangement is too close to the left and right frame edges. Move the high pair of cards upward and bring the outer pairs inward so that the six-card arc rises tall over the deck and the whole subject has balanced top, bottom, left, and right margins. No cropping and no object touching the frame.\nKeep one compact central stack below the arc, and six separate face-down red-backed cards with ONLY one thin warm-gold border and one small gold five-point star each. Every airborne card must be individually countable. Small confetti pieces only. Use smooth satin lightly clear-coated vinyl/clay, upper-left soft studio key and soft fill, small soft highlights and ambient occlusion only within creases of the objects. No realistic texture, text, suits, pips, ranks, letters, numbers, faces, limbs, characters, props, floor, scenery, backdrop, checkerboard, reflection, or coloured rim light. This must be a production-ready true-alpha PNG isolated game illustration.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "style_ref_in_call": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_04_007",
+   "codex_session": "01a1c95c-263d-78f1-b555-9a53af170853",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "45e7c97dc7e5a4630e02edd609be07bc60d43c40ec53a678cb14c3f432ffe4e0",
+   "calls": [
+    {
+     "generation_id": "exec-697c1786-b33f-4d70-be9a-76b9f71b6802",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "cee20f13a87dcdcf79e8a9ee5fa68343f9d79813f7ddd56f5e42d9f716d2adf7",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: square game-card illustration for the game grid of a Thai party-game website.\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft 3D rendering, lighting, rounded volumes and material finish. DO NOT copy the crocodile or any other subject from the reference.\n\nCreate ONE isolated chubby toy path puzzle standing upright on a thick rounded festive-red base, viewed from the front at a gentle three-quarter angle. Exactly FOUR upright, generously spaced, rounded vertical rails, joined by short horizontal rounded rungs between NEIGHBOURING rails at staggered heights, in the recognizable structure of a ladder lottery / amidakuji path puzzle. No surrounding frame, no top crossbar. The four rails and their rungs form one compact toy. Each path travels down the rails and crosses at rungs to a different rail at the bottom. A SINGLE small glossy mint-teal round token sits on top of the leftmost rail. At the foot of EACH of the FOUR rails sits exactly ONE tiny solid toy gift box with a rounded bow, four gifts total, attached to or resting on the red base.\n\nMake one clearly continuous warm GOLD path from beneath the token down the rail, horizontally across successive connecting rungs, descending on successive neighbouring rails and ending at ONE gift on a different rail at the bottom. Gold replaces the material colour of ONLY the traced sections of the rails and rungs; it is part of the structure, never a floating extra rail, never a loose ribbon or an arrow. The rest of the rails/rungs are cream white. A clear readable rung arrangement is: highest rung links rails 1 and 2; next rung links 2 and 3; next rung links 3 and 4; next lower rung links 1 and 2; lowest rung links 2 and 3. The gold route begins on rail 1, follows the first three rungs to rail 4, then descends rail 4 to its gift. All rungs are horizontal and vertically staggered, with open transparent spaces between the four rails.\n\nSubject material colours: cream white #fff8e8 rails and rungs, warm gold #f5b301 single highlighted route, festive red #e63946 thick rounded base, mint teal #2ec4b6 token. Four gift boxes in festive red, mint teal and warm gold, with gold or cream bows. The gold route is warm gold coloured vinyl, NOT reflective metal. Saturated local material colours, softly lit, without an overall colour grade. No large lilac, navy or sky-blue area. No large coral area.\n\nStyle/medium: SOFT 3D TOY RENDER. Rounded vinyl or clay designer toy, smooth satin lightly clear-coated surfaces, plump bevels, soft volumetric shading, gentle ambient occlusion in creases BETWEEN PARTS of the toy, small soft specular highlights on glossy parts. Premium modern 3D mobile-game asset. Soft studio key light from upper left plus soft neutral fill. No coloured environment rim light. NOT photorealistic. NO realistic surface texture. NO ink outline. NOT flat vector. NOT a sticker.\n\nComposition: one integrated toy subject centred in a square 1:1 image, full subject inside frame, equal comfortable margin on all sides, nothing cropped. Broad sturdy proportions, clean silhouette and legible structure at small thumbnail size. Keep every rail and all four gifts clearly distinguishable.\n\nBackground/output: TRUE TRANSPARENT PNG with an actual alpha channel, including the gaps between rails. NO background of any kind, no scenery, no solid backdrop, no gradient, no checkerboard baked into the pixels. Every physical toy part is solid and opaque with crisp clean edges and normal edge antialiasing only. NO glow, mist, haze, motion blur, floor, ground, drop shadow, cast shadow or contact shadow beneath the subject, and NO reflection.\n\nNothing else in frame. NO letters or numbers on rails or boxes. NO text, logos, brand marks, watermarks, faces, humans, hands, money, coins, chips, bottle, can, champagne, glass, cup, drink or alcohol of any kind.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "style_ref_in_call": true,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-1879370a-a9b3-4fdb-9485-5c2fc9b28da4",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "45e7c97dc7e5a4630e02edd609be07bc60d43c40ec53a678cb14c3f432ffe4e0",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: square game-card illustration for the game grid of a Thai party-game website.\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft 3D rendering, lighting, rounded volumes and material finish. DO NOT copy the crocodile or any other subject from the reference.\n\nCreate ONE isolated chubby toy path puzzle standing upright on a thick rounded festive-red base, viewed from the front at a gentle three-quarter angle. Exactly FOUR upright, generously spaced, rounded vertical rails, joined by short horizontal rounded rungs between NEIGHBOURING rails at staggered heights, in the recognizable structure of a ladder lottery / amidakuji path puzzle. No surrounding frame, no top crossbar. The four rails and their rungs form one compact toy. Each path travels down the rails and crosses at rungs to a different rail at the bottom. A SINGLE small glossy mint-teal round token sits on top of the leftmost rail. At the foot of EACH of the FOUR rails sits exactly ONE tiny solid toy gift box with a rounded bow, four gifts total, attached to or resting on the red base.\n\nMake one clearly continuous warm GOLD path from beneath the token down the rail, horizontally across successive connecting rungs, descending on successive neighbouring rails and ending at ONE gift on a different rail at the bottom. Gold replaces the material colour of ONLY the traced sections of the rails and rungs; it is part of the structure, never a floating extra rail, never a loose ribbon or an arrow. The rest of the rails/rungs are cream white. A clear readable rung arrangement is: highest rung links rails 1 and 2; next rung links 2 and 3; next rung links 3 and 4; next lower rung links 1 and 2; lowest rung links 2 and 3. The gold route begins on rail 1, follows the first three rungs to rail 4, then descends rail 4 to its gift. All rungs are horizontal and vertically staggered, with open transparent spaces between the four rails.\n\nSubject material colours: cream white #fff8e8 rails and rungs, warm gold #f5b301 single highlighted route, festive red #e63946 thick rounded base, mint teal #2ec4b6 token. Four gift boxes in festive red, mint teal and warm gold, with gold or cream bows. The gold route is warm gold coloured vinyl, NOT reflective metal. Saturated local material colours, softly lit, without an overall colour grade. No large lilac, navy or sky-blue area. No large coral area.\n\nStyle/medium: SOFT 3D TOY RENDER. Rounded vinyl or clay designer toy, smooth satin lightly clear-coated surfaces, plump bevels, soft volumetric shading, gentle ambient occlusion in creases BETWEEN PARTS of the toy, small soft specular highlights on glossy parts. Premium modern 3D mobile-game asset. Soft studio key light from upper left plus soft neutral fill. No coloured environment rim light. NOT photorealistic. NO realistic surface texture. NO ink outline. NOT flat vector. NOT a sticker.\n\nComposition: one integrated toy subject centred in a square 1:1 image, full subject inside frame, equal comfortable margin on all sides, nothing cropped. Broad sturdy proportions, clean silhouette and legible structure at small thumbnail size. Keep every rail and all four gifts clearly distinguishable.\n\nBackground/output: TRUE TRANSPARENT PNG with an actual alpha channel, including the gaps between rails. NO background of any kind, no scenery, no solid backdrop, no gradient, no checkerboard baked into the pixels. Every physical toy part is solid and opaque with crisp clean edges and normal edge antialiasing only. NO glow, mist, haze, motion blur, floor, ground, drop shadow, cast shadow or contact shadow beneath the subject, and NO reflection.\n\nNothing else in frame. NO letters or numbers on rails or boxes. NO text, logos, brand marks, watermarks, faces, humans, hands, money, coins, chips, bottle, can, champagne, glass, cup, drink or alcohol of any kind.\n\nQUALITY CORRECTION: Render the toy cleanly from scratch. The reference is ONLY for shading and material, and its edge/background artifacts must NOT be reproduced. Leave a clean empty transparent margin of approximately 8 percent of the canvas on ALL FOUR sides. The spaces between rails must be completely clean and transparent. Do not scatter stray pixels, white flecks or coloured flecks in any empty area. No residual red pixels underneath the base. All toy interiors must be fully opaque (alpha 255); all empty background pixels alpha 0; intermediate alpha only along the one-pixel antialiased object contour. The entire visible gold route, rails, gifts, bows, token and base must be opaque. No semi-transparent toy surfaces. Emphasize the gentle front THREE-QUARTER camera angle and an even centred compact silhouette.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "style_ref_in_call": false,
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_04_008",
+   "codex_session": "01a1c962-ec7b-72f3-9203-ab913e54af0f",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "0824b0ab363b8faa16c6375b67771b31138848c2aeefcee1709173ac6efa2472",
+   "calls": [
+    {
+     "generation_id": "exec-15007709-1633-4d4f-b310-15f523969d9c",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "c3b6976c28c9a1903de9c572c37479984243b3f0d6ffa8152cdb11fc01e1beef",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: a single square game-card illustration for the game grid of a Thai party-game website.\n\nThe supplied Image 1 is a STYLE REFERENCE ONLY: match its soft premium 3D toy rendering, rounded sculpting, studio lighting, gentle ambient occlusion and smooth lightly clear-coated vinyl material finish. DO NOT copy its crocodile subject, character, face, eyes, teeth, anatomy or green palette.\n\nCreate one isolated cohesive toy track-and-gifts assembly, seen from a front three-quarter view. One chubby rounded chute at the elevated top splits at one clearly readable fork into exactly three separate smooth lanes. The three lanes branch apart and curve downward toward the foreground, visibly separated from one another. Each of the three lane ends is directly in front of one small toy gift box with a bow, exactly three gift boxes total. One glossy round festive red ball rolls along the middle lane; show it sharply and frozen in time. Keep the fork, the three lane routes and the three presents easy to understand at small thumbnail size. No extra tracks or extra balls.\n\nTrack material: cream white (#fff8e8), with chunky warm gold (#f5b301) side rails following every lane's edges. Ball festive red (#e63946). The three small presents are festive red (#e63946), mint teal (#2ec4b6) and warm gold (#f5b301), with rounded gold or cream bows. Make every piece solid and opaque with crisp clean edges. The whole assembly is centered, comfortably fits completely inside the square canvas, with even breathing room on all four sides. No cropping.\n\nStyle/medium: SOFT 3D TOY RENDER, rounded vinyl or clay toy, smooth satin lightly clear-coated surfaces, soft volumetric shading and gentle ambient occlusion ONLY in the subject's creases. A soft studio key light from upper left with soft fill. Small soft specular highlights on glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. Saturated local material colors, softly lit. No overall color grade, no environment-colored rim light. Not photorealistic. No realistic surface texture, no ink outlines, not flat vector, not a sticker.\n\nTRUE TRANSPARENT PNG BACKGROUND WITH ALPHA. The canvas outside the subject must be fully transparent, including all open gaps between lanes. No background of any kind: no scenery, no solid backdrop, no gradient, no checkerboard pattern. No drop shadow, no cast shadow or contact shadow beneath the subject, no floor or ground plane, no reflection. Do not render a platform or base beneath the assembly. Surface self-shading in the toy itself is fine.\n\nNothing else in frame. No pins or pegs. No letters or numbers on the track or boxes. No text of any kind. No logos, brand marks or watermarks. No money, coins, chips, bottles, cans, champagne, drinking glasses, glass vessels, cups or drinks of any kind. No alcohol. No humans, hands or faces of people. No large lilac, navy, sky-blue or coral (#f89880) area. No glow, mist, haze, motion trails or motion blur. Output square 1:1.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": false,
+     "style_ref_in_call": false,
+     "picked": false
+    },
+    {
+     "generation_id": "exec-1a287555-dbee-4521-8557-eb74c44fe7f5",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "0824b0ab363b8faa16c6375b67771b31138848c2aeefcee1709173ac6efa2472",
+     "prompt_as_sent_to_image_gen": "Edit this generated toy-track illustration. Change ONLY the camera/composition: present the entire assembly in a clear FRONT THREE-QUARTER VIEW with the camera around 25 degrees to one side and looking slightly downward, so the side thickness of the track and adjacent faces of the three gift boxes are clearly visible. Rotate the whole assembly coherently in 3D, with the elevated rounded chute at the back and the three branching lanes curving down toward the front. Fit the COMPLETE assembly centered inside the square with approximately 9 percent fully transparent clear margin on EVERY side; every bow, rail, track and present must remain fully inside the frame.\n\nPreserve the exact subject: one rounded cream-white (#fff8e8) chute splitting into EXACTLY three separated curved cream lanes, warm-gold (#f5b301) chunky side rails, exactly one glossy festive red (#e63946) round ball on the middle lane, exactly three small gift boxes at the lane ends colored red (#e63946), mint teal (#2ec4b6), and warm gold (#f5b301) with gold or cream bows. Keep the chubby smooth premium soft 3D vinyl toy materials, soft upper-left studio key and fill, gentle self-shading and ambient occlusion in creases, small soft glossy highlights and crisp opaque solid surfaces.\n\nTrue fully transparent alpha outside the assembly, including spaces between lanes. No background, floor, ground, support platform, drop shadow, cast shadow or contact shadow beneath the subject, or reflection. No glow, haze, mist, motion trails or blur. No extra objects, extra balls, pins or pegs, text, letters, numbers, logos, watermarks, humans, hands, human faces, money, coins, chips, bottles, cans, glasses, cups, drinks or alcohol. No large lilac, navy, sky-blue or coral areas. No outlines, photorealistic texture or sticker border.",
+     "transparent_background_arg": true,
+     "edit_of_previous_image": true,
+     "style_ref_in_call": false,
+     "picked": true
+    }
+   ]
+  }
+ ]
+}

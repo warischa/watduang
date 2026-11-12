@@ -2227,3 +2227,279 @@ candidate there only adds bytes; the 2x files of shelf-only games ship unused so
 change. Density descriptors only: no file widths are stored anywhere, so a `w` descriptor or a
 `sizes` attribute would be invented. The category page is untouched; its 160 px-tall card boxes already
 get 2x from the 320 px-tall 1x files (measured in the evidence README).
+
+
+# Game-card art candidates — the company-party category, direction C (gh#303-art)
+
+Owner request 2026-11-11: the company-party games get cover images like the party games. This section
+holds candidates for the owner to pick from: four covers, two candidates each (a and b, different subject
+ideas). The covers are the event page (the New Year prize draw), the fireworks countdown, cards dealt to
+the room, and the ladder of lanes. **Owner pick 2026-11-11 (popup): `IMG_04_002` (event), `IMG_04_003` (fireworks), `IMG_04_005` (cards) and `IMG_04_007` (ladder) are `approved`; the other four stay `pending`, unpicked. Only `IMG_04_002` is wired and in `public/art/` (`prize-draw.webp`, `prize-draw-2x.webp`). `IMG_04_003`, `IMG_04_005` and `IMG_04_007` ship with gh#305, gh#306 and gh#307, each with its game module: `public/` ships verbatim and an unreferenced file reds `public-orphan-check`.** The registry ties one entry to one master and one
+sha256, so each cover has two entries, grouped by cover.
+
+**Do not render these through `emit_prompt.py`** — the front matter's `brand_block` is portrait-specific
+(see the gh#241 section), and `--all-pending` would select all eight because they are pending. Each was
+rendered with bare `codex exec` from a scratch directory outside the repo, with `-i images/IMG_02_003.png`
+and gh#242's style-reference prefix, exactly as gh#242.
+
+**Prompts.** Each `prompt:` is the **Direction C reuse template** above, unchanged, with the cover's own
+`Subject:` placed second. The five direction paragraphs hash equal to the ones in `IMG_03_001`. Each
+`Subject:` carries gh#242's "solid and opaque … no glow" sentence and the cover's own exclusions:
+- drinks: champagne, glass, cup, toasting;
+- casino props: suits, pips, ranks, felt, chips, coins, money;
+- characters on the lanterns;
+- clock faces and digits.
+The template's `Color palette:` still says the card ground is coral. That is stale: the party ground is
+`--accent-punch` `#ff3d7f`, and this category's accent is not yet picked (gh#303 K1: lilac `#c9c2ff` or
+night `#23214d`). It was sent unchanged to keep the direction byte-identical, and each `Subject:` adds "No
+large lilac, navy or sky-blue area".
+
+**What rendered them.** Codex's built-in `image_gen` on codex-cli 0.167.0. It reports no model id;
+Images 2.6 is inferred, not observed. The party set was rendered on 0.159.2, so the underlying model may
+differ. The style match is judged on the comparison sheet, not assumed.
+- **`IMG_04_004` and `IMG_04_008` are NOT style-anchored at the image tool**: their call 1 passed no
+  `referenced_image_paths`, so the image model saw text only (the anchor reached the Codex session via
+  `-i`, not the model), and call 2 only edited that output. Queued for re-render, anchored, after the
+  Codex usage window resets; neither should be picked as is.
+- Codex made two calls per render. The master is call 2 in all eight: an edit of call 1 in seven, and a
+  fresh generation in `IMG_04_007`.
+- Every call's as-sent prompt and output hash is in
+  `docs/verification/evidence/gh303-art-2026-11-11/as-sent-prompts.json`.
+- The masters below are the raw saved files, matched by sha256.
+- No ship derivative is recorded: the scratch webps made for grading never left the scratch directory.
+  The picked masters go through `docs/verification/evidence/gh241/make_ship.py` (1x) and gh#250's 2x
+  recipe when wired.
+
+| id | cover | candidate | black point | scratch ship bytes | drink/bottle-free | casino-free | text-free | style match (1-5) |
+|---|---|---|---|---|---|---|---|---|
+| `IMG_04_001` | event | a | 5 | 20,632 | yes | yes | yes | 5 |
+| `IMG_04_002` | event | b | 4 | 19,628 | yes | yes | yes | 5 |
+| `IMG_04_003` | fireworks | a | 4 | 20,486 | yes | yes | yes | 4 |
+| `IMG_04_004` | fireworks | b | 4 | 20,268 | yes | yes | yes | 4 — not anchored, re-render queued |
+| `IMG_04_005` | cards | a | 3 | 24,116 | yes | yes | yes | 5 |
+| `IMG_04_006` | cards | b | 4 | 34,540 | yes | yes | yes | 4 — red field with one gold star reads as a national flag |
+| `IMG_04_007` | ladder | a | 5 | 15,492 | yes | yes | yes | 4 |
+| `IMG_04_008` | ladder | b | 3 | 19,016 | borderline (funnel mouth is bowl-like, not a drinking vessel) | yes | yes | 3 — not anchored, re-render queued |
+
+The comparison sheets, the timings, the grading and the proof that nothing entered `public/`:
+`docs/verification/evidence/gh303-art-2026-11-11/README.md`.
+
+```yaml
+- id: IMG_04_001
+  deliverable: "04"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), the event page (New Year prize draw) - candidate a, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "event cover, candidate a, in direction C (gh303-art, owner request 2026-11-11)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby toy gift box seen from a front three-quarter view, a rounded cube whose slightly domed lid is lifted and tilted open, a big glossy ribbon bow on the lid and a ribbon band crossing the box, with a few chunky curled ribbon streamers and solid confetti pieces (small rounded squares, discs and stars) springing up out of the open top in a festive New Year burst. Subject colours: box festive red (#e63946) with soft lighter highlights (#ff6b6b), ribbon and bow warm gold (#f5b301) with pale gold highlights (#ffd966), confetti and streamers in warm gold (#f5b301), cream white (#fff8e8), mint teal (#2ec4b6) and festive red (#e63946). The box is plain: no tag, no label, no pattern. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no money, no coins, no banknotes, no envelope, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_04_001.png"
+  sha256_master: "fe6727416aeba5dd6db898ebf15c2c0291af58f08a0348087764f79987a38976"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 69.30% fully transparent, 4756 haze px outside the dilated solid mask; black point 5. Scratch-only ship webp 235x320, 20632 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): red gift box, lid popping open, gold bow, confetti and curled ribbons bursting out. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 5/5. Pending the owner's pick."
+
+- id: IMG_04_002
+  deliverable: "04"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), the event page (New Year prize draw) - candidate b - wired 2026-11-11 as /art/prize-draw.webp and /art/prize-draw-2x.webp via the prize-draw module cardArt and cardArt2x fields"
+  direction: "C - soft 3D toy"
+  purpose: "event cover, candidate b, in direction C (gh303-art, owner request 2026-11-11)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby round toy paper lantern seen from a slight front three-quarter view, a plump ribbed globe with a gold cap on top and on the bottom, a short gold loop on top and a gold tassel hanging below, with a small toy gift box tied with a gold bow resting against its lower side, a few solid confetti pieces and two small solid star sparkles around them. Subject colours: lantern festive red (#e63946) ribs with soft lighter highlights (#ff6b6b), caps, loop and tassel warm gold (#f5b301), gift box mint teal (#2ec4b6) with a warm gold bow (#f5b301), confetti in warm gold, cream white (#fff8e8) and mint teal. The lantern is plain: no character, no symbol, no letter, no pattern painted on it. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no money, no coins, no banknotes, no envelope, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "approved"
+  output_path: "images/IMG_04_002.png"
+  sha256_master: "10cf44b6cad478e9ff4a2fc8d3ad33be6f0e967e1384befbd9be446e26a83d87"
+  ship_derivative: "public/art/prize-draw.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 72.30% fully transparent, 7193 haze px outside the dilated solid mask; black point 4. Scratch-only ship webp 273x320, 19628 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): plain red paper lantern with gold caps and tassel, a teal gift box at its foot, confetti and stars; no character on the lantern. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 5/5. Owner pick 2026-11-11 (popup): approved as the event cover. Shipped at black point 4 by gh241/make_ship.py (public/art/prize-draw.webp, 273x320, 19,628 bytes, byte-equal to the scratch ship webp above) and, by the gh#250 recipe (height 640, q88), public/art/prize-draw-2x.webp (546x640, 47,636 bytes); both graded srgba, haze outside 0, corners 0/0/0/0."
+
+- id: IMG_04_003
+  deliverable: "04"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), the fireworks countdown - candidate a, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "fireworks cover, candidate a, in direction C (gh303-art, owner request 2026-11-11)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby toy firework rocket standing upright on three short rounded fins, seen from a front three-quarter view, a rounded cylinder body with a cone tip and a short curled fuse at its base, two small round toy paper lanterns floating beside it at different heights, and a few small solid star-shaped sparks around the cone tip. Subject colours: rocket body festive red (#e63946) with one cream white band (#fff8e8) and a warm gold cone tip (#f5b301), fins warm gold (#f5b301), fuse warm tan (#d9b98a), lanterns festive red (#e63946) with warm gold caps and tassels (#f5b301), sparks warm yellow (#ffd966) with an orange core (#f59e0b). The rocket and the lanterns are plain: no character, no symbol, no letter, no number, no pattern. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no smoke, no motion blur. Nothing else in frame: no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no clock face, no digits, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "approved"
+  output_path: "images/IMG_04_003.png"
+  sha256_master: "4c9c344f34eccf00a31cccdab9764a3c1bdefaa8e06f29a5f8d47d84e9849edf"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 81.37% fully transparent, 3861 haze px outside the dilated solid mask; black point 4. Scratch-only ship webp 289x320, 20486 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): red and cream firework rocket on gold fins, two small red lanterns, three gold stars; small parts, reads as a firecracker toy. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 4/5. Owner pick 2026-11-11 (popup): approved. NOT in public/ yet: its webp pair ships with gh#305, the change that adds its game module."
+
+- id: IMG_04_004
+  deliverable: "04"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png (attached via -i, but NOT passed to the image tool on either call)"
+  location: "company-party category card (proposed), the fireworks countdown - candidate b, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "fireworks cover, candidate b, in direction C (gh303-art, owner request 2026-11-11)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a toy firework burst frozen in mid-air like a sculpted designer toy, seen face-on with a slight three-quarter tilt: a chunky round starburst made of thick rounded rays radiating from a small round centre, each ray ending in a little glossy ball, a smaller second starburst overlapping behind it, and a small round toy paper lantern floating just below them. Subject colours: main burst rays warm gold (#f5b301) with festive red ball tips (#e63946), second burst mint teal (#2ec4b6) with cream white ball tips (#fff8e8), lantern festive red (#e63946) with warm gold caps and tassel (#f5b301). The lantern is plain: no character, no symbol, no letter, no pattern painted on it. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no smoke, no sparkle dust, no motion blur. Nothing else in frame: no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no clock face, no digits, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_04_004.png"
+  sha256_master: "19eb8739c00fa74757c61c8f0e27ab39aab7e9a70c6be753fff79252c2f1341e"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 68.50% fully transparent, 10004 haze px outside the dilated solid mask; black point 4. Scratch-only ship webp 264x320, 20268 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): solid gold-and-red starburst over a teal one, a small red lantern below; ball-tipped rays read slightly like a molecule model. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 4/5. NOT style-anchored at the image tool: call 1 passed no referenced_image_paths (text only; the anchor reached the Codex session via -i), call 2 edited that output. Re-render queued after the Codex usage window resets. Pending the owner's pick."
+
+- id: IMG_04_005
+  deliverable: "04"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), cards dealt to the room - candidate a, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "cards cover, candidate a, in direction C (gh303-art, owner request 2026-11-11)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a neat fan of five chubby toy cards seen from a slight front three-quarter view, joined at the base by one small round gold rivet and spread like a fan, all face-down so only their backs show, except the front card, which is tipping over to reveal a blank cream face marked with one single gold star in its centre. Each card is a thick rounded slab with soft rounded corners. Subject colours: card backs mint teal (#2ec4b6) with a thin warm gold border (#f5b301) and one small warm gold star in the centre, the revealed face cream white (#fff8e8) with a warm gold star (#f5b301), card edges cream white (#fff8e8), rivet warm gold. The cards carry no suit symbols, no pips, no rank letters, no numbers, no court figures and no pattern beyond the border and the star. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no table, no felt, no chips, no tokens, no coins, no money, no dice, no bottle, no champagne, no glass, no cup, no drink of any kind, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "approved"
+  output_path: "images/IMG_04_005.png"
+  sha256_master: "9a35274564b52cac553fb9aa594afe2263742777d099aa8cdd182b294093cb04"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 57.07% fully transparent, 6871 haze px outside the dilated solid mask; black point 3. Scratch-only ship webp 415x320, 24116 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): fan of five teal-backed cards, front card tipping to a cream face with one gold star, gold rivet; no suits, pips or ranks. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 5/5. Owner pick 2026-11-11 (popup): approved. NOT in public/ yet: its webp pair ships with gh#306, the change that adds its game module."
+
+- id: IMG_04_006
+  deliverable: "04"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), cards dealt to the room - candidate b, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "cards cover, candidate b, in direction C (gh303-art, owner request 2026-11-11)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a small chubby toy deck of cards in the centre with six face-down toy cards flying out of it in a wide, even arc to both sides, as if being dealt out to everyone in a room, each card a thick rounded slab with soft rounded corners, each tilted at a different angle, with a few small solid confetti pieces between them. Subject colours: card backs festive red (#e63946) with a thin warm gold border (#f5b301) and one small warm gold star in the centre, deck and card edges cream white (#fff8e8), confetti in warm gold (#f5b301), mint teal (#2ec4b6) and cream white. The cards carry no suit symbols, no pips, no rank letters, no numbers, no court figures and no pattern beyond the border and the star. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion trails, no motion blur. Nothing else in frame: no table, no felt, no chips, no tokens, no coins, no money, no dice, no bottle, no champagne, no glass, no cup, no drink of any kind, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_04_006.png"
+  sha256_master: "b4b2c7a2f6e2780504028836c47d96fc8cc28b6049cd7208496e1ce9afd18998"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 62.15% fully transparent, 55697 haze px outside the dilated solid mask; black point 4. Scratch-only ship webp 365x320, 34540 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): red-backed cards flying out of a deck in an arc, confetti between; no suits, pips or ranks; busy at 1x. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 4/5. Unintended reading: seven red fields each with one centred gold star read as a national flag layout; a teal back as in IMG_04_005 avoids it on any re-render. Pending the owner's pick."
+
+- id: IMG_04_007
+  deliverable: "04"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), the ladder / lanes - candidate a, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "ladder cover, candidate a, in direction C (gh303-art, owner request 2026-11-11)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby toy path puzzle standing upright on a rounded base, seen from a front three-quarter view: four vertical rounded rails rising from the base, joined by short horizontal rungs between neighbouring rails at staggered heights, so a path from the top of any rail zigzags across to a different rail at the bottom; one small glossy round token sits on top of one rail, and at the foot of each rail sits a tiny toy gift box with a bow. One path, from the token down to one gift box, is coloured gold. Subject colours: rails and rungs cream white (#fff8e8), the one highlighted path warm gold (#f5b301), base festive red (#e63946), token mint teal (#2ec4b6), gift boxes festive red (#e63946), mint teal (#2ec4b6) and warm gold (#f5b301) with gold or cream bows. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no letters or numbers on the rails or boxes, no money, no coins, no chips, no bottle, no champagne, no glass, no cup, no drink of any kind, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "approved"
+  output_path: "images/IMG_04_007.png"
+  sha256_master: "45e7c97dc7e5a4630e02edd609be07bc60d43c40ec53a678cb14c3f432ffe4e0"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, fresh generation); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 55.26% fully transparent, 51925 haze px outside the dilated solid mask; black point 5. Scratch-only ship webp 285x320, 15492 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): four cream rails with rungs on a red base, one gold zigzag path from a teal token to a gift box. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 4/5. Owner pick 2026-11-11 (popup): approved. NOT in public/ yet: its webp pair ships with gh#307, the change that adds its game module."
+
+- id: IMG_04_008
+  deliverable: "04"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png (attached via -i, but NOT passed to the image tool on either call)"
+  location: "company-party category card (proposed), the ladder / lanes - candidate b, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "ladder cover, candidate b, in direction C (gh303-art, owner request 2026-11-11)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby toy track seen from a front three-quarter view: one rounded chute at the top that splits into three smooth lanes which branch apart and curve down like a fork in a path, each lane ending in front of a small toy gift box with a bow; one glossy round ball rolls along the middle lane. Subject colours: track cream white (#fff8e8) with warm gold side rails (#f5b301), ball festive red (#e63946), gift boxes festive red (#e63946), mint teal (#2ec4b6) and warm gold (#f5b301) with gold or cream bows. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion trails, no motion blur. Nothing else in frame: no pins or pegs, no letters or numbers on the track or boxes, no money, no coins, no chips, no bottle, no champagne, no glass, no cup, no drink of any kind, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_04_008.png"
+  sha256_master: "0824b0ab363b8faa16c6375b67771b31138848c2aeefcee1709173ac6efa2472"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 57.33% fully transparent, 29014 haze px outside the dilated solid mask; black point 3. Scratch-only ship webp 280x320, 19016 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): funnel-topped track forking into three lanes, red ball, three gift boxes; the funnel mouth is an odd bowl shape. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 3/5. NOT style-anchored at the image tool: call 1 passed no referenced_image_paths (text only; the anchor reached the Codex session via -i), call 2 edited that output. Re-render queued after the Codex usage window resets. Drink check borderline: the funnel mouth reads bowl-like, though not as a drinking vessel. Pending the owner's pick."
+
+```
