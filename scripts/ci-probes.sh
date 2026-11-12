@@ -124,6 +124,138 @@ fi
 # across lanes for balance; see the notes there). The count is now the 26 probe/standalone lines
 # outside fit_pair, plus 2 x FIT_SHARDS.
 EXPECTED_LEGS=32
+N_LANES=$((4 + FIT_SHARDS))
+
+# --- lane mode and aggregate mode: the probe matrix (owner pick 2026-11-12, shadow first) ----------
+# PROBE_LANES=<lane> runs ONE lane on a runner of its own: lane1..lane4, or fitK (shard K of FIT_SHARDS,
+# reported as lane(5+K) exactly as the packed run names it). Only that lane's browsers start, and there is
+# no barrier -- the barrier exists because the packed lanes share one runner's CPU, and this lane shares
+# nothing. The run-level checks are NOT applied in lane mode: EXPECTED_LEGS and the fit-route union are
+# facts about the whole run, so one lane passing proves neither. PROBE_AGGREGATE="<dir> ..." applies them
+# to the union of every lane's output directory instead (the matrix's verdict job), and starts no server
+# and no browser. Unset, both: the packed run, unchanged.
+# NOT YET CALIBRATED: a lane alone on a runner sees less CPU pressure than the packed run, and the fit
+# rows and lane1's arm windows were measured under that pressure. The play-top-band pair is also split
+# across lane2 and lane4, which on a matrix means two runners, not two browsers on one. Until a shadow
+# run on the same SHA matches the packed run, lane mode is evidence, never the verdict.
+PROBE_LANES="${PROBE_LANES:-}"
+PROBE_AGGREGATE="${PROBE_AGGREGATE:-}"
+if [ -n "$PROBE_LANES" ] && [ -n "$PROBE_AGGREGATE" ]; then
+  echo "::error::PROBE_LANES and PROBE_AGGREGATE are two different runs -- set one."
+  exit 1
+fi
+LANE_CDPS=""
+if [ -n "$PROBE_LANES" ]; then
+  case "$PROBE_LANES" in
+    lane1) LANE_CDPS="$CDP_1" ;;
+    lane2) LANE_CDPS="$CDP_2" ;;
+    lane3) LANE_CDPS="$CDP_3" ;;
+    lane4) LANE_CDPS="$CDP_4" ;;
+    *)
+      if ! [[ "$PROBE_LANES" =~ ^fit[0-9]+$ ]] || [ "${PROBE_LANES#fit}" -ge "$FIT_SHARDS" ]; then
+        echo "::error::PROBE_LANES=${PROBE_LANES} is not a lane: lane1..lane4 or fit0..fit$((FIT_SHARDS - 1))."
+        exit 1
+      fi
+      # Shard K rides CDP_3 in lane mode: the port is free on a runner of its own.
+      LANE_CDPS="$CDP_3"
+      ;;
+  esac
+fi
+
+# --- the run-level verdict, shared by the packed run and aggregate mode ------------------------------
+# Three independent conditions, each able to red on its own: no lane reported a failing leg; every lane
+# reported at all and the legs add up to the pinned EXPECTED_LEGS; the fit shards between them walked
+# every manifest play route on both sides. Defined here so aggregate mode can call it before anything
+# below starts a server or a browser.
+run_verdict() {
+  for n in $(seq 1 "$N_LANES"); do
+    echo "--- lane$n ---"
+    cat "$OUT_DIR/lane$n.log" 2>/dev/null || echo "(lane$n produced no log)"
+  done
+  MISSING_LANES=""
+  for n in $(seq 1 "$N_LANES"); do
+    if [ ! -s "$OUT_DIR/lane$n.pass" ] && [ ! -s "$OUT_DIR/lane$n.fail" ]; then MISSING_LANES="$MISSING_LANES lane$n"; fi
+  done
+  if [ -n "$MISSING_LANES" ]; then
+    echo "::error::ci-probes: lane(s) that reported no leg at all:${MISSING_LANES} -- a lane that never ran reads like a quiet green. Logs in ${OUT_DIR}"
+    exit 1
+  fi
+  # --- aggregate ---------------------------------------------------------------------------------
+  PASS_LABELS=$(cat "$OUT_DIR"/lane?.pass 2>/dev/null || true)
+  FAIL_LABELS=$(cat "$OUT_DIR"/lane?.fail 2>/dev/null || true)
+  N_PASS=$(printf '%s\n' "$PASS_LABELS" | grep -c . || true)
+  N_FAIL=$(printf '%s\n' "$FAIL_LABELS" | grep -c . || true)
+  LEGS=$((N_PASS + N_FAIL))
+
+  if [ -n "$FAIL_LABELS" ]; then
+    echo "::error::ci-probes: failing probe leg(s): $(echo $FAIL_LABELS)"
+    echo "ci-probes: output kept in ${OUT_DIR}"
+    exit 1
+  fi
+  # --- fit-shard COVERAGE, and why EXPECTED_LEGS is not it -----------------------------------------
+  # Splitting the fit walk across lanes buys wall clock and costs the one thing a single leg had for free:
+  # nobody had to ask whether every route was walked. So it is asked here, and it is asked of the RUN rather
+  # than of this file's own leg list. Each fit leg prints one FIT_SHARD_WALKED line on its success path
+  # naming the ids it really produced rows for; the clean legs' union and the control legs' union must EACH
+  # equal the manifest exactly. A shard that was killed, never scheduled, deleted from the lane list, or
+  # handed a stride that skips an id writes no line for those ids and the union comes up short.
+  # THIS IS NOT WHAT EXPECTED_LEGS CHECKS. That number is human-maintained and counts invocations: a route
+  # added to the manifest and to no shard leaves it at 24 and green. The manifest is read here from the
+  # probe's own playRoutes with every narrowing knob unset, so the expected set cannot be a stale literal.
+  FIT_EXPECT="$OUT_DIR/fit-manifest.ids"
+  env -u FIT_SHARD -u FIT_SHARDS -u ROUTES_ONLY node --input-type=module \
+    -e 'import { playRoutes } from "./scripts/play-screen-fit-probe.mjs"; console.log(playRoutes().join("\n"));' \
+    | sort > "$FIT_EXPECT"
+  if [ ! -s "$FIT_EXPECT" ]; then
+    # An empty expected set would make every union match. A comparison that cannot fail is not a check.
+    echo "::error::ci-probes: could not derive the play-route list from scripts/play-screen-fit-probe.mjs -- refusing to compare the fit shards against an empty set."
+    exit 1
+  fi
+  for leg in clean control; do
+    got="$OUT_DIR/fit-walked-$leg.ids"
+    grep -h "^FIT_SHARD_WALKED $leg " "$OUT_DIR"/play-screen-fit*.log 2>/dev/null \
+      | sed 's/^.*routes=//' | tr ',' '\n' | grep . | sort -u > "$got"
+    if ! cmp -s "$FIT_EXPECT" "$got"; then
+      echo "::error::ci-probes: the ${leg} play-screen-fit shards did not between them walk every play route. MISSING: $(comm -23 "$FIT_EXPECT" "$got" | tr '\n' ' ')UNEXPECTED: $(comm -13 "$FIT_EXPECT" "$got" | tr '\n' ' ')-- a shard reported no FIT_SHARD_WALKED line, so it never ran or never passed. Logs in ${OUT_DIR}"
+      exit 1
+    fi
+  done
+  echo "ci-probes: play-screen-fit shards walked every play route on both the clean and the control side ($(grep -c . "$FIT_EXPECT") route(s), FIT_SHARDS=${FIT_SHARDS})"
+
+  if [ "$LEGS" -ne "$EXPECTED_LEGS" ]; then
+    # Fewer (or more) legs than pinned means a lane died before finishing its list, or a leg wrote no
+    # verdict -- a green with missing legs is a silent skip, and this repo treats those as red.
+    echo "::error::ci-probes: ${LEGS} leg(s) reported but ${EXPECTED_LEGS} are pinned -- a lane died mid-run. Logs in ${OUT_DIR}"
+    exit 1
+  fi
+  # Every number and every name here comes from the legs actually run: the parenthetical that used to
+  # describe the set ("7 probes + 2 positive controls + ...") was a literal, and this repo has shipped a
+  # gate whose success line printed a number from a different expression than the thing it measured.
+  echo "ci-probes: ${LEGS} leg(s) passed: $(echo $PASS_LABELS)"
+}
+
+# --- aggregate mode: merge every lane's output, then the same verdict ------------------------------
+# The target must start empty, and no file may arrive from two lanes: a lane reported twice (a re-run job,
+# a copied directory) would double its legs and could hide a lane that never reported.
+if [ -n "$PROBE_AGGREGATE" ]; then
+  for f in "$OUT_DIR"/lane*.pass "$OUT_DIR"/lane*.fail "$OUT_DIR"/play-screen-fit*.log; do
+    if [ -e "$f" ]; then echo "::error::ci-probes: ${OUT_DIR} already holds lane results ($(basename "$f")) -- aggregate into an empty directory."; exit 1; fi
+  done
+  for d in $PROBE_AGGREGATE; do
+    if [ ! -d "$d" ]; then echo "::error::ci-probes: aggregate input ${d} is not a directory."; exit 1; fi
+    found=0
+    for f in "$d"/lane*.pass "$d"/lane*.fail "$d"/lane*.log "$d"/play-screen-fit*.log; do
+      [ -e "$f" ] || continue
+      b=$(basename "$f")
+      if [ -e "$OUT_DIR/$b" ]; then echo "::error::ci-probes: ${b} arrives from two lane outputs (second: ${d})."; exit 1; fi
+      cp "$f" "$OUT_DIR/$b"
+      found=1
+    done
+    if [ "$found" -ne 1 ]; then echo "::error::ci-probes: aggregate input ${d} holds no lane output."; exit 1; fi
+  done
+  run_verdict
+  exit 0
+fi
 
 # --- preconditions -----------------------------------------------------------------------------
 if [ ! -f dist/index.html ]; then
@@ -131,7 +263,18 @@ if [ ! -f dist/index.html ]; then
   exit 1
 fi
 
-for p in "$PORT" "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4" "$CDP_B" $FIT_ACTIVE_CDPS; do
+# The browsers this run starts: every lane's in the packed run, the one lane's in lane mode. Chrome B
+# (reduced motion) serves lane4 only.
+if [ -n "$PROBE_LANES" ]; then
+  BROWSER_CDPS="$LANE_CDPS"
+  NEED_B=$([ "$PROBE_LANES" = lane4 ] && echo 1 || echo 0)
+else
+  BROWSER_CDPS="$CDP_1 $CDP_2 $CDP_3 $CDP_4 $FIT_ACTIVE_CDPS"
+  NEED_B=1
+fi
+B_CDPS=$([ "$NEED_B" = 1 ] && echo "$CDP_B" || true)
+
+for p in "$PORT" $BROWSER_CDPS $B_CDPS; do
   # A port already LISTENing before this script starts belongs to some other process -- probing it
   # would report a green for someone else's (possibly stale) dist/ or browser profile.
   if (exec 3<>"/dev/tcp/localhost/${p}") 2>/dev/null; then
@@ -162,14 +305,16 @@ fi
 # only from lane four, so it is never shared either.
 npx serve@14 dist/ -l "$PORT" > "$OUT_DIR/serve.log" 2>&1 &
 KILL_PIDS="$!"
-for cdp in "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4" $FIT_ACTIVE_CDPS; do
+for cdp in $BROWSER_CDPS; do
   "$CHROME" --headless --disable-gpu --no-sandbox --remote-debugging-port="$cdp" \
     --user-data-dir="$OUT_DIR/prof-$cdp" > /dev/null 2>&1 &
   KILL_PIDS="$KILL_PIDS $!"
 done
-"$CHROME" --headless --disable-gpu --no-sandbox --force-prefers-reduced-motion \
-  --remote-debugging-port="$CDP_B" --user-data-dir="$OUT_DIR/prof-b" > /dev/null 2>&1 &
-KILL_PIDS="$KILL_PIDS $!"
+if [ "$NEED_B" = 1 ]; then
+  "$CHROME" --headless --disable-gpu --no-sandbox --force-prefers-reduced-motion \
+    --remote-debugging-port="$CDP_B" --user-data-dir="$OUT_DIR/prof-b" > /dev/null 2>&1 &
+  KILL_PIDS="$KILL_PIDS $!"
+fi
 # Unconditional teardown on every exit path, so a failure never leaves an orphan holding a port for
 # the next run to falsely pass against.
 trap 'kill $KILL_PIDS 2>/dev/null || true' EXIT
@@ -183,10 +328,12 @@ wait_ready() { # url, label
   exit 1
 }
 wait_ready "${SITE}/" "server on ${PORT}"
-for cdp in "$CDP_1" "$CDP_2" "$CDP_3" "$CDP_4" $FIT_ACTIVE_CDPS; do
+for cdp in $BROWSER_CDPS; do
   wait_ready "http://127.0.0.1:${cdp}/json/version" "Chrome on ${cdp}"
 done
-wait_ready "http://127.0.0.1:${CDP_B}/json/version" "Chrome B (reduced motion) on ${CDP_B}"
+if [ "$NEED_B" = 1 ]; then
+  wait_ready "http://127.0.0.1:${CDP_B}/json/version" "Chrome B (reduced motion) on ${CDP_B}"
+fi
 
 # --- the verdicts ------------------------------------------------------------------------------
 # driver.mjs exits 0 for any probe that returns SOMETHING -- a probe's own PASS/FAIL lives in its JSON
@@ -436,13 +583,42 @@ lane4() {
   standalone play-top-band-control     env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_BAND=1 node scripts/play-top-band-probe.mjs
 }
 
-N_LANES=$((4 + FIT_SHARDS))
 # The union check below harvests FIT_SHARD_WALKED lines by globbing this directory. OUT_DIR is a fresh
 # mktemp on CI but is REUSED whenever PROBE_OUT_DIR is set, which is how it is run locally -- and a
 # leftover play-screen-fit-2.log from an earlier run would satisfy the union for a shard that no longer
 # runs at all. That is exactly the "deleted from the lane list" case the union exists to catch, so the
 # stale file has to go before the lanes start rather than being reasoned about afterwards.
 rm -f "$OUT_DIR"/play-screen-fit*.log
+
+# --- lane mode: one lane, its own runner, no barrier ------------------------------------------------
+# The lane's own verdict only: a failing leg or a lane that reported nothing reds here; whether the run
+# as a whole is complete is PROBE_AGGREGATE's question, asked of every lane's output together.
+if [ -n "$PROBE_LANES" ]; then
+  rm -f "$OUT_DIR"/lane?.pass "$OUT_DIR"/lane?.fail
+  if [[ "$PROBE_LANES" =~ ^fit ]]; then
+    shard="${PROBE_LANES#fit}"
+    ln="lane$((5 + shard))"
+    fit_lane "$shard" "$CDP_3" "$ln" > "$OUT_DIR/$ln.log" 2>&1 &
+  else
+    ln="$PROBE_LANES"
+    "$PROBE_LANES" > "$OUT_DIR/$ln.log" 2>&1 &
+  fi
+  lane_pid=$!
+  set +e
+  wait "$lane_pid"
+  set -e
+  cat "$OUT_DIR/$ln.log"
+  if [ -s "$OUT_DIR/$ln.fail" ]; then
+    echo "::error::ci-probes: lane ${PROBE_LANES} (${ln}) failing leg(s): $(echo $(cat "$OUT_DIR/$ln.fail"))"
+    exit 1
+  fi
+  if [ ! -s "$OUT_DIR/$ln.pass" ]; then
+    echo "::error::ci-probes: lane ${PROBE_LANES} (${ln}) reported no leg at all -- a lane that never ran is not a green."
+    exit 1
+  fi
+  echo "ci-probes: lane ${PROBE_LANES} (${ln}): $(grep -c . "$OUT_DIR/$ln.pass") leg(s) passed -- the run-level checks are PROBE_AGGREGATE's"
+  exit 0
+fi
 
 # --- phase one: the four packed lanes ---------------------------------------------------------
 echo "ci-probes: phase one -- 4 lanes launched; the ${FIT_SHARDS} fit lane(s) follow once lane1 and lane3 have joined"
@@ -484,60 +660,4 @@ set +e
 for p in $LANE_PIDS; do wait "$p"; done
 set -e
 
-for n in $(seq 1 "$N_LANES"); do
-  echo "--- lane$n ---"
-  cat "$OUT_DIR/lane$n.log" 2>/dev/null || echo "(lane$n produced no log)"
-done
-
-# --- aggregate ---------------------------------------------------------------------------------
-PASS_LABELS=$(cat "$OUT_DIR"/lane?.pass 2>/dev/null || true)
-FAIL_LABELS=$(cat "$OUT_DIR"/lane?.fail 2>/dev/null || true)
-N_PASS=$(printf '%s\n' "$PASS_LABELS" | grep -c . || true)
-N_FAIL=$(printf '%s\n' "$FAIL_LABELS" | grep -c . || true)
-LEGS=$((N_PASS + N_FAIL))
-
-if [ -n "$FAIL_LABELS" ]; then
-  echo "::error::ci-probes: failing probe leg(s): $(echo $FAIL_LABELS)"
-  echo "ci-probes: output kept in ${OUT_DIR}"
-  exit 1
-fi
-# --- fit-shard COVERAGE, and why EXPECTED_LEGS is not it -----------------------------------------
-# Splitting the fit walk across lanes buys wall clock and costs the one thing a single leg had for free:
-# nobody had to ask whether every route was walked. So it is asked here, and it is asked of the RUN rather
-# than of this file's own leg list. Each fit leg prints one FIT_SHARD_WALKED line on its success path
-# naming the ids it really produced rows for; the clean legs' union and the control legs' union must EACH
-# equal the manifest exactly. A shard that was killed, never scheduled, deleted from the lane list, or
-# handed a stride that skips an id writes no line for those ids and the union comes up short.
-# THIS IS NOT WHAT EXPECTED_LEGS CHECKS. That number is human-maintained and counts invocations: a route
-# added to the manifest and to no shard leaves it at 24 and green. The manifest is read here from the
-# probe's own playRoutes with every narrowing knob unset, so the expected set cannot be a stale literal.
-FIT_EXPECT="$OUT_DIR/fit-manifest.ids"
-env -u FIT_SHARD -u FIT_SHARDS -u ROUTES_ONLY node --input-type=module \
-  -e 'import { playRoutes } from "./scripts/play-screen-fit-probe.mjs"; console.log(playRoutes().join("\n"));' \
-  | sort > "$FIT_EXPECT"
-if [ ! -s "$FIT_EXPECT" ]; then
-  # An empty expected set would make every union match. A comparison that cannot fail is not a check.
-  echo "::error::ci-probes: could not derive the play-route list from scripts/play-screen-fit-probe.mjs -- refusing to compare the fit shards against an empty set."
-  exit 1
-fi
-for leg in clean control; do
-  got="$OUT_DIR/fit-walked-$leg.ids"
-  grep -h "^FIT_SHARD_WALKED $leg " "$OUT_DIR"/play-screen-fit*.log 2>/dev/null \
-    | sed 's/^.*routes=//' | tr ',' '\n' | grep . | sort -u > "$got"
-  if ! cmp -s "$FIT_EXPECT" "$got"; then
-    echo "::error::ci-probes: the ${leg} play-screen-fit shards did not between them walk every play route. MISSING: $(comm -23 "$FIT_EXPECT" "$got" | tr '\n' ' ')UNEXPECTED: $(comm -13 "$FIT_EXPECT" "$got" | tr '\n' ' ')-- a shard reported no FIT_SHARD_WALKED line, so it never ran or never passed. Logs in ${OUT_DIR}"
-    exit 1
-  fi
-done
-echo "ci-probes: play-screen-fit shards walked every play route on both the clean and the control side ($(grep -c . "$FIT_EXPECT") route(s), FIT_SHARDS=${FIT_SHARDS})"
-
-if [ "$LEGS" -ne "$EXPECTED_LEGS" ]; then
-  # Fewer (or more) legs than pinned means a lane died before finishing its list, or a leg wrote no
-  # verdict -- a green with missing legs is a silent skip, and this repo treats those as red.
-  echo "::error::ci-probes: ${LEGS} leg(s) reported but ${EXPECTED_LEGS} are pinned -- a lane died mid-run. Logs in ${OUT_DIR}"
-  exit 1
-fi
-# Every number and every name here comes from the legs actually run: the parenthetical that used to
-# describe the set ("7 probes + 2 positive controls + ...") was a literal, and this repo has shipped a
-# gate whose success line printed a number from a different expression than the thing it measured.
-echo "ci-probes: ${LEGS} leg(s) passed: $(echo $PASS_LABELS)"
+run_verdict

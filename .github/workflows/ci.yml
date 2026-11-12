@@ -617,6 +617,23 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+      # The packed arm of the probe-matrix calibration (.github/workflows/probe-matrix-shadow.yml): on ci/*
+      # branches only, a GREEN run keeps its probe output too, so its fit rows and arm-window reads can be
+      # compared with the shadow lanes' on the same SHA. Its condition names no probe-scope output on
+      # purpose: probe-scope.mjs's gated-step parser throws on any condition about probe-scope outside its
+      # closed set, and a skipped probe step just leaves nothing to upload.
+      - name: Keep the packed probe output on ci/* branches (matrix calibration)
+        if: success() && startsWith(github.ref, 'refs/heads/ci/')
+        uses: actions/upload-artifact@v7
+        with:
+          name: packed-probe-output-a${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/ci-probes
+            !${{ runner.temp }}/ci-probes/prof-*
+            !${{ runner.temp }}/ci-probes/*/prof-*
+          if-no-files-found: ignore
+          retention-days: 7
+
       # Every measurement the probes make lives in that directory, and until now only `tail -n 3` of
       # each leg's log reached this workflow's log -- which is why a red on run 33491962091 (attempt 1
       # red, attempt 2 green, same SHA and same runner image) could not be attributed to anything.
