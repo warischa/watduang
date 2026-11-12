@@ -1,0 +1,12 @@
+lean default size 29 ROUNDTRIP
+lean M size 33 ROUNDTRIP
+lean Q size 37 ROUNDTRIP
+qr medium size 37 ROUNDTRIP
+qr quartile size 41 ROUNDTRIP
+lean default size 33 ROUNDTRIP
+lean M size 37 ROUNDTRIP
+lean Q size 41 ROUNDTRIP
+qr medium size 41 ROUNDTRIP
+qr quartile size 45 ROUNDTRIP
+must-red corrupted finder -> decode fails (control ok)
+rc=0
