@@ -1241,17 +1241,37 @@ test('MUST-RED gh#264: an injection that also takes 2d away, or a check that nev
   assert.match(fit.noWebglInjectionVerdict({ error: 'target closed' }) ?? '', /target closed/);
 });
 
-/** A complete, clean no-WebGL run over `routes`. */
+/** A complete, clean no-WebGL run over `routes`. A screenless route (no shared player screen, gh#304)
+ *  reads clean when the read saw no screen at all; every other route reads clean with the screen opened. */
 function noWebglRun(routes) {
   const allNull = Object.fromEntries(fit.NO_WEBGL_CONTEXTS.map((k) => [k, true]));
+  const screenless = fit.screenlessPlayPaths();
   return {
     noWebgl: true,
     rows: routes.map((route) => ({
-      route, url: `/game/${route}/play/`, vp: '320x568', error: null, firstScreen: { final: 'open', samples: 3 },
+      route, url: `/game/${route}/play/`, vp: '320x568', error: null,
+      firstScreen: screenless.has(`/game/${route}/play/`) ? { final: null, samples: 0 } : { final: 'open', samples: 3 },
       injection: { canvas: allNull, offscreenPresent: true, offscreen: allNull, twoD: true }, screens: [],
     })),
   };
 }
+const partyRowIndex = (run) => run.rows.findIndex((r) => !fit.screenlessPlayPaths().has(r.url));
+const screenlessRowIndex = (run) => run.rows.findIndex((r) => fit.screenlessPlayPaths().has(r.url));
+
+test('MUST-RED gh#304: on the no-WebGL leg a screenless route reads clean only with NO shared screen; a party route still needs one', () => {
+  const routes = playRoutes();
+  const clean = noWebglRun(routes);
+  assert.ok(screenlessRowIndex(clean) >= 0, 'the manifest must hold a screenless play route for this test to mean anything');
+  assert.deepEqual(fit.noWebglFaults(clean, routes), [], 'a screenless route whose read saw no shared screen is clean');
+  for (const final of ['open', 'closed']) {
+    const shown = noWebglRun(routes); shown.rows[screenlessRowIndex(shown)].firstScreen = { final, samples: 3 };
+    assert.match(fit.noWebglFaults(shown, routes).join('\n'), /has no shared player screen/, `a screenless route that showed the screen ${final} reds`);
+  }
+  const unmeasured = noWebglRun(routes); delete unmeasured.rows[screenlessRowIndex(unmeasured)].firstScreen;
+  assert.match(fit.noWebglFaults(unmeasured, routes).join('\n'), /no first-screen measurement/, 'a screenless row still needs its read');
+  const partyNull = noWebglRun(routes); partyNull.rows[partyRowIndex(partyNull)].firstScreen = { final: null, samples: 0 };
+  assert.match(fit.noWebglFaults(partyNull, routes).join('\n'), /neither open nor closed/, 'a party route with no screen observed still reds');
+});
 
 test('MUST-RED gh#264: the no-WebGL run reds a missing, doubled or extra route, a row error, an unchecked row, or a run that was not forced', () => {
   const routes = playRoutes();
@@ -1278,11 +1298,11 @@ test('MUST-RED gh#264 REFUTE: rows with valid injection and no first-screen meas
   const faults = fit.noWebglFaults(bare, routes);
   assert.equal(faults.length, routes.length, `every unmeasured row must red on its own, got: ${faults.join(' / ')}`);
   assert.match(faults[0], /no first-screen measurement/);
-  const unsampled = noWebglRun(routes); unsampled.rows[0].firstScreen.samples = 0;
+  const unsampled = noWebglRun(routes); unsampled.rows[partyRowIndex(unsampled)].firstScreen.samples = 0;
   assert.match(fit.noWebglFaults(unsampled, routes).join('\n'), /no styled sample on record/);
-  const odd = noWebglRun(routes); odd.rows[0].firstScreen.final = null;
+  const odd = noWebglRun(routes); odd.rows[partyRowIndex(odd)].firstScreen.final = null;
   assert.match(fit.noWebglFaults(odd, routes).join('\n'), /neither open nor closed/);
-  const intro = noWebglRun(routes); intro.rows[0].firstScreen = { final: 'closed', samples: 0 };
+  const intro = noWebglRun(routes); intro.rows[partyRowIndex(intro)].firstScreen = { final: 'closed', samples: 0 };
   assert.deepEqual(fit.noWebglFaults(intro, routes), [], 'an observed intro-first row reds');
 });
 

@@ -1921,9 +1921,17 @@ export function noWebglInjectionVerdict(read) {
 
 /** A clean row counts only off what the first-screen read observed: an opened screen with at least one
  *  styled sample before it (judged), or a screen the read saw still 'closed' (intro-first, not judged).
- *  An absent read is neither -- counting it as intro-first would excuse a row nobody measured. */
-export function firstScreenEvidenceFault(fs) {
+ *  An absent read is neither -- counting it as intro-first would excuse a row nobody measured.
+ *  gh#304: on a SCREENLESS route (screenlessPlayPaths -- its category carries no group, so there is no
+ *  shared player screen to open first) the question inverts, as it does in awaitPlayerScreenSettled: the
+ *  read must still exist and must have seen NO screen; a screen seen there reds by name. */
+export function firstScreenEvidenceFault(fs, screenless = false) {
   if (!fs || typeof fs !== 'object') return 'no first-screen measurement on this row, so it can be counted neither as judged nor as intro-first';
+  if (screenless) {
+    return fs.final === null || fs.final === undefined
+      ? null
+      : `the route has no shared player screen (its category does not carry a group), yet the first-screen read saw it ${JSON.stringify(fs.final)}`;
+  }
   if (fs.final === 'open') return fs.samples > 0 ? null : 'the shared screen opened with no styled sample on record, so nothing was judged';
   if (fs.final === 'closed') return null;
   return `the first-screen read saw the shared screen ${JSON.stringify(fs.final)}, neither open nor closed, so the row is neither judged nor intro-first`;
@@ -1939,7 +1947,7 @@ export function noWebglFaults(out, expected) {
     // Re-judged here off the row, so a driver path that skipped the check cannot hand over a clean row.
     const pre = noWebglInjectionVerdict({ value: r.injection });
     if (pre) faults.push(`${r.url} at ${r.vp}: ${pre}`);
-    const why = firstScreenEvidenceFault(r.firstScreen);
+    const why = firstScreenEvidenceFault(r.firstScreen, SCREENLESS.has(r.url));
     if (why) faults.push(`${r.url} at ${r.vp}: ${why}`);
   }
   const got = rows.map((r) => r.route);
@@ -1985,7 +1993,8 @@ function noWebglMain(out, log) {
   // refused a row that is neither.
   const judged = out.rows.filter((r) => r.firstScreen.final === 'open').length;
   const introFirst = out.rows.filter((r) => r.firstScreen.final === 'closed').length;
-  log(`OK no-WebGL first screen: ${out.rows.length} route row(s) at ${NO_WEBGL_VP.w}x${NO_WEBGL_VP.h}, reconciled one-to-one against the ${expected.length} play route(s) this leg was asked for; on every judged document WebGL was verified off (${NO_WEBGL_CONTEXTS.join(', ')} null on canvas and OffscreenCanvas, 2d live). ${judged} route(s) opened the shared screen by themselves and painted nothing undeclared before it; ${introFirst} were observed still closed once settled (they open it after their own intro) and are not judged.`);
+  const screenless = out.rows.filter((r) => SCREENLESS.has(r.url)).map((r) => r.route);
+  log(`OK no-WebGL first screen: ${out.rows.length} route row(s) at ${NO_WEBGL_VP.w}x${NO_WEBGL_VP.h}, reconciled one-to-one against the ${expected.length} play route(s) this leg was asked for; on every judged document WebGL was verified off (${NO_WEBGL_CONTEXTS.join(', ')} null on canvas and OffscreenCanvas, 2d live). ${judged} route(s) opened the shared screen by themselves and painted nothing undeclared before it; ${introFirst} were observed still closed once settled (they open it after their own intro) and are not judged; ${screenless.length} screenless route(s) (no shared player screen, gh#304) loaded with WebGL off and showed none: ${screenless.join(', ') || 'none'}.`);
 }
 
 /** driver.mjs probe: every play route x every viewport, fresh signature then the seeded walk. */
