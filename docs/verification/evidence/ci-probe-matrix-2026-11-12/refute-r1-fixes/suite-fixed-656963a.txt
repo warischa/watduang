@@ -1,0 +1,9 @@
+# fixed 656963a: full local suite (run-workflow-gates.sh) with PROBE_BASE=http://127.0.0.1:9 PROBE_WIDTH=1000 exported, 16:32:24-16:46:14
+declared=69  executed=54  failed=0  not-executed=0  not-owed=0  not-runnable-here=12
+LOCAL GATES PASSED -- and this covers ONLY the 54 step(s) executed above.
+rc=0
+  PASS  canvas-ink (88s)
+  PASS  canvas-ink-control (88s)
+ci-probes: play-screen-fit shards walked every play route on both the clean and the control side (15 route(s), FIT_SHARDS=3)
+OK 8 announced element(s) above an .ad-slot across 5 built page(s) at 320px: none renders a non-zero computed min-height/min-block-size outs
+OK 207 rendered control(s) across 18 game page(s) at 320px, all clearing the 44px tap minimum.

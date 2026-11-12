@@ -22,7 +22,7 @@ Round 1 ended FAIL with five spot findings and no path that deploys unmeasured b
 Group runs on the unfixed 99db111 (`group-runs-unfixed-99db111.txt`, lane mode, one at a time):
 - `nav` with `PROBE_BASE=http://127.0.0.1:9`: canvas-ink and canvas-ink-control FAIL, because the player screen never opened. The legs went to that address; against a live server there they would have measured it with no red.
 - `home` with `PROBE_WIDTH=1000`: all 7 legs PASS, and the control-floor and live-region-floor logs say `at 1000px`. This is the silent case.
-- Fixed: the full local suite at the fix commit runs with both values exported (result in the session handoff).
+- Fixed (`suite-fixed-656963a.txt`): the full local suite at 656963a with both values exported is green at 54/54. Both canvas-ink legs pass, and both floor logs say `at 320px`.
 
 Run: `bash harness.sh <repo-root>`. It builds throwaway git repos holding the candidate runner and a doctored `ci.yml` (`doctor.py`; variants A–C are the reviewer's own), and runs `CLASSIFY_ONLY=1`. Outputs: `harness-output-unfixed-9a33300.txt` (round 1 cases), `harness-output-unfixed-99db111.txt` (round 2 cases), `harness-output-fixed.txt`.
 
