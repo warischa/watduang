@@ -64,8 +64,9 @@ Files: `calibration-compare-output.txt` and `calibration-timings.txt`.
 - **First run of the fixed graph** (run 43194643769, SHA f9d5bcc, branch `batch/2026-11-12`, after both REFUTE rounds): green in 519s, all 16 jobs. File: `graph-run-fixed-timings.txt`.
   - Long pole: `probes (fit0)` 404s. Three digests equal (`64e5…`); `dist-digest-64e5…` published.
 - **Deploy's skipped-verdict arm, first execution** (run 43196316877, docs-only SHA a693bef on the same branch): `run=false`, so the lanes, webgl and the verdict skipped and deploy ran on the three-digest check. Green in 173s. No digest artifact was published, so this run is not one main can reuse. File: `graph-run-runfalse.txt`.
+- **First production deploy under the graph** (run 43200018524, main 478288a..f9d5bcc): main reused run 43194643769 (`run=false`), skipped every probe job, and deployed in 240s; the Azure steps ran for the first time under the graph. Live, the prize-draw pages and assets went from 404 to 200, byte-identical to the measured artifact. File: `main-deploy-f9d5bcc.txt`.
 
 ## Not yet decided
 
 - The switch's own REFUTE pass. It covers the deploy condition, the digest re-check by every `dist/` consumer, and the reuse lookup re-keyed to jobs.
-- The first push to main under the graph: deploy's main-only steps and a real main reuse are unproven until then.
+- Closed 2026-11-12: the first push to main reused the branch verdict and deployed (run 43200018524).

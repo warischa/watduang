@@ -1,0 +1,16 @@
+# First production deploy under the probe-matrix job graph: main 478288a..f9d5bcc, run 43200018524, 2026-11-12
+success f9d5bcc wall 240 (10:23:59Z-10:27:59Z)
+jobs: dist success · build success · probes skipped · webgl skipped · probe-verdict skipped · deploy success
+dist: probe-scope dist digest 64e5ad45a63dd6f9f4c4dd7f8646a2bee391bb0c0a1fffe87f295fa12c7ae044
+dist: probe-scope: main — run=false
+dist: reason: run 43194643769 (batch/2026-11-12, attempt 1) passed probe-verdict, webgl and 11 probe lane(s) on dist digest 64e5ad45...
+deploy: artifact = dist job = build job = 64e5ad45...; Azure login (OIDC), Fetch SWA deployment token, Deploy to Azure Static Web Apps: success
+
+# Live probe, SWA default host (watduang.com has no DNS record as of this date), sha256 prefix of the served body
+# vs the same file in artifact dist-64e5... downloaded from run 43194643769 (the bytes the probes measured)
+path                    before  after  live==artifact  prize-draw mentions before/after
+/game/prize-draw/       404     200    identical       0/5
+/game/prize-draw/play/  404     200    identical       0/4
+/og/prize-draw.png      404     200    identical       -
+/art/prize-draw.webp    404     200    identical       -
+/                       200     200    identical       0/1
