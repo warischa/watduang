@@ -513,9 +513,15 @@ jobs:
             echo "probe-scope: could not digest dist/: $digest"
             digest=""
           fi
+          # The verdict is stdout of a lookup that EXITED 0, never its stderr: a failing call that printed
+          # a bare `run=false` line on stderr must not read as a decision. Stderr still reaches the log.
           verified() {
             if [ -z "$digest" ]; then echo "run=true"; echo "reason: no dist digest"; return 0; fi
-            node scripts/probe-scope.mjs --selftest > /dev/null && node scripts/probe-scope.mjs --verified --sha "$GITHUB_SHA" --digest "$digest" --exclude-run "$GITHUB_RUN_ID" 2>&1 || echo "run=true (the lookup failed — failing safe)"
+            if out=$(node scripts/probe-scope.mjs --selftest > /dev/null && node scripts/probe-scope.mjs --verified --sha "$GITHUB_SHA" --digest "$digest" --exclude-run "$GITHUB_RUN_ID"); then
+              printf '%s\n' "$out"
+            else
+              echo "run=true (the lookup failed — failing safe)"
+            fi
           }
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             decision="run=true (not a push)"
@@ -543,7 +549,7 @@ jobs:
           git diff --name-only --no-renames "$base" "$GITHUB_SHA" > "$changed_file"
           echo "probe-scope: files changed since ${base}:"
           sed 's/^/  /' "$changed_file"
-          if decision=$(node scripts/probe-scope.mjs --selftest && node scripts/probe-scope.mjs --changed "$changed_file" 2>&1); then
+          if decision=$(node scripts/probe-scope.mjs --selftest && node scripts/probe-scope.mjs --changed "$changed_file"); then
             printf '%s\n' "$decision" | sed 's/^/probe-scope: /'
             emit "$decision"
           else

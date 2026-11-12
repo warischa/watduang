@@ -65,23 +65,71 @@ const WORKFLOW_PATH = '.github/workflows/ci.yml';
 // told to delete it, so an unsuffixed name would turn every re-run of a green-probe run red.
 const DIGEST_ARTIFACT = (hex, attempt) => `dist-digest-${hex}-a${attempt}`;
 
-// Step names in ci.yml whose `if:` is exactly PROBE_GATE. A gated step with no name cannot be found
-// in the API's step list, so it throws rather than shrinking the set.
+// Conditions that name the gate but gate no measurement: the failure-time upload and the digest
+// publish. A CLOSED set: any other condition mentioning probe-scope throws (REFUTE r2 F4), so a
+// reworded, quoted, wrapped or compound gate can never silently drop a step from the gated set.
+const NOT_MEASUREMENTS = new Set([
+  `failure() && ${PROBE_GATE}`,
+  `success() && ${PROBE_GATE} && steps.probe-scope.outputs.dist_digest != ''`,
+]);
+
+// YAML spellings of one condition: trailing comment, quoted scalar, `${{ }}` wrapper.
+function normalizeIf(value) {
+  let s = value.replace(/\s+#.*$/, '').trim();
+  s = s.replace(/^(['"])(.*)\1$/, '$2').trim();
+  const wrapped = s.match(/^\$\{\{\s*([\s\S]*?)\s*\}\}$/);
+  return (wrapped ? wrapped[1] : s).replace(/\s+/g, ' ').trim();
+}
+
+// Step names in ci.yml whose condition is exactly PROBE_GATE. Keys are read per step at the steps
+// list's own indentation, in any order (`- if:` first included), and a folded or literal multi-line
+// `if:` is joined first. A gated step with no name cannot be found in the API's step list, so it
+// throws rather than shrinking the set.
 function gatedSteps(yamlText) {
-  const out = [];
-  let name = null;
-  let named = false;
-  for (const line of yamlText.split('\n')) {
-    if (/^\s*-\s+\S/.test(line)) {
-      const m = line.match(/^\s*-\s+name:\s*(.*?)\s*$/);
-      name = m ? m[1].replace(/^(['"])(.*)\1$/, '$2') : null;
-      named = Boolean(m);
-      continue;
+  const lines = yamlText.split('\n');
+  const indentOf = (l) => l.match(/^\s*/)[0].length;
+  const steps = [];
+  let afterStepsKey = false;
+  let itemIndent = -1;
+  let keyIndent = -1;
+  let cur = null;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^\s*steps:\s*$/.test(line)) { afterStepsKey = true; continue; }
+    let k = null;
+    let raw = null;
+    const item = line.match(/^(\s*)(-\s+)([A-Za-z_][\w-]*):\s*(.*)$/);
+    if (item && ((itemIndent === -1 && afterStepsKey) || item[1].length === itemIndent)) {
+      itemIndent = item[1].length;
+      keyIndent = item[1].length + item[2].length;
+      cur = { name: null, ifs: [] };
+      steps.push(cur);
+      [k, raw] = [item[3], item[4]];
+    } else if (cur && indentOf(line) === keyIndent) {
+      const kv = line.match(/^\s*([A-Za-z_][\w-]*):\s*(.*)$/);
+      if (kv) [k, raw] = [kv[1], kv[2]];
     }
-    const iff = line.match(/^\s*if:\s*(.*?)\s*$/);
-    if (iff && iff[1] === PROBE_GATE) {
-      if (!named || !name) throw new Error('a probe-gated step has no name: the API cannot be matched against it');
-      out.push(name);
+    if (!k) continue;
+    if (k === 'name') cur.name = raw.replace(/\s+#.*$/, '').trim().replace(/^(['"])(.*)\1$/, '$2');
+    if (k === 'if') {
+      let value = raw;
+      if (/^[>|][-+]?$/.test(value.trim()) || value.trim() === '') {
+        const parts = [];
+        for (let j = i + 1; j < lines.length && (lines[j].trim() === '' || indentOf(lines[j]) > keyIndent); j++) parts.push(lines[j].trim());
+        value = parts.join(' ');
+      }
+      cur.ifs.push(normalizeIf(value));
+    }
+  }
+  const out = [];
+  for (const s of steps) {
+    for (const cond of s.ifs) {
+      if (cond === PROBE_GATE) {
+        if (!s.name) throw new Error('a probe-gated step has no name: the API cannot be matched against it');
+        out.push(s.name);
+      } else if (cond.includes('probe-scope') && !NOT_MEASUREMENTS.has(cond)) {
+        throw new Error(`a condition on probe-scope is neither the gate nor a known non-measurement: ${cond}`);
+      }
     }
   }
   return out;
@@ -121,9 +169,19 @@ function decideVerified({ sha, digest, runs, jobsByRun, artifactsByRun, gated, e
     const jobs = jobsByRun[r.id];
     if (!Array.isArray(jobs)) return run(`jobs of run ${r.id} were not read`);
     for (const j of jobs) {
-      for (const s of j.steps ?? []) {
-        if (gated.includes(s.name) && RED.has(s.conclusion)) {
-          return run(`run ${r.id} attempt ${j.run_attempt}: "${s.name}" ${s.conclusion} at this SHA`);
+      // A finished job that lists no steps is unreadable (REFUTE r2 F3); only this run's own job,
+      // still in flight, may not have them yet.
+      if (!Array.isArray(j.steps)) {
+        if (j.status === 'completed') return run(`run ${r.id} attempt ${j.run_attempt}: a finished job lists no steps`);
+        continue;
+      }
+      // A job that failed or timed out while a gated step was neither green nor skipped is a red on
+      // that step, whatever the step itself reports (a job timeout marks the step cancelled).
+      const jobRed = RED.has(j.conclusion);
+      for (const s of j.steps) {
+        if (!gated.includes(s.name)) continue;
+        if (RED.has(s.conclusion) || (jobRed && s.conclusion !== 'success' && s.conclusion !== 'skipped')) {
+          return run(`run ${r.id} attempt ${j.run_attempt}: "${s.name}" ${s.conclusion} (job ${j.conclusion}) at this SHA`);
         }
       }
     }
@@ -219,15 +277,36 @@ function verifiedSelftest() {
   assert.equal(v((x) => { x.runs.push({ ...x.runs[1], id: 2, event: 'pull_request', conclusion: 'failure' }); x.jobsByRun[2] = [{ run_attempt: 1, steps: [{ name: G[1], conclusion: 'timed_out' }] }]; x.artifactsByRun[2] = []; }), true, 'a red gated step in ANY run at this SHA blocks reuse, pull_request included');
   assert.equal(v((x) => { x.runs.push({ ...x.runs[1], id: 3 }); }), true, 'a run at this SHA whose jobs were not read blocks reuse');
   assert.match(decideVerified(base()).reason, /run 1 \(batch\/x, attempt 1\)/, 'the reuse reason names the run it trusted');
+  // REFUTE r2 F3: shapes the red scan used to read as clean.
+  assert.equal(v((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [{ run_attempt: 1, status: 'completed', conclusion: 'failure' }, green(2)]; x.artifactsByRun[1] = [{ name: DIGEST_ARTIFACT(D, 2), expired: false }]; }), true, 'a finished job that lists no steps is unreadable: run');
+  const sibling = (x, id, jobConclusion, stepConclusion) => {
+    x.runs.push({ ...x.runs[1], id, conclusion: jobConclusion });
+    x.jobsByRun[id] = [{ run_attempt: 1, status: 'completed', conclusion: jobConclusion, steps: [{ name: G[1], conclusion: stepConclusion }] }];
+    x.artifactsByRun[id] = [];
+  };
+  assert.equal(v((x) => sibling(x, 5, 'failure', 'cancelled')), true, 'a failed job whose gated step reads cancelled (a job timeout) is a red');
+  assert.equal(v((x) => sibling(x, 5, 'failure', null)), true, 'a failed job whose gated step has no conclusion is a red');
+  assert.equal(v((x) => sibling(x, 6, 'cancelled', 'cancelled')), false, 'a superseded (cancelled) sibling is not a red');
+  assert.equal(v((x) => { x.jobsByRun[9] = [{ run_attempt: 1, status: 'in_progress', conclusion: null }]; }), false, 'this run\'s own in-flight job may not list steps yet');
   const yaml = [
+    '    steps:',
     '      - name: Decide whether the browser probes can add anything', '        id: probe-scope',
     '      - name: Give the runner a Thai face (gh#287)', `        if: ${PROBE_GATE}`,
     "      - name: 'Quoted probe step'", `        if: ${PROBE_GATE}`,
     '      - name: Keep the probe output when anything fails', `        if: failure() && ${PROBE_GATE}`,
+    '      - name: Publish the dist digest the probes passed on', `        if: success() && ${PROBE_GATE} && steps.probe-scope.outputs.dist_digest != ''`,
     '      - name: Deploy', "        if: ${{ github.ref == 'refs/heads/main' }}",
   ].join('\n');
-  assert.deepEqual(gatedSteps(yaml), ['Give the runner a Thai face (gh#287)', 'Quoted probe step'], 'only the exact gate condition is gated; the failure() upload is not');
-  assert.throws(() => gatedSteps(`      - uses: x/y@v1\n        if: ${PROBE_GATE}`), /no name/, 'a nameless gated step throws instead of shrinking the set');
+  assert.deepEqual(gatedSteps(yaml), ['Give the runner a Thai face (gh#287)', 'Quoted probe step'], 'only the exact gate condition is gated; the failure() upload and the digest publish are not');
+  assert.throws(() => gatedSteps(`    steps:\n      - uses: x/y@v1\n        if: ${PROBE_GATE}`), /no name/, 'a nameless gated step throws instead of shrinking the set');
+  // REFUTE r2 F4: other YAML spellings of the same gate are still the gate.
+  const one = (stepLines) => gatedSteps(['    steps:', ...stepLines].join('\n'));
+  assert.deepEqual(one([`      - if: ${PROBE_GATE}`, '        name: If first']), ['If first'], 'a step that opens with if: is read');
+  assert.deepEqual(one(['      - name: Quoted if', `        if: "${PROBE_GATE}"`]), ['Quoted if'], 'a quoted condition is the gate');
+  assert.deepEqual(one(['      - name: Wrapped if', `        if: \${{ ${PROBE_GATE} }}`]), ['Wrapped if'], 'a ${{ }}-wrapped condition is the gate');
+  assert.deepEqual(one(['      - name: Commented if', `        if: ${PROBE_GATE}  # why`]), ['Commented if'], 'a trailing comment does not hide the gate');
+  assert.deepEqual(one(['      - name: Folded if', '        if: >-', '          steps.probe-scope.outputs.run ==', "          'true'"]), ['Folded if'], 'a folded multi-line condition is the gate');
+  assert.throws(() => one(['      - name: Compound', `        if: always() && ${PROBE_GATE}`]), /neither the gate nor a known non-measurement/, 'an unknown condition on probe-scope throws');
 }
 
 function selftest() {

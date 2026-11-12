@@ -248,19 +248,24 @@ notrunnable=$(awk -F'\t' '$2=="NORUN"' "$MANIFEST" | grep -c .)
 PROBE_GATE="steps.probe-scope.outputs.run == 'true'"
 probe_owed=yes
 # The full ref: a short `origin/main` resolves a tag or branch of that name first, and a local
-# `git tag origin/main HEAD` would make every unpushed commit vanish from the diff. The index is
-# listed as well as the working tree: a staged change the working tree reverted still commits.
+# `git tag origin/main HEAD` would make every unpushed commit vanish from the diff. Three trees are
+# listed, because each can differ from the base on its own: HEAD (what a push carries, even when the
+# working tree reverted a committed change), the index (what the next commit carries), and the
+# working tree with its untracked files. The union is deduplicated before the resolver reads it.
 if scope_base=$(git merge-base HEAD refs/remotes/origin/main 2>/dev/null); then
+  scope_raw="$OUT_DIR/probe-scope-changed.raw"
   scope_list="$OUT_DIR/probe-scope-changed.txt"
-  if git diff --name-only --no-renames "$scope_base" > "$scope_list" \
-    && git diff --cached --name-only --no-renames "$scope_base" >> "$scope_list" \
-    && git ls-files --others --exclude-standard >> "$scope_list" \
+  if git diff --name-only --no-renames "$scope_base" HEAD > "$scope_raw" \
+    && git diff --cached --name-only --no-renames "$scope_base" >> "$scope_raw" \
+    && git diff --name-only --no-renames "$scope_base" >> "$scope_raw" \
+    && git ls-files --others --exclude-standard >> "$scope_raw" \
+    && LC_ALL=C sort -u "$scope_raw" > "$scope_list" \
     && node scripts/probe-scope.mjs --selftest > /dev/null \
     && scope_decision=$(node scripts/probe-scope.mjs --changed "$scope_list"); then
     scope_reason=$(printf '%s\n' "$scope_decision" | sed -n 's/^reason: //p')
     if printf '%s\n' "$scope_decision" | grep -qx 'run=false'; then
       probe_owed=no
-      probe_note="NOT OWED -- $scope_reason, from merge-base $scope_base (origin/main) to the working tree, untracked files included; CI skips these steps on a branch push of such a diff"
+      probe_note="NOT OWED -- $scope_reason, from merge-base $scope_base (origin/main) to HEAD, the index and the working tree, untracked files included; CI skips these steps on a branch push of such a diff"
     else
       probe_note="owed -- $scope_reason (from merge-base $scope_base to the working tree)"
     fi
@@ -294,7 +299,7 @@ fi
 head_sha=$(git rev-parse HEAD)
 if [ -n "${CITATION_DIFF_RANGE:-}" ]; then
   range_note="CITATION_DIFF_RANGE=$CITATION_DIFF_RANGE (set by the caller, used as given)"
-elif upstream_base=$(git merge-base HEAD origin/main 2>/dev/null) && [ "$upstream_base" != "$head_sha" ]; then
+elif upstream_base=$(git merge-base HEAD refs/remotes/origin/main 2>/dev/null) && [ "$upstream_base" != "$head_sha" ]; then
   export CITATION_DIFF_RANGE="$upstream_base"
   ahead=$(git rev-list --count "$upstream_base..HEAD")
   range_note="CITATION_DIFF_RANGE=$upstream_base -> working tree (merge-base of HEAD and origin/main: $ahead commit(s) not on origin/main, plus uncommitted and untracked files)"
