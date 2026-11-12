@@ -94,11 +94,25 @@
 # Exit: 0 every runnable step ran and passed · N = N runnable steps failed or went unexecuted
 #       96 = the workflow moved the unit tests out of local reach (REQUIRE guard)
 #       95 = the workflow moved the browser lanes out of local reach (GUARD 3)
+#       97 = a probe matrix variable was inherited from the calling shell (GUARD 4)
 #       98 = the extractor is broken (not the tree) · 99 = not a repo
 set -u
 
 ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 99
 cd "$ROOT" || exit 99
+
+# OWNED GUARD 4 (ADR-0078). The probe step's body is `npm run ci-probes`, and scripts/ci-probes.sh
+# picks its mode from the environment: CI sets these per matrix job, through the step's env:, which
+# this script never reads. Here the probe step must be the packed run of every lane. An inherited
+# value would turn it green on one group's legs, or on a directory of lane files with no browser at
+# all (REFUTE 2026-11-12). Refused rather than unset, so the shell that exported it hears about it.
+for v in PROBE_LANES PROBE_AGGREGATE PROBE_FIT_SHARDS MATRIX_KEEP MATRIX_LANE; do
+  if [ -n "${!v:-}" ]; then
+    echo "ABORT: $v is set in this shell. It switches scripts/ci-probes.sh out of the packed run."
+    echo "Unset it, or run scripts/ci-probes.sh directly for one lane. Do NOT read this as a pass."
+    exit 97
+  fi
+done
 
 # NOT overridable, on purpose: the whole claim of this script is that it reads the file that gates
 # deploy. The guards below are proved against a doctored ci.yml inside a throwaway git repo instead.
@@ -250,14 +264,17 @@ fi
 # CI they run as matrix jobs, and one `${{ matrix.* }}` written into a probe step's body would make it
 # NORUN here -- the local suite would then stop running the probes without a red, exactly gh#171's
 # shape. So a runnable step must invoke the packed probe run and another the WebGL lane, or this aborts.
+# Invoke, not mention: the match is anchored at the start of a body line, as GUARD 2 is, so a `#`
+# comment, an `echo`, or `bash -n` naming the script cannot stand in for the lane (REFUTE 2026-11-12).
+# An env-prefixed invocation does not match either; that aborts here, loudly, rather than passing.
 missing_lanes=""
 for need in ci-probes webgl-pixels-lane; do
   found=0
   while IFS="$(printf '\t')" read -r idx class marker sname; do
     { [ "$class" = "RUN" ] || [ "$class" = "EXP" ]; } || continue
     case "$need" in
-      ci-probes) grep -Eq '(npm run ci-probes|scripts/ci-probes\.sh)' "$STEPDIR/$idx.sh" && found=1 ;;
-      webgl-pixels-lane) grep -Fq 'scripts/webgl-pixels-lane.sh' "$STEPDIR/$idx.sh" && found=1 ;;
+      ci-probes) grep -Eq '^[[:space:]]*(npm run ci-probes|(bash[[:space:]]+)?scripts/ci-probes\.sh)([[:space:]]|$)' "$STEPDIR/$idx.sh" && found=1 ;;
+      webgl-pixels-lane) grep -Eq '^[[:space:]]*(bash[[:space:]]+)?scripts/webgl-pixels-lane\.sh([[:space:]]|$)' "$STEPDIR/$idx.sh" && found=1 ;;
     esac
   done < "$MANIFEST"
   [ "$found" -eq 1 ] || missing_lanes="$missing_lanes $need"

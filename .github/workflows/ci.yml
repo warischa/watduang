@@ -45,12 +45,12 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      # Bare `npm ci` (audit off through the environment) so scripts/run-workflow-gates.sh classes it as
-      # its deliberate skip on a laptop, where the deps are already installed, instead of reinstalling.
+      # Spelled `npm ci --no-audit`, not bare, so scripts/run-workflow-gates.sh RUNS it on a laptop: that
+      # script walks this file top to bottom, this job comes first, and its Build below must not run
+      # before any install on a fresh checkout (REFUTE 2026-11-12). The later jobs keep the bare spelling,
+      # which that script skips, since by then this install has run.
       - name: npm ci
-        env:
-          npm_config_audit: 'false'
-        run: npm ci
+        run: npm ci --no-audit
       - name: Build
         run: npm run build
       # gh#122 and gh#270 -- whether the browser probes can add anything. They read dist/, a pure function
@@ -719,12 +719,14 @@ jobs:
 
   probe-verdict:
     needs: [dist, probes, webgl]
-    if: always() && needs.dist.outputs.run == 'true'
+    if: ${{ !cancelled() && needs.dist.outputs.run == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
-      # always() lets this job run to say WHY when a lane is red; it never turns a red into a green.
+      # !cancelled() lets this job run to say WHY when a lane is red; it never turns a red into a green.
+      # Not always(): a cancelled run would then record a verdict failure, and probe-scope.mjs reads any
+      # probe-job red at a SHA as a reason never to reuse it, so one cancel would cost main a re-measure.
       - name: Every lane job and the WebGL job finished green
         run: |
           echo "probes: ${{ needs.probes.result }} · webgl: ${{ needs.webgl.result }}"
@@ -768,10 +770,12 @@ jobs:
   deploy:
     needs: [dist, build, probe-verdict]
     # A skipped verdict counts only beside an EXPLICIT run=false: an unset output must never deploy.
+    # !cancelled(), not always(): a cancel that lands between a green verdict and this job's start
+    # must stop the deploy too.
     if: >-
-      always() && needs.dist.result == 'success' && needs.build.result == 'success' &&
+      ${{ !cancelled() && needs.dist.result == 'success' && needs.build.result == 'success' &&
       (needs.probe-verdict.result == 'success' ||
-       (needs.dist.outputs.run == 'false' && needs.probe-verdict.result == 'skipped'))
+       (needs.dist.outputs.run == 'false' && needs.probe-verdict.result == 'skipped')) }}
     runs-on: ubuntu-latest
     # id-token: write lets azure/login mint the OIDC assertion; only this job holds it. The deploy
     # action's repo_token is "used only for commenting on Pull Requests" (its action.yml), and these

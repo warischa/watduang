@@ -3,9 +3,10 @@
 # trustworthy right now"), run in PARALLEL LANES against the ALREADY-BUILT dist/ IN TWO PHASES: the
 # four packed lanes first, then one lane per play-screen-fit shard (see FIT_SHARDS) once lane1 and
 # lane3 have joined -- see "the barrier" below for why the phases exist. This script
-# never runs a build. It is meant to be called as a late step in ci.yml's single `build` job, after
-# the Build step, because a probe that measures a freshly regenerated dist/ is not measuring the
-# bytes that get deployed (the standing no-post-Build-rebuild invariant in .github/workflows/ci.yml).
+# never runs a build. That packed run is the local one (scripts/run-workflow-gates.sh). In CI each
+# matrix job of ci.yml's `probes` job runs one group or fit shard of it (PROBE_LANES) on the dist/ the
+# `dist` job built and digested, and `probe-verdict` aggregates them (PROBE_AGGREGATE); ADR-0078. A
+# probe that measures a freshly regenerated dist/ is not measuring the bytes that get deployed.
 #
 # Why lanes: measured on CI run 2026-08-29 (main), the sequential pass took 723s and the whole job
 # 14.4 min -- 84% of the job was this step. Legs are independent (each drives its own tab against a

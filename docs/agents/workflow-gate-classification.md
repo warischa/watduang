@@ -9,22 +9,23 @@ hit there -- the exit-code paragraph -- which is the connective, not a shared ta
 
 **What a local green does and does not prove.** It proves every step classified runnable ran and
 passed, in the workflow's own order, single-line and `run: |` block alike. It proves nothing about
-the not-runnable set, which the script names each run with the marker that caught it. Three rules can
-catch a step, and they are checked in this order: a DENY (see below), then a body holding `${{`, then
-a body writing `$GITHUB_OUTPUT`. Today that is `Decide whether the browser probes can add anything`,
-caught by `${{`, `Fetch SWA deployment token`, caught by `[DENY cloud CLI: az]`, and `Give the runner
-a Thai face (gh#287)`, caught by `[DENY system package manager: sudo]`. The `npm ci` skip rule
-matches a bare `npm ci` only, and the step's body is `npm ci --no-audit`, so it classifies RUN today
-(re-checked 2026-10-24). For the NORUN steps, read the run's per-step conclusions below — never this script's
-exit code.
+the not-runnable set, which the script names each run with the marker that caught it. `CLASSIFY_ONLY=1`
+prints that list, and that output IS the list: none is kept here, because the list once kept here
+named three steps and went stale when the probe matrix landed (ADR-0078). Three rules can catch a step,
+checked in this order: a DENY (see below), then a body holding `${{`, then a body writing
+`$GITHUB_OUTPUT`. One row is not a step: the `dist` job's `outputs:` block has a key named `run:`,
+which the extractor reads as an unnamed step (NORUN by `${{`), counted on both sides of the 98 check.
+The `npm ci` skip rule matches a bare `npm ci` only. The `dist` job's install comes first in the file
+and is spelled `npm ci --no-audit`, so it RUNs before the first Build on a fresh checkout; the later
+jobs' bare installs SKIP; the `build` job's `npm ci --no-audit` runs again. For the NORUN steps, read
+the run's per-step conclusions below — never this script's exit code.
 
-**What the `$GITHUB_OUTPUT` half of that rule catches today: nothing.** Every current NORUN step is
-caught by an earlier rule. `Fetch SWA deployment token` is caught by DENY — its body runs
-`az staticwebapp secrets list` against the production resource group, emits `::add-mask::`, and
-carries credential-shaped text. It does also write `$GITHUB_OUTPUT`, so it would be caught twice
-over, but DENY is what the banner prints. `Decide whether the browser probes can add anything` is
-caught by `${{`. So `$GITHUB_OUTPUT` is a backstop with no instance today, and the SWA token step is
-not evidence that this half of the rule is load-bearing — DENY is what protects that step.
+**The `$GITHUB_OUTPUT` half of that rule.** `CLASSIFY_ONLY=1` at 9a33300 (2026-11-12) showed it
+catching one step, the `build` job's `Digest this job's own dist/ for the deploy check`; before the
+matrix it caught none. `Fetch SWA deployment token` also writes `$GITHUB_OUTPUT`, but DENY catches it
+first — its body runs `az staticwebapp secrets list` against the production resource group, emits
+`::add-mask::`, and carries credential-shaped text — so that step is not evidence that this half is
+load-bearing; DENY is what protects it.
 
 **Two guards this repo owns, checked before every marker rule.** `${{` and `$GITHUB_OUTPUT` are
 GitHub's vocabulary, so the set they enumerate is not one this repo controls and an ordinary
@@ -48,6 +49,14 @@ alternative live in ADR-0056 — read it there, it is not restated here.** Opera
 Both are re-derived from the workflow text every run — no pinned name, index or title, because a
 pinned list is what rotted the original extractor. They bound the damage; they do not prove the
 partition complete (ADR-0056 § What this does not prove).
+
+**Two more aborts, for the probe matrix (ADR-0078).** Both fire before `CLASSIFY_ONLY` can exit 0.
+- **GUARD 3 exits 95** when no runnable step invokes the packed probe run (`npm run ci-probes` or
+  `scripts/ci-probes.sh`) or the WebGL lane at the start of a body line. A comment, an `echo` or
+  `bash -n` naming the script does not count, and an env-prefixed invocation aborts too.
+- **GUARD 4 exits 97** when `PROBE_LANES`, `PROBE_AGGREGATE`, `PROBE_FIT_SHARDS`, `MATRIX_KEEP` or
+  `MATRIX_LANE` is set in the calling shell. CI passes them through a step's `env:`, which this script
+  never reads; an inherited one would run one group, or no browser at all, under the packed run's name.
 
 **Why unexecuted steps count as failures.** gh#171: the extractor read single-line `run:` commands
 only, so all five `run: |` blocks — `Unit tests` among them — sat outside the work-set, and it

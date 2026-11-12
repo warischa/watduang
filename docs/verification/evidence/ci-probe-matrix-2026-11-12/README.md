@@ -55,7 +55,14 @@ Files: `calibration-compare-output.txt` and `calibration-timings.txt`.
 - **Estimate for a switch where the probe lanes run beside the static gates:** about 10–10.5 min per run against 14.7 (inferred). The long poles are lane4 556s, fit2 499s and lane2 462s.
 - **Estimate if those are split:** about 6–7 min (inferred). That means more fit shards and lane2/lane4 each in two. It is an instrument change that needs its own shadow run.
 
+## Split shadow and the switch (n=1 each)
+
+- **Split shadow** (SHA de0c7bc, six groups + 5 fit shards): rows MATCH; 434s against the packed run's 918s on the same SHA. File: `calibration-split-timings.txt`.
+- **First run of the job graph** (run 43172718544, SHA 862dfb3, ADR-0078): green in 458s. File: `graph-run-timings.txt`.
+  - Long pole: `probes (fit0)` 380s; build 89s runs beside the lanes, off the critical path.
+  - Tail after the lanes: probe-verdict 18s, deploy 29s (branch: the Azure steps skip, the three-digest check runs).
+
 ## Not yet decided
 
-- Whether the gate moves to the matrix. That waits on a MATCH, or on differences that are explained.
 - The switch's own REFUTE pass. It covers the deploy condition, the digest re-check by every `dist/` consumer, and the reuse lookup re-keyed to jobs.
+- The first push to main under the graph: deploy's main-only steps and a real main reuse are unproven until then.

@@ -16,14 +16,17 @@
 // pushed to its branch first and then to main at the SAME commit, so main used to pay the whole
 // browser lane twice for one tree (5 such pairs in the 15 runs before 2026-11-12). `--verified`
 // answers it from GitHub's own records, and only ever answers "skip" when ALL of these hold:
+// Which units count is read from ci.yml AT THIS SHA: the probe-gated STEPS of the one-job layout, or,
+// when a `probe-verdict` job exists, the probe JOBS of the matrix layout (ADR-0078) -- every
+// `probes (...)` lane, `webgl` and `probe-verdict`.
 //   - a completed `push` run of this workflow at this SHA (never a pull_request run: that one tests
-//     a merge commit, not this SHA) concluded success, and in its latest attempt every probe-gated
-//     step concluded success -- the gated set is derived from ci.yml AT THIS SHA, never pinned;
-//   - that latest attempt uploaded `dist-digest-<hex>-a<attempt>` for the SAME dist/ digest this
-//     run built. Same SHA is not enough: the probes must measure the bytes Deploy uploads, and
-//     main rebuilds dist/;
-//   - NO run at this SHA -- this run's own earlier attempts included -- has a probe-gated step
-//     that failed or timed out in ANY attempt. A red is a signal; a later green on a re-run does
+//     a merge commit, not this SHA) concluded success, and in its latest attempt every probe unit
+//     concluded success -- the step set is derived from ci.yml, never pinned;
+//   - that latest attempt uploaded the digest artifact for the SAME dist/ digest this run built:
+//     `dist-digest-<hex>-a<attempt>` in the step layout, `dist-digest-<hex>` in the job layout. Same
+//     SHA is not enough: the probes must measure the bytes Deploy uploads, and main rebuilds dist/;
+//   - NO run at this SHA -- this run's own earlier attempts included -- has a probe unit that
+//     failed or timed out in ANY attempt. A red is a signal; a later green on a re-run does
 //     not erase it, so main measures again;
 //   - no other run at this SHA is still running: it may yet go red on the same bytes.
 // Anything it cannot read or enumerate throws, and the workflow treats a throw as "run".
@@ -327,6 +330,12 @@ function verifiedSelftest() {
   // A partial re-run (2026-11-12, run 43165835700): attempt 2 copies the jobs it did not re-run.
   assert.equal(jv((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [...jobRun(1).map((j) => (j.name === 'probes (fit0)' ? { ...j, conclusion: 'failure' } : j)), ...jobRun(2)]; }), true, 'a lane red in attempt 1 still blocks after a green partial re-run');
   assert.equal(jv((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [...jobRun(1).map((j) => (j.name === 'build' ? { ...j, conclusion: 'failure' } : j)), ...jobRun(2)]; }), false, 'a red in a non-probe job of an earlier attempt is not a probe red');
+  // probe-verdict and deploy run under !cancelled() (REFUTE 2026-11-12): a cancelled attempt leaves the
+  // verdict skipped, not failed. So a lane red must block on its own, with no verdict red beside it,
+  // and a cancel with no red must not block a later green attempt.
+  const attempt1 = (lane, verdict) => jobRun(1).map((j) => (j.name === 'probes (fit0)' ? { ...j, conclusion: lane } : j.name === PROBE_VERDICT_JOB ? { ...j, conclusion: verdict } : j));
+  assert.equal(jv((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [...attempt1('failure', 'skipped'), ...jobRun(2)]; }), true, 'a lane red blocks reuse even when the cancelled attempt never ran its verdict');
+  assert.equal(jv((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [...attempt1('cancelled', 'skipped'), ...jobRun(2)]; }), false, 'a cancelled attempt with no red does not block a later green attempt');
   assert.equal(jv((x) => { x.runs.push({ ...x.runs[1], id: 7, conclusion: 'failure' }); x.jobsByRun[7] = [J(PROBE_VERDICT_JOB, 'failure')]; x.artifactsByRun[7] = []; }), true, 'a red verdict in a sibling run blocks reuse');
   assert.equal(jv((x) => { x.jobsByRun[9] = [J(WEBGL_JOB, 'timed_out')]; }), true, 'a red probe job in THIS run\'s earlier attempt blocks reuse');
   assert.equal(decideVerified({ ...jbase(), layout: 'mixed' }).run, true, 'an unknown layout runs');

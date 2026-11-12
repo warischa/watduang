@@ -40,6 +40,9 @@ Two recorded positions kept it in one job:
 - Deploy uploads only when three digests are equal: the artifact's, the `dist` job's, and the `build`
   job's own build. Only then do the gates speak for the uploaded bytes, and that is proved per run.
 - Deploy counts a skipped verdict only beside an explicit `run=false`. An unset output never deploys.
+- `probe-verdict` and `deploy` run under `!cancelled()`, never `always()` (REFUTE 2026-11-12): a cancel
+  stops a deploy that has not started, and leaves the verdict skipped rather than failed, so it does
+  not bar the SHA from reuse. A lane red still bars it on its own.
 - Artifact names carry no run attempt. A partial re-run (run 43165835700, verdict job only, observed
   2026-11-12) keeps the earlier attempt's artifacts and copies the jobs it did not re-run into the new
   attempt. An attempt-bound name would orphan a verdict that was never re-run.
@@ -49,9 +52,10 @@ in no group, or in two, moves the count that the verdict's pinned `EXPECTED_LEGS
 duplicate-label check red on. The play-top-band pair shares one browser in the `topband` group.
 
 **The packed run stays the local run.** On a laptop `scripts/run-workflow-gates.sh` runs the probe
-step with none of the matrix environment, which is the packed run of every lane, with its barrier.
-Its GUARD 3 aborts (exit 95) when no runnable step invokes the packed probe run or the WebGL lane, so
-a `${{ matrix.* }}` written into a probe step's body cannot drop the local probes silently. Its
+step with none of the matrix environment, which is the packed run of every lane, with its barrier;
+its GUARD 4 (exit 97) refuses a matrix variable inherited from the calling shell. Its GUARD 3 aborts
+(exit 95) when no runnable step invokes the packed probe run or the WebGL lane at the start of a body
+line, so a `${{ matrix.* }}` written into a probe step's body cannot drop the local probes silently. Its
 expensive class and NOT OWED now also key on the job output `needs.dist.outputs.run == 'true'`.
 
 **Main's reuse lookup reads the layout from `ci.yml` at the SHA** (`probe-scope.mjs --verified`).

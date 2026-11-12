@@ -1,0 +1,19 @@
+# First run of the job graph (ADR-0078), run 43172718544, branch ci/probe-matrix, read with gh 2026-11-12
+# job wall incl. setup; start+N = seconds after run creation
+success 862dfb3 wall 458
+build                        success   start+2 dur 89
+dist                         success   start+3 dur 21
+webgl                        success   start+26 dur 65
+probes (firstscreen)         success   start+26 dur 196
+probes (nav)                 success   start+26 dur 291
+probes (fit0)                success   start+26 dur 380
+probes (overflow)            success   start+26 dur 312
+probes (fit4)                success   start+26 dur 173
+probes (exit)                success   start+26 dur 277
+probes (fit3)                success   start+26 dur 292
+probes (fit2)                success   start+26 dur 304
+probes (topband)             success   start+26 dur 248
+probes (home)                success   start+26 dur 286
+probes (fit1)                success   start+26 dur 253
+probe-verdict                success   start+408 dur 18
+deploy                       success   start+428 dur 29
