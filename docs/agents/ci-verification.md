@@ -149,9 +149,8 @@ calibrating that probe's timing, not on every routine verify.
 
 ## The suite measures the tree you ran it on — land every commit first (2026-09-17)
 
-Two full runs were paid in one session, ~10 minutes each, because the first ran at a commit and two
-docs commits landed after it. A gate green is a claim about ONE tree, so the second run bought nothing
-but a true evidence line at the real HEAD.
+Two ~10-minute full runs were paid in one session: two docs commits landed after the first. A gate
+green is a claim about ONE tree.
 
 Order the batch so the suite runs ONCE, after the last commit that will be pushed — the docs ones
 included. Running a hand-picked subset over the late commits is not a substitute: the rule above is
@@ -164,4 +163,6 @@ Two local full lanes passed and the main push still went red: croc-bite's fit le
 runner's CPU pressure, which `scripts/ci-probes.sh`'s header predicts and no local lane reproduces. `on:
 push` is unfiltered and every deploy step is gated on `refs/heads/main`, so pushing the batch branch first
 buys the runner's verdict with no deploy and leaves `main` green. For a src batch: push the branch, read its
-run, then the main push. 2026-10-20, skipped and red again: Mac overlay scrollbars hid Linux's 15px one (gh#268).
+run, then push main at that SAME SHA (fast-forward; the save committed before the branch push) — main
+reuses the branch's probe verdict; another SHA re-measures.
+2026-10-20, skipped and red again: Mac overlay scrollbars hid Linux's 15px one (gh#268).
