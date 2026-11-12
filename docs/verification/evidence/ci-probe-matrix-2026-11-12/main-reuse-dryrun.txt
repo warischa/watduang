@@ -1,0 +1,10 @@
+# Main's reuse lookup dry-run from the Mac against GitHub, before pushing main at f9d5bcc (2026-11-12)
+## real digest
+run=false
+reason: run 43194643769 (batch/2026-11-12, attempt 1) passed probe-verdict, webgl and 11 probe lane(s) on dist digest 64e5ad45a63dd6f9f4c4dd7f8646a2bee391bb0c0a1fffe87f295fa12c7ae044
+## must-red: wrong digest
+run=true
+reason: no run at this SHA measured this dist: run 43194643769: no live artifact for this dist digest
+## must-red: the only measuring run excluded
+run=true
+reason: no other run of this workflow at this SHA

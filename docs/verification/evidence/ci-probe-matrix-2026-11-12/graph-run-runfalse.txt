@@ -1,0 +1,6 @@
+# Docs-only push on the fixed graph, run 43196316877, SHA a693bef, branch batch/2026-11-12, read with gh 2026-11-12
+success a693bef wall 173 (09:59:26Z-10:02:19Z)
+jobs: dist success · build success · probes skipped · webgl skipped · probe-verdict skipped · deploy success
+dist: probe-scope run=false, reason: all 2 changed paths are inert; dist digest 64e5ad45a63dd6f9f4c4dd7f8646a2bee391bb0c0a1fffe87f295fa12c7ae044 (same bytes as f9d5bcc)
+deploy: ran on the skipped-verdict arm beside run=false; artifact = dist job = build job = 64e5ad45...; Azure login / token / deploy skipped (branch)
+artifacts: dist-64e5... only; no dist-digest-* (no verdict ran), so this run is not reusable by main
