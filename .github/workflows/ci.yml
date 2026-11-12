@@ -23,7 +23,10 @@ jobs:
     # so contents: read must be spelled out here or actions/checkout@v5 below gets a token that
     # cannot read this repo. id-token: write is what lets azure/login mint the OIDC assertion;
     # without it that step fails with "Unable to get ACTIONS_ID_TOKEN_REQUEST_URL".
-    # Nothing beyond these two is needed. The deploy action's own action.yml documents repo_token as
+    # actions: read is what lets the probe-scope step list this workflow's runs, their jobs and their
+    # artifacts at the same SHA (GitHub's REST docs name "Actions" repository permissions (read) for
+    # each), so main can reuse a branch run's probe verdict. Read-only; it writes nothing.
+    # Nothing beyond these three is needed. The deploy action's own action.yml documents repo_token as
     # "Currently used only for commenting on Pull Requests", and the deploy steps are gated to
     # push + refs/heads/main, so that path never runs here -- no deployments: write, no
     # pull-requests: write. Checked against the action contract rather than guessed, because an
@@ -32,6 +35,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: read
     env:
       # Armed only when ALL THREE identifiers exist. A partial set must read as NOT armed: two of
       # three would sail past this gate and die inside azure/login after every other gate has
@@ -477,19 +481,51 @@ jobs:
       # and JS never converged, so the rule is inverted: the probes run unless EVERY changed path
       # is on a project-owned inert allowlist (docs/, any *.md, .claude/, design/ — see
       # `node scripts/probe-scope.mjs --inert`). Deletions are just paths; an unlisted path runs them.
-      # THREE THINGS KEEP THIS FROM BECOMING A SKIP THAT HIDES WORK:
-      #   - main is never skipped. That run is the one that gates Deploy.
-      #   - anything this step cannot diff (a new branch, a pull_request event with no `before`,
-      #     a base commit not in this clone) falls back to RUNNING them. It fails safe, not open.
+      # FOUR THINGS KEEP THIS FROM BECOMING A SKIP THAT HIDES WORK:
+      #   - main never takes the inert-path skip. That run gates Deploy. Since 2026-11-12 (owner pick,
+      #     reversing gh#270's "main always runs") main skips the probes ONLY when another push run at
+      #     this same SHA already passed every probe-gated step on the SAME dist/ digest, and no run at
+      #     this SHA has a red probe step in any attempt (`probe-scope.mjs --verified`, its header has
+      #     the full rule). A batch reaches main at the SHA its branch run measured, so main paid the
+      #     whole lane twice for one tree. Same SHA alone is not enough: main rebuilds dist/, so the
+      #     digest is what proves the probes measured the bytes Deploy uploads.
+      #   - anything this step cannot diff or look up (a new branch, a pull_request event with no
+      #     `before`, a base commit not in this clone, an API error) falls back to RUNNING them.
+      #   - run= is written on every path, and only an exact `run=false` line skips: the gated steps
+      #     test == 'true', so an unset output would skip the probes and still deploy.
       #   - the decision and the file list are echoed, so a skipped run says why in its own log
       #     rather than reading as coverage it did not earn (ADR-0019).
       - name: Decide whether the browser probes can add anything
         id: probe-scope
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          emit() { if printf '%s\n' "$1" | grep -qx 'run=false'; then echo "run=false"; else echo "run=true"; fi >> "$GITHUB_OUTPUT"; }
+          # The dist/ the probes below would measure is the dist/ Deploy uploads. No digest -> no
+          # digest artifact for main to match, and main itself cannot reuse anything.
+          if digest=$(node scripts/probe-scope.mjs --dist-digest dist 2>&1) && printf '%s' "$digest" | grep -Eqx '[0-9a-f]{64}'; then
+            echo "probe-scope: dist digest $digest"
+            echo "dist_digest=$digest" >> "$GITHUB_OUTPUT"
+            printf '%s\n' "$digest" > "$RUNNER_TEMP/dist-digest.txt"
+          else
+            echo "probe-scope: could not digest dist/: $digest"
+            digest=""
+          fi
+          verified() {
+            if [ -z "$digest" ]; then echo "run=true"; echo "reason: no dist digest"; return 0; fi
+            node scripts/probe-scope.mjs --selftest > /dev/null && node scripts/probe-scope.mjs --verified --sha "$GITHUB_SHA" --digest "$digest" --exclude-run "$GITHUB_RUN_ID" 2>&1 || echo "run=true (the lookup failed — failing safe)"
+          }
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "probe-scope: main — probes always run, this run gates Deploy"
-            echo "run=true" >> "$GITHUB_OUTPUT"
+            decision="run=true (not a push)"
+            if [ "${{ github.event_name }}" = "push" ]; then decision=$(verified); fi
+            printf '%s\n' "$decision" | sed 's/^/probe-scope: main — /'
+            emit "$decision"
             exit 0
+          fi
+          # Report only: the lookup main relies on runs on every branch push too, so a token or API
+          # change shows up in a branch log before a deploy depends on it. It decides nothing here.
+          if [ "${{ github.event_name }}" = "push" ]; then
+            verified | sed 's/^/probe-reuse (report only, decides nothing on a branch): /'
           fi
           base="${{ github.event.before }}"
           if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
@@ -507,7 +543,7 @@ jobs:
           sed 's/^/  /' "$changed_file"
           if decision=$(node scripts/probe-scope.mjs --selftest && node scripts/probe-scope.mjs --changed "$changed_file" 2>&1); then
             printf '%s\n' "$decision" | sed 's/^/probe-scope: /'
-            printf '%s\n' "$decision" | grep '^run=' >> "$GITHUB_OUTPUT"
+            emit "$decision"
           else
             printf '%s\n' "$decision"
             echo "probe-scope: the resolver crashed — failing safe, probes run"
@@ -556,6 +592,19 @@ jobs:
         env:
           WEBGL_PROBE_OUT_DIR: ${{ runner.temp }}/ci-probes/webgl-pixels
         run: bash scripts/webgl-pixels-lane.sh
+
+      # The other half of main's reuse check (`probe-scope.mjs --verified`): the dist/ digest these
+      # probes just passed on, published as an artifact NAME so main matches it with one list call.
+      # success() means every earlier step passed, the probe-gated ones included. Seven days covers
+      # a branch run read before its main push; an expired one just means main measures again.
+      - name: Publish the dist digest the probes passed on
+        if: success() && steps.probe-scope.outputs.run == 'true' && steps.probe-scope.outputs.dist_digest != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-digest-${{ steps.probe-scope.outputs.dist_digest }}
+          path: ${{ runner.temp }}/dist-digest.txt
+          retention-days: 7
+          if-no-files-found: error
 
       # Every measurement the probes make lives in that directory, and until now only `tail -n 3` of
       # each leg's log reached this workflow's log -- which is why a red on run 33491962091 (attempt 1

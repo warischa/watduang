@@ -73,9 +73,21 @@
 # otherwise get. A CITATION_DIFF_RANGE the caller already set is used as given. A `citation range:`
 # line before the first step prints which case applied and why.
 #
+# THE PROBE SCOPE (2026-11-12, owner pick). CI skips the probe-gated steps on a branch push whose
+# every changed path is inert (scripts/probe-scope.mjs, gh#270), but this script ran them anyway, so
+# a docs-only commit paid the ~9-minute browser lane (542s, n=4, docs/agents/ci-verification.md) for
+# a verdict no CI run would ask of that diff. It now asks the SAME resolver about the diff from the
+# merge-base of HEAD and origin/main to the working tree, untracked files included -- the widest diff
+# this tree can carry to a push, the same base the citation range uses for the same reason. All
+# inert -> the steps gated on exactly `steps.probe-scope.outputs.run == 'true'` are NOT OWED: each is
+# printed, counted apart from not-executed, and the exit can be 0. Anything else -- one non-inert
+# path, no merge-base, a list or resolver that fails, a resolver that fails its own selftest -- leaves
+# them owed. Another expensive step keeps the SKIP_EXPENSIVE rule. Nothing settable forces "not
+# owed": the answer comes from git and the resolver alone. A stale origin/main only widens the diff.
+#
 #   bash scripts/run-workflow-gates.sh          # run them all
 #   MIN_STEPS=25 bash scripts/run-workflow-gates.sh
-#   SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh  # fast; ALWAYS exits non-zero, never a pass
+#   SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh  # fast; exits non-zero whenever the probes are owed
 #   CLASSIFY_ONLY=1 bash scripts/run-workflow-gates.sh   # print the partition, execute nothing
 #   CITATION_DIFF_RANGE=<rev> bash scripts/run-workflow-gates.sh  # pin the citation gate's base
 #
@@ -232,14 +244,39 @@ fi
 runnable=$(awk -F'\t' '$2=="RUN" || $2=="EXP"' "$MANIFEST" | grep -c .)
 notrunnable=$(awk -F'\t' '$2=="NORUN"' "$MANIFEST" | grep -c .)
 
+# THE PROBE SCOPE (header). Decided before the banner, so CLASSIFY_ONLY prints it too.
+PROBE_GATE="steps.probe-scope.outputs.run == 'true'"
+probe_owed=yes
+if scope_base=$(git merge-base HEAD origin/main 2>/dev/null); then
+  scope_list="$OUT_DIR/probe-scope-changed.txt"
+  if git diff --name-only --no-renames "$scope_base" > "$scope_list" \
+    && git ls-files --others --exclude-standard >> "$scope_list" \
+    && node scripts/probe-scope.mjs --selftest > /dev/null \
+    && scope_decision=$(node scripts/probe-scope.mjs --changed "$scope_list"); then
+    scope_reason=$(printf '%s\n' "$scope_decision" | sed -n 's/^reason: //p')
+    if printf '%s\n' "$scope_decision" | grep -qx 'run=false'; then
+      probe_owed=no
+      probe_note="NOT OWED -- $scope_reason, from merge-base $scope_base (origin/main) to the working tree, untracked files included; CI skips these steps on a branch push of such a diff"
+    else
+      probe_note="owed -- $scope_reason (from merge-base $scope_base to the working tree)"
+    fi
+  else
+    probe_note="owed -- listing the changed paths or the resolver failed, failing safe"
+  fi
+else
+  probe_note="owed -- no merge-base with origin/main, failing safe"
+fi
+
 {
   echo "STRUCTURALLY NOT RUNNABLE HERE -- these gates are NOT covered by anything below:"
   awk -F'\t' '$2=="NORUN" { printf "  [%s]  %s\n", $3, $4 }' "$MANIFEST"
   awk -F'\t' '$2=="SKIP"  { printf "  [deliberate skip: %s]  %s\n", $3, $4 }' "$MANIFEST"
-  awk -F'\t' -v skip="$SKIP_EXPENSIVE" '$2=="EXP" {
+  awk -F'\t' -v skip="$SKIP_EXPENSIVE" -v owed="$probe_owed" -v gate="$PROBE_GATE" '$2=="EXP" {
     printf "  [expensive, CI-gated on %s]  %s  ->  %s\n", $3, $4,
-      (skip == "" ? "RUNS (unset SKIP_EXPENSIVE)" : "SKIPPED, counted as NOT EXECUTED")
+      (owed == "no" && $3 == gate ? "NOT OWED (probe scope below)" : \
+        (skip == "" ? "RUNS (unset SKIP_EXPENSIVE)" : "SKIPPED, counted as NOT EXECUTED"))
   }' "$MANIFEST"
+  echo "probe scope: $probe_note"
   echo ""
 } | tee -a "$LOG"
 
@@ -268,8 +305,14 @@ echo "executing $runnable runnable step(s) of $declared declared" | tee -a "$LOG
 
 fails=0
 executed=0
+notowed=0
 while IFS="$(printf '\t')" read -r idx class marker sname; do
   [ "$class" = "RUN" ] || [ "$class" = "EXP" ] || continue
+  if [ "$class" = "EXP" ] && [ "$probe_owed" = "no" ] && [ "$marker" = "$PROBE_GATE" ]; then
+    echo "NOT-OWED  $sname  (probe scope: every changed path since origin/main is inert)" | tee -a "$LOG"
+    notowed=$((notowed + 1))
+    continue
+  fi
   if [ "$class" = "EXP" ] && [ -n "$SKIP_EXPENSIVE" ]; then
     echo "NOT-EXECUTED  $sname  (SKIP_EXPENSIVE=1 — this costs the exit code)" | tee -a "$LOG"
     continue
@@ -299,18 +342,22 @@ while IFS="$(printf '\t')" read -r idx class marker sname; do
   fi
 done < "$MANIFEST"
 
-# Single source for not-executed: whatever was runnable and did not run, for ANY reason.
-notexec=$((runnable - executed))
+# Single source for not-executed: whatever was runnable and did not run, for ANY reason other than
+# the probe scope's own NOT-OWED answer, which is counted (and printed) on its own.
+notexec=$((runnable - executed - notowed))
 
 echo "" | tee -a "$LOG"
 rc=$((fails + notexec))
 [ "$rc" -gt 97 ] && rc=97
 if [ "$rc" -eq 0 ]; then
   verdict="LOCAL GATES PASSED -- and this covers ONLY the $executed step(s) executed above."
+  if [ "$notowed" -gt 0 ]; then
+    verdict="$verdict $notowed probe-gated step(s) $probe_note."
+  fi
 else
   verdict="LOCAL GATES FAILED -- $fails failed, $notexec runnable step(s) never executed. Do not push."
 fi
-echo "declared=$declared  executed=$executed  failed=$fails  not-executed=$notexec  not-runnable-here=$notrunnable" | tee -a "$LOG"
+echo "declared=$declared  executed=$executed  failed=$fails  not-executed=$notexec  not-owed=$notowed  not-runnable-here=$notrunnable" | tee -a "$LOG"
 echo "log: $LOG"
 echo "$verdict" | tee -a "$LOG"
 exit "$rc"

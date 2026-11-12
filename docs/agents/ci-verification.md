@@ -57,9 +57,8 @@ return data: `gh run list` (three runs listed), `gh api repos/warischa/watduang/
 (`total_count` 110), `gh api repos/warischa/watduang/commits/<sha>/check-runs` (`total_count` 1), and
 `gh api repos/warischa/watduang/actions/runs/<id>/jobs` (real per-step conclusions).
 
-Why it 404'd before is not established — the 110 runs say the repo was never empty, so the earlier
-reading was about the request or the token state of the day, not about the repo. Do not rebuild a
-theory on it. Just try the direct call first and fall back only if it actually fails.
+Why it 404'd before is not established (the 110 runs say the repo was never empty); do not rebuild a
+theory on it. Try the direct call first and fall back only if it actually fails.
 
 **Per-step outcomes** — this is the one worth knowing, because it answers "did Deploy run?" directly
 instead of inferring it:
@@ -114,7 +113,7 @@ not on every routine verify.
 
 Routed from `CLAUDE.md` 2026-09-08 (ADR-0012 seam; that file keeps the heading as its trigger). One line, unwrapped, so the bytes are verbatim. 88% above is CI's clock, 542/577 below is this machine's — two scopes, not a conflict.
 
-`SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh` drops the two browser lanes and **always exits non-zero** (they count as not-executed), so a fast run can never be misread as a pass. CI decides the same thing by itself in `ci.yml`'s `probe-scope` step: on `main` probes always run because that run gates Deploy · no usable base commit → fail safe, run · skip only when every changed path is inert (`scripts/probe-scope.mjs`, gh#270) · otherwise run. Use the fast lane while iterating; the full suite still runs once before a push. Two things that are NOT true: "the suite is slow" as a reason to cut scope — the runner now times every step, and FOUR local runs (n=4, this machine, not CI) put ~542s of the suite's ~577s in ONE step, the gh#122 browser probe — the 542s reproduced exactly all four times, next slowest step 7s — so a broad cut is aimed at the wrong thing; and a small diff is not a small blast radius — a one-line `--font-sans` edit changes text metrics on every page, which is exactly the shape a by-eye subset lets through.
+`SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh` drops the two browser lanes and **exits non-zero whenever they are owed** (they count as not-executed), so a fast run can never be misread as a pass. NOT OWED (exit 0) only when every path since the merge-base with origin/main, untracked included, is inert. CI's `probe-scope` step: on `main` probes run unless a push run at this SHA passed them on the same `dist/` digest, no red at this SHA (`--verified`, owner pick 2026-11-12) · no usable base → run · skip only when every changed path is inert (`scripts/probe-scope.mjs`, gh#270) · otherwise run. Use the fast lane while iterating; the full suite still runs once before a push. Two things that are NOT true: "the suite is slow" as a reason to cut scope — the runner now times every step, and FOUR local runs (n=4, this machine, not CI) put ~542s of the suite's ~577s in ONE step, the gh#122 browser probe — the 542s reproduced exactly all four times, next slowest step 7s — so a broad cut is aimed at the wrong thing; and a small diff is not a small blast radius — a one-line `--font-sans` edit changes text metrics on every page, which is exactly the shape a by-eye subset lets through.
 
 ## A local browser green can be blind to the path CI actually tests (2026-09-09, gh#213)
 
