@@ -93,6 +93,7 @@
 #
 # Exit: 0 every runnable step ran and passed · N = N runnable steps failed or went unexecuted
 #       96 = the workflow moved the unit tests out of local reach (REQUIRE guard)
+#       95 = the workflow moved the browser lanes out of local reach (GUARD 3)
 #       98 = the extractor is broken (not the tree) · 99 = not a repo
 set -u
 
@@ -176,9 +177,13 @@ LC_ALL=C awk -v dir="$STEPDIR" -v vfile="$VIOLATIONS" '
     sub(/[[:space:]]+$/, "", name)
     stepif = ""
   }
-  # CI gates this step on another step diffing the tree first, i.e. CI itself decides per run whether
-  # it is worth paying for. Derived, so a new expensive step inherits the class with no edit here.
-  /^[[:space:]]*if:[[:space:]].*steps\.[A-Za-z0-9_-]+\.outputs\./ {
+  # A new list item is a new step: no condition carries over from the one before (a step that opens
+  # with `- uses:` would otherwise lend its `if:` to the next `run:`).
+  /^[[:space:]]*-[[:space:]]+[A-Za-z_]/ { stepif = "" }
+  # CI gates this step on another step -- or, since the probe matrix (ADR-0078), on another JOB --
+  # diffing the tree first, i.e. CI itself decides per run whether it is worth paying for. Derived, so
+  # a new expensive step inherits the class with no edit here.
+  /^[[:space:]]*if:[[:space:]].*(steps|needs)\.[A-Za-z0-9_-]+\.outputs\./ {
     stepif = $0
     sub(/^[[:space:]]*if:[[:space:]]*/, "", stepif)
     sub(/[[:space:]]+$/, "", stepif)
@@ -241,11 +246,36 @@ if [ -s "$VIOLATIONS" ]; then
   exit 96
 fi
 
+# OWNED GUARD 3 (the probe matrix, ADR-0078): the browser lanes must stay in local reach as well. In
+# CI they run as matrix jobs, and one `${{ matrix.* }}` written into a probe step's body would make it
+# NORUN here -- the local suite would then stop running the probes without a red, exactly gh#171's
+# shape. So a runnable step must invoke the packed probe run and another the WebGL lane, or this aborts.
+missing_lanes=""
+for need in ci-probes webgl-pixels-lane; do
+  found=0
+  while IFS="$(printf '\t')" read -r idx class marker sname; do
+    { [ "$class" = "RUN" ] || [ "$class" = "EXP" ]; } || continue
+    case "$need" in
+      ci-probes) grep -Eq '(npm run ci-probes|scripts/ci-probes\.sh)' "$STEPDIR/$idx.sh" && found=1 ;;
+      webgl-pixels-lane) grep -Fq 'scripts/webgl-pixels-lane.sh' "$STEPDIR/$idx.sh" && found=1 ;;
+    esac
+  done < "$MANIFEST"
+  [ "$found" -eq 1 ] || missing_lanes="$missing_lanes $need"
+done
+if [ -n "$missing_lanes" ]; then
+  echo "ABORT: no runnable step in $WORKFLOW invokes:${missing_lanes} -- the browser lanes left local reach."
+  echo "Do NOT read this as a pass. Keep the lane's step body free of \${{ }} (pass the matrix through env:)."
+  exit 95
+fi
+
 runnable=$(awk -F'\t' '$2=="RUN" || $2=="EXP"' "$MANIFEST" | grep -c .)
 notrunnable=$(awk -F'\t' '$2=="NORUN"' "$MANIFEST" | grep -c .)
 
 # THE PROBE SCOPE (header). Decided before the banner, so CLASSIFY_ONLY prints it too.
-PROBE_GATE="steps.probe-scope.outputs.run == 'true'"
+# The probe gate as each workflow layout spells it: a step condition in the one-job layout, a job
+# output in the probe matrix (ADR-0078). Only steps carrying one of these can be NOT OWED.
+PROBE_GATES="steps.probe-scope.outputs.run == 'true'|needs.dist.outputs.run == 'true'"
+is_probe_gate() { case "|$PROBE_GATES|" in *"|$1|"*) return 0 ;; *) return 1 ;; esac; }
 probe_owed=yes
 # The full ref: a short `origin/main` resolves a tag or branch of that name first, and a local
 # `git tag origin/main HEAD` would make every unpushed commit vanish from the diff. Three trees are
@@ -280,9 +310,9 @@ fi
   echo "STRUCTURALLY NOT RUNNABLE HERE -- these gates are NOT covered by anything below:"
   awk -F'\t' '$2=="NORUN" { printf "  [%s]  %s\n", $3, $4 }' "$MANIFEST"
   awk -F'\t' '$2=="SKIP"  { printf "  [deliberate skip: %s]  %s\n", $3, $4 }' "$MANIFEST"
-  awk -F'\t' -v skip="$SKIP_EXPENSIVE" -v owed="$probe_owed" -v gate="$PROBE_GATE" '$2=="EXP" {
+  awk -F'\t' -v skip="$SKIP_EXPENSIVE" -v owed="$probe_owed" -v gates="$PROBE_GATES" 'BEGIN { ng = split(gates, G, "|"); for (i = 1; i <= ng; i++) isgate[G[i]] = 1 } $2=="EXP" {
     printf "  [expensive, CI-gated on %s]  %s  ->  %s\n", $3, $4,
-      (owed == "no" && $3 == gate ? "NOT OWED (probe scope below)" : \
+      (owed == "no" && ($3 in isgate) ? "NOT OWED (probe scope below)" : \
         (skip == "" ? "RUNS (unset SKIP_EXPENSIVE)" : "SKIPPED, counted as NOT EXECUTED"))
   }' "$MANIFEST"
   echo "probe scope: $probe_note"
@@ -317,7 +347,7 @@ executed=0
 notowed=0
 while IFS="$(printf '\t')" read -r idx class marker sname; do
   [ "$class" = "RUN" ] || [ "$class" = "EXP" ] || continue
-  if [ "$class" = "EXP" ] && [ "$probe_owed" = "no" ] && [ "$marker" = "$PROBE_GATE" ]; then
+  if [ "$class" = "EXP" ] && [ "$probe_owed" = "no" ] && is_probe_gate "$marker"; then
     echo "NOT-OWED  $sname  (probe scope: every changed path since origin/main is inert)" | tee -a "$LOG"
     notowed=$((notowed + 1))
     continue

@@ -175,7 +175,10 @@ run_matrix_group() { # group
   case "$1" in
     exit)        MATRIX_KEEP=""; lane1 ;;
     overflow)    MATRIX_KEEP="narrow-overflow narrow-overflow-control ad-reflow ad-reflow-control strip-chip-visibility strip-chip-visibility-control"; lane2 ;;
-    topband)     MATRIX_KEEP="play-top-band"; lane2; MATRIX_KEEP="play-top-band-control"; lane4 ;;
+    # The pair's two legs live in lane2 and lane4, which name CDP_2 and CDP_4; here CDP_4 points at the
+    # same browser as CDP_2 for the control leg, so clean and control share one Chrome, as every other
+    # pair here does. The legs run one after the other, never together.
+    topband)     MATRIX_KEEP="play-top-band"; lane2; MATRIX_KEEP="play-top-band-control"; CDP_4="$CDP_2"; lane4 ;;
     nav)         MATRIX_KEEP=""; lane3 ;;
     home)        MATRIX_KEEP="wheel-pointer-name home-page-normal home-page-reduced live-region-floor live-region-floor-control control-floor control-floor-control"; lane4 ;;
     firstscreen) MATRIX_KEEP="no-webgl-first-screen player-screen-face"; lane4 ;;
@@ -187,7 +190,7 @@ if [ -n "$PROBE_LANES" ]; then
   case "$PROBE_LANES" in
     exit) LANE_CDPS="$CDP_1" ;;
     overflow) LANE_CDPS="$CDP_2" ;;
-    topband) LANE_CDPS="$CDP_2 $CDP_4" ;;
+    topband) LANE_CDPS="$CDP_2" ;;
     nav) LANE_CDPS="$CDP_3" ;;
     home|firstscreen) LANE_CDPS="$CDP_4" ;;
     *)

@@ -1,0 +1,20 @@
+# Split-layout shadow (six groups + 5 fit shards) vs packed, same SHA de0c7bc, read with gh 2026-11-12
+
+packed ci run 43170178544: 2026-11-12T06:43:49Z -> 2026-11-12T06:59:07Z = 918s success
+shadow run 43170178547 attempt 2: 2026-11-12T06:55:26Z -> 2026-11-12T07:02:40Z = 434s success
+(attempt 1 was cancelled at 06:48:42 by the shadow workflow's own cancel-in-progress when a verdict-only re-run of run 43165835700 started on the same branch; attempt 2 is a full re-run)
+
+## shadow jobs, attempt 2 (job wall incl. setup)
+19s dist
+270s lanes (exit)
+192s lanes (firstscreen)
+387s lanes (fit0)
+239s lanes (fit1)
+273s lanes (fit2)
+236s lanes (fit3)
+164s lanes (fit4)
+282s lanes (home)
+284s lanes (nav)
+297s lanes (overflow)
+257s lanes (topband)
+20s verdict

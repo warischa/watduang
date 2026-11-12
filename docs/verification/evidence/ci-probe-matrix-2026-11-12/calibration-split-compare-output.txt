@@ -1,0 +1,47 @@
+
+## leg verdicts (fit legs as one set): 27 key(s), 0 differ
+  fit legs reported: packed 6, matrix 10 (2 per shard; counts may differ by design)
+
+## play-screen-fit rows (route viewport): 42 key(s), 0 differ
+
+## play-exit summaries: 2 key(s), 0 differ
+
+## leg seconds (reported, not judged): label packed -> matrix
+  ad-reflow                          19 ->   19
+  ad-reflow-control                  19 ->   19
+  canvas-ink                         89 ->   88
+  canvas-ink-control                 88 ->   88
+  category-pop                       38 ->   37
+  control-floor                      71 ->   67
+  control-floor-control              89 ->   85
+  home-page-normal                   29 ->   29
+  home-page-reduced                  29 ->   29
+  leave-confirm                       8 ->    7
+  leave-confirm-control               7 ->    8
+  live-region-floor                   4 ->    4
+  live-region-floor-control           4 ->    4
+  narrow-overflow                    43 ->   42
+  narrow-overflow-control            42 ->   41
+  no-nav-in-stage                    17 ->   16
+  no-nav-in-stage-control            15 ->   15
+  no-webgl-first-screen              53 ->   54
+  play-exit                         107 ->  107
+  play-exit-guard                   127 ->  128
+  play-screen-fit-0                 165 ->  241
+  play-screen-fit-1                 162 ->  102
+  play-screen-fit-2                 324 ->  138
+  play-screen-fit-3                   - ->  101
+  play-screen-fit-4                   - ->   69
+  play-screen-fit-control-0         174 ->  104
+  play-screen-fit-control-1         174 ->  105
+  play-screen-fit-control-2         140 ->  105
+  play-screen-fit-control-3           - ->  105
+  play-screen-fit-control-4           - ->   69
+  play-top-band                     165 ->  163
+  play-top-band-control              56 ->   56
+  player-screen-face                114 ->  111
+  strip-chip-visibility              71 ->   71
+  strip-chip-visibility-control      78 ->   77
+  wheel-pointer-name                 34 ->   33
+
+RESULT: MATCH

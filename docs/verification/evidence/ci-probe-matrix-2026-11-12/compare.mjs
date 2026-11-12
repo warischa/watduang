@@ -18,7 +18,7 @@ const filesIn = (dirs, re) => dirs.flatMap((d) => readdirSync(d).filter((f) => r
 
 function verdicts(dirs) {
   const v = new Map();
-  for (const f of filesIn(dirs, /^lane\d\.(pass|fail)$/)) {
+  for (const f of filesIn(dirs, /^[\w-]+\.(pass|fail)$/)) {
     const kind = f.endsWith('.pass') ? 'pass' : 'fail';
     for (const label of read(f).split('\n').filter(Boolean)) v.set(label, kind);
   }
@@ -26,7 +26,7 @@ function verdicts(dirs) {
 }
 function seconds(dirs) {
   const s = new Map();
-  for (const f of filesIn(dirs, /^lane\d\.log$/)) {
+  for (const f of filesIn(dirs, /^[\w-]+\.log$/)) {
     for (const m of read(f).matchAll(/^LEG_SECONDS (\S+) (\S+) (\d+)$/gm)) s.set(m[2], Number(m[3]));
   }
   return s;
@@ -67,7 +67,19 @@ function section(title, a, b) {
   differs += diffs.length;
 }
 
-section('leg verdicts', verdicts([packed]), verdicts(laneDirs));
+// Fit legs are labelled per shard and the two arms may run different shard counts, so they are judged as
+// a set (every fit leg on each side passed); every other leg is compared label for label.
+const isFit = (label) => /^play-screen-fit(-control)?-\d+$/.test(label);
+const split = (v) => {
+  const other = new Map([...v].filter(([k]) => !isFit(k)));
+  const fit = [...v].filter(([k]) => isFit(k));
+  other.set('(all play-screen-fit shard legs)', fit.length === 0 ? 'none reported' : fit.every(([, x]) => x === 'pass') ? 'all pass' : 'a fit leg failed');
+  return { other, n: fit.length };
+};
+const pv = split(verdicts([packed]));
+const mv = split(verdicts(laneDirs));
+section('leg verdicts (fit legs as one set)', pv.other, mv.other);
+console.log(`  fit legs reported: packed ${pv.n}, matrix ${mv.n} (2 per shard; counts may differ by design)`);
 section('play-screen-fit rows (route viewport)', fitRows([packed]), fitRows(laneDirs));
 section('play-exit summaries', exitSummaries([packed]), exitSummaries(laneDirs));
 

@@ -64,6 +64,17 @@ const WORKFLOW_PATH = '.github/workflows/ci.yml';
 // Suffixed with the attempt, so the match binds the digest to the attempt that measured it. On a
 // real re-run (run 43150614193, 2026-11-12) `-a2` published green and `-a1` was no longer listed.
 const DIGEST_ARTIFACT = (hex, attempt) => `dist-digest-${hex}-a${attempt}`;
+// The job layout (the probe matrix, ADR-0078): the digest is the identity, so the name carries no attempt.
+// A partial re-run keeps the earlier attempts' artifacts and copies the jobs it did not re-run into the
+// new attempt (observed 2026-11-12, run 43165835700), so binding the name to an attempt would orphan a
+// verdict that was never re-run.
+const JOB_DIGEST_ARTIFACT = (hex) => `dist-digest-${hex}`;
+// The probe jobs of the job layout, by the names GitHub gives them: the matrix lanes, WebGL, the verdict.
+const PROBE_VERDICT_JOB = 'probe-verdict';
+const WEBGL_JOB = 'webgl';
+const isProbeJob = (name) => name === PROBE_VERDICT_JOB || name === WEBGL_JOB || /^probes \(/.test(String(name));
+// ci.yml at the SHA decides the layout: a `probe-verdict` job means the job graph, else the one-job steps.
+const layoutOf = (yamlText) => (/^  probe-verdict:\s*$/m.test(yamlText) ? 'jobs' : 'steps');
 
 // Conditions that name the gate but gate no measurement: the failure-time upload and the digest
 // publish. A CLOSED set: any other condition mentioning probe-scope throws (REFUTE r2 F4), so a
@@ -159,9 +170,10 @@ const RED = new Set(['failure', 'timed_out']);
 // jobs are missing is unreadable, and an unreadable run at this SHA could be hiding a red.
 // The red scan covers THIS run too (its earlier attempts): a re-run keeps its run id, so excluding
 // it there would let attempt 2 of a main run whose attempt 1 went red deploy unmeasured.
-function decideVerified({ sha, digest, runs, jobsByRun, artifactsByRun, gated, excludeRunId }) {
+function decideVerified({ sha, digest, runs, jobsByRun, artifactsByRun, gated, excludeRunId, layout = 'steps' }) {
   const run = (reason) => ({ run: true, reason });
-  if (!Array.isArray(gated) || gated.length === 0) return run('no probe-gated step found in ci.yml at this SHA');
+  if (layout !== 'steps' && layout !== 'jobs') return run(`unknown workflow layout ${layout}`);
+  if (layout === 'steps' && (!Array.isArray(gated) || gated.length === 0)) return run('no probe-gated step found in ci.yml at this SHA');
   if (!/^[0-9a-f]{64}$/.test(String(digest))) return run(`no usable dist digest (${digest})`);
   const allAtSha = runs.filter((r) => r.head_sha === sha && r.path === WORKFLOW_PATH);
   const isSelf = (r) => String(r.id) === String(excludeRunId);
@@ -169,6 +181,11 @@ function decideVerified({ sha, digest, runs, jobsByRun, artifactsByRun, gated, e
     const jobs = jobsByRun[r.id];
     if (!Array.isArray(jobs)) return run(`jobs of run ${r.id} were not read`);
     for (const j of jobs) {
+      // Job layout: a probe job that failed or timed out, in ANY attempt, is the red.
+      if (layout === 'jobs') {
+        if (isProbeJob(j.name) && RED.has(j.conclusion)) return run(`run ${r.id} attempt ${j.run_attempt}: job "${j.name}" ${j.conclusion} at this SHA`);
+        continue;
+      }
       // A finished job that lists no steps is unreadable (REFUTE r2 F3); only this run's own job,
       // still in flight, may not have them yet.
       if (!Array.isArray(j.steps)) {
@@ -198,6 +215,18 @@ function decideVerified({ sha, digest, runs, jobsByRun, artifactsByRun, gated, e
     if (r.status !== 'completed' || r.conclusion !== 'success') { why(`${r.status}/${r.conclusion}`); continue; }
     if (!r.repository?.full_name || r.head_repository?.full_name !== r.repository.full_name) { why('head repository differs'); continue; }
     const latest = jobsByRun[r.id].filter((j) => j.run_attempt === r.run_attempt);
+    if (layout === 'jobs') {
+      const lanes = latest.filter((j) => /^probes \(/.test(String(j.name)));
+      const verdict = latest.find((j) => j.name === PROBE_VERDICT_JOB);
+      const webgl = latest.find((j) => j.name === WEBGL_JOB);
+      if (!verdict || verdict.conclusion !== 'success') { why(`${PROBE_VERDICT_JOB} ${verdict?.conclusion ?? 'absent'}`); continue; }
+      if (!webgl || webgl.conclusion !== 'success') { why(`${WEBGL_JOB} ${webgl?.conclusion ?? 'absent'}`); continue; }
+      if (lanes.length === 0 || lanes.some((j) => j.conclusion !== 'success')) { why(`probe lanes not all success (${lanes.length} listed)`); continue; }
+      const jarts = artifactsByRun[r.id];
+      if (!Array.isArray(jarts)) { why('artifacts not read'); continue; }
+      if (!jarts.some((a) => a.name === JOB_DIGEST_ARTIFACT(digest) && a.expired === false)) { why('no live artifact for this dist digest'); continue; }
+      return { run: false, reason: `run ${r.id} (${r.head_branch}, attempt ${r.run_attempt}) passed ${PROBE_VERDICT_JOB}, ${WEBGL_JOB} and ${lanes.length} probe lane(s) on dist digest ${digest}` };
+    }
     const steps = latest.flatMap((j) => j.steps ?? []);
     const notGreen = gated.filter((g) => !steps.some((s) => s.name === g && s.conclusion === 'success'));
     if (notGreen.length) { why(`not success: ${notGreen.join(' | ')}`); continue; }
@@ -229,7 +258,8 @@ function fetchVerified({ sha, repo }) {
     artifactsByRun[r.id] = ap.artifacts;
   }
   const yaml = execFileSync('git', ['show', `${sha}:${WORKFLOW_PATH}`], { encoding: 'utf8' });
-  return { runs: runsPage.workflow_runs, jobsByRun, artifactsByRun, gated: gatedSteps(yaml) };
+  const layout = layoutOf(yaml);
+  return { runs: runsPage.workflow_runs, jobsByRun, artifactsByRun, layout, gated: layout === 'steps' ? gatedSteps(yaml) : [] };
 }
 
 function verifiedSelftest() {
@@ -277,6 +307,31 @@ function verifiedSelftest() {
   assert.equal(v((x) => { x.runs.push({ ...x.runs[1], id: 2, event: 'pull_request', conclusion: 'failure' }); x.jobsByRun[2] = [{ run_attempt: 1, steps: [{ name: G[1], conclusion: 'timed_out' }] }]; x.artifactsByRun[2] = []; }), true, 'a red gated step in ANY run at this SHA blocks reuse, pull_request included');
   assert.equal(v((x) => { x.runs.push({ ...x.runs[1], id: 3 }); }), true, 'a run at this SHA whose jobs were not read blocks reuse');
   assert.match(decideVerified(base()).reason, /run 1 \(batch\/x, attempt 1\)/, 'the reuse reason names the run it trusted');
+  // The job layout (ADR-0078): probe lanes, webgl and probe-verdict are jobs; the digest artifact has no attempt.
+  const J = (name, conclusion = 'success', attempt = 1) => ({ name, conclusion, run_attempt: attempt, status: 'completed' });
+  const jobRun = (attempt = 1) => [J('build', 'success', attempt), J('probes (exit)', 'success', attempt), J('probes (fit0)', 'success', attempt), J('webgl', 'success', attempt), J(PROBE_VERDICT_JOB, 'success', attempt)];
+  const jbase = () => {
+    const x = base();
+    x.layout = 'jobs'; x.gated = [];
+    x.jobsByRun = { 9: [], 1: jobRun() };
+    x.artifactsByRun = { 9: [], 1: [{ name: JOB_DIGEST_ARTIFACT(D), expired: false }] };
+    return x;
+  };
+  const jv = (mut) => { const x = jbase(); mut(x); return decideVerified(x).run; };
+  assert.equal(jv(() => {}), false, 'job layout positive control: verdict, webgl and every lane green, digest artifact live');
+  assert.equal(jv((x) => { x.artifactsByRun[1] = [{ name: DIGEST_ARTIFACT(D, 1), expired: false }]; }), true, 'job layout matches the attempt-free name only');
+  assert.equal(jv((x) => { x.jobsByRun[1] = x.jobsByRun[1].filter((j) => j.name !== PROBE_VERDICT_JOB); }), true, 'no probe-verdict job means no verdict');
+  assert.equal(jv((x) => { x.jobsByRun[1].find((j) => j.name === WEBGL_JOB).conclusion = 'skipped'; }), true, 'a skipped webgl job is not a measurement');
+  assert.equal(jv((x) => { x.jobsByRun[1] = x.jobsByRun[1].filter((j) => !/^probes \(/.test(j.name)); }), true, 'no lane jobs listed means nothing measured');
+  assert.equal(jv((x) => { x.jobsByRun[1].find((j) => j.name === 'probes (exit)').conclusion = 'cancelled'; }), true, 'a lane that did not succeed blocks reuse');
+  // A partial re-run (2026-11-12, run 43165835700): attempt 2 copies the jobs it did not re-run.
+  assert.equal(jv((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [...jobRun(1).map((j) => (j.name === 'probes (fit0)' ? { ...j, conclusion: 'failure' } : j)), ...jobRun(2)]; }), true, 'a lane red in attempt 1 still blocks after a green partial re-run');
+  assert.equal(jv((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [...jobRun(1).map((j) => (j.name === 'build' ? { ...j, conclusion: 'failure' } : j)), ...jobRun(2)]; }), false, 'a red in a non-probe job of an earlier attempt is not a probe red');
+  assert.equal(jv((x) => { x.runs.push({ ...x.runs[1], id: 7, conclusion: 'failure' }); x.jobsByRun[7] = [J(PROBE_VERDICT_JOB, 'failure')]; x.artifactsByRun[7] = []; }), true, 'a red verdict in a sibling run blocks reuse');
+  assert.equal(jv((x) => { x.jobsByRun[9] = [J(WEBGL_JOB, 'timed_out')]; }), true, 'a red probe job in THIS run\'s earlier attempt blocks reuse');
+  assert.equal(decideVerified({ ...jbase(), layout: 'mixed' }).run, true, 'an unknown layout runs');
+  assert.equal(layoutOf('jobs:\n  build:\n    runs-on: x\n  probe-verdict:\n    needs: probes\n'), 'jobs', 'a probe-verdict job means the job layout');
+  assert.equal(layoutOf('jobs:\n  build:\n    steps:\n      - name: probe-verdict:\n'), 'steps', 'the name only counts as a job key');
   // REFUTE r2 F3: shapes the red scan used to read as clean.
   assert.equal(v((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [{ run_attempt: 1, status: 'completed', conclusion: 'failure' }, green(2)]; x.artifactsByRun[1] = [{ name: DIGEST_ARTIFACT(D, 2), expired: false }]; }), true, 'a finished job that lists no steps is unreadable: run');
   const sibling = (x, id, jobConclusion, stepConclusion) => {
@@ -337,7 +392,7 @@ function selftest() {
   verifiedSelftest();
 }
 
-export { decide, decideVerified, distDigest, fetchVerified, gatedSteps };
+export { decide, decideVerified, distDigest, fetchVerified, gatedSteps, layoutOf };
 
 // Imported (by a harness replaying real runs) -> no CLI. Run as a script -> the CLI below.
 // Compared as real paths, so a symlinked invocation can never fall through to a silent exit 0.
