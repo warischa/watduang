@@ -1,0 +1,21 @@
+# First run of the FIXED job graph (REFUTE r1+r2 fixes), run 43194643769, branch batch/2026-11-12, read with gh 2026-11-12
+# job wall incl. setup; start+N = seconds after run creation
+success f9d5bcc wall 519
+build                    success   start+3 dur 128
+dist                     success   start+3 dur 26
+probes (firstscreen)     success   start+49 dur 201
+webgl                    success   start+49 dur 104
+probes (exit)            success   start+49 dur 282
+probes (home)            success   start+49 dur 312
+probes (nav)             success   start+49 dur 325
+probes (topband)         success   start+49 dur 280
+probes (overflow)        success   start+49 dur 315
+probes (fit0)            success   start+49 dur 404
+probes (fit1)            success   start+49 dur 228
+probes (fit3)            success   start+49 dur 241
+probes (fit2)            success   start+49 dur 271
+probes (fit4)            success   start+50 dur 308
+probe-verdict            success   start+456 dur 24
+deploy                   success   start+484 dur 34
+# dist: probe-scope dist digest 64e5ad45a63dd6f9f4c4dd7f8646a2bee391bb0c0a1fffe87f295fa12c7ae044; new branch, no usable base commit -> run=true; report-only reuse lookup run=true (no other run at this SHA)
+# deploy: artifact = dist job = build job = 64e5ad45...; Azure login / token / deploy steps skipped (branch); artifacts: dist-64e5..., dist-digest-64e5... (published by probe-verdict), 11 probe-lane-*

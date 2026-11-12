@@ -61,6 +61,8 @@ Files: `calibration-compare-output.txt` and `calibration-timings.txt`.
 - **First run of the job graph** (run 43172718544, SHA 862dfb3, ADR-0078): green in 458s. File: `graph-run-timings.txt`.
   - Long pole: `probes (fit0)` 380s; build 89s runs beside the lanes, off the critical path.
   - Tail after the lanes: probe-verdict 18s, deploy 29s (branch: the Azure steps skip, the three-digest check runs).
+- **First run of the fixed graph** (run 43194643769, SHA f9d5bcc, branch `batch/2026-11-12`, after both REFUTE rounds): green in 519s, all 16 jobs. File: `graph-run-fixed-timings.txt`.
+  - Long pole: `probes (fit0)` 404s. Three digests equal (`64e5…`); `dist-digest-64e5…` published.
 
 ## Not yet decided
 
