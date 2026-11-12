@@ -54,8 +54,8 @@ duplicate-label check red on. The play-top-band pair shares one browser in the `
 **The packed run stays the local run.** On a laptop `scripts/run-workflow-gates.sh` runs the probe
 step with none of the matrix environment, which is the packed run of every lane, with its barrier;
 its GUARD 4 (exit 97) refuses a matrix variable inherited from the calling shell. Its GUARD 3 aborts
-(exit 95) when no runnable step invokes the packed probe run or the WebGL lane at the start of a body
-line, so a `${{ matrix.* }}` written into a probe step's body cannot drop the local probes silently. Its
+(exit 95) unless a runnable step's whole body is the packed probe run and another's the WebGL lane,
+so a `${{ matrix.* }}` written into a probe step's body cannot drop the local probes silently. Its
 expensive class and NOT OWED now also key on the job output `needs.dist.outputs.run == 'true'`.
 
 **Main's reuse lookup reads the layout from `ci.yml` at the SHA** (`probe-scope.mjs --verified`).

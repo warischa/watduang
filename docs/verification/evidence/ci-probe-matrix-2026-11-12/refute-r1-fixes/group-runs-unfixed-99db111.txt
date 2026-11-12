@@ -1,0 +1,28 @@
+# unfixed 99db111, lane mode, temp worktree; nav with PROBE_BASE=http://127.0.0.1:9, home with PROBE_WIDTH=1000
+99db111 ci: probe-matrix REFUTE r1 fixes — !cancelled() on verdict and deploy, runner GUARD 4, GUARD 3 anchored, dist install runs first
+nav rc=1
+home rc=0
+probe: live-region-floor (standalone)
+LEG_SECONDS home live-region-floor 5
+  PASS  live-region-floor (5s)
+probe: live-region-floor-control (standalone)
+LEG_SECONDS home live-region-floor-control 5
+  PASS  live-region-floor-control (5s)
+probe: control-floor (standalone)
+LEG_SECONDS home control-floor 68
+  PASS  control-floor (68s)
+probe: control-floor-control (standalone)
+LEG_SECONDS home control-floor-control 85
+  PASS  control-floor-control (85s)
+ci-probes: lane home (home): 7 leg(s) passed -- the run-level checks are PROBE_AGGREGATE's
+probe: canvas-ink (standalone)
+LEG_SECONDS nav canvas-ink 18
+::error::probe FAIL: canvas-ink -- exit 1: driver: probe threw: Error: bangkok-drift: the player screen never finished opening within 15000ms: <html> never carried data-player-screen, so the shared sc
+probe: canvas-ink-control (standalone)
+LEG_SECONDS nav canvas-ink-control 17
+::error::probe FAIL: canvas-ink-control -- exit 1: driver: probe threw: Error: bangkok-drift: the player screen never finished opening within 15000ms: <html> never carried data-player-screen, so the s
+::error::ci-probes: lane nav (nav) failing leg(s): canvas-ink canvas-ink-control
+
+# width the floor legs measured (their own logs)
+OK 8 announced element(s) above an .ad-slot across 5 built page(s) at 1000px: none renders a non-zero computed min-height/min-block-size outside a scroll-clipping ancestor.
+OK 207 rendered control(s) across 18 game page(s) at 1000px, all clearing the 44px tap minimum.

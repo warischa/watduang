@@ -51,9 +51,10 @@ pinned list is what rotted the original extractor. They bound the damage; they d
 partition complete (ADR-0056 § What this does not prove).
 
 **Two more aborts, for the probe matrix (ADR-0078).** Both fire before `CLASSIFY_ONLY` can exit 0.
-- **GUARD 3 exits 95** when no runnable step invokes the packed probe run (`npm run ci-probes` or
-  `scripts/ci-probes.sh`) or the WebGL lane at the start of a body line. A comment, an `echo` or
-  `bash -n` naming the script does not count, and an env-prefixed invocation aborts too.
+- **GUARD 3 exits 95** unless one runnable step's whole body is the packed probe run
+  (`npm run ci-probes` or `bash scripts/ci-probes.sh`) and another's is `bash scripts/webgl-pixels-lane.sh`.
+  A line inside a longer body never counts, since a grep cannot tell whether shell reaches it (a
+  comment, a heredoc, `if false`, `|| true`); any other spelling of the lane step aborts too.
 - **GUARD 4 exits 97** when `PROBE_LANES`, `PROBE_AGGREGATE`, `PROBE_FIT_SHARDS`, `MATRIX_KEEP` or
   `MATRIX_LANE` is set in the calling shell. CI passes them through a step's `env:`, which this script
   never reads; an inherited one would run one group, or no browser at all, under the packed run's name.

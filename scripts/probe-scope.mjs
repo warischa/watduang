@@ -22,9 +22,10 @@
 //   - a completed `push` run of this workflow at this SHA (never a pull_request run: that one tests
 //     a merge commit, not this SHA) concluded success, and in its latest attempt every probe unit
 //     concluded success -- the step set is derived from ci.yml, never pinned;
-//   - that latest attempt uploaded the digest artifact for the SAME dist/ digest this run built:
-//     `dist-digest-<hex>-a<attempt>` in the step layout, `dist-digest-<hex>` in the job layout. Same
-//     SHA is not enough: the probes must measure the bytes Deploy uploads, and main rebuilds dist/;
+//   - a live digest artifact names the SAME dist/ digest this run built: in the step layout
+//     `dist-digest-<hex>-a<attempt>` from that latest attempt; in the job layout `dist-digest-<hex>`
+//     from any attempt of that run, which only a green verdict publishes. Same SHA is not enough:
+//     the probes must measure the bytes Deploy uploads, and main rebuilds dist/;
 //   - NO run at this SHA -- this run's own earlier attempts included -- has a probe unit that
 //     failed or timed out in ANY attempt. A red is a signal; a later green on a re-run does
 //     not erase it, so main measures again;

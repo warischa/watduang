@@ -37,6 +37,13 @@
 # later run go green against a stale server.
 set -e
 
+# Two leg knobs that would move a measurement silently if a shell exported them: PROBE_BASE beats BASE
+# in canvas-ink-probe.mjs, so both canvas-ink legs would measure another server, and PROBE_WIDTH moves
+# the control-floor and live-region-floor legs off 320px. Every leg line below sets what it needs, so
+# nothing here may arrive from outside. REFUTE 2026-11-12 read the rest of the knobs the legs take
+# as loud (a control switch reds the clean leg) or as only locating the instrument (ports, out-dir).
+unset PROBE_BASE PROBE_WIDTH
+
 # --- config ------------------------------------------------------------------------------------
 # Own ports, deliberately not smoke-dist.sh's 4321 nor the 9222/4322/4399 other sessions have used,
 # so this script can never probe a foreign server or attach to someone else's Chrome.

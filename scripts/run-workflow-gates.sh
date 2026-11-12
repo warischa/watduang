@@ -264,17 +264,21 @@ fi
 # CI they run as matrix jobs, and one `${{ matrix.* }}` written into a probe step's body would make it
 # NORUN here -- the local suite would then stop running the probes without a red, exactly gh#171's
 # shape. So a runnable step must invoke the packed probe run and another the WebGL lane, or this aborts.
-# Invoke, not mention: the match is anchored at the start of a body line, as GUARD 2 is, so a `#`
-# comment, an `echo`, or `bash -n` naming the script cannot stand in for the lane (REFUTE 2026-11-12).
-# An env-prefixed invocation does not match either; that aborts here, loudly, rather than passing.
+# Invoke, not mention: the lane counts only as a step's WHOLE body, one command and nothing else. A
+# line match cannot decide whether shell reaches it -- a comment, an echo continuation, a heredoc,
+# `if false`, or `|| true` all passed one (REFUTE 2026-11-12, both rounds). Any other spelling of the
+# lane step aborts here, loudly, rather than passing.
+body_is() { # step body file, the one command it must be
+  awk -v want="$2" '{ sub(/^[[:space:]]+/, ""); sub(/[[:space:]]+$/, "") } $0 != "" { n++; line = $0 } END { exit !(n == 1 && line == want) }' "$1"
+}
 missing_lanes=""
 for need in ci-probes webgl-pixels-lane; do
   found=0
   while IFS="$(printf '\t')" read -r idx class marker sname; do
     { [ "$class" = "RUN" ] || [ "$class" = "EXP" ]; } || continue
     case "$need" in
-      ci-probes) grep -Eq '^[[:space:]]*(npm run ci-probes|(bash[[:space:]]+)?scripts/ci-probes\.sh)([[:space:]]|$)' "$STEPDIR/$idx.sh" && found=1 ;;
-      webgl-pixels-lane) grep -Eq '^[[:space:]]*(bash[[:space:]]+)?scripts/webgl-pixels-lane\.sh([[:space:]]|$)' "$STEPDIR/$idx.sh" && found=1 ;;
+      ci-probes) { body_is "$STEPDIR/$idx.sh" 'npm run ci-probes' || body_is "$STEPDIR/$idx.sh" 'bash scripts/ci-probes.sh'; } && found=1 ;;
+      webgl-pixels-lane) body_is "$STEPDIR/$idx.sh" 'bash scripts/webgl-pixels-lane.sh' && found=1 ;;
     esac
   done < "$MANIFEST"
   [ "$found" -eq 1 ] || missing_lanes="$missing_lanes $need"

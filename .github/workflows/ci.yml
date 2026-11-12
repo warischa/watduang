@@ -47,8 +47,8 @@ jobs:
           cache: 'npm'
       # Spelled `npm ci --no-audit`, not bare, so scripts/run-workflow-gates.sh RUNS it on a laptop: that
       # script walks this file top to bottom, this job comes first, and its Build below must not run
-      # before any install on a fresh checkout (REFUTE 2026-11-12). The later jobs keep the bare spelling,
-      # which that script skips, since by then this install has run.
+      # before any install on a fresh checkout (REFUTE 2026-11-12). The probes, webgl and verdict jobs
+      # keep the bare spelling, which that script skips; the build job's own install runs there again.
       - name: npm ci
         run: npm ci --no-audit
       - name: Build
