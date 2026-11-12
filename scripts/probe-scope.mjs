@@ -19,10 +19,13 @@
 //   - a completed `push` run of this workflow at this SHA (never a pull_request run: that one tests
 //     a merge commit, not this SHA) concluded success, and in its latest attempt every probe-gated
 //     step concluded success -- the gated set is derived from ci.yml AT THIS SHA, never pinned;
-//   - that run uploaded `dist-digest-<hex>` for the SAME dist/ digest this run built. Same SHA is
-//     not enough: the probes must measure the bytes Deploy uploads, and main rebuilds dist/;
-//   - NO run at this SHA, in ANY attempt, has a probe-gated step that failed or timed out. A red
-//     is a signal; a later green on a re-run does not erase it, so main measures again.
+//   - that latest attempt uploaded `dist-digest-<hex>-a<attempt>` for the SAME dist/ digest this
+//     run built. Same SHA is not enough: the probes must measure the bytes Deploy uploads, and
+//     main rebuilds dist/;
+//   - NO run at this SHA -- this run's own earlier attempts included -- has a probe-gated step
+//     that failed or timed out in ANY attempt. A red is a signal; a later green on a re-run does
+//     not erase it, so main measures again;
+//   - no other run at this SHA is still running: it may yet go red on the same bytes.
 // Anything it cannot read or enumerate throws, and the workflow treats a throw as "run".
 //
 //   node scripts/probe-scope.mjs --changed <file>   one path per line -> `run=...` + a reason line
@@ -58,7 +61,9 @@ const parse = (text) => text.split('\n').filter((l) => l.length > 0);
 // `failure() && ...` upload) is not a measurement and is not in the set.
 const PROBE_GATE = "steps.probe-scope.outputs.run == 'true'";
 const WORKFLOW_PATH = '.github/workflows/ci.yml';
-const DIGEST_ARTIFACT = (hex) => `dist-digest-${hex}`;
+// Suffixed with the attempt: upload-artifact fails on a name that already exists in the run unless
+// told to delete it, so an unsuffixed name would turn every re-run of a green-probe run red.
+const DIGEST_ARTIFACT = (hex, attempt) => `dist-digest-${hex}-a${attempt}`;
 
 // Step names in ci.yml whose `if:` is exactly PROBE_GATE. A gated step with no name cannot be found
 // in the API's step list, so it throws rather than shrinking the set.
@@ -104,13 +109,15 @@ const RED = new Set(['failure', 'timed_out']);
 
 // Pure: every input is data already fetched. `jobsByRun[id]` holds ALL attempts' jobs; a run whose
 // jobs are missing is unreadable, and an unreadable run at this SHA could be hiding a red.
+// The red scan covers THIS run too (its earlier attempts): a re-run keeps its run id, so excluding
+// it there would let attempt 2 of a main run whose attempt 1 went red deploy unmeasured.
 function decideVerified({ sha, digest, runs, jobsByRun, artifactsByRun, gated, excludeRunId }) {
   const run = (reason) => ({ run: true, reason });
   if (!Array.isArray(gated) || gated.length === 0) return run('no probe-gated step found in ci.yml at this SHA');
   if (!/^[0-9a-f]{64}$/.test(String(digest))) return run(`no usable dist digest (${digest})`);
-  const atSha = runs.filter((r) => r.head_sha === sha && r.path === WORKFLOW_PATH && String(r.id) !== String(excludeRunId));
-  if (atSha.length === 0) return run('no other run of this workflow at this SHA');
-  for (const r of atSha) {
+  const allAtSha = runs.filter((r) => r.head_sha === sha && r.path === WORKFLOW_PATH);
+  const isSelf = (r) => String(r.id) === String(excludeRunId);
+  for (const r of allAtSha) {
     const jobs = jobsByRun[r.id];
     if (!Array.isArray(jobs)) return run(`jobs of run ${r.id} were not read`);
     for (const j of jobs) {
@@ -121,6 +128,11 @@ function decideVerified({ sha, digest, runs, jobsByRun, artifactsByRun, gated, e
       }
     }
   }
+  const atSha = allAtSha.filter((r) => !isSelf(r));
+  if (atSha.length === 0) return run('no other run of this workflow at this SHA');
+  // A sibling still running may yet go red on these bytes; wait for nothing, measure instead.
+  const live = atSha.find((r) => r.status !== 'completed');
+  if (live) return run(`run ${live.id} at this SHA is still ${live.status}`);
   const misses = [];
   for (const r of atSha) {
     const why = (m) => misses.push(`run ${r.id}: ${m}`);
@@ -133,7 +145,7 @@ function decideVerified({ sha, digest, runs, jobsByRun, artifactsByRun, gated, e
     if (notGreen.length) { why(`not success: ${notGreen.join(' | ')}`); continue; }
     const arts = artifactsByRun[r.id];
     if (!Array.isArray(arts)) { why('artifacts not read'); continue; }
-    if (!arts.some((a) => a.name === DIGEST_ARTIFACT(digest) && a.expired === false)) { why('no live artifact for this dist digest'); continue; }
+    if (!arts.some((a) => a.name === DIGEST_ARTIFACT(digest, r.run_attempt) && a.expired === false)) { why('no live artifact for this dist digest from its latest attempt'); continue; }
     return { run: false, reason: `run ${r.id} (${r.head_branch}, attempt ${r.run_attempt}) passed every probe-gated step on dist digest ${digest}` };
   }
   return run(`no run at this SHA measured this dist: ${misses.join('; ')}`);
@@ -142,7 +154,8 @@ function decideVerified({ sha, digest, runs, jobsByRun, artifactsByRun, gated, e
 // Network half: `gh api` with the workflow's own token. Any short page, missing field or failed call
 // throws -- the caller's fail-safe branch then runs the probes.
 function fetchVerified({ sha, repo }) {
-  const gh = (path) => JSON.parse(execFileSync('gh', ['api', path], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
+  // A hung call throws at the timeout instead of burning the job.
+  const gh = (path) => JSON.parse(execFileSync('gh', ['api', path], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 60_000 }));
   const runsPage = gh(`repos/${repo}/actions/workflows/ci.yml/runs?head_sha=${sha}&per_page=100`);
   if (!Array.isArray(runsPage.workflow_runs) || runsPage.total_count !== runsPage.workflow_runs.length) {
     throw new Error(`runs at ${sha}: listed ${runsPage.workflow_runs?.length} of ${runsPage.total_count}`);
@@ -174,12 +187,12 @@ function verifiedSelftest() {
       { id: 1, head_sha: SHA, path: WORKFLOW_PATH, event: 'push', head_branch: 'batch/x', status: 'completed', conclusion: 'success', run_attempt: 1, repository: repo, head_repository: repo },
     ],
     jobsByRun: { 9: [], 1: [green()] },
-    artifactsByRun: { 9: [], 1: [{ name: DIGEST_ARTIFACT(D), expired: false }] },
+    artifactsByRun: { 9: [], 1: [{ name: DIGEST_ARTIFACT(D, 1), expired: false }] },
   });
   const v = (mut) => { const x = base(); mut(x); return decideVerified(x).run; };
   assert.equal(v(() => {}), false, 'positive control: a same-SHA push run green on every gated step with this digest is reused');
   assert.equal(v((x) => { x.digest = 'c'.repeat(64); }), true, 'a different dist digest must run: main rebuilt different bytes');
-  assert.equal(v((x) => { x.artifactsByRun[1] = [{ name: DIGEST_ARTIFACT(D), expired: true }]; }), true, 'an expired digest artifact must run');
+  assert.equal(v((x) => { x.artifactsByRun[1] = [{ name: DIGEST_ARTIFACT(D, 1), expired: true }]; }), true, 'an expired digest artifact must run');
   assert.equal(v((x) => { x.artifactsByRun[1] = []; }), true, 'no digest artifact must run');
   assert.equal(v((x) => { delete x.artifactsByRun[1]; }), true, 'unread artifacts must run');
   assert.equal(v((x) => { x.jobsByRun[1][0].steps[1].conclusion = 'skipped'; }), true, 'a skipped probe step is not a measurement');
@@ -197,6 +210,12 @@ function verifiedSelftest() {
   // Run 33491962091's shape: attempt 1 red on the probes, attempt 2 green. The red still blocks.
   assert.equal(v((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [{ run_attempt: 1, steps: [{ name: G[1], conclusion: 'failure' }] }, green(2)]; }), true, 'a red in an earlier attempt blocks reuse');
   assert.equal(v((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [green(1)]; }), true, 'only the latest attempt can verify');
+  // REFUTE r1 finding 1: this run is main's own re-run, and its attempt 1 went red on the probes.
+  assert.equal(v((x) => { x.runs[0].run_attempt = 2; x.jobsByRun[9] = [{ run_attempt: 1, steps: [{ name: G[1], conclusion: 'failure' }] }]; }), true, 'a red in an earlier attempt of THIS run blocks reuse');
+  // REFUTE r1 finding 2: a green sibling, and another still measuring the same bytes.
+  assert.equal(v((x) => { x.runs.push({ ...x.runs[1], id: 4, status: 'in_progress', conclusion: null }); x.jobsByRun[4] = []; x.artifactsByRun[4] = []; }), true, 'a sibling still running at this SHA blocks reuse');
+  assert.equal(v((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [green(1), green(2)]; }), true, 'an artifact from an earlier attempt does not verify the latest one');
+  assert.equal(v((x) => { x.runs[1].run_attempt = 2; x.jobsByRun[1] = [green(1), green(2)]; x.artifactsByRun[1] = [{ name: DIGEST_ARTIFACT(D, 2), expired: false }]; }), false, 'a green re-run that published its own digest is reused');
   assert.equal(v((x) => { x.runs.push({ ...x.runs[1], id: 2, event: 'pull_request', conclusion: 'failure' }); x.jobsByRun[2] = [{ run_attempt: 1, steps: [{ name: G[1], conclusion: 'timed_out' }] }]; x.artifactsByRun[2] = []; }), true, 'a red gated step in ANY run at this SHA blocks reuse, pull_request included');
   assert.equal(v((x) => { x.runs.push({ ...x.runs[1], id: 3 }); }), true, 'a run at this SHA whose jobs were not read blocks reuse');
   assert.match(decideVerified(base()).reason, /run 1 \(batch\/x, attempt 1\)/, 'the reuse reason names the run it trusted');

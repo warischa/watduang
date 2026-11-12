@@ -485,8 +485,9 @@ jobs:
       #   - main never takes the inert-path skip. That run gates Deploy. Since 2026-11-12 (owner pick,
       #     reversing gh#270's "main always runs") main skips the probes ONLY when another push run at
       #     this same SHA already passed every probe-gated step on the SAME dist/ digest, and no run at
-      #     this SHA has a red probe step in any attempt (`probe-scope.mjs --verified`, its header has
-      #     the full rule). A batch reaches main at the SHA its branch run measured, so main paid the
+      #     this SHA (this one's earlier attempts included) has a red probe step in any attempt or is
+      #     still running (`probe-scope.mjs --verified`; its header has the full rule).
+      #     A batch reaches main at the SHA its branch run measured, so main paid the
       #     whole lane twice for one tree. Same SHA alone is not enough: main rebuilds dist/, so the
       #     digest is what proves the probes measured the bytes Deploy uploads.
       #   - anything this step cannot diff or look up (a new branch, a pull_request event with no
@@ -503,7 +504,8 @@ jobs:
           emit() { if printf '%s\n' "$1" | grep -qx 'run=false'; then echo "run=false"; else echo "run=true"; fi >> "$GITHUB_OUTPUT"; }
           # The dist/ the probes below would measure is the dist/ Deploy uploads. No digest -> no
           # digest artifact for main to match, and main itself cannot reuse anything.
-          if digest=$(node scripts/probe-scope.mjs --dist-digest dist 2>&1) && printf '%s' "$digest" | grep -Eqx '[0-9a-f]{64}'; then
+          # The WHOLE output must be one 64-hex line: grep -x would pass a warning line plus a hex line.
+          if digest=$(node scripts/probe-scope.mjs --dist-digest dist) && [[ "$digest" =~ ^[0-9a-f]{64}$ ]]; then
             echo "probe-scope: dist digest $digest"
             echo "dist_digest=$digest" >> "$GITHUB_OUTPUT"
             printf '%s\n' "$digest" > "$RUNNER_TEMP/dist-digest.txt"
@@ -596,12 +598,14 @@ jobs:
       # The other half of main's reuse check (`probe-scope.mjs --verified`): the dist/ digest these
       # probes just passed on, published as an artifact NAME so main matches it with one list call.
       # success() means every earlier step passed, the probe-gated ones included. Seven days covers
-      # a branch run read before its main push; an expired one just means main measures again.
+      # a branch run read before its main push; an expired one just means main measures again. The
+      # attempt suffix is load-bearing: upload-artifact fails on a name already in the run (its
+      # `overwrite` input defaults to false), so a re-run of a green-probe run would otherwise go red.
       - name: Publish the dist digest the probes passed on
         if: success() && steps.probe-scope.outputs.run == 'true' && steps.probe-scope.outputs.dist_digest != ''
         uses: actions/upload-artifact@v7
         with:
-          name: dist-digest-${{ steps.probe-scope.outputs.dist_digest }}
+          name: dist-digest-${{ steps.probe-scope.outputs.dist_digest }}-a${{ github.run_attempt }}
           path: ${{ runner.temp }}/dist-digest.txt
           retention-days: 7
           if-no-files-found: error

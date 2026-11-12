@@ -247,9 +247,13 @@ notrunnable=$(awk -F'\t' '$2=="NORUN"' "$MANIFEST" | grep -c .)
 # THE PROBE SCOPE (header). Decided before the banner, so CLASSIFY_ONLY prints it too.
 PROBE_GATE="steps.probe-scope.outputs.run == 'true'"
 probe_owed=yes
-if scope_base=$(git merge-base HEAD origin/main 2>/dev/null); then
+# The full ref: a short `origin/main` resolves a tag or branch of that name first, and a local
+# `git tag origin/main HEAD` would make every unpushed commit vanish from the diff. The index is
+# listed as well as the working tree: a staged change the working tree reverted still commits.
+if scope_base=$(git merge-base HEAD refs/remotes/origin/main 2>/dev/null); then
   scope_list="$OUT_DIR/probe-scope-changed.txt"
   if git diff --name-only --no-renames "$scope_base" > "$scope_list" \
+    && git diff --cached --name-only --no-renames "$scope_base" >> "$scope_list" \
     && git ls-files --others --exclude-standard >> "$scope_list" \
     && node scripts/probe-scope.mjs --selftest > /dev/null \
     && scope_decision=$(node scripts/probe-scope.mjs --changed "$scope_list"); then
