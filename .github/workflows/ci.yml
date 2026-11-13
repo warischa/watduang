@@ -84,7 +84,7 @@ jobs:
           # `probe-scope.mjs --emit` validates there -- `run=` then `scope=`, from a closed vocabulary --
           # else run=true scope=full. Everything the resolver prints (paths, reasons) is JSON-escaped log
           # text, never parsed, and never a raw file name a runner could read as a `::` command.
-          # GITHUB_REF and GITHUB_EVENT_NAME come from the runner's environment, not from `${{ }}`.
+          # GITHUB_REF and GITHUB_EVENT_NAME come from the runner's environment, not from a workflow expression.
           decision="$RUNNER_TEMP/probe-scope-decision.txt"
           rm -f "$decision"
           emit() {
