@@ -16,8 +16,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ARM_DELAY_MS } from '../../games/_arm-gate.ts';
-import { STORAGE_KEY } from '../../prize-event/event.ts';
-import { memoryStorage, mount, seeded, sharedStorage, storedEvent } from './stage-harness.mjs';
+import { fakeOrigin, mount, seeded, storedEvent } from './stage-harness.mjs';
 
 const SOURCE = fs
   .readFileSync(path.join(import.meta.dirname, 'stage.ts'), 'utf8')
@@ -33,7 +32,7 @@ test('show() is the only un-hide, and it arms the region it shows', () => {
 
 // receiver -> why it is shown. Every entry is a decision.
 const EXPECTED_SHOWS = new Map([
-  ['viewport', 'every render (cold, round, reveal, final, result) rebuilds the frame and the MC bar inside the viewport and arms it, including a follower render (another tab moved the event: taken up on a storage event or on this screen\'s own press); and the notice close path uncovers it again (ADR-0057)'],
+  ['viewport', 'every render (cold, refused, round, reveal, final, result) rebuilds the frame and the MC bar inside the viewport and arms it, including a follower render (another tab moved the event: taken up on its commit notice or on this screen\'s own stale press); and the notice close path uncovers it again (ADR-0057)'],
   ['notice', 'the storage-failure notice, which carries its own close button'],
 ]);
 
@@ -62,22 +61,25 @@ function armedThenLive(button, label) {
   assert.equal(button.disabled, false, `${label}: the button never armed`);
 }
 
-test('every transition arms the button it reveals, round 1 to the result', () => {
+test('every transition arms the button it reveals, round 1 to the result', async () => {
   mock.timers.enable({ apis: ['setTimeout'] });
   try {
-    const storage = memoryStorage();
-    storedEvent(storage, { n: 50 });
-    const s = mount({ storage, rng: seeded(9) });
+    const origin = fakeOrigin();
+    storedEvent(origin, { n: 50 });
+    const s = await mount({ origin, rng: seeded(9) });
     armedThenLive(s.go(), 'first screen');
     for (let r = 1; r <= 4; r++) {
       s.go().click(); // reveal
+      await origin.idle();
       assert.equal(s.frame.getAttribute('data-screen'), 'reveal');
       armedThenLive(s.go(), `round ${r} reveal`);
       s.go().click(); // next
+      await origin.idle();
       armedThenLive(s.go(), `after round ${r}`);
     }
     assert.equal(s.frame.getAttribute('data-screen'), 'final');
     s.go().click();
+    await origin.idle();
     assert.equal(s.frame.getAttribute('data-screen'), 'result');
     assert.equal(s.go(), null, 'the result ends the event: no MC button');
   } finally {
@@ -85,16 +87,17 @@ test('every transition arms the button it reveals, round 1 to the result', () =>
   }
 });
 
-test('close path: a failed store opens the notice armed, and closing it re-arms the MC button (ADR-0057)', () => {
+test('close path: an aborted store opens the notice armed, and closing it re-arms the MC button (ADR-0057)', async () => {
   mock.timers.enable({ apis: ['setTimeout'] });
   try {
-    const storage = memoryStorage();
-    storedEvent(storage, { n: 50 });
-    const s = mount({ storage, rng: seeded(3) });
+    const origin = fakeOrigin();
+    storedEvent(origin, { n: 50 });
+    const s = await mount({ origin, rng: seeded(3) });
     mock.timers.tick(ARM_DELAY_MS);
-    storage.failWrites = true;
+    origin.faults.abortCommits = 1;
     s.go().click();
-    assert.equal(s.notice.hidden, false, 'the notice did not open on a failed store');
+    await origin.idle();
+    assert.equal(s.notice.hidden, false, 'the notice did not open on an aborted store');
     assert.equal(s.frame.getAttribute('data-screen'), 'round', 'a draw that was not stored was revealed');
     const close = s.notice.querySelector('button');
     armedThenLive(close, 'notice close');
@@ -106,42 +109,52 @@ test('close path: a failed store opens the notice armed, and closing it re-arms 
   }
 });
 
-/** Two tabs on one stored event, past their first arm window. */
-function twoTabs() {
-  const shared = sharedStorage();
-  const storage = memoryStorage();
-  storedEvent(storage, { n: 50 });
-  shared.map.set(STORAGE_KEY, storage.map.get(STORAGE_KEY));
-  const tab = (name, seed) => {
-    const t = shared.tab(name);
-    return { ...mount({ storage: t.storage, rng: seeded(seed), onStorage: t.onStorage }), deliver: t.deliver };
+/** Two tabs on one stored event, past their first arm window; A has revealed round 1. Messages between the
+ *  tabs wait until a test delivers them. */
+async function twoTabs() {
+  const origin = fakeOrigin();
+  storedEvent(origin, { n: 50 });
+  const held = { A: [], B: [] };
+  const tab = async (name, seed) => {
+    const env = origin.tab(name);
+    // Hold this tab's commit notices until the test delivers them.
+    const Real = env.BroadcastChannel;
+    env.BroadcastChannel = class extends Real {
+      addEventListener(type, l) {
+        super.addEventListener(type, (ev) => held[name].push(() => l(ev)));
+      }
+    };
+    return { ...(await mount({ origin, env, rng: seeded(seed) })), deliver: async () => { for (const f of held[name].splice(0)) f(); await origin.idle(); } };
   };
-  const tabs = { A: tab('A', 21), B: tab('B', 22) };
+  const tabs = { A: await tab('A', 21), B: await tab('B', 22) };
   mock.timers.tick(ARM_DELAY_MS);
   tabs.A.go().click();
-  return tabs;
+  await origin.idle();
+  return { ...tabs, origin };
 }
 
-test('follower path, storage event: a tab that follows another tab\'s reveal arms the button it reveals', () => {
+test('follower path, commit notice: a tab that follows another tab\'s reveal arms the button it reveals', async () => {
   mock.timers.enable({ apis: ['setTimeout'] });
   try {
-    const { A, B } = twoTabs();
+    const { A, B } = await twoTabs();
     assert.equal(A.frame.getAttribute('data-screen'), 'reveal');
-    B.deliver();
+    assert.equal(B.frame.getAttribute('data-screen'), 'round', 'precondition: the follower has not heard yet');
+    await B.deliver();
     assert.equal(B.frame.getAttribute('data-screen'), 'reveal', 'the follower did not re-render the stored reveal');
-    armedThenLive(B.go(), 'follower, on the storage event');
+    armedThenLive(B.go(), 'follower, on the commit notice');
   } finally {
     mock.timers.reset();
   }
 });
 
-test('follower path, own press: a tab that was behind takes the stored step up on its tap, and the button under that finger is armed', () => {
+test('follower path, own press: a tab that was behind takes the stored step up on its tap, and the button under that finger is armed', async () => {
   mock.timers.enable({ apis: ['setTimeout'] });
   try {
-    const { A, B } = twoTabs();
+    const { A, B, origin } = await twoTabs();
     const behind = B.go();
     assert.equal(behind.disabled, false, 'precondition: the stale button is live');
-    behind.click(); // no storage event delivered: B learns of the reveal from its own re-read
+    behind.click(); // no notice delivered: B learns of the reveal from its own compare-and-set
+    await origin.idle();
     assert.equal(B.frame.getAttribute('data-screen'), 'reveal', 'the stale tab did not take up the stored reveal');
     assert.deepEqual(B.stage.current().rounds, A.stage.current().rounds, 'the stale tab drew its own round instead of taking up the stored one');
     armedThenLive(B.go(), 'follower, on its own press');

@@ -17,10 +17,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { makeDoc } from '../../prize-event/fake-dom.mjs';
-import { STORAGE_KEY, createEvent } from '../../prize-event/event.ts';
+import { createEvent, encodeEvent } from '../../prize-event/event.ts';
 import { mountSetup } from '../../prize-event/setup-page.ts';
 import { proposeSchedule } from '../../prize-draw/schedule.ts';
-import { memoryStorage, mount, seeded } from '../prize-draw/stage-harness.mjs';
+import { fakeOrigin, mount, seedRaw, seeded } from '../prize-draw/stage-harness.mjs';
 
 // Distinctive, and none is a substring of another ("Qz1Kv" is not inside "Qz11Kv").
 const ROSTER = Array.from({ length: 12 }, (_, i) => `Qz${i + 1}Kv`);
@@ -50,31 +50,33 @@ function watch(doc) {
   return seen;
 }
 
-test('projector, every screen to the result: every roster name the route writes goes through names-dom.ts', () => {
+test('projector, every screen to the result: every roster name the route writes goes through names-dom.ts', async () => {
   const doc = makeDoc();
   const seen = watch(doc);
-  const storage = memoryStorage();
+  const origin = fakeOrigin();
   const ev = createEvent({ eventName: 'Party 2570', names: ROSTER, schedule: proposeSchedule(ROSTER.length), prizes: ['A', 'B', 'C', 'D', 'E'] }, seeded(1));
-  storage.map.set(STORAGE_KEY, JSON.stringify(ev));
-  const s = mount({ storage, rng: seeded(2), doc });
+  seedRaw(origin, encodeEvent(ev));
+  const s = await mount({ origin, rng: seeded(2), doc });
   for (let guard = 0; s.go() && guard < 20; guard++) {
     s.go().disabled = false;
     s.go().click();
+    await origin.idle();
   }
   assert.equal(s.frame.getAttribute('data-screen'), 'result', 'the walk did not reach the result: the result path was not measured');
   assert.deepEqual(seen.bypass.map((b) => `${b.name} by ${b.by}`), [], 'a roster name reached the DOM outside names-dom.ts');
   assert.ok(seen.sink > ROSTER.length, `the hook saw ${seen.sink} sink writes: it is not seeing the screens`);
 });
 
-test('projector result: the live region names each winner through the sink, one direction-isolated run each, in the approved line', () => {
+test('projector result: the live region names each winner through the sink, one direction-isolated run each, in the approved line', async () => {
   const doc = makeDoc();
-  const storage = memoryStorage();
+  const origin = fakeOrigin();
   const ev = createEvent({ eventName: 'Party 2570', names: ROSTER, schedule: proposeSchedule(ROSTER.length), prizes: ['A', 'B', 'C'] }, seeded(1));
-  storage.map.set(STORAGE_KEY, JSON.stringify(ev));
-  const s = mount({ storage, rng: seeded(3), doc });
+  seedRaw(origin, encodeEvent(ev));
+  const s = await mount({ origin, rng: seeded(3), doc });
   for (let guard = 0; s.go() && guard < 20; guard++) {
     s.go().disabled = false;
     s.go().click();
+    await origin.idle();
   }
   const held = s.stage.current();
   const byId = new Map(held.setup.people.map((p) => [p.id, p.name]));
@@ -106,7 +108,7 @@ test('setup page: refused and taken names are shown, and only through names-dom.
     form.append(row);
     add('input', `pd-prize-${i}`, row);
   }
-  mountSetup(doc, { localStorage: memoryStorage(), location: { assign() {} } });
+  mountSetup(doc, { ...fakeOrigin().tab('setup'), location: { assign() {} }, confirm: () => true });
   const box = doc.getElementById('pd-names');
   box.value = [...ROSTER, 'qz1kv', 'Qz2Kv!'].join('\n');
   box.dispatch('input');

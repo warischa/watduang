@@ -1,0 +1,594 @@
+{
+  "instrument": {
+    "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+    "url": "http://localhost:4355/game/prize-draw/",
+    "readBeforeAnyEvent": {
+      "missing": "record",
+      "keys": []
+    },
+    "mustRed_wrongDbName": {
+      "missing": "database",
+      "dbName": "no-such-db",
+      "have": [
+        "watduang-prize-draw"
+      ]
+    },
+    "verdict": {
+      "label": "wrong db name reports missing, not an empty pass",
+      "pass": true
+    }
+  },
+  "s1": {
+    "startClick": {
+      "clicked": true,
+      "wasDisabled": false
+    },
+    "urlAfterStart": "http://localhost:4355/game/prize-draw/play/",
+    "idbAfterStart": {
+      "raw": "<665 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "fd80549bda4824d0",
+      "at": "ready",
+      "rounds": [],
+      "nRounds": 0,
+      "final": false,
+      "people": 12,
+      "eventName": "Probe event"
+    },
+    "screenReady": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "round",
+      "frame": "Probe event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\n12\n10\nคน\nรอบนี้คัดเหลือ\n10 คน",
+      "btn": "เปิดผล",
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "press1": {
+      "clicked": true,
+      "wasDisabled": false
+    },
+    "afterDraw": {
+      "raw": "<902 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "fd80549bda4824d0",
+      "at": "revealed",
+      "rounds": [
+        {
+          "round": 1,
+          "code": "368048635",
+          "survivors": 10,
+          "ids": [
+            "778bf8d9cd259a1f",
+            "a7c7827981e0121a",
+            "5fb259a6e7f5b6f2",
+            "415185db3f09253b",
+            "befbba778e64ea92",
+            "765d54a77ee05440",
+            "4756178288e63c7d",
+            "62a1d582c520128d",
+            "2debf898e792a1a1",
+            "af59a0fe57728994"
+          ]
+        }
+      ],
+      "nRounds": 1,
+      "final": false,
+      "people": 12,
+      "eventName": "Probe event"
+    },
+    "screenAfterDraw": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "reveal",
+      "frame": "Probe event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\nผ่านรอบที่ 1\n10\nคน\nผ่าน\nไม่ผ่าน",
+      "btn": "รอบต่อไป",
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "rawBeforeReloadLen": 902,
+    "afterReload": {
+      "raw": "<902 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "fd80549bda4824d0",
+      "at": "revealed",
+      "rounds": [
+        {
+          "round": 1,
+          "code": "368048635",
+          "survivors": 10,
+          "ids": [
+            "778bf8d9cd259a1f",
+            "a7c7827981e0121a",
+            "5fb259a6e7f5b6f2",
+            "415185db3f09253b",
+            "befbba778e64ea92",
+            "765d54a77ee05440",
+            "4756178288e63c7d",
+            "62a1d582c520128d",
+            "2debf898e792a1a1",
+            "af59a0fe57728994"
+          ]
+        }
+      ],
+      "nRounds": 1,
+      "final": false,
+      "people": 12,
+      "eventName": "Probe event"
+    },
+    "screenAfterReload": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "reveal",
+      "frame": "Probe event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\nผ่านรอบที่ 1\n10\nคน\nผ่าน\nไม่ผ่าน",
+      "btn": "รอบต่อไป",
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "byteIdentical": true,
+    "saved": {
+      "code": "368048635",
+      "survivors": [
+        "778bf8d9cd259a1f",
+        "a7c7827981e0121a",
+        "5fb259a6e7f5b6f2",
+        "415185db3f09253b",
+        "befbba778e64ea92",
+        "765d54a77ee05440",
+        "4756178288e63c7d",
+        "62a1d582c520128d",
+        "2debf898e792a1a1",
+        "af59a0fe57728994"
+      ],
+      "at": "revealed"
+    },
+    "verdict": {
+      "label": "draw committed once, reload keeps byte-identical record, same round",
+      "pass": true,
+      "urlIsPlay": true
+    }
+  },
+  "s2": {
+    "idbBeforeSeed": {
+      "missing": "record",
+      "keys": []
+    },
+    "lsLenBefore": 902,
+    "otherLsKeysBefore": [
+      "watduang:prize-draw:event"
+    ],
+    "screen": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "reveal",
+      "frame": "Probe event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\nผ่านรอบที่ 1\n10\nคน\nผ่าน\nไม่ผ่าน",
+      "btn": "รอบต่อไป",
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "idbAfter": {
+      "raw": "<902 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "fd80549bda4824d0",
+      "at": "revealed",
+      "rounds": [
+        {
+          "round": 1,
+          "code": "368048635",
+          "survivors": 10,
+          "ids": [
+            "778bf8d9cd259a1f",
+            "a7c7827981e0121a",
+            "5fb259a6e7f5b6f2",
+            "415185db3f09253b",
+            "befbba778e64ea92",
+            "765d54a77ee05440",
+            "4756178288e63c7d",
+            "62a1d582c520128d",
+            "2debf898e792a1a1",
+            "af59a0fe57728994"
+          ]
+        }
+      ],
+      "nRounds": 1,
+      "final": false,
+      "people": 12,
+      "eventName": "Probe event"
+    },
+    "lsAfter": null,
+    "identicalToS1": true,
+    "idbAfterSecondReload": {
+      "raw": "<902 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "fd80549bda4824d0",
+      "at": "revealed",
+      "rounds": [
+        {
+          "round": 1,
+          "code": "368048635",
+          "survivors": 10,
+          "ids": [
+            "778bf8d9cd259a1f",
+            "a7c7827981e0121a",
+            "5fb259a6e7f5b6f2",
+            "415185db3f09253b",
+            "befbba778e64ea92",
+            "765d54a77ee05440",
+            "4756178288e63c7d",
+            "62a1d582c520128d",
+            "2debf898e792a1a1",
+            "af59a0fe57728994"
+          ]
+        }
+      ],
+      "nRounds": 1,
+      "final": false,
+      "people": 12,
+      "eventName": "Probe event"
+    },
+    "keysAfterSecondReload": [
+      "current"
+    ],
+    "sameAfterReload": true,
+    "lsAfterSecond": null,
+    "verdict": {
+      "label": "resumed, idb holds it, ls key gone, one copy, stable",
+      "pass": true
+    }
+  },
+  "s3": {
+    "idbStart": {
+      "raw": "<664 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "80ff8f3556edba54",
+      "at": "ready",
+      "rounds": [],
+      "nRounds": 0,
+      "final": false,
+      "people": 12,
+      "eventName": "Race event"
+    },
+    "screenA0": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "round",
+      "frame": "Race event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\n12\n10\nคน\nรอบนี้คัดเหลือ\n10 คน",
+      "btn": "เปิดผล",
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "screenB0": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "round",
+      "frame": "Race event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\n12\n10\nคน\nรอบนี้คัดเหลือ\n10 คน",
+      "btn": "เปิดผล",
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "idbAfter": {
+      "raw": "<901 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "80ff8f3556edba54",
+      "at": "revealed",
+      "rounds": [
+        {
+          "round": 1,
+          "code": "609188424",
+          "survivors": 10,
+          "ids": [
+            "c5d30aece0ec541a",
+            "ac395d97242e9d1f",
+            "1b4c401bc3a1e614",
+            "3d380670a2d38326",
+            "d2a0945a4e9ba621",
+            "9a1c06d4c57f9638",
+            "744680f61b51f163",
+            "d2f2b901274cb412",
+            "493d3f724f07c0b8",
+            "90b3533a33d29746"
+          ]
+        }
+      ],
+      "nRounds": 1,
+      "final": false,
+      "people": 12,
+      "eventName": "Race event"
+    },
+    "screenA": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "reveal",
+      "frame": "Race event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\nผ่านรอบที่ 1\n10\nคน\nผ่าน\nไม่ผ่าน",
+      "btn": "รอบต่อไป",
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "screenB": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "reveal",
+      "frame": "Race event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\nผ่านรอบที่ 1\n10\nคน\nผ่าน\nไม่ผ่าน",
+      "btn": "รอบต่อไป",
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "frameTextEqual": true,
+    "frameA": "Race event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\nผ่านรอบที่ 1\n10\nคน\nผ่าน\nไม่ผ่าน",
+    "frameB": "Race event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\nผ่านรอบที่ 1\n10\nคน\nผ่าน\nไม่ผ่าน",
+    "idbFromTabB": {
+      "raw": "<901 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "80ff8f3556edba54",
+      "at": "revealed",
+      "rounds": [
+        {
+          "round": 1,
+          "code": "609188424",
+          "survivors": 10,
+          "ids": [
+            "c5d30aece0ec541a",
+            "ac395d97242e9d1f",
+            "1b4c401bc3a1e614",
+            "3d380670a2d38326",
+            "d2a0945a4e9ba621",
+            "9a1c06d4c57f9638",
+            "744680f61b51f163",
+            "d2f2b901274cb412",
+            "493d3f724f07c0b8",
+            "90b3533a33d29746"
+          ]
+        }
+      ],
+      "nRounds": 1,
+      "final": false,
+      "people": 12,
+      "eventName": "Race event"
+    },
+    "sameRawFromBothTabs": true,
+    "shownA": {
+      "markedSurvivors": 10,
+      "notInIdb": 0,
+      "missingFromScreen": 0
+    },
+    "shownB": {
+      "markedSurvivors": 10,
+      "notInIdb": 0,
+      "missingFromScreen": 0
+    },
+    "survNames": [
+      "NameA",
+      "NameB",
+      "NameD",
+      "NameE",
+      "NameG",
+      "NameH",
+      "NameI",
+      "NameJ",
+      "NameK",
+      "NameL"
+    ],
+    "verdict": {
+      "label": "exactly one new round, both converge, shown reveal subset of idb",
+      "pass": true
+    }
+  },
+  "s4": {
+    "throwOnAccess": {
+      "setupProbe": {
+        "access": "throws:SecurityError",
+        "startMsg": "[copy: owner — refused browser]"
+      },
+      "startClick": {
+        "clicked": true,
+        "wasDisabled": false
+      },
+      "setupAfterStart": {
+        "url": "http://localhost:4355/game/prize-draw/",
+        "startMsg": "[copy: owner — refused browser]"
+      },
+      "projector": {
+        "title": "จับรางวัลปีใหม่ — จอใหญ่",
+        "screen": "refused",
+        "frame": "[copy: owner — refused browser]",
+        "btn": null,
+        "notice": false,
+        "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+      },
+      "projectorHasControl": false,
+      "idbAfterRefusedRun": {
+        "missing": "record",
+        "keys": []
+      },
+      "coldInCleanTab": "cold"
+    },
+    "openOnerror": {
+      "setupProbe": {
+        "access": "ok",
+        "startMsg": "[copy: owner — refused browser]"
+      },
+      "startClick": {
+        "clicked": true,
+        "wasDisabled": false
+      },
+      "setupAfterStart": {
+        "url": "http://localhost:4355/game/prize-draw/",
+        "startMsg": "[copy: owner — refused browser]"
+      },
+      "projector": {
+        "title": "จับรางวัลปีใหม่ — จอใหญ่",
+        "screen": "refused",
+        "frame": "[copy: owner — refused browser]",
+        "btn": null,
+        "notice": false,
+        "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+      },
+      "projectorHasControl": false,
+      "idbAfterRefusedRun": {
+        "missing": "record",
+        "keys": []
+      },
+      "coldInCleanTab": "cold"
+    },
+    "constantAppearsInPageWithoutInit": false
+  },
+  "s5": {
+    "saved": {
+      "raw": "<665 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "2418634d8e8826f1",
+      "at": "ready",
+      "rounds": [],
+      "nRounds": 0,
+      "final": false,
+      "people": 12,
+      "eventName": "First event"
+    },
+    "dismissClick": {
+      "clicked": true,
+      "wasDisabled": false
+    },
+    "dismissDialogs": [
+      {
+        "type": "confirm",
+        "message": "[copy: owner — confirm replace]"
+      }
+    ],
+    "urlAfterDismiss": "http://localhost:4355/game/prize-draw/",
+    "byteIdenticalAfterDismiss": true,
+    "acceptClick": {
+      "clicked": true,
+      "wasDisabled": false
+    },
+    "acceptDialogs": [
+      {
+        "type": "confirm",
+        "message": "[copy: owner — confirm replace]"
+      }
+    ],
+    "urlAfterAccept": "http://localhost:4355/game/prize-draw/play/",
+    "afterAccept": {
+      "raw": "<666 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "058fe929f9e4f863",
+      "at": "ready",
+      "rounds": [],
+      "nRounds": 0,
+      "final": false,
+      "people": 12,
+      "eventName": "Second event"
+    },
+    "newEvent": true,
+    "verdict": {
+      "label": "dialog opened both times, dismiss keeps bytes, accept replaces",
+      "pass": true
+    }
+  },
+  "s6": {
+    "screenA0": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "round",
+      "frame": "Upgrade event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\n12\n10\nคน\nรอบนี้คัดเหลือ\n10 คน",
+      "btn": "เปิดผล",
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "idbA0": {
+      "raw": "<667 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "05230ac091161bd1",
+      "at": "ready",
+      "rounds": [],
+      "nRounds": 0,
+      "final": false,
+      "people": 12,
+      "eventName": "Upgrade event"
+    },
+    "bEvents": {
+      "ev": [
+        {
+          "n": "upgradeneeded",
+          "ms": 0
+        },
+        {
+          "n": "success",
+          "ms": 4
+        }
+      ],
+      "out": {
+        "ok": true,
+        "version": 2
+      }
+    },
+    "screenA1": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "round",
+      "frame": "Upgrade event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\n12\n10\nคน\nรอบนี้คัดเหลือ\n10 คน",
+      "btn": "เปิดผล",
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "pressAfterUpgradeA": {
+      "clicked": true,
+      "wasDisabled": false
+    },
+    "screenAfterPressA": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "round",
+      "frame": "Upgrade event\nรอบที่ 1 จาก 4\nNameA\nNameB\nNameC\nNameD\nNameE\nNameF\nNameG\nNameH\nNameI\nNameJ\nNameK\nNameL\n12\n10\nคน\nรอบนี้คัดเหลือ\n10 คน",
+      "btn": "เปิดผล",
+      "notice": true,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "idbAfterPress": {
+      "raw": "<667 chars>",
+      "keys": [
+        "current"
+      ],
+      "eventKey": "05230ac091161bd1",
+      "at": "ready",
+      "rounds": [],
+      "nRounds": 0,
+      "final": false,
+      "people": 12,
+      "eventName": "Upgrade event"
+    },
+    "screenA2reload": {
+      "title": "จับรางวัลปีใหม่ — จอใหญ่",
+      "screen": "refused",
+      "frame": "[copy: owner — refused browser]",
+      "btn": null,
+      "notice": false,
+      "noticeText": "บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง"
+    },
+    "dbVersionNow": 2,
+    "verdict": {
+      "label": "upgrade proceeds without staying blocked (A closes)",
+      "pass": true,
+      "blockedEventFired": false
+    }
+  },
+  "pidsStarted": [
+    86982,
+    87053,
+    87116,
+    87187,
+    87681,
+    87761,
+    89663
+  ]
+}

@@ -3,74 +3,67 @@
 // round code on screen and no phone; QR mode (gh#308, gh#309) adds both on top of the same walk.
 //
 // The walk is src/prize-event/event.ts's, never re-implemented here. This file owns four things:
-//   1. When to draw. A ready step draws on the MC's tap through drawAndSave, which STORES the draw
-//      before handing it back; only then is it revealed. A refresh lands on the stored step and shows
-//      the stored draw: nothing on the resume path can draw (gh#304: never draws again).
+//   1. When to draw. A ready step draws on the MC's tap through drawAndSave, which hands the draw back only
+//      once the store has COMMITTED it, already revealed, in one transaction; only then is it shown. A
+//      refresh lands on the stored step and shows the stored draw: nothing on the resume path can draw
+//      (gh#304: never draws again). A failed or aborted transaction shows nothing of the draw.
 //   2. Every reveal of a control goes through show(), which arms the region it shows (ADR-0017, and
 //      ADR-0057: closing the notice is a reveal too, because it uncovers the MC's button). The route's
 //      arm-reveal-paths test enumerates show()'s callers, which is a set this file owns.
-//   3. What a storage failure looks like: the notice, and the step stays ready.
+//   3. What a storage failure looks like: the notice, and the step stays where the store has it.
 //   4. Two screens on one stored event (two tabs, a duplicated projector tab). Each round is drawn at most
 //      once across all of them, and a screen that is behind never writes. The stored text is the event's
-//      version (event.ts readEvent): `seen` is the text this screen last read or wrote, and it changes in
-//      exactly two places, save() and adopt(), each followed by a render. Every press runs inside
-//      event.ts withEventLock, the exclusive Web Lock every writer of the key takes (the setup page too),
-//      and acts only when the control pressed was rendered at the current `seen` AND storage still holds
-//      `seen`. Otherwise the press is dropped, and if storage moved this screen takes the stored state up.
-//      A press queued at the lock while a storage event re-rendered the screen is therefore dropped, never
-//      replayed on the new step. A storage event from another tab makes this screen follow at once, and
-//      every take-up re-renders through render(), which arms, even when the stored state reads the same.
-//      No Web Locks (an insecure context, an old browser) means no event: the screen shows the cold
-//      message and never writes. A refused lock request drops that one press and leaves the button live.
+//      version (store.ts): `seen` is the text this screen last read or wrote, and it changes in exactly two
+//      places, save() and adopt(), each followed by a render. A press acts only when the control pressed
+//      was rendered at the current `seen`, and its write is a compare-and-set on `seen` (store.ts put): when
+//      the store holds anything else, nothing is written and this screen takes the stored state up instead.
+//      A press whose write is still in flight when this screen takes up a newer state is dropped on return,
+//      never applied over it. Another tab's commit (store.ts subscribe) makes this screen load and follow,
+//      and every take-up re-renders through render(), which arms, even when the stored state reads the same.
+//      A refused browser (store.ts: no usable IndexedDB) has no event: the screen says why, never writes.
 //
 // No anchor element anywhere under src/play/prize-draw/ (ADR-0014, ADR-0055): the way out is the page
 // chrome's exit control, outside this directory.
 
 import { armAllButtons } from '../../games/_arm-gate.ts';
 import {
-  STORAGE_KEY,
   advance,
   cryptoRng,
   drawAndSave,
   encodeEvent,
   position,
-  readEvent,
   revealDrawn,
-  withEventLock,
   type EventState,
-  type EventTx,
   type Rng,
 } from '../../prize-event/event.ts';
+import { OLD_TAB_OPEN, REFUSED_BROWSER, type EventStore, type Loss, type PutResult, type Snapshot } from '../../prize-event/store.ts';
 import { screenView } from '../../prize-event/view.ts';
 import { announce, fitFrame, renderScreen } from '../_prize-reveal/reveal.ts';
 import { fitAll } from '../_prize-reveal/names-dom.ts';
-
-type Store = Pick<Storage, 'getItem' | 'setItem'>;
 
 export type StageDeps = {
   doc: Document;
   /** The route's root (markup.html #app) and its empty live region (#pd-live). */
   root: HTMLElement;
   live: HTMLElement;
-  /** null when the browser refuses storage outright: the screen then has no event to show. */
-  storage: Store | null;
+  /** The event store, opening (store.ts openEventStore). Resolves null in a refused browser: the screen then
+   *  has no event and shows REFUSED_BROWSER. */
+  store: Promise<EventStore | null>;
   rng?: Rng;
   /** Whether the room asked for reduced motion: the reveal then fades to its end state (ADR-0046). */
   reducedMotion: boolean;
   /** Runs a callback on the next frame (the reveal's wave starts there); absent in tests. */
   nextFrame?: (cb: () => void) => void;
+  /** Reloads the page (location.reload). Called once, when a newer version of this code takes the database
+   *  over (store.ts onSuperseded, 'superseded'): the event is stored, so the reload resumes it on the newer
+   *  code. A reloaded page that still cannot open the store shows REFUSED_BROWSER and never reloads, since
+   *  only an opened store can be superseded. Absent: the screen refuses instead. A revoked store never
+   *  reloads: the screen says OLD_TAB_OPEN. */
+  reload?: () => void;
   /** Runs a callback once the bold name face has loaded: a reveal is the first screen that sets names in
    *  bold, so names fitted before that face arrived were measured in a fallback; absent in tests. */
   whenBoldLoaded?: (cb: () => void) => void;
-  /** The browser's Web Locks manager, shared by every tab of this origin. Null or absent where there is none,
-   *  and then the screen has no event: no writer may run without the lock (event.ts withEventLock). */
-  locks?: Pick<LockManager, 'request'> | null;
-  /** Subscribes to changes another tab made to storage (the window's storage event): the key that changed,
-   *  null when storage was cleared. Absent in tests that have one screen. */
-  onStorage?: (changed: (key: string | null) => void) => void;
 };
-
-type Read = { raw: string | null; state: EventState | null };
 
 // Copy with no board source yet (listed for the owner in the gh#304 evidence README).
 const COPY = {
@@ -78,29 +71,39 @@ const COPY = {
   next: 'รอบต่อไป',
   cold: 'ยังไม่มีงานบนจอนี้ ตั้งค่างานแล้วกด เริ่มงาน',
   saveFailed: 'บันทึกผลไม่ได้ จึงยังไม่เปิดผล ลองกด เปิดผล อีกครั้ง',
+  // Owner-approved (gh#313): the step forward did not store.
+  nextFailed: 'บันทึกไม่ได้ จึงยังไม่ไปรอบต่อไป ลองกด รอบต่อไป อีกครั้ง',
   ok: 'ตกลง',
 };
 
 export type StageHandle = {
   current(): EventState | null;
   refit(): void;
-  /** Read-only, for tests: the stored text this screen holds, and the one its mounted control was rendered
-   *  at (null without a control). Equal after every render; a press acts only while they are. */
-  version(): { seen: string | null; token: string | null };
+  /** Read-only, for tests: the stored text this screen holds, the one its mounted control was rendered at
+   *  (null without a control), and whether a press is waiting on its write. Equal after every render; a
+   *  press acts only while they are. */
+  version(): { seen: string | null; token: string | null; busy: boolean };
+  /** Settles once the store has opened and the first state is on screen. */
+  ready: Promise<void>;
 };
 
 export function mountStage(deps: StageDeps): StageHandle {
   const { doc, root, live } = deps;
-  const locks = deps.locks ?? null;
-  // Fail closed: without Web Locks this screen could only write unlocked, so it reads nothing either and
-  // shows the cold screen, the same as a browser that refuses storage.
-  const storage = locks ? deps.storage : null;
   const rng = deps.rng ?? cryptoRng();
-  const read = (): Read => (storage ? readEvent(storage) : { raw: null, state: null });
-  const first = read();
-  let state: EventState | null = first.state;
+  /** Null until the store has opened and been read, and for good once it stopped or was refused. */
+  let store: EventStore | null = null;
+  /** Why this screen holds no event for good: refused browser, revoked store, or a reload under way. */
+  let ending: 'refused' | 'revoked' | 'reloading' | null = null;
+  /** Counts terminal stops. Every continuation after an await checks it, with the store it started on, and
+   *  renders nothing once the store it started on has stopped. */
+  let generation = 0;
+  let unsubscribe: (() => void) | null = null;
+  let reloaded = false;
+  let state: EventState | null = null;
   /** The stored text this screen last read or wrote: its version of the event. */
-  let seen: string | null = first.raw;
+  let seen: string | null = null;
+  /** Counts save() and adopt(): a load that started before one of them is older than what is on screen. */
+  let epoch = 0;
 
   const viewport = doc.createElement('div');
   viewport.className = 'pd-viewport';
@@ -142,11 +145,11 @@ export function mountStage(deps: StageDeps): StageHandle {
     armAllButtons(region);
   };
 
-  /** Write inside the lock; on success the written text becomes this screen's version. */
-  const save = (tx: EventTx, next: EventState): boolean => {
-    if (!tx.write(next)) return false;
-    seen = encodeEvent(next);
-    return true;
+  /** A committed write: its text becomes this screen's version. The caller renders. */
+  const save = (raw: string, next: EventState): void => {
+    seen = raw;
+    state = next;
+    epoch++;
   };
 
   const key = (s: EventState): string => JSON.stringify(position(s));
@@ -174,14 +177,18 @@ export function mountStage(deps: StageDeps): StageHandle {
 
   const render = (wave: boolean): void => {
     if (!state) {
+      // No event: none is stored, this browser cannot hold one (store.ts, refused browsers), an old tab holds
+      // another one (revoked), or the page is reloading onto a newer version (blank, no copy).
+      const text =
+        ending === 'refused' ? REFUSED_BROWSER : ending === 'revoked' ? OLD_TAB_OPEN : ending === 'reloading' ? '' : COPY.cold;
       const message = doc.createElement('p');
       message.className = 'pd-cold';
-      message.textContent = COPY.cold;
+      message.textContent = text;
       frame.replaceChildren(message);
-      frame.setAttribute('data-screen', 'cold');
+      frame.setAttribute('data-screen', ending ?? 'cold');
       mc.replaceChildren();
       mounted = null;
-      live.textContent = COPY.cold;
+      live.textContent = text;
       show(viewport);
       return;
     }
@@ -205,72 +212,82 @@ export function mountStage(deps: StageDeps): StageHandle {
     show(viewport);
   };
 
-  const press = (tx: EventTx, s: EventState): void => {
-    const pos = position(s);
-    if (pos.at === 'ready') {
-      const drawn = drawAndSave(s, rng, (next) => save(tx, next));
-      if (!drawn.ok) {
-        show(notice);
-        return;
-      }
-      // Drawn and stored: the reveal itself is a second write. If that one fails, a refresh lands on the
-      // stored draw and reveals it again, which shows the same result.
-      state = revealDrawn(drawn.state);
-      save(tx, state);
-      render(true);
-    } else if (pos.at === 'drawn') {
-      state = revealDrawn(s);
-      save(tx, state);
-      render(true);
-    } else {
-      state = advance(s);
-      save(tx, state);
-      render(false);
-    }
-  };
-
   /** Take up what is stored. Always re-renders, so the mounted control is rebuilt at the new `seen`: a
    *  control left at the old text would drop every later press. The wave runs only when the state moved. */
-  const adopt = (now: Read): void => {
+  const adopt = (now: Snapshot, wave = true): void => {
     const moved = now.state && state ? encodeEvent(now.state) !== encodeEvent(state) : now.state !== state;
     seen = now.raw;
     state = now.state;
-    render(moved);
+    epoch++;
+    render(wave && moved);
   };
 
-  /** One press, inside the lock: act only if the control was rendered at `seen` and storage still holds it. */
-  const step = (tx: EventTx, token: string | null, builtFor: string): void => {
-    const now = tx.read();
-    if (now.raw !== seen) {
-      adopt(now);
-      return;
+  /**
+   * One press on the step `s`, rendered at the stored text `token`. Every write is a compare-and-set on
+   * `token`, and the screen changes only once the store has answered. A draw is committed together with its
+   * reveal, so what the room sees is exactly what is stored.
+   */
+  const press = async (db: EventStore, token: string | null, s: EventState): Promise<void> => {
+    const g = generation;
+    const pos = position(s);
+    let result: PutResult | null = null;
+    const put = async (next: EventState): Promise<boolean> => {
+      result = await db.put(token, next);
+      return result.ok;
+    };
+    let next: EventState;
+    if (pos.at === 'ready') {
+      const drawn = await drawAndSave(s, rng, (d) => put(revealDrawn(d)));
+      next = drawn.ok ? revealDrawn(drawn.state) : s;
+    } else if (pos.at === 'drawn') {
+      next = revealDrawn(s);
+      await put(next);
+    } else {
+      next = advance(s);
+      await put(next);
     }
-    if (token !== seen || !state || key(state) !== builtFor) return;
-    press(tx, state);
+    const r = result as PutResult | null;
+    // The store stopped while the write ran (the stop already rendered), or this screen took up a newer
+    // stored state meanwhile (that state stands).
+    if (g !== generation || store !== db || seen !== token || !r) return;
+    if (r.ok) {
+      save(r.raw, next);
+      render(pos.at !== 'revealed');
+    } else if (r.reason === 'stale') adopt(r.now);
+    // Not stored: the screen stays on the step the store holds, a step forward included, so a reload never
+    // lands behind what the room saw. The notice names the step that failed.
+    else {
+      noticeText.textContent = pos.at === 'revealed' ? COPY.nextFailed : COPY.saveFailed;
+      show(notice);
+    }
   };
 
-  // A press waiting on the lock: further taps on this screen are dropped until it has run or been refused.
+  // A press waiting on its write: further taps on this screen are dropped until it has answered.
   let busy = false;
   const request = (token: string | null, builtFor: string): void => {
-    if (busy) return;
+    if (busy || !store || !state || key(state) !== builtFor) return;
     busy = true;
-    void withEventLock(locks, storage, (tx) => {
-      try {
-        step(tx, token, builtFor);
-      } finally {
-        busy = false;
-      }
-    }).then((ran) => {
-      // Refused (the browser would not grant the lock): nothing ran or was written; the next tap asks again.
-      if (!ran) busy = false;
-    });
+    void press(store, token, state).then(
+      () => (busy = false),
+      () => (busy = false),
+    );
   };
 
-  deps.onStorage?.((changed) => {
-    if (!storage || (changed !== null && changed !== STORAGE_KEY)) return;
-    const now = read();
-    if (now.raw !== seen) adopt(now);
-  });
+  /** Another tab committed: load, and take the stored state up if it moved. When this screen applied a
+   *  write while the load ran, the answer may be older or newer than what is on screen and cannot be told
+   *  apart, so it is not used: the screen loads again rather than drop the notice. */
+  const follow = async (db: EventStore): Promise<void> => {
+    for (;;) {
+      const g = generation;
+      const at = epoch;
+      const now = await db.load();
+      if (g !== generation || store !== db || !now) return;
+      if (at === epoch) {
+        if (now.raw !== seen) adopt(now);
+        return;
+      }
+    }
+  };
 
   close.addEventListener('click', () => {
     notice.hidden = true;
@@ -285,6 +302,54 @@ export function mountStage(deps: StageDeps): StageHandle {
     deps.nextFrame?.(refit);
   }
 
-  render(false);
-  return { current: () => state, refit: () => fitAll(frame), version: () => ({ seen, token: mounted }) };
+  /** The store stopped for good (store.ts onSuperseded): nothing on this screen may reach it again. The
+   *  event, its version and the controls go; the screen reloads onto a newer version once, or says why. */
+  const end = (why: Loss): void => {
+    generation++;
+    store = null;
+    unsubscribe?.();
+    unsubscribe = null;
+    notice.hidden = true;
+    const reload = why === 'superseded' && deps.reload && !reloaded ? deps.reload : null;
+    ending = why === 'revoked' ? 'revoked' : reload ? 'reloading' : 'refused';
+    adopt({ raw: null, state: null }, false);
+    if (reload) {
+      reloaded = true;
+      reload();
+    }
+  };
+
+  const ready = deps.store
+    .then(async (opened) => {
+      if (!opened) {
+        // Fail closed: nothing can be read, so nothing is shown or written, and the screen says why.
+        ending = 'refused';
+        render(false);
+        return;
+      }
+      const g = generation;
+      // Set before the first load: a store that stopped already (during its move) says so at once.
+      opened.onSuperseded(end);
+      if (g !== generation) return;
+      const first = await opened.load();
+      if (g !== generation) return;
+      if (!first) {
+        ending = 'refused';
+        render(false);
+        return;
+      }
+      store = opened;
+      adopt(first, false);
+      unsubscribe = opened.subscribe(() => void follow(opened));
+    })
+    .catch(() => {
+      ending = 'refused';
+      render(false);
+    });
+  return {
+    current: () => state,
+    refit: () => fitAll(frame),
+    version: () => ({ seen, token: mounted, busy }),
+    ready,
+  };
 }

@@ -6,9 +6,10 @@
 //
 // The state machine. One event is a fixed walk: rounds 1-4, then the final. Each step goes
 //   ready -> drawn -> revealed
-// and only `ready` may draw. `drawn` is persisted BEFORE anything is shown (drawAndSave), so a refresh
-// in the middle of a reveal comes back to the same draw instead of drawing again (gh#304). After a round
-// is revealed, `advance` moves to the next step's `ready`; the final has no step after it.
+// and only `ready` may draw. A draw is committed to the store (store.ts) BEFORE anything of it is shown
+// (drawAndSave), so a refresh in the middle of a reveal comes back to the same draw instead of drawing
+// again (gh#304). After a round is revealed, `advance` moves to the next step's `ready`; the final has no
+// step after it.
 //
 // The draw. A round never runs its own random pick: it calls gh#300's hostCutRound over the live
 // roster's opaque ids with the scheduled keep, the same call QR mode makes, so there is one draw
@@ -30,7 +31,8 @@ export const MIN_HEADS = FINAL_SIZE + ELIMINATION_ROUNDS;
 export const MAX_HEADS = 200;
 export const MIN_PRIZES = 1;
 export const MAX_PRIZES = 5;
-/** One stored event per browser; starting a new event replaces it. */
+/** The localStorage key events were stored under before gh#313. store.ts migrates it into IndexedDB and
+ *  names its cross-tab channel after it; nothing writes it any more. One stored event per browser. */
 export const STORAGE_KEY = 'watduang:prize-draw:event';
 const VERSION = 1;
 
@@ -192,17 +194,18 @@ export function advance(state: EventState): EventState {
 }
 
 /**
- * Draw, then store, then hand back the drawn state. When the write fails the draw is thrown away and the
- * old state comes back with ok: false: nothing of it was shown, so the room has not seen a result that a
- * refresh could later contradict. The caller shows the failure and keeps the step ready.
+ * Draw, then store, then hand back the drawn state. `save` resolves true only once the write is committed
+ * (store.ts put). When it fails the draw is thrown away and the old state comes back with ok: false: nothing
+ * of it was shown, so the room has not seen a result that a refresh could later contradict. The caller shows
+ * the failure and keeps the step ready.
  */
-export function drawAndSave(
+export async function drawAndSave(
   state: EventState,
   rng: Rng,
-  save: (next: EventState) => boolean,
-): { ok: boolean; state: EventState } {
+  save: (next: EventState) => boolean | Promise<boolean>,
+): Promise<{ ok: boolean; state: EventState }> {
   const next = drawNext(state, rng);
-  return save(next) ? { ok: true, state: next } : { ok: false, state };
+  return (await save(next)) ? { ok: true, state: next } : { ok: false, state };
 }
 
 /** Fisher-Yates with an unbiased integer source: every one of the n! orders equally likely. */
@@ -322,90 +325,4 @@ function isEventState(v: unknown): v is EventState {
     return false;
   }
   return true;
-}
-
-export function loadEvent(storage: Pick<Storage, 'getItem'>): EventState | null {
-  return readEvent(storage).state;
-}
-
-/**
- * The stored event and the exact text it was read from. On a screen that shares storage with others (two
- * tabs, a duplicated projector tab), that text is the event's version stamp: a screen may write only while
- * the stored text is still the one it last read or wrote. It carries the event key and the walk's position,
- * and within one event the walk only moves forward while a new event gets a fresh random key, so a stored
- * text never comes back once replaced, and a changed text always means someone else moved the event.
- * A storage that throws reads as no event.
- */
-export function readEvent(storage: Pick<Storage, 'getItem'>): { raw: string | null; state: EventState | null } {
-  let raw: string | null;
-  try {
-    raw = storage.getItem(STORAGE_KEY);
-  } catch {
-    return { raw: null, state: null };
-  }
-  return { raw, state: decodeEvent(raw) };
-}
-
-/** What a writer may do with the stored event while it holds the event lock. */
-export type EventTx = {
-  /** The stored event and its exact text, read now. */
-  read(): { raw: string | null; state: EventState | null };
-  /** Store `state`. False on any storage failure (private mode, quota, denied), and once the lock is gone. */
-  write(state: EventState): boolean;
-};
-
-/**
- * The one way to write the stored event: `fn` runs inside the exclusive Web Lock named after the storage key,
- * which every writer of the key (the setup page, every projector tab) takes, and `tx.write` is the only
- * setItem of that key in this codebase (scripts/roster-lock-structure-check.mjs holds it to that). So no
- * writer can land between another's read and its write.
- *
- * Fails closed: with no lock manager, no storage, or a request the browser refuses, `fn` never runs and
- * nothing is written; the promise resolves false. There is no unlocked fallback (unlike src/shell/lock.ts):
- * localStorage has no compare-and-set, so an unlocked writer can lose a draw the room already saw. `fn` must
- * stay synchronous; `tx` refuses to write once `fn` has returned. Resolves true when `fn` ran; a throw
- * inside `fn` rejects.
- */
-export function withEventLock(
-  locks: Pick<LockManager, 'request'> | null | undefined,
-  storage: Pick<Storage, 'getItem' | 'setItem'> | null | undefined,
-  fn: (tx: EventTx) => void,
-): Promise<boolean> {
-  if (!locks || !storage) return Promise.resolve(false);
-  let entered = false;
-  const body = (): true => {
-    entered = true;
-    let open = true;
-    const tx: EventTx = {
-      read: () => readEvent(storage),
-      write(state) {
-        if (!open) return false;
-        try {
-          storage.setItem(STORAGE_KEY, encodeEvent(state));
-          return true;
-        } catch {
-          return false;
-        }
-      },
-    };
-    try {
-      fn(tx);
-    } finally {
-      open = false;
-    }
-    return true;
-  };
-  let pending: Promise<unknown>;
-  try {
-    pending = locks.request(STORAGE_KEY, body);
-  } catch {
-    return Promise.resolve(false);
-  }
-  return Promise.resolve(pending).then(
-    () => entered,
-    (err: unknown) => {
-      if (entered) throw err;
-      return false;
-    },
-  );
 }

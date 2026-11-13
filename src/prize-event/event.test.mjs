@@ -13,17 +13,17 @@ import {
   drawNext,
   encodeEvent,
   liveIds,
-  loadEvent,
   position,
   revealDrawn,
   scheduleIssues,
   setupIssues,
   uniformPermutation,
   winners,
-  withEventLock,
 } from './event.ts';
 import { proposeSchedule } from '../prize-draw/schedule.ts';
 import { parseCode } from '../prize-draw/round-code.ts';
+import { fakeOrigin } from './fake-idb.mjs';
+import { openEventStore } from './store.ts';
 
 // Seeded test source, the same generator the gh#300 tests use.
 function seeded(seed) {
@@ -59,20 +59,6 @@ const input = (n, over = {}) => ({
   ...over,
 });
 
-function memoryStorage() {
-  const map = new Map();
-  return {
-    getItem: (k) => (map.has(k) ? map.get(k) : null),
-    setItem: (k, v) => void map.set(k, String(v)),
-    map,
-  };
-}
-
-/** A Web Locks manager with no other holder: grants at once, records every request's name. */
-function granting() {
-  const names = [];
-  return { names, request: (name, cb) => (names.push(name), Promise.resolve().then(() => cb({ name, mode: 'exclusive' }))) };
-}
 
 // ---- schedule validation
 
@@ -293,19 +279,20 @@ test('encode -> decode round-trips at every position', () => {
 });
 
 test('a refresh after the draw resumes the same round with the same survivors and never draws again', async () => {
-  const store = memoryStorage();
+  const origin = fakeOrigin();
+  const opened = openEventStore(origin.tab('A'));
+  await origin.idle();
+  const store = await opened;
   const rng = seeded(41);
   let s = createEvent(input(80), rng);
-  let r;
-  const ran = await withEventLock(granting(), store, (tx) => {
-    assert.ok(tx.write(s));
-    r = drawAndSave(s, rng, (x) => tx.write(x));
-  });
-  assert.ok(ran);
+  assert.ok((await store.put(null, s)).ok);
+  const r = await drawAndSave(s, rng, async (x) => (await store.put(encodeEvent(s), x)).ok);
   assert.ok(r.ok);
   const drawn = r.state.rounds[0];
-  // the refresh: everything in memory is gone, only storage is left
-  const resumed = loadEvent(store);
+  // the refresh: everything in memory is gone, only the store is left
+  const reopened = openEventStore(origin.tab('reload'));
+  await origin.idle();
+  const resumed = (await (await reopened).load()).state;
   assert.deepEqual(position(resumed), { kind: 'round', round: 1, at: 'drawn' });
   const shown = revealDrawn(resumed);
   assert.deepEqual(shown.rounds[0], drawn);
@@ -313,76 +300,33 @@ test('a refresh after the draw resumes the same round with the same survivors an
   assert.throws(() => drawNext(resumed, noDraw), /ready/);
 });
 
-test('the draw is written before it can be revealed: a failed write leaves the round undrawn and unshown', () => {
+test('the draw is written before it can be revealed: a failed write leaves the round undrawn and unshown', async () => {
   const rng = seeded(51);
   const s = createEvent(input(50), rng);
-  const r = drawAndSave(s, rng, () => false);
+  const r = await drawAndSave(s, rng, async () => false);
   assert.equal(r.ok, false);
   assert.equal(r.state, s, 'a draw that was never stored must not become the state on screen');
   assert.deepEqual(position(r.state), { kind: 'round', round: 1, at: 'ready' });
 });
 
-test('drawAndSave writes the drawn state, not the revealed one, so a refresh never skips the reveal', () => {
+test('drawAndSave hands the drawn state to save and waits for its answer before handing it back', async () => {
   const rng = seeded(52);
   const s = createEvent(input(50), rng);
   let written = null;
-  const r = drawAndSave(s, rng, (x) => ((written = x), true));
+  let answer;
+  const pending = drawAndSave(s, rng, (x) => ((written = x), new Promise((resolve) => (answer = resolve))));
+  let settled = false;
+  void pending.then(() => (settled = true));
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(settled, false, 'drawAndSave handed the draw back before the save answered');
+  answer(true);
+  const r = await pending;
   assert.ok(r.ok);
   assert.deepEqual(position(written), { kind: 'round', round: 1, at: 'drawn' });
 });
 
-test('withEventLock and loadEvent use the namespaced key and survive a throwing storage', async () => {
+test('the old localStorage key is namespaced', () => {
   assert.match(STORAGE_KEY, /^watduang:/);
-  const throwing = { getItem: () => { throw new Error('denied'); }, setItem: () => { throw new Error('quota'); } };
-  const locks = granting();
-  let wrote;
-  assert.equal(await withEventLock(locks, throwing, (tx) => (wrote = tx.write(createEvent(input(50), seeded(1))))), true);
-  assert.equal(wrote, false);
-  assert.deepEqual(locks.names, [STORAGE_KEY], 'the lock is not named after the key it guards');
-  assert.equal(loadEvent(throwing), null);
-});
-
-// ---- the one writer of the stored event: fail closed
-
-const ev = () => createEvent(input(50), seeded(2));
-
-test('withEventLock fails closed without Web Locks: the body never runs and nothing is written', async () => {
-  for (const locks of [null, undefined]) {
-    const store = memoryStorage();
-    let ran = false;
-    assert.equal(await withEventLock(locks, store, (tx) => ((ran = true), tx.write(ev()))), false);
-    assert.equal(ran, false, `the body ran with locks=${locks}`);
-    assert.equal(store.map.size, 0);
-  }
-});
-
-test('withEventLock fails closed on a refused request, rejected or thrown: the body never runs, nothing is written', async () => {
-  const refusals = {
-    rejected: { request: () => Promise.reject(new Error('SecurityError')) },
-    thrown: { request: () => { throw new Error('SecurityError'); } },
-  };
-  for (const [how, locks] of Object.entries(refusals)) {
-    const store = memoryStorage();
-    let ran = false;
-    assert.equal(await withEventLock(locks, store, (tx) => ((ran = true), tx.write(ev()))), false, how);
-    assert.equal(ran, false, `${how}: the refused body ran anyway`);
-    assert.equal(store.map.size, 0, `${how}: a refused request wrote`);
-  }
-});
-
-test('a tx kept past its callback cannot write: every write lands inside the lock', async () => {
-  const store = memoryStorage();
-  let kept;
-  assert.equal(await withEventLock(granting(), store, (tx) => (kept = tx)), true);
-  assert.equal(kept.write(ev()), false);
-  assert.equal(store.map.size, 0, 'a write landed after the lock was released');
-});
-
-test('a throw inside the body rejects instead of reading as a refusal, and the tx is closed', async () => {
-  const store = memoryStorage();
-  let kept;
-  await assert.rejects(withEventLock(granting(), store, (tx) => { kept = tx; throw new Error('bug'); }), /bug/);
-  assert.equal(kept.write(ev()), false);
 });
 
 test('a stored blob is re-validated on read: anything malformed or inconsistent reads as no event', () => {

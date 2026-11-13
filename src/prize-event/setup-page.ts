@@ -2,7 +2,12 @@
 // stops the event from starting, and on "เริ่มงาน" builds the event, stores it and opens the projector route.
 // A normal site page, not a play surface: the rules of src/play/** do not bind it, and its one navigation
 // (to the play route, after the event is stored) is a script step because it must not happen before the
-// store succeeds.
+// store has committed it.
+//
+// Replacing a saved event asks first (gh#313): when the store holds an event, the start asks the MC through
+// the browser's own confirm dialog. Cancel writes nothing, so the saved event stays byte-identical. Confirm
+// stores the new event as a compare-and-set on exactly the text that was asked about (store.ts put): if a
+// projector moved the saved event while the dialog was open, nothing is replaced and the MC is asked again.
 //
 // Every name this page shows goes through writeName (src/play/_prize-reveal/names-dom.ts), the one
 // textContent sink shared with the projector. No innerHTML anywhere in this file.
@@ -13,12 +18,17 @@
 // name through the name sink, then the fixed message for its reason; a message never carries the name.
 
 import { proposeSchedule } from '../prize-draw/schedule.ts';
-import { MAX_HEADS, MAX_PRIZES, MIN_HEADS, MIN_PRIZES, createEvent, cryptoRng, scheduleIssues, withEventLock } from './event.ts';
+import { MAX_HEADS, MAX_PRIZES, MIN_HEADS, MIN_PRIZES, createEvent, cryptoRng, scheduleIssues, type EventState } from './event.ts';
+import { OLD_TAB_OPEN, REFUSED_BROWSER, openEventStore, type EventStore, type StoreEnv } from './store.ts';
 import { parseRoster, type NameIssue } from './names.ts';
 import { writeName } from '../play/_prize-reveal/names-dom.ts';
 
 /** Owner-approved, no board string: shown when the browser refuses to store the event. */
 export const STORAGE_FAILED = 'บันทึกงานไม่ได้ เบราว์เซอร์นี้ไม่ให้เก็บข้อมูล';
+
+/** Owner-approved (gh#313): the question asked, in the browser's own confirm dialog, before a new event
+ *  replaces the saved one. */
+export const CONFIRM_REPLACE = 'มีงานที่บันทึกไว้แล้ว ถ้าเริ่มงานใหม่ งานเดิมจะหายไป เริ่มใหม่เลยไหม?';
 
 /** Owner-approved: why a name was refused, one per reason code the roster can show, plus a taken name.
  *  'empty' has none: a blank line is skipped, never listed. */
@@ -40,12 +50,11 @@ const STEP_LABELS = ['เริ่ม', 'หลังรอบ 1', 'หลัง
 const SCHEDULE_FIRST = 'แก้ตารางคัดออกก่อน แล้วจึงเริ่มงานได้';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-/** The page's window, as far as this script uses it. The real `window` fits as is: its locks are
- *  `navigator.locks`, absent outside a secure context, and then nothing is stored (event.ts withEventLock). */
-type Win = {
-  localStorage?: Pick<Storage, 'getItem' | 'setItem'>;
+/** The page's window, as far as this script uses it. The real `window` fits as is: it is also the store's
+ *  environment (store.ts StoreEnv), and a browser without usable IndexedDB stores nothing. */
+type Win = StoreEnv & {
   location: { assign(url: string): void };
-  navigator?: { locks?: Pick<LockManager, 'request'> };
+  confirm(message: string): boolean;
 };
 
 function errorIcon(doc: Document): Element {
@@ -220,10 +229,67 @@ export function mountSetup(doc: Document, win: Win): void {
     if ((ev as KeyboardEvent).key === 'Enter' && target?.tagName === 'INPUT') ev.preventDefault();
   });
 
-  // A start waiting on the event lock: a second submit before it has run would store a second event.
+  // A start waiting on the store: a second submit before it has answered would store a second event.
   let starting = false;
   const storageFailed = (): void => {
     startMsg.replaceChildren(errorRow(doc, { text: STORAGE_FAILED }));
+  };
+  const refusedBrowser = (): void => {
+    startMsg.replaceChildren(errorRow(doc, { text: REFUSED_BROWSER }));
+  };
+  const oldTabOpen = (): void => {
+    startMsg.replaceChildren(errorRow(doc, { text: OLD_TAB_OPEN }));
+  };
+  // Opened once, at mount: a refused browser, or a store revoked because a tab running the old code holds
+  // another event (store.ts), says so before the MC types a roster, and again on start.
+  const opening = openEventStore(win).catch(() => null);
+  void opening.then((store) => {
+    if (!store) refusedBrowser();
+    else store.onSuperseded((why) => why === 'revoked' && oldTabOpen());
+  });
+
+  const open = (): void => win.location.assign(form.getAttribute('data-play') ?? '/');
+
+  /** A revoked store: the MC's start replaces the stored event and seals the old key again (store.ts
+   *  takeOver), only after the same confirm as any replacement. Cancel changes nothing. */
+  const takeOver = async (store: EventStore, event: EventState, asked: boolean): Promise<void> => {
+    if (!asked && !win.confirm(CONFIRM_REPLACE)) return;
+    if (await store.takeOver(event)) open();
+    else storageFailed();
+  };
+
+  /** Store `event`, asking first when it would replace a saved one; open the projector once committed. */
+  const start = async (event: EventState): Promise<void> => {
+    const store = await opening;
+    if (!store) {
+      refusedBrowser();
+      return;
+    }
+    // A stale answer means the saved event moved while this start ran: look again, ask again. Bounded so
+    // a store that keeps moving ends in the failure message rather than a loop.
+    let asked = false;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (store.status() === 'revoked') return takeOver(store, event, asked);
+      const now = await store.load();
+      if (!now) {
+        if (store.status() === 'revoked') return takeOver(store, event, asked);
+        break;
+      }
+      if (now.state) {
+        if (!win.confirm(CONFIRM_REPLACE)) return;
+        asked = true;
+      }
+      const r = await store.put(now.raw, event);
+      if (r.ok) {
+        open();
+        return;
+      }
+      if (r.reason === 'failed') {
+        if (store.status() === 'revoked') return takeOver(store, event, asked);
+        break;
+      }
+    }
+    storageFailed();
   };
 
   form.addEventListener('submit', (ev) => {
@@ -254,28 +320,17 @@ export function mountSetup(doc: Document, win: Win): void {
       },
       cryptoRng(),
     );
-    let storage: Win['localStorage'] | null = null;
-    try {
-      storage = win.localStorage ?? null;
-    } catch {
-      storage = null;
-    }
-    // Stored inside the event lock, so it never lands between a projector screen's read and its write; a
-    // running event is replaced (a new key), and every screen on it takes the new one up. The projector
-    // route opens only once the write has landed.
+    // A compare-and-set, so it never lands between a projector screen's read and its write; a running
+    // event is replaced (a new key), and every screen on it takes the new one up. The projector route opens
+    // only once the write has committed.
     starting = true;
-    void withEventLock(win.navigator?.locks, storage, (tx) => {
-      try {
-        if (tx.write(event)) win.location.assign(form.getAttribute('data-play') ?? '/');
-        else storageFailed();
-      } finally {
+    void start(event).then(
+      () => (starting = false),
+      () => {
         starting = false;
-      }
-    }).then((ran) => {
-      if (ran) return;
-      starting = false;
-      storageFailed();
-    });
+        storageFailed();
+      },
+    );
   });
 
   propose();

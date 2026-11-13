@@ -11,9 +11,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ACTIVE_TAGS, HOSTILE, makeDoc } from '../../prize-event/fake-dom.mjs';
-import { STORAGE_KEY } from '../../prize-event/event.ts';
+import { STORAGE_KEY, encodeEvent } from '../../prize-event/event.ts';
 import { announce, renderScreen } from '../_prize-reveal/reveal.ts';
-import { memoryStorage, mount, names, seeded, storedEvent } from './stage-harness.mjs';
+import { fakeOrigin, makeEvent, mount, names, seedRaw, seeded, storedEvent } from './stage-harness.mjs';
 
 const hostile = Object.values(HOSTILE);
 
@@ -23,24 +23,37 @@ function assertInert(doc, root, label) {
   assert.deepEqual(active.map((el) => el.tagName), [], `${label}: a name became an element`);
 }
 
-test('positive control: a valid stored event shows every name on the field, as text', () => {
-  const storage = memoryStorage();
-  storedEvent(storage, { n: 50 });
-  const s = mount({ storage, rng: seeded(4) });
+test('positive control: a valid stored event shows every name on the field, as text', async () => {
+  const origin = fakeOrigin();
+  storedEvent(origin, { n: 50 });
+  const s = await mount({ origin, rng: seeded(4) });
   const chips = s.frame.querySelectorAll('.pd-chip');
   assert.deepEqual(chips.map((c) => c.textContent), names(50));
   assertInert(s.doc, s.root, 'control');
 });
 
-test('storage channel: each hostile name in an otherwise valid stored event leaves the screen with no event', () => {
+test('storage channel: each hostile name in an otherwise valid stored event leaves the screen with no event', async () => {
   for (const bad of hostile) {
-    const storage = memoryStorage();
-    const ev = storedEvent(storage, { n: 50 });
+    const origin = fakeOrigin();
+    const ev = storedEvent(origin, { n: 50 });
     ev.setup.people[7].name = bad;
-    storage.map.set(STORAGE_KEY, JSON.stringify(ev));
-    const s = mount({ storage, rng: seeded(5) });
+    seedRaw(origin, encodeEvent(ev));
+    const s = await mount({ origin, rng: seeded(5) });
     assert.equal(s.frame.getAttribute('data-screen'), 'cold', `${JSON.stringify(bad)} reached the screen`);
     assert.ok(!s.root.textContent.includes(bad), `${JSON.stringify(bad)} is on screen`);
+    assertInert(s.doc, s.root, JSON.stringify(bad));
+  }
+});
+
+test('storage channel, old key: a hostile event saved before gh#313 is never moved into the store and never shown', async () => {
+  for (const bad of hostile) {
+    const origin = fakeOrigin();
+    const ev = makeEvent({ n: 50 });
+    ev.setup.people[7].name = bad;
+    origin.localStorage.set(STORAGE_KEY, encodeEvent(ev));
+    const s = await mount({ origin, rng: seeded(5) });
+    assert.equal(s.frame.getAttribute('data-screen'), 'cold', `${JSON.stringify(bad)} reached the screen`);
+    assert.deepEqual(origin.log, [], `${JSON.stringify(bad)} was copied into the store`);
     assertInert(s.doc, s.root, JSON.stringify(bad));
   }
 });

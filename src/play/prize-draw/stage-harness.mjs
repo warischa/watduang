@@ -1,10 +1,19 @@
-// Test-only harness for the prize-draw projector route: mounts stage.ts on the prize fake DOM with an
-// in-memory storage, so the route's tests drive the real walk, the real arm gate and the real 2D reveal.
+// Test-only harness for the prize-draw projector route: mounts stage.ts on the prize fake DOM over an
+// in-memory browser origin (src/prize-event/fake-idb.mjs: IndexedDB, BroadcastChannel, localStorage), so the
+// route's tests drive the real walk, the real store, the real arm gate and the real 2D reveal.
+//
+// The store is asynchronous: a press, a mount or a setup start changes the screen only once its transaction
+// has answered. On an auto origin (the default) `await origin.idle()` lets everything finish; a manual
+// origin runs one IndexedDB task per origin.step(), which is how a test interleaves two tabs.
 import { makeDoc } from '../../prize-event/fake-dom.mjs';
+import { fakeOrigin } from '../../prize-event/fake-idb.mjs';
 import { mountStage } from './stage.ts';
-import { STORAGE_KEY, createEvent } from '../../prize-event/event.ts';
+import { createEvent, encodeEvent } from '../../prize-event/event.ts';
+import { DB, REFUSED_BROWSER, openEventStore } from '../../prize-event/store.ts';
 import { proposeSchedule } from '../../prize-draw/schedule.ts';
-import { mountSetup } from '../../prize-event/setup-page.ts';
+import { CONFIRM_REPLACE, mountSetup } from '../../prize-event/setup-page.ts';
+
+export { CONFIRM_REPLACE, DB, REFUSED_BROWSER, fakeOrigin };
 
 export function seeded(seed) {
   let a = seed >>> 0;
@@ -22,180 +31,83 @@ export function seeded(seed) {
   };
 }
 
-export function memoryStorage({ failWrites = false } = {}) {
-  const map = new Map();
-  return {
-    map,
-    failWrites,
-    getItem: (k) => (map.has(k) ? map.get(k) : null),
-    setItem(k, v) {
-      if (this.failWrites) throw new Error('quota');
-      map.set(k, String(v));
-    },
-  };
+export const names = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
+export const tick = () => new Promise((resolve) => setImmediate(resolve));
+
+/** The stored event's text on `origin`, or undefined when none is stored. */
+export const storedRaw = (origin) => origin.get(DB.name, DB.store, DB.key);
+/** Committed data put straight into the store: a profile that already holds it, or a write from outside
+ *  this code (another script on the origin, devtools), which announces nothing to any tab. */
+export const seedRaw = (origin, raw) => origin.put(DB.name, DB.version, DB.store, DB.key, raw);
+/** Committed writes of the event record, in order: { by, before, after }. */
+export const eventWrites = (origin) => origin.log.filter((w) => w.db === DB.name && w.key === DB.key);
+
+export function makeEvent({ n = 50, prizes = ['TV', 'Bike'], rng = seeded(1), list } = {}) {
+  return createEvent({ eventName: 'Party 2570', names: list ?? names(n), schedule: proposeSchedule(n), prizes }, rng);
 }
 
-export const names = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
-
-export function storedEvent(storage, { n = 50, prizes = ['TV', 'Bike'], rng = seeded(1), list } = {}) {
-  const ev = createEvent({ eventName: 'Party 2570', names: list ?? names(n), schedule: proposeSchedule(n), prizes }, rng);
-  storage.map.set(STORAGE_KEY, JSON.stringify(ev));
+export function storedEvent(origin, opts) {
+  const ev = makeEvent(opts);
+  seedRaw(origin, encodeEvent(ev));
   return ev;
 }
 
+/** A manual origin: run every queued task, draining promise continuations between them. */
+export async function settle(origin) {
+  for (;;) {
+    await tick();
+    if (!origin.step()) {
+      await tick();
+      if (!origin.tasks.length) return;
+    }
+  }
+}
+
+/** What a projector gets from its tab (the one place the route meets the browser's storage). */
+export const stageDeps = (env) => ({ store: openEventStore(env) });
+/** What the setup page gets as its window. */
+export const setupWin = (env, rest) => ({ ...env, ...rest });
+
 /**
- * Mounts the projector. `locks` defaults to one lock manager shared by every default mount, as a browser's is,
- * that grants at once (grantingLocks): the screen fails closed without one, so a test that passes nothing would
- * otherwise measure the cold screen. Pass `locks: null` for a browser without Web Locks.
+ * Mounts the projector on `env` (a tab of `origin`; a plain object for a browser without IndexedDB) and
+ * returns at once; nothing is on screen until the store has opened and been read.
  */
-export function mount({ storage, rng = seeded(2), reducedMotion = false, locks, onStorage, doc = makeDoc() } = {}) {
-  if (locks === undefined) locks = BROWSER_LOCKS;
+export function mountNow({ origin, env = origin.tab('A'), rng = seeded(2), reducedMotion = false, doc = makeDoc(), reload }) {
   const root = doc.createElement('div');
   root.id = 'app';
   const live = doc.createElement('p');
   live.id = 'pd-live';
   doc.body.append(live, root);
   const frames = [];
-  const stage = mountStage({ doc, root, live, storage, rng, reducedMotion, locks, onStorage, nextFrame: (cb) => frames.push(cb) });
+  const stage = mountStage({ doc, root, live, rng, reducedMotion, nextFrame: (cb) => frames.push(cb), reload, ...stageDeps(env) });
   const frame = doc.getElementById('pd-frame');
   const notice = root.querySelector('.pd-notice');
   const go = () => root.querySelector('.pd-mc').querySelector('button');
-  return { doc, root, live, stage, frame, notice, go, frames };
+  return { doc, root, live, stage, frame, notice, go, frames, env, deliver: () => env.deliver?.() };
 }
 
-/**
- * Two or more tabs on one origin: one shared map behind a Storage object per tab, the way a browser gives
- * each tab its own localStorage onto the same data. Every write is logged with the tab that made it and
- * the value it replaced, and queues a storage event for every OTHER tab; a test delivers those when it
- * chooses, since a real browser delivers them later and in no promised order.
- */
-export function sharedStorage() {
-  const map = new Map();
-  const writes = [];
-  const listeners = new Map();
-  const pending = new Map();
-  /** Runs inside a tab's getItem or setItem before it touches the map: lets a test interleave there. */
-  let hook = null;
-  const tab = (name) => {
-    pending.set(name, []);
-    return {
-      storage: {
-        getItem(k) {
-          hook?.('get', name);
-          return map.has(k) ? map.get(k) : null;
-        },
-        setItem(k, v) {
-          hook?.('set', name);
-          writes.push({ by: name, key: k, before: map.has(k) ? map.get(k) : null, raw: String(v) });
-          map.set(k, String(v));
-          for (const [other, queue] of pending) if (other !== name) queue.push(k);
-        },
-      },
-      onStorage: (cb) => listeners.set(name, cb),
-      deliver() {
-        const queue = pending.get(name).splice(0);
-        for (const k of queue) listeners.get(name)?.(k);
-      },
-    };
-  };
-  return {
-    map,
-    writes,
-    tab,
-    setHook: (fn) => (hook = fn),
-    /** A raw write from outside this project's code (another script on the origin, devtools), which takes no
-     *  lock: every tab gets an event. The setup page is never simulated with this; drive mountSetupPage. */
-    put(k, v) {
-      map.set(k, String(v));
-      for (const queue of pending.values()) queue.push(k);
-    },
-  };
+/** mountNow on an auto origin, once the first screen is up. */
+export async function mount(opts) {
+  const s = mountNow(opts);
+  await opts.origin.idle();
+  return s;
 }
 
-/**
- * Web Locks, as far as the stage uses them: request(name, cb) runs cb once the lock is granted, and only
- * one callback runs at a time. Real grants are never synchronous, so this fake never grants on its own:
- * requests queue until the test calls grant(), which is how a test interleaves two tabs at the lock.
- * One instance is shared by every tab, as the browser's lock manager is.
- */
-export function fakeLocks() {
-  const queue = [];
-  const request = (by) => (name, cb) =>
-    new Promise((resolve, reject) => {
-      queue.push({
-        name,
-        by,
-        run() {
-          try {
-            resolve(cb({ name, mode: 'exclusive' }));
-          } catch (err) {
-            reject(err);
-          }
-        },
-      });
-    });
-  return {
-    queue,
-    request: request(null),
-    /** The same manager, with every request this view makes tagged `by` in the queue. */
-    as: (by) => ({ request: request(by) }),
-    grant() {
-      const next = queue.shift();
-      if (next) next.run();
-      return Boolean(next);
-    },
-  };
-}
-
-/**
- * A lock manager with no other holder: a request is granted at once, inside request(), so a single-screen
- * test reads its result right after the click. Still exclusive: a request made while a callback runs waits
- * until that callback has returned.
- */
-export function grantingLocks() {
-  let held = false;
-  const waiting = [];
-  const run = (name, cb) => {
-    held = true;
-    try {
-      return cb({ name, mode: 'exclusive' });
-    } finally {
-      held = false;
-      waiting.shift()?.();
-    }
-  };
-  return {
-    requests: 0,
-    request(name, cb) {
-      this.requests++;
-      if (!held) {
-        try {
-          return Promise.resolve(run(name, cb));
-        } catch (err) {
-          return Promise.reject(err);
-        }
-      }
-      return new Promise((resolve, reject) =>
-        waiting.push(() => {
-          try {
-            resolve(run(name, cb));
-          } catch (err) {
-            reject(err);
-          }
-        }),
-      );
-    },
-  };
+/** The MC's tap on the mounted button, past its arm window (the gate is tested in arm-reveal-paths). */
+export function press(s) {
+  const b = s.go();
+  if (!b) return false;
+  b.disabled = false;
+  b.click();
+  return true;
 }
 
 /**
  * The real setup page (src/prize-event/setup-page.ts) on the prize fake DOM, filled with a valid roster, so a
- * test replaces the stored event the way the MC does. `locks` reaches the page as `navigator.locks`, the way
- * the browser's window hands it over; leave it out for a browser without Web Locks.
+ * test replaces the stored event the way the MC does. `confirm` answers the replace question; every question
+ * asked is recorded in `asked`.
  */
-const BROWSER_LOCKS = grantingLocks();
-
-export function mountSetupPage({ storage, locks, title = 'Replacement', n = 9 } = {}) {
+export function mountSetupPage({ origin, env = origin.tab('setup'), confirm = () => true, title = 'Replacement', n = 9 } = {}) {
   const doc = makeDoc();
   const add = (tag, id, parent = doc.body) => {
     const el = doc.createElement(tag);
@@ -216,9 +128,14 @@ export function mountSetupPage({ storage, locks, title = 'Replacement', n = 9 } 
     add('input', `pd-prize-${i}`, row);
   }
   const visits = [];
-  mountSetup(doc, { localStorage: storage, location: { assign: (u) => visits.push(u) }, ...(locks ? { navigator: { locks } } : {}) });
+  const asked = [];
+  const win = setupWin(env, {
+    location: { assign: (u) => visits.push(u) },
+    confirm: (q) => (asked.push(q), confirm(q)),
+  });
+  mountSetup(doc, win);
   doc.getElementById('pd-event').value = title;
   box.value = names(n).join('\n');
   box.dispatch('input');
-  return { doc, visits, submit: () => form.dispatch('submit'), message: () => doc.getElementById('pd-start-msg').textContent };
+  return { doc, visits, asked, submit: () => form.dispatch('submit'), message: () => doc.getElementById('pd-start-msg').textContent };
 }

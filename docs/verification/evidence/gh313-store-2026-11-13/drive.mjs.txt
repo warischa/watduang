@@ -1,0 +1,352 @@
+// gh#313 real-IndexedDB driver. Run: CDP_PORT=9555 node drive.mjs  (copy to a .mjs name first).
+// Launches its own headless Chrome on CDP_PORT with a wiped profile, records the pid, kills only that pid.
+import { spawn } from 'node:child_process';
+import { rmSync, mkdirSync, writeFileSync } from 'node:fs';
+
+const PORT = process.env.CDP_PORT || '9555';
+const BASE = process.env.BASE || 'http://localhost:4355';
+const PROFILE = process.env.PROFILE;
+const OUT = process.env.OUT;
+const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const pids = [];
+let chrome = null;
+const results = {};
+
+async function launch(fresh) {
+  if (chrome) { chrome.kill('SIGTERM'); await sleep(1200); chrome = null; }
+  if (fresh) rmSync(PROFILE, { recursive: true, force: true });
+  mkdirSync(PROFILE, { recursive: true });
+  chrome = spawn(CHROME, ['--headless=new', '--no-sandbox', `--remote-debugging-port=${PORT}`,
+    `--user-data-dir=${PROFILE}`, '--window-size=1280,900', 'about:blank'], { stdio: 'ignore' });
+  pids.push(chrome.pid);
+  for (let i = 0; i < 50; i++) { try { await fetch(`http://127.0.0.1:${PORT}/json/version`); return; } catch { await sleep(200); } }
+  throw new Error('chrome did not start');
+}
+
+class Tab {
+  static async open(initScript) {
+    const t = new Tab();
+    const target = await (await fetch(`http://127.0.0.1:${PORT}/json/new?about:blank`, { method: 'PUT' })).json();
+    t.id = target.id;
+    t.ws = new WebSocket(target.webSocketDebuggerUrl);
+    t.n = 0; t.pending = new Map(); t.dialogs = []; t.dialogAction = null; t.loadWaiters = [];
+    t.ws.addEventListener('message', (e) => {
+      const m = JSON.parse(e.data);
+      if (m.id && t.pending.has(m.id)) { t.pending.get(m.id)(m); return; }
+      if (m.method === 'Page.loadEventFired') { t.loadWaiters.splice(0).forEach((f) => f()); }
+      if (m.method === 'Page.javascriptDialogOpening') {
+        t.dialogs.push({ type: m.params.type, message: m.params.message });
+        const accept = t.dialogAction === 'accept';
+        t.send('Page.handleJavaScriptDialog', { accept });
+      }
+    });
+    await new Promise((r) => t.ws.addEventListener('open', r));
+    await t.send('Page.enable'); await t.send('Runtime.enable');
+    await t.send('Emulation.setFocusEmulationEnabled', { enabled: true });
+    await t.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+    if (initScript) await t.send('Page.addScriptToEvaluateOnNewDocument', { source: initScript });
+    return t;
+  }
+  send(method, params = {}) { return new Promise((res) => { this.pending.set(++this.n, res); this.ws.send(JSON.stringify({ id: this.n, method, params })); }); }
+  async nav(url) { const p = new Promise((r) => this.loadWaiters.push(r)); await this.send('Page.navigate', { url }); await p; await sleep(900); }
+  async ev(body) {
+    const r = await this.send('Runtime.evaluate', { expression: `(async()=>{${body}})()`, awaitPromise: true, returnByValue: true });
+    if (r.result?.exceptionDetails) return { error: r.result.exceptionDetails.exception?.description ?? r.result.exceptionDetails.text };
+    return r.result?.result?.value;
+  }
+  // trusted click at the centre of the element found by selector (or by text)
+  async clickPoint(sel) {
+    const pt = await this.ev(`const e=document.querySelector(${JSON.stringify(sel)}); if(!e) return null; e.scrollIntoView({block:'center'}); await new Promise(r=>setTimeout(r,150)); const r=e.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2,disabled:!!e.disabled};`);
+    if (!pt) return { error: 'no element ' + sel };
+    const p = (type) => this.send('Input.dispatchMouseEvent', { type, x: pt.x, y: pt.y, button: 'left', buttons: type === 'mouseReleased' ? 0 : 1, clickCount: 1 });
+    await p('mouseMoved'); await p('mousePressed'); await p('mouseReleased');
+    return { clicked: true, wasDisabled: pt.disabled };
+  }
+  // fire click as one non-awaited burst (for the two-tab race)
+  fireClick(sel) {
+    return this.ev(`const e=document.querySelector(${JSON.stringify(sel)}); const r=e.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2};`).then(async (pt) => {
+      this.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: pt.x, y: pt.y });
+      this.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: pt.x, y: pt.y, button: 'left', buttons: 1, clickCount: 1 });
+      this.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: pt.x, y: pt.y, button: 'left', buttons: 0, clickCount: 1 });
+    });
+  }
+  async shot(name) { const s = await this.send('Page.captureScreenshot', { format: 'png' }); writeFileSync(`${OUT}/${name}.png`, Buffer.from(s.result.data, 'base64')); }
+  async close() { await fetch(`http://127.0.0.1:${PORT}/json/close/${this.id}`).catch(() => {}); this.ws.close(); }
+}
+
+// IndexedDB read helper, run inside the page. dbName param exists for the must-red.
+const READ_IDB = (dbName = 'watduang-prize-draw') => `
+  const dbs = await indexedDB.databases();
+  if (!dbs.some(d => d.name === ${JSON.stringify(dbName)})) return { missing: 'database', dbName: ${JSON.stringify(dbName)}, have: dbs.map(d=>d.name) };
+  const db = await new Promise((res, rej) => { const q = indexedDB.open(${JSON.stringify(dbName)}); q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); });
+  if (!db.objectStoreNames.contains('event')) { db.close(); return { missing: 'store' }; }
+  const raw = await new Promise((res) => { const r = db.transaction('event').objectStore('event').get('current'); r.onsuccess=()=>res(r.result); });
+  const keys = await new Promise((res) => { const r = db.transaction('event').objectStore('event').getAllKeys(); r.onsuccess=()=>res(r.result); });
+  db.close();
+  if (raw === undefined) return { missing: 'record', keys };
+  let st = null; try { st = JSON.parse(raw); } catch {}
+  return { raw, keys, eventKey: st?.eventKey, at: st?.at, rounds: st?.rounds?.map(r=>({round:r.round,code:r.code,survivors:r.survivors.length, ids: r.survivors})), nRounds: st?.rounds?.length, final: !!st?.final, people: st?.setup?.people?.length, eventName: st?.setup?.eventName };`;
+const readIdb = async (tab, db) => tab.ev(READ_IDB(db));
+const brief = (r) => (r && r.raw ? { ...r, raw: `<${r.raw.length} chars>` } : r);
+
+const NAMES = Array.from({ length: 12 }, (_, i) => 'Name' + String.fromCharCode(65 + i)).join('\n');
+function setField(sel, value, ev = 'input') {
+  return `const e=document.querySelector(${JSON.stringify(sel)}); const proto=e.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype; Object.getOwnPropertyDescriptor(proto,'value').set.call(e,${JSON.stringify(value)}); e.dispatchEvent(new Event('${ev}',{bubbles:true}));`;
+}
+async function fillSetup(tab, eventName) {
+  await tab.ev(setField('#pd-event', eventName));
+  await tab.ev(setField('#pd-names', NAMES));
+  await sleep(300);
+}
+async function waitFor(tab, expr, ms = 8000) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < ms) { const v = await tab.ev(`return (${expr})`); if (v) return v; await sleep(150); }
+  return false;
+}
+const screenText = (tab) => tab.ev(`return { title: document.title, screen: document.querySelector('#pd-frame')?.getAttribute('data-screen'), frame: (document.querySelector('#pd-frame')?.innerText||'').slice(0,300), btn: document.querySelector('.pd-mc .pd-go')?.textContent ?? null, notice: document.querySelector('.pd-notice') && !document.querySelector('.pd-notice').hidden, noticeText: document.querySelector('#pd-notice-text')?.textContent };`);
+
+async function startEventViaSetup(tab, name) {
+  await tab.nav(`${BASE}/game/prize-draw/`);
+  await fillSetup(tab, name);
+  const c = await tab.clickPoint('#pd-start');
+  return c;
+}
+// press the projector's MC button once armed, wait for the stored text to change
+async function pressMc(tab) {
+  await sleep(700);
+  return tab.clickPoint('.pd-mc .pd-go');
+}
+const must = (label, cond, extra) => ({ label, pass: !!cond, ...extra });
+
+async function main() {
+  mkdirSync(OUT, { recursive: true });
+  // ---------- instrument
+  await launch(true);
+  let tab = await Tab.open();
+  await tab.nav(`${BASE}/game/prize-draw/`);
+  const instrument = { title: await tab.ev('return document.title'), url: await tab.ev('return location.href') };
+  instrument.readBeforeAnyEvent = await readIdb(tab);   // db exists (store opened it) but record absent
+  instrument.mustRed_wrongDbName = await readIdb(tab, 'no-such-db');
+  instrument.verdict = must('wrong db name reports missing, not an empty pass', instrument.mustRed_wrongDbName?.missing === 'database' && !!instrument.title);
+  results.instrument = instrument;
+  await tab.close();
+
+  // ---------- scenario 1
+  await launch(true);
+  tab = await Tab.open();
+  const s1 = {}; results.s1 = s1;
+  s1.startClick = await startEventViaSetup(tab, 'Probe event');
+  await sleep(1500);
+  s1.urlAfterStart = await tab.ev('return location.href');
+  s1.idbAfterStart = brief(await readIdb(tab));
+  await tab.shot('s1-projector-ready');
+  s1.screenReady = await screenText(tab);
+  s1.press1 = await pressMc(tab);                                   // draw
+  await sleep(1200);
+  s1.afterDraw = brief(await readIdb(tab));
+  s1.screenAfterDraw = await screenText(tab);
+  await tab.shot('s1-after-draw');
+  const rawBefore = (await readIdb(tab)).raw;
+  s1.rawBeforeReloadLen = rawBefore.length;
+  await tab.nav(`${BASE}/game/prize-draw/play/`);                   // reload projector
+  await sleep(800);
+  const afterReload = await readIdb(tab);
+  s1.afterReload = brief(afterReload);
+  s1.screenAfterReload = await screenText(tab);
+  await tab.shot('s1-after-reload');
+  s1.byteIdentical = afterReload.raw === rawBefore;
+  const dr = JSON.parse(rawBefore);
+  s1.saved = { code: dr.rounds[0]?.code, survivors: dr.rounds[0]?.survivors, at: dr.at };
+  s1.verdict = must('draw committed once, reload keeps byte-identical record, same round', s1.byteIdentical && dr.rounds.length === 1 && dr.rounds[0].survivors.length > 0 && s1.afterReload.nRounds === 1 && s1.afterReload.rounds[0].code === s1.saved.code,
+    { urlIsPlay: /\/play\/?$/.test(s1.urlAfterStart) });
+  s1.storedTextForS2 = rawBefore;
+  results.s1 = s1;
+  await tab.close();
+
+  // ---------- scenario 2: migration in a fresh profile
+  await launch(true);
+  tab = await Tab.open();
+  const s2 = {};
+  await tab.nav(`${BASE}/game/prize-draw/play/`);   // site origin open once
+  await tab.ev(`localStorage.removeItem('watduang:prize-draw:event'); return 1`);
+  s2.idbBeforeSeed = brief(await readIdb(tab));      // projector opened an empty store: record missing
+  // Fresh profile requirement: the open above created an empty db. That is what "open the site origin once" yields.
+  await tab.ev(`localStorage.setItem('watduang:prize-draw:event', ${JSON.stringify(s1.storedTextForS2)}); return 1`);
+  s2.lsLenBefore = await tab.ev(`return localStorage.getItem('watduang:prize-draw:event')?.length`);
+  s2.otherLsKeysBefore = await tab.ev(`return Object.keys(localStorage)`);
+  await tab.nav(`${BASE}/game/prize-draw/play/`);
+  await sleep(800);
+  s2.screen = await screenText(tab);
+  await tab.shot('s2-after-migration');
+  const idb2 = await readIdb(tab);
+  s2.idbAfter = brief(idb2);
+  s2.lsAfter = await tab.ev(`return localStorage.getItem('watduang:prize-draw:event')`);
+  s2.identicalToS1 = idb2.raw === s1.storedTextForS2;
+  await tab.nav(`${BASE}/game/prize-draw/play/`);
+  await sleep(800);
+  const idb2b = await readIdb(tab);
+  s2.idbAfterSecondReload = brief(idb2b);
+  s2.keysAfterSecondReload = idb2b.keys;
+  s2.sameAfterReload = idb2b.raw === idb2.raw;
+  s2.lsAfterSecond = await tab.ev(`return localStorage.getItem('watduang:prize-draw:event')`);
+  s2.verdict = must('resumed, idb holds it, ls key gone, one copy, stable', s2.identicalToS1 && s2.lsAfter === null && s2.lsAfterSecond === null && idb2b.keys.length === 1 && s2.sameAfterReload && s2.screen.screen !== 'cold' && s2.screen.screen !== 'refused');
+  results.s2 = s2;
+  await tab.close();
+
+  // ---------- scenario 3: two tabs race (fresh profile, new event via setup so a draw is pending)
+  await launch(true);
+  tab = await Tab.open();
+  const s3 = {};
+  await startEventViaSetup(tab, 'Race event');
+  await sleep(1500);
+  s3.idbStart = brief(await readIdb(tab));
+  const tabB = await Tab.open();
+  await tabB.nav(`${BASE}/game/prize-draw/play/`);
+  await tab.nav(`${BASE}/game/prize-draw/play/`);
+  await sleep(1000);                               // let both arm windows expire
+  s3.screenA0 = await screenText(tab); s3.screenB0 = await screenText(tabB);
+  await tab.shot('s3-tabA-before'); await tabB.shot('s3-tabB-before');
+  // keep both visibly focused-emulated; fire both bursts without awaiting between
+  await Promise.all([tab.fireClick('.pd-mc .pd-go'), tabB.fireClick('.pd-mc .pd-go')]);
+  await sleep(2500);
+  const idb3 = await readIdb(tab);
+  s3.idbAfter = brief(idb3);
+  s3.screenA = await screenText(tab); s3.screenB = await screenText(tabB);
+  const stA = await tab.ev(`return document.querySelector('#pd-frame')?.innerText`);
+  const stB = await tabB.ev(`return document.querySelector('#pd-frame')?.innerText`);
+  s3.frameTextEqual = stA === stB;
+  s3.frameA = stA?.slice(0, 200); s3.frameB = stB?.slice(0, 200);
+  const rawB = await readIdb(tabB); s3.idbFromTabB = brief(rawB); s3.sameRawFromBothTabs = rawB.raw === idb3.raw; 
+  await tab.shot('s3-tabA-after'); await tabB.shot('s3-tabB-after');
+  // does either tab's reveal list names that are not survivors in IDB? compare names shown vs survivor names
+  const ev3 = JSON.parse(idb3.raw);
+  const nameOf = Object.fromEntries(ev3.setup.people.map((p) => [p.id, p.name]));
+  const survNames = (ev3.rounds[0]?.survivors ?? []).map((i) => nameOf[i]);
+  const shownIn = (txt) => (txt?.match(/Name[A-L]/g) ?? []);
+  const checkTab = async (t) => { const marked = await t.ev(`return [...document.querySelectorAll('#pd-frame .pd-field .pd-chip.in')].map(e=>e.textContent.trim())`); return { markedSurvivors: marked.length, notInIdb: marked.filter((n) => !survNames.includes(n)).length, missingFromScreen: survNames.filter((n) => !marked.includes(n)).length }; };
+  s3.shownA = await checkTab(tab); s3.shownB = await checkTab(tabB);
+  s3.survNames = survNames;
+  s3.verdict = must('exactly one new round, both converge, shown reveal subset of idb', ev3.rounds.length === 1 && s3.frameTextEqual && s3.shownA.notInIdb === 0 && s3.shownB.notInIdb === 0 && s3.shownA.markedSurvivors === 10 && s3.shownB.markedSurvivors === 10 && s3.sameRawFromBothTabs);
+  results.s3 = s3;
+  await tabB.close(); await tab.close();
+
+  // ---------- scenario 4: refused browser
+  await launch(true);
+  const s4 = {};
+  const variants = {
+    throwOnAccess: `Object.defineProperty(window,'indexedDB',{configurable:true,get(){throw new DOMException('blocked','SecurityError')}});`,
+    openOnerror: `(()=>{const real=IDBFactory.prototype.open; IDBFactory.prototype.open=function(){const req={}; setTimeout(()=>{ if(typeof req.onerror==='function') req.onerror(new Event('error')); },0); return req;};})();`,
+  };
+  for (const [vn, src] of Object.entries(variants)) {
+    const t = await Tab.open(src);
+    const v = {};
+    await t.nav(`${BASE}/game/prize-draw/`);
+    v.setupProbe = await t.ev(`let access='ok'; try{ window.indexedDB }catch(e){ access='throws:'+e.name } return { access, startMsg: document.querySelector('#pd-start-msg')?.innerText };`);
+    await fillSetup(t, 'Refused ' + vn);
+    v.startClick = await t.clickPoint('#pd-start');
+    await sleep(800);
+    v.setupAfterStart = await t.ev(`return { url: location.href, startMsg: document.querySelector('#pd-start-msg')?.innerText };`);
+    await t.shot(`s4-${vn}-setup`);
+    await t.nav(`${BASE}/game/prize-draw/play/`);
+    v.projector = await screenText(t);
+    v.projectorHasControl = v.projector.btn !== null;
+    await t.shot(`s4-${vn}-projector`);
+    await t.close();
+    // nothing started: read IDB from a clean (no init script) tab
+    const clean = await Tab.open();
+    await clean.nav(`${BASE}/game/prize-draw/play/`);
+    v.idbAfterRefusedRun = brief(await readIdb(clean));
+    v.coldInCleanTab = (await screenText(clean)).screen;
+    await clean.close();
+    s4[vn] = v;
+  }
+  const refused = await (async () => { const t = await Tab.open(); await t.nav(`${BASE}/game/prize-draw/`); const x = await t.ev(`return document.body.innerHTML.includes('[copy: owner — refused browser]')`); await t.close(); return x; })();
+  s4.constantAppearsInPageWithoutInit = refused;
+  results.s4 = s4;
+
+  // ---------- scenario 5
+  await launch(true);
+  tab = await Tab.open();
+  const s5 = {};
+  await startEventViaSetup(tab, 'First event');
+  await sleep(1500);
+  const saved = await readIdb(tab);
+  s5.saved = brief(saved);
+  // dismiss
+  tab.dialogAction = 'dismiss'; tab.dialogs = [];
+  await tab.nav(`${BASE}/game/prize-draw/`);
+  await fillSetup(tab, 'Second event');
+  s5.dismissClick = await tab.clickPoint('#pd-start');
+  await sleep(1500);
+  s5.dismissDialogs = [...tab.dialogs];
+  s5.urlAfterDismiss = await tab.ev('return location.href');
+  const afterDismiss = await readIdb(tab);
+  s5.byteIdenticalAfterDismiss = afterDismiss.raw === saved.raw;
+  await tab.shot('s5-after-dismiss');
+  // accept
+  tab.dialogAction = 'accept'; tab.dialogs = [];
+  // setup page may still be loaded (dismiss stayed); re-nav for a clean mount
+  await tab.nav(`${BASE}/game/prize-draw/`);
+  await fillSetup(tab, 'Second event');
+  s5.acceptClick = await tab.clickPoint('#pd-start');
+  await sleep(1800);
+  s5.acceptDialogs = [...tab.dialogs];
+  s5.urlAfterAccept = await tab.ev('return location.href');
+  const afterAccept = await readIdb(tab);
+  s5.afterAccept = brief(afterAccept);
+  s5.newEvent = afterAccept.eventKey !== saved.eventKey && afterAccept.eventName === 'Second event';
+  await tab.shot('s5-after-accept');
+  s5.verdict = must('dialog opened both times, dismiss keeps bytes, accept replaces', s5.dismissDialogs.length >= 1 && s5.acceptDialogs.length >= 1 && s5.byteIdenticalAfterDismiss && s5.newEvent && /\/play\/?$/.test(s5.urlAfterAccept) && !/\/play\/?$/.test(s5.urlAfterDismiss));
+  results.s5 = s5;
+  await tab.close();
+
+  // ---------- scenario 6: versionchange / blocked with a real second connection (DB name/version read from dist assets)
+  await launch(true);
+  tab = await Tab.open();
+  const s6 = {};
+  await startEventViaSetup(tab, 'Upgrade event');
+  await sleep(1500);
+  await tab.nav(`${BASE}/game/prize-draw/play/`);
+  await sleep(800);
+  s6.screenA0 = await screenText(tab);
+  s6.idbA0 = brief(await readIdb(tab));
+  await tab.ev(`window.__vc = []; window.__t0 = performance.now(); return 1`);
+  const tabB6 = await Tab.open();
+  await tabB6.nav(`${BASE}/game/prize-draw/`);
+  s6.bEvents = await tabB6.ev(`
+    const t0 = performance.now(); const ev = []; const mark = (n) => ev.push({ n, ms: Math.round(performance.now() - t0) });
+    const out = await new Promise((resolve) => {
+      const q = indexedDB.open('watduang-prize-draw', 2);
+      q.onblocked = () => mark('blocked');
+      q.onupgradeneeded = () => mark('upgradeneeded');
+      q.onsuccess = () => { mark('success'); const v = q.result.version; q.result.close(); resolve({ ok: true, version: v }); };
+      q.onerror = () => { mark('error:' + q.error?.name); resolve({ ok: false }); };
+      setTimeout(() => { mark('timeout-5s'); resolve({ ok: false, timedOut: true }); }, 5000);
+    });
+    return { ev, out };`);
+  await sleep(500);
+  s6.screenA1 = await screenText(tab);
+  // is tab A's connection closed? a transaction on a fresh handle is not the same; probe the page's own press path instead
+  s6.pressAfterUpgradeA = await pressMc(tab);
+  await sleep(1200);
+  s6.screenAfterPressA = await screenText(tab);
+  s6.idbAfterPress = brief(await readIdb(tabB6));   // read via B (v2 handle via default open)
+  await tab.shot('s6-tabA-after-upgrade');
+  await tab.nav(`${BASE}/game/prize-draw/play/`);
+  await sleep(1000);
+  s6.screenA2reload = await screenText(tab);
+  s6.dbVersionNow = await tab.ev(`const q = await new Promise(r=>{const o=indexedDB.open('watduang-prize-draw'); o.onsuccess=()=>r(o.result);}); const v=q.version; q.close(); return v;`);
+  await tab.shot('s6-tabA-reload');
+  s6.verdict = must('upgrade proceeds without staying blocked (A closes)', s6.bEvents?.out?.ok && !s6.bEvents.ev.some((e) => e.n === 'timeout-5s'), { blockedEventFired: !!s6.bEvents?.ev?.some((e) => e.n === 'blocked') });
+  results.s6 = s6;
+  await tabB6.close(); await tab.close();
+
+  delete results.s1.storedTextForS2;
+}
+
+try { await main(); } catch (e) { results.driverError = String(e?.stack ?? e); }
+finally { if (chrome) { chrome.kill('SIGTERM'); } results.pidsStarted = pids; }
+writeFileSync(`${OUT}/scenarios.json`, JSON.stringify(results, null, 2));
+console.log(JSON.stringify(Object.fromEntries(Object.entries(results).map(([k, v]) => [k, v?.verdict ?? v?.pass ?? (k === 'driverError' || k === 'pidsStarted' ? v : '-')])), null, 1));
+process.exit(0);

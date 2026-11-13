@@ -1,21 +1,25 @@
 // node --test — the prize-draw setup page script on the prize fake DOM: the setup screen's hostile-name
 // case (its name sink is the error list), schedule validation as the MC sees it, and the start contract
-// (store first, then open the projector route; nothing stored means no navigation).
+// (store first, then open the projector route; nothing stored means no navigation; a saved event is replaced
+// only after the MC confirms; a refused browser says why). The store is the real one (store.ts) over the
+// in-memory IndexedDB double (fake-idb.mjs).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ACTIVE_TAGS, HOSTILE, makeDoc } from './fake-dom.mjs';
-import { STORAGE_KEY, decodeEvent } from './event.ts';
-import { STORAGE_FAILED, mountSetup } from './setup-page.ts';
+import { createEvent, decodeEvent, encodeEvent } from './event.ts';
+import { CONFIRM_REPLACE, STORAGE_FAILED, mountSetup } from './setup-page.ts';
+import { DB, REFUSED_BROWSER } from './store.ts';
 import { nameIssue, parseRoster } from './names.ts';
-import { fakeLocks, grantingLocks } from '../play/prize-draw/stage-harness.mjs';
+import { fakeOrigin } from './fake-idb.mjs';
+import { proposeSchedule } from '../prize-draw/schedule.ts';
 
 const PAGE = fs.readFileSync(path.join(import.meta.dirname, '../pages/game/prize-draw/index.astro'), 'utf8');
 
-/** The setup page on the fake DOM. `locks` reaches it as `navigator.locks`, as the browser's window hands it
- *  over: one that grants at once by default; null for a browser without Web Locks. */
-function page({ failStore = false, locks = grantingLocks() } = {}) {
+/** The setup page on the fake DOM over one origin. `env` is the window's storage side (a tab of the origin
+ *  by default; a plain object for a browser without IndexedDB); `confirm` answers the replace question. */
+function page({ origin = fakeOrigin(), env = origin.tab('setup'), confirm = () => true } = {}) {
   const doc = makeDoc();
   const add = (tag, id, parent = doc.body) => {
     const el = doc.createElement(tag);
@@ -36,19 +40,9 @@ function page({ failStore = false, locks = grantingLocks() } = {}) {
     form.append(row);
     add('input', `pd-prize-${i}`, row);
   }
-  const store = new Map();
   const visits = [];
-  const win = {
-    localStorage: {
-      getItem: (k) => store.get(k) ?? null,
-      setItem: (k, v) => {
-        if (failStore) throw new Error('denied');
-        store.set(k, v);
-      },
-    },
-    location: { assign: (u) => visits.push(u) },
-    ...(locks ? { navigator: { locks } } : {}),
-  };
+  const asked = [];
+  const win = { ...env, location: { assign: (u) => visits.push(u) }, confirm: (q) => (asked.push(q), confirm(q)) };
   mountSetup(doc, win);
   const $ = (id) => doc.getElementById(id);
   const type = (id, value) => {
@@ -56,7 +50,9 @@ function page({ failStore = false, locks = grantingLocks() } = {}) {
     $(id).dispatch('input');
   };
   const submit = () => form.dispatch('submit');
-  return { doc, $, type, submit, store, visits };
+  /** The stored event's text, or undefined. */
+  const stored = () => origin.get(DB.name, DB.store, DB.key);
+  return { doc, $, type, submit, stored, visits, asked, origin, idle: () => origin.idle() };
 }
 
 const roster = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
@@ -68,7 +64,7 @@ test('every element the script needs is in the page', () => {
   assert.ok(PAGE.includes('id={`pd-s${i}`}') && PAGE.includes('id={`pd-l${i}`}') && PAGE.includes('id={`pd-prize-${i}`}'));
 });
 
-test('setup screen, hostile names: each is listed in the error rows as its own text, never parsed, and blocks the start', () => {
+test('setup screen, hostile names: each is listed in the error rows as its own text, never parsed, and blocks the start', async () => {
   const p = page();
   const hostile = Object.values(HOSTILE);
   p.type('pd-names', [...roster(49), ...hostile].join('\n'));
@@ -79,16 +75,18 @@ test('setup screen, hostile names: each is listed in the error rows as its own t
   // The page's own form is the one FORM; nothing a name produced may be an element of an active kind.
   assert.deepEqual(p.$('pd-names-msg').all().filter((el) => ACTIVE_TAGS.includes(el.tagName)).map((el) => el.tagName), []);
   p.submit();
-  assert.equal(p.store.size, 0, 'an event with refused names was stored');
+  await p.idle();
+  assert.equal(p.stored(), undefined, 'an event with refused names was stored');
   assert.deepEqual(p.visits, []);
 });
 
-test('a duplicate (case and spaces folded) is listed and blocks the start', () => {
+test('a duplicate (case and spaces folded) is listed and blocks the start', async () => {
   const p = page();
   p.type('pd-names', [...roster(50), 'p 1'].join('\n'));
   assert.deepEqual(p.$('pd-names-msg').querySelectorAll('span.emsg-name').map((s) => s.textContent), ['p 1']);
   p.submit();
-  assert.equal(p.store.size, 0);
+  await p.idle();
+  assert.equal(p.stored(), undefined);
 });
 
 // The owner-approved refusal copy (gh#304 evidence README, approved 2026-11-11), one per reason code of
@@ -163,7 +161,7 @@ test('the prize stepper buttons carry the approved aria-labels', () => {
   assert.match(PAGE, /<button id="pd-prize-plus"[^>]*\saria-label="เพิ่มจำนวนรางวัล"/);
 });
 
-test('the schedule is proposed from the head count and an edit that does not shrink shows the board sentence', () => {
+test('the schedule is proposed from the head count and an edit that does not shrink shows the board sentence', async () => {
   const p = page();
   p.type('pd-names', roster(200).join('\n'));
   assert.deepEqual(['pd-s1', 'pd-s2', 'pd-s3'].map((id) => p.$(id).value), ['100', '50', '20']);
@@ -172,23 +170,25 @@ test('the schedule is proposed from the head count and an edit that does not shr
   assert.ok(p.$('pd-s2').classList.contains('err'));
   p.submit();
   assert.equal(p.$('pd-start-msg').textContent, 'แก้ตารางคัดออกก่อน แล้วจึงเริ่มงานได้');
-  assert.equal(p.store.size, 0);
+  await p.idle();
+  assert.equal(p.stored(), undefined);
   p.$('pd-sched-reset').dispatch('click');
   assert.equal(p.$('pd-s2').value, '50');
   assert.equal(p.$('pd-sched-msg').textContent, '');
 });
 
-test('head count outside 9..200: the count is marked and the start refused', () => {
+test('head count outside 9..200: the count is marked and the start refused', async () => {
   for (const n of [8, 201]) {
     const p = page();
     p.type('pd-names', roster(n).join('\n'));
     assert.ok(p.$('pd-count').classList.contains('err'), `n=${n}`);
     p.submit();
-    assert.equal(p.store.size, 0, `n=${n}`);
+    await p.idle();
+    assert.equal(p.stored(), undefined, `n=${n}`);
   }
 });
 
-test('a valid setup is stored, then the projector route opens; the stored event is the typed one', () => {
+test('a valid setup is stored, then the projector route opens; the stored event is the typed one; nothing is asked when none is saved', async () => {
   const p = page();
   p.type('pd-event', 'Party 2570');
   p.type('pd-names', roster(60).join('\n'));
@@ -196,76 +196,150 @@ test('a valid setup is stored, then the projector route opens; the stored event 
   p.$('pd-prize-minus').dispatch('click');
   p.type('pd-prize-1', 'TV');
   p.submit();
-  const ev = decodeEvent(p.store.get(STORAGE_KEY));
+  await p.idle();
+  const ev = decodeEvent(p.stored());
   assert.ok(ev, 'nothing valid was stored');
   assert.equal(ev.setup.eventName, 'Party 2570');
   assert.deepEqual(ev.setup.people.map((x) => x.name), roster(60));
   assert.deepEqual(ev.setup.prizes, ['TV', '', '']);
   assert.deepEqual(p.visits, ['/game/prize-draw/play/']);
+  assert.deepEqual(p.asked, [], 'asked to replace an event that was never saved');
 });
 
-test('a refused store shows the message and does not navigate', () => {
-  const p = page({ failStore: true });
-  p.type('pd-names', roster(60).join('\n'));
-  p.submit();
-  assert.equal(p.$('pd-start-msg').textContent, STORAGE_FAILED);
-  assert.deepEqual(p.visits, []);
+// Literal on purpose: this pins the owner-approved wording (gh#313), not the constant.
+test('the replace question is the owner-approved copy', () => {
+  assert.equal(CONFIRM_REPLACE, 'มีงานที่บันทึกไว้แล้ว ถ้าเริ่มงานใหม่ งานเดิมจะหายไป เริ่มใหม่เลยไหม?');
 });
 
+/** A seeded source, enough for createEvent: distinct ids per seed. */
+function seededHex(seed) {
+  let a = seed >>> 0;
+  const float = () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  return { float, int: (n) => Math.floor(float() * n), hex: (b) => Array.from({ length: b }, () => Math.floor(float() * 256).toString(16).padStart(2, '0')).join('') };
+}
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
-test('without Web Locks the start stores nothing, does not navigate, and says storage failed', async () => {
-  const p = page({ locks: null });
+test('confirm before replace: cancel leaves the saved event byte-identical, writes nothing and opens nothing', async () => {
+  const origin = fakeOrigin();
+  const saved = encodeEvent(createEvent({ eventName: 'Saved', names: roster(30), schedule: proposeSchedule(30), prizes: ['A'] }, seededHex(7)));
+  origin.put(DB.name, DB.version, DB.store, DB.key, saved);
+  const p = page({ origin, confirm: () => false });
   p.type('pd-names', roster(60).join('\n'));
   p.submit();
-  await tick();
-  assert.equal(p.store.size, 0, 'a start without the event lock wrote the event');
-  assert.deepEqual(p.visits, [], 'a start without the event lock opened the projector');
-  assert.equal(p.$('pd-start-msg').textContent, STORAGE_FAILED);
-});
-
-test('the start waits for the event lock: nothing is stored or opened before the grant, both after it', () => {
-  const locks = fakeLocks();
-  const p = page({ locks });
-  p.type('pd-names', roster(60).join('\n'));
-  p.submit();
-  assert.equal(locks.queue.length, 1, 'the start never asked for the event lock');
-  assert.equal(locks.queue[0].name, STORAGE_KEY);
-  assert.equal(p.store.size, 0, 'the event was stored before the lock was granted');
-  assert.deepEqual(p.visits, [], 'the projector opened before the lock was granted');
-  locks.grant();
-  assert.ok(decodeEvent(p.store.get(STORAGE_KEY)), 'nothing valid was stored once granted');
-  assert.deepEqual(p.visits, ['/game/prize-draw/play/']);
-});
-
-test('a second start while the first waits on the lock is dropped: one event stored, one navigation', () => {
-  const locks = fakeLocks();
-  const p = page({ locks });
-  p.type('pd-names', roster(60).join('\n'));
-  let writes = 0;
-  const set = p.store.set.bind(p.store);
-  p.store.set = (k, v) => (writes++, set(k, v));
-  p.submit();
-  p.submit();
-  while (locks.grant());
-  assert.equal(writes, 1, 'a double submit stored two events');
-  assert.deepEqual(p.visits, ['/game/prize-draw/play/']);
-});
-
-test('a refused lock request stores nothing and leaves the start button usable', async () => {
-  let refuse = true;
-  const inner = grantingLocks();
-  const locks = { request: (name, cb) => (refuse ? Promise.reject(new Error('SecurityError')) : inner.request(name, cb)) };
-  const p = page({ locks });
-  p.type('pd-names', roster(60).join('\n'));
-  p.submit();
-  await tick();
-  assert.equal(p.store.size, 0);
+  await p.idle();
+  assert.deepEqual(p.asked, [CONFIRM_REPLACE]);
+  assert.equal(p.stored(), saved, 'cancel changed the saved event');
+  assert.deepEqual(origin.log, [], 'cancel wrote');
   assert.deepEqual(p.visits, []);
-  assert.equal(p.$('pd-start-msg').textContent, STORAGE_FAILED);
-  refuse = false;
+  assert.equal(p.$('pd-start-msg').textContent, '', 'cancel is not a failure');
+  // and the start is usable again: confirming now replaces it
+  const yes = page({ origin, confirm: () => true });
+  yes.type('pd-names', roster(60).join('\n'));
+  yes.submit();
+  await yes.idle();
+  assert.equal(decodeEvent(yes.stored()).setup.people.length, 60);
+  assert.deepEqual(origin.log.map((w) => w.before), [saved], 'the replacement did not land on the text that was asked about');
+  assert.deepEqual(yes.visits, ['/game/prize-draw/play/']);
+});
+
+test('a stored text that does not decode is no event: the start replaces it without asking', async () => {
+  const origin = fakeOrigin();
+  origin.put(DB.name, DB.version, DB.store, DB.key, '{"v":1');
+  const p = page({ origin, confirm: () => false });
+  p.type('pd-names', roster(60).join('\n'));
   p.submit();
-  assert.ok(decodeEvent(p.store.get(STORAGE_KEY)), 'the start stayed dead after a refused request');
+  await p.idle();
+  assert.deepEqual(p.asked, []);
+  assert.ok(decodeEvent(p.stored()));
+});
+
+test('the saved event moves while the question is open: nothing is replaced, and the MC is asked again about what is stored now', async () => {
+  const origin = fakeOrigin();
+  const first = encodeEvent(createEvent({ eventName: 'Saved', names: roster(30), schedule: proposeSchedule(30), prizes: ['A'] }, seededHex(7)));
+  const moved = encodeEvent(createEvent({ eventName: 'Moved', names: roster(30), schedule: proposeSchedule(30), prizes: ['A'] }, seededHex(8)));
+  origin.put(DB.name, DB.version, DB.store, DB.key, first);
+  let questions = 0;
+  const p = page({
+    origin,
+    confirm: () => {
+      // While the first question is open, a projector moves the saved event.
+      if (++questions === 1) origin.put(DB.name, DB.version, DB.store, DB.key, moved);
+      return true;
+    },
+  });
+  p.type('pd-names', roster(60).join('\n'));
+  p.submit();
+  await p.idle();
+  assert.equal(questions, 2, 'the MC was not asked again about the event that is stored now');
+  assert.deepEqual(origin.log.map((w) => w.before), [moved], 'the replacement landed on a text the MC was not asked about');
+  assert.deepEqual(p.visits, ['/game/prize-draw/play/']);
+});
+
+test('an aborted transaction shows the storage message and does not navigate', async () => {
+  const origin = fakeOrigin();
+  const p = page({ origin });
+  await p.idle();
+  origin.faults.abortCommits = 1;
+  p.type('pd-names', roster(60).join('\n'));
+  p.submit();
+  await p.idle();
+  assert.equal(origin.faults.abortCommits, 0, 'nothing was aborted: this test measured nothing');
+  assert.equal(p.$('pd-start-msg').textContent, STORAGE_FAILED);
+  assert.equal(p.stored(), undefined);
+  assert.deepEqual(p.visits, []);
+});
+
+test('a refused browser says why at once and again on start, stores nothing and does not navigate', async () => {
+  for (const [label, make] of [
+    ['no IndexedDB', (o) => ({})],
+    ['open errors', (o) => ((o.faults.open = 'error'), o.tab('setup'))],
+    ['open throws', (o) => ((o.faults.open = 'throw'), o.tab('setup'))],
+  ]) {
+    const origin = fakeOrigin();
+    const p = page({ origin, env: make(origin) });
+    await p.idle();
+    assert.equal(p.$('pd-start-msg').textContent, REFUSED_BROWSER, `${label}: nothing said before a start`);
+    p.type('pd-names', roster(60).join('\n'));
+    p.submit();
+    await p.idle();
+    assert.equal(p.$('pd-start-msg').textContent, REFUSED_BROWSER, `${label}: nothing said on start`);
+    assert.equal(p.stored(), undefined, label);
+    assert.deepEqual(p.visits, [], label);
+  }
+});
+
+test('the start waits for the commit: nothing is opened before it, the projector after it', async () => {
+  const origin = fakeOrigin({ manual: true });
+  const p = page({ origin });
+  while (origin.step()) await tick();
+  p.type('pd-names', roster(60).join('\n'));
+  p.submit();
+  await tick();
+  let steps = 0;
+  while (origin.step()) {
+    steps++;
+    if (!origin.log.length) assert.deepEqual(p.visits, [], 'the projector opened before the write committed');
+    await tick();
+  }
+  assert.ok(steps >= 4, `only ${steps} tasks: a load and a compare-and-set are at least four`);
+  assert.ok(decodeEvent(p.stored()), 'nothing valid was stored once committed');
+  assert.deepEqual(p.visits, ['/game/prize-draw/play/']);
+});
+
+test('a second start while the first waits on the store is dropped: one event stored, one navigation', async () => {
+  const origin = fakeOrigin();
+  const p = page({ origin });
+  p.type('pd-names', roster(60).join('\n'));
+  p.submit();
+  p.submit();
+  await p.idle();
+  assert.equal(origin.log.length, 1, 'a double submit stored two events');
   assert.deepEqual(p.visits, ['/game/prize-draw/play/']);
 });
 
