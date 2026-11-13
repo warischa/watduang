@@ -333,6 +333,14 @@ const settleFails = [];
 
 const gotoIdleArmed = async (s, route) => {
   const url = `${BASE}/game/${route}/play/`;
+  // IndexedDB only, and on purpose not localStorage: this walk keeps its returning-player roster (see
+  // findTransitionTrigger's header). The prize-draw event lives in IndexedDB since gh#313, and every tab of
+  // this walk -- and of the sibling play-exit probe, which shares this browser profile -- moves it forward
+  // when it presses the MC button. The seed below writes the pre-gh#313 localStorage key, which the store
+  // accepts only into an EMPTY database; over a moved event it refuses with OLD_TAB_OPEN, the projector
+  // shows no button, and s4 reds "no-trigger" for a reason that is the harness's own leftover. Measured:
+  // green on a fresh profile, red after the sibling's walk. No other play route opens IndexedDB.
+  await s.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'indexeddb' });
   await s.nav(url);
   // gh#304: a route that shows nothing to press until something is stored is seeded (the fit probe's own
   // seed) and reloaded, or the walk finds no transition to drive.

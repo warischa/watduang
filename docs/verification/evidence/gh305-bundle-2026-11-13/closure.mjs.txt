@@ -1,0 +1,36 @@
+// usage: node gh305-closure.mjs <dist-dir> ; prints per-page initial and activated closures
+import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
+const dist = path.resolve(process.argv[2]); const astro = path.join(dist, '_astro');
+const SRC = /<script[^>]+src="\/_astro\/([^"]+\.js)"/g;
+const STATIC = /(?:from\s*"\.\/([^"]+\.js)"|(?<![\w$.])import\s*"\.\/([^"]+\.js)")/g;
+const DYN = /import\(\s*"\.\/([^"]+\.js)"\s*\)/g;
+const text = (n) => fs.readFileSync(path.join(astro, n), 'utf8');
+const refs = (n, re) => [...text(n).matchAll(re)].map((m) => m[1] || m[2]);
+const closure = (seeds, withDyn) => { const seen = new Set(); const q = [...seeds];
+  while (q.length) { const c = q.pop(); if (seen.has(c)) continue; seen.add(c);
+    for (const r of refs(c, STATIC)) q.push(r); if (withDyn) for (const r of refs(c, DYN)) q.push(r); }
+  return seen; };
+const size = (set) => { let raw = 0, gz = 0; for (const n of set) { const b = fs.readFileSync(path.join(astro, n)); raw += b.length; gz += zlib.gzipSync(b, { level: 9 }).length; } return { raw, gz, n: set.size }; };
+const strip = (n) => n.replace(/\.[^.]+\.js$/, '.js');
+// Activated reveal: the registry chunk (the one holding the three loaders) names each game's renderer
+// chunk as `<key>:{...load:()=>...import("./index.HASH.js")`; three loads through its own import().
+const REG = /(fireworks|cards|ladder):\{[^}]*?import\(\s*"\.\/([^"]+\.js)"/g;
+const pages = process.argv.slice(3);
+const regChunk = fs.readdirSync(astro).filter((f) => f.endsWith('.js')).find((f) => /load:\(\)=>\w+\(\(\)=>import\("\.\/index\./.test(text(f)));
+const games = {}; for (const m of text(regChunk).matchAll(REG)) games[m[1]] = m[2];
+console.log('registry chunk:', strip(regChunk), JSON.stringify(Object.fromEntries(Object.entries(games).map(([k, v]) => [k, v]))));
+const threeChunk = fs.readdirSync(astro).find((f) => f.startsWith('three.module.'));
+const which = (p) => (p.includes('prize-fireworks') ? ['fireworks'] : p.includes('prize-cards') ? ['cards'] : p.includes('prize-ladder') ? ['ladder'] : p.endsWith('prize-draw/play') ? ['fireworks', 'cards', 'ladder'] : []);
+for (const p of pages) {
+  const html = fs.readFileSync(path.join(dist, p, 'index.html'), 'utf8');
+  const seeds = [...html.matchAll(SRC)].map((m) => m[1]);
+  const init = closure(seeds, false); const all = closure(seeds, true);
+  const lazy = new Set([...all].filter((n) => !init.has(n)));
+  const i = size(init), a = size(all);
+  const act = new Set(init); const ks = which(p);
+  if (ks.length) { for (const k of ks) for (const n of closure([games[k]], false)) act.add(n); for (const n of closure([threeChunk], false)) act.add(n); }
+  const c = size(act);
+  console.log(`## ${p}\n  entries: ${seeds.map(strip).join(', ')}\n  initial: ${i.n} chunks raw ${i.raw} gzip ${i.gz}\n  initial chunks: ${[...init].map(strip).join(' ')}\n  +lazy: ${lazy.size} chunks: ${[...lazy].map(strip).join(' ')}\n  full (initial+all dynamic): raw ${a.raw} gzip ${a.gz}\n  three in initial: ${[...init].some((n) => n.startsWith('three.module'))}`);
+  console.log(`  activated (${ks.join('+') || 'n/a'}): ${c.n} chunks raw ${c.raw} gzip ${c.gz}`);
+  if (ks.length > 1) for (const k of ks) { const one = new Set(init); for (const n of closure([games[k], threeChunk], false)) one.add(n); const o = size(one); console.log(`  activated, ${k} alone: ${o.n} chunks raw ${o.raw} gzip ${o.gz}`); }
+}

@@ -33,6 +33,10 @@ import crocBite from './croc-bite.ts';
 import loveMatch from './love-match.ts';
 // gh#304 — the first game of the company-party category (ADR-0075): the New Year prize draw.
 import prizeDraw from './prize-draw.ts';
+// gh#305-gh#307 -- the prize draw's three 3D games, each on its own page running a fixed demo outcome.
+import prizeFireworks from './prize-fireworks.ts';
+import prizeCards from './prize-cards.ts';
+import prizeLadder from './prize-ladder.ts';
 // pick-loser is GONE, not delisted (gh#154, owner decision 2026-08-30: too simple to be interesting).
 // The module, its test and its OG image are deleted; /game/pick-loser 301s to /c/party/ in
 // public/staticwebapp.config.json. Its one reusable part, pickLoser(), already lives in
@@ -57,6 +61,9 @@ export const games: GameModule[] = [
   crocBite,
   loveMatch,
   prizeDraw,
+  prizeFireworks,
+  prizeCards,
+  prizeLadder,
 ];
 
 export const byId = (id: string): GameModule | undefined =>

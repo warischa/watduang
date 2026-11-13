@@ -1,6 +1,6 @@
 # ADR-0068 — `three` beyond เข้งับ: the real cost is per visitor, and the freeze gate cannot see it
 
-Date: 2026-09-26 · Status: **rejected — owner ruling 2026-09-26, croc-bite only** · Would have amended
+Date: 2026-09-26 (amended 2026-11-13, see the end) · Status: **rejected — owner ruling 2026-09-26, croc-bite only** · Would have amended
 [ADR-0060](0060-one-renderer-for-the-site-three-is-admitted-and-the-freeze-baseline-moves-once.md)'s
 "exactly this and nothing more" · Relates: [ADR-0051](0051-canvas-2d-is-the-default-and-a-play-route-never-blanks-the-page.md),
 ADR-0040, ADR-0057
@@ -138,3 +138,46 @@ the siamsi and wheel load paths, nor the CDN's actual compression.
 A measurement showing a 3D route's page-load weight stays within a small multiple of today's routes.
 For example, a lazily loaded `three` that visitors fetch only after choosing to play. At that point the
 per-visitor objection that drives this draft falls away.
+
+## Amendment — 2026-11-13: three scoped admissions, the prize-draw 3D games
+
+**Scope.** The ruling above stays as written for the five entries it named. This amendment records three further
+admissions of `three`, each scoped to one play route: the prize-draw games fireworks, cards and ladder
+(`/game/prize-fireworks/play/`, `/game/prize-cards/play/`, `/game/prize-ladder/play/`), whose renderers also run
+on the prize-draw projector route. They are reached through one shared reveal host, not by each route importing
+the library on its own. ADR-0060's bar for a second 3D library is untouched: `three` is still the one renderer.
+
+**Authority.** The owner's answer to decision 11 of gh#299 (grilling session 2026-11-11): "Visual: 3D with effects
+on the main screen (`three`, ADR-0060)". That ticket's build notes add that each new 3D route re-pins
+`BASELINE_TOTAL_BYTES` in the same change. The ruling is read as covering the games built under gh#305, which
+render that main-screen reveal; it names no game, and it does not extend to any other entry. The ticket's
+agent-tagged part is not an owner answer: the phone page stays light 2D, and reduced motion falls back to fades.
+
+**The fact that would reopen this has been met.** The Reopen section above asked for a lazily loaded `three` that
+visitors fetch only after choosing to play. The host loads it with a destructured dynamic import, the pattern the
+Cost section measured as safe, and the namespace form it called a trap is not used. Measured 2026-11-13 on one
+local build (n=1), the visitor cost is:
+
+| Route | Initial raw / gzip | Activated raw / gzip |
+|---|---|---|
+| prize-fireworks play | 37,835 / 16,279 | 577,207 / 158,340 |
+| prize-cards play | 37,831 / 16,274 | 580,719 / 160,300 |
+| prize-ladder play | 37,827 / 16,270 | 576,693 / 159,117 |
+
+A prize route's page load is about 2.2 times the 17,543 raw bytes this ADR measured for a party game before any
+3D, not the 29 times of a static import. `three` is a shared 511,833-byte chunk, fetched only when a reveal
+activates with motion allowed and WebGL2 present. A reduced-motion room, a missing or unavailable game, or a
+context without WebGL2 leaves the host before either lazy import, shown statically from the built files. croc-bite
+still loads `three` on page load; it now takes the shared chunk, about 8 to 14 KB more than this ADR's two
+measurements of it (503,550 and 497,654, on a different tree; not isolated by a separate build).
+
+**Freeze.** `BASELINE_TOTAL_BYTES` moved 1,111,368 to 1,241,557 (+11.7%), with 15 new basenames (including
+`three.module.js` and `preload-helper.js`) and 7 new page-entry pairs. The union grew less than the library's size
+because the library left croc-bite's entry chunk: inferred, not isolated by a second build. The band is unchanged.
+
+**Blindness, still open.** The Cost section's second-order point stands: a fourth importer adds only its own route
+code and trips no freeze leg. This amendment adds no per-page closure gate, and no ruling here accepts the
+blindness. The closure script is kept with the evidence so the next adopter can measure.
+
+Evidence: `docs/verification/evidence/gh305-bundle-2026-11-13/` (the commands, the script, every figure above).
+Not measured: a runtime network trace, the CDN's compression, and rendering.

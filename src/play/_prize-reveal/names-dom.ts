@@ -50,14 +50,20 @@ export function nameBox(doc: Document, tag: string, className: string, name: str
   return box;
 }
 
-/** Shrink one box's name to fit, per the rule above. Needs layout, so it runs in a browser only. */
+/**
+ * Shrink one box's name to fit, per the rule above. Needs layout, so it runs in a browser only. A layout that
+ * sets its names at another size (the projector's phone layout, gh#314 item 5) says so in its stylesheet with
+ * `--fit-size`; the rule then starts there instead of at the surface's size.
+ */
 export function fitName(box: HTMLElement): void {
   const run = box.firstElementChild as HTMLElement | null;
-  const size = Number(box.getAttribute('data-fit-size'));
   const floor = Number(box.getAttribute('data-fit-floor'));
-  if (!run || !Number.isFinite(size) || !Number.isFinite(floor) || typeof getComputedStyle !== 'function') return;
+  if (!run || !Number.isFinite(floor) || typeof getComputedStyle !== 'function') return;
   box.classList.remove(WRAP_CLASS);
   const cs = getComputedStyle(box);
+  const asked = parseFloat(cs.getPropertyValue('--fit-size'));
+  const size = Number.isFinite(asked) ? asked : Number(box.getAttribute('data-fit-size'));
+  if (!Number.isFinite(size)) return;
   // offsetWidth/clientWidth are layout widths, so the projector frame's scale transform does not skew them.
   const room = (): number => box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   const over = (): boolean => run.offsetWidth * FIT_SLACK > room();

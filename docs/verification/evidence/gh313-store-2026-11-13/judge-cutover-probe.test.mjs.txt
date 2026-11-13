@@ -1,0 +1,229 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+import * as old from './head/src/play/prize-draw/stage-harness.mjs';
+import { decodeEvent as oldDecode, encodeEvent, STORAGE_KEY, withEventLock } from './head/src/prize-event/event.ts';
+import { fakeOrigin, makeEvent, mount, press, seeded, storedRaw } from '/Users/waris.c/claude/free-game/src/play/prize-draw/stage-harness.mjs';
+import { openEventStore } from '/Users/waris.c/claude/free-game/src/prize-event/store.ts';
+import { mountStage } from '/Users/waris.c/claude/free-game/src/play/prize-draw/stage.ts';
+import { makeDoc } from '/Users/waris.c/claude/free-game/src/prize-event/fake-dom.mjs';
+
+const MARKER = '{"v":0,"movedTo":"indexeddb"}';
+const tick = () => new Promise((resolve) => setImmediate(resolve));
+const oldPress = (s) => {
+  const b = s.go();
+  if (!b) return false;
+  b.disabled = false;
+  b.click();
+  return true;
+};
+
+// Unlike HEAD's synchronous granting fake, this mutex holds an async callback's lock until it settles.
+function asyncLocks() {
+  let chain = Promise.resolve();
+  const names = [];
+  return {
+    names,
+    request(name, cb) {
+      names.push(name);
+      const p = chain.then(() => cb({ name, mode: 'exclusive' }));
+      chain = p.catch(() => {});
+      return p;
+    },
+    async idle() { await chain; await tick(); },
+  };
+}
+
+function mountNew(store) {
+  const doc = makeDoc();
+  const root = doc.createElement('div');
+  const live = doc.createElement('p');
+  doc.body.append(live, root);
+  const stage = mountStage({ doc, root, live, rng: seeded(202), store });
+  return { stage, root, go: () => root.querySelector('.pd-mc')?.querySelector('button') };
+}
+
+test('HEAD decoder rejects the marker; a queued real HEAD projector press adopts null and never draws', async () => {
+  assert.equal(oldDecode(MARKER), null);
+  const storage = old.memoryStorage();
+  old.storedEvent(storage);
+  const locks = old.fakeLocks();
+  const s = old.mount({ storage, locks, rng: seeded(101) });
+  assert.ok(oldPress(s));
+  storage.setItem(STORAGE_KEY, MARKER);
+  assert.equal(locks.queue[0].name, STORAGE_KEY);
+  locks.grant();
+  await tick();
+  assert.equal(s.stage.current(), null);
+  assert.equal(s.frame.getAttribute('data-screen'), 'cold');
+  assert.equal(s.go(), null);
+  assert.equal(storage.getItem(STORAGE_KEY), MARKER);
+});
+
+test('HEAD without Web Locks cannot run its writer, projector, or real setup submit', async () => {
+  const storage = old.memoryStorage();
+  const initial = old.storedEvent(storage);
+  let ran = false;
+  assert.equal(await withEventLock(null, storage, () => { ran = true; }), false);
+  assert.equal(ran, false);
+  const s = old.mount({ storage, locks: null });
+  assert.equal(s.go(), null);
+  const setup = old.mountSetupPage({ storage });
+  setup.submit();
+  await tick();
+  assert.equal(storage.getItem(STORAGE_KEY), encodeEvent(initial));
+  assert.deepEqual(setup.visits, []);
+});
+
+test('a real HEAD setup tab opened before cutover overwrites the marker; the real HEAD projector draws again', async () => {
+  const shared = old.sharedStorage();
+  const storage = shared.tab('setup').storage;
+  const locks = old.grantingLocks();
+  const original = makeEvent();
+  shared.put(STORAGE_KEY, encodeEvent(original));
+  const view = shared.tab('old-projector');
+  const s = old.mount({ ...view, locks, rng: seeded(101) });
+  const setup = old.mountSetupPage({ storage, locks });
+  shared.put(STORAGE_KEY, MARKER);
+  view.deliver();
+  assert.equal(s.stage.current(), null);
+  assert.equal(s.go(), null);
+  setup.submit();
+  await tick();
+  const replacement = oldDecode(storage.getItem(STORAGE_KEY));
+  assert.ok(replacement);
+  assert.notEqual(replacement.eventKey, original.eventKey);
+  assert.deepEqual(setup.visits, ['/game/prize-draw/play/']);
+  view.deliver();
+  assert.ok(oldPress(s));
+  await tick();
+  assert.equal(oldDecode(storage.getItem(STORAGE_KEY)).at, 'revealed');
+  assert.equal(s.stage.current().rounds.length, 1);
+});
+
+test('unpatched migration reproduces the round-2 counter-example beside the real HEAD projector', async (t) => {
+  const origin = fakeOrigin();
+  const ev = makeEvent();
+  origin.localStorage.set(STORAGE_KEY, encodeEvent(ev));
+  const oldEnv = origin.tab('old');
+  const s = old.mount({ storage: oldEnv.localStorage, locks: old.grantingLocks(), rng: seeded(101) });
+  const env = origin.tab('new');
+  const get = env.localStorage.getItem;
+  let captured = false;
+  env.localStorage.getItem = (key) => {
+    const value = get(key);
+    if (!captured) {
+      captured = true;
+      assert.ok(oldPress(s));
+      assert.equal(s.stage.current().at, 'revealed');
+    }
+    return value;
+  };
+  const fresh = await mount({ origin, env, rng: seeded(202) });
+  assert.equal(fresh.stage.current().at, 'ready');
+  const firstCode = s.stage.current().rounds[0].code;
+  assert.ok(press(fresh));
+  await origin.idle();
+  const secondCode = JSON.parse(storedRaw(origin)).rounds[0].code;
+  assert.equal(fresh.stage.current().eventKey, s.stage.current().eventKey);
+  assert.notEqual(secondCode, firstCode);
+  t.diagnostic(`same event, round 1: HEAD=${firstCode}, IndexedDB=${secondCode}`);
+});
+
+// Scratch-only candidate A, made from the actual uncommitted store: retains both transaction bodies.
+const source = readFileSync('/Users/waris.c/claude/free-game/src/prize-event/store.ts', 'utf8');
+const split = source.indexOf('\n  let legacy: string | null = null;', source.indexOf('async function migrate('));
+assert.ok(split > 0);
+const candidate = source.slice(0, split)
+  + '\n  const locks = env.navigator?.locks;\n  if (!locks) return aborted();\n  try {\n    await locks.request(STORAGE_KEY, async () => {'
+  + source.slice(split, source.lastIndexOf('\n}')).replace('env.localStorage?.removeItem(STORAGE_KEY);', `env.localStorage?.setItem(STORAGE_KEY, ${JSON.stringify(MARKER)});`)
+  + '\n    });\n  } catch { aborted(); }\n}\n';
+const candidatePath = new URL('./candidate-a-store.ts', import.meta.url);
+writeFileSync(candidatePath, candidate.replace("from './event.ts'", "from '/Users/waris.c/claude/free-game/src/prize-event/event.ts'"));
+const { openEventStore: openA } = await import(pathToFileURL(candidatePath.pathname).href);
+
+test('scratch A makes the same capture/press interleaving safe for the migrated event', async () => {
+  const origin = fakeOrigin();
+  origin.localStorage.set(STORAGE_KEY, encodeEvent(makeEvent()));
+  const locks = asyncLocks();
+  const oldEnv = origin.tab('old');
+  const s = old.mount({ storage: oldEnv.localStorage, locks, rng: seeded(101) });
+  const env = origin.tab('new');
+  env.navigator = { locks };
+  const get = env.localStorage.getItem;
+  let captured = false;
+  env.localStorage.getItem = (key) => {
+    const value = get(key);
+    if (!captured) { captured = true; assert.ok(oldPress(s)); }
+    return value;
+  };
+  const fresh = mountNew(openA(env));
+  await origin.idle();
+  await fresh.stage.ready;
+  await locks.idle();
+  assert.equal(s.stage.current(), null);
+  assert.equal(s.go(), null);
+  assert.equal(origin.localStorage.get(STORAGE_KEY), MARKER);
+  assert.ok(press(fresh));
+  await origin.idle();
+  assert.equal(JSON.parse(storedRaw(origin)).at, 'revealed');
+  assert.equal(origin.log.filter((w) => JSON.parse(w.after).rounds.length > 0).length, 1);
+  assert.ok(locks.names.every((name) => name === STORAGE_KEY));
+});
+
+test('scratch A copies a HEAD reveal committed before it acquires the lock, without drawing a second code', async () => {
+  const origin = fakeOrigin();
+  origin.localStorage.set(STORAGE_KEY, encodeEvent(makeEvent()));
+  const locks = asyncLocks();
+  const oldEnv = origin.tab('old');
+  const s = old.mount({ storage: oldEnv.localStorage, locks, rng: seeded(101) });
+  assert.ok(oldPress(s));
+  await locks.idle();
+  const revealed = oldEnv.localStorage.getItem(STORAGE_KEY);
+  const env = origin.tab('new');
+  env.navigator = { locks };
+  const fresh = mountNew(openA(env));
+  await origin.idle();
+  await fresh.stage.ready;
+  assert.equal(storedRaw(origin), revealed);
+  assert.equal(fresh.stage.current().rounds[0].code, s.stage.current().rounds[0].code);
+  assert.equal(fresh.stage.current().at, 'revealed');
+});
+
+test('an ongoing lock-and-marker guard revokes modern authority when a real pre-opened HEAD setup overwrites the marker', async () => {
+  const origin = fakeOrigin();
+  origin.localStorage.set(STORAGE_KEY, encodeEvent(makeEvent()));
+  const locks = asyncLocks();
+  const oldEnv = origin.tab('old-setup');
+  const setup = old.mountSetupPage({ storage: oldEnv.localStorage, locks });
+  const env = origin.tab('modern');
+  env.navigator = { locks };
+  const opening = openA(env);
+  await origin.idle();
+  const store = await opening;
+  const before = storedRaw(origin);
+  let revoked = false;
+  // The compatibility guard is deliberately a call boundary, not a storage-event/BroadcastChannel hint.
+  const guardedPut = (expected, next) => locks.request(STORAGE_KEY, async () => {
+    if (revoked || env.localStorage.getItem(STORAGE_KEY) !== MARKER) {
+      revoked = true;
+      return { ok: false, reason: 'failed' };
+    }
+    return store.put(expected, next);
+  });
+  setup.submit();
+  await locks.idle();
+  const replacement = oldDecode(oldEnv.localStorage.getItem(STORAGE_KEY));
+  assert.ok(replacement);
+  const r = await guardedPut(before, makeEvent({ rng: seeded(303) }));
+  assert.equal(r.ok, false);
+  assert.equal(revoked, true);
+  assert.equal(storedRaw(origin), before);
+  assert.equal(oldEnv.localStorage.getItem(STORAGE_KEY), encodeEvent(replacement));
+  const legacy = old.mount({ storage: oldEnv.localStorage, locks, rng: seeded(101) });
+  assert.ok(oldPress(legacy));
+  await locks.idle();
+  assert.equal(legacy.stage.current().at, 'revealed');
+  assert.notEqual(legacy.stage.current().eventKey, JSON.parse(before).eventKey);
+});

@@ -1,0 +1,328 @@
+{
+ "audit": "ui-audit-2026-11-13-prize-draw",
+ "build": {
+  "dist_mtime": "2026-11-13 14:02:40",
+  "head": "1b4fb7530a3754ef7348c83d79cdd1bdcbec1df9",
+  "note": "dist built from an uncommitted tree; play.css and stage.ts changed after the shots"
+ },
+ "findings": [
+  {
+   "id": "PD-305-01",
+   "ticket": "gh#305",
+   "page": "/game/prize-draw/ setup, game picker",
+   "width": "1920 measured; 1280, 320 inferred",
+   "severity": "major",
+   "rule": "disabled-states, state-clarity, error-clarity",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-1920-cards-picker-r1-not-halving.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-1280-picker.png"
+   ],
+   "summary": "disabled cards button paints identical to an enabled one (16.66:1 both) and no reason is shown",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "Gh305GamePick 1b-B locked-choice look (dashed, cream, muted text) plus a [copy: owner] reason line",
+    "the page's .sb:disabled treatment (opacity 0.4) on .segb:disabled plus the reason line",
+    "hide the cards button on non-half rounds plus the reason line"
+   ]
+  },
+  {
+   "id": "PD-305-02",
+   "ticket": "gh#305",
+   "page": "/game/prize-{fireworks,cards,ladder}/play/ demo bar",
+   "width": "1920",
+   "severity": "major",
+   "rule": "visual-hierarchy, z-index-management, text overlap",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-fireworks-play-1920-idle.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-ladder-play-1920-idle.png",
+    "docs/verification/evidence/gh305-playthrough-2026-11-13/s7-fireworks-final-p1-reveal-2.png"
+   ],
+   "summary": "demo caption and buttons sit bottom-left over the lower band game name; caption collides with the gold name",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "demo bar to the play band right end as Gh314 1a B",
+    "keep bottom-left and start the lower band left cell past the bar",
+    "caption into the play band, buttons below a shrunk frame"
+   ]
+  },
+  {
+   "id": "PD-305-03",
+   "ticket": "gh#305",
+   "page": "/game/prize-{fireworks,ladder}/play/ demo",
+   "width": "320",
+   "severity": "major",
+   "rule": "readable-font-size, content-priority, touch-density",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-fireworks-play-320-idle.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-ladder-play-320-result.png"
+   ],
+   "summary": "scaled frame (~3px names) with real-pixel demo buttons covering ~40% and the caption over the frame",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "i5-phone B phone layout for demo 2D screens, bar under it",
+    "scaled frame on top, bar below, page scrolls",
+    "keep, add a best-on-a-big-screen line [copy: owner]"
+   ]
+  },
+  {
+   "id": "PD-305-04",
+   "ticket": "gh#305",
+   "page": "/game/prize-draw/play/ fireworks 3D reveal",
+   "width": "320",
+   "severity": "major",
+   "rule": "readable-font-size, content-priority",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-320-fireworks-mid-02-start.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-320-idle.png"
+   ],
+   "summary": "3D reveal draws the whole 1920 frame at ~0.17 (names ~3px) between readable i5-phone B 2D screens",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "under 640px, the 2D reveal in the i5-phone B layout (the reduced-motion path)",
+    "keep the 3D frame scaled as now",
+    "a phone-framed 3D camera (needs a new board frame)"
+   ]
+  },
+  {
+   "id": "PD-305-05",
+   "ticket": "gh#305",
+   "page": "/game/prize-draw/play/ final result",
+   "width": "320",
+   "severity": "major",
+   "rule": "readable-font-size",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-320-final-result.png"
+   ],
+   "summary": "result screen is the scaled frame: prize labels and runner-up names ~4-6px",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "phone layout for the result: winner on top, prize cards in one column at i5-phone B sizes",
+    "scaled frame top-aligned with a pointer to the big screen",
+    "keep"
+   ]
+  },
+  {
+   "id": "PD-305-06",
+   "ticket": "gh#305",
+   "page": "/game/prize-draw/play/ fireworks round handoff",
+   "width": "1920",
+   "severity": "minor",
+   "rule": "continuity, layout-shift-avoid",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-idle.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-fireworks-mid-01-start.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-fireworks-result.png"
+   ],
+   "summary": "name field reflows 10 -> 8 -> 10 columns across the 2D/3D handoffs (board draws it so)",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep (board: larger floor in game frames)",
+    "a game round's 2D frames take 8 columns",
+    "the scene keeps 10 columns"
+   ]
+  },
+  {
+   "id": "PD-306-01",
+   "ticket": "gh#306",
+   "page": "/game/prize-cards/play/ and projector cards field above 102 names",
+   "width": "1920",
+   "severity": "major",
+   "rule": "readable-font-size (board 16px card floor)",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-cards-play-1920-reveal-02-start.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-fireworks-play-1920-idle.png"
+   ],
+   "summary": "at 200 names card names render ~13-14 frame px (fieldLayout s~0.693 x 20px), under the board 16px card floor; digits 9px vs 14px for the 20px chip",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "hold 16px in frame px: narrower card above 102 (needs a board frame for 200)",
+    "accept ~14px above 100 cards and stamp it on the board",
+    "above N names reveal on 2D chips with a rank/suit tag"
+   ]
+  },
+  {
+   "id": "PD-306-02",
+   "ticket": "gh#306",
+   "page": "/game/prize-draw/play/ cards 3D reveal",
+   "width": "320",
+   "severity": "major",
+   "rule": "readable-font-size, content-priority",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-320-cards-reveal-03-rule-0.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-320-cards-result.png"
+   ],
+   "summary": "cards 3D reveal is the scaled frame (~3px names) between readable 2D screens",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "under 640px, the 2D reveal in the i5-phone B layout (the reduced-motion path)",
+    "keep the 3D frame scaled as now",
+    "a phone-framed 3D camera (needs a new board frame)"
+   ]
+  },
+  {
+   "id": "PD-306-03",
+   "ticket": "gh#306",
+   "page": "/game/prize-draw/play/ cards 3D chrome",
+   "width": "1920",
+   "severity": "minor",
+   "rule": "continuity, layout-shift-avoid",
+   "disposition": "fix-here",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-cards-dealt.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-cards-reveal-03-rule-0.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-fireworks-mid-01-start.png"
+   ],
+   "summary": "cards scene top bar and dots sit ~26px left and ~18px up of the 2D frame (event name 77,71 vs 103,89); fireworks and ladder scenes match the 2D frame",
+   "fixHereValueSource": "Gh302Projector B top bar and lower band as the 2D frame and the fireworks/ladder scenes paint them (event name box at x 103-104, y 86-89 at 1920); Gh303Cards VALUES: chrome is the gh#302 picked value. Spot correction inferred (frame origin only; glyph size equal)",
+   "ownerOptions": null
+  },
+  {
+   "id": "PD-306-04",
+   "ticket": "gh#306",
+   "page": "/game/prize-draw/play/ cards round handoff",
+   "width": "1920",
+   "severity": "minor",
+   "rule": "continuity",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-cards-dealt.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-cards-reveal-03-rule-0.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-cards-result.png"
+   ],
+   "summary": "names move 10 chip columns -> 6 card columns -> 10 chip columns in one round (board draws it so)",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep",
+    "the round's 2D frames take the card grid's columns",
+    "result stays on the card faces until the next round"
+   ]
+  },
+  {
+   "id": "PD-307-01",
+   "ticket": "gh#307",
+   "page": "/game/prize-draw/play/ ladder lane pick",
+   "width": "320",
+   "severity": "critical",
+   "rule": "touch-target-size, touch-spacing, no-precision-required, readable-font-size",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-320-ladder-lane-pick-empty.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-320-ladder-lane-pick-2.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-320-ladder-lane-pick-5.png"
+   ],
+   "summary": "name buttons (153x52) sit on lane controls 2 and 3 (53x44); a tap aimed at a lane picks a name into the selected lane; plates paint ~5px. Working-tree phone layout (after the build) is unbuilt and unseen",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "ratify the working-tree data-lanes phone layout (i5-phone B rule on the lanes), re-shoot at 320 first",
+    "under 640px hide lane controls and point the MC to the big screen [copy: owner]",
+    "keep the scaled frame, move the name row below the plates"
+   ]
+  },
+  {
+   "id": "PD-307-02",
+   "ticket": "gh#307",
+   "page": "/game/prize-draw/play/ ladder 3D reveal",
+   "width": "320",
+   "severity": "major",
+   "rule": "readable-font-size",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-320-ladder-reveal-08-cut-2.png"
+   ],
+   "summary": "34s ladder reveal is the scaled frame: plate names ~6px, slots ~4-5px",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "under 640px the 2D final in the i5-phone B layout",
+    "keep scaled",
+    "a phone-framed camera (needs a new board frame)"
+   ]
+  },
+  {
+   "id": "PD-307-03",
+   "ticket": "gh#307",
+   "page": "/game/prize-draw/play/ lane pick HUD",
+   "width": "1920",
+   "severity": "minor",
+   "rule": "visual-hierarchy, text over graphics",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-ladder-lane-pick-empty.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-ladder-reveal-01-start.png"
+   ],
+   "summary": "lane 1 rail crosses the HUD line at its end (\"แตะชื่อ\"); the board line in the 3D frame clears it",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "wrap the line left of the rail",
+    "shorter line [copy: owner]",
+    "raised-night plate behind the HUD"
+   ]
+  },
+  {
+   "id": "PD-307-04",
+   "ticket": "gh#307",
+   "page": "/game/prize-draw/play/ ladder rails",
+   "width": "1920",
+   "severity": "minor",
+   "rule": "color-contrast (graphics, WCAG 1.4.11 3:1)",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-play-1920-ladder-lane-pick-empty.png"
+   ],
+   "summary": "rails #5e5c7b on #1c1b3e = 2.58:1; matches the board value (#d9d6f0 at 35%)",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep 35% (rails are context)",
+    "50% alpha = #7a7897, 3.89:1 (arithmetic)",
+    "#9a97c0 solid, 5.93:1 (arithmetic)"
+   ]
+  },
+  {
+   "id": "PD-308-01",
+   "ticket": "gh#308",
+   "page": "/game/prize-draw/join/ name submit",
+   "width": "320, 375 (source only, not rendered)",
+   "severity": "major",
+   "rule": "loading-buttons, submit-feedback, tap-feedback-speed",
+   "disposition": "owner-pick",
+   "evidence": [
+    "src/pages/game/prize-draw/join.astro",
+    "src/prize-join/join-page.ts"
+   ],
+   "summary": "button is disabled up to 15s during the send but .pj-btn:disabled changes only the cursor, invisible on a phone",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "opacity 0.55 as .pd-go:disabled (Gh305GamePick VALUES)",
+    "label swap while sending [copy: owner]",
+    "both"
+   ]
+  },
+  {
+   "id": "PD-308-02",
+   "ticket": "gh#308",
+   "page": "/game/prize-draw/join/ event not found",
+   "width": "320, 375",
+   "severity": "minor",
+   "rule": "error-recovery, error-clarity",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-join-320-join.png",
+    "docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-join-375-join.png"
+   ],
+   "summary": "answer is a bare heading on an empty screen: no error marker, no control (recovery is a rescan, named in the copy)",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep",
+    "the board's error row (punch disc icon, bold 16px) under a neutral heading",
+    "a reload/retry button [copy: owner]"
+   ]
+  }
+ ]
+}

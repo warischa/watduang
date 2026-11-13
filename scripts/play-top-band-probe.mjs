@@ -6,6 +6,15 @@
 // full width, ground #14142b, owner ruling 2026-10-20, board design/PlayTopBand.dc.html), and no
 // visible box of route content intersects that band.
 //
+// ONE CARVE-OUT (owner ruling 2026-11-13, gh#314 1a B, overriding gh#268's no-content band for one element):
+// on the prize-draw play route only, the MC control (MC_SEL, the projector's reveal button) may sit inside
+// the band. In its place the probe asserts that the control's whole box -- its root, every descendant, and
+// every ::before/::after of them, since a pseudo-element is how a hit area grows past the pill -- never
+// intersects the close X or the edit control (forced read included) on any screen or width it reads, and
+// stays fully inside the viewport. The exemption is by route AND element: the same control in the band on
+// any other route reds, and every other prize-draw box in the band (or anchored above it) still reds.
+// Proven without a browser on the verdict: play-top-band-probe.test.mjs.
+//
 //   npm run build && npx serve dist/ -l <port>
 //   Chrome --headless --remote-debugging-port=<cdp> --user-data-dir=<fresh>
 //   BASE=http://localhost:<port> CDP_PORT=<cdp> node scripts/play-top-band-probe.mjs
@@ -42,7 +51,13 @@
 // has one, i.e. the in-round header box 1 measured worst. The per-route selectors below were probed
 // for box 1; a declared selector that is ABSENT reds the row, so a stale map is loud, never a
 // silently shorter walk. Plus D1: S1 at a desktop viewport -- the ruling holds the band at the same
-// height at every width.
+// height at every width. The MC route adds D2: its seeded screen at the desktop width, because its
+// fresh-device screens (S1, D1) hold no event and so show no MC control to check.
+//
+// STATE THAT OUTLIVES THE WIPE. The prize-draw event lives in IndexedDB, which the localStorage wipe
+// does not touch: one run's pressed event then greets the next run's S1, and the next seed diverges from
+// it, so the MC control vanishes and the walk reads a different page every run. The walk deletes that
+// database wherever it wipes, so every run starts from the same empty store.
 //
 // EVERY TRANSITION IS ASSERTED, not assumed. A press that returns anything but 'clicked' (hidden,
 // disabled, absent) reds the row. After the S2 start and the S3 round start the page must read
@@ -72,6 +87,7 @@ import { games } from '../src/games/manifest.ts';
 // its own seed and its own round-start control, and is judged on what it IS: no shared screen mounted,
 // and a round start that changes the page. The set and the seed are the fit probe's, one definition.
 import { routeSeed, screenlessPlayPaths } from './play-screen-fit-probe.mjs';
+import { DB as PRIZE_DB } from '../src/prize-event/store.ts';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 const BASE = process.env.BASE || 'http://localhost:4631';
@@ -91,6 +107,46 @@ const DESKTOP = [1280, 800];
 // Sub-pixel slack for layout rounding; a real overlap is whole pixels.
 const TOL = 0.5;
 export const CHROME_IDS = ['play-band', 'play-exit', 'play-edit-players', 'play-crawl-home'];
+// THE ONE CARVE-OUT (owner ruling 2026-11-13, gh#314 1a B): the route whose MC control may sit in the band,
+// and that control's root. See the header for what is asserted instead.
+export const MC_ROUTE = 'prize-draw';
+export const MC_SEL = '.pd-mc';
+
+/**
+ * THE SHAPE THE CARVE-OUT ADMITS. The box read below is exact only for untransformed geometry: a real
+ * element's border box, and a ::before/::after placed by its own px insets and size. Re-implementing CSS
+ * geometry past that (transforms, flow-placed or relatively placed pseudo boxes) never converges, so the
+ * project's own control is held to that shape instead, and anything else reds. `parts` is the MC control's
+ * root and every shown descendant, each with its computed style and its two pseudo-elements' computed
+ * styles. `chain` is every ancestor of the root up to the document element, each with its computed style:
+ * a transformed ancestor moves and scales every box under it, and becomes the containing block a fixed
+ * root or a positioned pseudo is placed against, so the whole chain is held to the same rule (any
+ * containing block a positioned pseudo can have is in `parts` or in `chain`). Returns one line per fault,
+ * empty when the read is exact. Self-contained: its source is embedded into the in-page read as is.
+ */
+export function carveOutShapeFaults(parts, chain = []) {
+  const isPx = (v) => /^-?\d*\.?\d+px$/.test(String(v ?? '').trim());
+  const moved = (s) => {
+    const out = ['transform', 'translate', 'rotate', 'scale'].filter((k) => s[k] && s[k] !== 'none').map((k) => `${k}: ${s[k]}`);
+    const z = String(s.zoom ?? '1').trim();
+    if (z !== '1' && z !== 'normal' && z !== '') out.push(`zoom: ${z}`);
+    return out;
+  };
+  const faults = [];
+  for (const a of chain) for (const m of moved(a.style)) faults.push(`${a.sel} (an ancestor of the MC control) ${m}`);
+  for (const p of parts) {
+    for (const m of moved(p.style)) faults.push(`${p.sel} ${m}`);
+    for (const [which, s] of p.pseudos) {
+      if (!s || s.content === 'none' || s.content === 'normal' || s.display === 'none') continue;
+      for (const m of moved(s)) faults.push(`${p.sel}${which} ${m}`);
+      if (s.position !== 'absolute') faults.push(`${p.sel}${which} position: ${s.position} (a hit area must be placed by its own insets)`);
+      else if (!isPx(s.width) || !isPx(s.height) || !(isPx(s.left) || isPx(s.right)) || !(isPx(s.top) || isPx(s.bottom))) {
+        faults.push(`${p.sel}${which} size or insets not resolved to px (width ${s.width}, height ${s.height}, left ${s.left}, right ${s.right}, top ${s.top}, bottom ${s.bottom})`);
+      }
+    }
+  }
+  return faults;
+}
 
 // Route-own controls, probed per route for box 1 (gh#268 2026-10-18 measure.mjs).
 const PRE = { 'short-stick': '#btn-start-setup', 'wire-snip-panic': '#btn-menu-start', 'zero-trigger': '#btn-quick-start' };
@@ -103,6 +159,10 @@ const START = {
   'croc-bite': '#btn-start-game',
 };
 const SEED = JSON.stringify(['ต้น', 'มายด์', 'บอส']);
+// Deletes the prize-draw store, awaited (the page's open connection closes on versionchange), capped so a
+// blocked delete cannot hang the walk. A delete that did not land shows up as the next screen's event.
+const DROP_STORE = `return await new Promise((done) => { let q; try { q = indexedDB.deleteDatabase(${JSON.stringify(PRIZE_DB.name)}); } catch { done('threw'); return; }
+  q.onsuccess = () => done('deleted'); q.onerror = () => done('error'); setTimeout(() => done('timeout'), 3000); });`;
 
 // ROUTES_ONLY=a,b narrows the walk (a hand run, or ci-probes.sh's narrowed run): a narrowed run is iteration only, never the deploy verdict.
 export const playRoutes = () => {
@@ -120,7 +180,7 @@ export const playRoutes = () => {
 // still counts it; a Mac's overlay scrollbar takes nothing, so the two agree there and hide the gap.
 // Both are recorded per row.
 const MEASURE = `
-const BAND = ${BAND_PX}, VW = innerWidth, CW = document.documentElement.clientWidth, VH = innerHeight, CHROME = ${JSON.stringify(CHROME_IDS)};
+const BAND = ${BAND_PX}, VW = innerWidth, CW = document.documentElement.clientWidth, VH = innerHeight, CHROME = ${JSON.stringify(CHROME_IDS)}, MC_SEL = ${JSON.stringify(MC_SEL)};
 const r2 = (n) => +n.toFixed(2);
 const box = (r) => ({ l: r2(r.left), t: r2(r.top), r: r2(r.right), b: r2(r.bottom) });
 const sel = (e) => { const p = []; for (let n = e; n && n.nodeType === 1 && p.length < 4; n = n.parentElement) {
@@ -164,7 +224,7 @@ for (const e of document.body.querySelectorAll('*')) {
     let pinnedShut = false;
     if (s.display === 'none') { const prev = e.style.display; e.style.display = 'block';
       pinnedShut = getComputedStyle(e).display === 'none'; e.style.display = prev; }
-    if (!contained && !scroller && !pinnedShut && top < BAND - ${TOL}) anchoredAbove.push({ sel: sel(e), position: s.position, top: s.top, effectiveTop: r2(top), display: s.display });
+    if (!contained && !scroller && !pinnedShut && top < BAND - ${TOL}) anchoredAbove.push({ sel: sel(e), position: s.position, top: s.top, effectiveTop: r2(top), display: s.display, mc: !!e.closest(MC_SEL) });
   }
   const r = e.getBoundingClientRect(); if (r.width <= 0 || r.height <= 0) continue;
   if (s.visibility !== 'visible') continue;
@@ -178,9 +238,42 @@ for (const e of document.body.querySelectorAll('*')) {
     if (c.overflowX !== 'visible' || c.overflowY !== 'visible') { const q = a.getBoundingClientRect();
       L = Math.max(L, q.left); T = Math.max(T, q.top); R = Math.min(R, q.right); B = Math.min(B, q.bottom); } }
   const w = Math.min(R, CW) - Math.max(L, 0), h = Math.min(B, BAND) - Math.max(T, 0);
-  if (w > ${TOL} && h > ${TOL}) hits.push({ sel: sel(e), ...box(r), overlapPx: r2(h), pos: s.position });
+  if (w > ${TOL} && h > ${TOL}) hits.push({ sel: sel(e), ...box(r), overlapPx: r2(h), pos: s.position, mc: !!e.closest(MC_SEL) });
 }
 hits.sort((a, b) => b.overlapPx - a.overlapPx);
+// The MC control's whole box: the union of its root, every descendant, and every ::before/::after of
+// them (a pseudo-element is the usual way to widen a hit area past the visible pill). A positioned
+// pseudo is placed from its resolved insets against its containing block; an in-flow one lies inside
+// its owner; an auto-sized one falls back to its owner's box. Transforms on a pseudo are not modelled.
+const carveOutShapeFaults = ${carveOutShapeFaults.toString()};
+const pxv = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : null; };
+const pseudoBox = (p, which, q) => { const s = getComputedStyle(p, which);
+  if (s.content === 'none' || s.content === 'normal' || s.display === 'none') return null;
+  if (s.position !== 'absolute' && s.position !== 'fixed') return box(q);
+  let W = pxv(s.width), H = pxv(s.height); if (W === null || H === null) return box(q);
+  if (s.boxSizing !== 'border-box') { W += pxv(s.paddingLeft) + pxv(s.paddingRight) + pxv(s.borderLeftWidth) + pxv(s.borderRightWidth);
+    H += pxv(s.paddingTop) + pxv(s.paddingBottom) + pxv(s.borderTopWidth) + pxv(s.borderBottomWidth); }
+  let cb;
+  if (s.position === 'fixed') cb = { l: 0, t: 0, w: CW, h: VH };
+  else { let a = p; while (a.parentElement && getComputedStyle(a).position === 'static') a = a.parentElement;
+    const ar = a.getBoundingClientRect(), as = getComputedStyle(a);
+    cb = { l: ar.left + pxv(as.borderLeftWidth), t: ar.top + pxv(as.borderTopWidth), w: a.clientWidth, h: a.clientHeight }; }
+  const L0 = pxv(s.left), R0 = pxv(s.right), T0 = pxv(s.top), B0 = pxv(s.bottom);
+  const x = L0 !== null ? cb.l + L0 + pxv(s.marginLeft) : R0 !== null ? cb.l + cb.w - R0 - pxv(s.marginRight) - W : q.left;
+  const y = T0 !== null ? cb.t + T0 + pxv(s.marginTop) : B0 !== null ? cb.t + cb.h - B0 - pxv(s.marginBottom) - H : q.top;
+  return { l: r2(x), t: r2(y), r: r2(x + W), b: r2(y + H) }; };
+// EVERY element matching the MC selector is measured: the exemption above covers each of them, so each is
+// judged, and the shape each is built from is classified (carveOutShapeFaults).
+const mcs = [...document.querySelectorAll(MC_SEL)].map((mcEl) => { let L = Infinity, T = Infinity, R = -Infinity, B = -Infinity, pseudo = 0; const parts = [mcEl, ...mcEl.querySelectorAll('*')];
+  const add = (q) => { if (!q || q.r - q.l <= 0 || q.b - q.t <= 0) return; L = Math.min(L, q.l); T = Math.min(T, q.t); R = Math.max(R, q.r); B = Math.max(B, q.b); };
+  const styled = [];
+  for (const p of parts) { const ps = getComputedStyle(p); if (ps.display === 'none') continue; const q = p.getBoundingClientRect(); add(box(q));
+    styled.push({ sel: sel(p), style: ps, pseudos: ['::before', '::after'].map((w) => [w, getComputedStyle(p, w)]) });
+    for (const w of ['::before', '::after']) { const pb = pseudoBox(p, w, q); if (pb) { pseudo++; add(pb); } } }
+  const chain = [];
+  for (let a = mcEl.parentElement; a; a = a.parentElement) chain.push({ sel: sel(a), style: getComputedStyle(a) });
+  const shape = carveOutShapeFaults(styled, chain);
+  return R > L ? { present: true, shown: true, l: r2(L), t: r2(T), r: r2(R), b: r2(B), parts: parts.length, pseudo, shape } : { present: true, shown: false, parts: parts.length, pseudo, shape }; });
 // A fingerprint of what the route shows right now (visible elements by id/tag with their text), so a
 // transition that was meant to change the screen can be told from a click that changed nothing. An
 // animated counter only ever makes two reads differ, never makes two different screens agree.
@@ -192,7 +285,7 @@ for (const e of document.body.querySelectorAll('*')) {
 let sig = 0; for (let i = 0; i < sigSrc.length; i++) sig = (Math.imul(sig, 31) + sigSrc.charCodeAt(i)) | 0;
 return { sig, renderHold: document.documentElement.getAttribute('data-render-hold'), handover: document.documentElement.getAttribute('data-player-screen-handover'), vw: VW, vh: VH, clientWidth: CW, bodyPaddingTop: getComputedStyle(document.body).paddingTop,
   sharedScreenOpen: document.documentElement.getAttribute('data-player-screen'), band, exit, edit, checked, skippedTiny,
-  hitCount: hits.length, hits: hits.slice(0, 12), anchoredAbove };`;
+  hitCount: hits.length, mcHitCount: hits.filter((h) => h.mc).length, hits: [...hits.filter((h) => !h.mc).slice(0, 12), ...hits.filter((h) => h.mc).slice(0, 4)], anchoredAbove, mcs };`;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const click = (s) => `const b=document.querySelector(${JSON.stringify(s)});if(!b)return 'absent';const r=b.getBoundingClientRect();if(!r.width)return 'hidden';if(b.disabled)return 'disabled';b.click();return 'clicked';`;
@@ -213,6 +306,7 @@ export default async function run(session) {
     await session.setWidth(...PHONE);
     await session.nav(url);
     await session.wipe();
+    await session.evaluate(DROP_STORE);
     await session.nav(url);
     await session.setWidth(...PHONE);
     await sleep(1500);
@@ -227,6 +321,7 @@ export default async function run(session) {
     await read(id, 'D1', DESKTOP, []);
     // S2 -- seeded roster, shared screen closed.
     await session.evaluate(`localStorage.clear();sessionStorage.clear();localStorage.setItem('watduang:roster',${JSON.stringify(SEED)});localStorage.setItem('watduang:group',${JSON.stringify(SEED)});return 1;`);
+    await session.evaluate(DROP_STORE);
     const screenless = screenlessPlayPaths().has(`/game/${id}/play/`);
     if (screenless) await session.evaluate(routeSeed(url));
     await session.setWidth(...PHONE);
@@ -244,6 +339,18 @@ export default async function run(session) {
       await sleep(1500);
       await read(id, 'S3', PHONE, [n]);
     }
+    // D2 -- the MC route's seeded screen at the desktop width, nothing pressed: the carve-out's check at
+    // that width needs a screen that shows the MC control, and D1 (a fresh device) holds no event.
+    if (id === MC_ROUTE) {
+      await session.wipe();
+      await session.evaluate(DROP_STORE);
+      await session.evaluate(routeSeed(url));
+      await session.setWidth(...DESKTOP, false);
+      await session.nav(url);
+      await session.setWidth(...DESKTOP, false);
+      await sleep(1800);
+      await read(id, 'D2', DESKTOP, []);
+    }
   }
   return { base: BASE, breakBand: BREAK_BAND, hostileCss: HOSTILE_CSS || null, routes: playRoutes(), rows };
 }
@@ -256,11 +363,14 @@ const DISABLED_OPACITY = 0.55;
 const OPACITY_SLACK = 0.02;
 const inside = (b, cw) => b.t >= -TOL && b.b <= BAND_PX + TOL && b.l >= -TOL && b.r <= cw + TOL;
 const overlap = (a, b) => Math.min(a.r, b.r) - Math.max(a.l, b.l) > TOL && Math.min(a.b, b.b) - Math.max(a.t, b.t) > TOL;
+// Route content in the band, less the MC control's boxes on the one route the carve-out names. On any
+// other route those boxes are content like the rest and red.
+export const contentHitCount = (id, r) => (r.hitCount || 0) - (id === MC_ROUTE ? r.mcHitCount || 0 : 0);
 
 export function judge(out) {
   const failures = [];
   const routes = out.routes;
-  const expected = out.breakBand ? routes.length : routes.length * 3 + routes.filter((id) => START[id]).length;
+  const expected = out.breakBand ? routes.length : routes.length * 3 + routes.filter((id) => START[id]).length + routes.filter((id) => id === MC_ROUTE).length;
   if (out.rows.length !== expected) failures.push(`${out.rows.length} row(s), expected ${expected} -- a screen that was never read reads exactly like a clean one`);
   for (const id of routes) {
     const rows = out.rows.filter((r) => r.route === id);
@@ -297,7 +407,7 @@ export function judge(out) {
         if (r.state === 'S3' && s2 && r.sig === s2.sig) why.push('the page shows exactly what it showed before the round start, so no round began');
         if (why.length) failures.push(`${tag}: the transition did not happen -- ${why.join('; ')}`);
       }
-      if (r.state !== 'D1' && (r.vw !== PHONE[0] || r.clientWidth !== PHONE[0])) failures.push(`${tag}: viewport ${r.vw}/${r.clientWidth}, expected ${PHONE[0]} -- run is void`);
+      if (!r.state.startsWith('D') && (r.vw !== PHONE[0] || r.clientWidth !== PHONE[0])) failures.push(`${tag}: viewport ${r.vw}/${r.clientWidth}, expected ${PHONE[0]} -- run is void`);
       const b = r.band;
       if (!b?.present) failures.push(`${tag}: no #play-band element`);
       else {
@@ -318,8 +428,33 @@ export function judge(out) {
         if (!inside(r.edit, r.clientWidth)) failures.push(`${tag}: edit control ${JSON.stringify(r.edit)}${r.edit.forced ? ' (forced read)' : ''} is not inside the band`);
         if (r.exit?.present && overlap(r.exit, r.edit)) failures.push(`${tag}: edit control overlaps the close X`);
       }
-      if (r.anchoredAbove?.length) failures.push(`${tag}: ${r.anchoredAbove.length} fixed/sticky route box(es) anchored above the band: ${r.anchoredAbove.slice(0, 4).map((a) => `${a.sel} (${a.position} top ${a.top}${a.display === 'none' ? ', hidden now' : ''})`).join('; ')}`);
-      if (r.hitCount > 0) failures.push(`${tag}: ${r.hitCount} route-content box(es) intersect the band, worst ${r.hits.slice(0, 3).map((h) => `${h.sel} (${h.overlapPx}px, top ${h.t})`).join('; ')}`);
+      const exempt = id === MC_ROUTE;
+      const anchored = (r.anchoredAbove || []).filter((a) => !(exempt && a.mc));
+      if (anchored.length) failures.push(`${tag}: ${anchored.length} fixed/sticky route box(es) anchored above the band: ${anchored.slice(0, 4).map((a) => `${a.sel} (${a.position} top ${a.top}${a.display === 'none' ? ', hidden now' : ''})`).join('; ')}`);
+      const hitCount = contentHitCount(id, r);
+      if (hitCount > 0) failures.push(`${tag}: ${hitCount} route-content box(es) intersect the band, worst ${(r.hits || []).filter((h) => !(exempt && h.mc)).slice(0, 3).map((h) => `${h.sel} (${h.overlapPx}px, top ${h.t})`).join('; ')}`);
+      // The carve-out's own assertion, on every screen and width the walk reads, for EVERY .pd-mc element
+      // (each is exempt, so each is judged): built only from geometry the read is exact for, at most one
+      // shown, and each shown one (root, descendants, pseudo-element hit areas) clear of both band controls
+      // and on screen.
+      const mcs = exempt ? r.mcs || [] : [];
+      const shape = mcs.flatMap((m) => m.shape || []);
+      if (shape.length) failures.push(`${tag}: the carve-out geometry is outside the shape this probe can measure (no transform, translate, rotate, scale or zoom on it or any ancestor; hit areas are border boxes or inset-placed pseudo-elements): ${shape.slice(0, 4).join('; ')}`);
+      const shownMcs = mcs.filter((m) => m.present && m.shown);
+      if (shownMcs.length > 1) failures.push(`${tag}: ${shownMcs.length} MC controls (${MC_SEL}) shown -- the carve-out admits exactly one`);
+      for (const m of shownMcs) {
+        if (r.exit?.present && overlap(m, r.exit)) failures.push(`${tag}: MC control ${JSON.stringify(m)} overlaps the close X ${JSON.stringify(r.exit)}`);
+        if (r.edit?.present && overlap(m, r.edit)) failures.push(`${tag}: MC control ${JSON.stringify(m)} overlaps the edit control${r.edit.forced ? ' (forced read)' : ''} ${JSON.stringify(r.edit)}`);
+        if (!(m.l >= -TOL && m.t >= -TOL && m.r <= r.clientWidth + TOL && m.b <= r.vh + TOL)) failures.push(`${tag}: MC control ${JSON.stringify(m)} is not inside the viewport 0..${r.clientWidth} x 0..${r.vh}`);
+      }
+    }
+    // The carve-out's check must have run: the MC control shown on at least one walked screen per width.
+    // Hidden on a screen is legitimate (a reveal presenting, no event yet); hidden on every screen of a
+    // width means no overlap was ever measured there, which reads exactly like a clean pass.
+    if (id === MC_ROUTE && !out.breakBand) {
+      for (const vp of [...new Set(rows.map((r) => r.vp))]) {
+        if (!rows.some((r) => r.vp === vp && (r.mcs || []).some((m) => m.present && m.shown))) failures.push(`${id} ${vp}: the carve-out check never ran -- the MC control (${MC_SEL}) was shown on no walked screen at this width`);
+      }
     }
     for (const r of rows) r.pillForced = !pillShown;
   }
@@ -346,7 +481,7 @@ function main() {
   const out = JSON.parse(raw);
   const failures = judge(out);
   const redRoutes = out.routes.filter((id) => failures.some((f) => f.startsWith(`${id} `)));
-  const contentRed = out.routes.filter((id) => out.rows.some((r) => r.route === id && r.hitCount > 0));
+  const contentRed = out.routes.filter((id) => out.rows.some((r) => r.route === id && contentHitCount(id, r) > 0));
   const report = {
     n: out.routes.length,
     flags: { base: BASE, breakBand: BREAK_BAND, hostileCss: out.hostileCss, bandPx: BAND_PX, phone: PHONE.join('x'), desktop: DESKTOP.join('x') },

@@ -16,7 +16,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ARM_DELAY_MS } from '../../games/_arm-gate.ts';
-import { fakeOrigin, mount, seeded, storedEvent } from './stage-harness.mjs';
+import { fakeHosts, fakeOrigin, mount, seedRaw, seeded, storedEvent, storedRaw } from './stage-harness.mjs';
+import { advance, drawNext, encodeEvent, revealDrawn } from '../../prize-event/event.ts';
 
 const SOURCE = fs
   .readFileSync(path.join(import.meta.dirname, 'stage.ts'), 'utf8')
@@ -32,7 +33,7 @@ test('show() is the only un-hide, and it arms the region it shows', () => {
 
 // receiver -> why it is shown. Every entry is a decision.
 const EXPECTED_SHOWS = new Map([
-  ['viewport', 'every render (cold, refused, round, reveal, final, result) rebuilds the frame and the MC bar inside the viewport and arms it, including a follower render (another tab moved the event: taken up on its commit notice or on this screen\'s own stale press); and the notice close path uncovers it again (ADR-0057)'],
+  ['viewport', 'every render (cold, refused, round, reveal, final, result) rebuilds the frame and the MC bar inside the viewport and arms it, including a follower render (another tab moved the event: taken up on its commit notice or on this screen\'s own stale press) and the render a 3D reveal\'s first exit draws (gh#305); every ladder lane tap and name tap repaints the lane frame, the picks and the MC bar inside it and re-arms it; and the notice close path rebuilds the MC\'s button, held while the notice was open, and uncovers it again (ADR-0057)'],
   ['notice', 'the storage-failure notice, which carries its own close button'],
 ]);
 
@@ -101,6 +102,9 @@ test('close path: an aborted store opens the notice armed, and closing it re-arm
     assert.equal(s.frame.getAttribute('data-screen'), 'round', 'a draw that was not stored was revealed');
     const close = s.notice.querySelector('button');
     armedThenLive(close, 'notice close');
+    // The MC's button sits in the play band, outside the notice's veil (gh#314 1a B): it stays dead while
+    // the notice is open, however long the room waits.
+    assert.equal(s.go().disabled, true, 'the MC button is live while the notice is open');
     close.click();
     assert.equal(s.notice.hidden, true);
     armedThenLive(s.go(), 'MC button uncovered by the close');
@@ -158,6 +162,121 @@ test('follower path, own press: a tab that was behind takes the stored step up o
     assert.equal(B.frame.getAttribute('data-screen'), 'reveal', 'the stale tab did not take up the stored reveal');
     assert.deepEqual(B.stage.current().rounds, A.stage.current().rounds, 'the stale tab drew its own round instead of taking up the stored one');
     armedThenLive(B.go(), 'follower, on its own press');
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test('a 3D reveal\'s exit brings the MC button back armed, and a card round\'s deal -> rule press is armed at each step', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const origin = fakeOrigin();
+    storedEvent(origin, { n: 200, games: { rounds: ['cards', 'fireworks', null, null], final: null } });
+    const { hosts, start } = fakeHosts();
+    const s = await mount({ origin, rng: seeded(9), startReveal: start });
+    armedThenLive(s.go(), 'first screen');
+    s.go().click(); // deal
+    await origin.idle();
+    assert.equal(s.go(), null, 'no MC button while the deal presents');
+    hosts[0].run();
+    hosts[0].settle();
+    armedThenLive(s.go(), 'the rule press, revealed by the deal\'s exit');
+    s.go().click(); // rule
+    await origin.idle();
+    hosts[1].settle();
+    assert.equal(s.frame.getAttribute('data-screen'), 'reveal');
+    armedThenLive(s.go(), 'round 1 reveal, after the cards exit');
+    s.go().click(); // next
+    await origin.idle();
+    armedThenLive(s.go(), 'round 2');
+    s.go().click(); // fireworks draw
+    await origin.idle();
+    hosts[2].exit('fallback');
+    armedThenLive(s.go(), 'round 2 reveal, after a fallback exit');
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test('card round, two presses in one spot (design/Gh305GamePick.dc.html i3 B): the deal press and then the rule press, which re-enables armed, so a double tap on the deal never draws the rule (ADR-0057)', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const origin = fakeOrigin();
+    storedEvent(origin, { n: 200, games: { rounds: ['cards', null, null, null], final: null } });
+    // The host falls back at once (no WebGL): the rule press is back in the same tick as the deal commits.
+    const { hosts, start } = fakeHosts();
+    const instant = (options) => {
+      const h = start(options);
+      h.exit('fallback');
+      return h;
+    };
+    const s = await mount({ origin, rng: seeded(9), startReveal: instant });
+    mock.timers.tick(ARM_DELAY_MS);
+    const first = s.go();
+    assert.equal(first.textContent, 'แจกไพ่', 'press 1 deals');
+    const bar = s.root.querySelector('.pd-mc');
+    first.click(); // press 1
+    await origin.idle();
+    assert.equal(hosts.length, 1);
+    const second = s.go();
+    assert.equal(second.textContent, 'เปิดผล', 'press 2 draws the rule');
+    assert.equal(second.parentNode, bar, 'press 2 sits where press 1 was');
+    second.click(); // the second contact of a double tap on press 1
+    await origin.idle();
+    const ev = JSON.parse(storedRaw(origin));
+    assert.equal(ev.rounds.length, 0, 'the second contact drew the rule before the room saw the deal');
+    assert.ok(ev.prepared, 'the deal is stored');
+    armedThenLive(s.go(), 'the rule press after the deal');
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+/** A stored ladder event at its final, ready, with its slot layout (the MC's step into it stores it). */
+function ladderFinal(origin) {
+  let ev = storedEvent(origin, { n: 50, games: { rounds: [null, null, null, null], final: 'ladder' } });
+  const rng = seeded(4);
+  for (let r = 1; r <= 4; r++) ev = advance(revealDrawn(drawNext(ev, rng)), rng);
+  seedRaw(origin, encodeEvent(ev));
+  return ev;
+}
+
+test('ladder final: every lane tap and every name tap re-arms the picks, the fifth reveals the draw button armed, and the confirm path ends on the result', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const origin = fakeOrigin();
+    ladderFinal(origin);
+    const { hosts, start } = fakeHosts();
+    const s = await mount({ origin, rng: seeded(5), startReveal: start });
+    mock.timers.tick(ARM_DELAY_MS);
+    assert.equal(s.go().disabled, true, 'the draw is live before any lane is picked');
+    for (let lane = 0; lane < 5; lane++) {
+      s.laneButtons()[lane].click();
+      armedThenLive(s.nameButtons()[0], `the name row after the lane ${lane + 1} tap`);
+      s.nameButtons()[0].click();
+      await origin.idle(); // the pick is a stored write; the repaint follows its commit
+      if (lane < 4) {
+        armedThenLive(s.nameButtons()[0], `the name row after pick ${lane + 1}`);
+        assert.equal(s.go().disabled, true, `the draw went live after ${lane + 1} picks`);
+      }
+    }
+    // The fifth pick re-armed the viewport: the draw button is in its window, then live.
+    armedThenLive(s.go(), 'the draw, after the fifth pick');
+    // Emptying lane 2 sends the draw back to waiting, through the window too.
+    s.laneButtons()[1].click();
+    await origin.idle();
+    mock.timers.tick(ARM_DELAY_MS);
+    assert.equal(s.go().disabled, true, 'the draw stayed live with a lane emptied');
+    s.nameButtons()[0].click();
+    await origin.idle();
+    armedThenLive(s.go(), 'the draw, after the picks are complete again');
+    s.go().click(); // confirm the picks and draw
+    await origin.idle();
+    assert.equal(hosts.length, 1);
+    assert.equal(s.laneButtons().length, 0, 'the lane picks stay on screen while the ladder presents');
+    hosts[0].settle();
+    assert.equal(s.frame.getAttribute('data-screen'), 'result');
+    assert.equal(s.go(), null);
   } finally {
     mock.timers.reset();
   }

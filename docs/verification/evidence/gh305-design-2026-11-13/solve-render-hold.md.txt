@@ -1,0 +1,23 @@
+Result: PASS
+Choose **B + C**: direct production hold imports, with runtime proof as the authority for actual subscription.
+B removes the mutable dependency; A adds freezing and identity obligations. C alone leaves the mutable wiring intact.
+
+1. `src/play/_prize-reveal/game-host.ts`: remove `HostEnv.holds` and its `browserEnv()` initializer. In `paused()` and `start()`, call imported `isRenderHeld()` and `onRenderHold(sync)` directly.
+2. `scripts/render-suspension-check.mjs`: delete the injected-environment proof, including assignment enumeration. Accept only calls whose binding resolves to the hold export through admitted runtime imports. Keep this gate authoritative for wiring, not execution.
+3. `src/play/_prize-reveal/host-harness.mjs`: drive the real hold module through acquire/release with a document shim; retain other browser fakes. Add no production setter or alternate hold dependency.
+4. `src/play/_render-hold.ts`: provide read-only diagnostics from the actual bundled module, scoped to a unique adapter instance. Derive active registrations from its listener Set and remove them on unsubscribe.
+5. `scripts/webgl-pixels-probe.mjs`: drive every declared adapter to a live reveal, require its active registration, then acquire/release a real hold and verify stopped/resumed rendering—including screenless routes. Missing instrumentation or an undriven reveal is UNMEASURED and blocks acceptance.
+
+**Ownership:** the project owns admitted wiring, adapter instances, manifest routes, and their drivers. JavaScript owns mutation forms; enumerating those cannot converge. Runtime evidence proves the exercised instances and scenarios, not every possible execution path.
+
+**Confirmed — scratch evidence:** `node --test solve-probe.test.mjs` RAN in the authorized scratch directory: **12/12 passed**.
+The current gate accepted the alias counter-example while execution registered zero listeners; the direct-only sketch rejected it.
+Against the copied real host, alias assignment, `Object.assign`, `defineProperty`, spread replacement, and env rebinding were harmless: the real subscription survived, holding stopped scheduling, release resumed it, and disposal unsubscribed.
+Module-namespace mutation and imported-binding reassignment threw; modifying a spread copy left the import unchanged.
+A no-op listener passed counting but continued advancing while held: registration count alone is insufficient.
+
+**Must-reds:** injected property calls; wrong/type-only hold imports; dead subscription; immediate unsubscribe; unrelated-instance listener; missing diagnostics/driver/context; and an active no-op listener that permits held draws.
+RAN from `/Users/waris.c/claude/free-game`: `node scripts/render-suspension-check.mjs --selftest` and `node scripts/render-suspension-check.mjs`; both passed.
+RAN there: `node --test src/play/_prize-reveal/game-host.test.mjs src/play/_render-hold.test.mjs scripts/webgl-pixels-probe.test.mjs`; final run **89/89 passed**.
+Workspace unchanged by this review; sketches stayed in scratch. Browser verification was not run.
+would change if: production genuinely needs multiple hold implementations; then choose A’s narrowly frozen, identity-checked contract while retaining C.

@@ -2234,7 +2234,7 @@ get 2x from the 320 px-tall 1x files (measured in the evidence README).
 Owner request 2026-11-11: the company-party games get cover images like the party games. This section
 holds candidates for the owner to pick from: four covers, two candidates each (a and b, different subject
 ideas). The covers are the event page (the New Year prize draw), the fireworks countdown, cards dealt to
-the room, and the ladder of lanes. **Owner pick 2026-11-11 (popup): `IMG_04_002` (event), `IMG_04_003` (fireworks), `IMG_04_005` (cards) and `IMG_04_007` (ladder) are `approved`; the other four stay `pending`, unpicked. Only `IMG_04_002` is wired and in `public/art/` (`prize-draw.webp`, `prize-draw-2x.webp`). `IMG_04_003`, `IMG_04_005` and `IMG_04_007` ship with gh#305, gh#306 and gh#307, each with its game module: `public/` ships verbatim and an unreferenced file reds `public-orphan-check`.** The registry ties one entry to one master and one
+the room, and the ladder of lanes. **Owner pick 2026-11-11 (popup): `IMG_04_002` (event), `IMG_04_003` (fireworks), `IMG_04_005` (cards) and `IMG_04_007` (ladder) are `approved`; the other four stay `pending`, unpicked. All four are wired and in `public/art/`: `IMG_04_002` as `prize-draw.webp` / `prize-draw-2x.webp`, and `IMG_04_003`, `IMG_04_005` and `IMG_04_007` with gh#305, gh#306 and gh#307 (2026-11-13), each with its game module, as `prize-fireworks`, `prize-cards` and `prize-ladder` (`.webp` and `-2x.webp`).** The registry ties one entry to one master and one
 sha256, so each cover has two entries, grouped by cover.
 
 **Do not render these through `emit_prompt.py`** — the front matter's `brand_block` is portrait-specific
@@ -2266,8 +2266,8 @@ differ. The style match is judged on the comparison sheet, not assumed.
 - Every call's as-sent prompt and output hash is in
   `docs/verification/evidence/gh303-art-2026-11-11/as-sent-prompts.json`.
 - The masters below are the raw saved files, matched by sha256.
-- No ship derivative is recorded: the scratch webps made for grading never left the scratch directory.
-  The picked masters go through `docs/verification/evidence/gh241/make_ship.py` (1x) and gh#250's 2x
+- The scratch webps made for grading never left the scratch directory; each approved entry records its
+  shipped `ship_derivative`. The picked masters went through `docs/verification/evidence/gh241/make_ship.py` (1x) and gh#250's 2x
   recipe when wired.
 
 | id | cover | candidate | black point | scratch ship bytes | drink/bottle-free | casino-free | text-free | style match (1-5) |
@@ -2347,7 +2347,7 @@ The comparison sheets, the timings, the grading and the proof that nothing enter
     model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
     size: "auto"
   style_ref: "images/IMG_02_003.png"
-  location: "company-party category card (proposed), the fireworks countdown - candidate a, not wired"
+  location: "company-party category card (proposed), the fireworks countdown - candidate a - wired 2026-11-13 as /art/prize-fireworks.webp and /art/prize-fireworks-2x.webp via the prize-fireworks module cardArt and cardArt2x fields"
   direction: "C - soft 3D toy"
   purpose: "fireworks cover, candidate a, in direction C (gh303-art, owner request 2026-11-11)."
   prompt: |
@@ -2365,7 +2365,8 @@ The comparison sheets, the timings, the grading and the proof that nothing enter
   status: "approved"
   output_path: "images/IMG_04_003.png"
   sha256_master: "4c9c344f34eccf00a31cccdab9764a3c1bdefaa8e06f29a5f8d47d84e9849edf"
-  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 81.37% fully transparent, 3861 haze px outside the dilated solid mask; black point 4. Scratch-only ship webp 289x320, 20486 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): red and cream firework rocket on gold fins, two small red lanterns, three gold stars; small parts, reads as a firecracker toy. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 4/5. Owner pick 2026-11-11 (popup): approved. NOT in public/ yet: its webp pair ships with gh#305, the change that adds its game module."
+  ship_derivative: "public/art/prize-fireworks.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 81.37% fully transparent, 3861 haze px outside the dilated solid mask; black point 4. Scratch-only ship webp 289x320, 20486 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): red and cream firework rocket on gold fins, two small red lanterns, three gold stars; small parts, reads as a firecracker toy. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 4/5. Owner pick 2026-11-11 (popup): approved. Shipped with gh#305 at black point 4 by gh241/make_ship.py (public/art/prize-fireworks.webp, 289x320, 20,486 bytes, the same byte count as the scratch ship webp above) and, by the gh#250 recipe (height 640, q88), public/art/prize-fireworks-2x.webp (577x640, 51,494 bytes); both graded 2026-11-13 by gh241/grade.py: srgba, haze outside 0, corners 0/0/0/0, 50.06% / 50.65% fully transparent."
 
 - id: IMG_04_004
   deliverable: "04"
@@ -2401,7 +2402,7 @@ The comparison sheets, the timings, the grading and the proof that nothing enter
     model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
     size: "auto"
   style_ref: "images/IMG_02_003.png"
-  location: "company-party category card (proposed), cards dealt to the room - candidate a, not wired"
+  location: "company-party category card (proposed), cards dealt to the room - candidate a - wired 2026-11-13 as /art/prize-cards.webp and /art/prize-cards-2x.webp via the prize-cards module cardArt and cardArt2x fields"
   direction: "C - soft 3D toy"
   purpose: "cards cover, candidate a, in direction C (gh303-art, owner request 2026-11-11)."
   prompt: |
@@ -2419,7 +2420,8 @@ The comparison sheets, the timings, the grading and the proof that nothing enter
   status: "approved"
   output_path: "images/IMG_04_005.png"
   sha256_master: "9a35274564b52cac553fb9aa594afe2263742777d099aa8cdd182b294093cb04"
-  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 57.07% fully transparent, 6871 haze px outside the dilated solid mask; black point 3. Scratch-only ship webp 415x320, 24116 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): fan of five teal-backed cards, front card tipping to a cream face with one gold star, gold rivet; no suits, pips or ranks. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 5/5. Owner pick 2026-11-11 (popup): approved. NOT in public/ yet: its webp pair ships with gh#306, the change that adds its game module."
+  ship_derivative: "public/art/prize-cards.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 57.07% fully transparent, 6871 haze px outside the dilated solid mask; black point 3. Scratch-only ship webp 415x320, 24116 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): fan of five teal-backed cards, front card tipping to a cream face with one gold star, gold rivet; no suits, pips or ranks. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 5/5. Owner pick 2026-11-11 (popup): approved. Shipped with gh#306 at black point 3 by gh241/make_ship.py (public/art/prize-cards.webp, 415x320, 24,116 bytes, the same byte count as the scratch ship webp above) and, by the gh#250 recipe (height 640, q88), public/art/prize-cards-2x.webp (830x640, 60,492 bytes); both graded 2026-11-13 by gh241/grade.py: srgba, haze outside 0, corners 0/0/0/0, 32.08% / 32.32% fully transparent."
 
 - id: IMG_04_006
   deliverable: "04"
@@ -2455,7 +2457,7 @@ The comparison sheets, the timings, the grading and the proof that nothing enter
     model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
     size: "auto"
   style_ref: "images/IMG_02_003.png"
-  location: "company-party category card (proposed), the ladder / lanes - candidate a, not wired"
+  location: "company-party category card (proposed), the ladder / lanes - candidate a - wired 2026-11-13 as /art/prize-ladder.webp and /art/prize-ladder-2x.webp via the prize-ladder module cardArt and cardArt2x fields"
   direction: "C - soft 3D toy"
   purpose: "ladder cover, candidate a, in direction C (gh303-art, owner request 2026-11-11)."
   prompt: |
@@ -2473,7 +2475,8 @@ The comparison sheets, the timings, the grading and the proof that nothing enter
   status: "approved"
   output_path: "images/IMG_04_007.png"
   sha256_master: "45e7c97dc7e5a4630e02edd609be07bc60d43c40ec53a678cb14c3f432ffe4e0"
-  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, fresh generation); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 55.26% fully transparent, 51925 haze px outside the dilated solid mask; black point 5. Scratch-only ship webp 285x320, 15492 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): four cream rails with rungs on a red base, one gold zigzag path from a teal token to a gift box. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 4/5. Owner pick 2026-11-11 (popup): approved. NOT in public/ yet: its webp pair ships with gh#307, the change that adds its game module."
+  ship_derivative: "public/art/prize-ladder.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation with the anchor, fresh generation); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 55.26% fully transparent, 51925 haze px outside the dilated solid mask; black point 5. Scratch-only ship webp 285x320, 15492 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): four cream rails with rungs on a red base, one gold zigzag path from a teal token to a gift box. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 4/5. Owner pick 2026-11-11 (popup): approved. Shipped with gh#307 at black point 5 by gh241/make_ship.py (public/art/prize-ladder.webp, 285x320, 15,492 bytes, the same byte count as the scratch ship webp above) and, by the gh#250 recipe (height 640, q88), public/art/prize-ladder-2x.webp (571x640, 37,212 bytes); both graded 2026-11-13 by gh241/grade.py: srgba, haze outside 0, corners 0/0/0/0, 44.85% / 45.88% fully transparent."
 
 - id: IMG_04_008
   deliverable: "04"

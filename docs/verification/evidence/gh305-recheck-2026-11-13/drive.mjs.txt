@@ -1,0 +1,525 @@
+// gh#305 recheck driver (2026-11-13). Raw CDP, one tab per scenario. Ports: CDP 9644, HTTP 4644 only.
+// Usage: node drive.mjs <scenario>   scenarios: gpu | b1 | b3 | walk1920 | walk320 | demos | setup | join | cat
+// Appends each scenario's readings to <OUT>/results.json (key = scenario); PNGs go to <OUT>/shots/.
+import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+
+const CDP_PORT = process.env.CDP_PORT || '9644';
+if (CDP_PORT !== '9644') throw new Error('this run owns 9644 only');
+const BASE = 'http://localhost:4644';
+const scenario = process.argv[2];
+const OUT = '/Users/waris.c/claude/free-game/docs/verification/evidence/gh305-recheck-2026-11-13';
+const DIST = '/Users/waris.c/claude/free-game/dist';
+mkdirSync(join(OUT, 'shots'), { recursive: true });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// ---------- in-page instrument (runs before every document's own script) ----------
+const initSource = (noGL) => `(() => {
+  if (window.__wd) return;
+  const wd = window.__wd = { ctx: [], lost: [], canvas: [], texts: [], raf: 0, gls: [], noGL: ${noGL ? 'true' : 'false'} };
+  window.__watduangRevealFrameTime = { enabled: true };
+  const now = () => Math.round(performance.now());
+  const orig = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (type, ...a) {
+    const isGL = typeof type === 'string' && /webgl/.test(type);
+    if (isGL && wd.noGL) { wd.ctx.push({ type, t: now(), blocked: true }); return null; }
+    const c = orig.call(this, type, ...a);
+    if (isGL) {
+      const rec = { type, t: now(), ok: !!c, parent: this.parentElement ? this.parentElement.className : null };
+      if (c) {
+        try { const e = c.getExtension('WEBGL_debug_renderer_info'); rec.renderer = e ? c.getParameter(e.UNMASKED_RENDERER_WEBGL) : 'no-ext'; rec.vendor = e ? c.getParameter(e.UNMASKED_VENDOR_WEBGL) : null; } catch (e) { rec.renderer = 'err ' + e; }
+        const cv = this;
+        cv.addEventListener('webglcontextlost', () => wd.lost.push({ t: now(), connected: cv.isConnected, parent: cv.parentElement ? cv.parentElement.className : null }));
+        wd.gls.push({ gl: c, cv });
+      }
+      wd.ctx.push(rec);
+    }
+    return c;
+  };
+  for (const fn of ['fillText', 'strokeText']) {
+    const o = CanvasRenderingContext2D.prototype[fn];
+    CanvasRenderingContext2D.prototype[fn] = function (text, ...r) { if (wd.texts.length < 20000) wd.texts.push({ t: now(), s: String(text) }); return o.call(this, text, ...r); };
+  }
+  const tick = () => { wd.raf++; requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+  const note = (ev, n) => { if (n.nodeType !== 1) return; const list = n.tagName === 'CANVAS' ? [n] : [...n.querySelectorAll('canvas')]; for (const c of list) { const p = c.parentElement || null; wd.canvas.push({ t: now(), ev, parent: p ? p.className : (ev === 'canvas-' ? 'detached' : null) }); } };
+  const watch = () => new MutationObserver((ms) => { for (const m of ms) { m.addedNodes.forEach((n) => note('canvas+', n)); m.removedNodes.forEach((n) => note('canvas-', n)); } }).observe(document.documentElement, { childList: true, subtree: true });
+  if (document.documentElement) watch(); else document.addEventListener('DOMContentLoaded', watch);
+  // time a MC button appears, with its disabled flag at that moment
+  wd.btn = [];
+  const bw = () => new MutationObserver(() => { const b = document.querySelector('.pd-mc button, .pr-go'); const key = b ? b.textContent + '|' + (b.disabled ? 'd' : 'e') : null; const last = wd.btn[wd.btn.length - 1]; if (!last || last.key !== key) wd.btn.push({ t: now(), key }); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
+  if (document.documentElement) bw(); else document.addEventListener('DOMContentLoaded', bw);
+})();`;
+
+// ---------- CDP session ----------
+async function openTab({ noGL = false, reducedMotion = false } = {}) {
+  const target = await (await fetch(`http://127.0.0.1:${CDP_PORT}/json/new?about:blank`, { method: 'PUT' })).json();
+  const ws = new WebSocket(target.webSocketDebuggerUrl);
+  let id = 0;
+  const pending = new Map();
+  const S = { console: [], exceptions: [], log: [], requests: [], dialogs: [], lostEvents: [] };
+  let loadResolve = null;
+  ws.addEventListener('message', (e) => {
+    const m = JSON.parse(e.data);
+    if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); return; }
+    const p = m.params;
+    if (m.method === 'Page.loadEventFired' && loadResolve) { loadResolve(); loadResolve = null; }
+    if (m.method === 'Runtime.consoleAPICalled') S.console.push({ type: p.type, text: (p.args || []).map((a) => a.value ?? a.description ?? '').join(' ').slice(0, 400), url: p.stackTrace?.callFrames?.[0]?.url?.slice(-60) });
+    if (m.method === 'Runtime.exceptionThrown') S.exceptions.push((p.exceptionDetails?.exception?.description ?? p.exceptionDetails?.text ?? '').split('\n')[0].slice(0, 400));
+    if (m.method === 'Log.entryAdded') S.log.push({ level: p.entry.level, source: p.entry.source, text: p.entry.text.slice(0, 400), url: (p.entry.url || '').slice(-60) });
+    if (m.method === 'Network.requestWillBeSent') S.requests.push(p.request.url);
+    if (m.method === 'Page.javascriptDialogOpening') {
+      S.dialogs.push({ type: p.type, message: p.message.slice(0, 80) });
+      send('Page.handleJavaScriptDialog', { accept: true });
+    }
+  });
+  await new Promise((r) => ws.addEventListener('open', r));
+  const send = (method, params = {}) => new Promise((res) => { pending.set(++id, res); ws.send(JSON.stringify({ id, method, params })); });
+  for (const d of ['Page', 'Runtime', 'Log', 'Network']) await send(`${d}.enable`);
+  await send('Network.setCacheDisabled', { cacheDisabled: true });
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: initSource(noGL) });
+  if (reducedMotion) await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  const T = {
+    S, send,
+    async nav(url) { const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); },
+    async ev(body) {
+      const r = await send('Runtime.evaluate', { expression: `(async () => { ${body} })()`, awaitPromise: true, returnByValue: true });
+      if (r.result?.exceptionDetails) return { __error: r.result.exceptionDetails.exception?.description ?? r.result.exceptionDetails.text };
+      return r.result?.result?.value;
+    },
+    async view(w, h, mobile = false) { await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile }); await sleep(300); },
+    async shot(name, { clip } = {}) {
+      await send('Page.bringToFront');
+      const r = await send('Page.captureScreenshot', { format: 'png', ...(clip ? { clip } : {}) });
+      writeFileSync(join(OUT, 'shots', name + '.png'), Buffer.from(r.result.data, 'base64'));
+      return name + '.png';
+    },
+    async touch(x, y) {
+      await send('Page.bringToFront');
+      await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+      await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    },
+    async center(sel, text) {
+      return T.ev(`const els=[...document.querySelectorAll(${JSON.stringify(sel)})].filter(e=>!${JSON.stringify(text ?? null)}||e.textContent.trim()===${JSON.stringify(text ?? null)});
+        const e=els[0]; if(!e) return null; e.scrollIntoView({block:'center'}); const r=e.getBoundingClientRect(); const x=r.left+r.width/2,y=r.top+r.height/2;
+        const hit=document.elementFromPoint(x,y); return {x,y,disabled:!!e.disabled,hit:!!hit&&(hit===e||e.contains(hit)),text:e.textContent.trim().slice(0,30)};`);
+    },
+    async waitFor(expr, ms = 15000, step = 100) {
+      const t0 = Date.now();
+      while (Date.now() - t0 < ms) { const v = await T.ev(`return (${expr});`); if (v && !v.__error) return v; await sleep(step); }
+      return null;
+    },
+    /** tap an enabled control found by selector (+exact text); returns the pre-tap reading. */
+    async tapEl(sel, text, { waitMs = 15000, settleMs = 150 } = {}) {
+      const t0 = Date.now();
+      let c = null;
+      while (Date.now() - t0 < waitMs) {
+        c = await T.center(sel, text);
+        if (c && !c.disabled) break;
+        await sleep(80);
+      }
+      if (!c || c.disabled) throw new Error(`tapEl: ${sel} ${text ?? ''} not enabled in ${waitMs}ms (${JSON.stringify(c)})`);
+      await sleep(settleMs);
+      c = await T.center(sel, text);
+      if (!c.hit) throw new Error(`tapEl: ${sel} ${text ?? ''} covered at its centre`);
+      await T.touch(c.x, c.y);
+      return c;
+    },
+    async close() { await fetch(`http://127.0.0.1:${CDP_PORT}/json/close/${target.id}`); ws.close(); },
+  };
+  await T.view(1920, 1080);
+  return T;
+}
+
+// ---------- shared page-side readers ----------
+const READ_EVENT = `
+  const dbs = await indexedDB.databases(); if (!dbs.some(d => d.name === 'watduang-prize-draw')) return { none: true };
+  const db = await new Promise((res, rej) => { const q = indexedDB.open('watduang-prize-draw'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+  const raw = await new Promise((res) => { const q = db.transaction('event').objectStore('event').get('current'); q.onsuccess = () => res(q.result); });
+  db.close(); const st = typeof raw === 'string' ? JSON.parse(raw) : raw; if (!st) return { none: true };
+  const nm = new Map(st.setup.people.map(p => [p.id, p.name]));
+  return { at: st.at, nRounds: st.rounds.length, rounds: st.rounds.map(r => ({ round: r.round, game: r.game, survivors: r.survivors.map(i => nm.get(i)), n: r.survivors.length, rule: r.rule })),
+    prepared: st.prepared ? { game: st.prepared.game, round: st.prepared.round, slotRanks: st.prepared.slotRanks } : null,
+    final: st.final ? { game: st.final.game, order: st.final.order.map(i => nm.get(i)), picks: st.final.picks ? st.final.picks.map(i => nm.get(i)) : null, permutation: st.final.permutation, slotRanks: st.final.slotRanks } : null,
+    games: st.setup.games, prizes: st.setup.prizes, heads: st.setup.people.length };`;
+const readEvent = (T) => T.ev(READ_EVENT);
+const readChips = (T) => T.ev(`const f=document.querySelector('.pd-field'); if(!f) return null; const all=[...f.querySelectorAll('.pd-chip')]; return { screen: document.getElementById('pd-frame')?.getAttribute('data-screen'), total: all.length, inNames: all.filter(c=>c.classList.contains('in')).map(c=>c.textContent.trim()), outCount: all.filter(c=>c.classList.contains('out')).length };`);
+const same = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+const mcText = (T) => T.ev(`const b=document.querySelector('.pd-mc button'); return b?b.textContent.trim():null;`);
+const wd = (T) => T.ev(`return JSON.parse(JSON.stringify({ ctx: __wd.ctx, lost: __wd.lost, canvas: __wd.canvas, raf: __wd.raf, btn: __wd.btn, frames: (window.__watduangRevealFrameTime.frames||[]).length, phases: Object.keys(window.__watduangRevealFrameTime.summary?window.__watduangRevealFrameTime.summary():{}) }));`);
+
+const NAMES = [...Array.from({ length: 28 }, (_, i) => `Guest${String(i + 1).padStart(2, '0')}`), 'สมชาย', 'มานี'];
+const PRIZE_NAMES = ['ทีวี', 'พัดลม', 'บัตรกำนัล'];
+
+
+// ===================================================================================================
+// recheck scenarios (appended to the readers above)
+const results = existsSync(join(OUT, 'results.json')) ? JSON.parse(readFileSync(join(OUT, 'results.json'), 'utf8')) : {};
+const save = (key, val) => { results[key] = val; writeFileSync(join(OUT, 'results.json'), JSON.stringify(results, null, 1)); };
+const summarize = (T) => ({
+  consoleAll: T.S.console.map((c) => `${c.type}: ${c.text}`.slice(0, 300)),
+  exceptions: T.S.exceptions, log: T.S.log.filter((l) => ['error', 'warning'].includes(l.level)).map((l) => `${l.level}/${l.source}: ${l.text} ${l.url}`.slice(0, 300)), dialogs: T.S.dialogs,
+});
+const rendererOf = (w) => [...new Set(w.ctx.filter((c) => c.renderer).map((c) => c.renderer))];
+const wd2 = (T) => T.ev(`return JSON.parse(JSON.stringify({ ctx: __wd.ctx, lost: __wd.lost, canvas: __wd.canvas, raf: __wd.raf, frames: (window.__watduangRevealFrameTime.frames||[]).length }));`);
+const phaseNow = (T) => T.ev(`const fr=(window.__watduangRevealFrameTime.frames||[]); return fr.length ? String(fr[fr.length-1].phase) : 'none';`);
+const mkNames = (n) => Array.from({ length: n }, (_, i) => (i === n - 1 ? 'มานี' : i === n - 2 ? 'สมชาย' : `Guest${String(i + 1).padStart(2, '0')}`));
+const PRIZES = ['ทีวี', 'พัดลม', 'บัตรกำนัล'];
+const nn = (i) => String(i).padStart(2, '0');
+const setIn = (T, id, v, tag = 'input') => T.ev(`const el=document.getElementById(${JSON.stringify(id)}); const proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype; Object.getOwnPropertyDescriptor(proto,'value').set.call(el, ${JSON.stringify(String(v))}); el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); return true;`);
+const cardStates = (T) => T.ev(`return [1,2,3,4].map(r=>{const b=document.querySelector('#pd-game-r'+r+' button[data-game="cards"]'); return b?{round:r,disabled:b.disabled,hidden:b.hidden,pressed:b.getAttribute('aria-pressed')}:{round:r,absent:true};});`);
+const schedRead = (T) => T.ev(`const g=i=>{const e=document.getElementById('pd-s'+i); return e?(e.value??e.textContent):null;}; return { vals:[0,1,2,3,4].map(g), labels:[0,1,2,3].map(i=>document.getElementById('pd-l'+i)?.textContent), msg:document.getElementById('pd-sched-msg')?.textContent.trim(), count:document.getElementById('pd-count')?.textContent };`);
+const pressedRead = (T) => T.ev(`return ['pd-game-r1','pd-game-r2','pd-game-r3','pd-game-r4','pd-game-final'].map(g=>document.querySelector('#'+g+' button[aria-pressed="true"]')?.textContent.trim()??null);`);
+const pickGame = (T, group, game) => T.ev(`const b=document.querySelector('#${group} button[data-game="${game ?? ''}"]'); if(!b) return 'absent'; b.click(); return b.disabled?'disabled':'ok';`);
+
+async function openSetup(T, names, { wipe = true, event = 'Recheck' } = {}) {
+  if (wipe) await T.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' });
+  await T.nav(`${BASE}/game/prize-draw/`);
+  await setIn(T, 'pd-names', names.join('\n'));
+  await setIn(T, 'pd-event', event);
+}
+async function setPrizes(T, prizes = 3) {
+  for (let i = 5; i > prizes; i--) await T.ev(`document.getElementById('pd-prize-minus').click();return 1`);
+  for (let i = 1; i <= prizes; i++) await setIn(T, `pd-prize-${i}`, PRIZES[i - 1]);
+}
+async function startEvent(T) {
+  await T.tapEl('#pd-start', null);
+  const arrived = await T.waitFor(`location.pathname.endsWith('/game/prize-draw/play/') ? location.pathname : null`, 15000);
+  await sleep(1500);
+  return arrived;
+}
+const readPrepared = (T) => T.ev(`
+  const dbs = await indexedDB.databases(); if (!dbs.some(d => d.name === 'watduang-prize-draw')) return { none: true };
+  const db = await new Promise((res, rej) => { const q = indexedDB.open('watduang-prize-draw'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+  const raw = await new Promise((res) => { const q = db.transaction('event').objectStore('event').get('current'); q.onsuccess = () => res(q.result); });
+  db.close(); const st = typeof raw === 'string' ? JSON.parse(raw) : raw; if (!st) return { none: true };
+  const nm = new Map(st.setup.people.map(p => [p.id, p.name]));
+  return JSON.parse(JSON.stringify({ prepared: st.prepared ?? null, nRounds: st.rounds.length }, (k, v) => (typeof v === 'string' && nm.has(v) ? nm.get(v) : v)));`);
+const lanesDom = (T) => T.ev(`return { screen: document.getElementById('pd-frame')?.getAttribute('data-screen'), lanes: [...document.querySelectorAll('.pd-lane')].map(b=>({ t: b.textContent.trim(), pressed: b.getAttribute('aria-pressed') })), names: [...document.querySelectorAll('.pd-name')].map(b=>b.textContent.trim()), mc: (()=>{const b=document.querySelector('.pd-mc button'); return b?{t:b.textContent.trim(),disabled:b.disabled}:null})() };`);
+const centerN = (T, sel, i) => T.ev(`const e=[...document.querySelectorAll(${JSON.stringify(sel)})][${i}]; if(!e) return null; e.scrollIntoView({block:'center'}); const r=e.getBoundingClientRect(); const x=r.left+r.width/2,y=r.top+r.height/2; const hit=document.elementFromPoint(x,y); return {x,y,disabled:!!e.disabled,hit:!!hit&&(hit===e||e.contains(hit))};`);
+const laneNames = (d) => d?.lanes?.map((l) => l.t) ?? null;
+
+/** pick the finalist `which` (0 = first listed) onto lane `lane`; the lane tap, then the name tap. */
+async function pickLane(T, lane) {
+  await sleep(450);
+  let c = await centerN(T, '.pd-lane', lane);
+  let blocked = null;
+  if (!c) throw new Error(`lane ${lane} absent`);
+  if (!c.hit) {
+    // record what covers the lane control's centre, then look for any point of the control that does hit it
+    blocked = await T.ev(`const e=[...document.querySelectorAll('.pd-lane')][${lane}]; const r=e.getBoundingClientRect(); const top=document.elementFromPoint(${c.x},${c.y}); const d=x=>x?(x.tagName.toLowerCase()+(x.id?'#'+x.id:'')+(x.className&&x.className.baseVal===undefined?'.'+String(x.className).split(' ').join('.'):'')):null; let free=null; for(let fy=0.1;fy<=0.9&&!free;fy+=0.2) for(let fx=0.1;fx<=0.9&&!free;fx+=0.2){const x=r.left+r.width*fx,y=r.top+r.height*fy; const h=document.elementFromPoint(x,y); if(h&&(h===e||e.contains(h))) free={x,y};} return { rect:{l:Math.round(r.left),t:Math.round(r.top),w:Math.round(r.width),h:Math.round(r.height)}, coveredBy:d(top), coveredByRect: top?(()=>{const q=top.getBoundingClientRect(); return {l:Math.round(q.left),t:Math.round(q.top),w:Math.round(q.width),h:Math.round(q.height)}})():null, free };`);
+    if (blocked.free) c = { ...c, x: blocked.free.x, y: blocked.free.y };
+    else { await T.ev(`[...document.querySelectorAll('.pd-lane')][${lane}].click(); return 1`); }
+  }
+  if (!blocked || blocked.free) await T.touch(c.x, c.y);
+  await sleep(300);
+  const nm = await T.ev(`const b=document.querySelector('.pd-name'); return b?b.textContent.trim():null`);
+  const n = await T.tapEl('.pd-name', null, { settleMs: 450 });
+  await sleep(300);
+  return { lane, name: nm, hit: n.hit, blocked };
+}
+
+/** one press with screenshots while a 3D canvas is up; names carry the host's own phase. */
+async function pressShots(T, label, prefix, { sel = '.pd-mc button', canvasSel = '.pd-3d canvas', everyMs = 2000, maxShots = 6, maxMs = 150000 } = {}) {
+  const w0 = await wd2(T); const t0 = Date.now();
+  const tap = await T.tapEl(sel, label, { settleMs: 450 });
+  const shots = [], tl = []; let saw = false, last = -1e9, done = false;
+  while (Date.now() - t0 < maxMs) {
+    const r = await T.ev(`const c=document.querySelector(${JSON.stringify(canvasSel)}); const b=document.querySelector(${JSON.stringify(sel)}); return { canvas:!!c, btn:b?b.textContent.trim():null };`);
+    const ms = Date.now() - t0;
+    const ph = r.canvas ? await phaseNow(T) : '-';
+    if (!tl.length || tl[tl.length - 1].c !== r.canvas || tl[tl.length - 1].b !== r.btn || tl[tl.length - 1].p !== ph) tl.push({ ms, c: r.canvas, b: r.btn, p: ph });
+    if (r.canvas) {
+      saw = true;
+      if (shots.length < maxShots && ms - last >= everyMs) { last = ms; shots.push({ ms, phase: ph, file: await T.shot(`${prefix}-${nn(shots.length + 1)}-${ph}`) }); }
+    }
+    if (!r.canvas && saw) { await sleep(700); done = true; break; }
+    if (!r.canvas && r.btn && r.btn !== label && ms > 4000) { done = true; break; }
+    await sleep(80);
+  }
+  const w1 = await wd2(T);
+  return { tap: { disabledAtTap: tap.disabled, hit: tap.hit }, sawCanvas: saw, done, elapsedMs: Date.now() - t0, tl: tl.slice(0, 40), shots, canvasEvents: w1.canvas.length - w0.canvas.length, frames: w1.frames, finalBtn: await mcText(T) };
+}
+
+const scenarios = {
+  async gpu() {
+    const T = await openTab();
+    await T.nav(`${BASE}/game/prize-draw/`);
+    const r = await T.ev(`const c=document.createElement('canvas'); const gl=c.getContext('webgl2'); const e=gl&&gl.getExtension('WEBGL_debug_renderer_info'); const t0=__wd.raf; await new Promise(r=>setTimeout(r,1000)); return { gl: !!gl, renderer: e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):null, vendor: e?gl.getParameter(e.UNMASKED_VENDOR_WEBGL):null, rafPerSec: __wd.raf-t0, ua: navigator.userAgent };`);
+    await T.close();
+    save('gpu', r);
+    return r;
+  },
+
+  // B1: setup -> projector, uncaught InvalidStateError / ViewTransition errors
+  async b1() {
+    const T = await openTab();
+    await T.nav(`${BASE}/game/prize-draw/`);
+    // must-red for the capture: a thrown rejection and a console.error must both be seen
+    await T.ev(`setTimeout(()=>{ Promise.reject(new DOMException('probe','InvalidStateError')); console.error('probe-console-error'); },0); return 1`);
+    await sleep(600);
+    const control = { exceptions: [...T.S.exceptions], console: T.S.console.map((c) => `${c.type}:${c.text}`) };
+    T.S.exceptions.length = 0; T.S.console.length = 0; T.S.log.length = 0; T.S.dialogs.length = 0;
+    const runs = [];
+    for (let i = 0; i < 3; i++) {
+      const m = { e: T.S.exceptions.length, c: T.S.console.length, l: T.S.log.length, d: T.S.dialogs.length };
+      await openSetup(T, mkNames(30), { wipe: i === 0, event: `Nav${i + 1}` });
+      await setPrizes(T, 3);
+      const arrived = await startEvent(T);
+      const vt = await T.ev(`return { path: location.pathname, vtApi: typeof document.startViewTransition, title: document.title, screen: document.getElementById('pd-frame')?.getAttribute('data-screen') };`);
+      runs.push({ run: i + 1, replacedExisting: i > 0, arrived, vt, newExceptions: T.S.exceptions.slice(m.e), newConsole: T.S.console.slice(m.c).map((c) => `${c.type}:${c.text}`), newLog: T.S.log.slice(m.l), dialogs: T.S.dialogs.slice(m.d) });
+    }
+    const all = JSON.stringify(summarize(T));
+    const hit = /InvalidStateError|ViewTransition|view transition|Transition was/i.test(all);
+    const r = { control, controlSeen: control.exceptions.some((x) => /InvalidStateError/.test(x)) && control.console.some((x) => /probe-console-error/.test(x)), runs, matchedInvalidStateOrVT: hit, summary: summarize(T), verdict: hit ? 'FAIL' : 'PASS' };
+    await T.close();
+    save('b1', r);
+    return { verdict: r.verdict, controlSeen: r.controlSeen, exceptions: T.S.exceptions, runs: runs.map((x) => [x.arrived, x.newExceptions.length, x.newConsole.length, x.dialogs.length]) };
+  },
+
+  // B3: cards on an exact-half schedule + the setup picker's disabled state
+  async b3() {
+    const T = await openTab();
+    const R = {};
+    await openSetup(T, mkNames(40), { event: 'Halves' });
+    await setPrizes(T, 3);
+    R.defaultSched = await schedRead(T); R.defaultCards = await cardStates(T);
+    await setIn(T, 'pd-s1', 20); await setIn(T, 'pd-s2', 10); await setIn(T, 'pd-s3', 7);
+    await sleep(300);
+    R.halfSched = await schedRead(T); R.halfCards = await cardStates(T);
+    R.pickR1 = await pickGame(T, 'pd-game-r1', 'cards'); R.pickR2 = await pickGame(T, 'pd-game-r2', 'cards');
+    R.pickR3 = await pickGame(T, 'pd-game-r3', 'cards'); R.pickR4 = await pickGame(T, 'pd-game-r4', 'cards');
+    R.afterPicks = { pressed: await pressedRead(T), cards: await cardStates(T) };
+    await T.ev(`document.getElementById('pd-game-r1').scrollIntoView({block:'center'}); return 1`);
+    await T.shot('game-prize-draw-1920-cards-picker-halving');
+    // a schedule edit that stops round 1 halving must clear its cards pick and disable the button
+    await setIn(T, 'pd-s1', 25); await sleep(300);
+    R.edited = { sched: await schedRead(T), cards: await cardStates(T), pressed: await pressedRead(T) };
+    await T.shot('game-prize-draw-1920-cards-picker-r1-not-halving');
+    await setIn(T, 'pd-s1', 20); await sleep(300);
+    R.restored = { sched: await schedRead(T), cards: await cardStates(T), pressed: await pressedRead(T) };
+    R.rePickR1 = await pickGame(T, 'pd-game-r1', 'cards'); R.rePickR2 = await pickGame(T, 'pd-game-r2', 'cards');
+    R.finalPressed = await pressedRead(T);
+    R.arrived = await startEvent(T);
+    R.rounds = [];
+    for (const round of [1, 2]) {
+      const before = await readEvent(T);
+      const label = await mcText(T);
+      const deal = await pressShots(T, 'แจกไพ่', `b3-r${round}-deal`, { everyMs: 3000, maxShots: 2 });
+      const reveal = await pressShots(T, 'เปิดผล', `b3-r${round}-reveal`, { everyMs: 3000, maxShots: 3 });
+      const e = await readEvent(T); const c = await readChips(T);
+      const rec = e.rounds[round - 1];
+      R.rounds.push({ round, firstLabel: label, liveBefore: before.nRounds === round - 1 ? (round === 1 ? 40 : e.rounds[0].n) : null, deal: { saw: deal.sawCanvas, done: deal.done, shots: deal.shots.length }, reveal: { saw: reveal.sawCanvas, done: reveal.done, shots: reveal.shots.length },
+        stored: rec && { n: rec.n, rule: rec.rule, game: rec.game }, chipsIn: c.inNames.length, chipsOut: c.outCount, survivorsEqual: !!rec && same(c.inNames, rec.survivors) });
+      await T.shot(`b3-r${round}-result`);
+      await T.tapEl('.pd-mc button', 'รอบต่อไป'); await sleep(900);
+    }
+    const w = await wd2(T);
+    R.renderer = rendererOf(w); R.lost = w.lost; R.console = summarize(T);
+    const ok = R.defaultCards && R.halfCards[0].disabled === false && R.halfCards[1].disabled === false && R.halfCards[2].disabled === true && R.halfCards[3].disabled === true
+      && R.edited.cards[0].disabled === true && R.edited.cards[0].pressed === 'false' && R.finalPressed[0] === R.finalPressed[1] && R.finalPressed[0] === 'ไพ่แจกทั้งห้อง' && R.rounds.every((x) => x.stored && x.survivorsEqual) && R.rounds[0].stored.n === 20 && R.rounds[1].stored.n === 10;
+    R.verdict = ok ? 'PASS' : 'CHECK';
+    await T.close();
+    save('b3', R);
+    return { verdict: R.verdict, halfCards: R.halfCards, edited: R.edited.cards, rounds: R.rounds };
+  },
+};
+
+// full projector walk, B2 (ladder checks, 1920 only) and the C projector set
+async function walk(W, H, mobile) {
+  const T = await openTab();
+  const full = W === 1920;
+  const route = `game-prize-draw-play-${W}`;
+  const R = { W, H };
+  await T.view(1920, 1080);
+  await T.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' });
+  await T.view(W, H, mobile);
+  await T.nav(`${BASE}/game/prize-draw/play/`); await T.view(W, H, mobile); await sleep(500);
+  await T.shot(`${route}-cold-no-event`);
+  await T.view(1920, 1080);
+  await openSetup(T, mkNames(40), { wipe: false, event: 'Walk' });
+  await setPrizes(T, 3);
+  await setIn(T, 'pd-s1', 20); await setIn(T, 'pd-s2', 10); await setIn(T, 'pd-s3', 7);
+  for (const [g, v] of [['pd-game-r1', 'fireworks'], ['pd-game-r2', 'cards'], ['pd-game-r3', null], ['pd-game-r4', null], ['pd-game-final', 'ladder']]) await pickGame(T, g, v);
+  R.setupPressed = await pressedRead(T);
+  R.arrived = await startEvent(T);
+  await T.view(W, H, mobile);
+  await T.nav(`${BASE}/game/prize-draw/play/`); await T.view(W, H, mobile); await sleep(900);
+  R.inner = await T.ev(`return [innerWidth, innerHeight, document.documentElement.scrollWidth]`);
+  await T.shot(`${route}-idle`);
+  const ev = (s) => `${route}-${s}`;
+  // round 1: fireworks
+  R.r1 = await pressShots(T, 'เปิดผล', ev('fireworks-mid'), { everyMs: full ? 2500 : 3000, maxShots: 3 });
+  await T.shot(ev('fireworks-result')); R.r1.chips = await readChips(T);
+  await T.tapEl('.pd-mc button', 'รอบต่อไป'); await sleep(900);
+  // round 2: cards, 20 -> 10
+  await T.shot(ev('cards-before-deal'));
+  R.r2deal = await pressShots(T, 'แจกไพ่', ev('cards-deal'), { everyMs: 2500, maxShots: 3 });
+  await T.shot(ev('cards-dealt'));
+  R.r2 = await pressShots(T, 'เปิดผล', ev('cards-reveal'), { everyMs: 2000, maxShots: 5 });
+  await T.shot(ev('cards-result')); R.r2.chips = await readChips(T);
+  await T.tapEl('.pd-mc button', 'รอบต่อไป'); await sleep(900);
+  // rounds 3, 4: plain 2D
+  await T.shot(ev('round-2d-before'));
+  for (const round of [3, 4]) {
+    await T.tapEl('.pd-mc button', 'เปิดผล', { settleMs: 450 }); await sleep(1200);
+    await T.shot(ev(round === 3 ? 'round-2d-result' : 'round-2d-result-r4'));
+    await T.tapEl('.pd-mc button', 'รอบต่อไป'); await sleep(900);
+  }
+  // ladder final: lane picks
+  await T.shot(ev('ladder-lane-pick-empty'));
+  R.lanes = { picks: [] };
+  R.lanes.initial = await lanesDom(T);
+  for (const lane of [0, 1]) R.lanes.picks.push(await pickLane(T, lane));
+  await T.shot(ev('ladder-lane-pick-2'));
+  R.lanes.dom2 = await lanesDom(T); R.lanes.stored2 = await readPrepared(T);
+  let T2 = null;
+  if (full) {
+    await T.nav(`${BASE}/game/prize-draw/play/`); await sleep(900);
+    R.lanes.dom2AfterReload = await lanesDom(T);
+    R.lanes.survive2 = JSON.stringify(laneNames(R.lanes.dom2)) === JSON.stringify(laneNames(R.lanes.dom2AfterReload));
+    T2 = await openTab();
+    await T2.nav(`${BASE}/game/prize-draw/play/`); await sleep(1200);
+    R.lanes.tab2Loaded = await lanesDom(T2);
+    await T2.shot(`${route}-ladder-second-tab-at-2-picks`);
+    R.lanes.tab2Sees2 = JSON.stringify(laneNames(R.lanes.dom2)) === JSON.stringify(laneNames(R.lanes.tab2Loaded));
+  }
+  for (const lane of [2, 3, 4]) R.lanes.picks.push(await pickLane(T, lane));
+  await T.shot(ev('ladder-lane-pick-5'));
+  R.lanes.dom5 = await lanesDom(T); R.lanes.stored5 = await readPrepared(T);
+  if (full) {
+    await sleep(1500);
+    R.lanes.tab2Live = await lanesDom(T2);
+    R.lanes.tab2LiveSees5 = JSON.stringify(laneNames(R.lanes.dom5)) === JSON.stringify(laneNames(R.lanes.tab2Live));
+    await T.nav(`${BASE}/game/prize-draw/play/`); await sleep(900);
+    R.lanes.dom5AfterReload = await lanesDom(T);
+    R.lanes.survive5 = JSON.stringify(laneNames(R.lanes.dom5)) === JSON.stringify(laneNames(R.lanes.dom5AfterReload));
+    await T2.nav(`${BASE}/game/prize-draw/play/`); await sleep(1200);
+    R.lanes.tab2Reloaded = await lanesDom(T2);
+    R.lanes.tab2SeesAfterReload5 = JSON.stringify(laneNames(R.lanes.dom5)) === JSON.stringify(laneNames(R.lanes.tab2Reloaded));
+    await T2.shot(`${route}-ladder-second-tab-at-5-picks`);
+    R.tab2Console = summarize(T2);
+    await T2.close();
+    await T.shot(ev('ladder-after-reload-5'));
+  }
+  // the 3D reveal: a shot every second at 1920, every 2s at 320
+  R.reveal = await pressShots(T, 'เปิดผล', ev('ladder-reveal'), { everyMs: full ? 1000 : 2000, maxShots: full ? 80 : 12, maxMs: 240000 });
+  await T.shot(ev('ladder-result'));
+  R.afterReveal = await T.ev(`return { screen: document.getElementById('pd-frame')?.getAttribute('data-screen'), mc: document.querySelector('.pd-mc button')?.textContent.trim() ?? null, spot: document.querySelector('.pd-spot')?.innerText.slice(0,120) ?? null };`);
+  await sleep(2500);
+  await T.shot(ev('final-result'));
+  R.final = await readEvent(T);
+  R.final = { final: R.final.final, nRounds: R.final.nRounds };
+  const w = await wd2(T);
+  R.renderer = rendererOf(w); R.lost = w.lost; R.console = summarize(T);
+  await T.close();
+  save(`walk${W}`, R);
+  return { inner: R.inner, r1: [R.r1.sawCanvas, R.r1.shots.length], r2: [R.r2deal.sawCanvas, R.r2.sawCanvas], reveal: [R.reveal.sawCanvas, R.reveal.shots.length, R.reveal.elapsedMs], lanes: R.lanes.survive2 === undefined ? null : [R.lanes.survive2, R.lanes.tab2Sees2, R.lanes.tab2LiveSees5, R.lanes.survive5, R.lanes.tab2SeesAfterReload5], consoleErr: R.console.exceptions.length };
+}
+scenarios.walk1920 = () => walk(1920, 1080, false);
+scenarios.walk320 = () => walk(320, 568, true);
+
+scenarios.demos = async () => {
+  const T = await openTab();
+  const out = {};
+  for (const g of ['fireworks', 'cards', 'ladder']) {
+    for (const [W, H, mobile] of [[1920, 1080, false], [320, 568, true]]) {
+      const slug = `game-prize-${g}-play-${W}`;
+      await T.view(W, H, mobile);
+      await T.nav(`${BASE}/game/prize-${g}/play/`); await T.view(W, H, mobile); await sleep(700);
+      const r = { inner: await T.ev(`return [innerWidth, innerHeight, document.documentElement.scrollWidth]`), title: await T.ev('return document.title') };
+      await T.shot(`${slug}-idle`);
+      const label = await T.ev(`return document.querySelector('.pr-go')?.textContent.trim() ?? null`);
+      r.label = label;
+      if (label) {
+        const p = await pressShots(T, label, `${slug}-reveal`, { sel: '.pr-go', canvasSel: '.pr-3d canvas', everyMs: 2500, maxShots: 3 });
+        r.press = { saw: p.sawCanvas, done: p.done, shots: p.shots.length, elapsedMs: p.elapsedMs, finalBtn: p.finalBtn };
+        await T.shot(`${slug}-result`);
+      }
+      out[`${g}-${W}`] = r;
+    }
+  }
+  const w = await wd2(T);
+  out.renderer = rendererOf(w); out.console = summarize(T);
+  await T.close();
+  save('demos', out);
+  return out;
+};
+
+scenarios.setup = async () => {
+  const out = {};
+  for (const [W, H, mobile] of [[1280, 900, false], [320, 568, true]]) {
+    const T = await openTab();
+    await T.view(W, H, mobile);
+    await T.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' });
+    await T.nav(`${BASE}/game/prize-draw/`); await T.view(W, H, mobile); await sleep(500);
+    await T.shot(`game-prize-draw-${W}-empty`);
+    await setIn(T, 'pd-names', mkNames(30).join('\n')); await setIn(T, 'pd-event', 'Audit');
+    await sleep(300);
+    out[`picker-${W}`] = { inner: await T.ev(`return [innerWidth, innerHeight, document.documentElement.scrollWidth]`), cards: await cardStates(T), note: await T.ev(`return document.getElementById('pd-games-note')?.textContent.trim()`), gamesLineHidden: await T.ev(`return document.getElementById('pd-games-line')?.hidden`) };
+    await T.ev(`document.getElementById('pd-game-r1').scrollIntoView({block:'center'}); return 1`); await sleep(300);
+    await T.shot(`game-prize-draw-${W}-picker`);
+    await pickGame(T, 'pd-game-r1', 'fireworks'); await pickGame(T, 'pd-game-final', 'ladder'); await sleep(200);
+    await T.shot(`game-prize-draw-${W}-picker-selected`);
+    out[`console-${W}`] = summarize(T);
+    await T.close();
+    const N = await openTab({ noGL: true });
+    await N.view(W, H, mobile);
+    await N.nav(`${BASE}/game/prize-draw/`); await N.view(W, H, mobile); await sleep(500);
+    await setIn(N, 'pd-names', mkNames(30).join('\n')); await sleep(300);
+    out[`nowebgl-${W}`] = { note: await N.ev(`return document.getElementById('pd-games-note')?.textContent.trim()`), ctx: await N.ev(`return __wd.ctx`), gamesLineHidden: await N.ev(`return document.getElementById('pd-games-line')?.hidden`) };
+    await N.ev(`const n=document.getElementById('pd-games-note'); (n||document.getElementById('pd-h3')).scrollIntoView({block:'center'}); return 1`); await sleep(300);
+    await N.shot(`game-prize-draw-${W}-nowebgl-note`);
+    out[`nowebgl-console-${W}`] = summarize(N);
+    await N.close();
+  }
+  save('setup', out);
+  return out;
+};
+
+scenarios.join = async () => {
+  const out = {};
+  for (const [W, H] of [[320, 568], [375, 667]]) {
+    const T = await openTab();
+    await T.view(W, H, true);
+    await T.nav(`${BASE}/game/prize-draw/join/#event=x&pin=000000`); await T.view(W, H, true); await sleep(2500);
+    out[W] = { inner: await T.ev(`return [innerWidth, innerHeight, document.documentElement.scrollWidth]`), title: await T.ev('return document.title'), body: await T.ev(`return document.body.innerText.slice(0,300)`), console: summarize(T) };
+    await T.shot(`game-prize-draw-join-${W}-join`);
+    await T.close();
+  }
+  save('join', out);
+  return out;
+};
+
+scenarios.cat = async () => {
+  const out = {};
+  for (const [W, H, mobile] of [[1440, 900, false], [320, 568, true]]) {
+    const T = await openTab();
+    await T.view(W, H, mobile);
+    await T.nav(`${BASE}/c/company-party/`); await T.view(W, H, mobile); await sleep(700);
+    const r = await T.ev(`const a=[...document.querySelectorAll('main a[href^="/game/"]')]; const t=a[0]; if(t) t.scrollIntoView({block:'center'}); return { inner:[innerWidth,innerHeight,document.documentElement.scrollWidth], title: document.title, cardLinks: a.length, hrefs: a.slice(0,8).map(x=>x.getAttribute('href')) };`);
+    await sleep(500);
+    out[W] = { ...r, console: summarize(T) };
+    await T.shot(`c-company-party-${W}-cards`);
+    await T.close();
+  }
+  save('cat', out);
+  return out;
+};
+
+scenarios.dbg = async () => {
+  const T = await openTab();
+  await openSetup(T, mkNames(40), { event: 'Halves' });
+  await setPrizes(T, 3);
+  await setIn(T, 'pd-s1', 20); await setIn(T, 'pd-s2', 10); await setIn(T, 'pd-s3', 7); await sleep(300);
+  const o = { sched: await schedRead(T), cards: await cardStates(T) };
+  o.p1 = await pickGame(T, 'pd-game-r1', 'cards'); o.p2 = await pickGame(T, 'pd-game-r2', 'cards');
+  o.pressed = await pressedRead(T); o.msg = await T.ev(`return document.getElementById('pd-start-msg')?.textContent.trim()`);
+  o.arrived = await startEvent(T);
+  o.after = await T.ev(`return { path: location.pathname, screen: document.getElementById('pd-frame')?.getAttribute('data-screen'), mc: [...document.querySelectorAll('.pd-mc button')].map(b=>b.textContent.trim()+(b.disabled?'|d':'')), text: document.body.innerText.slice(0,200) };`);
+  await T.shot('dbg'); await T.close(); return o;
+};
+const fn = scenarios[scenario];
+if (!fn) throw new Error('unknown scenario ' + scenario);
+const out = await fn();
+console.log(JSON.stringify(out, null, 1).slice(0, 5000));
+process.exit(0);

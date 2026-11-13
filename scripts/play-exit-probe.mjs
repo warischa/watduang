@@ -229,8 +229,14 @@ const evaluate = async (body) => {
 const { awaitPlayerScreenSettled, hasRouteSeed, routeSeed } = await import('./play-screen-fit-probe.mjs');
 // gh#304: a route that shows nothing to press until something is stored (the prize-draw projector, before
 // its setup page stored an event) is seeded after the wipe and reloaded, with the fit probe's own seed.
+// gh#313 moved that event into IndexedDB, so a first-time device means an empty database too. The seed
+// writes the pre-gh#313 localStorage key, which the store accepts only into an EMPTY database; once any
+// walk has moved the event forward (this route's own transition press, or the sibling guard probe, which
+// shares this browser profile), a re-seed disagrees with the stored record and the projector refuses with
+// OLD_TAB_OPEN -- no MC button, a finder miss, and an UNMEASURED red that is about this harness, not the
+// site. Measured: the guard walk first, then this walk on prize-draw, reds exactly that way.
 const nav = async (url) => {
-  await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'local_storage' });
+  await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'local_storage,indexeddb' });
   let p = new Promise((r) => { loadResolve = r; });
   await send('Page.navigate', { url });
   await p;
@@ -426,15 +432,27 @@ for (const g of ROUTES) {
           return { label: (x.textContent || '').trim().slice(0, 16), w: Math.round(r.width), h: Math.round(r.height), top: Math.round(r.top),
                    inHeader: !!x.closest('header'), hidden: getComputedStyle(x).visibility === 'hidden' || x.offsetParent === null }; }) };
       b.scrollIntoView({ block: 'center' });
+      // The screen's CONTENT, not its lengths. The signature used to be innerText.length + innerHTML.length,
+      // and a press that swaps one label for another of the same length reads as no change at all. Measured
+      // on the cards demo with no WebGL context: the deal falls back to 2D at once and swaps its button
+      // label for the reveal label, both six UTF-16 units, and 550ms on both lengths matched the pre-press
+      // values exactly while the text had changed -- an UNMEASURED red on a real transition.
+      window.__sig = () => root.innerText + '\\u0000' + (document.querySelector('.game-screen.active, .screen.active')?.id ?? '') + '\\u0000' + root.innerHTML;
+      // A content signature also sees a screen that changes with nobody touching it, and on such a screen
+      // "changed after the press" proves nothing about the press. So the screen is read twice with no input
+      // between, the 200ms settle below apart, and the pass records whether it held still. Ceiling: a page
+      // that changes on its own slower than that window can still pass as stable.
+      const sigIdle = window.__sig();
       await new Promise((r) => setTimeout(r, 200));
       const r = b.getBoundingClientRect();
-      window.__sig = () => root.innerText.length + '|' + (document.querySelector('.game-screen.active, .screen.active')?.id ?? '') + '|' + root.innerHTML.length;
       window.__sigBefore = window.__sig();
-      return { buttonsInRoot: all.length, storageKeysAtLoad, candidateCount: cands.length, candIdx: ${candIdx}, rejected: [], trigger: {
+      return { buttonsInRoot: all.length, storageKeysAtLoad, candidateCount: cands.length, candIdx: ${candIdx}, rejected: [], idleStable: sigIdle === window.__sigBefore, trigger: {
         label: (b.textContent || '').trim().slice(0, 24), x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2),
         inViewport: r.top > 0 && r.bottom < innerHeight } };`)).value;
     const startBtn = scan?.trigger ?? null;
     res.transitionTrigger = startBtn;
+    // Null when no trigger was resolved: stability is only read on the screen a press is about to change.
+    res.idleStable = scan?.trigger ? scan.idleStable === true : null;
     res.triggerScan = scan ? { buttonsInRoot: scan.buttonsInRoot, storageKeysAtLoad: scan.storageKeysAtLoad ?? null, candidateCount: scan.candidateCount ?? 0, candIdx: scan.candIdx ?? 0, rejected: scan.rejected ?? [] } : null;
     // The burst is the CONTINUATION of the transition tap — no pause in between. A pause longer than
     // ARM_DELAY_MS is by definition not a burst any more: the control has armed, and a contact then is
@@ -537,7 +555,8 @@ for (const g of ROUTES) {
     //                  area with the real start, so DOM order picks it) opens a confirm modal whose
     //                  overlay swallows the whole burst -- transitioned is true and the X was never
     //                  touched, which is exactly as unusable and for the opposite reason.
-    const usable = res.transitioned === true && res.burst.contacts?.onBtnWhileDisabled > 0;
+    // A screen that changed with no input before the press cannot credit the press with its change.
+    const usable = res.transitioned === true && res.idleStable === true && res.burst.contacts?.onBtnWhileDisabled > 0;
     const moreCandidates = candIdx + 1 < (res.triggerScan?.candidateCount ?? 0);
     // Guarded on REACHABILITY, not on a `!==` that is true whenever the value is absent. `send`
     // resolves a CDP protocol error as a plain null (see evaluate), so `pathname !== '/'` reads TRUE
@@ -653,6 +672,14 @@ for (const [g, r] of Object.entries(out)) {
   // helper missing from a page that had it -- which is destruction, not silence.
   const inRound = r.burst?.pathname === `/game/${g}/play/`;
   const leftTheRound = r.sigPresent === false || (r.burst?.pathname != null && !inRound);
+  // The transition record is a content comparison, so it is only evidence of the PRESS on a screen that
+  // held still without one (see the finder at M2). `!== true` keeps a record from before this field existed
+  // (a PROBE_OUT_FIXTURE) on the fail-closed side.
+  if (r.idleStable !== true && !leftTheRound) {
+    unmeasuredSet.add(g);
+    unmeasured.push(`${g} burst: UNMEASURED after ${r.burst?.attempts ?? '?'} attempt(s) -- the screen changed with no input in the 200ms before the trigger ("${r.transitionTrigger?.label ?? '?'}") was pressed (idleStable=${r.idleStable}), so a change after the press cannot be credited to it and no round transition is known to have disarmed the X; this is a failed MEASUREMENT and it blocks`);
+    continue;
+  }
   if (r.transitioned !== true && !leftTheRound) {
     unmeasuredSet.add(g);
     const t = r.transitionTrigger;

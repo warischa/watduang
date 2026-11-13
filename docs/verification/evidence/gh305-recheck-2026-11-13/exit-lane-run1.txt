@@ -1,0 +1,26 @@
+probe: play-exit (standalone)
+LEG_SECONDS exit play-exit 128
+  PASS  play-exit (128s)
+::notice::play-exit GAPS bangkok-drift: largest pointerup->pointerdown gap: handled 84.8ms, input 81.8ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 84.8, 81.6, 77.5, 82.1, 80.3; input gaps 81.5, 81.4, 81.1, 81.8, 81.1; dispatch lag 1, 1, 1, 1, 1ms)
+::notice::play-exit GAPS cannon-flag: largest pointerup->pointerdown gap: handled 131.2ms, input 81.8ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 131.2, 33.6, 83.7, 82.4, 84.1; input gaps 81.3, 81.1, 80.5, 81.8, 81.3; dispatch lag 0, 1, 1, 1, 1ms)
+::notice::play-exit GAPS croc-bite: largest pointerup->pointerdown gap: handled 94.6ms, input 81.5ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 94.6, 66.5, 83.2, 84.3, 82.4; input gaps 80, 81.3, 81.4, 81.2, 81.5; dispatch lag 1, 0, 1, 1, 1ms)
+::notice::play-exit GAPS cursed-number: largest pointerup->pointerdown gap: handled 84.2ms, input 82ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 84.2, 82.4, 83.8, 83.1, 83.3; input gaps 80.1, 81, 81.2, 82, 81.2; dispatch lag 1, 1, 1, 1, 1ms)
+::notice::play-exit GAPS dice-loser: largest pointerup->pointerdown gap: handled 88ms, input 81.3ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 88, 73.6, 81.4, 79.3, 79.5; input gaps 80.8, 81.3, 81, 79.8, 79.9; dispatch lag 1, 1, 0, 1, 1ms)
+::notice::play-exit GAPS freeze-tap: largest pointerup->pointerdown gap: handled 93.9ms, input 81.8ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 93.9, 66.4, 83.3, 83.2, 83.3; input gaps 81.5, 81, 80.9, 81.1, 81.8; dispatch lag 1, 1, 1, 1, 1ms)
+::notice::play-exit GAPS how-close-is-near: largest pointerup->pointerdown gap: handled 86.3ms, input 81.7ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 86.3, 83.3, 82.3, 84.3, 82.5; input gaps 81.4, 80.5, 81.5, 80.5, 81.7; dispatch lag 0, 1, 0, 1, 1ms)
+::notice::play-exit GAPS one-bomb: largest pointerup->pointerdown gap: handled 93.1ms, input 81.3ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 93.1, 82.8, 67.5, 84.9, 81.2; input gaps 81.2, 81.3, 80.8, 80.6, 81.2; dispatch lag 1, 0, 1, 1, 1ms)
+::notice::play-exit GAPS pinocchio-luck: largest pointerup->pointerdown gap: handled 92.8ms, input 81.3ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 92.8, 82.7, 67.2, 83.4, 83.3; input gaps 80.2, 81.2, 80.9, 81.3, 80.6; dispatch lag 1, 1, 1, 1, 1ms)
+::notice::play-exit GAPS power-meter: largest pointerup->pointerdown gap: handled 84.1ms, input 81.9ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 84.1, 83.3, 83.2, 83.3, 83.2; input gaps 80.3, 81.2, 81.2, 81.4, 81.9; dispatch lag 1, 1, 1, 1, 0ms)
+::notice::play-exit GAPS prize-cards: largest pointerup->pointerdown gap: handled 81.8ms, input 81.4ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 81.4, 81.8, 80, 81.1, 81.2; input gaps 81.3, 81.4, 80.5, 81.2, 81.1; dispatch lag 1, 1, 1, 1, 0ms)
+::notice::play-exit GAPS prize-draw: largest pointerup->pointerdown gap: handled 82.8ms, input 81.1ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 82.6, 82.8, 76, 81.1, 81; input gaps 80, 81, 80.5, 81.1, 81; dispatch lag 0, 0, 1, 1, 1ms)
+::notice::play-exit GAPS prize-fireworks: largest pointerup->pointerdown gap: handled 82.8ms, input 82.1ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 79.6, 82.8, 80.5, 80.2, 80.8; input gaps 80.8, 82.1, 81.7, 80.4, 80.8; dispatch lag 0, 1, 1, 1, 0ms)
+::notice::play-exit GAPS prize-ladder: largest pointerup->pointerdown gap: handled 83.5ms, input 82.2ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 81.3, 80.9, 82, 80.2, 83.5; input gaps 81.5, 81.2, 82.2, 81, 81.3; dispatch lag 1, 1, 1, 1, 1ms)
+::notice::play-exit GAPS short-stick: largest pointerup->pointerdown gap: handled 86.3ms, input 81.9ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 86.3, 82.6, 84, 83.7, 84.2; input gaps 81.6, 81.4, 81.9, 81.4, 80.9; dispatch lag 1, 0, 1, 1, 1ms)
+::notice::play-exit GAPS timebomb: largest pointerup->pointerdown gap: handled 95ms, input 81.5ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 95, 82.2, 66.3, 83.4, 83.2; input gaps 80.4, 80.9, 81.5, 81.4, 81.3; dispatch lag 4, 4, 4, 5, 4ms)
+::notice::play-exit GAPS wire-snip-panic: largest pointerup->pointerdown gap: handled 83.8ms, input 81.6ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 83, 83.4, 83.8, 83.3, 83.8; input gaps 81.1, 81.6, 80.5, 81.1, 80.6; dispatch lag 4, 3, 4, 4, 4ms)
+::notice::play-exit GAPS zero-trigger: largest pointerup->pointerdown gap: handled 84.9ms, input 82.2ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 84.9, 83.5, 83.6, 83, 83.3; input gaps 81.2, 81.6, 82, 82.2, 81.3; dispatch lag 2, 3, 3, 3, 3ms)
+probe: play-exit-guard (standalone)
+LEG_SECONDS exit play-exit-guard 154
+  PASS  play-exit-guard (154s)
+ci-probes: lane exit (exit): 2 leg(s) passed -- the run-level checks are PROBE_AGGREGATE's
+ci-probes exit lane run1: rc=0, 283s, 2026-11-13T08:43:01Z

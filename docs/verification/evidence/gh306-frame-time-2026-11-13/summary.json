@@ -1,0 +1,202 @@
+{
+  "machine": {
+    "cpu": "Apple M4 Pro",
+    "hardware": [
+      "Model Name: MacBook Pro",
+      "Model Identifier: Mac16,8",
+      "Model Number: Z1FF0004BTH/A",
+      "Chip: Apple M4 Pro"
+    ],
+    "os": "26.4.1",
+    "kernel": "25.4.0",
+    "chrome": "Chrome/157.0.8103.51",
+    "webglRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+    "viewport": {
+      "cssWidth": 1920,
+      "cssHeight": 1080,
+      "dpr": 1
+    },
+    "canvases": [
+      {
+        "w": 1920,
+        "h": 1024,
+        "cssW": 1920,
+        "cssH": 1024
+      }
+    ],
+    "busyLoopMs": {
+      "beforeThrottle": 33.80000000074506,
+      "afterThrottle": 23.299999998882413
+    },
+    "distFingerprint": {
+      "file": "dist/game/prize-fireworks/play/index.html",
+      "sha256": "0c9167db6f6e63a5a2e9137c523afedb9c91ea06e7bc845e719bf00309574278"
+    },
+    "url": "http://localhost:4633/game/prize-cards/play/",
+    "cpuThrottleRate": 1,
+    "stallDrawMs": 0,
+    "measuredAt": "2026-11-13T05:50:44.059Z"
+  },
+  "game": "cards",
+  "runs": 5,
+  "throttleRate": 1,
+  "stallDrawMs": 0,
+  "steps": {
+    "deal": {
+      "reveals": 5,
+      "frames": 1320,
+      "heldOrHiddenGaps": 0,
+      "gapMs": [
+        {
+          "kind": "load",
+          "ms": 20.09999999962747
+        },
+        {
+          "kind": "load",
+          "ms": 18.199999999254942
+        },
+        {
+          "kind": "load",
+          "ms": 29.699999999254942
+        },
+        {
+          "kind": "load",
+          "ms": 29.90000000037253
+        },
+        {
+          "kind": "load",
+          "ms": 22.90000000037253
+        }
+      ],
+      "all": {
+        "rafMs": {
+          "count": 1315,
+          "median": 16.69999999999709,
+          "p95": 16.79999999998836,
+          "max": 16.80000000000291
+        },
+        "cpuMs": {
+          "count": 1320,
+          "median": 0.2000000011175871,
+          "p95": 0.900000000372529,
+          "max": 17.40000000037253
+        }
+      },
+      "phases": {
+        "start": {
+          "rafMs": {
+            "count": 1310,
+            "median": 16.69999999999709,
+            "p95": 16.79999999998836,
+            "max": 16.80000000000291
+          },
+          "cpuMs": {
+            "count": 1315,
+            "median": 0.2000000011175871,
+            "p95": 0.900000000372529,
+            "max": 1.5
+          }
+        },
+        "deal:0": {
+          "rafMs": {
+            "count": 5,
+            "median": 16.700000000000728,
+            "p95": 16.700000000004366,
+            "max": 16.700000000004366
+          },
+          "cpuMs": {
+            "count": 5,
+            "median": 6.200000001117587,
+            "p95": 17.40000000037253,
+            "max": 17.40000000037253
+          }
+        }
+      }
+    },
+    "reveal": {
+      "reveals": 5,
+      "frames": 1990,
+      "heldOrHiddenGaps": 0,
+      "gapMs": [
+        {
+          "kind": "load",
+          "ms": 33.40000000037253
+        },
+        {
+          "kind": "load",
+          "ms": 29
+        },
+        {
+          "kind": "load",
+          "ms": 20.699999999254942
+        },
+        {
+          "kind": "load",
+          "ms": 26.5
+        },
+        {
+          "kind": "load",
+          "ms": 37.59999999962747
+        }
+      ],
+      "all": {
+        "rafMs": {
+          "count": 1985,
+          "median": 16.69999999999709,
+          "p95": 16.799999999995634,
+          "max": 16.80000000000291
+        },
+        "cpuMs": {
+          "count": 1990,
+          "median": 0.09999999962747097,
+          "p95": 0.5,
+          "max": 18.5
+        }
+      },
+      "phases": {
+        "start": {
+          "rafMs": {
+            "count": 239,
+            "median": 16.69999999999709,
+            "p95": 16.799999999999272,
+            "max": 16.80000000000291
+          },
+          "cpuMs": {
+            "count": 244,
+            "median": 0.09999999962747097,
+            "p95": 0.40000000037252903,
+            "max": 1.299999998882413
+          }
+        },
+        "rule:0": {
+          "rafMs": {
+            "count": 1351,
+            "median": 16.69999999999709,
+            "p95": 16.799999999995634,
+            "max": 16.80000000000291
+          },
+          "cpuMs": {
+            "count": 1351,
+            "median": 0.09999999962747097,
+            "p95": 0.40000000037252903,
+            "max": 4.5
+          }
+        },
+        "cut:0": {
+          "rafMs": {
+            "count": 395,
+            "median": 16.69999999999709,
+            "p95": 16.799999999995634,
+            "max": 16.80000000000291
+          },
+          "cpuMs": {
+            "count": 395,
+            "median": 0.2000000011175871,
+            "p95": 1.5,
+            "max": 18.5
+          }
+        }
+      }
+    }
+  }
+}

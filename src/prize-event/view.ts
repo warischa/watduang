@@ -4,6 +4,7 @@
 
 import { ELIMINATION_ROUNDS } from '../prize-draw/schedule.ts';
 import { liveIds, position, winners, type EventState } from './event.ts';
+import type { GameId } from './game-contract.ts';
 
 export type Mark = 'live' | 'in' | 'out';
 export type Chip = { id: string; name: string; mark: Mark };
@@ -21,10 +22,10 @@ export type ScreenView =
       chips: Chip[];
       from: number;
       to: number;
-      /** The game the MC picked for this round; null while every reveal is the plain 2D one. */
-      game: string | null;
+      /** The game the MC picked for this round; null for a plain 2D round. The renderer names it. */
+      game: GameId | null;
     }
-  | { kind: 'reveal'; eventName: string; round: number; rounds: number; dots: Dot[]; chips: Chip[]; passed: number; game: string | null }
+  | { kind: 'reveal'; eventName: string; round: number; rounds: number; dots: Dot[]; chips: Chip[]; passed: number; game: GameId | null }
   | { kind: 'final'; eventName: string; dots: Dot[]; chips: Chip[] }
   | { kind: 'result'; eventName: string; winners: Winner[] };
 
@@ -61,7 +62,7 @@ export function screenView(state: EventState): ScreenView {
       dots: dots(round),
       chips: live.map((id) => chip(id, kept.has(id) ? 'in' : 'out')),
       passed: kept.size,
-      game: null,
+      game: state.rounds[round - 1]!.game,
     };
   }
   return {
@@ -73,6 +74,6 @@ export function screenView(state: EventState): ScreenView {
     chips: live.map((id) => chip(id, 'live')),
     from: live.length,
     to,
-    game: null,
+    game: state.setup.games.rounds[round - 1]!,
   };
 }

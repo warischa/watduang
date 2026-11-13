@@ -108,6 +108,23 @@ test('setup page: refused and taken names are shown, and only through names-dom.
     form.append(row);
     add('input', `pd-prize-${i}`, row);
   }
+  // The per-round game picker the page renders: its line and note, one button group per step (no game
+  // first, then the games that step may play), and each elimination round's range labels.
+  add('p', 'pd-games-line', form);
+  add('div', 'pd-games-note', form);
+  for (const [id, offered] of [['pd-game-r1', ['fireworks', 'cards']], ['pd-game-r2', ['fireworks', 'cards']],
+    ['pd-game-r3', ['fireworks', 'cards']], ['pd-game-r4', ['fireworks', 'cards']], ['pd-game-final', ['fireworks', 'ladder']]]) {
+    const group = add('div', id, form);
+    for (const game of ['', ...offered]) {
+      const b = doc.createElement('button');
+      b.setAttribute('data-game', game);
+      group.append(b);
+    }
+  }
+  for (let r = 1; r <= 4; r++) {
+    add('span', `pd-game-r${r}-from`, form);
+    add('span', `pd-game-r${r}-to`, form);
+  }
   mountSetup(doc, { ...fakeOrigin().tab('setup'), location: { assign() {} }, confirm: () => true });
   const box = doc.getElementById('pd-names');
   box.value = [...ROSTER, 'qz1kv', 'Qz2Kv!'].join('\n');

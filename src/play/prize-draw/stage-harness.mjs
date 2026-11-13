@@ -42,8 +42,8 @@ export const seedRaw = (origin, raw) => origin.put(DB.name, DB.version, DB.store
 /** Committed writes of the event record, in order: { by, before, after }. */
 export const eventWrites = (origin) => origin.log.filter((w) => w.db === DB.name && w.key === DB.key);
 
-export function makeEvent({ n = 50, prizes = ['TV', 'Bike'], rng = seeded(1), list } = {}) {
-  return createEvent({ eventName: 'Party 2570', names: list ?? names(n), schedule: proposeSchedule(n), prizes }, rng);
+export function makeEvent({ n = 50, prizes = ['TV', 'Bike'], rng = seeded(1), list, games } = {}) {
+  return createEvent({ eventName: 'Party 2570', names: list ?? names(n), schedule: proposeSchedule(n), prizes, ...(games ? { games } : {}) }, rng);
 }
 
 export function storedEvent(origin, opts) {
@@ -72,18 +72,24 @@ export const setupWin = (env, rest) => ({ ...env, ...rest });
  * Mounts the projector on `env` (a tab of `origin`; a plain object for a browser without IndexedDB) and
  * returns at once; nothing is on screen until the store has opened and been read.
  */
-export function mountNow({ origin, env = origin.tab('A'), rng = seeded(2), reducedMotion = false, doc = makeDoc(), reload }) {
+export function mountNow({ origin, env = origin.tab('A'), rng = seeded(2), reducedMotion = false, doc = makeDoc(), reload, startReveal }) {
   const root = doc.createElement('div');
   root.id = 'app';
   const live = doc.createElement('p');
   live.id = 'pd-live';
   doc.body.append(live, root);
   const frames = [];
-  const stage = mountStage({ doc, root, live, rng, reducedMotion, nextFrame: (cb) => frames.push(cb), reload, ...stageDeps(env) });
+  const stage = mountStage({ doc, root, live, rng, reducedMotion, nextFrame: (cb) => frames.push(cb), reload, ...(startReveal ? { startReveal } : {}), ...stageDeps(env) });
   const frame = doc.getElementById('pd-frame');
   const notice = root.querySelector('.pd-notice');
   const go = () => root.querySelector('.pd-mc').querySelector('button');
-  return { doc, root, live, stage, frame, notice, go, frames, env, deliver: () => env.deliver?.() };
+  /** The ladder final's lane-pick controls (design/Gh305GamePick.dc.html i2-lanes B): one button per start
+   *  lane, over its plate, and one per finalist not yet on a lane, in roster order. */
+  const picks = () => root.querySelector('.pd-picks');
+  const laneButtons = () => picks().querySelectorAll('button.pd-lane');
+  const nameButtons = () => picks().querySelectorAll('button.pd-name');
+  const nameButton = (name) => nameButtons().find((b) => b.textContent === name) ?? null;
+  return { doc, root, live, stage, frame, notice, go, laneButtons, nameButtons, nameButton, frames, env, deliver: () => env.deliver?.() };
 }
 
 /** mountNow on an auto origin, once the first screen is up. */
@@ -122,6 +128,16 @@ export function mountSetupPage({ origin, env = origin.tab('setup'), confirm = ()
   for (const id of ['pd-count', 'pd-names-msg', 'pd-s0', 'pd-l0', 'pd-l1', 'pd-l2', 'pd-l3', 'pd-sched-msg', 'pd-prize-count', 'pd-start-msg']) add('div', id, form);
   for (const id of ['pd-s1', 'pd-s2', 'pd-s3']) add('input', id, form);
   for (const id of ['pd-sched-reset', 'pd-prize-minus', 'pd-prize-plus']) add('button', id, form);
+  // The game step, which the setup page requires: its line, note and cut labels, and one group per step
+  // offering only no game, so every step plays none.
+  add('p', 'pd-games-line', form);
+  add('div', 'pd-games-note', form);
+  for (let r = 1; r <= 4; r++) for (const end of ['from', 'to']) add('span', `pd-game-r${r}-${end}`, form);
+  for (const id of ['pd-game-r1', 'pd-game-r2', 'pd-game-r3', 'pd-game-r4', 'pd-game-final']) {
+    const none = doc.createElement('button');
+    none.setAttribute('data-game', '');
+    add('div', id, form).append(none);
+  }
   for (let i = 1; i <= 5; i++) {
     const row = add('div', `row${i}`, form);
     row.setAttribute('data-prize-row', String(i));
@@ -138,4 +154,45 @@ export function mountSetupPage({ origin, env = origin.tab('setup'), confirm = ()
   box.value = names(n).join('\n');
   box.dispatch('input');
   return { doc, visits, asked, submit: () => form.dispatch('submit'), message: () => doc.getElementById('pd-start-msg').textContent };
+}
+
+/**
+ * A stand-in for game-host.ts startReveal that records every reveal the stage starts and lets a test end
+ * it. It keeps the host's contract: render2D runs exactly once, on the first exit (settle, fallback or
+ * dispose), and dispose is idempotent. `run()` reports the module running, as the real host does once
+ * its imports land.
+ */
+export function fakeHosts() {
+  const hosts = [];
+  const start = (options) => {
+    const h = {
+      options,
+      state: 'loading',
+      disposed: 0,
+      commands: [],
+      exit(kind) {
+        if (h.state === 'settled' || h.state === 'fallback' || h.state === 'disposed') return;
+        h.state = kind;
+        options.render2D(options.input.outcome);
+        options.onState?.(kind);
+      },
+      run() {
+        h.state = 'running';
+        options.onState?.('running');
+      },
+      settle: () => h.exit('settled'),
+      command(c) {
+        h.commands.push(c);
+      },
+      dispose() {
+        h.disposed++;
+        h.exit('disposed');
+      },
+      done: new Promise(() => {}),
+    };
+    hosts.push(h);
+    options.onState?.('loading');
+    return h;
+  };
+  return { hosts, start };
 }

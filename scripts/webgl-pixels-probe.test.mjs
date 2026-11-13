@@ -9,7 +9,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { classify, exitCodeFor, aggregate, resolveGLContext, judgeHold, RECORDER, measureRoute } from './webgl-pixels-probe.mjs';
+import { classify, exitCodeFor, aggregate, resolveGLContext, judgeHold, RECORDER, measureRoute, REVEAL_DRIVERS, HOLD_EXERCISE, judgeHoldExercise } from './webgl-pixels-probe.mjs';
+import * as hold from '../src/play/_render-hold.ts';
+import { loadDeclarations, renderPlayRoutes } from './render-suspension-check.mjs';
+import { screenlessPlayPaths } from './play-screen-fit-probe.mjs';
 
 // A mock canvas modelling the ONE browser behaviour this resolution logic depends on: a canvas locks
 // to the first context type it is ever handed and returns null for every other type after that
@@ -357,12 +360,19 @@ test('gh#272 REFUTE r2 F1: held, free, held again with no final free is UNMEASUR
 });
 
 // measureRoute over a scripted page: the order, and the snapshot it judges.
-function scriptedRoute({ rec, onReadback = () => {}, hold = 'free' }) {
+const EXERCISE_MARK = '/* hold-exercise */';
+const cleanExercise = (instance = null) => ({
+  diagnostics: true, instance, phase: 'done', layerDuring: instance !== null, layerAfter: instance !== null,
+  during: { held: true, holders: 1, registrations: [{ instance }] }, after: { held: false, holders: 0, registrations: [{ instance }] },
+  drawsBefore: 6, heldDraws: 0, drawsAfter: 6,
+});
+function scriptedRoute({ rec, onReadback = () => {}, hold = 'free', exercise = null }) {
   const calls = [];
   const evaluate = async (body) => {
     if (body.includes('window.__holdRec; return r ?')) { calls.push('record'); return { value: JSON.parse(JSON.stringify(rec)) }; }
     if (body.includes("getAttribute('data-render-hold')")) return { value: hold };
     if (body.includes('const canvases =')) { calls.push('readback'); onReadback(rec); return { value: { contextLive: true, nonBlank: true } }; }
+    if (body.includes(EXERCISE_MARK)) { calls.push('exercise'); return { value: exercise ?? cleanExercise() }; }
     throw new Error(`unscripted read: ${body.slice(0, 80)}`);
   };
   let t = 0;
@@ -382,7 +392,7 @@ test('gh#272 REFUTE r2 F2: a held draw during the readback is in the FINAL snaps
     onReadback: (rec) => { rec.transitions.push('held'); rec.heldDraws += 1; rec.draws += 1; rec.transitions.push('free'); },
   });
   const row = await measure(page);
-  assert.deepEqual(page.calls, ['record', 'readback', 'record'], 'the snapshot was not re-read after the readback');
+  assert.deepEqual(page.calls, ['record', 'exercise', 'readback', 'record'], 'the snapshot was not re-read after the readback');
   assert.equal(row.verdict, 'FAIL');
   assert.equal(row.hold.heldDraws, 1, 'the row reports the snapshot from before the readback');
   const unlisted = scriptedRoute({ rec: settledRec(), onReadback: (rec) => { rec.extensionRequests.oes_texture_float = 1; } });
@@ -396,4 +406,355 @@ test('gh#272 REFUTE r2 F1: measureRoute waits for the LATEST span and reports UN
   assert.equal(row.verdict, 'UNMEASURED');
   assert.match(row.reason, /latest held span did not end in an observed free within 1000ms/);
   assert.ok(!page.calls.includes('readback'), 'the surface was read with a hold still up');
+});
+
+// ---- gh#305: screenless routes (company-party) -----------------------------------------------------
+const cleanRec = (extra = {}) => ({ installed: true, seenHeld: false, heldEnded: false, transitions: [], draws: 3, heldDraws: 0, webglContexts: 1, contextArgs: ['webgl2'], extensionRequests: {}, probeExtensionRequests: {}, webgpuRequests: 0, workers: 0, ...extra });
+
+test('gh#305: a screenless route owes no held span, and everything else is still judged', () => {
+  const sl = (rec, declaration = ADAPTER) => judgeHold({ route: 'r', declaration, rec, screenless: true, driven: true });
+  assert.equal(sl(cleanRec()), null, 'POSITIVE CONTROL: a clean screenless adapter goes on to its readback');
+  assert.equal(judgeHold({ route: 'r', declaration: ADAPTER, rec: cleanRec() }).verdict, 'UNMEASURED', 'a route WITH a screen still owes its held span');
+  assert.equal(sl(cleanRec({ heldDraws: 1 })).verdict, 'FAIL', 'MUST-RED: a draw while held on a screenless route');
+  assert.match(sl(cleanRec({ extensionRequests: { oes_texture_float_linear: 1 } }), { suspends: 'adapter', extensions: [] }).reason, /does not list: oes_texture_float_linear/, 'MUST-RED: an unlisted extension');
+  assert.match(sl(cleanRec(), NONE).reason, /declared "none"/, 'MUST-RED: a context on a screenless route declared none');
+  assert.equal(sl(cleanRec({ webglContexts: 0 }), NONE).verdict, 'PASS');
+  assert.equal(judgeHold({ route: 'r', declaration: ADAPTER, rec: cleanRec(), screenless: true, driven: true, spanError: 'span' }).verdict, 'UNMEASURED');
+});
+
+function screenlessPage({ contextAfter = 0, onPress = () => {}, exercise = null } = {}) {
+  const calls = [];
+  const rec = cleanRec({ webglContexts: 0 });
+  let polls = 0;
+  const evaluate = async (body) => {
+    if (body.includes('window.__holdRec; return r ?')) {
+      calls.push('record');
+      if (++polls > contextAfter && contextAfter >= 0) rec.webglContexts = Math.max(rec.webglContexts, contextAfter >= 0 ? 1 : 0);
+      return { value: JSON.parse(JSON.stringify(rec)) };
+    }
+    if (body.includes("getAttribute('data-render-hold')")) { calls.push('hold'); return { value: null }; }
+    if (body.includes('const canvases =')) { calls.push('readback'); return { value: { contextLive: true, nonBlank: true } }; }
+    if (body.includes(EXERCISE_MARK)) { calls.push('exercise'); return { value: exercise ?? cleanExercise('prize-reveal:1') }; }
+    throw new Error(`unscripted read: ${body.slice(0, 80)}`);
+  };
+  let t = 0;
+  return { calls, rec, evaluate, onPress, wait: async (ms) => { t += ms; }, now: () => t };
+}
+const measureScreenless = (page, extra = {}) => measureRoute({
+  route: 'r', url: 'u', declaration: ADAPTER, evaluate: page.evaluate, tap: async () => { throw new Error('a screenless row tapped a handover'); },
+  armDelayMs: 400, settle: async () => null, wait: page.wait, now: page.now, contextCapMs: 1000, screenless: true, ...extra,
+});
+
+test('gh#305: a screenless adapter is driven to a live context before its readback, or is UNMEASURED by name', async () => {
+  const ok = screenlessPage({ contextAfter: 2 });
+  const row = await measureScreenless(ok, { driver: async () => { ok.calls.push('drive'); return null; } });
+  assert.equal(row.verdict, 'PASS', `POSITIVE CONTROL: a driven reveal read back -- ${row.reason}`);
+  assert.deepEqual(ok.calls.slice(0, 1), ['drive'], 'the driver did not run first');
+  assert.ok(ok.calls.includes('readback'));
+  const none = screenlessPage();
+  const noDriver = await measureScreenless(none);
+  assert.equal(noDriver.verdict, 'UNMEASURED', 'MUST-RED: a screenless adapter with no driver');
+  assert.match(noDriver.reason, /no reveal driver/);
+  assert.ok(!none.calls.includes('readback'), 'a cold page was read back');
+  const stopped = await measureScreenless(screenlessPage(), { driver: async () => 'no armed .pr-go within 8000ms' });
+  assert.match(stopped.reason, /its driver stopped: no armed \.pr-go/, 'MUST-RED: a driver that stops');
+  const cold = screenlessPage({ contextAfter: -1 });
+  const noContext = await measureScreenless(cold, { driver: async () => null });
+  assert.equal(noContext.verdict, 'UNMEASURED', 'MUST-RED: a reveal that never creates a context');
+  assert.match(noContext.reason, /created no WebGL context within 1000ms/);
+  assert.ok(!cold.calls.includes('readback'));
+});
+
+test('gh#305: every screenless adapter the manifest and the declarations name has a reveal driver', async () => {
+  const declarations = loadDeclarations();
+  const screenless = screenlessPlayPaths();
+  const routes = await renderPlayRoutes();
+  const owed = routes.filter((g) => screenless.has(g.playRoute) && declarations[g.id]?.suspends === 'adapter').map((g) => g.id);
+  assert.ok(owed.length > 0, 'no screenless adapter in the manifest: this test would pass vacuously');
+  assert.deepEqual(owed.filter((id) => !REVEAL_DRIVERS[id]), [], 'a screenless adapter with no driver reds the WebGL lane as UNMEASURED');
+  const screenlessIds = routes.filter((g) => screenless.has(g.playRoute)).map((g) => g.id);
+  assert.deepEqual(Object.keys(REVEAL_DRIVERS).filter((id) => !screenlessIds.includes(id)), [], 'a driver for a route that is no screenless route is stale');
+});
+
+// ---- gh#305 REFUTE round 1: a supplied driver always runs before any verdict -----------------------
+test('gh#305 REFUTE r1: a screenless route declared none with a driver runs it, and a renderer it starts is judged', async () => {
+  // The reviewer's fixture: a cold page, a driver whose press would start the renderer.
+  const page = screenlessPage({ contextAfter: -1 });
+  let calls = 0;
+  const driver = async () => { calls += 1; page.rec.webglContexts = 1; return null; };
+  const row = await measureScreenless(page, { declaration: NONE, driver });
+  assert.equal(calls, 1, 'MUST-RED: the driver was never invoked');
+  assert.notEqual(row.verdict, 'PASS', 'MUST-RED: a renderer started by the driver escaped measurement');
+  assert.match(row.reason, /declared "none"/, 'the context the press created is judged against the declaration');
+  // POSITIVE CONTROL: a none route whose press starts no renderer passes, after its driver ran.
+  const flat = screenlessPage({ contextAfter: -1 });
+  let flatCalls = 0;
+  const quiet = await measureScreenless(flat, { declaration: NONE, driver: async () => { flatCalls += 1; return null; } });
+  assert.equal(flatCalls, 1);
+  assert.equal(quiet.verdict, 'PASS', `POSITIVE CONTROL: ${quiet.reason}`);
+});
+
+test('gh#305 REFUTE r1: a screenless route is never judged without its driver having run', async () => {
+  const noDriver = await measureScreenless(screenlessPage({ contextAfter: -1 }), { declaration: NONE });
+  assert.equal(noDriver.verdict, 'UNMEASURED', 'MUST-RED: a cold screenless none route with no driver passed');
+  assert.match(noDriver.reason, /no reveal driver/);
+  const stopped = await measureScreenless(screenlessPage({ contextAfter: -1 }), { declaration: NONE, driver: async () => 'no armed .pr-go within 8000ms' });
+  assert.equal(stopped.verdict, 'UNMEASURED', 'MUST-RED: a none route whose driver stopped passed');
+  // The classifier itself: a screenless row that was not driven is never a pass, whatever it declares.
+  const rec = cleanRec({ webglContexts: 0 });
+  assert.equal(judgeHold({ route: 'r', declaration: NONE, rec, screenless: true }).verdict, 'UNMEASURED', 'MUST-RED: the classifier passed an undriven screenless row');
+  assert.equal(judgeHold({ route: 'r', declaration: ADAPTER, rec: cleanRec(), screenless: true }).verdict, 'UNMEASURED', 'MUST-RED: the classifier sent an undriven adapter to readback');
+  assert.equal(judgeHold({ route: 'r', declaration: NONE, rec, screenless: true, driven: true }).verdict, 'PASS', 'POSITIVE CONTROL: a driven none row with no context');
+  assert.equal(judgeHold({ route: 'r', declaration: ADAPTER, rec: cleanRec(), screenless: true, driven: true }), null, 'POSITIVE CONTROL: a driven adapter goes on to readback');
+});
+
+test('gh#305 REFUTE r1: every screenless route, whatever it declares, has a reveal driver', async () => {
+  const screenless = screenlessPlayPaths();
+  const owed = (await renderPlayRoutes()).filter((g) => screenless.has(g.playRoute)).map((g) => g.id);
+  assert.ok(owed.length > 0, 'no screenless route: this test would pass vacuously');
+  assert.deepEqual(owed.filter((id) => !REVEAL_DRIVERS[id]), [], 'a screenless route with no driver cannot be measured');
+});
+
+// ---- gh#305 REFUTE round 2: every adapter is made to obey a REAL hold, through the shipped module ----------
+// The exercise runs in the page against the hold module that shipped (its read-only probe hooks). Here it
+// runs in a vm over the REAL src/play/_render-hold.ts and a fake renderer that draws on a timer unless its
+// listener stopped it -- so each must-red is a renderer shape, not a hand-written exercise result.
+
+const ATTR = 'data-render-hold';
+const html = {
+  attrs: new Map(),
+  setAttribute(k, v) { this.attrs.set(k, String(v)); },
+  getAttribute(k) { return this.attrs.has(k) ? this.attrs.get(k) : null; },
+};
+// The player screen (imported for its attribute name) arms gameplay roots on every release; there are none.
+globalThis.document ??= { documentElement: html, querySelectorAll: () => [] };
+
+/**
+ * A page with one renderer. `register`: 'follows' (a listener that stops and restarts drawing), 'noop'
+ * (registered, ignores the hold), 'never' (no subscription), 'immediate' (subscribes and unsubscribes at
+ * once), 'unrelated' (another instance subscribes; this one never does), 'no-resume' (stops, never
+ * restarts). `optIn` false leaves the page without diagnostics.
+ */
+function holdPage({ register = 'follows', optIn = true, layer = true, layerAfterMs = 0, drawAfterMs = 0, endAfterMs = null } = {}) {
+  const doc = globalThis.document.documentElement;
+  const rec = { draws: 0, heldDraws: 0 };
+  const instance = 'prize-reveal:vm';
+  let stopped = false;
+  let ended = false;
+  const t0 = Date.now();
+  const offs = [];
+  const timer = setInterval(() => {
+    if (endAfterMs !== null && !ended && Date.now() - t0 >= endAfterMs) {
+      // The reveal ends: its host leaves the hold, removes its layer and draws no more.
+      ended = true;
+      for (const off of offs.splice(0)) off();
+    }
+    if (stopped || ended || Date.now() - t0 < drawAfterMs) return;
+    rec.draws += 1;
+    if (doc.getAttribute(ATTR) === 'held') rec.heldDraws += 1;
+  }, 2);
+  if (register === 'follows') offs.push(hold.onRenderHold((h) => { stopped = h; }, instance));
+  if (register === 'no-resume') offs.push(hold.onRenderHold((h) => { if (h) stopped = true; }, instance));
+  if (register === 'noop') offs.push(hold.onRenderHold(() => {}, instance));
+  if (register === 'immediate') hold.onRenderHold((h) => { stopped = h; }, instance)();
+  if (register === 'unrelated') offs.push(hold.onRenderHold(() => {}, 'prize-reveal:other'));
+  const box = {
+    __holdRec: rec,
+    document: {
+      documentElement: doc,
+      querySelector: (sel) => (layer && !ended && Date.now() - t0 >= layerAfterMs && sel === `[${hold.RENDER_HOLD_INSTANCE_ATTR}]` ? { isConnected: true, getAttribute: () => instance } : null),
+    },
+    setTimeout, clearTimeout, performance,
+    requestAnimationFrame: (cb) => setTimeout(() => cb(Date.now()), 2),
+  };
+  box.window = box;
+  if (optIn) {
+    box[hold.RENDER_HOLD_PROBE_GLOBAL] = { enabled: true };
+    hold.installProbeHooks(box);
+  }
+  const ctx = vm.createContext(box);
+  return {
+    run: (capMs) => vm.runInContext(`(async () => { ${capMs === undefined ? HOLD_EXERCISE() : HOLD_EXERCISE(capMs)} })()`, ctx),
+    close: () => { clearInterval(timer); for (const off of offs) off(); },
+  };
+}
+
+async function exercised(opts, judgeOpts = {}, capMs = 600) {
+  const page = holdPage(opts);
+  try {
+    const result = await page.run(capMs);
+    return judgeHoldExercise({ route: 'r', result, requireInstance: true, ...judgeOpts });
+  } finally {
+    page.close();
+  }
+}
+
+test('gh#305 REFUTE r2: POSITIVE CONTROL -- a renderer that follows a real hold stops while held and resumes', async () => {
+  assert.equal(await exercised({ register: 'follows' }), null);
+  assert.equal(hold.isRenderHeld(), false, 'the exercise left its hold up');
+});
+
+test('gh#305 REFUTE r2 MUST-RED: an active no-op listener -- registered, so a count would pass -- still draws while held', async () => {
+  const r = await exercised({ register: 'noop' });
+  assert.equal(r?.verdict, 'FAIL');
+  assert.match(r.reason, /draw call\(s\) while a real hold was up/);
+});
+
+for (const [register, re] of [
+  ['never', /no active hold registration/],
+  ['immediate', /no active hold registration/],
+  ['unrelated', /only another instance's registration/],
+]) {
+  test(`gh#305 REFUTE r2 MUST-RED: ${register === 'never' ? 'a dead subscription' : register === 'immediate' ? 'an immediate unsubscribe' : 'a listener registered by an unrelated instance'} FAILS`, async () => {
+    const r = await exercised({ register });
+    assert.equal(r?.verdict, 'FAIL');
+    assert.match(r.reason, re);
+  });
+}
+
+test('gh#305 REFUTE r2 MUST-RED: a renderer that stops for the hold but never resumes FAILS while still registered', async () => {
+  const r = await exercised({ register: 'no-resume' });
+  assert.equal(r?.verdict, 'FAIL');
+  assert.match(r.reason, /did not resume/);
+});
+
+test('gh#305 REFUTE r2 MUST-RED: missing diagnostics, or no live layer naming the instance, is UNMEASURED', async () => {
+  const noDiag = await exercised({ optIn: false });
+  assert.equal(noDiag?.verdict, 'UNMEASURED');
+  assert.match(noDiag.reason, /no render-hold diagnostics/);
+  const noLayer = await exercised({ layer: false });
+  assert.equal(noLayer?.verdict, 'UNMEASURED');
+  assert.match(noLayer.reason, /no live renderer element names its hold instance/);
+  // A route with a screen has no host layer: any active registration is accepted there, and the draw counts decide.
+  assert.equal(await exercised({ layer: false }, { requireInstance: false }), null, 'POSITIVE CONTROL: an unscoped adapter that follows');
+});
+
+test('gh#305 REFUTE r2 MUST-RED: an exercise that never answered, or a page that drew nothing before the hold, is UNMEASURED', () => {
+  assert.equal(judgeHoldExercise({ route: 'r', result: { error: 'context destroyed' } }).verdict, 'UNMEASURED');
+  assert.equal(judgeHoldExercise({ route: 'r', result: null }).verdict, 'UNMEASURED');
+  const idle = { ...cleanExercise('i'), drawsBefore: 0 };
+  assert.match(judgeHoldExercise({ route: 'r', result: idle, requireInstance: true }).reason, /nothing drew/);
+  const notHeld = { ...cleanExercise('i'), during: { held: false, holders: 0, registrations: [{ instance: 'i' }] } };
+  assert.equal(judgeHoldExercise({ route: 'r', result: notHeld, requireInstance: true }).verdict, 'UNMEASURED');
+  const ended = { ...cleanExercise('i'), drawsAfter: 0, after: { held: false, holders: 0, registrations: [] } };
+  assert.match(judgeHoldExercise({ route: 'r', result: ended, requireInstance: true }).reason, /reveal ended during the exercise/);
+});
+
+test('gh#305 REFUTE r2: the recorder opts the page in before any script, and a page script cannot swap the opt-in', () => {
+  const page = hookedPage();
+  const slot = page.box[hold.RENDER_HOLD_PROBE_GLOBAL];
+  assert.deepEqual({ ...slot }, { enabled: true });
+  assert.throws(() => { page.box[hold.RENDER_HOLD_PROBE_GLOBAL] = { enabled: true, snapshot: () => ({}) }; }, TypeError);
+});
+
+test('gh#305 REFUTE r2: measureRoute exercises the hold on every adapter before its readback, and a failed exercise stops the row', async () => {
+  const ok = scriptedRoute({ rec: settledRec() });
+  const row = await measure(ok);
+  assert.equal(row.verdict, 'PASS', `POSITIVE CONTROL: ${row.reason}`);
+  assert.deepEqual(ok.calls, ['record', 'exercise', 'readback', 'record']);
+  const noop = scriptedRoute({ rec: settledRec(), exercise: { ...cleanExercise(), heldDraws: 4 } });
+  const bad = await measure(noop);
+  assert.equal(bad.verdict, 'FAIL', 'MUST-RED: an adapter that draws under a real hold reached its readback');
+  assert.ok(!noop.calls.includes('readback'));
+  const nodiag = scriptedRoute({ rec: settledRec(), exercise: { diagnostics: false } });
+  assert.equal((await measure(nodiag)).verdict, 'UNMEASURED', 'MUST-RED: missing diagnostics passed');
+  // A screenless adapter must name its instance: an unrelated registration alone does not do.
+  const sl = screenlessPage({ contextAfter: 1, exercise: { ...cleanExercise('prize-reveal:1'), during: { held: true, holders: 1, registrations: [{ instance: 'prize-reveal:9' }] } } });
+  const slRow = await measureScreenless(sl, { driver: async () => null });
+  assert.equal(slRow.verdict, 'FAIL', `MUST-RED: an unrelated instance's registration passed a screenless adapter -- ${slRow.reason}`);
+  // A route declared none is never exercised: it has nothing to stop.
+  const flat = screenlessPage({ contextAfter: -1 });
+  await measureScreenless(flat, { declaration: NONE, driver: async () => null });
+  assert.ok(!flat.calls.includes('exercise'));
+});
+
+// ---- gh#305 recheck (2026-11-13): a correct route measures every time --------------------------------------
+// The lane's flake, reproduced locally: the press creates the WebGL context synchronously, so the probe began
+// its exercise within milliseconds, while the host's layer appears only once the game and three load -- and
+// the exercise read the layer ONCE, at its start. And a renderer that had not drawn yet inside one fixed
+// 800ms window read as idle.
+
+test('recheck MUST-RED: a live layer that appears after the exercise begins is still named', async () => {
+  const page = holdPage({ register: 'follows', layerAfterMs: 150, drawAfterMs: 150 });
+  try {
+    const result = await page.run();
+    assert.equal(result.instance, 'prize-reveal:vm', 'the exercise read the layer before the host had mounted it');
+    assert.equal(judgeHoldExercise({ route: 'r', result, requireInstance: true }), null);
+  } finally {
+    page.close();
+  }
+});
+
+test('recheck MUST-RED: a renderer whose first draw comes after the old fixed window is measured, not read as idle', async () => {
+  const page = holdPage({ register: 'follows', drawAfterMs: 1100 });
+  try {
+    const result = await page.run();
+    assert.ok(result.drawsBefore > 0, 'the exercise stopped waiting before the first draw');
+    assert.equal(judgeHoldExercise({ route: 'r', result, requireInstance: true }), null);
+  } finally {
+    page.close();
+  }
+});
+
+test('recheck: waiting is capped -- no layer, or no draw, by the cap is a retryable UNMEASURED, never a pass', async () => {
+  const noLayer = await exercised({ layer: false }, {}, 200);
+  assert.equal(noLayer.verdict, 'UNMEASURED');
+  assert.equal(noLayer.retry, true);
+  const silent = await exercised({ drawAfterMs: 10000 }, {}, 200);
+  assert.equal(silent.verdict, 'UNMEASURED');
+  assert.match(silent.reason, /nothing drew/);
+  assert.equal(silent.retry, true);
+});
+
+test('recheck: a reveal that ends during the exercise is a retryable UNMEASURED -- never a FAIL, never a pass', async () => {
+  // Ends while held (the hold goes up within a few ms and lasts about 100ms): the layer and the
+  // registration go together, so this is no dead subscription.
+  const r = await exercised({ endAfterMs: 40 }, {}, 600);
+  assert.notEqual(r, null, 'a reveal that ended mid-exercise passed');
+  assert.equal(r.verdict, 'UNMEASURED', `got ${r.verdict}: ${r.reason}`);
+  assert.equal(r.retry, true);
+  // A dead subscription on a live layer stays a FAIL, and is never retried.
+  const dead = await exercised({ register: 'never' });
+  assert.equal(dead.verdict, 'FAIL');
+  assert.ok(!dead.retry);
+});
+
+function retryRoute(results) {
+  const page = scriptedRoute({ rec: settledRec() });
+  const base = page.evaluate;
+  let n = 0;
+  page.fresh = 0;
+  page.evaluate = async (body) => (body.includes(EXERCISE_MARK) ? (page.calls.push('exercise'), { value: results[Math.min(n++, results.length - 1)] }) : base(body));
+  return page;
+}
+const ended = () => ({ ...cleanExercise('prize-reveal:1'), phase: 'done', layerDuring: false, layerAfter: false, during: { held: true, holders: 1, registrations: [] }, drawsAfter: 0, after: { held: false, holders: 0, registrations: [] } });
+
+test('recheck MUST-RED: a reveal that ends mid-exercise is re-measured once on a NEW reveal', async () => {
+  const page = retryRoute([ended(), cleanExercise()]);
+  const row = await measure(page, { fresh: async () => { page.fresh += 1; } });
+  assert.equal(page.fresh, 1, 'no new reveal was started for the retry');
+  assert.equal(row.verdict, 'PASS', `the retry on a new reveal did not measure: ${row.reason}`);
+  assert.match(row.retriedAfter ?? '', /ended/);
+});
+
+test('recheck MUST-RED: a retry that still cannot measure is UNMEASURED, never PASS; a FAIL is never retried', async () => {
+  const twice = retryRoute([ended(), ended()]);
+  const row = await measure(twice, { fresh: async () => { twice.fresh += 1; } });
+  assert.equal(twice.fresh, 1, 'retried more than once, or not at all');
+  assert.equal(row.verdict, 'UNMEASURED');
+  const noop = retryRoute([{ ...cleanExercise(), heldDraws: 3 }]);
+  const failed = await measure(noop, { fresh: async () => { noop.fresh += 1; } });
+  assert.equal(failed.verdict, 'FAIL');
+  assert.equal(noop.fresh, 0, 'a failing route was retried -- a broken route could pass on its second go');
+});
+
+test('recheck: the cards demo is driven by one press, to its deal -- the reveal that does not need an exit first', async () => {
+  const presses = [];
+  const evaluate = async (body) => {
+    if (body.includes('.pr-go')) { presses.push('press'); return { value: null }; }
+    throw new Error(`unscripted: ${body.slice(0, 60)}`);
+  };
+  assert.equal(await REVEAL_DRIVERS['prize-cards']({ evaluate }), null);
+  assert.equal(presses.length, 1, 'the driver went past the deal, through an exit the route policy reds');
+  assert.match(await REVEAL_DRIVERS['prize-cards']({ evaluate: async () => ({ value: 'no armed .pr-go within 8000ms' }) }), /no armed/);
 });

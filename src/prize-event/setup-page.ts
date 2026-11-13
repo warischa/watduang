@@ -16,10 +16,17 @@
 // did not draw, listed in the gh#304 evidence README and approved there by the owner on 2026-11-11: the
 // refusal message per name reason, the head-count range and STORAGE_FAILED. A refusal row is the icon, the
 // name through the name sink, then the fixed message for its reason; a message never carries the name.
+//
+// The game rows (gh#305, owner picks 2026-11-13: design/Gh305GamePick.dc.html items 1a and 1b, option A
+// each): one button group per step inside the schedule step; the page renders only the games the registry
+// lets that step play, and this script refuses any other. A browser without WebGL2 keeps the picks and
+// shows the note in place of the line over the rows: the projector checks again on the night and falls
+// back to the plain reveal by itself. The probe is a bare getContext call, never three.
 
-import { proposeSchedule } from '../prize-draw/schedule.ts';
-import { MAX_HEADS, MAX_PRIZES, MIN_HEADS, MIN_PRIZES, createEvent, cryptoRng, scheduleIssues, type EventState } from './event.ts';
+import { ELIMINATION_ROUNDS, proposeSchedule } from '../prize-draw/schedule.ts';
+import { MAX_HEADS, MAX_PRIZES, MIN_HEADS, MIN_PRIZES, createEvent, cryptoRng, cutsInHalf, scheduleIssues, type EventState } from './event.ts';
 import { OLD_TAB_OPEN, REFUSED_BROWSER, openEventStore, type EventStore, type StoreEnv } from './store.ts';
+import { isCutGame, isFinalGame, type CutGame, type FinalGame, type GameChoices } from './game-contract.ts';
 import { parseRoster, type NameIssue } from './names.ts';
 import { writeName } from '../play/_prize-reveal/names-dom.ts';
 
@@ -43,6 +50,35 @@ export const REFUSAL_COPY: Record<Exclude<NameIssue, 'empty'> | 'taken', string>
   taken: 'ชื่อนี้ซ้ำกับชื่อที่มีแล้ว',
 };
 
+/** Owner-approved (gh#305): the no-game choice in each game row. That step reveals in plain 2D. */
+export const NO_GAME_LABEL = 'แบบปกติ';
+
+/** Owner-approved (gh#305): shown over the game rows when this browser cannot draw WebGL2. */
+export const NO_WEBGL_NOTE = 'เครื่องนี้แสดงเกม 3D ไม่ได้ ถ้าวันงานก็แสดงไม่ได้ ระบบจะเปิดผลแบบปกติให้เอง';
+
+/** Can this browser draw the 3D games? One WebGL2 context on a canvas that never joins the document, then
+ *  released at once. No context, or a browser that throws, is no. */
+export function hasWebGL2(doc: Pick<Document, 'createElement'>): boolean {
+  let canvas: HTMLCanvasElement | null = null;
+  try {
+    canvas = doc.createElement('canvas');
+    const gl = canvas.getContext('webgl2');
+    if (!gl) return false;
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    return true;
+  } catch {
+    return false;
+  } finally {
+    if (canvas) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+  }
+}
+
+/** The game row groups in index.astro, the elimination rounds first, then the final. */
+const GAME_GROUPS = ['pd-game-r1', 'pd-game-r2', 'pd-game-r3', 'pd-game-r4', 'pd-game-final'];
+
 /** Owner-approved: the head count is outside what an event can start with. */
 export const HEAD_RANGE = `ใส่ได้ ${MIN_HEADS} ถึง ${MAX_HEADS} ชื่อ`;
 
@@ -55,7 +91,42 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 type Win = StoreEnv & {
   location: { assign(url: string): void };
   confirm(message: string): boolean;
+  addEventListener?(type: string, listener: (event: Event) => void): void;
 };
+
+/** The parts of a cross-document view transition this script touches, as `pageswap` hands it over. */
+type PageSwap = {
+  activation?: { entry?: { url?: string } | null } | null;
+  viewTransition?: {
+    ready?: Promise<unknown>;
+    finished?: Promise<unknown>;
+    updateCallbackDone?: Promise<unknown>;
+    skipTransition(): void;
+  } | null;
+};
+
+/**
+ * The site's page fade (web.css @view-transition) is on for this page and never for a play route, so
+ * Chrome starts a fade for the start's navigation, aborts it when the projector does not opt in, and
+ * raises that abort as an uncaught InvalidStateError. This page skips the fade itself when the
+ * destination is `target`, before the projector decides, and handles every promise the transition
+ * carries. A fade to any other page is left alone.
+ */
+export function skipFadeInto(target: string): (event: Event) => void {
+  return (event) => {
+    const { activation, viewTransition: vt } = event as Event & PageSwap;
+    const to = activation?.entry?.url;
+    if (!vt || !to) return;
+    try {
+      if (new URL(target, to).pathname !== new URL(to).pathname) return;
+    } catch {
+      return;
+    }
+    const ignore = (): void => {};
+    for (const p of [vt.ready, vt.finished, vt.updateCallbackDone]) p?.catch(ignore);
+    vt.skipTransition();
+  };
+}
 
 function errorIcon(doc: Document): Element {
   // The board's error icon (setup-schedule-error): a punch disc with an ink exclamation mark. Colours come
@@ -112,7 +183,18 @@ function errorRow(doc: Document, content: { text: string } | { name: string; why
   return row;
 }
 
-export function mountSetup(doc: Document, win: Win): void {
+/** What the page script takes besides the document and the window. */
+export type SetupOptions = {
+  /**
+   * THE GAME PICKER SEAM (gh#305). Returns the MC's game picks at the moment the event starts; they are
+   * frozen into the event (EventInput.games). Defaults to the page's own game rows.
+   */
+  games?: () => GameChoices;
+  /** Can this browser draw the 3D games? Defaults to the hasWebGL2 probe on the page's document. */
+  webgl2?: () => boolean;
+};
+
+export function mountSetup(doc: Document, win: Win, options: SetupOptions = {}): void {
   const $ = <T extends HTMLElement>(id: string): T => {
     const el = doc.getElementById(id);
     if (!el) throw new Error(`setup page: #${id} is missing`);
@@ -134,6 +216,9 @@ export function mountSetup(doc: Document, win: Win): void {
   const prizeRows = Array.from({ length: MAX_PRIZES }, (_, i) => i + 1);
   const prizeInputs = prizeRows.map((i) => $<HTMLInputElement>(`pd-prize-${i}`));
   const startMsg = $('pd-start-msg');
+  const gamesLine = $('pd-games-line');
+  const gamesNote = $('pd-games-note');
+  const cutLabels = Array.from({ length: ELIMINATION_ROUNDS }, (_, i) => [$(`pd-game-r${i + 1}-from`), $(`pd-game-r${i + 1}-to`)] as const);
 
   let prizes = MAX_PRIZES;
   // An untouched empty list is not an error; after a start is tried, an empty list says why it failed.
@@ -171,9 +256,15 @@ export function mountSetup(doc: Document, win: Win): void {
     const sched = schedule();
     s0.textContent = String(sched[0]);
     sched.slice(0, 4).forEach((v, i) => (stepLabels[i]!.textContent = Number.isFinite(v) ? `${v} คน` : ''));
+    // Each game row names the cut it plays: from the box before the round to the box after it.
+    cutLabels.forEach(([from, to], i) => {
+      from.textContent = Number.isFinite(sched[i]) ? String(sched[i]) : '';
+      to.textContent = Number.isFinite(sched[i + 1]) ? `${sched[i + 1]} คน` : '';
+    });
     const n = sched[0]!;
     const issues = n >= MIN_HEADS && n <= MAX_HEADS ? scheduleIssues(sched, n) : [];
     steps.forEach((s, i) => s.classList.toggle('err', issues.some((x) => x.index === i + 1)));
+    offerCards(sched);
     const first = issues.find((x) => x.kind === 'not-less');
     schedMsg.replaceChildren();
     if (first) {
@@ -185,6 +276,61 @@ export function mountSetup(doc: Document, win: Win): void {
     }
     return issues.length === 0;
   };
+
+  // The game rows. A group offers only what its step may play (game-contract.ts, the persisted rule): any
+  // other button is hidden, disabled and never listened to, so no click can pick it.
+  const chosen: (string | null)[] = GAME_GROUPS.map(() => null);
+  const playable = (step: number, game: string | null): boolean => (step < ELIMINATION_ROUNDS ? isCutGame(game) : isFinalGame(game));
+  const renders: (() => void)[] = [];
+  const cardButtons: (HTMLButtonElement | undefined)[] = [];
+  GAME_GROUPS.forEach((id, step) => {
+    const buttons = Array.from($(id).querySelectorAll<HTMLButtonElement>('button'));
+    const gameOf = (b: HTMLButtonElement): string | null => b.getAttribute('data-game') || null;
+    const render = (): void => buttons.forEach((b) => b.setAttribute('aria-pressed', String(gameOf(b) === chosen[step])));
+    for (const b of buttons) {
+      const game = gameOf(b);
+      if (!playable(step, game)) {
+        b.hidden = true;
+        b.disabled = true;
+        continue;
+      }
+      if (game === 'cards') cardButtons[step] = b;
+      b.addEventListener('click', () => {
+        if (b.disabled) return;
+        chosen[step] = game;
+        render();
+      });
+    }
+    renders[step] = render;
+    render();
+  });
+  // Cards play only a round that cuts exactly in half (event.ts cutsInHalf), so a round's cards button is
+  // disabled on any other cut, checked again on every schedule change; a cards pick on a round that stops
+  // halving is cleared there and then, never kept for the start to refuse.
+  function offerCards(sched: readonly number[]): void {
+    for (let step = 0; step < ELIMINATION_ROUNDS; step++) {
+      const halves = cutsInHalf(sched, step + 1);
+      const b = cardButtons[step];
+      if (b) b.disabled = !halves;
+      if (!halves && chosen[step] === 'cards') {
+        chosen[step] = null;
+        renders[step]?.();
+      }
+    }
+  }
+  const cut = (step: number): CutGame => {
+    const g = chosen[step];
+    return isCutGame(g) ? g : null;
+  };
+  const final = (): FinalGame => {
+    const g = chosen[ELIMINATION_ROUNDS];
+    return isFinalGame(g) ? g : null;
+  };
+  const pickedGames = options.games ?? ((): GameChoices => ({ rounds: [cut(0), cut(1), cut(2), cut(3)], final: final() }));
+  if (!(options.webgl2 ?? (() => hasWebGL2(doc)))()) {
+    gamesNote.replaceChildren(errorRow(doc, { text: NO_WEBGL_NOTE }));
+    gamesLine.hidden = true;
+  }
 
   const renderPrizes = (): void => {
     prizeCount.textContent = String(prizes);
@@ -248,7 +394,9 @@ export function mountSetup(doc: Document, win: Win): void {
     else store.onSuperseded((why) => why === 'revoked' && oldTabOpen());
   });
 
-  const open = (): void => win.location.assign(form.getAttribute('data-play') ?? '/');
+  const playTarget = form.getAttribute('data-play') ?? '/';
+  const open = (): void => win.location.assign(playTarget);
+  win.addEventListener?.('pageswap', skipFadeInto(playTarget));
 
   /** A revoked store: the MC's start replaces the stored event and seals the old key again (store.ts
    *  takeOver), only after the same confirm as any replacement. Cancel changes nothing. */
@@ -317,6 +465,7 @@ export function mountSetup(doc: Document, win: Win): void {
         names: namesBox.value.split(/\r\n|\r|\n/),
         schedule: schedule(),
         prizes: prizeInputs.slice(0, prizes).map((p) => p.value),
+        games: pickedGames(),
       },
       cryptoRng(),
     );

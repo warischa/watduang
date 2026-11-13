@@ -1,0 +1,173 @@
+{
+  "machine": {
+    "cpu": "Apple M4 Pro",
+    "hardware": [
+      "Model Name: MacBook Pro",
+      "Model Identifier: Mac16,8",
+      "Model Number: Z1FF0004BTH/A",
+      "Chip: Apple M4 Pro"
+    ],
+    "os": "26.4.1",
+    "kernel": "25.4.0",
+    "chrome": "Chrome/157.0.8103.51",
+    "webglRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+    "viewport": {
+      "cssWidth": 1920,
+      "cssHeight": 1080,
+      "dpr": 1
+    },
+    "canvases": [
+      {
+        "w": 1920,
+        "h": 1024,
+        "cssW": 1920,
+        "cssH": 1024
+      }
+    ],
+    "busyLoopMs": {
+      "beforeThrottle": 29.800000000745058,
+      "afterThrottle": 21.40000000037253
+    },
+    "distFingerprint": {
+      "file": "dist/game/prize-fireworks/play/index.html",
+      "sha256": "0c9167db6f6e63a5a2e9137c523afedb9c91ea06e7bc845e719bf00309574278"
+    },
+    "url": "http://localhost:4633/game/prize-fireworks/play/",
+    "cpuThrottleRate": 1,
+    "stallDrawMs": 0,
+    "measuredAt": "2026-11-13T05:49:22.328Z"
+  },
+  "game": "fireworks",
+  "runs": 5,
+  "throttleRate": 1,
+  "stallDrawMs": 0,
+  "steps": {
+    "reveal": {
+      "reveals": 5,
+      "frames": 5980,
+      "heldOrHiddenGaps": 0,
+      "gapMs": [
+        {
+          "kind": "load",
+          "ms": 35.899999998509884
+        },
+        {
+          "kind": "load",
+          "ms": 38.09999999962747
+        },
+        {
+          "kind": "load",
+          "ms": 31.59999999962747
+        },
+        {
+          "kind": "load",
+          "ms": 33.59999999962747
+        },
+        {
+          "kind": "load",
+          "ms": 24.59999999962747
+        }
+      ],
+      "all": {
+        "rafMs": {
+          "count": 5975,
+          "median": 16.69999999999709,
+          "p95": 16.70000000001164,
+          "max": 16.80000000000291
+        },
+        "cpuMs": {
+          "count": 5980,
+          "median": 0.30000000074505806,
+          "p95": 1,
+          "max": 18.699999999254942
+        }
+      },
+      "phases": {
+        "start": {
+          "rafMs": {
+            "count": 3180,
+            "median": 16.69999999999709,
+            "p95": 16.70000000001164,
+            "max": 16.80000000000291
+          },
+          "cpuMs": {
+            "count": 3185,
+            "median": 0.2999999988824129,
+            "p95": 0.5,
+            "max": 10.400000000372529
+          }
+        },
+        "cut:0": {
+          "rafMs": {
+            "count": 330,
+            "median": 16.69999999999709,
+            "p95": 16.70000000001164,
+            "max": 16.80000000000291
+          },
+          "cpuMs": {
+            "count": 330,
+            "median": 0.40000000037252903,
+            "p95": 1.900000000372529,
+            "max": 7.699999999254942
+          }
+        },
+        "cut:1": {
+          "rafMs": {
+            "count": 330,
+            "median": 16.69999999999709,
+            "p95": 16.70000000001164,
+            "max": 16.80000000000291
+          },
+          "cpuMs": {
+            "count": 330,
+            "median": 0.40000000037252903,
+            "p95": 1.599999999627471,
+            "max": 2.199999999254942
+          }
+        },
+        "cut:2": {
+          "rafMs": {
+            "count": 330,
+            "median": 16.69999999999709,
+            "p95": 16.70000000001164,
+            "max": 16.80000000000291
+          },
+          "cpuMs": {
+            "count": 330,
+            "median": 0.5,
+            "p95": 1.699999999254942,
+            "max": 2.399999998509884
+          }
+        },
+        "cut:3": {
+          "rafMs": {
+            "count": 330,
+            "median": 16.69999999999709,
+            "p95": 16.70000000001164,
+            "max": 16.80000000000291
+          },
+          "cpuMs": {
+            "count": 330,
+            "median": 0.4500000001862645,
+            "p95": 1.900000000372529,
+            "max": 3
+          }
+        },
+        "cut:4": {
+          "rafMs": {
+            "count": 1475,
+            "median": 16.69999999999709,
+            "p95": 16.79999999998836,
+            "max": 16.80000000000291
+          },
+          "cpuMs": {
+            "count": 1475,
+            "median": 0.30000000074505806,
+            "p95": 0.7999999988824129,
+            "max": 18.699999999254942
+          }
+        }
+      }
+    }
+  }
+}

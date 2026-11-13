@@ -13,7 +13,16 @@
 // person typed (the event name and the prize names are the MC's).
 
 import type { Chip, Dot, ScreenView, Winner } from '../../prize-event/view.ts';
+import type { GameId } from '../../prize-event/game-contract.ts';
 import { FIT, fitAll, nameBox, writeName } from './names-dom.ts';
+
+/** Each game's name as the boards print it: design/Gh302Projector.dc.html draws the fireworks and cards
+ *  names under the round label; design/Gh303Ladder.dc.html names the ladder (all gh#299 owner wording). */
+export const GAME_NAME: Record<GameId, string> = {
+  fireworks: 'พลุนับถอยหลัง',
+  cards: 'ไพ่แจกทั้งห้อง',
+  ladder: 'ทางแยกเลือกเส้น',
+};
 
 const FRAME_W = 1920;
 const FRAME_H = 1080;
@@ -47,7 +56,9 @@ function arrow(doc: Doc): Element {
   return svg;
 }
 
-function top(doc: Doc, eventName: string, label: string | null, dotList: Dot[] | null): HTMLElement {
+/** The frame's top bar: the event name, then the round label and its dots. Shared with the ladder final's
+ *  lane picks (src/play/prize-draw/lanes.ts), which draw the same bar. */
+export function top(doc: Doc, eventName: string, label: string | null, dotList: Dot[] | null): HTMLElement {
   const bar = el(doc, 'div', 'pd-top');
   bar.appendChild(el(doc, 'span', 'pd-ev', eventName));
   if (label !== null && dotList) {
@@ -65,6 +76,8 @@ function top(doc: Doc, eventName: string, label: string | null, dotList: Dot[] |
 function field(doc: Doc, chips: Chip[]): HTMLElement {
   // Rendered in its end state (`pd-marked`): names are fitted as they will finally look, bold included.
   const grid = el(doc, 'div', 'pd-field pd-marked');
+  // The wave spans the same time whatever the head count (gh#314 1d B): the stylesheet divides by this.
+  grid.style.setProperty('--wave-last', String(Math.max(1, chips.length - 1)));
   chips.forEach((c, i) => {
     const chip = nameBox(doc, 'span', `pd-chip${c.mark === 'live' ? '' : ` ${c.mark}`}`, c.name, FIT.chip);
     // The reveal's wave runs in roster order; the stylesheet turns the index into a delay.
@@ -91,11 +104,11 @@ function low(doc: Doc, left: HTMLElement, flow: HTMLElement, right: HTMLElement)
 }
 
 /** The low row's left cell: a label, then the round's game when one is picked. A round with no game
- *  (every round until gh#305-gh#307) shows no "this round's game" label over nothing. */
-function gameSlot(doc: Doc, key: string | null, game: string | null): HTMLElement {
+ *  shows no "this round's game" label over nothing. */
+function gameSlot(doc: Doc, key: string | null, game: GameId | null): HTMLElement {
   const cell = el(doc, 'div', 'pd-left');
   if (key !== null) cell.appendChild(el(doc, 'div', 'pd-lk', key));
-  if (game !== null) cell.appendChild(el(doc, 'div', 'pd-gname', game));
+  if (game !== null) cell.appendChild(el(doc, 'div', 'pd-gname', GAME_NAME[game]));
   return cell;
 }
 

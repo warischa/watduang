@@ -1,0 +1,457 @@
+// gh#305 prize-draw playthrough driver. Raw CDP, one tab per scenario run. Ports: CDP 9611, HTTP 4611.
+// Usage: node drive.mjs <scenario> [outDir]   scenarios: probe | 1-5 | 6a | 6b | 6c | 7 | 8 | 9
+// Appends the scenario's readings to <outDir>/results.json (key = scenario). PNGs go to <outDir>.
+import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+
+const CDP_PORT = process.env.CDP_PORT || '9611';
+if (CDP_PORT !== '9611') throw new Error('this run owns 9611 only');
+const BASE = 'http://localhost:4611';
+const scenario = process.argv[2];
+const OUT = process.argv[3] || '/Users/waris.c/claude/free-game/docs/verification/evidence/gh305-playthrough-2026-11-13';
+const DIST = '/Users/waris.c/claude/free-game/dist';
+mkdirSync(OUT, { recursive: true });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// ---------- in-page instrument (runs before every document's own script) ----------
+const initSource = (noGL) => `(() => {
+  if (window.__wd) return;
+  const wd = window.__wd = { ctx: [], lost: [], canvas: [], texts: [], raf: 0, gls: [], noGL: ${noGL ? 'true' : 'false'} };
+  window.__watduangRevealFrameTime = { enabled: true };
+  const now = () => Math.round(performance.now());
+  const orig = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (type, ...a) {
+    const isGL = typeof type === 'string' && /webgl/.test(type);
+    if (isGL && wd.noGL) { wd.ctx.push({ type, t: now(), blocked: true }); return null; }
+    const c = orig.call(this, type, ...a);
+    if (isGL) {
+      const rec = { type, t: now(), ok: !!c, parent: this.parentElement ? this.parentElement.className : null };
+      if (c) {
+        try { const e = c.getExtension('WEBGL_debug_renderer_info'); rec.renderer = e ? c.getParameter(e.UNMASKED_RENDERER_WEBGL) : 'no-ext'; rec.vendor = e ? c.getParameter(e.UNMASKED_VENDOR_WEBGL) : null; } catch (e) { rec.renderer = 'err ' + e; }
+        const cv = this;
+        cv.addEventListener('webglcontextlost', () => wd.lost.push({ t: now(), connected: cv.isConnected, parent: cv.parentElement ? cv.parentElement.className : null }));
+        wd.gls.push({ gl: c, cv });
+      }
+      wd.ctx.push(rec);
+    }
+    return c;
+  };
+  for (const fn of ['fillText', 'strokeText']) {
+    const o = CanvasRenderingContext2D.prototype[fn];
+    CanvasRenderingContext2D.prototype[fn] = function (text, ...r) { if (wd.texts.length < 20000) wd.texts.push({ t: now(), s: String(text) }); return o.call(this, text, ...r); };
+  }
+  const tick = () => { wd.raf++; requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+  const note = (ev, n) => { if (n.nodeType !== 1) return; const list = n.tagName === 'CANVAS' ? [n] : [...n.querySelectorAll('canvas')]; for (const c of list) { const p = c.parentElement || null; wd.canvas.push({ t: now(), ev, parent: p ? p.className : (ev === 'canvas-' ? 'detached' : null) }); } };
+  const watch = () => new MutationObserver((ms) => { for (const m of ms) { m.addedNodes.forEach((n) => note('canvas+', n)); m.removedNodes.forEach((n) => note('canvas-', n)); } }).observe(document.documentElement, { childList: true, subtree: true });
+  if (document.documentElement) watch(); else document.addEventListener('DOMContentLoaded', watch);
+  // time a MC button appears, with its disabled flag at that moment
+  wd.btn = [];
+  const bw = () => new MutationObserver(() => { const b = document.querySelector('.pd-mc button, .pr-go'); const key = b ? b.textContent + '|' + (b.disabled ? 'd' : 'e') : null; const last = wd.btn[wd.btn.length - 1]; if (!last || last.key !== key) wd.btn.push({ t: now(), key }); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
+  if (document.documentElement) bw(); else document.addEventListener('DOMContentLoaded', bw);
+})();`;
+
+// ---------- CDP session ----------
+async function openTab({ noGL = false, reducedMotion = false } = {}) {
+  const target = await (await fetch(`http://127.0.0.1:${CDP_PORT}/json/new?about:blank`, { method: 'PUT' })).json();
+  const ws = new WebSocket(target.webSocketDebuggerUrl);
+  let id = 0;
+  const pending = new Map();
+  const S = { console: [], exceptions: [], log: [], requests: [], dialogs: [], lostEvents: [] };
+  let loadResolve = null;
+  ws.addEventListener('message', (e) => {
+    const m = JSON.parse(e.data);
+    if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); return; }
+    const p = m.params;
+    if (m.method === 'Page.loadEventFired' && loadResolve) { loadResolve(); loadResolve = null; }
+    if (m.method === 'Runtime.consoleAPICalled') S.console.push({ type: p.type, text: (p.args || []).map((a) => a.value ?? a.description ?? '').join(' ').slice(0, 400), url: p.stackTrace?.callFrames?.[0]?.url?.slice(-60) });
+    if (m.method === 'Runtime.exceptionThrown') S.exceptions.push((p.exceptionDetails?.exception?.description ?? p.exceptionDetails?.text ?? '').split('\n')[0].slice(0, 400));
+    if (m.method === 'Log.entryAdded') S.log.push({ level: p.entry.level, source: p.entry.source, text: p.entry.text.slice(0, 400), url: (p.entry.url || '').slice(-60) });
+    if (m.method === 'Network.requestWillBeSent') S.requests.push(p.request.url);
+    if (m.method === 'Page.javascriptDialogOpening') {
+      S.dialogs.push({ type: p.type, message: p.message.slice(0, 80) });
+      send('Page.handleJavaScriptDialog', { accept: true });
+    }
+  });
+  await new Promise((r) => ws.addEventListener('open', r));
+  const send = (method, params = {}) => new Promise((res) => { pending.set(++id, res); ws.send(JSON.stringify({ id, method, params })); });
+  for (const d of ['Page', 'Runtime', 'Log', 'Network']) await send(`${d}.enable`);
+  await send('Network.setCacheDisabled', { cacheDisabled: true });
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: initSource(noGL) });
+  if (reducedMotion) await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  const T = {
+    S, send,
+    async nav(url) { const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); },
+    async ev(body) {
+      const r = await send('Runtime.evaluate', { expression: `(async () => { ${body} })()`, awaitPromise: true, returnByValue: true });
+      if (r.result?.exceptionDetails) return { __error: r.result.exceptionDetails.exception?.description ?? r.result.exceptionDetails.text };
+      return r.result?.result?.value;
+    },
+    async view(w, h, mobile = false) { await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile }); await sleep(300); },
+    async shot(name, { clip } = {}) {
+      const r = await send('Page.captureScreenshot', { format: 'png', ...(clip ? { clip } : {}) });
+      writeFileSync(join(OUT, name + '.png'), Buffer.from(r.result.data, 'base64'));
+      return name + '.png';
+    },
+    async touch(x, y) {
+      await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+      await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    },
+    async center(sel, text) {
+      return T.ev(`const els=[...document.querySelectorAll(${JSON.stringify(sel)})].filter(e=>!${JSON.stringify(text ?? null)}||e.textContent.trim()===${JSON.stringify(text ?? null)});
+        const e=els[0]; if(!e) return null; e.scrollIntoView({block:'center'}); const r=e.getBoundingClientRect(); const x=r.left+r.width/2,y=r.top+r.height/2;
+        const hit=document.elementFromPoint(x,y); return {x,y,disabled:!!e.disabled,hit:!!hit&&(hit===e||e.contains(hit)),text:e.textContent.trim().slice(0,30)};`);
+    },
+    async waitFor(expr, ms = 15000, step = 100) {
+      const t0 = Date.now();
+      while (Date.now() - t0 < ms) { const v = await T.ev(`return (${expr});`); if (v && !v.__error) return v; await sleep(step); }
+      return null;
+    },
+    /** tap an enabled control found by selector (+exact text); returns the pre-tap reading. */
+    async tapEl(sel, text, { waitMs = 15000, settleMs = 150 } = {}) {
+      const t0 = Date.now();
+      let c = null;
+      while (Date.now() - t0 < waitMs) {
+        c = await T.center(sel, text);
+        if (c && !c.disabled) break;
+        await sleep(80);
+      }
+      if (!c || c.disabled) throw new Error(`tapEl: ${sel} ${text ?? ''} not enabled in ${waitMs}ms (${JSON.stringify(c)})`);
+      await sleep(settleMs);
+      c = await T.center(sel, text);
+      if (!c.hit) throw new Error(`tapEl: ${sel} ${text ?? ''} covered at its centre`);
+      await T.touch(c.x, c.y);
+      return c;
+    },
+    async close() { await fetch(`http://127.0.0.1:${CDP_PORT}/json/close/${target.id}`); ws.close(); },
+  };
+  await T.view(1920, 1080);
+  return T;
+}
+
+// ---------- shared page-side readers ----------
+const READ_EVENT = `
+  const dbs = await indexedDB.databases(); if (!dbs.some(d => d.name === 'watduang-prize-draw')) return { none: true };
+  const db = await new Promise((res, rej) => { const q = indexedDB.open('watduang-prize-draw'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+  const raw = await new Promise((res) => { const q = db.transaction('event').objectStore('event').get('current'); q.onsuccess = () => res(q.result); });
+  db.close(); const st = typeof raw === 'string' ? JSON.parse(raw) : raw; if (!st) return { none: true };
+  const nm = new Map(st.setup.people.map(p => [p.id, p.name]));
+  return { at: st.at, nRounds: st.rounds.length, rounds: st.rounds.map(r => ({ round: r.round, game: r.game, survivors: r.survivors.map(i => nm.get(i)), n: r.survivors.length, rule: r.rule })),
+    prepared: st.prepared ? { game: st.prepared.game, round: st.prepared.round, slotRanks: st.prepared.slotRanks } : null,
+    final: st.final ? { game: st.final.game, order: st.final.order.map(i => nm.get(i)), picks: st.final.picks ? st.final.picks.map(i => nm.get(i)) : null, permutation: st.final.permutation, slotRanks: st.final.slotRanks } : null,
+    games: st.setup.games, prizes: st.setup.prizes, heads: st.setup.people.length };`;
+const readEvent = (T) => T.ev(READ_EVENT);
+const readChips = (T) => T.ev(`const f=document.querySelector('.pd-field'); if(!f) return null; const all=[...f.querySelectorAll('.pd-chip')]; return { screen: document.getElementById('pd-frame')?.getAttribute('data-screen'), total: all.length, inNames: all.filter(c=>c.classList.contains('in')).map(c=>c.textContent.trim()), outCount: all.filter(c=>c.classList.contains('out')).length };`);
+const same = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+const mcText = (T) => T.ev(`const b=document.querySelector('.pd-mc button'); return b?b.textContent.trim():null;`);
+const wd = (T) => T.ev(`return JSON.parse(JSON.stringify({ ctx: __wd.ctx, lost: __wd.lost, canvas: __wd.canvas, raf: __wd.raf, btn: __wd.btn, frames: (window.__watduangRevealFrameTime.frames||[]).length, phases: Object.keys(window.__watduangRevealFrameTime.summary?window.__watduangRevealFrameTime.summary():{}) }));`);
+
+const NAMES = [...Array.from({ length: 28 }, (_, i) => `Guest${String(i + 1).padStart(2, '0')}`), 'สมชาย', 'มานี'];
+const PRIZE_NAMES = ['ทีวี', 'พัดลม', 'บัตรกำนัล'];
+
+async function setupEvent(T, games, { prizes = 3, names = NAMES } = {}) {
+  await T.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' });
+  await T.nav(`${BASE}/game/prize-draw/`);
+  await T.ev(`const ta=document.getElementById('pd-names'); const set=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set; set.call(ta, ${JSON.stringify(names.join('\n'))}); ta.dispatchEvent(new Event('input',{bubbles:true})); const ev=document.getElementById('pd-event'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(ev,'Playthrough'); ev.dispatchEvent(new Event('input',{bubbles:true})); return true;`);
+  const pick = { r1: games[0], r2: games[1], r3: games[2], r4: games[3], final: games[4] };
+  for (const [g, v] of [['pd-game-r1', pick.r1], ['pd-game-r2', pick.r2], ['pd-game-r3', pick.r3], ['pd-game-r4', pick.r4], ['pd-game-final', pick.final]]) {
+    await T.ev(`document.querySelector('#${g} button[data-game="${v ?? ''}"]').click(); return true;`);
+  }
+  for (let i = 5; i > prizes; i--) await T.ev(`document.getElementById('pd-prize-minus').click();return 1`);
+  for (let i = 1; i <= 3; i++) await T.ev(`const el=document.getElementById('pd-prize-${i}'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el, ${JSON.stringify(PRIZE_NAMES[i - 1])}); el.dispatchEvent(new Event('input',{bubbles:true})); return 1`);
+  const pre = await T.ev(`return { title: document.title, count: document.getElementById('pd-count').textContent, sched: [0,1,2,3].map(i=>document.getElementById('pd-l'+i).textContent), prizesShown: document.getElementById('pd-prize-count').textContent, pressed: ['pd-game-r1','pd-game-r2','pd-game-r3','pd-game-r4','pd-game-final'].map(g=>document.querySelector('#'+g+' button[aria-pressed="true"]').textContent.trim()), note: document.getElementById('pd-games-note').textContent.trim().slice(0,60), msgs: document.getElementById('pd-names-msg').textContent.trim() };`);
+  await T.shot(`setup-${games.map((g) => g ?? 'plain').join('-')}`, {});
+  await T.tapEl('#pd-start', null);
+  const arrived = await T.waitFor(`location.pathname.endsWith('/game/prize-draw/play/') ? location.pathname : null`, 15000);
+  await sleep(1500);
+  return { pre, arrived };
+}
+
+/** run one reveal press: tap `label`, then watch until a canvas has come and gone (3D) or the MC button changes. */
+async function pressAndWatch(T, label, { shotPrefix, maxMs = 120000, afterLabel, onFrames = null, shotEveryMs = 2500, maxShots = 6 } = {}) {
+  const w0 = await wd(T);
+  const nCanvas0 = w0.canvas.length;
+  const t0 = Date.now();
+  const tap = await T.tapEl('.pd-mc button', label);
+  const tl = [];
+  const shots = [];
+  let sawCanvas = false, lastShot = 0, done = false, hook = null;
+  while (Date.now() - t0 < maxMs) {
+    const r = await T.ev(`const c=document.querySelector('.pd-3d canvas'); const b=document.querySelector('.pd-mc button'); const ft=window.__watduangRevealFrameTime; const fr=ft.frames||[]; return { canvas: !!c, cw: c?c.width:0, btn: b?b.textContent.trim():null, frames: fr.length, phase: fr.length?fr[fr.length-1].phase:null, raf: __wd.raf };`);
+    const ms = Date.now() - t0;
+    if (!tl.length || JSON.stringify([tl[tl.length - 1].canvas, tl[tl.length - 1].btn, tl[tl.length - 1].phase]) !== JSON.stringify([r.canvas, r.btn, r.phase])) tl.push({ ms, ...r });
+    if (r.canvas) {
+      sawCanvas = true;
+      if (shotPrefix && shots.length < maxShots && ms - lastShot >= shotEveryMs) { shots.push(await T.shot(`${shotPrefix}-${String(shots.length + 1).padStart(2, '0')}`)); lastShot = ms; }
+      if (onFrames && !hook && r.frames >= onFrames.minFrames) { hook = await onFrames.fn(); }
+    }
+    if (!r.canvas && sawCanvas) { await sleep(700); done = true; break; }
+    if (!r.canvas && r.btn && r.btn !== label && ms > 4000) { done = true; break; }
+    await sleep(120);
+  }
+  const w1 = await wd(T);
+  return { tap, tl, sawCanvas, shots, done, hook, elapsedMs: Date.now() - t0, canvasEvents: w1.canvas.slice(nCanvas0), ctxAll: w1.ctx, lost: w1.lost, finalBtn: await mcText(T), phases: w1.phases, frames: w1.frames };
+}
+
+const results = existsSync(join(OUT, 'results.json')) ? JSON.parse(readFileSync(join(OUT, 'results.json'), 'utf8')) : {};
+const save = (key, val) => { results[key] = val; writeFileSync(join(OUT, 'results.json'), JSON.stringify(results, null, 1)); };
+const summarize = (T) => ({ consoleErrWarn: T.S.console.filter((c) => ['error', 'warning', 'assert'].includes(c.type)), exceptions: T.S.exceptions, log: T.S.log.filter((l) => ['error', 'warning'].includes(l.level)), dialogs: T.S.dialogs });
+const rendererOf = (w) => [...new Set(w.ctx.filter((c) => c.renderer).map((c) => c.renderer))];
+
+// signatures of dist chunks, by content
+const chunkClass = () => {
+  const dir = join(DIST, '_astro'); const out = {};
+  for (const f of readdirSync(dir)) if (f.endsWith('.js')) { const s = readFileSync(join(dir, f), 'utf8'); out[f] = { three: /WebGLRenderer/.test(s) && /REVISION|"1\d\d"/.test(s) && s.length > 300000 || /three\.module/.test(f) }; }
+  return out;
+};
+const threeFetched = (reqs) => { const cc = chunkClass(); return reqs.filter((u) => u.includes('/_astro/') && cc[u.split('/_astro/')[1]?.split('?')[0]]?.three); };
+const jsFetched = (reqs) => reqs.filter((u) => /\.js(\?|$)/.test(u)).map((u) => u.split('/').pop());
+
+// =====================================================================================================
+const scenarios = {
+  async probe() {
+    const T = await openTab();
+    await T.nav(`${BASE}/game/prize-draw/`);
+    const r = await T.ev(`const c=document.createElement('canvas'); const gl=c.getContext('webgl2'); const e=gl&&gl.getExtension('WEBGL_debug_renderer_info'); const t0=__wd.raf; await new Promise(r=>setTimeout(r,1000)); return { title: document.title, vis: document.visibilityState, renderer: e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):null, rafPerSec: __wd.raf-t0, h1: document.querySelector('h1')?.textContent.trim(), eventHint: document.getElementById('pd-event-hint')?.textContent, ua: navigator.userAgent.slice(0,90) };`);
+    // must-red for the instrument: forcing WebGL off must make the same read return null
+    const T2 = await openTab({ noGL: true });
+    await T2.nav(`${BASE}/game/prize-draw/`);
+    const off = await T2.ev(`const c=document.createElement('canvas'); const gl=c.getContext('webgl2'); return { gl: !!gl, ctx: __wd.ctx };`);
+    await T.close(); await T2.close();
+    save('probe', { glOn: r, glForcedOff: off, expectTitleContains: 'prize', chunkSig: Object.entries(chunkClass()).filter(([, v]) => v.three).map(([k]) => k) });
+    return { r, off };
+  },
+
+  // ------- scenarios 1-5, one event, one tab -------
+  async main() {
+    const T = await openTab();
+    const R = { renderer: null };
+    // ---- 1 setup
+    const s1 = await setupEvent(T, ['fireworks', 'cards', null, null, 'ladder']);
+    const ev0 = await readEvent(T);
+    R.s1 = { ...s1, stored: { games: ev0.games, prizes: ev0.prizes, heads: ev0.heads, at: ev0.at }, title: await T.ev('return document.title'),
+      verdict: ev0.heads === 30 && ev0.prizes.length === 3 && JSON.stringify(ev0.games) === JSON.stringify({ rounds: ['fireworks', 'cards', null, null], final: 'ladder' }) && s1.arrived ? 'PASS' : 'FAIL' };
+    await T.shot('s1-projector-start');
+    // ---- 2 fireworks
+    const r2 = await pressAndWatch(T, 'เปิดผล', { shotPrefix: 's2-fireworks', maxMs: 150000 });
+    const e2 = await readEvent(T); const c2 = await readChips(T);
+    await T.shot('s2-after-2d');
+    R.s2 = { ...r2, tl: r2.tl.slice(0, 40), stored: e2.rounds[0], chips: c2, survivorsEqual: !!e2.rounds[0] && same(c2.inNames, e2.rounds[0].survivors), painted: await T.ev(`const f=__wd.texts; const names=new Set(${JSON.stringify(NAMES)}); const last=f.slice(-400).map(x=>x.s); return { total:f.length, distinct:[...new Set(f.map(x=>x.s))].slice(0,60), lastNamed:[...new Set(last.filter(s=>names.has(s)))] };`) };
+    // ---- next -> round 2
+    await T.tapEl('.pd-mc button', 'รอบต่อไป');
+    await sleep(900);
+    R.s2.nextRound = await T.ev(`return document.querySelector('.pd-rl')?.textContent`);
+    // ---- 3 cards
+    const label = await mcText(T);
+    await T.shot('s3-cards-before-deal');
+    // double tap on แจกไพ่: two touches 80ms apart
+    const w3a = await wd(T);
+    const dc = await T.tapEl('.pd-mc button', 'แจกไพ่');
+    await sleep(60);
+    await T.touch(dc.x, dc.y);
+    const dealTl = [];
+    const t0 = Date.now(); let seenCanvas = false; let dealShots = [];
+    while (Date.now() - t0 < 90000) {
+      const r = await T.ev(`const c=document.querySelector('.pd-3d canvas'); const b=document.querySelector('.pd-mc button'); const fr=window.__watduangRevealFrameTime.frames||[]; return { canvas:!!c, btn:b?b.textContent.trim():null, d:b?b.disabled:null, frames:fr.length, phase:fr.length?fr[fr.length-1].phase:null };`);
+      if (!dealTl.length || JSON.stringify(dealTl[dealTl.length - 1].v) !== JSON.stringify([r.canvas, r.btn, r.phase])) dealTl.push({ ms: Date.now() - t0, v: [r.canvas, r.btn, r.phase], frames: r.frames });
+      if (r.canvas) { seenCanvas = true; if (dealShots.length < 3) dealShots.push(await T.shot(`s3-deal-${dealShots.length + 1}`)); }
+      if (!r.canvas && r.btn === 'เปิดผล') break;
+      await sleep(100);
+    }
+    const eDeal = await readEvent(T);
+    const wBtn = await T.ev(`return __wd.btn.slice(-4)`);
+    // early second contact on the shared button position: tap as soon as the new เปิดผล button is present (inside its arm window)
+    const early = await T.center('.pd-mc button', 'เปิดผล');
+    const tEarly = Date.now();
+    const appeared = await T.ev(`const b=__wd.btn.filter(x=>x.key&&x.key.startsWith('เปิดผล')); return { lastAppear: b.length?b[b.length-1]:null, nowMs: Math.round(performance.now()) };`);
+    await T.touch(early.x, early.y);
+    await sleep(250);
+    const eAfterEarly = await readEvent(T);
+    // positive control: a tap after the arm window fires it
+    await sleep(700);
+    const w3b = await wd(T);
+    const r3 = await pressAndWatch(T, 'เปิดผล', { shotPrefix: 's3-cards-reveal', maxMs: 150000 });
+    const e3 = await readEvent(T); const c3 = await readChips(T);
+    await T.shot('s3-after-2d');
+    R.s3 = { label, doubleTapDeal: { dealStored: eDeal.prepared, roundsAfterDeal: eDeal.nRounds, atAfterDeal: eDeal.at, sawCanvas: seenCanvas, dealTl: dealTl.slice(0, 30), shots: dealShots },
+      earlyTap: { elementAtTap: early, appeared, sinceTapMsInPage: null, roundsBefore: eDeal.nRounds, roundsAfterEarly: eAfterEarly.nRounds, preparedAfterEarly: !!eAfterEarly.prepared, fired: eAfterEarly.nRounds !== eDeal.nRounds, btnTimeline: wBtn },
+      reveal: { ...r3, tl: r3.tl.slice(0, 40) }, stored: e3.rounds[1], chips: c3, survivorsEqual: !!e3.rounds[1] && same(c3.inNames, e3.rounds[1].survivors), rule: e3.rounds[1]?.rule,
+      paintedCards: await T.ev(`const f=__wd.texts.filter(x=>x.t>${w3a.canvas.length ? 0 : 0}); return [...new Set(f.map(x=>x.s))].slice(-40);`) };
+    await T.tapEl('.pd-mc button', 'รอบต่อไป'); await sleep(900);
+    // ---- 4 plain rounds 3, 4
+    R.s4 = [];
+    for (const round of [3, 4]) {
+      const before = (await wd(T)).canvas.length;
+      const r = await pressAndWatch(T, 'เปิดผล', { shotPrefix: `s4-round${round}`, maxMs: 15000, maxShots: 1 });
+      const e = await readEvent(T); const c = await readChips(T);
+      const after = (await wd(T));
+      await T.shot(`s4-round${round}-2d`);
+      R.s4.push({ round, sawCanvas: r.sawCanvas, canvasEventsDuring: after.canvas.length - before, glContextsDuring: after.ctx.length, stored: e.rounds[round - 1], chips: c, survivorsEqual: !!e.rounds[round - 1] && same(c.inNames, e.rounds[round - 1].survivors), game: e.rounds[round - 1]?.game, finalBtn: r.finalBtn });
+      await T.tapEl('.pd-mc button', 'รอบต่อไป'); await sleep(900);
+    }
+    // ---- 5 ladder final
+    await sleep(500);
+    const eF0 = await readEvent(T);
+    await T.shot('s5-lanes-empty');
+    const slotDom = await T.ev(`return [...document.querySelectorAll('.pd-slot')].map(s=>({ cls: s.className, k: s.querySelector('.pd-sk')?.textContent, p: s.querySelector('.pd-sp')?.textContent }));`);
+    const drawDisabledAtStart = await T.ev(`const b=document.querySelector('.pd-mc button'); return b?{text:b.textContent.trim(),disabled:b.disabled}:null`);
+    const lanePicks = [];
+    // generic: tap lane i then the first remaining name, five times
+    for (let lane = 0; lane < 5; lane++) {
+      {
+        const c = await T.ev(`const bs=[...document.querySelectorAll('.pd-lane')]; const b=bs[${lane}]; const r=b.getBoundingClientRect(); return { x:r.left+r.width/2, y:r.top+r.height/2, disabled:b.disabled };`);
+        await sleep(450); await T.touch(c.x, c.y);
+      }
+      await sleep(300);
+      const nm = await T.ev(`const b=document.querySelector('.pd-name'); return b?b.textContent.trim():null`);
+      const n = await T.tapEl('.pd-name', null, { settleMs: 450 });
+      lanePicks.push({ lane, name: nm, tapHit: n.hit });
+      await sleep(300);
+    }
+    await T.shot('s5-lanes-filled');
+    const planes = await T.ev(`return [...document.querySelectorAll('.pd-lane span:nth-child(2)')].map(s=>s.textContent.trim()); `);
+    const drawState = await T.ev(`const b=document.querySelector('.pd-mc button'); return b?{text:b.textContent.trim(),disabled:b.disabled}:null`);
+    const r5 = await pressAndWatch(T, 'เปิดผล', { shotPrefix: 's5-ladder', maxMs: 180000, shotEveryMs: 2000, maxShots: 12 });
+    const e5 = await readEvent(T);
+    const winnersDom = await T.ev(`return { screen: document.getElementById('pd-frame').getAttribute('data-screen'), first: [document.querySelector('.pd-spot .pd-pz')?.textContent, document.querySelector('.pd-spot .pd-wn')?.textContent.trim()], cards: [...document.querySelectorAll('.pd-wcard')].map(c=>[c.querySelector('.pd-pz')?.textContent, c.querySelector('.pd-wn')?.textContent.trim()]) };`);
+    await T.shot('s5-result-2d');
+    const paintedLadder = await T.ev(`return { noPrize: __wd.texts.filter(x=>x.s.includes('ไม่มีรางวัล')).length, prizeLabels: [...new Set(__wd.texts.map(x=>x.s).filter(s=>/รางวัลที่/.test(s)))] }`);
+    const f = e5.final;
+    const exp = f ? f.slotRanks.map((rk, exit) => ({ exit, rank: rk, expect: rk < 3 ? `รางวัลที่ ${rk + 1}` : 'ไม่มีรางวัล' })) : null;
+    const domSlotOk = !!eF0.prepared && slotDom.length === 5 && eF0.prepared.slotRanks.every((rk, exit) => (rk < 3 ? slotDom[exit].k === `รางวัลที่ ${rk + 1}` && slotDom[exit].p === PRIZE_NAMES[rk] : slotDom[exit].k === 'ไม่มีรางวัล'));
+    const winnersOk = !!f && winnersDom.first[0]?.startsWith('รางวัลที่ 1') && winnersDom.first[1] === f.order[0] && winnersDom.cards.length === 2 && winnersDom.cards.every((c, i) => c[0].startsWith(`รางวัลที่ ${i + 2}`) && c[1] === f.order[i + 1]);
+    // ladderConsistent re-derived: order[slotRanks[permutation[lane]]] = picks[lane]
+    const consistent = !!f?.picks && f.picks.every((p, lane) => f.order[f.slotRanks[f.permutation[lane]]] === p);
+    R.s5 = { slotsDomBeforePick: slotDom, preparedSlotRanks: eF0.prepared?.slotRanks, domSlotMatchesStored: domSlotOk, drawDisabledAtStart, lanePicks, planesAfter: planes, drawStateAfterFive: drawState, reveal: { ...r5, tl: r5.tl.slice(0, 50) }, storedFinal: f, winnersDom, winnersMatchOrder: winnersOk, ladderConsistentRederived: consistent, paintedLadder, expectedSlots: exp, finalAt: e5.at };
+    R.renderer = rendererOf(await wd(T));
+    R.glContexts = (await wd(T)).ctx; R.lostAll = (await wd(T)).lost;
+    R.ctxSummary = { total: R.glContexts.length, okCount: R.glContexts.filter((c) => c.ok).length };
+    delete R.glContexts;
+    R.console = summarize(T);
+    R.jsFetched = jsFetched(T.S.requests); R.threeFetched = threeFetched(T.S.requests);
+    for (const [k, v] of Object.entries(R)) save('main.' + k, v);
+    save('main.summary', { s1: R.s1.verdict, s2: { sawCanvas: R.s2.sawCanvas, done: R.s2.done, survivorsEqual: R.s2.survivorsEqual }, s3: { sawCanvas: r3.sawCanvas, survivorsEqual: R.s3.survivorsEqual, earlyFired: R.s3.earlyTap.fired }, s4: R.s4.map((x) => [x.sawCanvas, x.survivorsEqual]), s5: { slots: domSlotOk, winners: winnersOk, consistent, sawCanvas: r5.sawCanvas } });
+    await T.close();
+    return results['main.summary'];
+  },
+};
+
+// 6a/6b/6c/7/8/9 defined below
+scenarios['6a'] = async () => {
+  const T = await openTab({ reducedMotion: true });
+  const s = await setupEvent(T, ['fireworks', null, null, null, null]);
+  const r = await pressAndWatch(T, 'เปิดผล', { shotPrefix: 's6a-rm', maxMs: 20000, maxShots: 1 });
+  const e = await readEvent(T); const c = await readChips(T);
+  const w = await wd(T);
+  await T.shot('s6a-after');
+  const rm = await T.ev(`return matchMedia('(prefers-reduced-motion: reduce)').matches`);
+  save('6a', { emulatedMatches: rm, sawCanvas: r.sawCanvas, canvasEvents: w.canvas, glCtx: w.ctx, threeFetched: threeFetched(T.S.requests), jsFetched: jsFetched(T.S.requests), stored: e.rounds[0], chips: c, survivorsEqual: !!e.rounds[0] && same(c.inNames, e.rounds[0].survivors), finalBtn: r.finalBtn, console: summarize(T), arrived: s.arrived });
+  await T.close();
+  return results['6a'];
+};
+scenarios['6b'] = async () => {
+  const T = await openTab({ noGL: true });
+  const s = await setupEvent(T, ['fireworks', null, null, null, null]);
+  const note = await T.ev(`return null`);
+  const r = await pressAndWatch(T, 'เปิดผล', { shotPrefix: 's6b-nogl', maxMs: 20000, maxShots: 1 });
+  const e = await readEvent(T); const c = await readChips(T);
+  const w = await wd(T);
+  await T.shot('s6b-after');
+  save('6b', { noGLFlag: true, setupPre: s.pre, sawCanvas: r.sawCanvas, canvasEvents: w.canvas, glCtx: w.ctx, threeFetched: threeFetched(T.S.requests), jsFetched: jsFetched(T.S.requests), stored: e.rounds[0], chips: c, survivorsEqual: !!e.rounds[0] && same(c.inNames, e.rounds[0].survivors), finalBtn: r.finalBtn, console: summarize(T) });
+  await T.close();
+  return results['6b'];
+};
+scenarios['6c'] = async () => {
+  const T = await openTab();
+  const s = await setupEvent(T, ['fireworks', null, null, null, null]);
+  const lose = async () => T.ev(`const hit=__wd.gls.filter(g=>g.cv.isConnected); const g=hit[hit.length-1]; if(!g) return { error:'no connected host canvas' }; const ext=g.gl.getExtension('WEBGL_lose_context'); ext.loseContext(); return { lostAt: Math.round(performance.now()), parent: g.cv.parentElement.className };`);
+  const r = await pressAndWatch(T, 'เปิดผล', { shotPrefix: 's6c-lose', maxMs: 60000, shotEveryMs: 1500, maxShots: 3, onFrames: { minFrames: 400, fn: lose } });
+  const e = await readEvent(T); const c = await readChips(T);
+  const w = await wd(T);
+  await T.shot('s6c-after');
+  save('6c', { loseCall: r.hook, sawCanvas: r.sawCanvas, canvasEvents: w.canvas, lost: w.lost, glCtx: w.ctx, tl: r.tl.slice(0, 30), elapsedMs: r.elapsedMs, stored: e.rounds[0], chips: c, survivorsEqual: !!e.rounds[0] && same(c.inNames, e.rounds[0].survivors), finalBtn: r.finalBtn, console: summarize(T) });
+  await T.close();
+  return results['6c'];
+};
+scenarios['7'] = async () => {
+  const T = await openTab();
+  await T.view(1920, 1080);
+  const out = {};
+  for (const game of ['fireworks', 'cards', 'ladder']) {
+    await T.nav(`${BASE}/game/prize-${game}/play/`);
+    const r = { title: await T.ev('return document.title'), badge: await T.ev(`return document.querySelector('.pr-badge')?.textContent`), runs: [] };
+    for (const modeText of game === 'fireworks' ? ['รอบคัดออก', 'รอบชิง'] : [null]) {
+      if (modeText) await T.tapEl('.pr-chip', modeText, { settleMs: 450 });
+      for (let pass = 1; pass <= 2; pass++) { // pass 2 = after replay
+        const steps = [];
+        for (let k = 0; k < 4; k++) {
+          const label = await T.ev(`return document.querySelector('.pr-go')?.textContent.trim()`);
+          if (!label) break;
+          if (label === 'ดูอีกครั้ง') { steps.push({ label, replay: true }); break; }
+          const w0 = await wd(T); const t0 = Date.now();
+          await T.tapEl('.pr-go', label, { settleMs: 450 });
+          let saw = false, shots = [], last = 0, frames = 0;
+          while (Date.now() - t0 < 120000) {
+            const q = await T.ev(`const c=document.querySelector('.pr-3d canvas'); const b=document.querySelector('.pr-go'); return { c:!!c, b:b?b.textContent.trim():null, f:(window.__watduangRevealFrameTime.frames||[]).length };`);
+            frames = q.f;
+            if (q.c) { saw = true; if (shots.length < 2 && Date.now() - t0 - last > 2500) { shots.push(await T.shot(`s7-${game}-${modeText ? (modeText === 'รอบชิง' ? 'final' : 'round') : 'x'}-p${pass}-${label === 'แจกไพ่' ? 'deal' : 'reveal'}-${shots.length + 1}`)); last = Date.now() - t0; } }
+            if (!q.c && q.b && saw) break;
+            if (!saw && Date.now() - t0 > 6000) break;
+            await sleep(150);
+          }
+          const w1 = await wd(T);
+          steps.push({ label, sawCanvas: saw, ms: Date.now() - t0, frames, canvasEvents: w1.canvas.length - w0.canvas.length, shots });
+        }
+        r.runs.push({ mode: modeText, pass, steps });
+        if (steps.length && steps[steps.length - 1].replay) { const rp = await T.tapEl('.pr-go', 'ดูอีกครั้ง', { settleMs: 450 }); await sleep(600); }
+        else break;
+      }
+    }
+    const w = await wd(T);
+    r.renderer = rendererOf(w); r.lost = w.lost; r.threeFetched = threeFetched(T.S.requests);
+    out[game] = r;
+  }
+  out.console = summarize(T);
+  save('7', out);
+  await T.close();
+  return out;
+};
+scenarios['8'] = async () => {
+  const T = await openTab();
+  await T.view(1920, 1080);
+  await setupEvent(T, [null, null, null, null, null]);
+  await T.view(320, 640, true);
+  await T.nav(`${BASE}/game/prize-draw/play/`);
+  const measure = () => T.ev(`const q=s=>document.querySelector(s); const rect=e=>{ if(!e) return null; const r=e.getBoundingClientRect(); return { l:Math.round(r.left), t:Math.round(r.top), r:Math.round(r.right), b:Math.round(r.bottom), w:Math.round(r.width), h:Math.round(r.height) }; };
+    const mc=q('.pd-mc button'), ex=q('#play-exit'), f=q('.pd-field'); const a=rect(mc), b=rect(ex);
+    const overlap = a&&b ? !(a.r<=b.l||b.r<=a.l||a.b<=b.t||b.b<=a.t) : null; const cols = f? getComputedStyle(f).gridTemplateColumns.split(' ').length : null;
+    const de=document.documentElement; const chips=[...document.querySelectorAll('.pd-chip')]; const xs=[...new Set(chips.map(c=>Math.round(c.getBoundingClientRect().left)))];
+    return { innerWidth, scrollWidth: de.scrollWidth, clientWidth: de.clientWidth, screen: q('#pd-frame')?.getAttribute('data-screen'), dataField: q('.pd-viewport')?.hasAttribute('data-field'), mc: a, exit: b, overlap, cols, distinctChipLefts: xs.length, mcText: mc?mc.textContent.trim():null, mcVisible: !!mc && a.w>0 && a.r<=innerWidth && a.l>=0, exitVisible: !!ex && b.w>0 };`);
+  const r1 = await measure();
+  await T.shot('s8-320-round');
+  await T.tapEl('.pd-mc button', 'เปิดผล', { settleMs: 450 });
+  await sleep(1500);
+  const r2 = await measure();
+  await T.shot('s8-320-reveal');
+  const f = await T.ev(`const c=[...document.querySelectorAll('.pd-field .pd-chip')].slice(0,3).map(c=>c.getBoundingClientRect().width); return c`);
+  save('8', { round: r1, reveal: r2, chipWidths: f, console: summarize(T) });
+  await T.close();
+  return { r1, r2 };
+};
+scenarios['9'] = async () => {
+  const T = await openTab();
+  await T.view(390, 800, true);
+  await T.nav(`${BASE}/game/prize-draw/join/#event=x&pin=000000`);
+  const r = await T.ev(`return { title: document.title, hash: location.hash, href: location.href, body: document.body.innerText.slice(0,400), hasMain: !!document.querySelector('main') };`);
+  await sleep(2500);
+  const r2 = await T.ev(`return { hash: location.hash, body: document.body.innerText.slice(0,500), historyLen: history.length };`);
+  await T.shot('s9-join');
+  save('9', { first: r, later: r2, console: summarize(T), requests: T.S.requests.filter((u) => !u.includes('localhost:4611')).slice(0, 5), failed: T.S.requests.filter((u) => /feedback|api/.test(u)) });
+  await T.close();
+  return { r, r2 };
+};
+
+const fn = scenario === 'main' || /^[1-5]$/.test(scenario) ? scenarios.main : scenarios[scenario];
+if (!fn) throw new Error('unknown scenario ' + scenario);
+const out = await fn();
+console.log(JSON.stringify(out, null, 1).slice(0, 6000));
+process.exit(0);

@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ACTIVE_TAGS, HOSTILE, makeDoc } from './fake-dom.mjs';
 import { createEvent, decodeEvent, encodeEvent } from './event.ts';
-import { CONFIRM_REPLACE, STORAGE_FAILED, mountSetup } from './setup-page.ts';
+import { CONFIRM_REPLACE, NO_GAME_LABEL, NO_WEBGL_NOTE, STORAGE_FAILED, hasWebGL2, mountSetup } from './setup-page.ts';
 import { DB, REFUSED_BROWSER } from './store.ts';
 import { nameIssue, parseRoster } from './names.ts';
 import { fakeOrigin } from './fake-idb.mjs';
@@ -19,7 +19,7 @@ const PAGE = fs.readFileSync(path.join(import.meta.dirname, '../pages/game/prize
 
 /** The setup page on the fake DOM over one origin. `env` is the window's storage side (a tab of the origin
  *  by default; a plain object for a browser without IndexedDB); `confirm` answers the replace question. */
-function page({ origin = fakeOrigin(), env = origin.tab('setup'), confirm = () => true } = {}) {
+function page({ origin = fakeOrigin(), env = origin.tab('setup'), confirm = () => true, games, webgl = true, rogue = false } = {}) {
   const doc = makeDoc();
   const add = (tag, id, parent = doc.body) => {
     const el = doc.createElement(tag);
@@ -40,10 +40,32 @@ function page({ origin = fakeOrigin(), env = origin.tab('setup'), confirm = () =
     form.append(row);
     add('input', `pd-prize-${i}`, row);
   }
+  // Step 3's game rows, as the page renders them: one button group per step, no game first. `rogue` adds
+  // a button per group for a game that step may not play, and one for a game that does not exist.
+  add('p', 'pd-games-line', form);
+  add('div', 'pd-games-note', form);
+  for (const [id, offered, foreign] of GAME_ROWS) {
+    const group = add('div', id, form);
+    for (const game of ['', ...offered, ...(rogue ? [foreign, 'bogus'] : [])]) {
+      const b = doc.createElement('button');
+      b.setAttribute('data-game', game);
+      group.append(b);
+    }
+  }
+  for (let r = 1; r <= 4; r++) {
+    add('span', `pd-game-r${r}-from`, form);
+    add('span', `pd-game-r${r}-to`, form);
+  }
   const visits = [];
   const asked = [];
-  const win = { ...env, location: { assign: (u) => visits.push(u) }, confirm: (q) => (asked.push(q), confirm(q)) };
-  mountSetup(doc, win);
+  const listeners = {};
+  const win = {
+    ...env, location: { assign: (u) => visits.push(u) }, confirm: (q) => (asked.push(q), confirm(q)),
+    addEventListener: (type, fn) => (listeners[type] ??= []).push(fn),
+  };
+  /** Dispatch a window event to what the script registered. */
+  const fire = (type, event) => (listeners[type] ?? []).forEach((fn) => fn(event));
+  mountSetup(doc, win, { ...(games ? { games } : {}), webgl2: () => webgl });
   const $ = (id) => doc.getElementById(id);
   const type = (id, value) => {
     $(id).value = value;
@@ -52,13 +74,32 @@ function page({ origin = fakeOrigin(), env = origin.tab('setup'), confirm = () =
   const submit = () => form.dispatch('submit');
   /** The stored event's text, or undefined. */
   const stored = () => origin.get(DB.name, DB.store, DB.key);
-  return { doc, $, type, submit, stored, visits, asked, origin, idle: () => origin.idle() };
+  /** Press the button for `game` ('' is no game) in the group `id`. */
+  const choose = (id, game) => buttons(id).find((b) => b.getAttribute('data-game') === game).click();
+  /** Which button of group `id` is pressed, by its game; every other one must say it is not. */
+  const pressed = (id) => {
+    const on = buttons(id).filter((b) => b.getAttribute('aria-pressed') === 'true');
+    assert.equal(on.length, 1, `${id}: exactly one choice is pressed`);
+    for (const b of buttons(id)) if (b !== on[0] && !b.hidden) assert.equal(b.getAttribute('aria-pressed'), 'false');
+    return on[0].getAttribute('data-game');
+  };
+  const buttons = (id) => $(id).querySelectorAll('button');
+  return { doc, $, type, submit, stored, visits, asked, origin, idle: () => origin.idle(), choose, pressed, buttons, fire };
 }
+
+/** The game rows: group id, the games the step offers (registry order), a game it may not play. */
+const GAME_ROWS = [
+  ['pd-game-r1', ['fireworks', 'cards'], 'ladder'],
+  ['pd-game-r2', ['fireworks', 'cards'], 'ladder'],
+  ['pd-game-r3', ['fireworks', 'cards'], 'ladder'],
+  ['pd-game-r4', ['fireworks', 'cards'], 'ladder'],
+  ['pd-game-final', ['fireworks', 'ladder'], 'cards'],
+];
 
 const roster = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
 
 test('every element the script needs is in the page', () => {
-  for (const id of ['pd-setup', 'pd-event', 'pd-names', 'pd-count', 'pd-names-msg', 'pd-s0', 'pd-sched-msg', 'pd-sched-reset', 'pd-prize-minus', 'pd-prize-plus', 'pd-prize-count', 'pd-start-msg']) {
+  for (const id of ['pd-setup', 'pd-event', 'pd-names', 'pd-count', 'pd-names-msg', 'pd-s0', 'pd-sched-msg', 'pd-sched-reset', 'pd-prize-minus', 'pd-prize-plus', 'pd-prize-count', 'pd-start-msg', 'pd-games-line', 'pd-games-note']) {
     assert.ok(PAGE.includes(`id="${id}"`), `#${id} is not in index.astro`);
   }
   assert.ok(PAGE.includes('id={`pd-s${i}`}') && PAGE.includes('id={`pd-l${i}`}') && PAGE.includes('id={`pd-prize-${i}`}'));
@@ -352,4 +393,250 @@ test('Enter in a one-line field does not submit (only the start button starts th
   let textarea = false;
   p.$('pd-setup').dispatch('keydown', { key: 'Enter', target: p.$('pd-names'), preventDefault: () => (textarea = true) });
   assert.equal(textarea, false, 'Enter in the roster must still make a new line');
+});
+
+test('the game picks reach the stored event: none picked is every step in 2D, and the picker seam carries what it returns', async () => {
+  const plain = page();
+  plain.type('pd-names', roster(50).join('\n'));
+  plain.submit();
+  await plain.idle();
+  assert.deepEqual(decodeEvent(plain.stored()).setup.games, { rounds: [null, null, null, null], final: null });
+  const picks = { rounds: ['fireworks', 'cards', null, 'fireworks'], final: 'ladder' };
+  const picked = page({ games: () => picks });
+  picked.type('pd-names', roster(50).join('\n'));
+  picked.submit();
+  await picked.idle();
+  assert.deepEqual(decodeEvent(picked.stored()).setup.games, picks);
+  assert.equal(picked.visits.length, 1);
+});
+
+// gh#305 item 1a (option A) and 1b (option A): the per-round game rows inside step 3.
+
+test('the game picks the MC presses are the ones stored with the event, and each group shows one pressed choice', async () => {
+  const p = page();
+  p.type('pd-names', roster(50).join('\n'));
+  for (const [id] of GAME_ROWS) assert.equal(p.pressed(id), '', `${id} starts on no game`);
+  p.choose('pd-game-r1', 'fireworks');
+  p.choose('pd-game-r2', 'cards');
+  p.choose('pd-game-r4', 'cards');
+  p.choose('pd-game-r4', 'fireworks');
+  p.choose('pd-game-final', 'ladder');
+  assert.equal(p.pressed('pd-game-r2'), 'cards');
+  assert.equal(p.pressed('pd-game-r3'), '');
+  assert.equal(p.pressed('pd-game-r4'), 'fireworks', 'a second press moves the choice');
+  p.choose('pd-game-r2', '');
+  assert.equal(p.pressed('pd-game-r2'), '', 'no game can be chosen again');
+  p.submit();
+  await p.idle();
+  assert.deepEqual(decodeEvent(p.stored()).setup.games, { rounds: ['fireworks', null, null, 'fireworks'], final: 'ladder' });
+  assert.equal(p.visits.length, 1);
+});
+
+test('a game a step may not play cannot be chosen there, even when its click fires', async () => {
+  const p = page({ rogue: true });
+  p.type('pd-names', roster(50).join('\n'));
+  for (const [id, , foreign] of GAME_ROWS) {
+    for (const game of [foreign, 'bogus']) {
+      const b = p.buttons(id).find((x) => x.getAttribute('data-game') === game);
+      assert.ok(b.hidden && b.disabled, `${id}: ${game} is not offered`);
+      b.dispatch('click');
+      assert.equal(p.pressed(id), '', `${id}: ${game} was taken`);
+    }
+  }
+  p.submit();
+  await p.idle();
+  assert.deepEqual(decodeEvent(p.stored()).setup.games, { rounds: [null, null, null, null], final: null });
+});
+
+test('each round row names the cut it plays, from the schedule above it', () => {
+  const p = page();
+  p.type('pd-names', roster(200).join('\n'));
+  const s = proposeSchedule(200);
+  for (let r = 1; r <= 4; r++) {
+    assert.equal(p.$(`pd-game-r${r}-from`).textContent, String(s[r - 1]));
+    assert.equal(p.$(`pd-game-r${r}-to`).textContent, `${s[r]} คน`);
+  }
+  p.type('pd-s1', '120');
+  assert.equal(p.$('pd-game-r1-to').textContent, '120 คน');
+  assert.equal(p.$('pd-game-r2-from').textContent, '120');
+});
+
+test('no WebGL2: the note shows in place of the line over the rows, and the picks stay and are stored', async () => {
+  const off = page({ webgl: false });
+  assert.equal(off.$('pd-games-note').textContent, NO_WEBGL_NOTE);
+  assert.equal(off.$('pd-games-line').hidden, true);
+  off.type('pd-names', roster(50).join('\n'));
+  // Round 2 (20 -> 10) is the round of 50 that cuts in half, the only one cards may play.
+  off.choose('pd-game-r2', 'cards');
+  off.choose('pd-game-final', 'fireworks');
+  assert.equal(off.pressed('pd-game-r2'), 'cards');
+  off.submit();
+  await off.idle();
+  assert.deepEqual(decodeEvent(off.stored()).setup.games, { rounds: [null, 'cards', null, null], final: 'fireworks' });
+  const on = page({ webgl: true });
+  assert.equal(on.$('pd-games-note').textContent, '');
+  assert.equal(on.$('pd-games-line').hidden, false);
+});
+
+// Owner ruling 2026-11-13 (gh#306): cards only on a round that cuts exactly in half.
+test('a round offers cards only while it cuts exactly in half, recomputed as the schedule changes; a pick it loses is cleared', async () => {
+  const p = page();
+  const cards = (r) => p.buttons(`pd-game-r${r}`).find((b) => b.getAttribute('data-game') === 'cards');
+  const fireworks = (r) => p.buttons(`pd-game-r${r}`).find((b) => b.getAttribute('data-game') === 'fireworks');
+  const offered = () => [1, 2, 3, 4].map((r) => !cards(r).disabled);
+  assert.deepEqual(offered(), [false, false, false, false], 'no roster, no schedule: no round halves');
+  p.type('pd-names', roster(50).join('\n'));
+  assert.deepEqual(offered(), [false, true, false, false], '50 -> 20 -> 10 -> 7 -> 5 halves only round 2');
+  for (const r of [1, 2, 3, 4]) assert.equal(fireworks(r).disabled, false, `round ${r}: fireworks is never held back`);
+  p.choose('pd-game-r2', 'cards');
+  assert.equal(p.pressed('pd-game-r2'), 'cards');
+  cards(1).dispatch('click');
+  assert.equal(p.pressed('pd-game-r1'), '', 'a disabled cards button never picks, even when its click fires');
+  // Round 2 stops halving: its cards pick is cleared, not kept.
+  p.type('pd-s1', '25');
+  assert.deepEqual(offered(), [true, false, false, false], '50 -> 25 halves round 1 now, and round 2 (25 -> 10) no longer');
+  assert.equal(p.pressed('pd-game-r2'), '', 'the cards pick on a round that stopped halving is cleared');
+  p.type('pd-s1', '20');
+  assert.equal(p.pressed('pd-game-r2'), '', 'halving again does not bring a cleared pick back');
+  // A roster change re-proposes the schedule and is checked the same way.
+  p.$('pd-sched-reset').dispatch('click');
+  p.choose('pd-game-r2', 'cards');
+  p.type('pd-names', roster(200).join('\n'));
+  assert.deepEqual(offered(), [true, true, false, false], '200 -> 100 -> 50 -> 20 -> 5');
+  assert.equal(p.pressed('pd-game-r2'), 'cards', 'a pick on a round that still halves is kept');
+  p.type('pd-names', roster(60).join('\n'));
+  assert.equal(p.pressed('pd-game-r2'), '', '60 -> 50 -> 20: round 2 stopped halving');
+  p.choose('pd-game-r3', 'cards');
+  p.submit();
+  await p.idle();
+  assert.deepEqual(decodeEvent(p.stored()).setup.games, { rounds: [null, null, 'cards', null], final: null });
+});
+
+test('the WebGL2 probe: a detached canvas, its context released; no context or a throw is no WebGL2', () => {
+  const made = [];
+  const docWith = (getContext) => ({
+    createElement(tag) {
+      const c = { tag, getContext, width: 300, height: 150 };
+      made.push(c);
+      return c;
+    },
+  });
+  let lost = 0;
+  const ctx = { getExtension: (n) => (n === 'WEBGL_lose_context' ? { loseContext: () => lost++ } : null) };
+  assert.equal(hasWebGL2(docWith((kind) => (kind === 'webgl2' ? ctx : null))), true);
+  assert.equal(lost, 1, 'the probe context is released');
+  assert.equal(made.at(-1).tag, 'canvas');
+  assert.equal(made.at(-1).width, 0, 'the probe canvas is shrunk to nothing');
+  assert.equal(hasWebGL2(docWith(() => null)), false);
+  assert.equal(
+    hasWebGL2(
+      docWith(() => {
+        throw new Error('blocked');
+      }),
+    ),
+    false,
+  );
+  assert.equal(hasWebGL2(docWith(undefined)), false, 'a canvas without getContext');
+});
+
+test('the game rows carry the approved copy and are rendered from the registry, every choice a button', () => {
+  assert.equal(NO_GAME_LABEL, 'แบบปกติ');
+  assert.equal(NO_WEBGL_NOTE, 'เครื่องนี้แสดงเกม 3D ไม่ได้ ถ้าวันงานก็แสดงไม่ได้ ระบบจะเปิดผลแบบปกติให้เอง');
+  assert.ok(PAGE.includes('เลือกเกมให้แต่ละรอบ ไม่เลือกก็เปิดผลแบบปกติ'));
+  assert.match(PAGE, /eligible\(g, 'round'\) && isAvailable\(g\)/);
+  assert.match(PAGE, /eligible\(g, 'final'\) && isAvailable\(g\)/);
+  assert.match(PAGE, /<button type="button" class="segb" data-game=""[^>]*aria-pressed="true">\{NO_GAME_LABEL\}<\/button>/);
+  assert.match(PAGE, /<div class="seg" role="group" id=\{row\.id\} aria-labelledby=/);
+  assert.match(PAGE, /\.segb:focus-visible/);
+  assert.ok(!/from 'three'|import\('three'\)/.test(PAGE), 'the setup page never imports three');
+});
+
+// gh#314 items 1b, 1c and 1e (option B each), as far as the page source shows them without a browser.
+
+/** The body of the page's one phone-width media block. */
+function phoneBlock() {
+  const at = PAGE.indexOf('@media (max-width: 639px)');
+  assert.ok(at > 0, 'the page has its phone block');
+  let depth = 0;
+  for (let i = PAGE.indexOf('{', at); i < PAGE.length; i++) {
+    if (PAGE[i] === '{') depth++;
+    else if (PAGE[i] === '}' && --depth === 0) return PAGE.slice(at, i + 1);
+  }
+  throw new Error('unbalanced phone block');
+}
+
+test('gh#314 1b: below 640px the schedule is a vertical list, stage name left, box right, an arrow down between', () => {
+  const css = phoneBlock().replace(/\s+/g, ' ');
+  assert.match(css, /\.sched \{ flex-direction: column; flex-wrap: nowrap; gap: 0; \}/);
+  assert.match(css, /\.box \{ display: grid; grid-template-columns: 1fr 118px; gap: 12px; align-items: center; inline-size: auto; text-align: start; \}/);
+  assert.match(css, /\.arr \{ display: grid; grid-template-columns: 1fr 118px; gap: 12px; block-size: 26px; \}/);
+  assert.match(css, /\.arr svg \{ grid-column: 2; justify-self: center; transform: rotate\(90deg\); \}/);
+  assert.match(css, /\.lab-n \{ display: none; \}/);
+  // The count line under each stage name is the one thing the list drops, and it is marked to be.
+  assert.ok(PAGE.includes('<br class="lab-n" /><span class="lab-n" id="pd-l0">'));
+});
+
+test('gh#314 1c: the back link is the category page crumb trail, both parts linked', () => {
+  assert.match(
+    PAGE,
+    /<p class="crumb"><a href="\/">หน้าแรก<\/a><span class="sep" aria-hidden="true">·<\/span><a href=\{`\/c\/\$\{game\.category\}\/`\}>\{category\.label\}<\/a><\/p>/,
+  );
+  assert.match(PAGE.replace(/\s+/g, ' '), /\.crumb \.sep \{ margin: 0 6px; \}/);
+});
+
+test('gh#314 1e: a refused name reason is regular weight in the muted colour; the name keeps the row weight', () => {
+  const css = PAGE.replace(/\s+/g, ' ');
+  assert.match(css, /\.msgs :global\(\.emsg-why\) \{ font-weight: 400; color: var\(--color-muted\); \}/);
+  const p = page();
+  p.type('pd-names', [...roster(20), 'a<b'].join('\n'));
+  const row = p.$('pd-names-msg').querySelector('div.emsg-body');
+  assert.ok(row.querySelector('span.emsg-name') && row.querySelector('span.emsg-why'), 'the reason has its own element to style');
+});
+
+// The site's cross-document fade (web.css) is on for this page and never for the projector route, so
+// Chrome aborts the fade it began for the start's navigation and raises the abort as an uncaught
+// InvalidStateError. The script skips that one transition itself, before the projector decides, and
+// handles every promise the transition carries. The double rejects ready the way the browser does when
+// a transition is skipped.
+function transition() {
+  let reject;
+  const vt = { skipped: false, finished: Promise.resolve(), updateCallbackDone: Promise.resolve() };
+  vt.ready = new Promise((_, r) => (reject = r));
+  vt.skipTransition = () => {
+    vt.skipped = true;
+    reject(new Error('InvalidStateError: Transition was aborted because of invalid state'));
+  };
+  return vt;
+}
+const swap = (url, viewTransition) => ({ activation: url === null ? null : { entry: { url } }, viewTransition });
+/** Let every settled promise run its handlers. The test runner fails the test on any rejection left
+ *  unhandled by then (failureType unhandledRejection), so that is the instrument for "handled". */
+const settle = async () => {
+  await new Promise((r) => setImmediate(r));
+  await new Promise((r) => setImmediate(r));
+};
+
+test('the navigation to the projector skips the page fade, and nothing it rejects goes unhandled', async () => {
+  const p = page();
+  const vt = transition();
+  p.fire('pageswap', swap('https://watduang.com/game/prize-draw/play/', vt));
+  await settle();
+  assert.equal(vt.skipped, true, 'the fade into the projector route is skipped');
+});
+
+test('a navigation anywhere else keeps the page fade', async () => {
+  const p = page();
+  for (const url of ['https://watduang.com/c/party/', 'https://watduang.com/', 'https://watduang.com/game/prize-draw/play/x']) {
+    const vt = transition();
+    p.fire('pageswap', swap(url, vt));
+    assert.equal(vt.skipped, false, url);
+  }
+});
+
+test('no transition, or no destination, is left alone without throwing', () => {
+  const p = page();
+  assert.doesNotThrow(() => p.fire('pageswap', swap('https://watduang.com/game/prize-draw/play/', null)));
+  const vt = transition();
+  assert.doesNotThrow(() => p.fire('pageswap', swap(null, vt)));
+  assert.equal(vt.skipped, false);
 });

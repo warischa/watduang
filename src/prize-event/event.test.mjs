@@ -336,7 +336,7 @@ test('a stored blob is re-validated on read: anything malformed or inconsistent 
   const good = JSON.parse(encodeEvent(s));
   const variants = {
     'not json': '{',
-    'wrong version': { ...good, v: 2 },
+    'wrong version': { ...good, v: 3 },
     'a 13-cluster name': { ...good, setup: { ...good.setup, people: good.setup.people.map((p, i) => (i ? p : { ...p, name: 'WWWWWWWWWWWWW' })) } },
     'a bidi override survives in a name': { ...good, setup: { ...good.setup, people: good.setup.people.map((p, i) => (i ? p : { ...p, name: '\u202Eabc' })) } },
     'a non-string name': { ...good, setup: { ...good.setup, people: good.setup.people.map((p, i) => (i ? p : { ...p, name: { toString: 1 } })) } },

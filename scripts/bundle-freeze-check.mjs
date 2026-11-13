@@ -113,6 +113,29 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 //   two more lifted/authored play bundles, minus nothing -- no engine was deleted this batch, because
 //   the stage modules stay until gh#149 removes the landing pages that still render them.
 const BASELINE_BASENAMES = [
+  // gh#305 -- the three prize-draw 3D games (fireworks, cards, ladder) and the QR join page, fifteen new
+  // basenames. three.module.js is the shared library chunk (the host's dynamic import, ADR-0068), and
+  // preload-helper.js is the bundler's wrapper for that lazy import. reveal.js is the shared reveal host
+  // plus the game registry; each game's renderer entry is one `index.js` (three of them fold into one
+  // basename), with paint.js, plan.js and seed.js as the renderers' shared helpers. demo.js is the demo
+  // each game's own page plays; store.js and setup-page.js are the event store and setup-page logic now
+  // split out of the setup script; join.astro_... is the join page's script; _render-hold.js is the
+  // shared render-hold signal. Re-derive sizes with `ls -l dist/_astro/` rather than trusting a note.
+  '_render-hold.js',
+  'demo.js',
+  'index.js',
+  'join.astro_astro_type_script_index_0_lang.js',
+  'paint.js',
+  'plan.js',
+  'preload-helper.js',
+  'prize-cards.js',
+  'prize-fireworks.js',
+  'prize-ladder.js',
+  'reveal.js',
+  'seed.js',
+  'setup-page.js',
+  'store.js',
+  'three.module.js',
   // gh#304 -- the prize-draw event (ADR-0075), four new chunks: event.js (src/prize-event/event.ts,
   // shared by the setup page, the projector route and the game module), names-dom.js (the name sink,
   // shared by the setup page and the projector), prize-draw.js (the game module, reached through the
@@ -198,10 +221,10 @@ const BASELINE_BASENAMES = [
   'bangkok-drift.js',
   'cannon-flag.js',
   // gh#213, the fourteenth play route (counted from disk, not from prose). The route's own
-  // game-module chunk, and the ONLY thing this SET leg can see of it. Note what is deliberately
-  // absent: there is no `three` chunk here. The library has exactly one consumer, so Rollup inlines
-  // it into that page's own entry chunk rather than emitting a shared one — so the BYTES leg below
-  // is what actually measured the library arriving, and this leg would stay green if it vanished.
+  // game-module chunk. When this entry was written the library had exactly one consumer, so Rollup
+  // inlined it into that page's own entry chunk and no `three` chunk existed; gh#305 gave it a second
+  // consumer (the prize-draw host's dynamic import), so `three.module.js` is now its own chunk, pinned
+  // at the top of this list, and croc-bite's entry chunk no longer carries the library.
   'croc-bite.js',
   'daily-fortune.js',
   // gh#139 ports 1-3, in the owner's recorded ship order.
@@ -487,7 +510,19 @@ const BASELINE_BASENAMES = [
 // alone: projector +783 (the cross-tab single writer, a storage lock plus a storage-event follower, and
 // announcements through the name sink) and event +59 (readEvent, names unique by nameKey on read); no
 // other chunk moved. Re-stated in band on purpose, per the convention above.
-const BASELINE_TOTAL_BYTES = 1111368;
+// Re-pinned 2026-11-13 (gh#305), 1111368 -> 1241557 (+130189, +11.7%), n=1 local build of the integrated tree,
+// measured with this file's own reachableChunks/summarize over that build's dist/ (the owner's per-route re-pin
+// condition, gh#206 and ADR-0060; the owner's visual ruling for these games is gh#299 decision 11). All three
+// legs were red: fifteen new basenames, seven new page-entry pairs, and the total outside the band.
+// SPLIT, measured from the built files: +627908 is the fifteen new chunks (three.module.js is 511833 of it, the
+// three renderer entries 57392, reveal 11905, join script 9316, the rest the helpers and the split-out setup
+// logic) and +1605 the three new play entry chunks; the other -499324 is the net change across chunks that
+// already existed. INFERRED, not isolated by a separate build: nearly all of that negative is croc-bite's play
+// entry shedding the library it used to carry inline (its entry chunk is 66266 now against the 561684 recorded
+// at gh#213), the remainder being carry and small shifts that were not separated. So the library did not add
+// 511833 to the union; the net of it moving out of croc-bite is the small figure. The cost that matters is per
+// visitor, recorded in docs/verification/evidence/gh305-bundle-2026-11-13/ and ADR-0068's amendment.
+const BASELINE_TOTAL_BYTES = 1241557;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as
@@ -506,6 +541,15 @@ const BAND = 0.05; // +/-5%
 // RE-BASELINE, like the other two constants, is the intended signal and a deliberate edit: a new
 // game adds its own pairs here.
 const BASELINE_PAGE_ENTRIES = [
+  // gh#305 -- the three prize-draw game play routes (the shared exit and each route's own play script) and
+  // the QR join page (its own script only; it renders no PageChrome or exit).
+  'game/prize-cards/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/prize-cards/play/index.html play.astro_astro_type_script_index_0_lang.js',
+  'game/prize-draw/join/index.html join.astro_astro_type_script_index_0_lang.js',
+  'game/prize-fireworks/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/prize-fireworks/play/index.html play.astro_astro_type_script_index_0_lang.js',
+  'game/prize-ladder/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/prize-ladder/play/index.html play.astro_astro_type_script_index_0_lang.js',
   // gh#304 -- the company-party category page and the prize-draw setup page are web pages (PageChrome);
   // the setup page adds its own script; the projector route loads the shared exit and its play script.
   'c/company-party/index.html PageChrome.astro_astro_type_script_index_0_lang.js',

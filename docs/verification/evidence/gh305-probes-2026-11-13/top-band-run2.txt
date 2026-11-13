@@ -1,0 +1,4 @@
+::error::prize-draw S3 320x568: declared route control absent (.pd-mc button:absent) -- the walk did not reach the screen it names
+::error::prize-draw S3 320x568: the transition did not happen -- the route round-start control was never pressed; the page shows exactly what it showed before the round start, so no round began
+FAIL 2 failure(s) across 1/18 route(s): prize-draw
+exit 1

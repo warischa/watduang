@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+
+const raw = await readFile('/Users/waris.c/claude/free-game/services/feedback/src/functions/join.mjs', 'utf8');
+const before = 'if (absent(error) || (ifMatch && error?.statusCode === 412)) return false;';
+assert.ok(raw.includes(before));
+const source = raw.slice(raw.indexOf('const conditions ='), raw.indexOf('\napp.http('))
+  .replace(before, 'if (absent(error)) return true;\n      if (ifMatch && error?.statusCode === 412) return false;');
+let failure;
+const store = new Function('draws', source + '\nreturn store;')(() => ({
+  getBlockBlobClient: () => ({ delete: async () => { if (failure) throw failure; } }),
+}));
+failure = Object.assign(new Error('BlobNotFound'), { statusCode: 404, code: 'BlobNotFound' });
+assert.equal(await store.del('slot', 'etag'), true);
+console.log('PASS delete retry 404 is success');
+failure = Object.assign(new Error('ConditionNotMet'), { statusCode: 412, code: 'ConditionNotMet' });
+assert.equal(await store.del('slot', 'etag'), false);
+console.log('PASS delete 412 preserves replacement');
+failure = Object.assign(new Error('ContainerNotFound'), { statusCode: 404, code: 'ContainerNotFound' });
+await assert.rejects(store.del('slot', 'etag'), /ContainerNotFound/);
+console.log('PASS missing container remains an error');

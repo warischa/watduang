@@ -1,0 +1,171 @@
+import assert from 'node:assert/strict';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { pathToFileURL } from 'node:url';
+
+const root = '/Users/waris.c/claude/free-game';
+const modulePath = process.argv[2] ?? `${root}/services/feedback/src/join.mjs`;
+const { handleDraw, paths, nameKey } = await import(pathToFileURL(modulePath));
+const cap = Number(process.env.PROBE_CAP ?? 2);
+const ctx = new AsyncLocalStorage();
+const clone = (x) => structuredClone(x);
+const defer = () => { let resolve; const promise = new Promise((r) => { resolve = r; }); return { promise, resolve }; };
+function harness(count = 2) {
+  let seq = 0;
+  let time = Date.parse('2026-11-13T00:00:00Z');
+  const blobs = new Map();
+  const hooks = new Set();
+  const logs = [];
+  const run = async (op, path, args, fn) => {
+    const call = { op, path, args, label: ctx.getStore() };
+    for (const hook of [...hooks]) await hook({ ...call, stage: 'before' });
+    const result = fn();
+    for (const hook of [...hooks]) await hook({ ...call, stage: 'after', result });
+    return result;
+  };
+  const store = {
+    read: (path) => run('read', path, {}, () => {
+      const cur = blobs.get(path); return cur ? { doc: clone(cur.doc), etag: cur.etag } : null;
+    }),
+    head: (path) => run('head', path, {}, () => {
+      const cur = blobs.get(path); return cur ? { metadata: clone(cur.metadata), etag: cur.etag } : null;
+    }),
+    put: (path, args = {}) => run('put', path, args, () => {
+      const cur = blobs.get(path);
+      if (args.ifMatch ? cur?.etag !== args.ifMatch : !!cur) return null;
+      const etag = `etag-${++seq}`;
+      blobs.set(path, { doc: clone(args.json), metadata: clone(args.metadata ?? {}), etag }); return etag;
+    }),
+    del: (path, ifMatch) => run('del', path, { ifMatch }, () => {
+      const cur = blobs.get(path);
+      if (!cur || (ifMatch && cur.etag !== ifMatch)) return false;
+      blobs.delete(path); return true;
+    }),
+    list: (prefix) => run('list', prefix, {}, () => [...blobs].filter(([p]) => p.startsWith(prefix))
+      .sort(([a], [b]) => a.localeCompare(b)).map(([path, b]) => ({ path, metadata: clone(b.metadata) }))),
+  };
+  const h = {
+    blobs, hooks, store, logs,
+    setTime: (t) => { time = t; },
+    async req(label, path, body = {}, admin = null, method = 'POST') {
+      return ctx.run(label, async () => {
+        const res = await handleDraw({ method, path, bodyText: JSON.stringify(body), admin },
+          { store, now: () => new Date(time), log: (...parts) => logs.push(parts), limits: { names: count } });
+        return { status: res.status, json: JSON.parse(res.body) };
+      });
+    },
+    pause(label, op, path, stage = 'before', occurrence = 1) {
+      const entered = defer(); const released = defer();
+      const hook = async (call) => {
+        if (call.label !== label || call.op !== op || call.path !== path || call.stage !== stage) return;
+        if (--occurrence > 0) return;
+        hooks.delete(hook); entered.resolve(call); await released.promise;
+      };
+      hooks.add(hook);
+      return { entered: entered.promise, release: released.resolve };
+    },
+    snapshot() {
+      return { names: [...blobs].filter(([p]) => p.includes('/names/')).map(([p,b]) => ({ path: p, id: b.metadata.id })),
+        slots: [...blobs].filter(([p]) => p.includes('/slots/')).map(([p,b]) => ({ path: p, ...b.metadata })) };
+    },
+  };
+  h.setup = async () => {
+    const made = await h.req('create', 'events'); assert.equal(made.status, 201);
+    Object.assign(h, made.json);
+    h.join = (label, name, token = 'AAAAAAAAAAAAAAAA') => h.req(label, `events/${h.eventId}/join`, { pin: h.pin, name, token });
+    h.remove = (id) => h.req('remove', `events/${h.eventId}/names/${id}/remove`, {}, h.adminToken);
+    return h;
+  };
+  return h;
+}
+
+async function resurrection() {
+  const h = await harness(cap).setup();
+  for (let i = 0; i < cap - 2; i++) {
+    const filler = await h.join(`f${i}`, `f${i}`, `F${String(i).padStart(15, '0')}`);
+    assert.equal(filler.status, 201);
+  }
+  const c = await h.join('C', 'C', 'CCCCCCCCCCCCCCCC');
+  const pause = h.pause('A', 'put', paths.name(h.eventId, nameKey('A')));
+  const a = h.join('A', 'A'); await pause.entered;
+  const b = await h.join('B', 'A'); assert.equal(b.status, 201);
+  assert.equal((await h.remove(b.json.id)).json.removed, true);
+  assert.equal((await h.remove(c.json.id)).json.removed, true);
+  pause.release(); const late = await a;
+  await h.join('D', 'D', 'DDDDDDDDDDDDDDDD');
+  await h.join('E', 'E', 'EEEEEEEEEEEEEEEE');
+  const snap = h.snapshot();
+  return { removedId: b.json.id, late, names: snap.names.length, slots: snap.slots.length,
+    removed: h.blobs.get(paths.record(h.eventId)).doc.removed,
+    reproduced: late.status === 201 && snap.names.some((n) => n.id === b.json.id) && snap.names.length > snap.slots.length };
+}
+
+async function slotAfterRemoval() {
+  const h = await harness(cap).setup();
+  for (let i = 0; i < cap - 1; i++) {
+    const filler = await h.join(`f${i}`, `f${i}`, `F${String(i).padStart(15, '0')}`);
+    assert.equal(filler.status, 201);
+  }
+  const pauseA = h.pause('A', 'put', paths.name(h.eventId, nameKey('A')));
+  const a = h.join('A', 'A'); await pauseA.entered;
+  const slot = h.snapshot().slots.at(-1);
+  const pauseB = h.pause('B', 'head', slot.path, 'before', 2);
+  const b = h.join('B', 'A'); await pauseB.entered;
+  pauseA.release(); await a;
+  const removal = await h.remove(slot.id);
+  pauseB.release(); const late = await b;
+  const next = await h.join('C', 'C', 'CCCCCCCCCCCCCCCC');
+  const snap = h.snapshot();
+  return { removal, late, next, names: snap.names.length, slots: snap.slots.length,
+    reproduced: snap.names.length === cap - 1 && snap.slots.length === cap && next.json.error === 'full' };
+}
+
+async function abandonedJoin() {
+  const h = await harness(cap).setup();
+  const hook = (call) => {
+    if (call.label.startsWith('failed') && call.op === 'put' && call.path.includes('/names/') && call.stage === 'before') {
+      throw Object.assign(new Error('storage unavailable'), { code: 'ETIMEDOUT' });
+    }
+  };
+  h.hooks.add(hook);
+  const failures = [];
+  for (let i = 0; i < cap; i++) failures.push(await h.join(`failed${i}`, `bad${i}`, `T${String(i).padStart(15, '0')}`));
+  const next = await h.join('B', 'B', 'BBBBBBBBBBBBBBBB');
+  const snap = h.snapshot();
+  return { failed: failures.filter((r) => r.status === 503).length, next, names: snap.names.length, slots: snap.slots.length,
+    reproduced: failures.every((r) => r.status === 503) && snap.names.length === 0 && snap.slots.length === cap && next.json.error === 'full' };
+}
+
+// Added case: joins that die after claiming (never resume) hold every slot; past the reclamation bound
+// a healthy join must get in, and a dead join that resumes late must not also win (names > slots).
+async function deadJoinReclaimed() {
+  const h = await harness(cap).setup();
+  const start = Date.parse('2026-11-13T00:00:00Z');
+  const dead = [];
+  for (let i = 0; i < cap; i++) {
+    const pause = h.pause(`dead${i}`, 'put', paths.name(h.eventId, nameKey(`dead${i}`)));
+    dead.push({ pause, join: h.join(`dead${i}`, `dead${i}`, `Z${String(i).padStart(15, '0')}`) });
+    await pause.entered;
+  }
+  h.setTime(start + 16 * 60 * 1000);
+  const next = await h.join('B', 'B', 'BBBBBBBBBBBBBBBB');
+  for (const d of dead) d.pause.release();
+  const late = await Promise.all(dead.map((d) => d.join));
+  const snap = h.snapshot();
+  const backed = new Set(snap.slots.map((s) => s.id));
+  const orphans = snap.names.filter((n) => !backed.has(n.id)).length;
+  return { next, lateWins: late.filter((r) => r.status === 201).length, names: snap.names.length, slots: snap.slots.length, orphans,
+    reproduced: next.status !== 201 || orphans > 0 || snap.names.length > snap.slots.length };
+}
+
+const selected = process.argv.slice(3);
+for (const [name, probe] of Object.entries({ resurrection, slotAfterRemoval, abandonedJoin, deadJoinReclaimed })) {
+  if (selected.length && !selected.includes(name)) continue;
+  try {
+    let timer;
+    const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('schedule not reached')), 3000); });
+    let result;
+    try { result = await Promise.race([probe(), timeout]); } finally { clearTimeout(timer); }
+    console.log(JSON.stringify({ modulePath, cap, probe: name, ...result }));
+  }
+  catch (error) { console.log(JSON.stringify({ modulePath, probe: name, error: error.message })); process.exitCode = 1; }
+}

@@ -1,0 +1,1941 @@
+{
+ "7": {
+  "fireworks": {
+   "title": "พลุนับถอยหลัง — เกมงานเลี้ยงบริษัท คัดออกด้วยพลุบนจอใหญ่",
+   "badge": "ตัวอย่าง ไม่ใช่งานจริง",
+   "runs": [
+    {
+     "mode": "รอบคัดออก",
+     "pass": 1,
+     "steps": [
+      {
+       "label": "เปิดผล",
+       "sawCanvas": true,
+       "ms": 21004,
+       "frames": 1196,
+       "canvasEvents": 2,
+       "shots": [
+        "s7-fireworks-round-p1-reveal-1.png",
+        "s7-fireworks-round-p1-reveal-2.png"
+       ]
+      },
+      {
+       "label": "ดูอีกครั้ง",
+       "replay": true
+      }
+     ]
+    },
+    {
+     "mode": "รอบคัดออก",
+     "pass": 2,
+     "steps": [
+      {
+       "label": "เปิดผล",
+       "sawCanvas": true,
+       "ms": 20528,
+       "frames": 2392,
+       "canvasEvents": 2,
+       "shots": [
+        "s7-fireworks-round-p2-reveal-1.png",
+        "s7-fireworks-round-p2-reveal-2.png"
+       ]
+      },
+      {
+       "label": "ดูอีกครั้ง",
+       "replay": true
+      }
+     ]
+    },
+    {
+     "mode": "รอบชิง",
+     "pass": 1,
+     "steps": [
+      {
+       "label": "เปิดผล",
+       "sawCanvas": true,
+       "ms": 14280,
+       "frames": 3186,
+       "canvasEvents": 2,
+       "shots": [
+        "s7-fireworks-final-p1-reveal-1.png",
+        "s7-fireworks-final-p1-reveal-2.png"
+       ]
+      },
+      {
+       "label": "ดูอีกครั้ง",
+       "replay": true
+      }
+     ]
+    },
+    {
+     "mode": "รอบชิง",
+     "pass": 2,
+     "steps": [
+      {
+       "label": "เปิดผล",
+       "sawCanvas": true,
+       "ms": 13887,
+       "frames": 3980,
+       "canvasEvents": 2,
+       "shots": [
+        "s7-fireworks-final-p2-reveal-1.png",
+        "s7-fireworks-final-p2-reveal-2.png"
+       ]
+      },
+      {
+       "label": "ดูอีกครั้ง",
+       "replay": true
+      }
+     ]
+    }
+   ],
+   "renderer": [
+    "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+   ],
+   "lost": [
+    {
+     "t": 22325,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 44351,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 60506,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 75805,
+     "connected": false,
+     "parent": "pr-host"
+    }
+   ],
+   "threeFetched": [
+    "http://localhost:4611/_astro/three.module.BRVBmMrM.js"
+   ]
+  },
+  "cards": {
+   "title": "ไพ่แจกทั้งห้อง — เกมงานเลี้ยงบริษัท แจกไพ่คัดออกบนจอใหญ่",
+   "badge": "ตัวอย่าง ไม่ใช่งานจริง",
+   "runs": [
+    {
+     "mode": null,
+     "pass": 1,
+     "steps": [
+      {
+       "label": "แจกไพ่",
+       "sawCanvas": true,
+       "ms": 5025,
+       "frames": 264,
+       "canvasEvents": 2,
+       "shots": [
+        "s7-cards-x-p1-deal-1.png"
+       ]
+      },
+      {
+       "label": "เปิดผล",
+       "sawCanvas": true,
+       "ms": 7505,
+       "frames": 662,
+       "canvasEvents": 2,
+       "shots": [
+        "s7-cards-x-p1-reveal-1.png",
+        "s7-cards-x-p1-reveal-2.png"
+       ]
+      },
+      {
+       "label": "ดูอีกครั้ง",
+       "replay": true
+      }
+     ]
+    },
+    {
+     "mode": null,
+     "pass": 2,
+     "steps": [
+      {
+       "label": "แจกไพ่",
+       "sawCanvas": true,
+       "ms": 5042,
+       "frames": 926,
+       "canvasEvents": 2,
+       "shots": [
+        "s7-cards-x-p2-deal-1.png"
+       ]
+      },
+      {
+       "label": "เปิดผล",
+       "sawCanvas": true,
+       "ms": 7504,
+       "frames": 1324,
+       "canvasEvents": 2,
+       "shots": [
+        "s7-cards-x-p2-reveal-1.png",
+        "s7-cards-x-p2-reveal-2.png"
+       ]
+      },
+      {
+       "label": "ดูอีกครั้ง",
+       "replay": true
+      }
+     ]
+    }
+   ],
+   "renderer": [
+    "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+   ],
+   "lost": [
+    {
+     "t": 5859,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 13441,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 19920,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 27523,
+     "connected": false,
+     "parent": "pr-host"
+    }
+   ],
+   "threeFetched": [
+    "http://localhost:4611/_astro/three.module.BRVBmMrM.js",
+    "http://localhost:4611/_astro/three.module.BRVBmMrM.js"
+   ]
+  },
+  "ladder": {
+   "title": "ทางแยกเลือกเส้น — เกมงานเลี้ยงบริษัท รอบชิงรางวัลบนจอใหญ่",
+   "badge": "ตัวอย่าง ไม่ใช่งานจริง",
+   "runs": [
+    {
+     "mode": null,
+     "pass": 1,
+     "steps": [
+      {
+       "label": "เปิดผล",
+       "sawCanvas": true,
+       "ms": 34285,
+       "frames": 2018,
+       "canvasEvents": 2,
+       "shots": [
+        "s7-ladder-x-p1-reveal-1.png",
+        "s7-ladder-x-p1-reveal-2.png"
+       ]
+      },
+      {
+       "label": "ดูอีกครั้ง",
+       "replay": true
+      }
+     ]
+    },
+    {
+     "mode": null,
+     "pass": 2,
+     "steps": [
+      {
+       "label": "เปิดผล",
+       "sawCanvas": true,
+       "ms": 34196,
+       "frames": 4036,
+       "canvasEvents": 2,
+       "shots": [
+        "s7-ladder-x-p2-reveal-1.png",
+        "s7-ladder-x-p2-reveal-2.png"
+       ]
+      },
+      {
+       "label": "ดูอีกครั้ง",
+       "replay": true
+      }
+     ]
+    }
+   ],
+   "renderer": [
+    "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+   ],
+   "lost": [
+    {
+     "t": 35091,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 70788,
+     "connected": false,
+     "parent": "pr-host"
+    }
+   ],
+   "threeFetched": [
+    "http://localhost:4611/_astro/three.module.BRVBmMrM.js",
+    "http://localhost:4611/_astro/three.module.BRVBmMrM.js",
+    "http://localhost:4611/_astro/three.module.BRVBmMrM.js"
+   ]
+  },
+  "console": {
+   "consoleErrWarn": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  }
+ },
+ "8": {
+  "round": {
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "screen": "round",
+   "dataField": true,
+   "mc": {
+    "l": 169,
+    "t": 2,
+    "r": 296,
+    "b": 54,
+    "w": 127,
+    "h": 52
+   },
+   "exit": {
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "w": 44,
+    "h": 44
+   },
+   "overlap": false,
+   "cols": 2,
+   "distinctChipLefts": 2,
+   "mcText": "เปิดผล",
+   "mcVisible": true,
+   "exitVisible": true
+  },
+  "reveal": {
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "screen": "reveal",
+   "dataField": true,
+   "mc": {
+    "l": 144,
+    "t": 2,
+    "r": 296,
+    "b": 54,
+    "w": 152,
+    "h": 52
+   },
+   "exit": {
+    "l": 6,
+    "t": 6,
+    "r": 50,
+    "b": 50,
+    "w": 44,
+    "h": 44
+   },
+   "overlap": false,
+   "cols": 2,
+   "distinctChipLefts": 3,
+   "mcText": "รอบต่อไป",
+   "mcVisible": true,
+   "exitVisible": true
+  },
+  "chipWidths": [
+   139,
+   139,
+   139
+  ],
+  "console": {
+   "consoleErrWarn": [],
+   "exceptions": [
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+   ],
+   "log": [],
+   "dialogs": []
+  }
+ },
+ "9": {
+  "first": {
+   "title": "ตั้งชื่อที่จะขึ้นจอ — จับรางวัลปีใหม่",
+   "hash": "",
+   "href": "http://localhost:4611/game/prize-draw/join/",
+   "body": "ไม่พบงานนี้ ลองสแกน QR บนจออีกครั้ง",
+   "hasMain": true
+  },
+  "later": {
+   "hash": "",
+   "body": "ไม่พบงานนี้ ลองสแกน QR บนจออีกครั้ง",
+   "historyLen": 2
+  },
+  "console": {
+   "consoleErrWarn": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  },
+  "requests": [],
+  "failed": []
+ },
+ "probe": {
+  "glOn": {
+   "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+   "vis": "visible",
+   "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+   "rafPerSec": 60,
+   "h1": "จับรางวัลปีใหม่",
+   "eventHint": "ขึ้นบนจอใหญ่ตลอดงาน",
+   "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Hea"
+  },
+  "glForcedOff": {
+   "gl": false,
+   "ctx": [
+    {
+     "type": "webgl2",
+     "t": 17,
+     "blocked": true
+    },
+    {
+     "type": "webgl2",
+     "t": 921,
+     "blocked": true
+    }
+   ]
+  },
+  "expectTitleContains": "prize",
+  "chunkSig": [
+   "three.module.BRVBmMrM.js"
+  ]
+ },
+ "main.renderer": [
+  "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+ ],
+ "main.s1": {
+  "pre": {
+   "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+   "count": "30 ชื่อ",
+   "sched": [
+    "30 คน",
+    "20 คน",
+    "10 คน",
+    "7 คน"
+   ],
+   "prizesShown": "3",
+   "pressed": [
+    "พลุนับถอยหลัง",
+    "ไพ่แจกทั้งห้อง",
+    "แบบปกติ",
+    "แบบปกติ",
+    "ทางแยกเลือกเส้น"
+   ],
+   "note": "",
+   "msgs": ""
+  },
+  "arrived": "/game/prize-draw/play/",
+  "stored": {
+   "games": {
+    "rounds": [
+     "fireworks",
+     "cards",
+     null,
+     null
+    ],
+    "final": "ladder"
+   },
+   "prizes": [
+    "ทีวี",
+    "พัดลม",
+    "บัตรกำนัล"
+   ],
+   "heads": 30,
+   "at": "ready"
+  },
+  "title": "จับรางวัลปีใหม่ — จอใหญ่",
+  "verdict": "PASS"
+ },
+ "main.s2": {
+  "tap": {
+   "x": 1832.3515625,
+   "y": 28,
+   "disabled": false,
+   "hit": true,
+   "text": "เปิดผล"
+  },
+  "tl": [
+   {
+    "ms": 192,
+    "canvas": false,
+    "cw": 0,
+    "btn": "เปิดผล",
+    "frames": 0,
+    "phase": null,
+    "raf": 112
+   },
+   {
+    "ms": 315,
+    "canvas": true,
+    "cw": 1920,
+    "btn": null,
+    "frames": 3,
+    "phase": "start",
+    "raf": 117
+   },
+   {
+    "ms": 10896,
+    "canvas": true,
+    "cw": 1920,
+    "btn": null,
+    "frames": 637,
+    "phase": "cut:0",
+    "raf": 751
+   },
+   {
+    "ms": 12001,
+    "canvas": true,
+    "cw": 1920,
+    "btn": null,
+    "frames": 703,
+    "phase": "cut:1",
+    "raf": 817
+   },
+   {
+    "ms": 13113,
+    "canvas": true,
+    "cw": 1920,
+    "btn": null,
+    "frames": 770,
+    "phase": "cut:2",
+    "raf": 884
+   },
+   {
+    "ms": 14218,
+    "canvas": true,
+    "cw": 1920,
+    "btn": null,
+    "frames": 836,
+    "phase": "cut:3",
+    "raf": 950
+   },
+   {
+    "ms": 15330,
+    "canvas": true,
+    "cw": 1920,
+    "btn": null,
+    "frames": 903,
+    "phase": "cut:4",
+    "raf": 1017
+   },
+   {
+    "ms": 20183,
+    "canvas": false,
+    "cw": 0,
+    "btn": "รอบต่อไป",
+    "frames": 1193,
+    "phase": "cut:4",
+    "raf": 1307
+   }
+  ],
+  "sawCanvas": true,
+  "shots": [
+   "s2-fireworks-01.png",
+   "s2-fireworks-02.png",
+   "s2-fireworks-03.png",
+   "s2-fireworks-04.png",
+   "s2-fireworks-05.png",
+   "s2-fireworks-06.png"
+  ],
+  "done": true,
+  "hook": null,
+  "elapsedMs": 20892,
+  "canvasEvents": [
+   {
+    "t": 1964,
+    "ev": "canvas+",
+    "parent": "pr-host"
+   },
+   {
+    "t": 21843,
+    "ev": "canvas-",
+    "parent": "pr-host"
+   }
+  ],
+  "ctxAll": [
+   {
+    "type": "webgl2",
+    "t": 1890,
+    "ok": true,
+    "parent": null,
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+    "vendor": "Google Inc. (Apple)"
+   }
+  ],
+  "lost": [
+   {
+    "t": 21845,
+    "connected": false,
+    "parent": "pr-host"
+   }
+  ],
+  "finalBtn": "รอบต่อไป",
+  "phases": [
+   "start",
+   "cut:0",
+   "cut:1",
+   "cut:2",
+   "cut:3",
+   "cut:4"
+  ],
+  "frames": 1193,
+  "stored": {
+   "round": 1,
+   "game": "fireworks",
+   "survivors": [
+    "Guest02",
+    "Guest03",
+    "Guest04",
+    "Guest05",
+    "Guest07",
+    "Guest10",
+    "Guest12",
+    "Guest13",
+    "Guest14",
+    "Guest16",
+    "Guest17",
+    "Guest18",
+    "Guest20",
+    "Guest21",
+    "Guest22",
+    "Guest24",
+    "Guest25",
+    "Guest27",
+    "Guest28",
+    "มานี"
+   ],
+   "n": 20
+  },
+  "chips": {
+   "screen": "reveal",
+   "total": 30,
+   "inNames": [
+    "Guest02",
+    "Guest03",
+    "Guest04",
+    "Guest05",
+    "Guest07",
+    "Guest10",
+    "Guest12",
+    "Guest13",
+    "Guest14",
+    "Guest16",
+    "Guest17",
+    "Guest18",
+    "Guest20",
+    "Guest21",
+    "Guest22",
+    "Guest24",
+    "Guest25",
+    "Guest27",
+    "Guest28",
+    "มานี"
+   ],
+   "outCount": 10
+  },
+  "survivorsEqual": true,
+  "painted": {
+   "total": 129,
+   "distinct": [
+    "Guest01",
+    "Guest02",
+    "Guest03",
+    "Guest04",
+    "Guest05",
+    "Guest06",
+    "Guest07",
+    "Guest08",
+    "Guest09",
+    "Guest10",
+    "Guest11",
+    "Guest12",
+    "Guest13",
+    "Guest14",
+    "Guest15",
+    "Guest16",
+    "Guest17",
+    "Guest18",
+    "Guest19",
+    "Guest20",
+    "Guest21",
+    "Guest22",
+    "Guest23",
+    "Guest24",
+    "Guest25",
+    "Guest26",
+    "Guest27",
+    "Guest28",
+    "สมชาย",
+    "มานี",
+    "รอบที่ 1 จาก 4",
+    "Playthrough",
+    "ทั้งห้องนับพร้อมกัน",
+    "พลุนับถอยหลัง",
+    "ถึง 0 แล้วพลุจะขึ้น",
+    "10",
+    "9",
+    "8",
+    "7",
+    "6",
+    "5",
+    "4",
+    "3",
+    "2",
+    "1",
+    "0",
+    "พลุลูกที่ 1 จาก 5",
+    "โคมที่ดับ คือชื่อที่ไม่ผ่าน",
+    "30",
+    "คน",
+    "29",
+    "28",
+    "พลุลูกที่ 2 จาก 5",
+    "27",
+    "26",
+    "พลุลูกที่ 3 จาก 5",
+    "25",
+    "24",
+    "พลุลูกที่ 4 จาก 5",
+    "23"
+   ],
+   "lastNamed": [
+    "Guest01",
+    "Guest02",
+    "Guest03",
+    "Guest04",
+    "Guest05",
+    "Guest06",
+    "Guest07",
+    "Guest08",
+    "Guest09",
+    "Guest10",
+    "Guest11",
+    "Guest12",
+    "Guest13",
+    "Guest14",
+    "Guest15",
+    "Guest16",
+    "Guest17",
+    "Guest18",
+    "Guest19",
+    "Guest20",
+    "Guest21",
+    "Guest22",
+    "Guest23",
+    "Guest24",
+    "Guest25",
+    "Guest26",
+    "Guest27",
+    "Guest28",
+    "สมชาย",
+    "มานี"
+   ]
+  },
+  "nextRound": "รอบที่ 2 จาก 4"
+ },
+ "main.s3": {
+  "label": "แจกไพ่",
+  "doubleTapDeal": {
+   "dealStored": {
+    "game": "cards",
+    "round": 2
+   },
+   "roundsAfterDeal": 1,
+   "atAfterDeal": "ready",
+   "sawCanvas": true,
+   "dealTl": [
+    {
+     "ms": 1,
+     "v": [
+      true,
+      null,
+      "start"
+     ],
+     "frames": 1200
+    },
+    {
+     "ms": 718,
+     "v": [
+      false,
+      "เปิดผล",
+      "deal:0"
+     ],
+     "frames": 1241
+    }
+   ],
+   "shots": [
+    "s3-deal-1.png",
+    "s3-deal-2.png",
+    "s3-deal-3.png"
+   ]
+  },
+  "earlyTap": {
+   "elementAtTap": {
+    "x": 1832.3515625,
+    "y": 28,
+    "disabled": true,
+    "hit": true,
+    "text": "เปิดผล"
+   },
+   "appeared": {
+    "lastAppear": {
+     "t": 24790,
+     "key": "เปิดผล|d"
+    },
+    "nowMs": 24817
+   },
+   "sinceTapMsInPage": null,
+   "roundsBefore": 1,
+   "roundsAfterEarly": 1,
+   "preparedAfterEarly": true,
+   "fired": false,
+   "btnTimeline": [
+    {
+     "t": 22835,
+     "key": "แจกไพ่|d"
+    },
+    {
+     "t": 23236,
+     "key": "แจกไพ่|e"
+    },
+    {
+     "t": 23988,
+     "key": null
+    },
+    {
+     "t": 24790,
+     "key": "เปิดผล|d"
+    }
+   ]
+  },
+  "reveal": {
+   "tap": {
+    "x": 1832.3515625,
+    "y": 28,
+    "disabled": false,
+    "hit": true,
+    "text": "เปิดผล"
+   },
+   "tl": [
+    {
+     "ms": 191,
+     "canvas": false,
+     "cw": 0,
+     "btn": "เปิดผล",
+     "frames": 1241,
+     "phase": "deal:0",
+     "raf": 1557
+    },
+    {
+     "ms": 314,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 1247,
+     "phase": "start",
+     "raf": 1564
+    },
+    {
+     "ms": 1053,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 1291,
+     "phase": "rule:0",
+     "raf": 1608
+    },
+    {
+     "ms": 5558,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 1562,
+     "phase": "cut:0",
+     "raf": 1879
+    },
+    {
+     "ms": 6916,
+     "canvas": false,
+     "cw": 0,
+     "btn": "รอบต่อไป",
+     "frames": 1639,
+     "phase": "cut:0",
+     "raf": 1960
+    }
+   ],
+   "sawCanvas": true,
+   "shots": [
+    "s3-cards-reveal-01.png",
+    "s3-cards-reveal-02.png"
+   ],
+   "done": true,
+   "hook": null,
+   "elapsedMs": 7622,
+   "canvasEvents": [
+    {
+     "t": 26048,
+     "ev": "canvas+",
+     "parent": "pr-host"
+    },
+    {
+     "t": 32653,
+     "ev": "canvas-",
+     "parent": "pr-host"
+    }
+   ],
+   "ctxAll": [
+    {
+     "type": "webgl2",
+     "t": 1890,
+     "ok": true,
+     "parent": null,
+     "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+     "vendor": "Google Inc. (Apple)"
+    },
+    {
+     "type": "webgl2",
+     "t": 23988,
+     "ok": true,
+     "parent": null,
+     "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+     "vendor": "Google Inc. (Apple)"
+    },
+    {
+     "type": "webgl2",
+     "t": 26024,
+     "ok": true,
+     "parent": null,
+     "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+     "vendor": "Google Inc. (Apple)"
+    }
+   ],
+   "lost": [
+    {
+     "t": 21845,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 24791,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 32654,
+     "connected": false,
+     "parent": "pr-host"
+    }
+   ],
+   "finalBtn": "รอบต่อไป",
+   "phases": [
+    "start",
+    "cut:0",
+    "cut:1",
+    "cut:2",
+    "cut:3",
+    "cut:4",
+    "deal:0",
+    "rule:0"
+   ],
+   "frames": 1639
+  },
+  "stored": {
+   "round": 2,
+   "game": "cards",
+   "survivors": [
+    "Guest05",
+    "Guest07",
+    "Guest10",
+    "Guest14",
+    "Guest17",
+    "Guest18",
+    "Guest22",
+    "Guest27",
+    "Guest28",
+    "มานี"
+   ],
+   "n": 10,
+   "rule": 1
+  },
+  "chips": {
+   "screen": "reveal",
+   "total": 20,
+   "inNames": [
+    "Guest05",
+    "Guest07",
+    "Guest10",
+    "Guest14",
+    "Guest17",
+    "Guest18",
+    "Guest22",
+    "Guest27",
+    "Guest28",
+    "มานี"
+   ],
+   "outCount": 10
+  },
+  "survivorsEqual": true,
+  "rule": 1,
+  "paintedCards": [
+   "แจกไพ่แล้ว 1 ใบ",
+   "แจกไพ่แล้ว 2 ใบ",
+   "แจกไพ่แล้ว 3 ใบ",
+   "แจกไพ่แล้ว 4 ใบ",
+   "แจกไพ่แล้ว 5 ใบ",
+   "แจกไพ่แล้ว 6 ใบ",
+   "แจกไพ่แล้ว 7 ใบ",
+   "แจกไพ่แล้ว 8 ใบ",
+   "แจกไพ่แล้ว 9 ใบ",
+   "แจกไพ่แล้ว 10 ใบ",
+   "แจกไพ่แล้ว 11 ใบ",
+   "แจกไพ่แล้ว 12 ใบ",
+   "แจกไพ่แล้ว 13 ใบ",
+   "แจกไพ่แล้ว 14 ใบ",
+   "แจกไพ่แล้ว 15 ใบ",
+   "แจกไพ่แล้ว 16 ใบ",
+   "แจกไพ่แล้ว 17 ใบ",
+   "แจกไพ่แล้ว 18 ใบ",
+   "แจกไพ่แล้ว 19 ใบ",
+   "แจกไพ่แล้ว 20 ใบ",
+   "Q",
+   "J",
+   "A",
+   "K",
+   "กติการอบนี้",
+   "เฉพาะไพ่",
+   "หน้าคน",
+   "เปิดพร้อมกันทั้งห้อง",
+   "ไพ่หน้าคนอยู่ต่อ ไพ่อื่นตกรอบ",
+   "เฉพาะไพ่หน้าคน",
+   "ผ่านรอบที่ 2",
+   "19",
+   "18",
+   "17",
+   "16",
+   "15",
+   "14",
+   "13",
+   "12",
+   "11"
+  ]
+ },
+ "main.s4": [
+  {
+   "round": 3,
+   "sawCanvas": false,
+   "canvasEventsDuring": 0,
+   "glContextsDuring": 3,
+   "stored": {
+    "round": 3,
+    "game": null,
+    "survivors": [
+     "Guest05",
+     "Guest07",
+     "Guest10",
+     "Guest17",
+     "Guest18",
+     "Guest28",
+     "มานี"
+    ],
+    "n": 7
+   },
+   "chips": {
+    "screen": "reveal",
+    "total": 10,
+    "inNames": [
+     "Guest05",
+     "Guest07",
+     "Guest10",
+     "Guest17",
+     "Guest18",
+     "Guest28",
+     "มานี"
+    ],
+    "outCount": 3
+   },
+   "survivorsEqual": true,
+   "game": null,
+   "finalBtn": "รอบต่อไป"
+  },
+  {
+   "round": 4,
+   "sawCanvas": false,
+   "canvasEventsDuring": 0,
+   "glContextsDuring": 3,
+   "stored": {
+    "round": 4,
+    "game": null,
+    "survivors": [
+     "Guest05",
+     "Guest10",
+     "Guest17",
+     "Guest18",
+     "Guest28"
+    ],
+    "n": 5
+   },
+   "chips": {
+    "screen": "reveal",
+    "total": 7,
+    "inNames": [
+     "Guest05",
+     "Guest10",
+     "Guest17",
+     "Guest18",
+     "Guest28"
+    ],
+    "outCount": 2
+   },
+   "survivorsEqual": true,
+   "game": null,
+   "finalBtn": "รอบต่อไป"
+  }
+ ],
+ "main.s5": {
+  "slotsDomBeforePick": [
+   {
+    "cls": "pd-slot prize",
+    "k": "รางวัลที่ 3",
+    "p": "บัตรกำนัล"
+   },
+   {
+    "cls": "pd-slot prize",
+    "k": "รางวัลที่ 1",
+    "p": "ทีวี"
+   },
+   {
+    "cls": "pd-slot none",
+    "k": "ไม่มีรางวัล",
+    "p": "ขอบคุณที่ร่วมลุ้น"
+   },
+   {
+    "cls": "pd-slot none",
+    "k": "ไม่มีรางวัล",
+    "p": "ขอบคุณที่ร่วมลุ้น"
+   },
+   {
+    "cls": "pd-slot prize",
+    "k": "รางวัลที่ 2",
+    "p": "พัดลม"
+   }
+  ],
+  "preparedSlotRanks": [
+   2,
+   0,
+   4,
+   3,
+   1
+  ],
+  "domSlotMatchesStored": true,
+  "drawDisabledAtStart": {
+   "text": "เปิดผล",
+   "disabled": true
+  },
+  "lanePicks": [
+   {
+    "lane": 0,
+    "name": "Guest05",
+    "tapHit": true
+   },
+   {
+    "lane": 1,
+    "name": "Guest10",
+    "tapHit": true
+   },
+   {
+    "lane": 2,
+    "name": "Guest17",
+    "tapHit": true
+   },
+   {
+    "lane": 3,
+    "name": "Guest18",
+    "tapHit": true
+   },
+   {
+    "lane": 4,
+    "name": "Guest28",
+    "tapHit": true
+   }
+  ],
+  "planesAfter": [
+   "Guest05",
+   "Guest10",
+   "Guest17",
+   "Guest18",
+   "Guest28"
+  ],
+  "drawStateAfterFive": {
+   "text": "เปิดผล",
+   "disabled": true
+  },
+  "reveal": {
+   "tap": {
+    "x": 1832.3515625,
+    "y": 28,
+    "disabled": false,
+    "hit": true,
+    "text": "เปิดผล"
+   },
+   "tl": [
+    {
+     "ms": 267,
+     "canvas": false,
+     "cw": 0,
+     "btn": "เปิดผล",
+     "frames": 1639,
+     "phase": "cut:0",
+     "raf": 3269
+    },
+    {
+     "ms": 390,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 1645,
+     "phase": "start",
+     "raf": 3276
+    },
+    {
+     "ms": 1872,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 1734,
+     "phase": "cut:0",
+     "raf": 3365
+    },
+    {
+     "ms": 6708,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 2024,
+     "phase": "prize:0",
+     "raf": 3655
+    },
+    {
+     "ms": 7817,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 2091,
+     "phase": "cut:1",
+     "raf": 3722
+    },
+    {
+     "ms": 12680,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 2382,
+     "phase": "prize:2",
+     "raf": 4013
+    },
+    {
+     "ms": 13917,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 2457,
+     "phase": "cut:2",
+     "raf": 4088
+    },
+    {
+     "ms": 18690,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 2743,
+     "phase": "prize:3",
+     "raf": 4374
+    },
+    {
+     "ms": 19895,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 2815,
+     "phase": "cut:3",
+     "raf": 4446
+    },
+    {
+     "ms": 24629,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 3099,
+     "phase": "prize:1",
+     "raf": 4730
+    },
+    {
+     "ms": 25933,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 3178,
+     "phase": "cut:4",
+     "raf": 4809
+    },
+    {
+     "ms": 30732,
+     "canvas": true,
+     "cw": 1920,
+     "btn": null,
+     "frames": 3465,
+     "phase": "prize:4",
+     "raf": 5096
+    },
+    {
+     "ms": 33943,
+     "canvas": false,
+     "cw": 0,
+     "btn": null,
+     "frames": 3657,
+     "phase": "prize:4",
+     "raf": 5289
+    }
+   ],
+   "sawCanvas": true,
+   "shots": [
+    "s5-ladder-01.png",
+    "s5-ladder-02.png",
+    "s5-ladder-03.png",
+    "s5-ladder-04.png",
+    "s5-ladder-05.png",
+    "s5-ladder-06.png",
+    "s5-ladder-07.png",
+    "s5-ladder-08.png",
+    "s5-ladder-09.png",
+    "s5-ladder-10.png",
+    "s5-ladder-11.png",
+    "s5-ladder-12.png"
+   ],
+   "done": true,
+   "hook": null,
+   "elapsedMs": 34652,
+   "canvasEvents": [
+    {
+     "t": 54586,
+     "ev": "canvas+",
+     "parent": "pr-host"
+    },
+    {
+     "t": 88180,
+     "ev": "canvas-",
+     "parent": "pr-host"
+    }
+   ],
+   "ctxAll": [
+    {
+     "type": "webgl2",
+     "t": 1890,
+     "ok": true,
+     "parent": null,
+     "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+     "vendor": "Google Inc. (Apple)"
+    },
+    {
+     "type": "webgl2",
+     "t": 23988,
+     "ok": true,
+     "parent": null,
+     "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+     "vendor": "Google Inc. (Apple)"
+    },
+    {
+     "type": "webgl2",
+     "t": 26024,
+     "ok": true,
+     "parent": null,
+     "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+     "vendor": "Google Inc. (Apple)"
+    },
+    {
+     "type": "webgl2",
+     "t": 54555,
+     "ok": true,
+     "parent": null,
+     "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+     "vendor": "Google Inc. (Apple)"
+    }
+   ],
+   "lost": [
+    {
+     "t": 21845,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 24791,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 32654,
+     "connected": false,
+     "parent": "pr-host"
+    },
+    {
+     "t": 88180,
+     "connected": false,
+     "parent": "pr-host"
+    }
+   ],
+   "finalBtn": null,
+   "phases": [
+    "start",
+    "cut:0",
+    "cut:1",
+    "cut:2",
+    "cut:3",
+    "cut:4",
+    "deal:0",
+    "rule:0",
+    "prize:0",
+    "prize:2",
+    "prize:3",
+    "prize:1",
+    "prize:4"
+   ],
+   "frames": 3657
+  },
+  "storedFinal": {
+   "game": "ladder",
+   "order": [
+    "Guest05",
+    "Guest18",
+    "Guest10",
+    "Guest17",
+    "Guest28"
+   ],
+   "picks": [
+    "Guest05",
+    "Guest10",
+    "Guest17",
+    "Guest18",
+    "Guest28"
+   ],
+   "permutation": [
+    1,
+    0,
+    3,
+    4,
+    2
+   ],
+   "slotRanks": [
+    2,
+    0,
+    4,
+    3,
+    1
+   ]
+  },
+  "winnersDom": {
+   "screen": "result",
+   "first": [
+    "รางวัลที่ 1 · ทีวี",
+    "Guest05"
+   ],
+   "cards": [
+    [
+     "รางวัลที่ 2 · พัดลม",
+     "Guest18"
+    ],
+    [
+     "รางวัลที่ 3 · บัตรกำนัล",
+     "Guest10"
+    ]
+   ]
+  },
+  "winnersMatchOrder": true,
+  "ladderConsistentRederived": true,
+  "paintedLadder": {
+   "noPrize": 6,
+   "prizeLabels": [
+    "รางวัลที่ 1 · ทีวี",
+    "รางวัลที่ 2 · พัดลม",
+    "รางวัลที่ 3 · บัตรกำนัล",
+    "รางวัลที่ 3",
+    "รางวัลที่ 1",
+    "รางวัลที่ 2"
+   ]
+  },
+  "expectedSlots": [
+   {
+    "exit": 0,
+    "rank": 2,
+    "expect": "รางวัลที่ 3"
+   },
+   {
+    "exit": 1,
+    "rank": 0,
+    "expect": "รางวัลที่ 1"
+   },
+   {
+    "exit": 2,
+    "rank": 4,
+    "expect": "ไม่มีรางวัล"
+   },
+   {
+    "exit": 3,
+    "rank": 3,
+    "expect": "ไม่มีรางวัล"
+   },
+   {
+    "exit": 4,
+    "rank": 1,
+    "expect": "รางวัลที่ 2"
+   }
+  ],
+  "finalAt": "revealed"
+ },
+ "main.lostAll": [
+  {
+   "t": 21845,
+   "connected": false,
+   "parent": "pr-host"
+  },
+  {
+   "t": 24791,
+   "connected": false,
+   "parent": "pr-host"
+  },
+  {
+   "t": 32654,
+   "connected": false,
+   "parent": "pr-host"
+  },
+  {
+   "t": 88180,
+   "connected": false,
+   "parent": "pr-host"
+  }
+ ],
+ "main.ctxSummary": {
+  "total": 4,
+  "okCount": 4
+ },
+ "main.console": {
+  "consoleErrWarn": [],
+  "exceptions": [
+   "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+  ],
+  "log": [],
+  "dialogs": []
+ },
+ "main.jsFetched": [
+  "PageChrome.astro_astro_type_script_index_0_lang.C4AjlaAV.js",
+  "index.astro_astro_type_script_index_0_lang.ZTcMY24g.js",
+  "setup-page.b-gxazIm.js",
+  "event.BhJM5ppl.js",
+  "store.B1_bPkph.js",
+  "names-dom.CLNDAcOt.js",
+  "PlayExit.astro_astro_type_script_index_0_lang.BFtaePHp.js",
+  "play.astro_astro_type_script_index_0_lang.b9qiu6hd.js",
+  "_arm-gate.DX57CvRR.js",
+  "event.BhJM5ppl.js",
+  "store.B1_bPkph.js",
+  "reveal.CvNUCR2j.js",
+  "plan.DSh5XcFz.js",
+  "names-dom.CLNDAcOt.js",
+  "preload-helper.BlTxHScW.js",
+  "_render-hold.CIhBdJPy.js",
+  "seed.HtOFMeQE.js",
+  "index.B1qV2OLA.js",
+  "three.module.BRVBmMrM.js",
+  "paint.B989SKNL.js",
+  "index.DiwL06GZ.js",
+  "index.ClKeB51M.js"
+ ],
+ "main.threeFetched": [
+  "http://localhost:4611/_astro/three.module.BRVBmMrM.js"
+ ],
+ "main.summary": {
+  "s1": "PASS",
+  "s2": {
+   "sawCanvas": true,
+   "done": true,
+   "survivorsEqual": true
+  },
+  "s3": {
+   "sawCanvas": true,
+   "survivorsEqual": true,
+   "earlyFired": false
+  },
+  "s4": [
+   [
+    false,
+    true
+   ],
+   [
+    false,
+    true
+   ]
+  ],
+  "s5": {
+   "slots": true,
+   "winners": true,
+   "consistent": true,
+   "sawCanvas": true
+  }
+ },
+ "6a": {
+  "emulatedMatches": true,
+  "sawCanvas": false,
+  "canvasEvents": [],
+  "glCtx": [],
+  "threeFetched": [],
+  "jsFetched": [
+   "PageChrome.astro_astro_type_script_index_0_lang.C4AjlaAV.js",
+   "index.astro_astro_type_script_index_0_lang.ZTcMY24g.js",
+   "setup-page.b-gxazIm.js",
+   "event.BhJM5ppl.js",
+   "store.B1_bPkph.js",
+   "names-dom.CLNDAcOt.js",
+   "PlayExit.astro_astro_type_script_index_0_lang.BFtaePHp.js",
+   "play.astro_astro_type_script_index_0_lang.b9qiu6hd.js",
+   "_arm-gate.DX57CvRR.js",
+   "event.BhJM5ppl.js",
+   "store.B1_bPkph.js",
+   "reveal.CvNUCR2j.js",
+   "plan.DSh5XcFz.js",
+   "names-dom.CLNDAcOt.js",
+   "preload-helper.BlTxHScW.js",
+   "_render-hold.CIhBdJPy.js",
+   "seed.HtOFMeQE.js"
+  ],
+  "stored": {
+   "round": 1,
+   "game": "fireworks",
+   "survivors": [
+    "Guest01",
+    "Guest02",
+    "Guest03",
+    "Guest08",
+    "Guest13",
+    "Guest15",
+    "Guest16",
+    "Guest17",
+    "Guest18",
+    "Guest19",
+    "Guest20",
+    "Guest21",
+    "Guest22",
+    "Guest23",
+    "Guest24",
+    "Guest25",
+    "Guest26",
+    "Guest27",
+    "Guest28",
+    "สมชาย"
+   ],
+   "n": 20
+  },
+  "chips": {
+   "screen": "reveal",
+   "total": 30,
+   "inNames": [
+    "Guest01",
+    "Guest02",
+    "Guest03",
+    "Guest08",
+    "Guest13",
+    "Guest15",
+    "Guest16",
+    "Guest17",
+    "Guest18",
+    "Guest19",
+    "Guest20",
+    "Guest21",
+    "Guest22",
+    "Guest23",
+    "Guest24",
+    "Guest25",
+    "Guest26",
+    "Guest27",
+    "Guest28",
+    "สมชาย"
+   ],
+   "outCount": 10
+  },
+  "survivorsEqual": true,
+  "finalBtn": "รอบต่อไป",
+  "console": {
+   "consoleErrWarn": [],
+   "exceptions": [
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+   ],
+   "log": [],
+   "dialogs": []
+  },
+  "arrived": "/game/prize-draw/play/"
+ },
+ "6b": {
+  "noGLFlag": true,
+  "setupPre": {
+   "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+   "count": "30 ชื่อ",
+   "sched": [
+    "30 คน",
+    "20 คน",
+    "10 คน",
+    "7 คน"
+   ],
+   "prizesShown": "3",
+   "pressed": [
+    "พลุนับถอยหลัง",
+    "แบบปกติ",
+    "แบบปกติ",
+    "แบบปกติ",
+    "แบบปกติ"
+   ],
+   "note": "เครื่องนี้แสดงเกม 3D ไม่ได้ ถ้าวันงานก็แสดงไม่ได้ ระบบจะเปิด",
+   "msgs": ""
+  },
+  "sawCanvas": false,
+  "canvasEvents": [],
+  "glCtx": [
+   {
+    "type": "webgl2",
+    "t": 1798,
+    "blocked": true
+   }
+  ],
+  "threeFetched": [],
+  "jsFetched": [
+   "PageChrome.astro_astro_type_script_index_0_lang.C4AjlaAV.js",
+   "index.astro_astro_type_script_index_0_lang.ZTcMY24g.js",
+   "setup-page.b-gxazIm.js",
+   "event.BhJM5ppl.js",
+   "store.B1_bPkph.js",
+   "names-dom.CLNDAcOt.js",
+   "PlayExit.astro_astro_type_script_index_0_lang.BFtaePHp.js",
+   "play.astro_astro_type_script_index_0_lang.b9qiu6hd.js",
+   "_arm-gate.DX57CvRR.js",
+   "event.BhJM5ppl.js",
+   "store.B1_bPkph.js",
+   "reveal.CvNUCR2j.js",
+   "plan.DSh5XcFz.js",
+   "names-dom.CLNDAcOt.js",
+   "preload-helper.BlTxHScW.js",
+   "_render-hold.CIhBdJPy.js",
+   "seed.HtOFMeQE.js"
+  ],
+  "stored": {
+   "round": 1,
+   "game": "fireworks",
+   "survivors": [
+    "Guest02",
+    "Guest03",
+    "Guest05",
+    "Guest06",
+    "Guest07",
+    "Guest08",
+    "Guest09",
+    "Guest10",
+    "Guest13",
+    "Guest14",
+    "Guest16",
+    "Guest18",
+    "Guest19",
+    "Guest20",
+    "Guest21",
+    "Guest24",
+    "Guest25",
+    "Guest26",
+    "Guest27",
+    "สมชาย"
+   ],
+   "n": 20
+  },
+  "chips": {
+   "screen": "reveal",
+   "total": 30,
+   "inNames": [
+    "Guest02",
+    "Guest03",
+    "Guest05",
+    "Guest06",
+    "Guest07",
+    "Guest08",
+    "Guest09",
+    "Guest10",
+    "Guest13",
+    "Guest14",
+    "Guest16",
+    "Guest18",
+    "Guest19",
+    "Guest20",
+    "Guest21",
+    "Guest24",
+    "Guest25",
+    "Guest26",
+    "Guest27",
+    "สมชาย"
+   ],
+   "outCount": 10
+  },
+  "survivorsEqual": true,
+  "finalBtn": "รอบต่อไป",
+  "console": {
+   "consoleErrWarn": [],
+   "exceptions": [
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+   ],
+   "log": [],
+   "dialogs": []
+  }
+ },
+ "6c": {
+  "loseCall": {
+   "lostAt": 8615,
+   "parent": "pr-host"
+  },
+  "sawCanvas": true,
+  "canvasEvents": [
+   {
+    "t": 1861,
+    "ev": "canvas+",
+    "parent": "pr-host"
+   },
+   {
+    "t": 8622,
+    "ev": "canvas-",
+    "parent": "pr-host"
+   }
+  ],
+  "lost": [
+   {
+    "t": 8622,
+    "connected": false,
+    "parent": "pr-host"
+   }
+  ],
+  "glCtx": [
+   {
+    "type": "webgl2",
+    "t": 1797,
+    "ok": true,
+    "parent": null,
+    "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+    "vendor": "Google Inc. (Apple)"
+   }
+  ],
+  "tl": [
+   {
+    "ms": 189,
+    "canvas": false,
+    "cw": 0,
+    "btn": "เปิดผล",
+    "frames": 0,
+    "phase": null,
+    "raf": 107
+   },
+   {
+    "ms": 312,
+    "canvas": true,
+    "cw": 1920,
+    "btn": null,
+    "frames": 4,
+    "phase": "start",
+    "raf": 113
+   },
+   {
+    "ms": 7145,
+    "canvas": false,
+    "cw": 0,
+    "btn": "รอบต่อไป",
+    "frames": 407,
+    "phase": "start",
+    "raf": 523
+   }
+  ],
+  "elapsedMs": 7852,
+  "stored": {
+   "round": 1,
+   "game": "fireworks",
+   "survivors": [
+    "Guest02",
+    "Guest03",
+    "Guest06",
+    "Guest09",
+    "Guest10",
+    "Guest11",
+    "Guest13",
+    "Guest14",
+    "Guest16",
+    "Guest17",
+    "Guest18",
+    "Guest19",
+    "Guest20",
+    "Guest22",
+    "Guest24",
+    "Guest25",
+    "Guest26",
+    "Guest27",
+    "สมชาย",
+    "มานี"
+   ],
+   "n": 20
+  },
+  "chips": {
+   "screen": "reveal",
+   "total": 30,
+   "inNames": [
+    "Guest02",
+    "Guest03",
+    "Guest06",
+    "Guest09",
+    "Guest10",
+    "Guest11",
+    "Guest13",
+    "Guest14",
+    "Guest16",
+    "Guest17",
+    "Guest18",
+    "Guest19",
+    "Guest20",
+    "Guest22",
+    "Guest24",
+    "Guest25",
+    "Guest26",
+    "Guest27",
+    "สมชาย",
+    "มานี"
+   ],
+   "outCount": 10
+  },
+  "survivorsEqual": true,
+  "finalBtn": "รอบต่อไป",
+  "console": {
+   "consoleErrWarn": [
+    {
+     "type": "warning",
+     "text": "THREE.WebGLRenderer: WEBGL_lose_context extension not supported.",
+     "url": "http://localhost:4611/_astro/three.module.BRVBmMrM.js"
+    }
+   ],
+   "exceptions": [
+    "InvalidStateError: Transition was aborted because of invalid state. ViewTransition opt-in disabled"
+   ],
+   "log": [],
+   "dialogs": []
+  }
+ }
+}

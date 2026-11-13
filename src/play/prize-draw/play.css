@@ -10,11 +10,14 @@ body {
   background: var(--color-line-strong);
 }
 
-/* Fills the screen under the shared play band (PlayExit.astro pads <body> by --play-band). */
+/* Fills the screen under the shared play band (PlayExit.astro pads <body> by --play-band). Its layer sits
+   above the band's (299) so the MC's button, which lives in the band's right end, paints over it; the box
+   itself starts under the band, so nothing else of the route reaches the strip. */
 .pd-viewport {
   position: fixed;
   inset: var(--play-band) 0 0 0;
   overflow: hidden;
+  z-index: 300;
 }
 
 .pd-sr {
@@ -27,12 +30,180 @@ body {
   margin: 0;
 }
 
-/* The MC's control, OUTSIDE the scaled frame: real pixels, so its tap size never shrinks with the screen.
-   Bottom-left, over the low row's left cell, which is empty while no game is picked for the round. */
-.pd-mc {
+/* The 3D reveal's layer (gh#305): over the frame, under the MC's controls; the host fills it only while a
+   committed step presents. It takes no input: the controls above it do. */
+.pd-3d {
   position: absolute;
-  inset-inline-start: 24px;
-  inset-block-end: 24px;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---- The ladder final's lane picks: the frame (lanes.ts), design/Gh305GamePick.dc.html i2-lanes B on
+   design/Gh303Ladder.dc.html ld-idle B (owner picks). Authored in the 1920x1080 frame like reveal.css;
+   each plate's and slot's centre comes from lanes.ts as --x. */
+.pd-track {
+  position: absolute;
+  inset: 0;
+}
+.pd-slot {
+  position: absolute;
+  inset-block-start: 112px;
+  inset-inline-start: var(--x, 0px);
+  margin-inline-start: -150px;
+  box-sizing: border-box;
+  inline-size: 300px;
+  padding: 14px 16px;
+  border-radius: 24px;
+  background: var(--pd-raised);
+  text-align: center;
+}
+.pd-slot.prize {
+  box-shadow: inset 0 0 0 3px var(--accent-gold);
+}
+.pd-slot.none {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--pd-raised);
+}
+.pd-sk {
+  font: 600 30px/1.25 var(--font-display);
+  color: var(--accent-gold);
+}
+.pd-slot.none .pd-sk {
+  color: var(--pd-dim);
+  white-space: nowrap;
+}
+.pd-sp {
+  font: 400 30px/1.3 var(--font-sans);
+  color: var(--ink-on-band-soft);
+  white-space: nowrap;
+}
+.pd-plate {
+  position: absolute;
+  inset-block-start: 950px;
+  inset-inline-start: var(--x, 0px);
+  margin-inline-start: -160px;
+  box-sizing: border-box;
+  inline-size: 320px;
+  min-block-size: 64px;
+  padding: 4px 14px 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  background: var(--pd-raised);
+  color: var(--ink-light);
+  font: 700 40px/1.15 var(--font-sans);
+}
+/* An empty lane: dashed in the dim text colour; the lane the next name lands on: the slot's gold ring. */
+.pd-plate.empty {
+  background: transparent;
+  border: 3px dashed var(--pd-dim);
+  color: var(--pd-dim);
+}
+.pd-plate.next {
+  border: 3px solid var(--accent-gold);
+  color: var(--accent-gold);
+}
+.pd-dot {
+  flex: none;
+  inline-size: 18px;
+  block-size: 18px;
+  border-radius: 50%;
+  background: var(--dot, transparent);
+}
+.pd-dot.dashed {
+  box-shadow: inset 0 0 0 4px var(--pd-raised);
+}
+.pd-plate-name {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  text-align: center;
+  line-height: 1.15;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+/* Not on the wrapped box: the fit rule's last resort (.nm-wrap, reveal.css) must win there. */
+.pd-plate-name:not(.nm-wrap) {
+  white-space: nowrap;
+}
+.pd-hud2 {
+  position: absolute;
+  inset-inline-start: 56px;
+  inset-block-start: 330px;
+}
+
+/* ---- The lane picks' controls: real pixels over the frame (the frame holds no control). fitFrame gives
+   this layer the frame's scale and offset, so a lane's control covers its plate's box at any screen size,
+   never under the 44px tap floor. The name row sits over the empty middle of the track: i2-lanes B draws
+   it 560px down the 1920x1080 route, which is 532px down the frame under the 56px band at scale 0.948. */
+.pd-picks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pd-lane {
+  position: absolute;
+  inset-inline-start: calc(var(--pd-x, 0px) + (var(--lane-x, 160px) - 160px) * var(--pd-scale, 1));
+  inset-block-start: calc(var(--pd-y, 0px) + 950px * var(--pd-scale, 1));
+  inline-size: calc(320px * var(--pd-scale, 1));
+  block-size: max(44px, calc(64px * var(--pd-scale, 1)));
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+/* The plate in the frame is what a sighted room reads; the control carries the same words for a reader. */
+.pd-lane > span {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.pd-names {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(var(--pd-y, 0px) + 532px * var(--pd-scale, 1));
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+/* A finalist's name as a control: the plate's night surface and white Sarabun 700 at the MC button's height
+   and size, ringed gold so it reads as pressable (i2-lanes, VALUES row). */
+.pd-name {
+  box-sizing: border-box;
+  min-block-size: 52px;
+  padding: 0 32px;
+  display: inline-flex;
+  align-items: center;
+  border: 3px solid var(--accent-gold);
+  border-radius: 999px;
+  background: #23214d; /* VALUES: raised night surface (picked 2026-11-11) */
+  color: var(--ink-light);
+  font: 700 22px/1.35 var(--font-sans);
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.pd-name:disabled,
+.pd-lane:disabled {
+  cursor: default;
+}
+.pd-name:disabled {
+  opacity: 0.55;
+}
+
+/* The MC's control, OUTSIDE the scaled frame: real pixels, so its tap size never shrinks with the screen.
+   At the play band's right end, never over the projected frame (design/Gh314Frames.dc.html i1-mc B, owner
+   pick): it covers neither the game name in the low row nor lane 1's plate. */
+.pd-mc {
+  position: fixed;
+  inset-block-start: 2px;
+  inset-inline-end: 24px;
 }
 
 .pd-go {
@@ -52,7 +223,9 @@ body {
   opacity: 0.55;
   cursor: default;
 }
-.pd-go:focus-visible {
+.pd-go:focus-visible,
+.pd-name:focus-visible,
+.pd-lane:focus-visible {
   outline: 3px solid var(--ink-light);
   outline-offset: 4px;
 }
@@ -69,10 +242,13 @@ body {
   color: var(--ink-on-band-soft);
 }
 
-/* The storage notice, at real pixels like the MC bar: the board's veil and code-card look (proj-code). */
+/* The storage notice, at real pixels like the MC bar: the board's veil and code-card look (proj-code). Its
+   layer matches the viewport's and comes after it, so it covers the frame and the controls under the band;
+   the MC's button in the band is held disabled while it is open (stage.ts). */
 .pd-notice {
   position: fixed;
   inset: var(--play-band) 0 0 0;
+  z-index: 300;
   display: grid;
   place-items: center;
   padding: 24px;
@@ -95,4 +271,203 @@ body {
   margin: 0 0 18px;
   font: 400 20px/1.45 var(--font-sans);
   color: var(--ink-light);
+}
+
+/* ---- The projector under 640px (design/Gh314Frames.dc.html i5-phone B, owner pick): a phone layout for
+   the screens with a name field (stage.ts marks them data-field). The frame is no longer scaled: the round
+   state stacks on top (event, round and dots, the cut, the game), then the names in two columns, and the
+   page scrolls. Sizes are the frame's own. The count beside the cut is not drawn there, so it goes; the MC's
+   button stays where 1a puts it, and the page ends 96px under the last row. */
+@media (max-width: 639px) {
+  .pd-viewport[data-field] {
+    overflow-y: auto;
+  }
+  .pd-viewport[data-field] .pd-scaled {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    transform: none;
+  }
+  .pd-viewport[data-field] .pd-frame {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 16px 96px;
+  }
+  .pd-viewport[data-field] .pd-top,
+  .pd-viewport[data-field] .pd-low {
+    display: contents;
+  }
+  .pd-viewport[data-field] .pd-ev {
+    order: 1;
+    font-size: 22px;
+  }
+  .pd-viewport[data-field] .pd-dots {
+    order: 2;
+    margin-block-start: 12px;
+    gap: 10px;
+    font-size: 16px;
+  }
+  .pd-viewport[data-field] .pd-rl {
+    white-space: nowrap;
+    margin-inline-end: 4px;
+  }
+  .pd-viewport[data-field] .pd-flow {
+    order: 3;
+    margin-block-start: 18px;
+    gap: 12px;
+    font-size: 50px;
+  }
+  .pd-viewport[data-field] .pd-flow small {
+    font-size: 18px;
+  }
+  .pd-viewport[data-field] .pd-flow svg {
+    inline-size: 26px;
+    block-size: 26px;
+  }
+  .pd-viewport[data-field] .pd-left {
+    order: 4;
+  }
+  .pd-viewport[data-field] .pd-left .pd-lk {
+    margin-block-start: 14px;
+    font-size: 16px;
+  }
+  .pd-viewport[data-field] .pd-gname {
+    font-size: 22px;
+  }
+  .pd-viewport[data-field] .pd-rt,
+  .pd-viewport[data-field] .pd-legend {
+    display: none;
+  }
+  .pd-viewport[data-field] .pd-field {
+    order: 5;
+    position: static;
+    align-self: stretch;
+    block-size: auto;
+    margin-block-start: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 32px;
+    gap: 4px 10px;
+    align-content: start;
+  }
+  .pd-viewport[data-field] .pd-chip {
+    --fit-size: 16;
+  }
+
+  /* The ladder final's lane picks (stage.ts marks them data-lanes). No frame draws them at phone width, so
+     they take item 5 B's rule: a phone layout instead of the 1920 frame scaled. The night ground, the event,
+     round dots, hud line and game name at i5-phone B's sizes; then the lane controls and the free finalists
+     in i5-phone B's two-column grid (gap 4px 10px), each control the lane plate's look at 16px. The screen
+     fits under the band and never scrolls (play-screen-fit-probe); the track, the slots and the plates go,
+     because the controls ARE the lanes here. */
+  .pd-viewport[data-lanes] {
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--color-line-strong) 0%, #23214d 100%); /* VALUES: i5-phone B ground */
+  }
+  .pd-viewport[data-lanes] .pd-scaled {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    transform: none;
+  }
+  .pd-viewport[data-lanes] .pd-frame {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: none;
+    padding-block-start: 16px;
+    padding-inline: 16px;
+  }
+  .pd-viewport[data-lanes] .pd-top {
+    display: contents;
+  }
+  .pd-viewport[data-lanes] .pd-track,
+  .pd-viewport[data-lanes] .pd-slot,
+  .pd-viewport[data-lanes] .pd-plate {
+    display: none;
+  }
+  .pd-viewport[data-lanes] .pd-ev {
+    font-size: 22px;
+  }
+  .pd-viewport[data-lanes] .pd-dots {
+    margin-block-start: 12px;
+    gap: 10px;
+    font-size: 16px;
+  }
+  .pd-viewport[data-lanes] .pd-rl {
+    white-space: nowrap;
+    margin-inline-end: 4px;
+  }
+  .pd-viewport[data-lanes] .pd-hud2 {
+    position: static;
+  }
+  .pd-viewport[data-lanes] .pd-hud2 .pd-lk {
+    margin-block-start: 14px;
+    font-size: 16px;
+  }
+  .pd-viewport[data-lanes] .pd-gname {
+    font-size: 22px;
+  }
+  .pd-viewport[data-lanes] .pd-picks {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 10px;
+    margin-block-start: 18px;
+    padding-inline: 16px;
+    padding-block-end: 16px;
+  }
+  /* A lane: the plate's pill on the raised night surface, white Sarabun 700 at 16px; empty, dashed in the dim
+     text colour; the lane the next name lands on, the gold ring (Gh305GamePick i2-lanes values). */
+  .pd-viewport[data-lanes] .pd-lane {
+    position: static;
+    box-sizing: border-box;
+    inline-size: auto;
+    block-size: auto;
+    min-block-size: 44px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 3px solid transparent;
+    background: #23214d; /* VALUES: raised night surface (picked 2026-11-11) */
+    color: var(--ink-light);
+    font: 700 16px/1.15 var(--font-sans);
+    text-align: start;
+  }
+  .pd-viewport[data-lanes] .pd-lane.empty {
+    background: transparent;
+    border: 3px dashed #9a97c0; /* VALUES: the dim text colour (picked 2026-11-11) */
+    color: #9a97c0; /* VALUES: the dim text colour (picked 2026-11-11) */
+  }
+  .pd-viewport[data-lanes] .pd-lane[aria-pressed='true'] {
+    border: 3px solid var(--accent-gold);
+    color: var(--accent-gold);
+  }
+  .pd-viewport[data-lanes] .pd-lane > span {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    clip-path: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    min-inline-size: 0;
+  }
+  .pd-viewport[data-lanes] .pd-names {
+    position: static;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 10px;
+  }
+  .pd-viewport[data-lanes] .pd-name {
+    justify-content: center;
+    padding: 0 16px;
+    font-size: 16px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
 }

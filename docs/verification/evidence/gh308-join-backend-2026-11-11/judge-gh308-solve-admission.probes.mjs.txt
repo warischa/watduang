@@ -1,0 +1,100 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+
+const source = await readFile(new URL('./gh308-qr-review-probes.mjs', import.meta.url), 'utf8');
+const harnessSource = source.slice(0, source.indexOf('const brief ='))
+  .replace('admin = null) {', "admin = null, method = 'POST') {")
+  .replace("{ method: 'POST', path,", '{ method, path,') + '\nexport { harness };';
+const { harness } = await import('data:text/javascript;base64,' + Buffer.from(harnessSource).toString('base64'));
+const { paths, nameKey } = await import(pathToFileURL(process.argv[2]));
+
+async function orphanWithTerminatedWriter(cap = 2) {
+  const h = await harness(cap).setup();
+  const valid = await h.join('C', 'C', 'CCCCCCCCCCCCCCCC');
+  const namePath = paths.name(h.eventId, nameKey('A'));
+  const before = h.pause('A', 'put', namePath);
+  void h.join('A', 'A');
+  await before.entered;
+  const shared = await h.join('B', 'A');
+  await h.remove(shared.json.id);
+  const after = h.pause('A', 'put', namePath, 'after');
+  before.release();
+  await after.entered;
+  // Terminated writer: the request never executes another line or any catch/finally cleanup.
+  assert.equal(h.snapshot().orphans, 1);
+  return { h, valid, removedId: shared.json.id, namePath };
+}
+
+async function terminatedWriter() {
+  const { h, valid, removedId } = await orphanWithTerminatedWriter();
+  h.advance(16 * 60 * 1000);
+  const next = await h.join('D', 'D', 'DDDDDDDDDDDDDDDD');
+  assert.equal(next.status, 201);
+  const list = await h.req('list', `events/${h.eventId}/names`, {}, h.adminToken, 'GET');
+  assert.deepEqual(new Set(list.json.names.map((n) => n.id)), new Set([valid.json.id, next.json.id]));
+  const start = await h.req('start', `events/${h.eventId}/start`, { ids: [valid.json.id, removedId, next.json.id] }, h.adminToken);
+  assert.equal(start.status, 200);
+  assert.deepEqual(new Set(start.json.roster.map((n) => n.id)), new Set([valid.json.id, next.json.id]));
+  assert.equal(h.snapshot().orphans, 0);
+}
+
+async function garbageCollectionUnavailable() {
+  const { h, valid, removedId, namePath } = await orphanWithTerminatedWriter();
+  h.hooks.add((call) => {
+    if (call.op === 'del' && call.path === namePath) throw Object.assign(new Error('GC unavailable'), { code: 'ETIMEDOUT' });
+  });
+  const list = await h.req('list', `events/${h.eventId}/names`, {}, h.adminToken, 'GET');
+  assert.equal(list.status, 200);
+  assert.deepEqual(list.json.names.map((n) => n.id), [valid.json.id]);
+  const retry = await h.join('retry', 'A');
+  assert.equal(retry.status, 409);
+  assert.equal(retry.json.error, 'removed');
+  const start = await h.req('start', `events/${h.eventId}/start`, { ids: [valid.json.id, removedId] }, h.adminToken);
+  assert.deepEqual(start.json.roster.map((n) => n.id), [valid.json.id]);
+  assert.equal(h.snapshot().orphans, 1, 'GC failure may retain garbage but cannot admit it');
+}
+
+async function unbackedUnfencedName() {
+  const h = await harness(1).setup();
+  const joined = await h.join('A', 'A');
+  // A persisted orphan fixture deliberately has no removal fence: readers must check the slot too.
+  for (const path of [...h.blobs.keys()]) if (path.includes('/slots/')) h.blobs.delete(path);
+  const start = await h.req('start', `events/${h.eventId}/start`, { ids: [joined.json.id] }, h.adminToken);
+  assert.equal(start.status, 409);
+  assert.equal(start.json.error, 'empty');
+  assert.equal(h.snapshot().orphans, 0);
+}
+
+async function guardedGarbageCollection() {
+  const h = await harness(1).setup();
+  await h.join('A', 'A');
+  for (const path of [...h.blobs.keys()]) if (path.includes('/slots/')) h.blobs.delete(path);
+  const namePath = paths.name(h.eventId, nameKey('A'));
+  const pause = h.pause('list', 'del', namePath);
+  const listing = h.req('list', `events/${h.eventId}/names`, {}, h.adminToken, 'GET');
+  await pause.entered;
+  const replacement = await h.join('replacement', 'A', 'BBBBBBBBBBBBBBBB');
+  assert.equal(replacement.status, 201);
+  pause.release();
+  await listing;
+  assert.equal(h.blobs.get(namePath).metadata.id, replacement.json.id);
+  assert.equal((await h.join('retry', 'A', 'BBBBBBBBBBBBBBBB')).status, 200);
+}
+
+async function validRetryAfterStart() {
+  const h = await harness(1).setup();
+  const original = await h.join('A', 'A');
+  await h.req('start', `events/${h.eventId}/start`, { ids: [original.json.id] }, h.adminToken);
+  const retry = await h.join('retry', 'A');
+  assert.equal(retry.status, 200);
+  assert.equal(retry.json.id, original.json.id);
+}
+
+for (const probe of [terminatedWriter, garbageCollectionUnavailable, unbackedUnfencedName, guardedGarbageCollection, validRetryAfterStart]) {
+  let timeout;
+  try {
+    await Promise.race([probe(), new Promise((_, reject) => timeout = setTimeout(() => reject(new Error('schedule not reached')), 3000))]);
+    console.log(`PASS ${probe.name}`);
+  } finally { clearTimeout(timeout); }
+}

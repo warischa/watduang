@@ -30,6 +30,8 @@ const clean = (id) => ({
   m1_pathname: '/',
   transitionTrigger: { label: 'start', x: 10, y: 10 },
   triggerScan: { buttonsInRoot: 3, rejected: [] },
+  // The screen held still with no input before the press, so `transitioned` is credited to the press.
+  idleStable: true,
   transitioned: true,
   burst: { pathname: `/game/${id}/play/`, defectContacts: [], isVoid: false, attempts: 1,
            contacts: { total: 6, onBtnWhileDisabled: 5 }, gaps: [80], inputGaps: [80], maxGap: 80,
@@ -185,6 +187,32 @@ test('an unrecorded transition is judged as harshly as a false one', () => {
   assert.deepStrictEqual(ok.unmeasured, []);
   assert.strictEqual(ok.checked, 2);
   assert.strictEqual(ok.code, 0);
+});
+
+// The transition record compares the screen's content, so a screen that changes with nobody touching
+// it reads as "transitioned" whatever the press did. A pass whose screen did not hold still before the
+// press is a failed measurement, even with `transitioned` true -- and a record that never measured it
+// is judged as harshly.
+test('a screen that changed with no input before the press is UNMEASURED even when it transitioned', () => {
+  for (const idleStable of [false, null, undefined]) {
+    const r = run({ alpha: clean('alpha'), beta: { ...clean('beta'), idleStable } });
+    assert.deepStrictEqual(r.unmeasured, ['beta'], `idleStable=${idleStable} was credited as a transition`);
+    assert.strictEqual(r.checked, 1);
+    assert.strictEqual(r.code, 1);
+    assert.match(r.stdout, /UNMEASURED beta .*changed with no input/);
+    assert.doesNotMatch(r.stdout, /UNMEASURED beta .*left the screen unchanged/, 'the churn red must not borrow the unchanged-screen sentence');
+  }
+});
+
+// A burst that navigated is judged by the defect rules whatever the idle read said: the stability read is
+// about crediting a CHANGE, and leaving the round is its own evidence.
+test('an unstable idle screen does not hide a burst that left the round', () => {
+  const left = { ...clean('beta'), idleStable: false, transitioned: null, sigPresent: false,
+    burst: { ...clean('beta').burst, pathname: '/', defectContacts: [{ inputGap: 80, disabled: false }] } };
+  const r = run({ alpha: clean('alpha'), beta: left });
+  assert.deepStrictEqual(r.unmeasured, []);
+  assert.match(r.stdout, /FAIL beta: 1 burst contact\(s\) dispatched INSIDE the arm window/);
+  assert.strictEqual(r.code, 1);
 });
 
 test('every route exempted is a red, not a green zero', () => {

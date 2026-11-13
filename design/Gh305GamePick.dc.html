@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    /* Self-hosted faces, relative paths, the same files src/styles/fonts.css declares. The board is design
+       source and is never referenced at runtime. */
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 500; src: url('../public/fonts/mitr-medium-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    /* gh#305: proposal canvas, ADR-0033. Frames for the controls the prize-draw 3D games need and no picked
+       board draws. Annotations are English and monospace. Every Thai string in a frame already ships in src/
+       or sits on a picked board, verbatim; a string that exists nowhere is the literal placeholder
+       [copy: owner]. Every value comes from src/styles/tokens.css or a picked board (Gh302Setup A,
+       Gh302Projector B, Gh303Fireworks B, Gh303Cards B, Gh303Ladder B) unless tagged NEW VALUE beside it. */
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    .brow { padding: 34px 34px; border-bottom: 3px dashed #14142b; }
+    .brow h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .brow h3 { margin: 26px 0 6px; font: 700 15px/1.3 ui-monospace, Menlo, monospace; }
+    .brow .why { margin: 0 0 16px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1420px; }
+    .brow .why b { color: #14142b; }
+    .cands { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+    .cand { display: flex; flex-direction: column; gap: 8px; }
+    .cand:has(> [data-frame], > .scaler) { width: min-content; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; max-width: 1450px; }
+    .tag .d { display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.6 ui-monospace, Menlo, monospace; }
+    .pin { font: 12px/1.6 ui-monospace, Menlo, monospace; color: #14142b; background: #ffffff; border: 2px solid #14142b; border-radius: 8px; padding: 10px 14px; max-width: 1420px; margin: 0 0 14px; }
+    .pin.q { border-width: 4px; font-size: 13px; }
+    .pin ul { margin: 4px 0 0; padding-left: 18px; }
+    .scaler { position: relative; overflow: hidden; box-shadow: 0 0 0 1px #14142b; }
+    .scaler > * { transform-origin: 0 0; }
+    .stub { display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 12px; font: 600 12px/1.4 ui-monospace, Menlo, monospace; color: #14142b;
+            background: repeating-linear-gradient(135deg, #e9e3cf 0 10px, #f5f1e3 10px 20px); }
+    .frm { box-shadow: 0 0 0 1px #14142b; position: relative; overflow: hidden; }
+
+    /* ---- setup page, direction A POSTER (Gh302Setup, picked), with the page's own phone values (index.astro) ---- */
+    .su { background: #fff6e0; color: #14142b; font-family: 'Sarabun', sans-serif; }
+    .su .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px 32px; }
+    .su .step { margin-top: 32px; background: #ffffff; border: 2.5px solid #14142b; border-radius: 20px; box-shadow: 5px 5px 0 #14142b; padding: 24px 28px; }
+    .su .step-h { display: flex; align-items: center; gap: 14px; margin: 0 0 14px; font: 600 24px/1.3 'Mitr', sans-serif; }
+    .su .num { box-sizing: border-box; flex: none; width: 40px; height: 40px; border-radius: 50%; background: #ffcc00; border: 2.5px solid #14142b; display: grid; place-items: center; font: 700 20px/1 'Mitr', sans-serif; }
+    .su .hint { margin: 0 0 12px; font: 400 16px/1.55 'Sarabun', sans-serif; color: #3d3b5c; }
+    .su .sched { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
+    .su .box { width: 118px; text-align: center; }
+    .su .val { box-sizing: border-box; width: 100%; height: 64px; display: grid; place-items: center; font: 700 30px/1 'Mitr', sans-serif; border: 2.5px solid #14142b; border-radius: 12px; background: #ffffff; }
+    .su .val.lock { background: #fff6e0; border-style: dashed; }
+    .su .lab { margin-top: 6px; font: 400 16px/1.35 'Sarabun', sans-serif; color: #3d3b5c; }
+    .su .arr { height: 64px; display: grid; place-items: center; color: #14142b; }
+    .su .row2 { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
+    .su .row2 .hint { margin: 0; }
+    .su .btn2 { box-sizing: border-box; height: 52px; padding: 0 20px; display: inline-grid; place-items: center; font: 600 18px/1 'Mitr', sans-serif; border: 2.5px solid #14142b; border-radius: 12px; background: #ffffff; }
+    .su .emsg { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 12px; font: 700 16px/1.5 'Sarabun', sans-serif; color: #14142b; }
+    .su .emsg svg { flex: none; margin-top: 1px; }
+    .su.ph .step { padding: 20px 16px; }
+    /* the per-round game rows: the prize row's grid (118px label column, the schedule box width), the
+       setup-qr roster toggle's segmented buttons (.seg, A POSTER), the setup field look for a dropdown */
+    .su .games { margin-top: 32px; }
+    .su .grow { display: grid; grid-template-columns: 118px 1fr; gap: 12px; align-items: center; margin-top: 14px; }
+    .su .gl { font: 600 17px/1.3 'Mitr', sans-serif; }
+    .su .gl .lab { margin-top: 0; display: flex; align-items: center; gap: 6px; }
+    .su .seg { display: flex; gap: 12px; }
+    .su .seg > span { box-sizing: border-box; flex: 1; min-height: 52px; display: grid; place-items: center; padding: 0 12px; text-align: center; border: 2.5px solid #14142b; border-radius: 12px; background: #ffffff; font: 600 18px/1.3 'Mitr', sans-serif; }
+    .su .seg > span.on { background: #ffcc00; box-shadow: 3px 3px 0 #14142b; }
+    .su .seg > span.lock { background: #fff6e0; border-style: dashed; color: #3d3b5c; }
+    .su .dd { box-sizing: border-box; width: 100%; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 16px; border: 2.5px solid #14142b; border-radius: 12px; background: #ffffff; font: 400 18px/1 'Sarabun', sans-serif; }
+    .su.ph .grow { grid-template-columns: 1fr; gap: 6px; }
+    .su.ph .seg { flex-direction: column; gap: 8px; }
+
+    /* ---- projector, B NIGHT STAGE (Gh302Projector, picked) and the gh#303 game frames (Cards B, Ladder B,
+       picked), authored 1920x1080. The viewport is the projector route: the 56px play band, then the frame
+       fitted under it and centred (scale 0.948, 50px in from each side), the MC's controls in real pixels. ---- */
+    .vp { position: relative; width: 1920px; height: 1080px; background: #14142b; overflow: hidden; }
+    .vp > .band { position: absolute; left: 0; right: 0; top: 0; height: 56px; }
+    .vp > .pj { position: absolute; left: 50px; top: 56px; transform: scale(0.948); transform-origin: 0 0; }
+    .pj { position: relative; width: 1920px; height: 1080px; overflow: hidden; box-sizing: border-box; font-family: 'Sarabun', sans-serif;
+          background: linear-gradient(180deg, #14142b 0%, #23214d 100%); color: #ffffff; }
+    .pj .layer { position: absolute; inset: 0; pointer-events: none; }
+    .pj .top { position: absolute; left: 0; right: 0; top: 0; height: 96px; display: flex; align-items: center; justify-content: space-between; padding: 0 56px; z-index: 3; }
+    .pj .ev { font: 600 36px/1.2 'Mitr', sans-serif; color: #d9d6f0; }
+    .pj .dots { display: flex; align-items: center; gap: 14px; font: 600 30px/1 'Mitr', sans-serif; }
+    .pj .dots .rl { margin-right: 14px; }
+    .pj .dots i { box-sizing: border-box; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #d9d6f0; }
+    .pj .dots i.done { background: #d9d6f0; }
+    .pj .dots i.on { background: #ffcc00; border-color: #ffcc00; box-shadow: 0 0 18px rgba(255,204,0,0.45); }
+    .pj .dots i.fin { width: 36px; border-radius: 999px; }
+    .pj .fstub { position: absolute; left: 56px; right: 56px; top: 100px; height: 760px; font-size: 26px; z-index: 1; }
+    .pj .fstub.g302 { top: 96px; height: 724px; }
+    .pj .low { position: absolute; left: 56px; right: 56px; bottom: 20px; height: 190px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 40px; z-index: 3; }
+    .pj .low.g302 { bottom: 30px; height: 220px; }
+    .pj .lk { font: 600 30px/1.35 'Mitr', sans-serif; color: #d9d6f0; }
+    .pj .gname { font: 700 50px/1.2 'Mitr', sans-serif; color: #ffcc00; }
+    .pj .flow { display: flex; align-items: center; gap: 28px; font: 700 130px/1 'Mitr', sans-serif; }
+    .pj .low.g302 .flow { font-size: 150px; }
+    .pj .flow .to { color: #ffcc00; text-shadow: 0 0 24px rgba(255,204,0,0.45); }
+    .pj .flow small { font: 600 44px/1 'Mitr', sans-serif; color: #d9d6f0; }
+    .pj .rt { text-align: right; }
+    .pj .veil { position: absolute; inset: 0; background: rgba(20,20,43,0.78); z-index: 2; }
+    .pj .codebox { position: absolute; left: 210px; top: 230px; width: 1500px; box-sizing: border-box; background: #23214d; border: 3px solid #ffcc00; border-radius: 24px; padding: 48px 56px; text-align: center; box-shadow: 0 0 60px rgba(255,204,0,0.45); z-index: 3; }
+    .pj .codebox .ck { font: 600 44px/1.25 'Mitr', sans-serif; color: #d9d6f0; }
+    .pj .codebox .digits { margin: 18px 0; font: 700 150px/1 'Mitr', sans-serif; color: #ffcc00; letter-spacing: 6px; white-space: nowrap; word-spacing: 0.15em; }
+    .pj .codebox .ci { font: 400 34px/1.45 'Sarabun', sans-serif; color: #ffffff; }
+    /* lane-picking ladder, B DEPTH (Gh303Ladder, picked) */
+    .pj .lplate { position: absolute; margin-left: -160px; box-sizing: border-box; width: 320px; min-height: 64px; padding: 4px 14px 4px 12px; display: flex; align-items: center; gap: 10px;
+                  border-radius: 999px; background: #23214d; color: #ffffff; font: 700 40px/1.15 'Sarabun', sans-serif; z-index: 3; }
+    .pj .lplate i { flex: none; width: 18px; height: 18px; border-radius: 50%; }
+    .pj .lplate .fit { flex: 1 1 auto; min-width: 0; text-align: center; line-height: 1.15; white-space: nowrap; overflow-x: clip; overflow-y: visible; }
+    /* an empty lane: the setup board's locked-box language (dashed) in the board's dim text colour; the lane
+       the next name lands on: the prize slot's gold ring */
+    .pj .lplate.empty { background: transparent; border: 3px dashed #9a97c0; color: #9a97c0; }
+    .pj .lplate.next { border: 3px solid #ffcc00; color: #ffcc00; }
+    .pj .slot { position: absolute; margin-left: -150px; box-sizing: border-box; width: 300px; padding: 14px 16px; border-radius: 24px; background: #23214d; text-align: center; z-index: 3; }
+    .pj .slot.prize { box-shadow: inset 0 0 0 3px #ffcc00; }
+    .pj .slot.none { background: transparent; box-shadow: inset 0 0 0 2px #23214d; }
+    .pj .slot .sk { font: 600 30px/1.25 'Mitr', sans-serif; color: #ffcc00; }
+    .pj .slot.none .sk { color: #9a97c0; }
+    .pj .slot .sp { font: 400 30px/1.3 'Sarabun', sans-serif; color: #d9d6f0; white-space: nowrap; }
+    .pj .hud2 { position: absolute; left: 56px; top: 330px; z-index: 3; }
+    /* the MC's controls, real pixels, outside the scaled frame: play.css .pd-go (as built) */
+    .mc { position: absolute; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 52px; padding: 0 32px; border: 0; border-radius: 999px; background: #ffcc00; color: #14142b; font: 600 22px/1.35 'Mitr', sans-serif; z-index: 5; }
+    .mc.off { opacity: 0.55; }
+    /* a finalist's name as a control: the lane plate's own look (night surface, white Sarabun 700) at the MC
+       button's height and size, ringed gold so it reads as pressable */
+    .nrow { position: absolute; left: 0; right: 0; top: 560px; display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; z-index: 5; }
+    .nb { box-sizing: border-box; min-height: 52px; padding: 0 32px; display: inline-flex; align-items: center; border-radius: 999px; background: #23214d; color: #ffffff; border: 3px solid #ffcc00; font: 700 22px/1.35 'Sarabun', sans-serif; white-space: nowrap; }
+    .nb.ghost { background: transparent; color: #ffcc00; font-family: 'Mitr', sans-serif; font-weight: 600; }
+    /* annotation only: a hit area drawn in the canvas fold blue, never rendered by code */
+    .hit { position: absolute; box-sizing: border-box; border: 2px dashed #2b7bff; z-index: 5; }
+  </style>
+</helmet>
+
+<div style="width: 2040px; background: #ffffff; color: #14142b;">
+
+  <div style="padding: 30px 34px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#305 · prize draw · the controls the 3D games need and no picked board draws · proposal canvas · AWAITING THE OWNER'S PICKS</div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;">Order (ADR-0033): owner picks, canvas, code. Code takes its design values only from the option picked here. Games and where they may run (gh#305, gh#306, gh#307): พลุนับถอยหลัง in any elimination round and the final; ไพ่แจกทั้งห้อง in an elimination round; ทางแยกเลือกเส้น in the final; a round with no game shows today's 2D reveal. Four elimination rounds then the final (schedule.ts proposeSchedule: 200 gives 200, 100, 50, 20, 5). Every Thai string in a frame already ships in src/ or sits on a picked board, verbatim; [copy: owner] marks a string that exists nowhere. Values: tokens.css or a picked board (Gh302Setup A, Gh302Projector B, Gh303Fireworks B, Gh303Cards B, Gh303Ladder B); a value from neither would carry a NEW VALUE tag, and this canvas carries none. Rules: ui-ux-pro-max 2.13.0, rules only (Touch Target Size, Touch Spacing, Disabled States, Loading Buttons, Color Only, Input Labels, Compact Control Semantics, Chip Collection Reflow, Dragging Movements, Essential Text Truncation), never its palette or fonts.</div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;"><div class="pin q"><b>DECISIONS FOR THE OWNER (one pick per question; "rec" is a recommendation, not a pick):</b><ul>
+  <li><b>1a. The per-round game choice on the setup page</b> (frames i1-pick): A five rows inside step 3, under the schedule, every choice a visible button · B the same rows as their own step 4 (prizes become step 5) · C rows inside step 3, one dropdown per round. rec A: it sits beside the numbers it plays, and every game is in view without opening anything.</li>
+  <li><b>1b. A game this browser cannot show</b> (WebGL missing; frames i1-off): A the choice stays as picked and a note says those rounds will use the 2D reveal · B the 3D choices lock (dashed) with the same note. rec A: the night checks again and falls back by itself, and a lock on a passing WebGL failure would take away a game the night could have played.</li>
+  <li><b>2. The lane pick for ทางแยกเลือกเส้น</b> (frames i2-lanes): A lanes fill left to right, the MC taps each finalist's name as they step up · B any lane in any order: the MC taps a lane, then the name. rec B: the ticket says the finalists pick lanes; B is what picking means, one more tap each.</li>
+  <li><b>3. The card round's two presses</b> (frames i3-press1, i3-press2): A เปิดผล deals, a new label draws the rule · B a new label deals, เปิดผล draws the rule · C two new labels. rec B: the deal reveals nothing; the rule draw is the reveal, so the existing label belongs there.</li>
+</ul></div></div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;"><div class="pin"><b>ALREADY DRAWN ON A PICKED BOARD, so no frame here:</b><ul>
+  <li>The projector naming the round's game: proj-round B (Gh302Projector) draws เกมรอบนี้ over the game name in the low band's left cell; reveal.ts builds it.</li>
+  <li>The ladder after the picks: ld-idle B (Gh303Ladder) draws five named plates on their lanes under the line "แต่ละคนเลือกเส้นแล้ว"; it does NOT draw the picking (the board's NOTES: "Not drawn: how the MC places names on lanes"), hence item 2; i2-lanes-done reuses ld-idle B unchanged.</li>
+  <li>The card round's deal, code, rule and flip: cd-idle B, cd-code, cd-rule B (Gh303Cards). None draws an MC control (no control element on the board; its motion table says only "until the MC moves on"), hence item 3.</li>
+</ul></div></div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;"><div class="pin"><b>FOUND WHILE DRAWING (facts for the owner, not options):</b><ul>
+  <li><b>The MC button as built covers the game name.</b> play.css puts it bottom-left, 24px in, over the low band's left cell, which a game round fills with the game's name. Frame i3-pos measures the overlap. Items 2 and 3 are drawn with the button at the play band's right end (gh#314 1a option B, unpicked); whichever 1a pick lands, it must not sit on the game name or on lane 1's plate.</li>
+  <li><b>Slot order before the picks.</b> ld-idle B shows the prize slots, in their order, before the MC's press. The gh#305 contract draft draws the slot order at that press, together with the ladder. Both keep the odds equal; one of them has to move. Not decided here.</li>
+  <li><b>Two presses in one spot.</b> The card round's second press sits where the first was. When it re-enables after the deal it must be armed (ADR-0057, ADR-0059), or a double tap on the first press draws the rule before the room has seen the deal.</li>
+</ul></div></div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;"><div class="pin"><b>COPY PLACEHOLDERS ([copy: owner], 8 roles):</b><ul>
+  <li>setup: the no-game choice (the 2D reveal) · the line over the game rows · option 1a-B's step heading · the browser-cannot-show-3D note</li>
+  <li>projector: the HUD line while finalists pick lanes · option 2A's undo · the card deal press (3B, 3C) · the rule-draw press (3A, 3C)</li>
+</ul></div></div>
+  </div>
+
+  <!-- ================================================================== ITEM 1 -->
+  <div class="brow">
+    <h2>ITEM 1 · THE PER-ROUND GAME CHOICE · the setup page, 1280 and 320</h2>
+    <p class="why">One row per round: รอบที่ 1 to รอบที่ 4 offer no game / พลุนับถอยหลัง / ไพ่แจกทั้งห้อง; รอบชิง offers no game / พลุนับถอยหลัง / ทางแยกเลือกเส้น (the final). Each row is labelled with the cut it plays, taken from the schedule above it (200 to 100, and so on), so the choice sits beside the numbers it belongs to. Drawn with sample picks; every row starts at no game (the contract's default). Controls: the setup-qr roster toggle's segmented buttons (Gh302Setup A: 52px, ink outline, gold with a hard shadow when on) or the step fields' look for a dropdown (52px). At 320 the label goes above its control and the three buttons stack, 8px apart. The schedule boxes at 320 are a stub: their layout is gh#314 1b's question. Touch Target Size: every choice 52px tall. Compact Control Semantics: a button group with one pressed, or a native select. Color Only: the picked button is gold AND raised by its shadow.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A</span><span class="d">rec</span> · i1-pick · 1280 · five rows inside step 3, under the schedule, every choice a visible button</div>
+        <div class="frm su" data-frame="i1-pick-1280" data-dir="A" data-width="1280" style="width:1280px;">
+          <div class="stub" style="height:56px;">site chrome, h1, lead, ad slot, steps 1 and 2: as built, unchanged</div>
+          <div class="wrap"><section class="step"><h2 class="step-h"><span class="num">3</span>ตารางคัดออก</h2><p class="hint">ระบบเสนอให้จากจำนวนคน แก้ตัวเลขได้ก่อนเริ่มงาน 4 รอบคัดออก แล้วรอบชิง 5 คน</p><div class="sched" data-sched="200"></div><div class="row2"><span class="btn2 tap">ใช้ค่าที่ระบบเสนอ</span><span class="hint">ช่องเส้นประแก้ไม่ได้ เริ่มตามจำนวนคน จบที่ 5 คนในรอบชิง</span></div><div class="games" data-games="seg"></div></section></div>
+          <div class="stub" style="height:56px;">step 4 (prizes) and the start button: as built</div>
+        </div></div>
+      <div class="cand"><div class="tag"><span class="d">A</span><span class="d">rec</span> · i1-pick · 320 · label above, the three buttons stacked</div>
+        <div class="frm su ph" data-frame="i1-pick-320" data-dir="A" data-width="320" style="width:320px;">
+          <div class="stub" style="height:56px;">steps 1 and 2: as built</div>
+          <div class="wrap"><section class="step"><h2 class="step-h"><span class="num">3</span>ตารางคัดออก</h2><div class="stub" style="height:90px;">schedule boxes and reset: per gh#314 1b</div><div class="games" data-games="seg"></div></section></div>
+          <div class="stub" style="height:56px;">step 4 and the start button: as built</div>
+        </div></div>
+    </div>
+    <div class="cands" style="margin-top:28px;">
+      <div class="cand"><div class="tag"><span class="d">B</span> · i1-pick · 1280 · the same rows as their own step 4, after the schedule; prizes become step 5</div>
+        <div class="frm su" data-frame="i1-pick-1280" data-dir="B" data-width="1280" style="width:1280px;">
+          <div class="stub" style="height:56px;">site chrome, h1, lead, ad slot, steps 1 to 3: as built, unchanged</div>
+          <div class="wrap"><section class="step"><h2 class="step-h"><span class="num">4</span><span data-copy="step-heading">[copy: owner]</span></h2><div class="games" style="margin-top:0;" data-games="seg"></div></section></div>
+          <div class="stub" style="height:56px;">prizes, renumbered 5, and the start button: as built</div>
+        </div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span> · i1-pick · 320</div>
+        <div class="frm su ph" data-frame="i1-pick-320" data-dir="B" data-width="320" style="width:320px;">
+          <div class="stub" style="height:56px;">steps 1 to 3: as built</div>
+          <div class="wrap"><section class="step"><h2 class="step-h"><span class="num">4</span><span data-copy="step-heading">[copy: owner]</span></h2><div class="games" style="margin-top:0;" data-games="seg"></div></section></div>
+          <div class="stub" style="height:56px;">step 5 and the start button</div>
+        </div></div>
+    </div>
+    <div class="cands" style="margin-top:28px;">
+      <div class="cand"><div class="tag"><span class="d">C</span> · i1-pick · 1280 · rows inside step 3, one dropdown per round (the step fields' look, 52px): compact, but the games are hidden until opened</div>
+        <div class="frm su" data-frame="i1-pick-1280" data-dir="C" data-width="1280" style="width:1280px;">
+          <div class="stub" style="height:56px;">site chrome, h1, lead, ad slot, steps 1 and 2: as built, unchanged</div>
+          <div class="wrap"><section class="step"><h2 class="step-h"><span class="num">3</span>ตารางคัดออก</h2><p class="hint">ระบบเสนอให้จากจำนวนคน แก้ตัวเลขได้ก่อนเริ่มงาน 4 รอบคัดออก แล้วรอบชิง 5 คน</p><div class="sched" data-sched="200"></div><div class="row2"><span class="btn2 tap">ใช้ค่าที่ระบบเสนอ</span><span class="hint">ช่องเส้นประแก้ไม่ได้ เริ่มตามจำนวนคน จบที่ 5 คนในรอบชิง</span></div><div class="games" data-games="dd"></div></section></div>
+          <div class="stub" style="height:56px;">step 4 (prizes) and the start button: as built</div>
+        </div></div>
+      <div class="cand"><div class="tag"><span class="d">C</span> · i1-pick · 320</div>
+        <div class="frm su ph" data-frame="i1-pick-320" data-dir="C" data-width="320" style="width:320px;">
+          <div class="stub" style="height:56px;">steps 1 and 2: as built</div>
+          <div class="wrap"><section class="step"><h2 class="step-h"><span class="num">3</span>ตารางคัดออก</h2><div class="stub" style="height:90px;">schedule boxes and reset: per gh#314 1b</div><div class="games" data-games="dd"></div></section></div>
+          <div class="stub" style="height:56px;">step 4 and the start button: as built</div>
+        </div></div>
+    </div>
+
+    <h3>1b · A GAME THIS BROWSER CANNOT SHOW · WebGL missing, drawn on 1a's option A</h3>
+    <p class="why">The event lives in this browser (the projector route reads it back from the same store), so a setup page without WebGL predicts the night. On the night the projector falls back to the 2D reveal for any round whose game cannot run (gh#305, gh#306, gh#307), whatever is picked here. The note is the board's notice row (icon and bold ink, setup-schedule-error); it never blocks the start. Disabled States: B's locked buttons are dashed on the cream ground with muted text, the setup board's locked-box language, not colour alone.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A</span><span class="d">rec</span> · i1-off · 1280 · picks stay as made; one note says those rounds will use the 2D reveal</div>
+        <div class="frm su" data-frame="i1-off-1280" data-dir="A" data-width="1280" style="width:1280px;">
+          <div class="stub" style="height:56px;">everything above the game rows: as 1a</div>
+          <div class="wrap"><section class="step"><div class="games" style="margin-top:0;" data-games="seg" data-off="keep"></div></section></div>
+        </div></div>
+      <div class="cand"><div class="tag"><span class="d">A</span><span class="d">rec</span> · i1-off · 320</div>
+        <div class="frm su ph" data-frame="i1-off-320" data-dir="A" data-width="320" style="width:320px;">
+          <div class="stub" style="height:56px;">above: as 1a</div>
+          <div class="wrap"><section class="step"><div class="games" style="margin-top:0;" data-games="seg" data-off="keep" data-rows="2"></div></section></div>
+          <div class="stub" style="height:56px;">rounds 3, 4 and the final: the same</div>
+        </div></div>
+    </div>
+    <div class="cands" style="margin-top:28px;">
+      <div class="cand"><div class="tag"><span class="d">B</span> · i1-off · 1280 · the 3D choices lock, every row on no game; the same note</div>
+        <div class="frm su" data-frame="i1-off-1280" data-dir="B" data-width="1280" style="width:1280px;">
+          <div class="stub" style="height:56px;">everything above the game rows: as 1a</div>
+          <div class="wrap"><section class="step"><div class="games" style="margin-top:0;" data-games="seg" data-off="lock"></div></section></div>
+        </div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span> · i1-off · 320</div>
+        <div class="frm su ph" data-frame="i1-off-320" data-dir="B" data-width="320" style="width:320px;">
+          <div class="stub" style="height:56px;">above: as 1a</div>
+          <div class="wrap"><section class="step"><div class="games" style="margin-top:0;" data-games="seg" data-off="lock" data-rows="2"></div></section></div>
+          <div class="stub" style="height:56px;">rounds 3, 4 and the final: the same</div>
+        </div></div>
+    </div>
+  </div>
+
+  <!-- ================================================================== ITEM 2 -->
+  <div class="brow">
+    <h2>ITEM 2 · THE LANE PICK · ทางแยกเลือกเส้น, the projector route at 1920 x 1080, shown at 50%</h2>
+    <p class="why">Drawn on ld-idle B (Gh303Ladder, picked): the camera behind the finalists, five lane plates near and large, the prize slots far. Before the picks a lane's plate is empty: dashed, its path dot kept, the lane number in the plate's own type. The lane the next name lands on takes the slot's gold ring. The MC's controls are real pixels over the frame (the frame itself holds no control, reveal.ts): the remaining finalists as name buttons over the empty middle of the track, and เปิดผล at the play band's right end, disabled (play.css .pd-go:disabled, as built) until all five lanes are filled; pressing it locks the picks and starts the reveal. The picks never change the odds (gh#307). Touch Target Size: names and เปิดผล 52px; B's lane hit areas are each plate's box, 303 x 61px at this scale. Dragging Movements: tap only, no drag. Drawn mid-pick: two of five placed.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A</span> · i2-lanes · 1920 · in order: lanes fill left to right, the MC taps each finalist's name as they step up; an undo takes back the last</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i2-lanes" data-dir="A" data-width="1920" style="width:1920px; transform: scale(0.5);">
+          <div class="band stub">play band 56px (PlayExit, unchanged)</div>
+          <div class="pj" data-ladder="pick" data-next="3" data-filled="1,2"></div>
+          <div class="nrow"><span class="nb tap">ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ</span><span class="nb tap">มะปรางหวานใจ</span><span class="nb tap">ต้น ส.</span><span class="nb ghost tap" data-copy="undo">[copy: owner]</span></div>
+          <span class="mc off tap" style="right:24px; top:2px;">เปิดผล</span>
+        </div></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i2-lanes · 1920 · any lane, any order: the MC taps a lane (here lane 4), then the name; tapping a filled lane empties it</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i2-lanes" data-dir="B" data-width="1920" style="width:1920px; transform: scale(0.5);">
+          <div class="band stub">play band 56px (PlayExit, unchanged)</div>
+          <div class="pj" data-ladder="pick" data-next="4" data-filled="1,2"></div>
+          <div class="nrow"><span class="nb tap">ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ</span><span class="nb tap">มะปรางหวานใจ</span><span class="nb tap">ต้น ส.</span></div>
+          <span class="hit tap" style="left:126px; top:957px; width:303px; height:61px;"></span><span class="hit tap" style="left:467px; top:957px; width:303px; height:61px;"></span><span class="hit tap" style="left:808px; top:957px; width:303px; height:61px;"></span><span class="hit tap" style="left:1150px; top:957px; width:303px; height:61px;"></span><span class="hit tap" style="left:1491px; top:957px; width:303px; height:61px;"></span>
+          <span class="mc off tap" style="right:24px; top:2px;">เปิดผล</span>
+        </div></div></div>
+    </div>
+    <div class="cands" style="margin-top:28px;">
+      <div class="cand"><div class="tag"><span class="d">BOTH</span> · i2-lanes-done · 1920 · all five placed: ld-idle B as picked, unchanged; เปิดผล enabled. The HUD line before this point is the [copy: owner] drawn above</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i2-lanes-done" data-dir="ALL" data-width="1920" style="width:1920px; transform: scale(0.5);">
+          <div class="band stub">play band 56px (PlayExit, unchanged)</div>
+          <div class="pj" data-ladder="done"></div>
+          <span class="mc tap" style="right:24px; top:2px;">เปิดผล</span>
+        </div></div></div>
+    </div>
+  </div>
+
+  <!-- ================================================================== ITEM 3 -->
+  <div class="brow">
+    <h2>ITEM 3 · THE CARD ROUND'S TWO PRESSES · the projector route at 1920 x 1080, shown at 50%</h2>
+    <p class="why">The contract commits the deal first and the rule later, so a card round takes two presses where a 2D round takes one. Press 1 on proj-round (Gh302Projector B: the round, its game named in the low band) deals: cards slide in (Gh303Cards motion, 2.4s), during which the button is disabled (Loading Buttons). Press 2 on cd-idle B (face down, ไพ่ของใครของมัน กติกายังไม่ได้สุ่ม) draws the rule, flips and judges (cd-rule B onward); then รอบต่อไป, as built. In QR mode press 2 sits on cd-code instead (i3-qr). The card field and the name field are stubs: unchanged from their boards. The button is drawn at the play band's right end (see FOUND WHILE DRAWING); only its label differs between options. Touch Target Size: 52px.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A</span> · i3-press1 · 1920 · press 1 keeps เปิดผล, as every round today</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i3-press1" data-dir="A" data-width="1920" style="width:1920px; transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-cards="round"></div><span class="mc tap" style="right:24px; top:2px;">เปิดผล</span></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">A</span> · i3-press2 · 1920 · press 2 is a new label: draw the rule</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i3-press2" data-dir="A" data-width="1920" style="width:1920px; transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-cards="dealt"></div><span class="mc tap" style="right:24px; top:2px;" data-copy="press-rule">[copy: owner]</span></div></div></div>
+    </div>
+    <div class="cands" style="margin-top:28px;">
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i3-press1 · 1920 · press 1 is a new label: deal</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i3-press1" data-dir="B" data-width="1920" style="width:1920px; transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-cards="round"></div><span class="mc tap" style="right:24px; top:2px;" data-copy="press-deal">[copy: owner]</span></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i3-press2 · 1920 · press 2 is เปิดผล: the rule draw is the reveal</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i3-press2" data-dir="B" data-width="1920" style="width:1920px; transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-cards="dealt"></div><span class="mc tap" style="right:24px; top:2px;">เปิดผล</span></div></div></div>
+    </div>
+    <div class="cands" style="margin-top:28px;">
+      <div class="cand"><div class="tag"><span class="d">C</span> · i3-press1 · 1920 · two new labels: deal</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i3-press1" data-dir="C" data-width="1920" style="width:1920px; transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-cards="round"></div><span class="mc tap" style="right:24px; top:2px;" data-copy="press-deal">[copy: owner]</span></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">C</span> · i3-press2 · 1920 · then draw the rule</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i3-press2" data-dir="C" data-width="1920" style="width:1920px; transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-cards="dealt"></div><span class="mc tap" style="right:24px; top:2px;" data-copy="press-rule">[copy: owner]</span></div></div></div>
+    </div>
+    <div class="cands" style="margin-top:28px;">
+      <div class="cand"><div class="tag"><span class="d">ALL OPTIONS</span> · i3-qr · 1920 · QR mode: press 2 on cd-code (Gh303Cards), label as the picked option (drawn with B's)</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i3-qr" data-dir="ALL" data-width="1920" style="width:1920px; transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-cards="code"></div><span class="mc tap" style="right:24px; top:2px;">เปิดผล</span></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">CHECK, NOT AN OPTION</span> · i3-pos · 1920 · the button where play.css puts it today (bottom-left, 24px in): it lands on the game name (measured on this canvas, 2026-11-13: the button's box covers 48 x 14px of the game name's line box)</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i3-pos" data-dir="ASBUILT" data-width="1920" style="width:1920px; transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-cards="dealt"></div><span class="mc tap" style="left:24px; bottom:24px;">เปิดผล</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="brow">
+    <h2>VALUES · where each value in a frame comes from</h2>
+    <p class="why"><b>Setup</b>: Gh302Setup A (picked): cream ground #fff6e0, ink #14142b, muted #3d3b5c, white cards, gold #ffcc00; step card, number disc, hint, schedule boxes, reset button and notice row as that board and index.astro draw them; the segmented buttons are setup-qr A's .seg (52px, 2.5px ink, 12px radius, Mitr 600 18px, gold with a 3px hard shadow when on); the dropdown is the step fields' look (52px, 18px Sarabun); a locked choice is the locked schedule box (dashed, cream); the 118px label column is the schedule box width; 320 values are index.astro's own under 640px (step padding 20px 16px, one column, 6px row gap), the stacked buttons 8px apart (the schedule's gap). <b>Projector</b>: Gh302Projector B and Gh303 game frames, picked: night ground #14142b to #23214d, soft text #d9d6f0, dim #9a97c0, gold glow rgba(255,204,0,0.45), veil rgba(20,20,43,0.78), code card, lane plates, slots and HUD as Gh303Ladder B and Gh303Cards draw them; an empty plate is dashed 3px #9a97c0 and the next lane takes the slot's 3px gold ring. <b>MC controls</b>: play.css .pd-go as built (52px, 999px, Mitr 600 22px, gold; 0.55 opacity disabled); a name button is that height and size on the plate's night surface in Sarabun 700 with a 3px gold ring. <b>Annotation only</b>: the hatched stubs, monospace tags and the dashed blue hit areas (#2b7bff, the canvases' fold line). <b>NEW VALUE: none.</b> Positions (where a control sits) are stated in each caption, not taken from a board.</p>
+  </div>
+
+  <div class="brow">
+    <h2>NOTES · what is not drawn, what is not covered</h2>
+    <p class="why"><b>Not drawn:</b> the phone (QR-join) side of a card round (Gh302Phone); hover and focus states (the setup page's existing focus ring, 3px punch, applies to the new buttons as to its others); a fireworks round's press (one press, as a 2D round: proj-round then fw-countdown); reduced motion, which the game boards already draw.</p>
+    <p class="why"><b>Not covered:</b> real browsers other than headless Chrome; a real projector; what the setup page does when WebGL is present but reduced motion is on (the tickets fall back to 2D for that too; this canvas draws only the WebGL case the brief named).</p>
+  </div>
+</div>
+</x-dc>
+<script>
+  // Fills the repeated parts from one table, so every option draws the same rows and the same frame chrome.
+  const ARROW = (px, c) => `<svg width="${px}" height="${px}" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h16M13 5.5l6.5 6.5-6.5 6.5" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const CHEV = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="#14142b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ICON = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#ff3d7f"/><path d="M12 6v8" fill="none" stroke="#14142b" stroke-width="3" stroke-linecap="round"/><circle cx="12" cy="18" r="1.7" fill="#14142b"/></svg>';
+  const NONE = '<span data-copy="no-game">[copy: owner]</span>';
+  const CUT = [NONE, 'พลุนับถอยหลัง', 'ไพ่แจกทั้งห้อง'];
+  const FIN = [NONE, 'พลุนับถอยหลัง', 'ทางแยกเลือกเส้น'];
+  const ROWS = [
+    { label: 'รอบที่ 1', sub: `200 ${ARROW(16, '#3d3b5c')} 100 คน`, opts: CUT, pick: 1 },
+    { label: 'รอบที่ 2', sub: `100 ${ARROW(16, '#3d3b5c')} 50 คน`, opts: CUT, pick: 2 },
+    { label: 'รอบที่ 3', sub: `50 ${ARROW(16, '#3d3b5c')} 20 คน`, opts: CUT, pick: 0 },
+    { label: 'รอบที่ 4', sub: `20 ${ARROW(16, '#3d3b5c')} 5 คน`, opts: CUT, pick: 1 },
+    { label: 'รอบชิง', sub: '5 คน', opts: FIN, pick: 2 },
+  ];
+  for (const g of document.querySelectorAll('[data-games]')) {
+    const off = g.dataset.off;
+    const rows = ROWS.slice(0, Number(g.dataset.rows || ROWS.length));
+    let h = '';
+    if (off) h += `<div class="emsg">${ICON}<span data-copy="no-3d-note">[copy: owner]</span></div>`;
+    else h += '<p class="hint" style="margin:0;"><span data-copy="games-line">[copy: owner]</span></p>';
+    for (const r of rows) {
+      const pick = off === 'lock' ? 0 : r.pick;
+      let ctl;
+      if (g.dataset.games === 'dd') ctl = `<span class="dd tap">${r.opts[pick]}${CHEV}</span>`;
+      else ctl = `<span class="seg">${r.opts.map((o, i) => `<span class="tap${i === pick ? ' on' : ''}${off === 'lock' && i > 0 ? ' lock' : ''}">${o}</span>`).join('')}</span>`;
+      h += `<div class="grow"><div class="gl">${r.label}<div class="lab">${r.sub}</div></div>${ctl}</div>`;
+    }
+    g.innerHTML = h;
+  }
+  // The board's schedule row (setup-admin A), at 200 names.
+  for (const s of document.querySelectorAll('[data-sched]')) {
+    const v = [200, 100, 50, 20, 5];
+    const lab = ['เริ่ม', 'หลังรอบ 1', 'หลังรอบ 2', 'หลังรอบ 3', 'รอบชิง'];
+    s.innerHTML = v.map((n, i) => `${i ? `<div class="arr">${ARROW(26, 'currentColor')}</div>` : ''}<div class="box"><div class="val${i === 0 || i === 4 ? ' lock' : ' tap'}">${n}</div><div class="lab">${lab[i]}<br>${n} คน</div></div>`).join('');
+  }
+  // Projector chrome, from the picked boards.
+  const topBar = (rl, dots) => `<div class="top"><span class="ev">ปาร์ตี้ปีใหม่ 2570</span><span class="dots"><span class="rl">${rl}</span>${dots}</span></div>`;
+  const DOTS2 = '<i class="done"></i><i class="on"></i><i></i><i></i><i class="fin"></i>';
+  const DOTSF = '<i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="fin on"></i>';
+  for (const p of document.querySelectorAll('[data-cards]')) {
+    const k = p.dataset.cards;
+    let h = topBar('รอบที่ 2 จาก 4', DOTS2);
+    if (k === 'round') {
+      h += '<div class="fstub g302 stub">proj-round B name field, 100 names (Gh302Projector, picked): unchanged, not redrawn</div>';
+      h += `<div class="low g302"><div><div class="lk">เกมรอบนี้</div><div class="gname">ไพ่แจกทั้งห้อง</div></div><div class="flow">100${ARROW(110, '#ffcc00')}<span class="to">50</span><small>คน</small></div><div class="rt lk">รอบนี้คัดเหลือ<br>50 คน</div></div>`;
+    } else {
+      h += '<div class="fstub stub">cd-idle B card field, 100 cards face down (Gh303Cards, picked): unchanged, not redrawn</div>';
+      h += '<div class="low"><div><div class="lk">แจกไพ่แล้ว 100 ใบ</div><div class="gname">ไพ่แจกทั้งห้อง</div></div><div class="flow">100<small>คน</small></div><div class="rt"><div class="lk">ไพ่ของใครของมัน กติกายังไม่ได้สุ่ม</div></div></div>';
+      if (k === 'code') h += '<div class="veil"></div><div class="codebox"><div class="ck">รหัสรอบที่ 2</div><div class="digits">4821 5307 6290</div><div class="ci">ใส่รหัสนี้ในมือถือ เพื่อดูไพ่ของคุณ</div></div>';
+    }
+    p.innerHTML = h;
+  }
+  // The ladder, ld-idle B (Gh303Ladder, picked): lanes left to right, each with its path dot.
+  const LANES = [
+    { x: 240, far: 280, dot: 'background:#ff3d7f;', name: 'ฒฒฒฒฒฒฒฒฒฒฒฒ' },
+    { x: 600, far: 620, dot: 'background:#ffffff;', name: 'WWWWWWWWWWWW' },
+    { x: 960, far: 960, dot: 'background:#ffcc00;', name: 'ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ' },
+    { x: 1320, far: 1300, dot: 'background:#ffffff; box-shadow: inset 0 0 0 4px #23214d;', name: 'มะปรางหวานใจ' },
+    { x: 1680, far: 1640, dot: 'background:#2b7bff;', name: 'ต้น ส.' },
+  ];
+  const SLOTS = [
+    '<div class="sk"><span style="white-space: nowrap;">ไม่มีรางวัล</span></div><div class="sp">ขอบคุณที่ร่วมลุ้น</div>',
+    '<div class="sk">รางวัลที่ 1</div><div class="sp">ทีวี 55 นิ้ว</div>',
+    '<div class="sk"><span style="white-space: nowrap;">ไม่มีรางวัล</span></div><div class="sp">ขอบคุณที่ร่วมลุ้น</div>',
+    '<div class="sk">รางวัลที่ 2</div><div class="sp">จักรยานไฟฟ้า</div>',
+    '<div class="sk">รางวัลที่ 3</div><div class="sp">หม้อทอดไร้น้ำมัน</div>',
+  ];
+  const SLOTCLS = ['none', 'prize', 'none', 'prize', 'prize'];
+  for (const p of document.querySelectorAll('[data-ladder]')) {
+    const done = p.dataset.ladder === 'done';
+    const filled = done ? [1, 2, 3, 4, 5] : p.dataset.filled.split(',').map(Number);
+    const next = Number(p.dataset.next || 0);
+    let h = topBar('รอบชิงรางวัล', DOTSF);
+    h += '<svg class="layer" width="1920" height="1080" viewBox="0 0 1920 1080" style="z-index:1;" aria-hidden="true">';
+    for (const l of LANES) { const mx = 960 + (l.x - 960) * 0.55; h += `<line x1="${l.x}" y1="930" x2="${mx}" y2="290" stroke="#5e5c7b" stroke-width="5"/><line x1="${mx}" y1="290" x2="${l.far}" y2="226" stroke="#5e5c7b" stroke-width="5"/>`; }
+    h += '</svg>';
+    LANES.forEach((l, i) => {
+      const n = i + 1;
+      if (filled.includes(n)) h += `<div class="lplate" style="left:${l.x}px; top:950px;"><i style="${l.dot}"></i><span class="fit" data-min="24" data-max="40">${l.name}</span></div>`;
+      else h += `<div class="lplate empty${n === next ? ' next' : ''}" style="left:${l.x}px; top:950px;"><i style="${l.dot}"></i><span class="fit">${n}</span></div>`;
+      h += `<div class="slot ${SLOTCLS[i]}" style="left:${l.far}px; top:112px;">${SLOTS[i]}</div>`;
+    });
+    h += done ? '<div class="hud2"><div class="lk">แต่ละคนเลือกเส้นแล้ว</div><div class="gname">ทางแยกเลือกเส้น</div></div>'
+              : '<div class="hud2"><div class="lk" data-copy="lanes-hud">[copy: owner]</div><div class="gname">ทางแยกเลือกเส้น</div></div>';
+    p.innerHTML = h;
+  }
+  // The board's name fit (Gh303Ladder): text width from a Range, shrink in 1px steps to the floor, then wrap.
+  const tw = (e) => { const g = document.createRange(); g.selectNodeContents(e); const rs = [...g.getClientRects()].filter((x) => x.width > 0); return rs.length ? Math.max(...rs.map((x) => x.right)) - Math.min(...rs.map((x) => x.left)) : 0; };
+  const cw = (e) => { const cs = getComputedStyle(e); return (e.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) * (e.getBoundingClientRect().width / e.offsetWidth); };
+  document.fonts.ready.then(() => {
+    for (const e of document.querySelectorAll('.fit[data-max]')) {
+      let px = parseFloat(e.dataset.max); const min = parseFloat(e.dataset.min);
+      e.style.fontSize = px + 'px';
+      while (tw(e) * 1.02 > cw(e) && px > min) { px -= 1; e.style.fontSize = px + 'px'; }
+      if (tw(e) * 1.02 > cw(e)) { e.style.whiteSpace = 'normal'; e.style.overflowWrap = 'anywhere'; }
+    }
+    document.documentElement.dataset.fitDone = '1';
+  });
+</script>
+</body>
+</html>

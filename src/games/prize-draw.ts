@@ -15,7 +15,8 @@ const game: GameModule = {
   names: { th: 'จับรางวัลปีใหม่', en: 'New Year Prize Draw' },
   category: 'company-party',
   players: [MIN_HEADS, MAX_HEADS],
-  renderer: 'dom',
+  // gh#305: the projector's steps reveal through the shared WebGL host (src/play/_prize-reveal/game-host.ts).
+  renderer: 'webgl',
   startsRound: true,
   keywords: ['จับรางวัล', 'จับฉลากรางวัลปีใหม่', 'เกมงานเลี้ยงบริษัท', 'จับรางวัลงานปีใหม่', 'สุ่มรางวัลบนจอใหญ่'],
   tagline: 'คัดออกทีละรอบจนเหลือ 5 คนสุดท้าย แล้วชิงรางวัลบนจอใหญ่',
@@ -37,6 +38,8 @@ const game: GameModule = {
   ads: true,
   playRoute: '/game/prize-draw/play/',
   setupRoute: '/game/prize-draw/',
+  // gh#308: the phone join page the QR on the projector opens (src/pages/game/prize-draw/join.astro).
+  extraRoutes: ['/game/prize-draw/join/'],
   firstScreenRoots: {
     '#pd-live': 'chrome',
     '#app': 'gameplay',

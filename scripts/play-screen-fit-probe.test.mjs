@@ -1791,3 +1791,62 @@ test('MUST-RED gh#304: on a screenless route the wait returns at once, and reds 
   const present = async () => ({ value: { mounted: true, pending: false, path } });
   assert.match(await fit.awaitPlayerScreenSettled(present, { capMs: 50, pollMs: 1, wait: async () => {} }), /no shared player screen/);
 });
+
+// Owner ruling 2026-11-13: the prize-draw projector at 320x568 may scroll VERTICALLY (the owner-picked phone
+// layout lists every name in two columns). The grant is one row and one axis: the same px on another viewport,
+// another route, or sideways on the granted row must still red. Driven through main() and its production
+// fixture channel, so it asserts the verdict the CI leg prints rather than a set lookup.
+const PD_PHONE = 'prize-draw 320x568';
+const PD_SCROLL_PX = 3378;
+const pdScreen = (over = {}) => ({ press: 0, overflowPx: PD_SCROLL_PX, scrollPx: PD_SCROLL_PX, clippedPx: 0, overflowXPx: 0, widthFillPct: 90, inkCount: 10, playerScreen: false, ...over });
+const runMainOn = (key, screen) => {
+  const rows = makeFixture42();
+  // In place, so a desktop row keeps its composition reading and only the measurement under test changes.
+  rows.find((r) => rowKey(r) === key).screens = [screen];
+  process.env.PROBE_OUT_JSON = JSON.stringify({ rows });
+  const errors = [];
+  let exitCode = null;
+  const origExit = process.exit;
+  const origErr = console.error;
+  const origWarn = console.warn;
+  console.error = (...a) => errors.push(a.join(' '));
+  console.warn = () => {};
+  process.exit = (code) => { exitCode = code; throw new Error(`PROCESS_EXIT_${code}`); };
+  try {
+    main({ emit: () => {}, log: () => {} });
+  } catch (err) {
+    if (!err.message?.startsWith('PROCESS_EXIT_')) throw err;
+  } finally {
+    process.exit = origExit;
+    console.error = origErr;
+    console.warn = origWarn;
+    delete process.env.PROBE_OUT_JSON;
+  }
+  return { exitCode, errors };
+};
+
+test('prize-draw 320x568 is a recorded VERTICAL exception at its measured px, owned by the 2026-11-13 ruling', () => {
+  const reason = KNOWN_OVERFLOW.get(PD_PHONE);
+  assert.ok(reason, `${PD_PHONE} is not in KNOWN_OVERFLOW`);
+  assert.ok(reason.startsWith(`owner ruling 2026-11-13: ${PD_SCROLL_PX}px `), `reads "${reason.slice(0, 60)}"`);
+  assert.match(reason, /owner ruling 2026-11-13: #314 item 5 B \(i5-phone B\) scrolls the name list on phones/);
+  assert.ok(!FITS_ROWS.has(PD_PHONE), 'a row in both sets reds as ambiguous');
+  assert.ok(!KNOWN_OVERFLOW_X.has(PD_PHONE), 'the grant is vertical only: the horizontal map must not hold this row');
+  assert.equal(KNOWN_OVERFLOW_SCREEN.get(PD_PHONE), 'round');
+});
+
+test('MUST-RED 2026-11-13: the granted vertical scroll passes on prize-draw 320x568 and nowhere else', () => {
+  const ok = runMainOn(PD_PHONE, pdScreen());
+  assert.equal(ok.exitCode, null, `the granted row must pass: ${ok.errors.join(' | ')}`);
+  for (const other of ['prize-draw 390x844', 'prize-draw 1440x900', 'prize-fireworks 320x568', 'prize-cards 320x568']) {
+    const red = runMainOn(other, pdScreen());
+    assert.equal(red.exitCode, 1, `${other}: the same vertical overflow must still red`);
+    assert.ok(red.errors.some((l) => l.includes('no longer fits VERTICALLY') && l.includes(other.split(' ')[1])), `${other}: red for the wrong reason: ${red.errors.join(' | ')}`);
+  }
+});
+
+test('MUST-RED 2026-11-13: the vertical grant on prize-draw 320x568 does not license a sideways clip', () => {
+  const red = runMainOn(PD_PHONE, pdScreen({ overflowXPx: 120, overflowXFrom: 'div#planted' }));
+  assert.equal(red.exitCode, 1, 'a sideways clip on the granted row must still red');
+  assert.ok(red.errors.some((l) => l.includes('clips SIDEWAYS') && l.includes('320x568')), red.errors.join(' | '));
+});

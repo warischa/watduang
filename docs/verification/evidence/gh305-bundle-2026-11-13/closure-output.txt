@@ -1,0 +1,60 @@
+registry chunk: reveal.js {"fireworks":"index.B1qV2OLA.js","cards":"index.DiwL06GZ.js","ladder":"index.ClKeB51M.js"}
+## game/prize-draw/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 11 chunks raw 54743 gzip 23691
+  initial chunks: play.astro_astro_type_script_index_0_lang.js seed.js _render-hold.js preload-helper.js names-dom.js plan.js event.js reveal.js store.js _arm-gate.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 5 chunks: three.module.js index.js paint.js index.js index.js
+  full (initial+all dynamic): raw 630578 gzip 181364
+  three in initial: false
+  activated (fireworks+cards+ladder): 16 chunks raw 630578 gzip 181364
+  activated, fireworks alone: 14 chunks raw 593789 gzip 165517
+  activated, cards alone: 14 chunks raw 597305 gzip 167482
+  activated, ladder alone: 14 chunks raw 585856 gzip 162751
+## game/prize-fireworks/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 9 chunks raw 37835 gzip 16279
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 7 chunks: three.module.js index.js seed.js plan.js paint.js index.js index.js
+  full (initial+all dynamic): raw 621423 gzip 177739
+  three in initial: false
+  activated (fireworks): 13 chunks raw 577207 gzip 158340
+## game/prize-cards/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 9 chunks raw 37831 gzip 16274
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 7 chunks: three.module.js index.js seed.js plan.js paint.js index.js index.js
+  full (initial+all dynamic): raw 621419 gzip 177734
+  three in initial: false
+  activated (cards): 13 chunks raw 580719 gzip 160300
+## game/prize-ladder/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 9 chunks raw 37827 gzip 16270
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 7 chunks: three.module.js index.js seed.js plan.js paint.js index.js index.js
+  full (initial+all dynamic): raw 621415 gzip 177730
+  three in initial: false
+  activated (ladder): 14 chunks raw 576693 gzip 159117
+## game/croc-bite/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 11 chunks raw 603632 gzip 159650
+  initial chunks: play.astro_astro_type_script_index_0_lang.js _el.js name-list.js roster.js _arm-gate.js _render-hold.js croc-bite.js player-screen.js audio.js three.module.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 0 chunks: 
+  full (initial+all dynamic): raw 603632 gzip 159650
+  three in initial: true
+  activated (n/a): 11 chunks raw 603632 gzip 159650
+## game/prize-draw
+  entries: PageChrome.astro_astro_type_script_index_0_lang.js, index.astro_astro_type_script_index_0_lang.js
+  initial: 6 chunks raw 30153 gzip 12692
+  initial chunks: index.astro_astro_type_script_index_0_lang.js names-dom.js store.js event.js setup-page.js PageChrome.astro_astro_type_script_index_0_lang.js
+  +lazy: 0 chunks: 
+  full (initial+all dynamic): raw 30153 gzip 12692
+  three in initial: false
+  activated (n/a): 6 chunks raw 30153 gzip 12692
+## game/prize-draw/join
+  entries: join.astro_astro_type_script_index_0_lang.js
+  initial: 5 chunks raw 37750 gzip 15602
+  initial chunks: join.astro_astro_type_script_index_0_lang.js store.js event.js setup-page.js names-dom.js
+  +lazy: 0 chunks: 
+  full (initial+all dynamic): raw 37750 gzip 15602
+  three in initial: false
+  activated (n/a): 5 chunks raw 37750 gzip 15602

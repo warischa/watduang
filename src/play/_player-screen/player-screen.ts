@@ -16,6 +16,11 @@ import { armAllButtons, gateHolds } from '../../games/_arm-gate.ts';
 import { applyRosterOps, loadGroup, loadRoster, migrateLegacyList, saveGroup, type RosterOp } from '../../shell/roster.ts';
 import { hasVisibleChar } from '../../tools/name-list.ts';
 import { MASCOTS, resetCastNames } from '../_mascots.ts';
+import { bindRenderHoldEdge, isRenderHeld, setRenderHold } from '../_render-hold.ts';
+
+// The hold primitives live in _render-hold.ts (gh#305); re-exported here so every route and test that
+// imports them from this screen reads the same, single hold.
+export { acquireRenderHold, isRenderHeld, onRenderHold, RENDER_HOLD_ATTR } from '../_render-hold.ts';
 
 /** ADR-0071 ruling 7 (ADR-0054 ruling 5): the roster holds at most this many names, and a game
  *  declaring a maximum above it reds the build (scripts/player-screen-mount-check.mjs). It is also
@@ -588,36 +593,15 @@ export const EDIT_EVENT = 'watduang:edit-players';
 //
 // One holder per mount, never a page-wide count: a mount releases only its own entry, so one screen
 // handing over cannot end another screen's hold, and each mount's own counters (mountPlayerScreen)
-// keep an older open that lands late from releasing a newer one.
-
-/** gh#272: the hold, observable on <html> -- 'held' or 'free', written on every change, from the same
- *  value isRenderHeld() returns. A probe in the page counts draws while it reads 'held'; absent means
- *  no screen has ever held, which is not the same as 'free'. */
-export const RENDER_HOLD_ATTR = 'data-render-hold';
+// keep an older open that lands late from releasing a newer one. The hold itself (RENDER_HOLD_ATTR,
+// isRenderHeld, onRenderHold) lives in _render-hold.ts; this screen keeps the handover bookkeeping and
+// binds it there as the edge hook (onHoldEdge below).
 
 /** gh#272: written only after a route's onStart has RETURNED -- and its promise resolved, if it gave
  *  one -- so "the screen closed" and "the route took the players" cannot be confused. The value counts
  *  the page's acknowledged handovers, so a reader can tell a new one from the last. A throwing onStart
  *  leaves it untouched. */
 export const HANDOVER_ATTR = 'data-player-screen-handover';
-
-const renderHolders = new Set<object>();
-const renderListeners = new Set<(held: boolean) => void>();
-let renderHeld = false;
-
-/** Is rendering held right now? The current state, for a route that subscribes after a hold began. */
-export function isRenderHeld(): boolean {
-  return renderHeld;
-}
-
-/** Calls `listener` on every CHANGE of the hold, with the new value, never with a repeat. Returns the
- *  unsubscribe. Not called with the current state: read isRenderHeld() for that. */
-export function onRenderHold(listener: (held: boolean) => void): () => void {
-  renderListeners.add(listener);
-  return () => {
-    renderListeners.delete(listener);
-  };
-}
 
 /** gh#269: the roots PlayerScreen.astro keeps out of sight until the hold reads 'free' -- the same
  *  attribute and value its stylesheet keys on, so the set armed here is the set that flip reveals. */
@@ -664,35 +648,19 @@ function beginHandover(): void {
  *  hold came back meanwhile, which clears the wait: that hold's own release arms. */
 function endHandover(): void {
   handingOver = Math.max(0, handingOver - 1);
-  if (handingOver > 0 || !releaseAwaitsHandover || renderHeld) return;
+  if (handingOver > 0 || !releaseAwaitsHandover || isRenderHeld()) return;
   releaseAwaitsHandover = false;
   queueMicrotask(armReleasedGameplay);
 }
 
-function setRenderHold(holder: object, on: boolean): void {
-  if (on) renderHolders.add(holder);
-  else renderHolders.delete(holder);
-  const held = renderHolders.size > 0;
-  if (held === renderHeld) return;
-  renderHeld = held;
-  document.documentElement.setAttribute(RENDER_HOLD_ATTR, held ? 'held' : 'free');
+/** Every change of the hold, whoever caused it: after <html> is written, before any listener. A release
+ *  arms the gameplay, or waits for an in-flight handover to settle first. */
+function onHoldEdge(held: boolean): void {
   if (held) releaseAwaitsHandover = false;
   else if (handingOver > 0) releaseAwaitsHandover = true;
   else queueMicrotask(armReleasedGameplay);
-  for (const listener of [...renderListeners]) {
-    // A listener that changed the hold itself has already told everyone the newer value.
-    if (renderHeld !== held) return;
-    // A failing listener must not stop the others, nor the close it runs inside -- that close is
-    // followed by the handover. Rethrown on its own job, so it stays loud.
-    try {
-      listener(held);
-    } catch (err) {
-      queueMicrotask(() => {
-        throw err;
-      });
-    }
-  }
 }
+bindRenderHoldEdge(onHoldEdge);
 
 /** The game root the dialogs and the undo bar cover: the same id set the shared chrome probes use. */
 function surfaceOf(root: HTMLElement): HTMLElement {

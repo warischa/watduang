@@ -1,0 +1,96 @@
+Result: PASS
+[confirmed; READ] Preserve the current commit-before-display and stale-writer handling: `src/prize-event/store.ts`, `src/play/prize-draw/stage.ts`. Finals currently become `result`, so the new seam must handle both round reveals and final results: `src/prize-event/view.ts`.
+[confirmed; READ] #300 already provides the required card mechanism: `src/prize-draw/cards.ts`; separable cuts select the lowest K and highest K independently: `src/prize-draw/round-code.ts`.
+[confirmed; RAN] From `/Users/waris.c/claude/free-game`, `node --test --test-reporter=spec /Users/waris.c/claude/free-game/src/prize-event/event.test.mjs /Users/waris.c/claude/free-game/src/prize-event/store.test.mjs /Users/waris.c/claude/free-game/src/prize-draw/cards.test.mjs` → **44 passed, 0 failed**. These include fake-IndexedDB tests, not browser durability measurements.
+
+[inferred] **Ranked decision:** (1) one persisted outcome model plus one shared renderer host; three visual adapters. This concentrates persistence, fallback and disposal in one implementation. (2) Independent game controllers require less initial coordination but duplicate those guarantees and undermine parallel ownership.
+
+[inferred] **Persisted contract:** put these definitions in new `src/prize-event/game-contract.ts`; import existing `Card` and `RuleId` from `src/prize-draw/cards.ts`.
+```ts
+// inferred: proposed frozen definitions
+type GameId = 'fireworks' | 'cards' | 'ladder';
+type Four<T> = readonly [T, T, T, T];
+type Five<T> = readonly [T, T, T, T, T];
+type Lane = 0 | 1 | 2 | 3 | 4;
+type CutGame = 'fireworks' | 'cards' | null;
+type FinalGame = 'fireworks' | 'ladder' | null;
+type GameChoices = { rounds: Four<CutGame>; final: FinalGame };
+type Deal = { pair: readonly [RuleId, RuleId]; cards: readonly { id: string; card: Card }[] };
+type CardsPrepared = { game: 'cards'; round: number; code: string; deal: Deal };
+type CutBase = { round: number; code: string; survivors: string[] };
+type RoundRecord = CutBase & (
+  { game: null | 'fireworks' } | { game: 'cards'; deal: Deal; rule: 0 | 1 }
+);
+type FinalRecord = { order: string[] } & (
+  { game: null | 'fireworks' } |
+  { game: 'ladder'; picks: Five<string>; permutation: Five<Lane>; slotRanks: Five<Lane> }
+);
+```
+[inferred] In `event.ts`, add required `EventSetup.games: GameChoices`, `EventState.prepared: CardsPrepared | null`, and payload `v: 2`; preserve existing phases. Allow optional `EventInput.games`, defaulting to all-null for existing callers.
+[inferred] Freeze these functions: `prepareCards(state: EventState, rng: Rng): EventState`; `drawNext(state: EventState, rng: Rng, picks?: Five<string>): EventState`; `drawAndSave(state: EventState, rng: Rng, save: (next: EventState) => boolean | Promise<boolean>, picks?: Five<string>): Promise<{ok: boolean; state: EventState}>`.
+[inferred] **Cards ordering:** `prepareCards` calls `hostDealRound`, then stage CAS-persists the complete deal without choosing a rule. Display that deal/code statically; QR phones can derive their cards. A separate MC action samples `rng.int(2)`, persists the rule and survivors, then starts the rule/flip/judging animation. Refreshing a prepared deal never redeals it. This deliberately omits the pre-rule deal slide required by `design/Gh303Cards.dc.html` to honor the stronger “before any animation” ruling.
+[inferred] **Exact K proof:** each accepted seed has separable boundaries at K and N−K; the two slices each contain K identities. Card faces encode both membership bits, so either selected rule accepts exactly K. Persist survivors in roster order. Reject an invalid deal or exhausted seed search; never repair cardinality after drawing.
+[inferred] **Ladder ordering:** collect five unique finalist IDs in lane order using stage-owned static controls. Lock them on the draw action, independently draw uniform `permutation` and `slotRanks` using existing rejection-sampled `rng.int`, derive `order`, and CAS-persist everything before mounting.
+[inferred] Define `permutation[startLane] = exitLane`, `slotRanks[exitLane] = awardRank`, and `order[slotRanks[permutation[lane]]] = picks[lane]`. Ranks below `prizes.length` win; remaining ranks show no prize. For every fixed pick assignment and slot layout, uniform permutation gives every finalist equal chances.
+[inferred] #307 constructs its ladder deterministically from the committed permutation using adjacent swaps, placing each rung on a distinct increasing row. Following every start must reproduce its committed exit. Never generate a random ladder and accept its accidental permutation.
+[inferred] Decoder validation must check eligibility, prepared-state position, every deal card against `phoneCard`, both rule counts, selected survivors, all finalist bijections, prize range and the ladder/order equation. JSON stores arrays, never `Map`.
+[inferred] Validate v1 with its original rules, then normalize deterministically to v2 with all games null and `prepared: null`; preserve every recorded code, survivor and final order. Unknown or corrupt versions remain preserved and refused.
+[inferred] Keep `Snapshot.raw` byte-exact through normalization; the next write compares against that original text. Bump IndexedDB `DB.version` to 2 as an old-writer fence: current code closes its connection on version change (`store.ts`). Preserve the existing legacy-copy transaction and removal ordering.
+[inferred] The MC chooses four elimination games and one final game on `/game/prize-draw/`, implemented in `setup-page.ts` and `src/pages/game/prize-draw/index.astro`. Elimination offers null/fireworks/cards; final offers null/fireworks/ladder. Freeze choices when the event starts; keep `proposeSchedule` unchanged.
+
+[inferred] **Visual interface:** freeze new `src/play/_prize-reveal/game-contract.ts`; import domain definitions and existing `Person`. Its input contains only committed facts.
+```ts
+// inferred: proposed frozen definitions
+type DeepReadonly<T> = { readonly [K in keyof T]: DeepReadonly<T[K]> };
+type CommittedOutcome =
+  | ({ kind: 'round' } & RoundRecord)
+  | ({ kind: 'final'; prizes: readonly string[] } & FinalRecord);
+type Viewport = { cssWidth: number; cssHeight: number; dpr: number };
+type RevealInput<G extends GameId> = DeepReadonly<{
+  key: string; outcome: CommittedOutcome & { game: G };
+  people: Person[]; viewport: Viewport; reducedMotion: boolean;
+}>;
+type GameCommand =
+  | { type: 'tick'; elapsedMs: number; deltaMs: number }
+  | { type: 'resize'; viewport: Viewport }
+  | { type: 'next' | 'finish' };
+type GameEvent =
+  | { type: 'beat'; beat: 'deal' | 'rule' | 'cut' | 'prize'; index: number }
+  | { type: 'complete' }
+  | { type: 'error'; error: unknown };
+type GameContext = {
+  root: HTMLElement; renderer: import('three').WebGLRenderer; signal: AbortSignal;
+  own<T extends { dispose(): void }>(resource: T): T;
+};
+type RevealHandle = { advance(command: GameCommand): void; dispose(): void };
+interface RevealModule<G extends GameId> {
+  mount(context: GameContext, input: RevealInput<G>, emit: (e: GameEvent) => void): RevealHandle;
+}
+```
+[inferred] `people` contains the current step’s participants, identified by ID. Modules receive no store, outcome RNG or event-transition function. Output events control presentation and validated announcements only; they cannot select winners or advance the persisted event.
+[inferred] Modules mount synchronously, allocate GPU resources through `context.own`, and use the abort signal for asynchronous work. They own no RAF loop. The shared host calls `advance(tick)`; `dispose()` is idempotent. Cosmetic randomness uses a deterministic seed derived from `input.key`.
+[inferred] Prewire `src/play/_prize-reveal/game-registry.ts` with literal lazy imports of `../prize-fireworks/renderer/index.ts`, `../prize-cards/renderer/index.ts`, and `../prize-ladder/renderer/index.ts`. Export typed loaders and eligibility/availability metadata. `stage.ts` consumes this registry; later builders never edit it.
+[inferred] Stage mounts only after successful CAS, for both committed round reveals and committed final results. Resume renders the settled 2D result without redrawing. Adoption of another snapshot disposes the active host; generation checks discard late imports and callbacks. Keep MC progression disabled during presentation until complete or explicit finish.
+
+[inferred] **Single renderer FSM:** implement exclusively in `src/play/_prize-reveal/game-host.ts`: `idle → loading → running ↔ held → settled`; `loading/running/held → fallback`; every state can enter terminal `disposed`.
+[inferred] Reduced motion at entry or null game goes directly to 2D before importing Three. Import/init failure, unavailable WebGL2, mount/render exception, context loss, or reduced motion becoming enabled goes to sticky `fallback` for that outcome. Slow frames never trigger fallback.
+[inferred] The host owns one canvas/renderer. Attach `webglcontextlost` before creating the renderer; prevent default, cancel the loop and fall back. Observe a `MediaQueryList` change listener for `(prefers-reduced-motion: reduce)`. Restoration or motion being re-enabled never restarts that reveal.
+[inferred] Every exit aborts work, cancels RAF, removes observers/listeners, disposes registered geometries/materials/textures/render targets and the renderer, then renders the same committed 2D view. Retain existing name sinks, fitting and live-region semantics.
+[inferred] Extract existing hold primitives into `src/play/_render-hold.ts`, retaining player-screen re-exports: `isRenderHeld(): boolean`, `onRenderHold(listener): () => void`, `acquireRenderHold(): () => void`. Host subscribes directly; hidden documents also pause. Held time is excluded from elapsed animation time.
+
+[inferred] **Own pages:** add `/game/prize-fireworks/play/`, `/game/prize-cards/play/`, `/game/prize-ladder/play/`, their `src/pages/game/<id>/play.astro`, `src/play/<id>/main.ts` and `markup.html`, plus corresponding `src/games/<id>.ts` and manifest entries. Use `company-party`, `renderer: 'webgl'`, and existing full-screen chrome.
+[inferred] With no event, a shared `src/play/_prize-reveal/demo.ts` supplies clearly labeled synthetic fixtures: 200 participants for elimination, five finalists for finals, and 1–5 configurable prizes. Fireworks exposes both modes. Persist demo state through `openEventStore(env, scope?: 'event' | GameId)`, using isolated `demo:<id>` keys/channels; legacy migration applies only to `event`. Never replace the real event.
+[confirmed; READ] Render enumeration currently excludes company-party (`scripts/render-suspension-check.mjs`); the pixel probe also assumes player-screen handover (`scripts/webgl-pixels-probe.mjs`). Renderer discovery reads only immediate route files (`scripts/renderer-declaration.test.mjs`).
+[inferred] Widen the two render gates to `party` and `company-party` play routes. Recognize the generic hold subscription and shared host transitively; declare prize-draw and the three new routes as adapters, with measured extension lists and no workers/WebGPU. Keep roster/player-screen/seat-cap gates party-specific.
+[inferred] Add prize-route probe drivers that seed isolated fixtures, execute actual MC actions and wait for an active WebGL phase before readback. Cover every eligible game/mode, observed held→free transitions, stubbed draws and forced fallback. Update renderer discovery to follow local imports. A cold page or demo landing alone cannot pass reveal coverage.
+
+[inferred] **Frame-time instrument:** implement optional sampling in `src/play/_prize-reveal/frame-time.ts`, driven by `scripts/prize-reveal-frame-probe.mjs` against the production build on this Mac. Measure complete 200-name elimination timelines after warm-up: RAF intervals and CPU time around each `advance(tick)`, including rendering and name updates; report per-phase samples, median, p95 and maximum.
+[inferred] Record Mac model/chip, GPU renderer, OS/browser versions, viewport, DPR/backing size, build fingerprint and run settings. Require a real GPU and reject software-renderer runs. RAF intervals measure frame pacing; CPU submission time is not GPU execution time. Exclude hidden/held intervals and storage/import latency, reporting those separately.
+[inferred] Save raw samples and summaries under `docs/verification/evidence/gh305-frame-time-<date>/` and `gh306-frame-time-<date>/`. The orchestrator runs these serially on this Mac and archives reports; parallel builders do not launch competing GPU probes. No performance claim is established by this design review.
+[inferred] **Bundle procedure:** integrate #305, then #306, then #307. At each integration run `npm run build`, measure the resulting artifact, and repin `BASELINE_TOTAL_BYTES`, the exact basename set and page-entry pairs in `scripts/bundle-freeze-check.mjs`; retain ±5%. Attribute each delta against the immediately preceding integration.
+[inferred] Also record initial static-load and activated-reveal raw/gzip closures per route, including croc-bite: the aggregate freeze cannot establish visitor cost (`docs/adr/0068-three-beyond-croc-bite-is-a-per-visitor-cost-the-freeze-cannot-see.md`). Keep Three lazy, use named imports, verify reduced-motion pages fetch none, and record these three scoped admissions alongside the ADRs.
+
+[inferred] **Ownership:** the #305 builder acts as the designated contract/orchestrator owner: all `src/prize-event/**` changes, shared reveal/hold files, stage/main wiring and tests, setup/page shells, registry, metadata/manifest, declarations, tokens, scripts/workflow, ADR notes, package/lock and baselines; additionally `src/play/prize-fireworks/renderer/**`. Prepare typed cards/ladder stubs before handing off.
+[inferred] #306 may change **only** `src/play/prize-cards/renderer/**`, including its local styles/helpers/tests. #307 may change **only** `src/play/prize-ladder/renderer/**`, including legal-ladder construction and exhaustive permutation tests. Both branch from the completed shared-contract snapshot, not the pre-contract repository state.
+[inferred] The orchestrator activates availability and metadata when integrating each completed module; no later builder edits a shared file. Required acceptance covers migration/CAS races, prepared-deal resume, both K-sized rules, ladder path equivalence, every fallback trigger, disposal, and stale asynchronous completion. Build/browser/GPU checks were not run here because this was a read-only design step.
+would change if: [assumed] #306 must animate the deal before sampling its rule; that cannot coexist with committing the complete outcome before every animation.

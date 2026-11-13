@@ -164,7 +164,8 @@ test('gh#304: a play route with no shared player screen is named, and really mou
   const { games } = await import(pathToFileURL(path.join(repoRoot, 'src/games/manifest.ts')).href);
   const { categories } = await import(pathToFileURL(path.join(repoRoot, 'src/games/categories.ts')).href);
   const screenless = games.filter((g) => g.playRoute && categories[g.category]?.carriesGroup !== true).map((g) => g.id).sort();
-  assert.deepEqual(screenless, ['prize-draw'], 'the routes this pin leaves out changed: decide each one and update this list');
+  // gh#305-gh#307: the three prize games' own pages are company-party too: a fixed demo, no roster to reset.
+  assert.deepEqual(screenless, ['prize-cards', 'prize-draw', 'prize-fireworks', 'prize-ladder'], 'the routes this pin leaves out changed: decide each one and update this list');
   for (const id of screenless) {
     assert.equal(id in RESET_TRIGGER, false, `${id} has a reset trigger entry but no shared screen to open`);
     for (const file of fs.readdirSync(path.join(here, id)).filter((f) => /\.(html|js|ts)$/.test(f) && !f.includes('.test.'))) {

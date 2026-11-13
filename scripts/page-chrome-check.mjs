@@ -20,7 +20,9 @@
 // keyed on page CLASS, with the game manifest (src/games/manifest.ts, imported and executed, never
 // text-grepped) as the one owner of which class a game page is in:
 //
-//   play route   — dist/game/<id>/<playRoute>/index.html, for every manifest game with a playRoute.
+//   play route   — dist/game/<id>/<playRoute>/index.html, for every manifest game with a playRoute, and
+//                  every page the game declares in `extraRoutes` (gh#305: the prize-draw phone join page),
+//                  which must sit under its own game/<id>/ -- a declaration elsewhere reds.
 //                  ZERO markers and ZERO <footer> tags: the play route is the app view and a tap target
 //                  above the game root is the ADR-0014/0015 hazard itself (owner ruling on gh#255:
 //                  unchanged). A <footer> here means the page dropped Base's `chrome` prop.
@@ -213,8 +215,9 @@ function resolveLocalHref(href, pageRel) {
 // src/styles/web-css.test.mjs ("every duration and easing is a motion token, never a literal") keeps
 // web.css free of literals the minifier would rewrite, so the source/artifact comparison differs by
 // whitespace only.
-// Disclosed ceiling, outside this scan: the JS View Transition API (startViewTransition, pageswap,
-// pagereveal — absent from src and dist today); a later `@view-transition { navigation: none }`
+// Disclosed ceiling, outside this scan: the JS View Transition API (startViewTransition and pagereveal
+// are absent from src today; the prize-draw setup page script has a pageswap handler that only skips the
+// fade into the projector route, and this scan does not read it); a later `@view-transition { navigation: none }`
 // (the opt-in regex sees the first opt-in, not the cascade); the value of --ease-rm; CSS identifier
 // escapes in selectors (none in dist today).
 
@@ -316,6 +319,26 @@ function gamePageClasses(gameList) {
     // gh#304: a setup page is a normal site page (PageChrome, ads), so it is held to the every-other-page
     // terms; derived from the setupRoute VALUE like the play page above.
     if (g.setupRoute) out.set(`${g.setupRoute.replace(/^\/+|\/+$/g, '')}/index.html`, 'chrome');
+    // gh#305: a declared extra page is a bare app view like the play route. Only under its own game/<id>/:
+    // anything else is reported by extraRouteFaults and never classed.
+    for (const r of g.extraRoutes ?? []) {
+      const rel = `${String(r).replace(/^\/+|\/+$/g, '')}/index.html`;
+      if (rel.startsWith(`game/${g.id}/`) && !out.has(rel)) out.set(rel, 'play');
+    }
+  }
+  return out;
+}
+
+/** gh#305: an extraRoutes entry outside its own game/<id>/, or one naming a page the game already owns. */
+function extraRouteFaults(gameList) {
+  const out = [];
+  for (const g of gameList) {
+    for (const r of g.extraRoutes ?? []) {
+      const rel = `${String(r).replace(/^\/+|\/+$/g, '')}/index.html`;
+      if (!rel.startsWith(`game/${g.id}/`)) out.push(`${g.id} declares extra route ${JSON.stringify(r)} outside its own /game/${g.id}/ — an extra route admits a page of that game only.`);
+      else if (g.playRoute && rel === `${g.playRoute.replace(/^\/+|\/+$/g, '')}/index.html`) out.push(`${g.id} declares its play route ${JSON.stringify(r)} as an extra route too.`);
+      else if (g.setupRoute && rel === `${g.setupRoute.replace(/^\/+|\/+$/g, '')}/index.html`) out.push(`${g.id} declares its setup page ${JSON.stringify(r)} as an extra route — a web page is never bare.`);
+    }
   }
   return out;
 }
@@ -331,6 +354,7 @@ function evaluate({ pages, read, gameList, noChrome, ownedVt = OWNED_VT }) {
   const knownIds = new Set(gameList.map((g) => g.id));
   const classes = gamePageClasses(gameList);
   const pageSet = new Set(pages);
+  for (const why of extraRouteFaults(gameList)) fail('extra-route', why);
 
   if (!ownedVt.fullKey || !ownedVt.reducedKey || ownedVt.keys.length !== 2) {
     fail('vt-src-rules', `src/styles/web.css must hold exactly one full and one reduced ::view-transition rule (got ${ownedVt.keys.length} rule(s)) — the owned set this leg compares every page against is unreadable.`);
@@ -452,10 +476,14 @@ const PLAY_GAMES = games.filter((g) => g.playRoute);
 const SOLO_GAMES = games.filter((g) => !g.playRoute);
 const playRel = (g) => `${g.playRoute.replace(/^\/+|\/+$/g, '')}/index.html`;
 
+const EXTRA_GAME = games.find((g) => g.extraRoutes?.length);
+const EXTRA_RELS = games.flatMap((g) => (g.extraRoutes ?? []).map((r) => `${r.replace(/^\/+|\/+$/g, '')}/index.html`));
+
 function cleanTree(root, { withPlay = true } = {}) {
   write(root, WEB_CSS_REL, WEB_CSS);
   write(root, PLAY_CSS_REL, PLAY_CSS);
   if (withPlay) for (const g of PLAY_GAMES) write(root, playRel(g), PLAY_PAGE);
+  if (withPlay) for (const rel of EXTRA_RELS) write(root, rel, PLAY_PAGE);
   for (const g of SOLO_GAMES) write(root, `game/${g.id}/index.html`, SOLO_PAGE);
   for (const rel of OTHER_PAGES) write(root, rel, CHROME_PAGE);
 }
@@ -471,6 +499,18 @@ const codesOf = (stderr) => new Set([...stderr.matchAll(/^\[([a-z-]+)\]/gm)].map
 
 function selftest() {
   assert.ok(PLAY_GAMES.length > 0 && SOLO_GAMES.length > 0, 'the manifest must yield both a play-route game and a solo landing, or the fixtures below calibrate nothing');
+  assert.ok(EXTRA_GAME && EXTRA_RELS.length > 0, 'the manifest must declare an extra route, or the extra-route cases below calibrate nothing');
+
+  // gh#305: an extra route declared outside its own game, or over a page the game already owns, reds.
+  {
+    const base = { id: 'g', playRoute: '/game/g/play/', setupRoute: '/game/g/' };
+    const codes = (extraRoutes) => new Set(evaluate({ pages: [], read: () => '', gameList: [{ ...base, extraRoutes }], noChrome: new Map() }).failures.map((f) => f.match(/^\[([a-z-]+)\]/)[1]));
+    assert.ok(!codes(['/game/g/join/']).has('extra-route'), 'POSITIVE CONTROL: an extra route under the game\'s own path');
+    for (const [what, r] of [['another game\'s path', '/game/other/join/'], ['a web path', '/c/party/'], ['its play route', '/game/g/play/'], ['its setup page', '/game/g/']]) {
+      assert.ok(codes([r]).has('extra-route'), `MUST-RED: an extra route at ${what} must red [extra-route]`);
+    }
+    console.log('PASS extra-route declarations: under the game\'s own path admitted; another game\'s path, a web path, its play route and its setup page each red');
+  }
 
   // Detector: value read, bare attribute and unknown value surfaced, comments blanked.
   assert.deepEqual(
@@ -545,7 +585,7 @@ function selftest() {
     cleanTree(good);
     const run = spawnAgainst(good);
     assert.equal(run.status, 0, `clean fixture must exit 0 — stderr: ${run.stderr}`);
-    const expect = `play route (no chrome) ${PLAY_GAMES.length} · solo landing (footer only) ${SOLO_GAMES.length} · every other page (top bar + footer) ${OTHER_PAGES.length} · NO_CHROME exempt 0`;
+    const expect = `play route (no chrome) ${PLAY_GAMES.length + EXTRA_RELS.length} · solo landing (footer only) ${SOLO_GAMES.length} · every other page (top bar + footer) ${OTHER_PAGES.length} · NO_CHROME exempt 0`;
     assert.ok(run.stdout.includes(expect), `the success line must carry the measured per-class counts (${expect}) — got: ${run.stdout}`);
     assert.ok(run.stdout.includes(good), 'the success line must name the resolved fixture directory, never a hardcoded dist/');
     console.log(`PASS green direction: ${run.stdout.trim()}`);
@@ -571,6 +611,10 @@ function selftest() {
     ['404 carrying the pre-gh#255 bare marker', (r) => write(r, '404.html', CHROME_PAGE.replace('<main>', '<main data-page-chrome>')), ['unknown-marker-value']],
     ['unmapped game id', (r) => write(r, 'game/nope/index.html', SOLO_PAGE), ['unmapped-game-id']],
     ['nested page under a known game', (r) => write(r, `game/${SOLO_GAMES[0].id}/extra/index.html`, PLAY_PAGE), ['unexpected-game-page']],
+    // gh#305: a declared extra route is admitted; an undeclared page beside it still reds, and the extra
+    // route is held to the play-route terms.
+    ['undeclared page beside a declared extra route', (r) => write(r, `game/${EXTRA_GAME.id}/not-declared/index.html`, PLAY_PAGE), ['unexpected-game-page']],
+    ['declared extra route carrying the top bar', (r) => write(r, EXTRA_RELS[0], `<!doctype html>${TOPBAR_HTML}<main>app</main>`), ['play-route-marker']],
     ['tree with no play route', null, ['empty-class']],
     // View-transition leg (gh#288): each term reds on its own planted violation.
     ['play route carrying the opt-in in an inline style', (r) => write(r, play0, PLAY_PAGE.replace('</head>', `<style>${WEB_CSS}</style></head>`)), ['vt-play-optin']],

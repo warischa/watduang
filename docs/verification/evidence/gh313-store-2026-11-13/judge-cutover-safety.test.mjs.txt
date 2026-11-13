@@ -1,0 +1,56 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import * as old from './head/src/play/prize-draw/stage-harness.mjs';
+import { STORAGE_KEY, encodeEvent } from './head/src/prize-event/event.ts';
+import { fakeOrigin, makeEvent, seeded, press } from '/Users/waris.c/claude/free-game/src/play/prize-draw/stage-harness.mjs';
+import { mountStage } from '/Users/waris.c/claude/free-game/src/play/prize-draw/stage.ts';
+import { makeDoc } from '/Users/waris.c/claude/free-game/src/prize-event/fake-dom.mjs';
+
+const { openEventStore } = await import(process.env.CANDIDATE_A === '1'
+  ? './candidate-a-store.ts'
+  : '/Users/waris.c/claude/free-game/src/prize-event/store.ts');
+
+test('a HEAD press after migration captures ready must never produce a second round code', async () => {
+  const origin = fakeOrigin();
+  origin.localStorage.set(STORAGE_KEY, encodeEvent(makeEvent()));
+  let chain = Promise.resolve();
+  const locks = {
+    request(name, cb) {
+      assert.equal(name, STORAGE_KEY);
+      const next = chain.then(() => cb({ name, mode: 'exclusive' }));
+      chain = next.catch(() => {});
+      return next;
+    },
+  };
+  const s = old.mount({ storage: origin.tab('old').localStorage, locks, rng: seeded(101) });
+  const env = origin.tab('new');
+  env.navigator = { locks };
+  const get = env.localStorage.getItem;
+  let pressed = false;
+  env.localStorage.getItem = (key) => {
+    const captured = get(key);
+    if (!pressed) {
+      pressed = true;
+      const button = s.go();
+      button.disabled = false;
+      button.click();
+    }
+    return captured;
+  };
+  const doc = makeDoc();
+  const root = doc.createElement('div');
+  const live = doc.createElement('p');
+  doc.body.append(live, root);
+  const stage = mountStage({ doc, root, live, rng: seeded(202), store: openEventStore(env) });
+  const fresh = { stage, root, go: () => root.querySelector('.pd-mc')?.querySelector('button') };
+  await origin.idle();
+  await stage.ready;
+  await chain;
+  const codes = [];
+  const oldCode = s.stage.current()?.rounds[0]?.code;
+  if (oldCode) codes.push(oldCode);
+  if (stage.current().at === 'ready') assert.ok(press(fresh));
+  await origin.idle();
+  codes.push(stage.current().rounds[0].code);
+  assert.equal(new Set(codes).size, 1, `one event, round 1 produced distinct codes: ${codes.join(', ')}`);
+});

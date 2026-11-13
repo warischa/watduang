@@ -1,0 +1,2320 @@
+{
+ "gpu": {
+  "gl": true,
+  "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)",
+  "vendor": "Google Inc. (Apple)",
+  "rafPerSec": 61,
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36"
+ },
+ "b1": {
+  "control": {
+   "exceptions": [
+    "InvalidStateError: probe"
+   ],
+   "console": [
+    "error:probe-console-error"
+   ]
+  },
+  "controlSeen": true,
+  "runs": [
+   {
+    "run": 1,
+    "replacedExisting": false,
+    "arrived": "/game/prize-draw/play/",
+    "vt": {
+     "path": "/game/prize-draw/play/",
+     "vtApi": "function",
+     "title": "จับรางวัลปีใหม่ — จอใหญ่",
+     "screen": "round"
+    },
+    "newExceptions": [],
+    "newConsole": [],
+    "newLog": [],
+    "dialogs": []
+   },
+   {
+    "run": 2,
+    "replacedExisting": true,
+    "arrived": "/game/prize-draw/play/",
+    "vt": {
+     "path": "/game/prize-draw/play/",
+     "vtApi": "function",
+     "title": "จับรางวัลปีใหม่ — จอใหญ่",
+     "screen": "round"
+    },
+    "newExceptions": [],
+    "newConsole": [],
+    "newLog": [],
+    "dialogs": [
+     {
+      "type": "confirm",
+      "message": "มีงานที่บันทึกไว้แล้ว ถ้าเริ่มงานใหม่ งานเดิมจะหายไป เริ่มใหม่เลยไหม?"
+     }
+    ]
+   },
+   {
+    "run": 3,
+    "replacedExisting": true,
+    "arrived": "/game/prize-draw/play/",
+    "vt": {
+     "path": "/game/prize-draw/play/",
+     "vtApi": "function",
+     "title": "จับรางวัลปีใหม่ — จอใหญ่",
+     "screen": "round"
+    },
+    "newExceptions": [],
+    "newConsole": [],
+    "newLog": [],
+    "dialogs": [
+     {
+      "type": "confirm",
+      "message": "มีงานที่บันทึกไว้แล้ว ถ้าเริ่มงานใหม่ งานเดิมจะหายไป เริ่มใหม่เลยไหม?"
+     }
+    ]
+   }
+  ],
+  "matchedInvalidStateOrVT": false,
+  "summary": {
+   "consoleAll": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": [
+    {
+     "type": "confirm",
+     "message": "มีงานที่บันทึกไว้แล้ว ถ้าเริ่มงานใหม่ งานเดิมจะหายไป เริ่มใหม่เลยไหม?"
+    },
+    {
+     "type": "confirm",
+     "message": "มีงานที่บันทึกไว้แล้ว ถ้าเริ่มงานใหม่ งานเดิมจะหายไป เริ่มใหม่เลยไหม?"
+    }
+   ]
+  },
+  "verdict": "PASS"
+ },
+ "b3": {
+  "defaultSched": {
+   "vals": [
+    "40",
+    "20",
+    "10",
+    "7",
+    "5"
+   ],
+   "labels": [
+    "40 คน",
+    "20 คน",
+    "10 คน",
+    "7 คน"
+   ],
+   "msg": "",
+   "count": "40 ชื่อ"
+  },
+  "defaultCards": [
+   {
+    "round": 1,
+    "disabled": false,
+    "hidden": false,
+    "pressed": "false"
+   },
+   {
+    "round": 2,
+    "disabled": false,
+    "hidden": false,
+    "pressed": "false"
+   },
+   {
+    "round": 3,
+    "disabled": true,
+    "hidden": false,
+    "pressed": "false"
+   },
+   {
+    "round": 4,
+    "disabled": true,
+    "hidden": false,
+    "pressed": "false"
+   }
+  ],
+  "halfSched": {
+   "vals": [
+    "40",
+    "20",
+    "10",
+    "7",
+    "5"
+   ],
+   "labels": [
+    "40 คน",
+    "20 คน",
+    "10 คน",
+    "7 คน"
+   ],
+   "msg": "",
+   "count": "40 ชื่อ"
+  },
+  "halfCards": [
+   {
+    "round": 1,
+    "disabled": false,
+    "hidden": false,
+    "pressed": "false"
+   },
+   {
+    "round": 2,
+    "disabled": false,
+    "hidden": false,
+    "pressed": "false"
+   },
+   {
+    "round": 3,
+    "disabled": true,
+    "hidden": false,
+    "pressed": "false"
+   },
+   {
+    "round": 4,
+    "disabled": true,
+    "hidden": false,
+    "pressed": "false"
+   }
+  ],
+  "pickR1": "ok",
+  "pickR2": "ok",
+  "pickR3": "disabled",
+  "pickR4": "disabled",
+  "afterPicks": {
+   "pressed": [
+    "ไพ่แจกทั้งห้อง",
+    "ไพ่แจกทั้งห้อง",
+    "แบบปกติ",
+    "แบบปกติ",
+    "แบบปกติ"
+   ],
+   "cards": [
+    {
+     "round": 1,
+     "disabled": false,
+     "hidden": false,
+     "pressed": "true"
+    },
+    {
+     "round": 2,
+     "disabled": false,
+     "hidden": false,
+     "pressed": "true"
+    },
+    {
+     "round": 3,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 4,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    }
+   ]
+  },
+  "edited": {
+   "sched": {
+    "vals": [
+     "40",
+     "25",
+     "10",
+     "7",
+     "5"
+    ],
+    "labels": [
+     "40 คน",
+     "25 คน",
+     "10 คน",
+     "7 คน"
+    ],
+    "msg": "",
+    "count": "40 ชื่อ"
+   },
+   "cards": [
+    {
+     "round": 1,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 2,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 3,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 4,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    }
+   ],
+   "pressed": [
+    "แบบปกติ",
+    "แบบปกติ",
+    "แบบปกติ",
+    "แบบปกติ",
+    "แบบปกติ"
+   ]
+  },
+  "restored": {
+   "sched": {
+    "vals": [
+     "40",
+     "20",
+     "10",
+     "7",
+     "5"
+    ],
+    "labels": [
+     "40 คน",
+     "20 คน",
+     "10 คน",
+     "7 คน"
+    ],
+    "msg": "",
+    "count": "40 ชื่อ"
+   },
+   "cards": [
+    {
+     "round": 1,
+     "disabled": false,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 2,
+     "disabled": false,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 3,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 4,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    }
+   ],
+   "pressed": [
+    "แบบปกติ",
+    "แบบปกติ",
+    "แบบปกติ",
+    "แบบปกติ",
+    "แบบปกติ"
+   ]
+  },
+  "rePickR1": "ok",
+  "rePickR2": "ok",
+  "finalPressed": [
+   "ไพ่แจกทั้งห้อง",
+   "ไพ่แจกทั้งห้อง",
+   "แบบปกติ",
+   "แบบปกติ",
+   "แบบปกติ"
+  ],
+  "arrived": "/game/prize-draw/play/",
+  "rounds": [
+   {
+    "round": 1,
+    "firstLabel": "แจกไพ่",
+    "liveBefore": 40,
+    "deal": {
+     "saw": true,
+     "done": true,
+     "shots": 1
+    },
+    "reveal": {
+     "saw": true,
+     "done": true,
+     "shots": 3
+    },
+    "stored": {
+     "n": 20,
+     "rule": 1,
+     "game": "cards"
+    },
+    "chipsIn": 20,
+    "chipsOut": 20,
+    "survivorsEqual": true
+   },
+   {
+    "round": 2,
+    "firstLabel": "แจกไพ่",
+    "liveBefore": 20,
+    "deal": {
+     "saw": true,
+     "done": true,
+     "shots": 1
+    },
+    "reveal": {
+     "saw": true,
+     "done": true,
+     "shots": 3
+    },
+    "stored": {
+     "n": 10,
+     "rule": 1,
+     "game": "cards"
+    },
+    "chipsIn": 10,
+    "chipsOut": 10,
+    "survivorsEqual": true
+   }
+  ],
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "lost": [
+   {
+    "t": 3301,
+    "connected": false,
+    "parent": null
+   },
+   {
+    "t": 11171,
+    "connected": false,
+    "parent": null
+   },
+   {
+    "t": 14406,
+    "connected": false,
+    "parent": null
+   },
+   {
+    "t": 22266,
+    "connected": false,
+    "parent": null
+   }
+  ],
+  "console": {
+   "consoleAll": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  },
+  "verdict": "PASS"
+ },
+ "walk1920": {
+  "W": 1920,
+  "H": 1080,
+  "setupPressed": [
+   "พลุนับถอยหลัง",
+   "ไพ่แจกทั้งห้อง",
+   "แบบปกติ",
+   "แบบปกติ",
+   "ทางแยกเลือกเส้น"
+  ],
+  "arrived": "/game/prize-draw/play/",
+  "inner": [
+   1920,
+   1080,
+   1920
+  ],
+  "r1": {
+   "tap": {
+    "disabledAtTap": false,
+    "hit": true
+   },
+   "sawCanvas": true,
+   "done": true,
+   "elapsedMs": 21162,
+   "tl": [
+    {
+     "ms": 490,
+     "c": false,
+     "b": "เปิดผล",
+     "p": "-"
+    },
+    {
+     "ms": 574,
+     "c": true,
+     "b": null,
+     "p": "start"
+    },
+    {
+     "ms": 11160,
+     "c": true,
+     "b": null,
+     "p": "cut:0"
+    },
+    {
+     "ms": 12260,
+     "c": true,
+     "b": null,
+     "p": "cut:1"
+    },
+    {
+     "ms": 13359,
+     "c": true,
+     "b": null,
+     "p": "cut:2"
+    },
+    {
+     "ms": 14459,
+     "c": true,
+     "b": null,
+     "p": "cut:3"
+    },
+    {
+     "ms": 15556,
+     "c": true,
+     "b": null,
+     "p": "cut:4"
+    },
+    {
+     "ms": 20459,
+     "c": false,
+     "b": "รอบต่อไป",
+     "p": "-"
+    }
+   ],
+   "shots": [
+    {
+     "ms": 574,
+     "phase": "start",
+     "file": "game-prize-draw-play-1920-fireworks-mid-01-start.png"
+    },
+    {
+     "ms": 3101,
+     "phase": "start",
+     "file": "game-prize-draw-play-1920-fireworks-mid-02-start.png"
+    },
+    {
+     "ms": 5625,
+     "phase": "start",
+     "file": "game-prize-draw-play-1920-fireworks-mid-03-start.png"
+    }
+   ],
+   "canvasEvents": 2,
+   "frames": 1194,
+   "finalBtn": "รอบต่อไป",
+   "chips": {
+    "screen": "reveal",
+    "total": 40,
+    "inNames": [
+     "Guest03",
+     "Guest05",
+     "Guest07",
+     "Guest09",
+     "Guest10",
+     "Guest11",
+     "Guest16",
+     "Guest17",
+     "Guest18",
+     "Guest19",
+     "Guest20",
+     "Guest23",
+     "Guest25",
+     "Guest26",
+     "Guest29",
+     "Guest30",
+     "Guest32",
+     "Guest33",
+     "Guest35",
+     "Guest38"
+    ],
+    "outCount": 20
+   }
+  },
+  "r2deal": {
+   "tap": {
+    "disabledAtTap": false,
+    "hit": true
+   },
+   "sawCanvas": true,
+   "done": true,
+   "elapsedMs": 2036,
+   "tl": [
+    {
+     "ms": 491,
+     "c": false,
+     "b": "แจกไพ่",
+     "p": "-"
+    },
+    {
+     "ms": 574,
+     "c": true,
+     "b": null,
+     "p": "start"
+    },
+    {
+     "ms": 1332,
+     "c": false,
+     "b": "เปิดผล",
+     "p": "-"
+    }
+   ],
+   "shots": [
+    {
+     "ms": 574,
+     "phase": "start",
+     "file": "game-prize-draw-play-1920-cards-deal-01-start.png"
+    }
+   ],
+   "canvasEvents": 2,
+   "frames": 1241,
+   "finalBtn": "เปิดผล"
+  },
+  "r2": {
+   "tap": {
+    "disabledAtTap": false,
+    "hit": true
+   },
+   "sawCanvas": true,
+   "done": true,
+   "elapsedMs": 7844,
+   "tl": [
+    {
+     "ms": 489,
+     "c": false,
+     "b": "เปิดผล",
+     "p": "-"
+    },
+    {
+     "ms": 572,
+     "c": true,
+     "b": null,
+     "p": "start"
+    },
+    {
+     "ms": 1328,
+     "c": true,
+     "b": null,
+     "p": "rule:0"
+    },
+    {
+     "ms": 5869,
+     "c": true,
+     "b": null,
+     "p": "cut:0"
+    },
+    {
+     "ms": 7139,
+     "c": false,
+     "b": "รอบต่อไป",
+     "p": "-"
+    }
+   ],
+   "shots": [
+    {
+     "ms": 572,
+     "phase": "start",
+     "file": "game-prize-draw-play-1920-cards-reveal-01-start.png"
+    },
+    {
+     "ms": 2593,
+     "phase": "rule:0",
+     "file": "game-prize-draw-play-1920-cards-reveal-02-rule:0.png"
+    },
+    {
+     "ms": 4614,
+     "phase": "rule:0",
+     "file": "game-prize-draw-play-1920-cards-reveal-03-rule:0.png"
+    },
+    {
+     "ms": 6625,
+     "phase": "cut:0",
+     "file": "game-prize-draw-play-1920-cards-reveal-04-cut:0.png"
+    }
+   ],
+   "canvasEvents": 2,
+   "frames": 1638,
+   "finalBtn": "รอบต่อไป",
+   "chips": {
+    "screen": "reveal",
+    "total": 20,
+    "inNames": [
+     "Guest05",
+     "Guest16",
+     "Guest18",
+     "Guest19",
+     "Guest20",
+     "Guest25",
+     "Guest32",
+     "Guest33",
+     "Guest35",
+     "Guest38"
+    ],
+    "outCount": 10
+   }
+  },
+  "lanes": {
+   "picks": [
+    {
+     "lane": 0,
+     "name": "Guest05",
+     "hit": true
+    },
+    {
+     "lane": 1,
+     "name": "Guest19",
+     "hit": true
+    },
+    {
+     "lane": 2,
+     "name": "Guest20",
+     "hit": true
+    },
+    {
+     "lane": 3,
+     "name": "Guest25",
+     "hit": true
+    },
+    {
+     "lane": 4,
+     "name": "Guest38",
+     "hit": true
+    }
+   ],
+   "initial": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1",
+      "pressed": "true"
+     },
+     {
+      "t": "2",
+      "pressed": "false"
+     },
+     {
+      "t": "3",
+      "pressed": "false"
+     },
+     {
+      "t": "4",
+      "pressed": "false"
+     },
+     {
+      "t": "5",
+      "pressed": "false"
+     }
+    ],
+    "names": [
+     "Guest05",
+     "Guest19",
+     "Guest20",
+     "Guest25",
+     "Guest38"
+    ],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": true
+    }
+   },
+   "dom2": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1Guest05",
+      "pressed": "false"
+     },
+     {
+      "t": "2Guest19",
+      "pressed": "false"
+     },
+     {
+      "t": "3",
+      "pressed": "true"
+     },
+     {
+      "t": "4",
+      "pressed": "false"
+     },
+     {
+      "t": "5",
+      "pressed": "false"
+     }
+    ],
+    "names": [
+     "Guest20",
+     "Guest25",
+     "Guest38"
+    ],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": true
+    }
+   },
+   "stored2": {
+    "prepared": {
+     "game": "ladder",
+     "slotRanks": [
+      0,
+      2,
+      1,
+      4,
+      3
+     ],
+     "picks": [
+      "Guest05",
+      "Guest19",
+      null,
+      null,
+      null
+     ]
+    },
+    "nRounds": 4
+   },
+   "dom2AfterReload": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1Guest05",
+      "pressed": "false"
+     },
+     {
+      "t": "2Guest19",
+      "pressed": "false"
+     },
+     {
+      "t": "3",
+      "pressed": "true"
+     },
+     {
+      "t": "4",
+      "pressed": "false"
+     },
+     {
+      "t": "5",
+      "pressed": "false"
+     }
+    ],
+    "names": [
+     "Guest20",
+     "Guest25",
+     "Guest38"
+    ],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": true
+    }
+   },
+   "survive2": true,
+   "tab2Loaded": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1Guest05",
+      "pressed": "false"
+     },
+     {
+      "t": "2Guest19",
+      "pressed": "false"
+     },
+     {
+      "t": "3",
+      "pressed": "true"
+     },
+     {
+      "t": "4",
+      "pressed": "false"
+     },
+     {
+      "t": "5",
+      "pressed": "false"
+     }
+    ],
+    "names": [
+     "Guest20",
+     "Guest25",
+     "Guest38"
+    ],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": true
+    }
+   },
+   "tab2Sees2": true,
+   "dom5": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1Guest05",
+      "pressed": "false"
+     },
+     {
+      "t": "2Guest19",
+      "pressed": "false"
+     },
+     {
+      "t": "3Guest20",
+      "pressed": "false"
+     },
+     {
+      "t": "4Guest25",
+      "pressed": "false"
+     },
+     {
+      "t": "5Guest38",
+      "pressed": "false"
+     }
+    ],
+    "names": [],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": true
+    }
+   },
+   "stored5": {
+    "prepared": {
+     "game": "ladder",
+     "slotRanks": [
+      0,
+      2,
+      1,
+      4,
+      3
+     ],
+     "picks": [
+      "Guest05",
+      "Guest19",
+      "Guest20",
+      "Guest25",
+      "Guest38"
+     ]
+    },
+    "nRounds": 4
+   },
+   "tab2Live": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1Guest05",
+      "pressed": "false"
+     },
+     {
+      "t": "2Guest19",
+      "pressed": "false"
+     },
+     {
+      "t": "3Guest20",
+      "pressed": "false"
+     },
+     {
+      "t": "4Guest25",
+      "pressed": "false"
+     },
+     {
+      "t": "5Guest38",
+      "pressed": "false"
+     }
+    ],
+    "names": [],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": false
+    }
+   },
+   "tab2LiveSees5": true,
+   "dom5AfterReload": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1Guest05",
+      "pressed": "false"
+     },
+     {
+      "t": "2Guest19",
+      "pressed": "false"
+     },
+     {
+      "t": "3Guest20",
+      "pressed": "false"
+     },
+     {
+      "t": "4Guest25",
+      "pressed": "false"
+     },
+     {
+      "t": "5Guest38",
+      "pressed": "false"
+     }
+    ],
+    "names": [],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": false
+    }
+   },
+   "survive5": true,
+   "tab2Reloaded": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1Guest05",
+      "pressed": "false"
+     },
+     {
+      "t": "2Guest19",
+      "pressed": "false"
+     },
+     {
+      "t": "3Guest20",
+      "pressed": "false"
+     },
+     {
+      "t": "4Guest25",
+      "pressed": "false"
+     },
+     {
+      "t": "5Guest38",
+      "pressed": "false"
+     }
+    ],
+    "names": [],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": false
+    }
+   },
+   "tab2SeesAfterReload5": true
+  },
+  "tab2Console": {
+   "consoleAll": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  },
+  "reveal": {
+   "tap": {
+    "disabledAtTap": false,
+    "hit": true
+   },
+   "sawCanvas": true,
+   "done": true,
+   "elapsedMs": 34873,
+   "tl": [
+    {
+     "ms": 485,
+     "c": false,
+     "b": "เปิดผล",
+     "p": "-"
+    },
+    {
+     "ms": 568,
+     "c": true,
+     "b": null,
+     "p": "start"
+    },
+    {
+     "ms": 2078,
+     "c": true,
+     "b": null,
+     "p": "cut:0"
+    },
+    {
+     "ms": 6886,
+     "c": true,
+     "b": null,
+     "p": "prize:4"
+    },
+    {
+     "ms": 8062,
+     "c": true,
+     "b": null,
+     "p": "cut:1"
+    },
+    {
+     "ms": 12911,
+     "c": true,
+     "b": null,
+     "p": "prize:2"
+    },
+    {
+     "ms": 14162,
+     "c": true,
+     "b": null,
+     "p": "cut:2"
+    },
+    {
+     "ms": 18905,
+     "c": true,
+     "b": null,
+     "p": "prize:0"
+    },
+    {
+     "ms": 20091,
+     "c": true,
+     "b": null,
+     "p": "cut:3"
+    },
+    {
+     "ms": 24921,
+     "c": true,
+     "b": null,
+     "p": "prize:3"
+    },
+    {
+     "ms": 26088,
+     "c": true,
+     "b": null,
+     "p": "cut:4"
+    },
+    {
+     "ms": 30852,
+     "c": true,
+     "b": null,
+     "p": "prize:1"
+    },
+    {
+     "ms": 34170,
+     "c": false,
+     "b": null,
+     "p": "-"
+    }
+   ],
+   "shots": [
+    {
+     "ms": 568,
+     "phase": "start",
+     "file": "game-prize-draw-play-1920-ladder-reveal-01-start.png"
+    },
+    {
+     "ms": 1576,
+     "phase": "start",
+     "file": "game-prize-draw-play-1920-ladder-reveal-02-start.png"
+    },
+    {
+     "ms": 2586,
+     "phase": "cut:0",
+     "file": "game-prize-draw-play-1920-ladder-reveal-03-cut:0.png"
+    },
+    {
+     "ms": 3593,
+     "phase": "cut:0",
+     "file": "game-prize-draw-play-1920-ladder-reveal-04-cut:0.png"
+    },
+    {
+     "ms": 4604,
+     "phase": "cut:0",
+     "file": "game-prize-draw-play-1920-ladder-reveal-05-cut:0.png"
+    },
+    {
+     "ms": 5616,
+     "phase": "cut:0",
+     "file": "game-prize-draw-play-1920-ladder-reveal-06-cut:0.png"
+    },
+    {
+     "ms": 6638,
+     "phase": "cut:0",
+     "file": "game-prize-draw-play-1920-ladder-reveal-07-cut:0.png"
+    },
+    {
+     "ms": 7720,
+     "phase": "prize:4",
+     "file": "game-prize-draw-play-1920-ladder-reveal-08-prize:4.png"
+    },
+    {
+     "ms": 8738,
+     "phase": "cut:1",
+     "file": "game-prize-draw-play-1920-ladder-reveal-09-cut:1.png"
+    },
+    {
+     "ms": 9746,
+     "phase": "cut:1",
+     "file": "game-prize-draw-play-1920-ladder-reveal-10-cut:1.png"
+    },
+    {
+     "ms": 10755,
+     "phase": "cut:1",
+     "file": "game-prize-draw-play-1920-ladder-reveal-11-cut:1.png"
+    },
+    {
+     "ms": 11831,
+     "phase": "cut:1",
+     "file": "game-prize-draw-play-1920-ladder-reveal-12-cut:1.png"
+    },
+    {
+     "ms": 12911,
+     "phase": "prize:2",
+     "file": "game-prize-draw-play-1920-ladder-reveal-13-prize:2.png"
+    },
+    {
+     "ms": 13990,
+     "phase": "prize:2",
+     "file": "game-prize-draw-play-1920-ladder-reveal-14-prize:2.png"
+    },
+    {
+     "ms": 15004,
+     "phase": "cut:2",
+     "file": "game-prize-draw-play-1920-ladder-reveal-15-cut:2.png"
+    },
+    {
+     "ms": 16021,
+     "phase": "cut:2",
+     "file": "game-prize-draw-play-1920-ladder-reveal-16-cut:2.png"
+    },
+    {
+     "ms": 17037,
+     "phase": "cut:2",
+     "file": "game-prize-draw-play-1920-ladder-reveal-17-cut:2.png"
+    },
+    {
+     "ms": 18055,
+     "phase": "cut:2",
+     "file": "game-prize-draw-play-1920-ladder-reveal-18-cut:2.png"
+    },
+    {
+     "ms": 19072,
+     "phase": "prize:0",
+     "file": "game-prize-draw-play-1920-ladder-reveal-19-prize:0.png"
+    },
+    {
+     "ms": 20091,
+     "phase": "cut:3",
+     "file": "game-prize-draw-play-1920-ladder-reveal-20-cut:3.png"
+    },
+    {
+     "ms": 21107,
+     "phase": "cut:3",
+     "file": "game-prize-draw-play-1920-ladder-reveal-21-cut:3.png"
+    },
+    {
+     "ms": 22124,
+     "phase": "cut:3",
+     "file": "game-prize-draw-play-1920-ladder-reveal-22-cut:3.png"
+    },
+    {
+     "ms": 23138,
+     "phase": "cut:3",
+     "file": "game-prize-draw-play-1920-ladder-reveal-23-cut:3.png"
+    },
+    {
+     "ms": 24156,
+     "phase": "cut:3",
+     "file": "game-prize-draw-play-1920-ladder-reveal-24-cut:3.png"
+    },
+    {
+     "ms": 25173,
+     "phase": "prize:3",
+     "file": "game-prize-draw-play-1920-ladder-reveal-25-prize:3.png"
+    },
+    {
+     "ms": 26254,
+     "phase": "cut:4",
+     "file": "game-prize-draw-play-1920-ladder-reveal-26-cut:4.png"
+    },
+    {
+     "ms": 27328,
+     "phase": "cut:4",
+     "file": "game-prize-draw-play-1920-ladder-reveal-27-cut:4.png"
+    },
+    {
+     "ms": 28405,
+     "phase": "cut:4",
+     "file": "game-prize-draw-play-1920-ladder-reveal-28-cut:4.png"
+    },
+    {
+     "ms": 29485,
+     "phase": "cut:4",
+     "file": "game-prize-draw-play-1920-ladder-reveal-29-cut:4.png"
+    },
+    {
+     "ms": 30495,
+     "phase": "cut:4",
+     "file": "game-prize-draw-play-1920-ladder-reveal-30-cut:4.png"
+    },
+    {
+     "ms": 31524,
+     "phase": "prize:1",
+     "file": "game-prize-draw-play-1920-ladder-reveal-31-prize:1.png"
+    },
+    {
+     "ms": 32545,
+     "phase": "prize:1",
+     "file": "game-prize-draw-play-1920-ladder-reveal-32-prize:1.png"
+    },
+    {
+     "ms": 33560,
+     "phase": "prize:1",
+     "file": "game-prize-draw-play-1920-ladder-reveal-33-prize:1.png"
+    }
+   ],
+   "canvasEvents": 2,
+   "frames": 2013,
+   "finalBtn": null
+  },
+  "afterReveal": {
+   "screen": "result",
+   "mc": null,
+   "spot": "ผู้ได้รับรางวัล\nรางวัลที่ 1 · ทีวี\nGuest20"
+  },
+  "final": {
+   "final": {
+    "game": "ladder",
+    "order": [
+     "Guest20",
+     "Guest38",
+     "Guest19",
+     "Guest25",
+     "Guest05"
+    ],
+    "picks": [
+     "Guest05",
+     "Guest19",
+     "Guest20",
+     "Guest25",
+     "Guest38"
+    ],
+    "permutation": [
+     3,
+     1,
+     0,
+     4,
+     2
+    ],
+    "slotRanks": [
+     0,
+     2,
+     1,
+     4,
+     3
+    ]
+   },
+   "nRounds": 4
+  },
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "lost": [
+   {
+    "t": 38295,
+    "connected": false,
+    "parent": null
+   }
+  ],
+  "console": {
+   "consoleAll": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  }
+ },
+ "demos": {
+  "fireworks-1920": {
+   "inner": [
+    1920,
+    1080,
+    1920
+   ],
+   "title": "พลุนับถอยหลัง — เกมงานเลี้ยงบริษัท คัดออกด้วยพลุบนจอใหญ่",
+   "label": "เปิดผล",
+   "press": {
+    "saw": true,
+    "done": true,
+    "shots": 3,
+    "elapsedMs": 21173,
+    "finalBtn": null
+   }
+  },
+  "fireworks-320": {
+   "inner": [
+    320,
+    568,
+    320
+   ],
+   "title": "พลุนับถอยหลัง — เกมงานเลี้ยงบริษัท คัดออกด้วยพลุบนจอใหญ่",
+   "label": "เปิดผล",
+   "press": {
+    "saw": true,
+    "done": true,
+    "shots": 3,
+    "elapsedMs": 21195,
+    "finalBtn": null
+   }
+  },
+  "cards-1920": {
+   "inner": [
+    1920,
+    1080,
+    1920
+   ],
+   "title": "ไพ่แจกทั้งห้อง — เกมงานเลี้ยงบริษัท แจกไพ่คัดออกบนจอใหญ่",
+   "label": "แจกไพ่",
+   "press": {
+    "saw": true,
+    "done": true,
+    "shots": 2,
+    "elapsedMs": 5646,
+    "finalBtn": null
+   }
+  },
+  "cards-320": {
+   "inner": [
+    320,
+    568,
+    320
+   ],
+   "title": "ไพ่แจกทั้งห้อง — เกมงานเลี้ยงบริษัท แจกไพ่คัดออกบนจอใหญ่",
+   "label": "แจกไพ่",
+   "press": {
+    "saw": true,
+    "done": true,
+    "shots": 2,
+    "elapsedMs": 5615,
+    "finalBtn": null
+   }
+  },
+  "ladder-1920": {
+   "inner": [
+    1920,
+    1080,
+    1920
+   ],
+   "title": "ทางแยกเลือกเส้น — เกมงานเลี้ยงบริษัท รอบชิงรางวัลบนจอใหญ่",
+   "label": "เปิดผล",
+   "press": {
+    "saw": true,
+    "done": true,
+    "shots": 3,
+    "elapsedMs": 34882,
+    "finalBtn": null
+   }
+  },
+  "ladder-320": {
+   "inner": [
+    320,
+    568,
+    320
+   ],
+   "title": "ทางแยกเลือกเส้น — เกมงานเลี้ยงบริษัท รอบชิงรางวัลบนจอใหญ่",
+   "label": "เปิดผล",
+   "press": {
+    "saw": true,
+    "done": true,
+    "shots": 3,
+    "elapsedMs": 34901,
+    "finalBtn": null
+   }
+  },
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "console": {
+   "consoleAll": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  }
+ },
+ "setup": {
+  "picker-1280": {
+   "inner": [
+    1280,
+    900,
+    1280
+   ],
+   "cards": [
+    {
+     "round": 1,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 2,
+     "disabled": false,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 3,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 4,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    }
+   ],
+   "note": "",
+   "gamesLineHidden": false
+  },
+  "console-1280": {
+   "consoleAll": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  },
+  "nowebgl-1280": {
+   "note": "เครื่องนี้แสดงเกม 3D ไม่ได้ ถ้าวันงานก็แสดงไม่ได้ ระบบจะเปิดผลแบบปกติให้เอง",
+   "ctx": [
+    {
+     "type": "webgl2",
+     "t": 19,
+     "blocked": true
+    }
+   ],
+   "gamesLineHidden": true
+  },
+  "nowebgl-console-1280": {
+   "consoleAll": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  },
+  "picker-320": {
+   "inner": [
+    320,
+    568,
+    320
+   ],
+   "cards": [
+    {
+     "round": 1,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 2,
+     "disabled": false,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 3,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    },
+    {
+     "round": 4,
+     "disabled": true,
+     "hidden": false,
+     "pressed": "false"
+    }
+   ],
+   "note": "",
+   "gamesLineHidden": false
+  },
+  "console-320": {
+   "consoleAll": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  },
+  "nowebgl-320": {
+   "note": "เครื่องนี้แสดงเกม 3D ไม่ได้ ถ้าวันงานก็แสดงไม่ได้ ระบบจะเปิดผลแบบปกติให้เอง",
+   "ctx": [
+    {
+     "type": "webgl2",
+     "t": 23,
+     "blocked": true
+    }
+   ],
+   "gamesLineHidden": true
+  },
+  "nowebgl-console-320": {
+   "consoleAll": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  }
+ },
+ "join": {
+  "320": {
+   "inner": [
+    320,
+    568,
+    320
+   ],
+   "title": "ตั้งชื่อที่จะขึ้นจอ — จับรางวัลปีใหม่",
+   "body": "ไม่พบงานนี้ ลองสแกน QR บนจออีกครั้ง",
+   "console": {
+    "consoleAll": [],
+    "exceptions": [],
+    "log": [],
+    "dialogs": []
+   }
+  },
+  "375": {
+   "inner": [
+    375,
+    667,
+    375
+   ],
+   "title": "ตั้งชื่อที่จะขึ้นจอ — จับรางวัลปีใหม่",
+   "body": "ไม่พบงานนี้ ลองสแกน QR บนจออีกครั้ง",
+   "console": {
+    "consoleAll": [],
+    "exceptions": [],
+    "log": [],
+    "dialogs": []
+   }
+  }
+ },
+ "cat": {
+  "320": {
+   "inner": [
+    320,
+    568,
+    320
+   ],
+   "title": "เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่ | วัดดวง",
+   "cardLinks": 4,
+   "hrefs": [
+    "/game/prize-draw/",
+    "/game/prize-fireworks/play/",
+    "/game/prize-cards/play/",
+    "/game/prize-ladder/play/"
+   ],
+   "console": {
+    "consoleAll": [],
+    "exceptions": [],
+    "log": [],
+    "dialogs": []
+   }
+  },
+  "1440": {
+   "inner": [
+    1440,
+    900,
+    1440
+   ],
+   "title": "เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่ | วัดดวง",
+   "cardLinks": 4,
+   "hrefs": [
+    "/game/prize-draw/",
+    "/game/prize-fireworks/play/",
+    "/game/prize-cards/play/",
+    "/game/prize-ladder/play/"
+   ],
+   "console": {
+    "consoleAll": [],
+    "exceptions": [],
+    "log": [],
+    "dialogs": []
+   }
+  }
+ },
+ "walk320": {
+  "W": 320,
+  "H": 568,
+  "setupPressed": [
+   "พลุนับถอยหลัง",
+   "ไพ่แจกทั้งห้อง",
+   "แบบปกติ",
+   "แบบปกติ",
+   "ทางแยกเลือกเส้น"
+  ],
+  "arrived": "/game/prize-draw/play/",
+  "inner": [
+   320,
+   568,
+   320
+  ],
+  "r1": {
+   "tap": {
+    "disabledAtTap": false,
+    "hit": true
+   },
+   "sawCanvas": true,
+   "done": true,
+   "elapsedMs": 21219,
+   "tl": [
+    {
+     "ms": 484,
+     "c": false,
+     "b": "เปิดผล",
+     "p": "-"
+    },
+    {
+     "ms": 578,
+     "c": true,
+     "b": null,
+     "p": "start"
+    },
+    {
+     "ms": 11184,
+     "c": true,
+     "b": null,
+     "p": "cut:0"
+    },
+    {
+     "ms": 12285,
+     "c": true,
+     "b": null,
+     "p": "cut:1"
+    },
+    {
+     "ms": 13367,
+     "c": true,
+     "b": null,
+     "p": "cut:2"
+    },
+    {
+     "ms": 14450,
+     "c": true,
+     "b": null,
+     "p": "cut:3"
+    },
+    {
+     "ms": 15608,
+     "c": true,
+     "b": null,
+     "p": "cut:4"
+    },
+    {
+     "ms": 20515,
+     "c": false,
+     "b": "รอบต่อไป",
+     "p": "-"
+    }
+   ],
+   "shots": [
+    {
+     "ms": 578,
+     "phase": "start",
+     "file": "game-prize-draw-play-320-fireworks-mid-01-start.png"
+    },
+    {
+     "ms": 3637,
+     "phase": "start",
+     "file": "game-prize-draw-play-320-fireworks-mid-02-start.png"
+    },
+    {
+     "ms": 6681,
+     "phase": "start",
+     "file": "game-prize-draw-play-320-fireworks-mid-03-start.png"
+    }
+   ],
+   "canvasEvents": 2,
+   "frames": 1194,
+   "finalBtn": "รอบต่อไป",
+   "chips": {
+    "screen": "reveal",
+    "total": 40,
+    "inNames": [
+     "Guest02",
+     "Guest04",
+     "Guest05",
+     "Guest09",
+     "Guest11",
+     "Guest14",
+     "Guest16",
+     "Guest17",
+     "Guest19",
+     "Guest20",
+     "Guest21",
+     "Guest22",
+     "Guest29",
+     "Guest31",
+     "Guest32",
+     "Guest33",
+     "Guest36",
+     "Guest38",
+     "สมชาย",
+     "มานี"
+    ],
+    "outCount": 20
+   }
+  },
+  "r2deal": {
+   "tap": {
+    "disabledAtTap": false,
+    "hit": true
+   },
+   "sawCanvas": true,
+   "done": true,
+   "elapsedMs": 2024,
+   "tl": [
+    {
+     "ms": 486,
+     "c": false,
+     "b": "แจกไพ่",
+     "p": "-"
+    },
+    {
+     "ms": 569,
+     "c": true,
+     "b": null,
+     "p": "start"
+    },
+    {
+     "ms": 1321,
+     "c": false,
+     "b": "เปิดผล",
+     "p": "-"
+    }
+   ],
+   "shots": [
+    {
+     "ms": 569,
+     "phase": "start",
+     "file": "game-prize-draw-play-320-cards-deal-01-start.png"
+    }
+   ],
+   "canvasEvents": 2,
+   "frames": 1241,
+   "finalBtn": "เปิดผล"
+  },
+  "r2": {
+   "tap": {
+    "disabledAtTap": false,
+    "hit": true
+   },
+   "sawCanvas": true,
+   "done": true,
+   "elapsedMs": 7883,
+   "tl": [
+    {
+     "ms": 491,
+     "c": false,
+     "b": "เปิดผล",
+     "p": "-"
+    },
+    {
+     "ms": 574,
+     "c": true,
+     "b": null,
+     "p": "start"
+    },
+    {
+     "ms": 1321,
+     "c": true,
+     "b": null,
+     "p": "rule:0"
+    },
+    {
+     "ms": 5865,
+     "c": true,
+     "b": null,
+     "p": "cut:0"
+    },
+    {
+     "ms": 7180,
+     "c": false,
+     "b": "รอบต่อไป",
+     "p": "-"
+    }
+   ],
+   "shots": [
+    {
+     "ms": 574,
+     "phase": "start",
+     "file": "game-prize-draw-play-320-cards-reveal-01-start.png"
+    },
+    {
+     "ms": 2581,
+     "phase": "rule:0",
+     "file": "game-prize-draw-play-320-cards-reveal-02-rule:0.png"
+    },
+    {
+     "ms": 4606,
+     "phase": "rule:0",
+     "file": "game-prize-draw-play-320-cards-reveal-03-rule:0.png"
+    },
+    {
+     "ms": 6612,
+     "phase": "cut:0",
+     "file": "game-prize-draw-play-320-cards-reveal-04-cut:0.png"
+    }
+   ],
+   "canvasEvents": 2,
+   "frames": 1638,
+   "finalBtn": "รอบต่อไป",
+   "chips": {
+    "screen": "reveal",
+    "total": 20,
+    "inNames": [
+     "Guest05",
+     "Guest19",
+     "Guest21",
+     "Guest22",
+     "Guest31",
+     "Guest33",
+     "Guest36",
+     "Guest38",
+     "สมชาย",
+     "มานี"
+    ],
+    "outCount": 10
+   }
+  },
+  "lanes": {
+   "picks": [
+    {
+     "lane": 0,
+     "name": "Guest19",
+     "hit": true,
+     "blocked": null
+    },
+    {
+     "lane": 1,
+     "name": "Guest22",
+     "hit": true,
+     "blocked": {
+      "rect": {
+       "l": 73,
+       "t": 380,
+       "w": 53,
+       "h": 44
+      },
+      "coveredBy": "button.pd-name",
+      "coveredByRect": {
+       "l": 84,
+       "t": 379,
+       "w": 153,
+       "h": 52
+      },
+      "free": {
+       "x": 89.32656250000001,
+       "y": 384.728125
+      }
+     }
+    },
+    {
+     "lane": 2,
+     "name": "Guest33",
+     "hit": true,
+     "blocked": {
+      "rect": {
+       "l": 133,
+       "t": 380,
+       "w": 53,
+       "h": 44
+      },
+      "coveredBy": "button.pd-name",
+      "coveredByRect": {
+       "l": 8,
+       "t": 379,
+       "w": 153,
+       "h": 52
+      },
+      "free": {
+       "x": 159.9921875,
+       "y": 384.728125
+      }
+     }
+    },
+    {
+     "lane": 3,
+     "name": "Guest38",
+     "hit": true,
+     "blocked": null
+    },
+    {
+     "lane": 4,
+     "name": "สมชาย",
+     "hit": true,
+     "blocked": null
+    }
+   ],
+   "initial": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1",
+      "pressed": "true"
+     },
+     {
+      "t": "2",
+      "pressed": "false"
+     },
+     {
+      "t": "3",
+      "pressed": "false"
+     },
+     {
+      "t": "4",
+      "pressed": "false"
+     },
+     {
+      "t": "5",
+      "pressed": "false"
+     }
+    ],
+    "names": [
+     "Guest19",
+     "Guest22",
+     "Guest33",
+     "Guest38",
+     "สมชาย"
+    ],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": true
+    }
+   },
+   "dom2": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1Guest19",
+      "pressed": "false"
+     },
+     {
+      "t": "2Guest22",
+      "pressed": "false"
+     },
+     {
+      "t": "3",
+      "pressed": "true"
+     },
+     {
+      "t": "4",
+      "pressed": "false"
+     },
+     {
+      "t": "5",
+      "pressed": "false"
+     }
+    ],
+    "names": [
+     "Guest33",
+     "Guest38",
+     "สมชาย"
+    ],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": true
+    }
+   },
+   "stored2": {
+    "prepared": {
+     "game": "ladder",
+     "slotRanks": [
+      1,
+      2,
+      4,
+      0,
+      3
+     ],
+     "picks": [
+      "Guest19",
+      "Guest22",
+      null,
+      null,
+      null
+     ]
+    },
+    "nRounds": 4
+   },
+   "dom5": {
+    "screen": "lanes",
+    "lanes": [
+     {
+      "t": "1Guest19",
+      "pressed": "false"
+     },
+     {
+      "t": "2Guest22",
+      "pressed": "false"
+     },
+     {
+      "t": "3Guest33",
+      "pressed": "false"
+     },
+     {
+      "t": "4Guest38",
+      "pressed": "false"
+     },
+     {
+      "t": "5สมชาย",
+      "pressed": "false"
+     }
+    ],
+    "names": [],
+    "mc": {
+     "t": "เปิดผล",
+     "disabled": true
+    }
+   },
+   "stored5": {
+    "prepared": {
+     "game": "ladder",
+     "slotRanks": [
+      1,
+      2,
+      4,
+      0,
+      3
+     ],
+     "picks": [
+      "Guest19",
+      "Guest22",
+      "Guest33",
+      "Guest38",
+      "สมชาย"
+     ]
+    },
+    "nRounds": 4
+   }
+  },
+  "reveal": {
+   "tap": {
+    "disabledAtTap": false,
+    "hit": true
+   },
+   "sawCanvas": true,
+   "done": true,
+   "elapsedMs": 34953,
+   "tl": [
+    {
+     "ms": 559,
+     "c": false,
+     "b": "เปิดผล",
+     "p": "-"
+    },
+    {
+     "ms": 641,
+     "c": true,
+     "b": null,
+     "p": "start"
+    },
+    {
+     "ms": 2136,
+     "c": true,
+     "b": null,
+     "p": "cut:0"
+    },
+    {
+     "ms": 6938,
+     "c": true,
+     "b": null,
+     "p": "prize:0"
+    },
+    {
+     "ms": 8127,
+     "c": true,
+     "b": null,
+     "p": "cut:1"
+    },
+    {
+     "ms": 12986,
+     "c": true,
+     "b": null,
+     "p": "prize:2"
+    },
+    {
+     "ms": 14176,
+     "c": true,
+     "b": null,
+     "p": "cut:2"
+    },
+    {
+     "ms": 19029,
+     "c": true,
+     "b": null,
+     "p": "prize:3"
+    },
+    {
+     "ms": 20116,
+     "c": true,
+     "b": null,
+     "p": "cut:3"
+    },
+    {
+     "ms": 24950,
+     "c": true,
+     "b": null,
+     "p": "prize:1"
+    },
+    {
+     "ms": 26106,
+     "c": true,
+     "b": null,
+     "p": "cut:4"
+    },
+    {
+     "ms": 30949,
+     "c": true,
+     "b": null,
+     "p": "prize:4"
+    },
+    {
+     "ms": 34248,
+     "c": false,
+     "b": null,
+     "p": "-"
+    }
+   ],
+   "shots": [
+    {
+     "ms": 641,
+     "phase": "start",
+     "file": "game-prize-draw-play-320-ladder-reveal-01-start.png"
+    },
+    {
+     "ms": 2643,
+     "phase": "cut:0",
+     "file": "game-prize-draw-play-320-ladder-reveal-02-cut:0.png"
+    },
+    {
+     "ms": 4704,
+     "phase": "cut:0",
+     "file": "game-prize-draw-play-320-ladder-reveal-03-cut:0.png"
+    },
+    {
+     "ms": 6777,
+     "phase": "cut:0",
+     "file": "game-prize-draw-play-320-ladder-reveal-04-cut:0.png"
+    },
+    {
+     "ms": 8807,
+     "phase": "cut:1",
+     "file": "game-prize-draw-play-320-ladder-reveal-05-cut:1.png"
+    },
+    {
+     "ms": 10815,
+     "phase": "cut:1",
+     "file": "game-prize-draw-play-320-ladder-reveal-06-cut:1.png"
+    },
+    {
+     "ms": 12825,
+     "phase": "cut:1",
+     "file": "game-prize-draw-play-320-ladder-reveal-07-cut:1.png"
+    },
+    {
+     "ms": 14847,
+     "phase": "cut:2",
+     "file": "game-prize-draw-play-320-ladder-reveal-08-cut:2.png"
+    },
+    {
+     "ms": 16874,
+     "phase": "cut:2",
+     "file": "game-prize-draw-play-320-ladder-reveal-09-cut:2.png"
+    },
+    {
+     "ms": 18884,
+     "phase": "cut:2",
+     "file": "game-prize-draw-play-320-ladder-reveal-10-cut:2.png"
+    },
+    {
+     "ms": 20957,
+     "phase": "cut:3",
+     "file": "game-prize-draw-play-320-ladder-reveal-11-cut:3.png"
+    },
+    {
+     "ms": 22967,
+     "phase": "cut:3",
+     "file": "game-prize-draw-play-320-ladder-reveal-12-cut:3.png"
+    }
+   ],
+   "canvasEvents": 2,
+   "frames": 3655,
+   "finalBtn": null
+  },
+  "afterReveal": {
+   "screen": "result",
+   "mc": null,
+   "spot": "ผู้ได้รับรางวัล\nรางวัลที่ 1 · ทีวี\nGuest19"
+  },
+  "final": {
+   "final": {
+    "game": "ladder",
+    "order": [
+     "Guest19",
+     "Guest38",
+     "Guest22",
+     "Guest33",
+     "สมชาย"
+    ],
+    "picks": [
+     "Guest19",
+     "Guest22",
+     "Guest33",
+     "Guest38",
+     "สมชาย"
+    ],
+    "permutation": [
+     3,
+     1,
+     4,
+     0,
+     2
+    ],
+    "slotRanks": [
+     1,
+     2,
+     4,
+     0,
+     3
+    ]
+   },
+   "nRounds": 4
+  },
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "lost": [
+   {
+    "t": 22643,
+    "connected": false,
+    "parent": null
+   },
+   {
+    "t": 25899,
+    "connected": false,
+    "parent": null
+   },
+   {
+    "t": 33792,
+    "connected": false,
+    "parent": null
+   },
+   {
+    "t": 84480,
+    "connected": false,
+    "parent": null
+   }
+  ],
+  "console": {
+   "consoleAll": [],
+   "exceptions": [],
+   "log": [],
+   "dialogs": []
+  }
+ },
+ "probes": {
+  "webgl_pixels": {
+   "verdict": "UNMEASURED (exit 2) on both attempts; stub-control FAIL as required",
+   "attempts": 2,
+   "run1_unmeasured": [
+    "prize-cards"
+   ],
+   "run2_unmeasured": [
+    "pinocchio-luck",
+    "prize-cards",
+    "prize-draw"
+   ],
+   "common": "prize-cards: no live renderer element names its hold instance"
+  },
+  "play_top_band": {
+   "run1": "OK 69 screens, exit 0",
+   "run2": "OK 69 screens, exit 0",
+   "agree": true,
+   "boxesDiffer": "18 rows differ in raw box values between runs (verdict identical)"
+  },
+  "play_screen_fit_prize": {
+   "exit": 1,
+   "nine_rows_fireworks_cards_ladder": "all 9 read scrolls no, 0px, 0px clipped, 0px sideways = recorded",
+   "prize_draw_320x568": "scrolls YES 3378px (pinned FITS row) -> ::error::",
+   "prize_draw_390_1440": "0px"
+  }
+ },
+ "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+}

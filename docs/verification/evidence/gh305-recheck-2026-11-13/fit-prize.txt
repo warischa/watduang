@@ -1,0 +1,40 @@
+::notice::prize-cards        frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 1]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [24-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-cards-1440x900-first-game-screen.png
+::notice::prize-draw         frame div#app.pd-app cap    none  screen p.pd-cold  [first-game-screen press 0]  display grid  tracks 1 (1600px)  units 0 {} in 0 x-range(s)  span 0 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-draw-1440x900-first-game-screen.png
+::notice::prize-fireworks    frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 2]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [24-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-fireworks-1440x900-first-game-screen.png
+::notice::prize-ladder       frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 1]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [24-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-ladder-1440x900-first-game-screen.png
+NARROWED by ROUTES_ONLY=prize-draw,prize-fireworks,prize-cards,prize-ladder — 4 of 18 play route(s). A narrowed run is iteration only, never the deploy verdict.
+::error::/game/prize-draw/play/ at 320x568 no longer fits VERTICALLY: 3378px to scroll and 0px clipped away on a play screen (press 1). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.
+::notice::prize-cards        320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill  90.6%  (worst of 2 screen(s): press 1, 209 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  90.6%  ink 209  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.2%  ink 210  class round
+::notice::prize-cards        390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  90.9%  (worst of 2 screen(s): press 1, 209 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  90.9%  ink 209  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.2%  ink 210  class round
+::notice::prize-cards        1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.7%  (worst of 2 screen(s): press 1, 209 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.7%  ink 209  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.7%  ink 210  class round
+::notice::prize-draw         320x568   scrolls YES  3378px  clipped     0px  sideways     0px  width-fill  87.5%  (worst of 7 screen(s): press 1, 206 ink) [pinned fits]
+::notice::  screen [press 0]  overflow  3342px  scrolls YES  3342px  clipped     0px  sideways     0px  width-fill  90.1%  ink 206  class round
+::notice::  screen [press 1]  overflow  3378px  scrolls YES  3378px  clipped     0px  sideways     0px  width-fill  87.5%  ink 206  class round
+::notice::  screen [press 2]  overflow  1542px  scrolls YES  1542px  clipped     0px  sideways     0px  width-fill  87.5%  ink 106  class round
+::notice::  screen [press 3]  overflow  1578px  scrolls YES  1578px  clipped     0px  sideways     0px  width-fill  87.5%  ink 106  class round
+::notice::  screen [press 4]  overflow   642px  scrolls YES   642px  clipped     0px  sideways     0px  width-fill  87.5%  ink 56  class round
+::notice::  screen [press 5]  overflow   678px  scrolls YES   678px  clipped     0px  sideways     0px  width-fill  87.5%  ink 56  class round
+::notice::  screen [press 6]  overflow   102px  scrolls YES   102px  clipped     0px  sideways     0px  width-fill  87.5%  ink 26  class round
+::notice::prize-draw         390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 0, 1 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 1  class round
+::notice::prize-draw         1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 0, 1 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 1  class round
+::notice::prize-fireworks    320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.2%  (worst of 1 screen(s): press 2, 212 ink) [pinned fits]
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.2%  ink 212  class round
+::notice::prize-fireworks    390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.2%  (worst of 1 screen(s): press 2, 212 ink) [pinned fits]
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.2%  ink 212  class round
+::notice::prize-fireworks    1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.7%  (worst of 1 screen(s): press 2, 212 ink) [pinned fits]
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.7%  ink 212  class round
+::notice::prize-ladder       320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 15  class round
+::notice::prize-ladder       390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 15  class round
+::notice::prize-ladder       1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 15  class round
+exit=1

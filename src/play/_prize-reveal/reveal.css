@@ -223,15 +223,16 @@
   margin-block-start: 12px;
   font: 700 52px/1.15 var(--font-display);
 }
-/* The reveal's motion: one wave across the field in roster order (proj-reveal's motion note). The wave
-   step is not on the board; 4ms per name is a stand-in listed for the owner (gh#304 evidence README). */
+/* The reveal's motion: one wave across the field in roster order (proj-reveal's motion note). The whole
+   wave spans --motion-scroll for any head count (design/Gh314Frames.dc.html i1-wave B, owner pick): each
+   name starts at its index times --motion-scroll / (names - 1); reveal.ts sets --wave-last on the field. */
 @media (prefers-reduced-motion: no-preference) {
   .pd-field .pd-chip {
     transition:
       background-color var(--motion-reveal) ease-out,
       color var(--motion-reveal) ease-out,
       box-shadow var(--motion-reveal) ease-out;
-    transition-delay: calc(var(--wave, 0) * 4ms);
+    transition-delay: calc(var(--motion-scroll) * var(--wave, 0) / var(--wave-last, 1));
   }
 }
 /* Reduced motion: a single fade to the end state (--motion-rm-fade), never a removal (ADR-0046). */

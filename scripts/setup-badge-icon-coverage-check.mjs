@@ -57,6 +57,11 @@ const EXEMPT_ROUTES = new Map([
   // name input of its own.
   ['prize-draw', 'company-party event route: no per-seat setup row; the roster comes from the setup page (gh#304)'],
   ['_prize-reveal', 'shared 2D reveal of the company-party event: renders names, never a per-seat setup row (gh#304)'],
+  // gh#305-gh#307: each prize game's own page plays a fixed demo over synthetic names (_prize-reveal/demo.ts)
+  // and takes no roster at all. Ends the day one of them builds a name input of its own.
+  ['prize-fireworks', 'company-party game demo page: a fixed synthetic room, no roster and no per-seat setup row (gh#305)'],
+  ['prize-cards', 'company-party game demo page: a fixed synthetic room, no roster and no per-seat setup row (gh#306)'],
+  ['prize-ladder', 'company-party game demo page: a fixed synthetic room, no roster and no per-seat setup row (gh#307)'],
 ]);
 
 /** Does this route source build a per-seat setup roster row of its own?

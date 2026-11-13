@@ -318,7 +318,15 @@ test('positive control for the refused runs: a working tab beside a refused one 
   assert.equal(w.tabs.B.frame.getAttribute('data-screen'), 'refused');
 });
 
-test('an aborted transaction writes nothing and leaves the button live: the next tap commits', async () => {
+/** Close a tab's storage notice the way the MC does (past its arm window). */
+function closeNotice(tab) {
+  const ok = tab.notice.querySelector('button');
+  ok.disabled = false;
+  ok.click();
+  assert.equal(tab.notice.hidden, true);
+}
+
+test('an aborted transaction writes nothing; the button is held while the notice is open, and the next tap after closing it commits', async () => {
   const w = await world();
   w.origin.faults.abortCommits = 1;
   pressTab(w, 'A');
@@ -327,6 +335,12 @@ test('an aborted transaction writes nothing and leaves the button live: the next
   assert.deepEqual(eventWrites(w.origin), [], 'an aborted press wrote');
   assert.equal(w.tabs.A.notice.hidden, false);
   assert.deepEqual(position(decodeEvent(storedRaw(w.origin))), { kind: 'round', round: 1, at: 'ready' });
+  // The MC's button sits outside the notice's veil (gh#314 1a B): a tap on it while the notice is open acts not.
+  assert.equal(w.tabs.A.go().disabled, true, 'the MC button is live under an open notice');
+  pressTab(w, 'A');
+  await settle(w.origin);
+  assert.deepEqual(eventWrites(w.origin), [], 'a press acted while the notice was open');
+  closeNotice(w.tabs.A);
   pressTab(w, 'A');
   await settle(w.origin);
   assert.deepEqual(position(decodeEvent(storedRaw(w.origin))), { kind: 'round', round: 1, at: 'revealed' }, 'the button is dead after an aborted transaction');
@@ -400,9 +414,11 @@ test('a failed reveal of a stored draw shows nothing; the other tab\'s reveal is
   w.tabs.A.deliver();
   await settle(w.origin);
   assert.notStrictEqual(w.tabs.A.go(), next, 'taking up the other tab\'s reveal did not rebuild the button');
-  assert.equal(w.tabs.A.go().disabled, true, 'the rebuilt button was not armed');
+  assert.equal(w.tabs.A.go().disabled, true, 'the rebuilt button is live under the open notice');
   assert.equal(w.tabs.A.frame.getAttribute('data-screen'), 'reveal');
   checkInvariant(w, 'take-up after a failed reveal');
+  closeNotice(w.tabs.A);
+  assert.equal(w.tabs.A.go().disabled, true, 'the button the close gives back was not armed');
   assert.ok(pressTab(w, 'A'));
   await settle(w.origin);
   assert.deepEqual(position(decodeEvent(storedRaw(w.origin))), { kind: 'round', round: 2, at: 'ready' }, 'the button is dead after taking up the other tab\'s reveal');
@@ -494,6 +510,15 @@ test('`seen` is assigned only in save() and adopt(), each of which renders or is
   assert.ok(writes.length >= 2, `only ${writes.length} assignments of seen found: the matcher went blind`);
   assert.match(source.slice(...spans.adopt), /render\(/, 'adopt() does not always re-render');
   assert.doesNotMatch(source.slice(...spans.adopt), /if\s*\([^)]*\)\s*render\(/, 'adopt() renders only on a condition');
-  // save() does not render itself; every call of it is followed by a render in the same branch.
-  for (const m of source.matchAll(/\bsave\(r\.raw, next\);\s*(\S+)/g)) assert.match(m[1], /^render\(/, 'a save() is not followed by a render');
+  // save() does not render itself; every call of it is followed by a render in the same branch, either
+  // directly or through showCommitted(), which renders at once or presents a 3D reveal whose first exit
+  // renders (gh#305). Must-red: a save() followed by anything else fails here.
+  const saves = [...source.matchAll(/\bsave\(r\.raw, next\);\s*(\S+)/g)];
+  assert.ok(saves.length > 0, 'no save() call found: the matcher went blind');
+  for (const m of saves) assert.match(m[1], /^(render|showCommitted)\(/, 'a save() is not followed by a render');
+  const shown = source.slice(...body('showCommitted'));
+  assert.match(shown, /\bpresent\(/);
+  assert.match(shown, /else render\(/, 'showCommitted() has a branch that neither presents nor renders');
+  const presented = source.slice(...body('present'));
+  assert.match(presented, /render2D: \(\) => \{[\s\S]*?render\(/, "present()'s host exit does not render");
 });

@@ -1,0 +1,171 @@
+import assert from 'node:assert/strict';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { pathToFileURL } from 'node:url';
+const modulePath = process.argv[2];
+const { handleDraw, paths, nameKey } = await import(pathToFileURL(modulePath));
+const ctx = new AsyncLocalStorage();
+const start = Date.parse('2026-11-13T00:00:00Z');
+const clone = (v) => structuredClone(v);
+const defer = () => { let resolve; const promise = new Promise(r => resolve = r); return { promise, resolve }; };
+function harness(cap = 2) {
+  let seq = 0, time = start;
+  const blobs = new Map(), hooks = new Set();
+  const run = async (op, path, args, fn) => {
+    const call = { op, path, args, label: ctx.getStore() };
+    for (const hook of [...hooks]) await hook({ ...call, stage: 'before' });
+    const result = fn();
+    for (const hook of [...hooks]) await hook({ ...call, stage: 'after', result });
+    return result;
+  };
+  const store = {
+    read: path => run('read', path, {}, () => {
+      const b = blobs.get(path); return b ? { doc: clone(b.doc), etag: b.etag } : null;
+    }),
+    head: path => run('head', path, {}, () => {
+      const b = blobs.get(path); return b ? { metadata: clone(b.metadata), etag: b.etag } : null;
+    }),
+    put: (path, args = {}) => run('put', path, args, () => {
+      const b = blobs.get(path);
+      if (args.ifMatch ? b?.etag !== args.ifMatch : Boolean(b)) return null;
+      const etag = `e${++seq}`;
+      blobs.set(path, { doc: clone(args.json), metadata: clone(args.metadata ?? {}), etag }); return etag;
+    }),
+    del: (path, ifMatch) => run('del', path, { ifMatch }, () => {
+      const b = blobs.get(path);
+      if (!b || (ifMatch && b.etag !== ifMatch)) return false;
+      blobs.delete(path); return true;
+    }),
+    list: prefix => run('list', prefix, {}, () => [...blobs].filter(([p]) => p.startsWith(prefix))
+      .map(([path, b]) => ({ path, metadata: clone(b.metadata) }))),
+  };
+  const h = { blobs, hooks, store, advance: ms => time += ms,
+    async req(label, path, body = {}, admin = null) {
+      return ctx.run(label, async () => {
+        const r = await handleDraw({ method: 'POST', path, bodyText: JSON.stringify(body), admin },
+          { store, now: () => new Date(time), log: () => {}, limits: { names: cap } });
+        return { status: r.status, json: JSON.parse(r.body) };
+      });
+    },
+    pause(label, op, path, stage = 'before', occurrence = 1) {
+      const entered = defer(), released = defer();
+      const hook = async call => {
+        if (call.label !== label || call.op !== op || call.path !== path || call.stage !== stage || --occurrence > 0) return;
+        hooks.delete(hook); entered.resolve(call); await released.promise;
+      };
+      hooks.add(hook); return { entered: entered.promise, release: released.resolve };
+    },
+    snapshot() {
+      const names = [...blobs].filter(([p]) => p.includes('/names/')).map(([, b]) => b.metadata);
+      const slots = [...blobs].filter(([p]) => p.includes('/slots/')).map(([, b]) => b.metadata);
+      const backed = new Set(slots.map(s => s.id));
+      return { names: names.length, slots: slots.length, orphans: names.filter(n => !backed.has(n.id)).length };
+    }
+  };
+  h.setup = async () => {
+    const r = await h.req('create', 'events'); assert.equal(r.status, 201); Object.assign(h, r.json);
+    h.join = (label, name, token = 'AAAAAAAAAAAAAAAA') => h.req(label, `events/${h.eventId}/join`, { name, token, pin: h.pin });
+    h.remove = id => h.req('remove', `events/${h.eventId}/names/${id}/remove`, {}, h.adminToken);
+    return h;
+  };
+  return h;
+}
+const brief = r => ({ status: r.status, error: r.json.error });
+async function retryThroughFence() {
+  const h = await harness(1).setup();
+  const a = await h.join('A', 'A'); assert.equal(a.status, 201);
+  const pause = h.pause('remove', 'del', paths.name(h.eventId, nameKey('A')));
+  const removal = h.remove(a.json.id); await pause.entered;
+  assert.ok(h.blobs.get(paths.record(h.eventId)).doc.removed.includes(a.json.id));
+  const retry = await h.join('retry', 'A');
+  pause.release(); await removal;
+  return { retry: brief(retry), sameRemovedId: retry.json.id === a.json.id, ...h.snapshot() };
+}
+async function lateWriteThenFinalReadFails() {
+  const h = await harness(2).setup();
+  assert.equal((await h.join('C', 'C', 'CCCCCCCCCCCCCCCC')).status, 201);
+  const namePath = paths.name(h.eventId, nameKey('A'));
+  const pause = h.pause('A', 'put', namePath);
+  const late = h.join('A', 'A'); await pause.entered;
+  const shared = await h.join('B', 'A'); assert.equal(shared.status, 201);
+  await h.remove(shared.json.id);
+  let fired = false;
+  h.hooks.add(call => {
+    if (!fired && call.label === 'A' && call.op === 'head' && call.path.includes('/slots/') && call.stage === 'before') {
+      fired = true; throw Object.assign(new Error('transient final-check failure'), { code: 'ETIMEDOUT' });
+    }
+  });
+  pause.release(); const failed = await late;
+  const next = await h.join('D', 'D', 'DDDDDDDDDDDDDDDD');
+  h.advance(16 * 60 * 1000);
+  const afterBound = await h.join('E', 'E', 'EEEEEEEEEEEEEEEE');
+  const retry = await h.join('retry', 'A');
+  return { failed: brief(failed), injected: fired, next: brief(next), afterBound: brief(afterBound), retry: brief(retry), ...h.snapshot() };
+}
+async function reclaimDeleteLostAck() {
+  const h = await harness(1).setup();
+  const doomed = h.pause('dead', 'put', paths.name(h.eventId, nameKey('A')));
+  const dead = h.join('dead', 'A'); await doomed.entered;
+  h.advance(16 * 60 * 1000);
+  const original = h.store.del;
+  let lost = 0;
+  h.store.del = async (path, etag) => {
+    const deleted = await original(path, etag);
+    // SDK retry after successful delete sees BlobNotFound; the adapter returns false.
+    if (ctx.getStore() === 'healthy' && path.includes('/slots/') && deleted) { lost++; return false; }
+    return deleted;
+  };
+  const healthy = await h.join('healthy', 'B', 'BBBBBBBBBBBBBBBB');
+  const result = { healthy: brief(healthy), lostDeleteAcks: lost, ...h.snapshot() };
+  // Simulate the dead Function being terminated, with no late continuation.
+  void dead; return result;
+}
+async function reclaimRace() {
+  const h = await harness(1).setup();
+  const doomed = h.pause('dead', 'put', paths.name(h.eventId, nameKey('A')));
+  void h.join('dead', 'A'); await doomed.entered;
+  h.advance(16 * 60 * 1000);
+  const path = [...h.blobs.keys()].find(p => p.includes('/slots/'));
+  const aStop = h.pause('reclaim-A', 'del', path, 'after');
+  const bStop = h.pause('reclaim-B', 'del', path, 'before');
+  const aBefore = h.pause('reclaim-A', 'del', path, 'before');
+  const a = h.join('reclaim-A', 'B', 'BBBBBBBBBBBBBBBB'); await aBefore.entered;
+  const b = h.join('reclaim-B', 'C', 'CCCCCCCCCCCCCCCC'); await bStop.entered;
+  aBefore.release(); await aStop.entered;
+  bStop.release(); const bResult = await b;
+  const atFull = h.snapshot();
+  aStop.release(); const aResult = await a;
+  return { a: brief(aResult), b: brief(bResult), atFull, end: h.snapshot() };
+}
+async function lateNameCommitThenThrow() {
+  const cap = Number(process.env.PROBE_CAP ?? 2);
+  const h = await harness(cap).setup();
+  for (let i = 0; i < cap - 1; i++) {
+    assert.equal((await h.join(`f${i}`, `f${i}`, `F${String(i).padStart(15, '0')}`)).status, 201);
+  }
+  const namePath = paths.name(h.eventId, nameKey('A'));
+  const pause = h.pause('A', 'put', namePath);
+  const late = h.join('A', 'A'); await pause.entered;
+  const shared = await h.join('B', 'A'); assert.equal(shared.status, 201);
+  await h.remove(shared.json.id);
+  let fired = false;
+  h.hooks.add(call => {
+    if (!fired && call.label === 'A' && call.op === 'put' && call.path === namePath && call.stage === 'after' && call.result) {
+      fired = true; throw Object.assign(new Error('write committed, response lost'), { code: 'ETIMEDOUT' });
+    }
+  });
+  pause.release(); const failed = await late;
+  const next = await h.join('D', 'D', 'DDDDDDDDDDDDDDDD');
+  h.advance(16 * 60 * 1000);
+  const afterBound = await h.join('E', 'E', 'EEEEEEEEEEEEEEEE');
+  const retry = await h.join('retry', 'A');
+  return { cap, failed: brief(failed), injected: fired, next: brief(next), afterBound: brief(afterBound), retry: brief(retry), ...h.snapshot() };
+}
+for (const [name, probe] of Object.entries({ retryThroughFence, lateWriteThenFinalReadFails, lateNameCommitThenThrow, reclaimDeleteLostAck, reclaimRace })) {
+  if (process.argv.length > 3 && !process.argv.slice(3).includes(name)) continue;
+  let timer;
+  try {
+    const result = await Promise.race([probe(), new Promise((_, reject) => timer = setTimeout(() => reject(new Error('schedule not reached')), 2500))]);
+    console.log(JSON.stringify({ module: modulePath.split('/').at(-1), probe: name, ...result }));
+  } catch (error) { console.log(JSON.stringify({ module: modulePath.split('/').at(-1), probe: name, error: error.message })); }
+  finally { clearTimeout(timer); }
+}

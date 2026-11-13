@@ -151,6 +151,12 @@ export interface GameModuleFields {
    *  to show. Always `/game/<id>/`, beside a `playRoute` (scripts/validate-games.mjs). Every link to a
    *  game reads entryHref() in manifest.ts, which prefers this field. */
   setupRoute?: string;
+  /** gh#305: further full-screen pages of this game under `/game/<id>/`, beside its play route -- the
+   *  prize-draw phone join page is the first. Each is held to the play route's page-chrome terms (no top
+   *  bar, no footer, no view-transition opt-in) by scripts/page-chrome-check.mjs, which reds any built
+   *  page under game/<id>/ the manifest does not declare. Declaring one here is how such a page is
+   *  admitted; there is no path exemption. */
+  extraRoutes?: readonly string[];
   /** gh#253 / ADR-0070 — the block size, in CSS px, this game's FIRST screen takes inside #stage, per
    *  width class (phone = below the tokens.css 640px tablet boundary, wide = from it up). GameLayout
    *  emits it as a custom property, and #stage reserves it ONLY until the page script marks the stage
