@@ -48,12 +48,12 @@ test('the policy module is, line for line, the owner-approved text', () => {
   for (const line of policyLines()) assert.doesNotMatch(line, WJ, 'the data holds the visible text only; joiners are added at render');
 });
 
-test('the list lines are the three the board draws as a list', () => {
+test('the list lines are the board\'s three plus the prize-draw line (gh#308)', () => {
   const { POLICY } = policyModule;
   assert.ok(POLICY, 'the policy module must load');
   const lists = POLICY.sections.flatMap((s) => s.blocks.filter((b) => b.kind === 'ul'));
   assert.equal(lists.length, 1);
-  assert.deepEqual(lists[0].items, ['ชื่อผู้เล่นที่คุณใส่', 'รายชื่อในเครื่องมือสุ่ม และช่วงตัวเลขล่าสุด', 'การตั้งค่าเกม และการเปิดปิดเสียง']);
+  assert.deepEqual(lists[0].items, ['ชื่อผู้เล่นที่คุณใส่', 'รายชื่อในเครื่องมือสุ่ม และช่วงตัวเลขล่าสุด', 'การตั้งค่าเกม และการเปิดปิดเสียง', 'งานจับรางวัลที่คุณตั้งไว้ ทั้งรายชื่อ รางวัล และผลแต่ละรอบ']);
 });
 
 test('linking a line never changes its text, and every link the board names is made', () => {

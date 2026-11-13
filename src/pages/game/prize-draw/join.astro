@@ -1,0 +1,201 @@
+---
+// gh#308 — the prize-draw JOIN page: a phone opens it from the QR on the main screen
+// (/game/prize-draw/join/#event=<eventId>&pin=<pin>, a fragment so the PIN never reaches a server), picks
+// a nickname and joins. Its script is
+// src/prize-join/join-page.ts, which renders every screen into the one root below; the join route it
+// talks to is the linked Function App behind /api (ADR-0074, ADR-0076).
+//
+// Design source: direction A POSTER of design/Gh302Phone.dc.html, frames join-pin, join-name, join-taken
+// and join-device at 320 and 375 (owner pick 2026-11-11, ADR-0033). Page chrome per the board: its dark
+// header band and nothing else, so no site top bar and no footer (Base gets chrome, and no PageChrome).
+// No ad slot: the board draws none. noindex, and out of the sitemap (astro.config.mjs sitemapFilter): with
+// no event in its fragment the page is empty, useless in search.
+import Base from '../../../layouts/Base.astro';
+import { byId } from '../../../games/manifest';
+import { COPY } from '../../../prize-join/join-page';
+
+const game = byId('prize-draw');
+if (!game) throw new Error('prize-draw is not registered in the manifest');
+const title = `${COPY.nameHeading} — ${game.names.th}`;
+---
+
+<Base title={title} description={game.seo.description} ogImage={`/og/${game.og}`} noindex chrome>
+  <main id="pj" class="pj"></main>
+</Base>
+
+<script>
+  // Bundled, never inline (ADR-0005).
+  import { mountJoin } from '../../../prize-join/join-page';
+
+  const root = document.getElementById('pj');
+  // A browser that refuses storage still joins; the page then remembers for this visit only.
+  const store = (pick: () => Storage): Storage | null => {
+    try {
+      return pick();
+    } catch {
+      return null;
+    }
+  };
+  const storage = store(() => window.localStorage);
+  const session = store(() => window.sessionStorage);
+  if (root) {
+    const page = mountJoin(root, {
+      location,
+      history,
+      session,
+      storage,
+      fetch: (url, init) => fetch(url, init),
+      getRandomValues: (a) => crypto.getRandomValues(a),
+      setTimeout: (fn, ms) => window.setTimeout(fn, ms),
+      clearTimeout: (h) => window.clearTimeout(h as number),
+    });
+    document.fonts?.ready.then(() => page.refit());
+    window.addEventListener('resize', () => page.refit());
+  }
+</script>
+
+<style>
+  /* Direction A POSTER of design/Gh302Phone.dc.html (picked 2026-11-11). Literal sizes are the board's;
+     colours are the tokens its VALUES row names. Every element below the root is built by the script, so
+     the rules reach it through :global under the scoped root. */
+  .pj {
+    min-block-size: 100vh;
+    min-block-size: 100dvh;
+    background: var(--color-ground-warm);
+    color: var(--color-line-strong);
+    font-family: var(--font-sans);
+  }
+  .pj :global(.pj-top) {
+    box-sizing: border-box;
+    min-block-size: 48px;
+    background: var(--color-line-strong);
+    color: var(--ink-light);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 12px;
+    padding: 8px 16px;
+    font: 600 16px/1.2 var(--font-display);
+  }
+  .pj :global(.pj-me) {
+    box-sizing: border-box;
+    max-inline-size: 100%;
+    background: var(--accent-gold);
+    color: var(--color-line-strong);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font: 700 16px/1.2 var(--font-sans);
+    white-space: nowrap;
+  }
+  .pj :global(.pj-bd) {
+    max-inline-size: 480px;
+    margin: 0 auto;
+    padding: 22px 16px 28px;
+  }
+  .pj :global(.pj-h) {
+    margin: 0 0 6px;
+    font: 700 26px/1.3 var(--font-display);
+  }
+  .pj :global(.pj-sub) {
+    margin: 0 0 18px;
+    font: 400 16px/1.55 var(--font-sans);
+    color: var(--color-muted);
+  }
+  .pj :global(.pj-lbl) {
+    display: block;
+    margin-bottom: 8px;
+    font: 600 17px/1.3 var(--font-display);
+  }
+  .pj :global(.pj-inp) {
+    box-sizing: border-box;
+    display: block;
+    inline-size: 100%;
+    block-size: 52px;
+    padding: 0 14px;
+    background: var(--surface-tile);
+    color: var(--color-line-strong);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 12px;
+    font: 400 20px/1 var(--font-sans);
+  }
+  .pj :global(.pj-inp.pj-code) {
+    block-size: 64px;
+    text-align: center;
+    font: 700 30px/1 var(--font-display);
+    letter-spacing: 2px;
+  }
+  .pj :global(.pj-inp.pj-err) {
+    border: 3px solid var(--accent-punch);
+  }
+  .pj :global(.pj-emsg) {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-top: 10px;
+    font: 700 16px/1.5 var(--font-sans);
+  }
+  .pj :global(.pj-emsg[hidden]) {
+    display: none;
+  }
+  .pj :global(.pj-emsg svg) {
+    flex: none;
+    margin-top: 1px;
+  }
+  .pj :global(.pj-ic-disc) {
+    fill: var(--accent-punch);
+  }
+  .pj :global(.pj-ic-mark) {
+    stroke: var(--color-line-strong);
+  }
+  .pj :global(.pj-ic-dot) {
+    fill: var(--color-line-strong);
+  }
+  .pj :global(.pj-btn) {
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    inline-size: 100%;
+    block-size: 52px;
+    margin-top: 18px;
+    background: var(--accent-gold);
+    color: var(--color-line-strong);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 16px;
+    box-shadow: 5px 5px 0 var(--color-line-strong);
+    font: 700 20px/1 var(--font-display);
+    cursor: pointer;
+  }
+  .pj :global(.pj-btn:disabled) {
+    cursor: progress;
+  }
+  .pj :global(.pj-note) {
+    margin: 14px 0 0;
+    font: 400 16px/1.55 var(--font-sans);
+    color: var(--color-muted);
+  }
+  .pj :global(.pj-box) {
+    background: var(--surface-tile);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 20px;
+    box-shadow: 5px 5px 0 var(--color-line-strong);
+    padding: 18px 16px;
+  }
+  .pj :global(.pj-who) {
+    font: 700 34px/1.2 var(--font-display);
+    white-space: nowrap;
+  }
+  /* The fit rule's last resort (names-dom.ts): past its floor a name wraps rather than clips. Below the
+     nowrap rules on purpose: both are one class deep, so source order decides. */
+  .pj :global(.nm-wrap) {
+    white-space: normal;
+  }
+  .pj :global(.nm-wrap .nm) {
+    overflow-wrap: anywhere;
+  }
+  .pj :global(.pj-inp:focus-visible),
+  .pj :global(.pj-btn:focus-visible) {
+    outline: 3px solid var(--accent-punch);
+    outline-offset: 2px;
+  }
+</style>

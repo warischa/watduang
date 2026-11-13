@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { sitemapFilter } from '../../astro.config.mjs';
 
 const pagesDir = dirname(fileURLToPath(import.meta.url));
 
@@ -37,13 +38,25 @@ test('404.astro passes noindex to Base', () => {
 // gh#292 widened the set from 404 alone to also cover the feedback endpoint's two redirect targets,
 // thin result pages nobody should land on from a search. Listed by path, so the next page that gains
 // noindex still reds here unless someone adds it on purpose.
-const NOINDEX_PAGES = ['404.astro', join('feedback', 'sent.astro'), join('feedback', 'failed.astro')].map((f) =>
+// gh#308 adds the prize-draw join page: without an event in its fragment it is an empty page, useless in search.
+const NOINDEX_PAGES = ['404.astro', join('feedback', 'sent.astro'), join('feedback', 'failed.astro'), join('game', 'prize-draw', 'join.astro')].map((f) =>
   join(pagesDir, f),
 );
 
 test('every listed noindex page passes noindex to Base', () => {
   for (const page of NOINDEX_PAGES) {
     assert.match(readFileSync(page, 'utf8'), PASSES_NOINDEX, `${page} must render <Base noindex ...>`);
+  }
+});
+
+// A noindex page in the sitemap asks a crawler to fetch what it is told not to index. The sitemap
+// integration drops 404 by itself; every other listed page must be refused by the config's filter.
+test('every listed noindex page is kept out of the sitemap', () => {
+  assert.equal(typeof sitemapFilter, 'function', 'astro.config.mjs must export the sitemap filter it uses');
+  assert.equal(sitemapFilter('https://watduang.com/privacy/'), true, 'positive control: an indexable page stays in');
+  for (const page of NOINDEX_PAGES.filter((f) => !f.endsWith('404.astro'))) {
+    const path = page.slice(pagesDir.length).replace(/\\/g, '/').replace(/(\/index)?\.astro$/, '/');
+    assert.equal(sitemapFilter(`https://watduang.com${path}`), false, `${path} is noindex, so it must not be in the sitemap`);
   }
 });
 

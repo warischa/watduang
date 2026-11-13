@@ -24,6 +24,10 @@ Admin routes send the `adminToken` in the header `X-Draw-Admin` (not `Authorizat
 
 `id` is 128 random bits from the server, base64url: the opaque join identity the gh#300 round-code proof assumes (`fateValue` in `src/prize-draw/round-code.ts`). `eventKey` is the PIN, as that file's protocol states. A re-join gets a new id, so a player can re-roll their fate (gh#300 condition 4); the admin's head-count review bounds it. `token` is a device-held random string (16-64 base64url characters), stored hashed: a join whose response was lost and is retried with the same token gets its own id back, not "taken". That check comes before "started", so it still works after the start. One name per device stays client-held.
 
+## The QR link
+
+The main-screen QR encodes `https://watduang.com/game/prize-draw/join/#event=<eventId>&pin=<pin>`: the event id and PIN in the URL fragment, never the query (orchestrator decision, gh#308), so they reach no server log, `Referer` header or ad request. The join page reads only the fragment, then strips it from the visible URL with `history.replaceState` and keeps the link in `sessionStorage` for a reload of that tab. The page is `noindex` and out of the sitemap.
+
 ## Start and status
 
 Start freezes exactly the ids the admin reviewed. A name that joins between the admin's last look and the start is not in the roster, and its status says `member: false`. A start whose roster would be empty is refused (409 `empty`) because a frozen roster cannot be undone. After the start a new join answers 409 `started`, and so does a removal of an id that is not already fenced; an admitted member's retry still answers 200. A phone makes one non-blocking status call after the start and before any reveal (an orchestrator choice, revisable). No server call happens at reveal (gh#299 decision 5).
