@@ -1,0 +1,10 @@
+packages: 49 top-level entries in node_modules
+--- join, no app settings
+./src/functions/join.mjs: loaded
+--- feedback, no app settings (control)
+./src/functions/feedback.mjs: THREW TypeError: Invalid URL
+--- join then feedback, settings present
+./src/functions/join.mjs: loaded
+./src/functions/feedback.mjs: loaded
+--- eager mutant of join (scratch copy only), no app settings
+./src/functions/join.mjs: THREW TypeError: Invalid URL

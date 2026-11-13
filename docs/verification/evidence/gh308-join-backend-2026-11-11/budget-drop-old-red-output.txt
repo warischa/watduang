@@ -1,0 +1,52 @@
+# gh#308 round 3 (budgets dropped, expiry clock moved): the new join-service.test.mjs run against the
+# round-2 code, copied to scratch before any edit (sha256 join.mjs be5e046d5ced..., functions/join.mjs
+# 32c00ce0600e...). No scratch edit was needed: the test file imports only MAX_NAMES, routeDraw, tooLarge.
+# Totals: # tests 36 # pass 28 # fail 8 # cancelled 0 ; node --test exit 1. Non-ASCII written as escapes.
+# Below: every test that reds on the old code, with its failing assertion.
+RED: the whole flow: create, join, review, start, status, purge
+        error: |-
+          created now and never started: 72 hours
+          + actual - expected
+          + '2027-01-01T12:00:00.000Z'
+          - '2027-01-03T12:00:00.000Z'
+RED: a started event expires 24 hours after its start: live at 23h59m, gone at 24h01m
+        error: |-
+          a start 60 hours after the create: {"error":"gone"}
+          404 !== 200
+        code: 'ERR_ASSERTION'
+RED: an event never started expires 72 hours after it is created: live at 71h, gone at 73h
+        error: |-
+          created 71h ago and never started reads as gone
+          + actual - expected
+            {
+          +   state: 'gone'
+RED: creation has no app-wide budget: create number 101 in one hour answers 201
+        error: |-
+          create number 101 in one hour: {"error":"busy"}
+          429 !== 201
+        code: 'ERR_ASSERTION'
+RED: wrong PINs lock nothing: 301 wrong PINs, then the right PIN in the same hour answers 201
+        error: |-
+          the right PIN after 301 wrong ones: {"error":"locked"}
+          + actual - expected
+            [
+          +   429,
+RED: a wrong PIN answers 403 and leaves the container's blob set unchanged
+        error: |-
+          a wrong PIN changed storage
+          + actual - expected
+          ... Skipped lines
+            {
+RED: 200 phones, each with one overlapping retry: no refusal, 200 names, each phone keeps one id
+        error: |-
+          every phone ends on 201 for one send and 200 for its retry
+          + actual - expected
+            {
+          +   '429': 400
+RED: a storage failure at any step of a join never costs the phone its retry, across a full room
+        error: 'failure at step 2 of 8, phone 299: the retry on healthy storage answered 429 {"error":"locked"}'
+        code: 'ERR_ASSERTION'
+        name: 'AssertionError'
+        expected: true
+        actual: false
+        operator: '=='

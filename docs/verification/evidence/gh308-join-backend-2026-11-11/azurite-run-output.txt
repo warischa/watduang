@@ -1,0 +1,30 @@
+azurite 3.37.0, storage-blob 12.34.0, node v22.22.1
+(node:7285) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Azurite Blob service is starting on 127.0.0.1:10000
+Azurite Blob service successfully listens on http://127.0.0.1:10000
+--- calibration
+create absent ifNoneMatch* OK "\"0x23DAEE95FEB52C0\""
+create existing ifNoneMatch* ERR 409 BlobAlreadyExists BlobAlreadyExists RestError
+replace wrong ifMatch ERR 412 ConditionNotMet ConditionNotMet RestError
+replace on missing blob ifMatch ERR 412 ConditionNotMet ConditionNotMet RestError
+download etag OK ["\"0x23DAEE95FEB52C0\"","1"]
+getProperties OK ["\"0x23DAEE95FEB52C0\"",{"id":"abc"}]
+list etag OK [["x/a.json","0x23DAEE95FEB52C0",{"id":"abc"}]]
+list no metadata OK [["x/a.json",null]]
+metadata non-ascii ERR undefined ERR_INVALID_CHAR undefined TypeError
+metadata mixed-case key OK {"mykey":"v"}
+delete wrong ifMatch ERR 412 ConditionNotMet ConditionNotMet RestError
+deleteIfExists wrong ifMatch ERR 412 ConditionNotMet ConditionNotMet RestError
+delete missing ifMatch ERR 412 ConditionNotMet ConditionNotMet RestError
+delete missing plain ERR 404 BlobNotFound BlobNotFound RestError
+deleteIfExists missing OK false
+download missing ERR 404 BlobNotFound BlobNotFound RestError
+getProperties missing ERR 404 undefined BlobNotFound RestError
+delete right ifMatch OK "deleted"
+--- join-service.test.mjs against Azurite
+# tests 41
+# pass 41
+# fail 0
+# cancelled 0
+Azurite Blob service successfully closed

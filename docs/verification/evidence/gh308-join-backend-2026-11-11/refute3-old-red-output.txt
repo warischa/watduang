@@ -1,0 +1,30 @@
+# final join-service.test.mjs run in a scratch copy of the round-3 code: join.mjs sha256 c78c51f145fd2dda, functions/join.mjs sha256 b1c3eb6718894204 (the repo's files before this round's edit), test file sha256 5a6947ff4131be89
+not ok 19 - stored records hold an allow-listed key set; nothing from the request beyond the fields leaks in
+  error: |-
+    a slot holds the join id and nothing else
+not ok 29 - a join racing a start it was not reviewed for: it answers started and keeps no name
+  error: |-
+    paused before storage step 0 of 5: a slot kept after admission closed
+not ok 31 - two devices racing for one name: the conditional create lets exactly one in
+  error: |-
+    the device that lost the name kept a slot
+not ok 35 - 200 phones, each with one overlapping retry: no refusal, 200 names, each phone keeps one id
+  error: |-
+    a phone holds a slot per send, not per name
+not ok 36 - a storage failure at any step of a join never costs the phone its retry, across a full room
+  error: |-
+    failure at step 0 of 5: one phone holds more than one slot
+not ok 37 - a start whose commit comes after the never-started expiry answers gone, at every storage step
+  error: |-
+    paused before storage step 1 of 3: the start went through
+not ok 38 - the name cap is owned: 200 concurrent joins with one slot left admit exactly one, 199 answer full
+  error: |-
+    +   '201': 200
+not ok 39 - a removal frees its slot: a new join takes it, and the next one is full
+  error: |-
+    the removed name kept its slot
+not ok 40 - a wrong PIN issues no storage write; a correct join issues none before its PIN compare
+  error: |-
+# tests 41
+# pass 32
+# fail 9

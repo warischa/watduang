@@ -1,0 +1,40 @@
+# gh#308: the new join tests run against the join code as it stood before this round (the two
+# uncommitted files, sha256 join.mjs 6d298fd0609d..., functions/join.mjs 4a211568b8e7...), in a scratch
+# copy. One scratch-only edit: the test's import of two new constants reads them off the module
+# namespace with their values as defaults, so the file loads and each test reds on its own assertion.
+# Totals: tests 47, pass 24, fail 23, cancelled 0; node --test exit 1. Non-ASCII written as escapes.
+# Below: every race, budget and name-rule test of this round, red or green on the old code.
+RED: an invisible combining character that is not a control is refused (deny-lists cannot list these)
+      error: |- "T\u034Fon" + actual - expected { +   name: 'T\u034Fon', +   ok: true -   ok: false,
+RED: SARA AM: once per cluster, only after a consonant or a tone mark
+      error: |- "\u0E12\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33" + actual - expected { +   name: '\u0E12\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33\u0E33', +   ok: true -   ok: false,
+GREEN-ON-OLD: a missing container is a 503, never a spent budget
+GREEN-ON-OLD: a start body is validated before the frozen roster is returned
+GREEN-ON-OLD: an event holds at most MAX_NAMES joins, and right PINs never use up the PIN budget
+RED: a removal racing a start: a removal answered "removed" is never in the frozen roster
+      error: |- paused before storage step 2 of 4: answered removed, yet the start froze it in true !== false code: 'ERR_ASSERTION' name: 'AssertionError' expected: false
+RED: a start racing a removal: the start re-reads, and a name answered "removed" stays out
+      error: |- paused before storage step 3 of 4: answered removed, yet the start froze it in true !== false code: 'ERR_ASSERTION' name: 'AssertionError' expected: false
+RED: a purge racing a start: the purge re-reads and still leaves nothing
+      error: |- paused before storage step 2 of 4: blobs left after the purge + actual - expected + [ +   'oX9f7QMmcG6x6ZFjWXsUYA/roster.json' + ] - []
+RED: a removal paused before its delete, then a start: the start leaves the removed name out
+      error: |- Expected values to be strictly deep-equal: + actual - expected [ +   'EMk59w39gsxuF31_iDgkIA', 'BbajGOQBnCuK6MPdW-aZOg' ]
+RED: a join racing a purge: the purge leaves no name behind, and a retried purge is 200
+      error: |- paused before storage step 0 of 5: retried purge + actual - expected [ +   404, -   200, {
+RED: a join paused before its upload, then a purge: the join undoes itself and answers gone
+      error: |- Expected values to be strictly deep-equal: + actual - expected [ +   201, -   404, {
+RED: a purge paused after it closed the event: a join in that window is refused, not admitted
+      error: |- a join was admitted while the purge was running + actual - expected [ +   201, -   404, {
+RED: a join racing a start it was not reviewed for: it answers started and keeps no name
+      error: |- paused before storage step 3 of 5 + actual - expected [ +   201, -   409, {
+RED: a delayed removal of a name never deletes the person who joined under that name later
+      error: |- paused before storage step 3 of 4: the later joiner was deleted + actual - expected + [] - [ -   'OSliExw_K2ZSCEWytpqCZg' - ]
+GREEN-ON-OLD: two devices racing for one name: the conditional create lets exactly one in
+RED: creation is budgeted app-wide: 100 per hour, then 429 until the next hour
+      error: |- Expected values to be strictly deep-equal: + actual - expected [ +   201, -   429, {
+RED: two creates racing on the budget are both counted
+      error: 'the slow request never made the call it was to pause at' code: 'ERR_TEST_FAILURE' stack: |- Timeout._onTimeout (<scratch path>
+RED: wrong PINs are budgeted per event: 300 per hour, then every join waits for the next hour
+      error: |- the right PIN is not let through either, or the 429 would leak it + actual - expected [ +   201, -   429, {
+RED: a parallel burst of guesses gets no more comparisons than the budget
+      error: '400 wrong PINs were compared' code: 'ERR_ASSERTION' name: 'AssertionError' expected: true actual: false operator: '==' stack: |- TestContext.<anonymous> (<scratch path>
