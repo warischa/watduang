@@ -12,7 +12,7 @@ Chrome as ci-probes.sh launches the fit lanes: `--headless --disable-gpu --no-sa
 
 Measured, every row, every run: scrolls no, overflow 0px, clipped 0px, sideways 0px. Width-fill (report-only, not pinned): cards 90.6/90.9/96.7%, fireworks 94.2/94.2/96.7%, ladder 100/100/100% at 320/390/1440.
 
-Registry edit: `scripts/play-screen-fit-probe.mjs`, `FITS_ROWS` gained the nine rows `prize-{fireworks,cards,ladder} {320x568,390x844,1440x900}` after the `prize-draw` rows (0px class, with the three-run precedent the prize-draw rows used). Before copy: `play-screen-fit-probe.before.mjs`; the after is the file itself (`git diff`). No KNOWN_OVERFLOW row was needed.
+Registry edit: `scripts/play-screen-fit-probe.mjs`, `FITS_ROWS` gained the nine rows `prize-{fireworks,cards,ladder} {320x568,390x844,1440x900}` after the `prize-draw` rows (0px class, with the three-run precedent the prize-draw rows used). Before copy: `play-screen-fit-probe.before.mjs.txt`; the after is the file itself (`git diff`). No KNOWN_OVERFLOW row was needed.
 Result: `node --test scripts/play-screen-fit-probe.test.mjs` 80 pass, 0 fail (was 9 UNCLASSIFIED).
 Not covered: the FITS_ROWS pin is this Mac's number; CI's runner can read differently (see ci-gate-calibration.md); the three new routes have no `ROUTE_SEEDS` entry, so they were walked unseeded.
 
