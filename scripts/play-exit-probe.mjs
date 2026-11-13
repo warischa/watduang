@@ -24,7 +24,8 @@ const BASE = process.env.BASE ?? 'http://localhost:5051';
 // never added here, and timebomb would have been the next one. The manifest is the declaration of
 // record, and landing-claims-check already reds a declared playRoute with no built page, so a route
 // that reaches this list is a route that exists. Same dynamic-import idiom as landing-claims-check.mjs
-// (plain node strips the TypeScript). Set ROUTES_ONLY=a,b to narrow it while debugging one route.
+// (plain node strips the TypeScript). ROUTES_ONLY=a,b narrows it to those routes (a hand run, or
+// ci-probes.sh's narrowed run): a narrowed run is iteration only, never the deploy verdict.
 const { fileURLToPath } = await import('node:url');
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const { games } = await import(`${ROOT}src/games/manifest.ts`);

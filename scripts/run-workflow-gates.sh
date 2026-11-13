@@ -106,7 +106,7 @@ cd "$ROOT" || exit 99
 # this script never reads. Here the probe step must be the packed run of every lane. An inherited
 # value would turn it green on one group's legs, or on a directory of lane files with no browser at
 # all (REFUTE 2026-11-12). Refused rather than unset, so the shell that exported it hears about it.
-for v in PROBE_LANES PROBE_AGGREGATE PROBE_FIT_SHARDS MATRIX_KEEP MATRIX_LANE; do
+for v in PROBE_LANES PROBE_AGGREGATE PROBE_FIT_SHARDS PROBE_SCOPE PROBE_LIST_LEGS MATRIX_KEEP MATRIX_LANE; do
   if [ -n "${!v:-}" ]; then
     echo "ABORT: $v is set in this shell. It switches scripts/ci-probes.sh out of the packed run."
     echo "Unset it, or run scripts/ci-probes.sh directly for one lane. Do NOT read this as a pass."
@@ -304,17 +304,23 @@ probe_owed=yes
 # working tree reverted a committed change), the index (what the next commit carries), and the
 # working tree with its untracked files. The union is deduplicated before the resolver reads it.
 if scope_base=$(git merge-base HEAD refs/remotes/origin/main 2>/dev/null); then
-  scope_raw="$OUT_DIR/probe-scope-changed.raw"
-  scope_list="$OUT_DIR/probe-scope-changed.txt"
-  if git diff --name-only --no-renames "$scope_base" HEAD > "$scope_raw" \
-    && git diff --cached --name-only --no-renames "$scope_base" >> "$scope_raw" \
-    && git diff --name-only --no-renames "$scope_base" >> "$scope_raw" \
-    && git ls-files --others --exclude-standard >> "$scope_raw" \
-    && LC_ALL=C sort -u "$scope_raw" > "$scope_list" \
+  scope_raw="$OUT_DIR/probe-scope-changed.z"
+  scope_decision_file="$OUT_DIR/probe-scope-decision.txt"
+  rm -f "$scope_decision_file"
+  # NUL-separated name-status, untracked files as `A`: a file name holding a line feed stays ONE path
+  # (and a control character makes it non-inert), instead of splitting into inert-looking pieces. The
+  # answer is read from the decision file `--emit` validates, never from printed text. The ref is main's
+  # so the local answer is never narrowed: this run is the packed full run.
+  if git diff -z --name-status --no-renames "$scope_base" HEAD > "$scope_raw" \
+    && git diff -z --cached --name-status --no-renames "$scope_base" >> "$scope_raw" \
+    && git diff -z --name-status --no-renames "$scope_base" >> "$scope_raw" \
+    && git ls-files -z --others --exclude-standard > "$scope_raw.untracked" \
+    && while IFS= read -r -d '' f; do printf 'A\0%s\0' "$f"; done < "$scope_raw.untracked" >> "$scope_raw" \
     && node scripts/probe-scope.mjs --selftest > /dev/null \
-    && scope_decision=$(node scripts/probe-scope.mjs --changed "$scope_list"); then
+    && scope_decision=$(node scripts/probe-scope.mjs --changed-z "$scope_raw" --ref refs/heads/main --decision-out "$scope_decision_file") \
+    && scope_fields=$(node scripts/probe-scope.mjs --emit "$scope_decision_file" --ref refs/heads/main); then
     scope_reason=$(printf '%s\n' "$scope_decision" | sed -n 's/^reason: //p')
-    if printf '%s\n' "$scope_decision" | grep -qx 'run=false'; then
+    if [ "$(printf '%s\n' "$scope_fields" | head -n 1)" = "run=false" ]; then
       probe_owed=no
       probe_note="NOT OWED -- $scope_reason, from merge-base $scope_base (origin/main) to HEAD, the index and the working tree, untracked files included; CI skips these steps on a branch push of such a diff"
     else

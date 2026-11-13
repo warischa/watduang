@@ -23,8 +23,9 @@
 //     a merge commit, not this SHA) concluded success, and in its latest attempt every probe unit
 //     concluded success -- the step set is derived from ci.yml, never pinned;
 //   - a live digest artifact names the SAME dist/ digest this run built: in the step layout
-//     `dist-digest-<hex>-a<attempt>` from that latest attempt; in the job layout `dist-digest-<hex>`
-//     from any attempt of that run, which only a green verdict publishes. Same SHA is not enough:
+//     `dist-digest-<hex>-a<attempt>` from that latest attempt; in the job layout `dist-digest-<hex>-full`
+//     from any attempt of that run, which only a green FULL verdict publishes, and no narrowed lane ran
+//     in that latest attempt (PER-ROUTE NARROWING below). Same SHA is not enough:
 //     the probes must measure the bytes Deploy uploads, and main rebuilds dist/;
 //   - NO run at this SHA -- this run's own earlier attempts included -- has a probe unit that
 //     failed or timed out in ANY attempt. A red is a signal; a later green on a re-run does
@@ -33,14 +34,22 @@
 // Anything it cannot read or enumerate throws, and the workflow treats a throw as "run".
 //
 //   node scripts/probe-scope.mjs --changed <file>   one path per line -> `run=...` + a reason line
+//   node scripts/probe-scope.mjs --changed-z <file> --ref <ref> [--decision-out <file>]
+//        `git diff --name-status -z` output -> the decision file (`run=`, `scope=full|routes:<id>`) plus a
+//        printed copy and a JSON-escaped reason, for the log only
+//   node scripts/probe-scope.mjs --emit <file> --ref <ref>   the decision file, validated -> the two
+//        lines the workflow publishes; anything unreadable -> run=true scope=full
+//   node scripts/probe-scope.mjs --legs              the leg registry (NARROW_PLAN's labels)
+//   node scripts/probe-scope.mjs --narrow-plan <id>  one `<mode> <label>` line per ci-probes.sh leg
 //   node scripts/probe-scope.mjs --inert            prints the inert patterns
 //   node scripts/probe-scope.mjs --dist-digest <dir>  sha256 over every file's relative path + sha256
-//   node scripts/probe-scope.mjs --verified --sha <sha> --digest <hex> [--exclude-run <id>]
+//   node scripts/probe-scope.mjs --verified --sha <sha> --digest <hex> [--exclude-run <id>] [--decision-out <file>]
 //   node scripts/probe-scope.mjs --selftest
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -48,13 +57,197 @@ import { fileURLToPath } from 'node:url';
 // page outranks a dynamic route at the same URL, so one Markdown file can replace a page the probes load.
 const INERT = [/^docs\//, /^(?!(?:src|public)\/).*\.md$/, /^\.claude\//, /^design\//];
 
-const isInert = (p) => !p.split('/').includes('..') && INERT.some((re) => re.test(p));
+// A file name may hold a control character, a line feed included (REFUTE r1 of the narrowing). Such a
+// path is never inert and never route-owned: it always counts as a change, and always runs full.
+const CONTROL = /[\u0000-\u001f\u007f]/;
+const isInert = (p) => !CONTROL.test(p) && !p.split('/').includes('..') && INERT.some((re) => re.test(p));
 
 function decide(paths) {
   if (paths.length === 0) return { run: false, reason: 'empty diff: nothing changed' };
   const first = paths.find((p) => !isInert(p));
   if (first === undefined) return { run: false, reason: `all ${paths.length} changed paths are inert` };
   return { run: true, reason: `first non-inert path: ${first}` };
+}
+
+// --- PER-ROUTE NARROWING: branch iteration only, never the deploy verdict (owner ruling 2026-11-12,
+// ADR-0078 amendment 2026-11-13). A run that would otherwise run the probes answers `scope=routes:<id>`
+// only when EVERY non-inert path of the diff sits under ONE route's own directory; anything else is
+// `scope=full`. THE ALLOWLIST is one rule partitioned by manifest id: `src/play/<id>/**`, where <id> is a
+// manifest game with a playRoute. Each path has at most one owner (its first segment under src/play/),
+// so the partition cannot overlap. Everything else defaults to FULL: `src/play/_*` and loose files under
+// src/play/, src/prize-event/, src/prize-draw/, src/games/ (the manifest included), src/pages/ (the
+// route's own play.astro included), layouts, styles, scripts, workflows, package and lock files, and
+// any path never seen before. A diff touching two ids is full. `src/play/<id>/` names an ITERATION
+// OWNER, not every output it can affect, which is exactly why a narrowed run never verifies anything:
+// it publishes no attestation, never deploys, and refs/heads/main never receives the narrow answer.
+const MAIN_REF = 'refs/heads/main';
+const ROUTE_ID = /^[a-z0-9][a-z0-9-]*$/;
+const ROUTE_OWNED = /^src\/play\/([^/]+)\/./;
+
+function ownerOf(p, ids) {
+  if (CONTROL.test(p) || p.split('/').includes('..')) return null;
+  const m = p.match(ROUTE_OWNED);
+  return m && ROUTE_ID.test(m[1]) && ids.includes(m[1]) ? m[1] : null;
+}
+
+function decideScope(paths, { ref, ids } = {}) {
+  const base = decide(paths);
+  const full = (why) => ({ ...base, scope: 'full', reason: `${base.reason}; full: ${why}` });
+  if (!base.run) return { ...base, scope: 'full' };
+  if (typeof ref !== 'string' || ref === '') return full('no ref given');
+  if (ref === MAIN_REF) return full('main never narrows');
+  if (!Array.isArray(ids) || ids.length === 0) return full('no manifest play route ids');
+  const owners = new Set();
+  for (const p of paths.filter((x) => !isInert(x))) {
+    const id = ownerOf(p, ids);
+    if (id === null) return full(`shared or unknown path ${p}`);
+    owners.add(id);
+  }
+  if (owners.size !== 1) return full(`${owners.size} route ids: ${[...owners].sort().join(', ')}`);
+  const [id] = owners;
+  return { run: true, scope: `routes:${id}`, reason: `every non-inert path sits under src/play/${id}/ (iteration only, never a deploy verdict)` };
+}
+
+// Diagnostics only: the reason can quote a file name, so it is printed JSON-escaped and is never parsed.
+const formatScope = ({ run, scope, reason }) => `run=${run}\nscope=${scope}\nreason: ${JSON.stringify(reason)}`;
+
+// THE PUBLISHED DECISION travels on its own channel, never on stdout: the resolver writes this file
+// (--decision-out) and the workflow's emit publishes only what parseDecision (--emit) accepts. Exactly
+// two lines, `run=` then `scope=`, from a closed vocabulary, so no file name and no reason line can set
+// an output. Anything else -- no file, an extra line, a narrow scope on main or with no ref -- reads as
+// run=true scope=full.
+const DECISION = /^run=(true|false)\nscope=(full|routes:[a-z0-9][a-z0-9-]*)\n$/;
+function parseDecision(text, { ref } = {}) {
+  const m = typeof text === 'string' ? text.match(DECISION) : null;
+  if (!m) return { run: true, scope: 'full' };
+  const run = m[1] === 'true';
+  const narrowOk = run && typeof ref === 'string' && ref !== '' && ref !== MAIN_REF;
+  return { run, scope: narrowOk ? m[2] : 'full' };
+}
+function formatDecision({ run, scope = 'full' }) {
+  const text = `run=${run === false ? 'false' : 'true'}\nscope=${scope}\n`;
+  if (!DECISION.test(text)) throw new Error(`refusing to write an unreadable decision: ${JSON.stringify(text)}`);
+  return text;
+}
+
+// `git diff --name-status -z`: a status token, then one path, or two for a rename (R) or copy (C), each
+// NUL-terminated and never quoted. BOTH endpoints of a rename count, so moving a file across a route
+// boundary touches two owners. An unknown status or a missing path throws -- the workflow runs full.
+function parseNameStatusZ(text) {
+  const t = text.split('\0');
+  if (t.length && t[t.length - 1] === '') t.pop();
+  const out = [];
+  for (let i = 0; i < t.length;) {
+    const st = t[i++];
+    const n = /^[RC]\d*$/.test(st) ? 2 : /^[ADMTU]$/.test(st) ? 1 : 0;
+    if (n === 0) throw new Error(`unknown name-status status ${JSON.stringify(st)}`);
+    for (let k = 0; k < n; k++) {
+      if (i >= t.length || t[i] === '') throw new Error(`status ${st} is missing a path`);
+      out.push(t[i++]);
+    }
+  }
+  return out;
+}
+
+// THE LEG REGISTRY, and the narrowed-run plan: every leg scripts/ci-probes.sh may run, keyed by its label,
+// with what a `routes:<id>` run does with it. ci-probes.sh refuses to start when its lanes can call a leg
+// this does not name (--legs), and the selftest executes those lanes (ciProbeLegs) and reds unless both
+// sets are equal, so no leg can run unclassified. Modes: `narrow` runs the leg with ROUTES_ONLY=<id>; `full` runs
+// it unchanged; `skip` does not run it. `only` names a subject set: a route outside it skips, because
+// the leg never loads that route. WHY A SKIP IS SOUND: src/play/<id>/ is imported only by its own page,
+// src/pages/game/<id>/play.astro (URL /game/<id>/play/), and no route directory imports another; a
+// skipped leg visits no /game/*/play/ URL and reads nothing under src/play/ (checked 2026-11-13).
+// The `webgl` job is not a ci-probes.sh leg: a narrowed run runs it full, on its own runner.
+const NARROW_PLAN = {
+  'play-exit': { mode: 'narrow', why: 'walks every manifest play route; takes ROUTES_ONLY' },
+  'play-exit-guard': { mode: 'narrow', why: 'walks every manifest play route; takes ROUTES_ONLY' },
+  'narrow-overflow': { mode: 'skip', why: 'walks /tool/ pages only' },
+  'narrow-overflow-control': { mode: 'skip', why: 'walks /tool/ pages only' },
+  'ad-reflow': { mode: 'skip', why: 'walks /tool/ name-entry pages only' },
+  'ad-reflow-control': { mode: 'skip', why: 'walks /tool/ name-entry pages only' },
+  'strip-chip-visibility': { mode: 'full', only: 'strip', why: 'its routes are the strip-counter callers, which it reads from src/play/*/main.*; has no ROUTES_ONLY' },
+  'strip-chip-visibility-control': { mode: 'full', only: 'strip', why: 'as strip-chip-visibility' },
+  'play-top-band': { mode: 'narrow', why: 'walks every manifest play route; takes ROUTES_ONLY' },
+  'play-top-band-control': { mode: 'narrow', why: 'walks every manifest play route; takes ROUTES_ONLY' },
+  'no-nav-in-stage': { mode: 'skip', why: 'walks /game/<id>/ landings of games with no playRoute' },
+  'no-nav-in-stage-control': { mode: 'skip', why: 'walks /game/<id>/ landings of games with no playRoute' },
+  'leave-confirm': { mode: 'skip', why: 'walks /game/<id>/ landings of games with no playRoute' },
+  'leave-confirm-control': { mode: 'skip', why: 'walks /game/<id>/ landings of games with no playRoute' },
+  'category-pop': { mode: 'skip', why: 'walks the category pages only' },
+  'canvas-ink': { mode: 'narrow', only: 'canvas2d', why: 'walks the canvas2d play routes; takes ROUTES_ONLY' },
+  'canvas-ink-control': { mode: 'narrow', only: 'canvas2d', why: 'walks the canvas2d play routes; takes ROUTES_ONLY' },
+  'wheel-pointer-name': { mode: 'skip', why: 'walks /tool/wheel/ only' },
+  'home-page-normal': { mode: 'skip', why: 'walks / only' },
+  'home-page-reduced': { mode: 'skip', why: 'walks / only' },
+  'live-region-floor': { mode: 'full', why: 'derives its pages from dist/, so a play route can join; has no ROUTES_ONLY' },
+  'live-region-floor-control': { mode: 'full', why: 'derives its pages from dist/; has no ROUTES_ONLY' },
+  'control-floor': { mode: 'full', why: 'walks every game, play routes included; has no ROUTES_ONLY' },
+  'control-floor-control': { mode: 'full', why: 'walks every game, play routes included; has no ROUTES_ONLY' },
+  'no-webgl-first-screen': { mode: 'narrow', why: 'walks every manifest play route; takes ROUTES_ONLY' },
+  'player-screen-face': { mode: 'narrow', only: 'party', why: 'walks the party play routes; takes ROUTES_ONLY' },
+  'play-screen-fit-#': { mode: 'skip', why: 'the full run\'s sharded fit leg, one per shard; the narrowed run walks the unsharded pair' },
+  'play-screen-fit-control-#': { mode: 'skip', why: 'the full run\'s sharded fit control, one per shard; as play-screen-fit-#' },
+  'play-screen-fit': { mode: 'narrow', why: 'the unsharded fit walk; ROUTES_ONLY replaces FIT_SHARD' },
+  'play-screen-fit-control': { mode: 'narrow', why: 'the unsharded fit walk; ROUTES_ONLY replaces FIT_SHARD' },
+};
+
+// Pure: `sets` holds the manifest play-route ids and each subject set named by an `only`.
+function narrowPlan(id, sets) {
+  if (!ROUTE_ID.test(String(id)) || !sets.ids.includes(id)) throw new Error(`${id} is not a manifest play route`);
+  return Object.entries(NARROW_PLAN).map(([label, { mode, only, why }]) => {
+    if (only && !Array.isArray(sets[only])) throw new Error(`no subject set ${only}`);
+    return only && !sets[only].includes(id) ? { label, mode: 'skip', why: `${id} is outside its ${only} set` } : { label, mode, why };
+  });
+}
+
+// A shard's label ends in its index; the registry names the family once, as `<label>-#`.
+const legFamily = (label) => {
+  const fam = String(label).replace(/-\d+$/, '-#');
+  return fam !== label && Object.hasOwn(NARROW_PLAN, fam) ? fam : label;
+};
+
+// Every leg ci-probes.sh can run, read by EXECUTING it: its list mode calls every lane, the sharded fit
+// pair and the narrowed pair with probe()/standalone() replaced by a recorder, prints `LEG <label>` and
+// exits LIST_EXIT, never 0, so a stray PROBE_LIST_LEGS can never pass for a measured run. No spelling of
+// a leg can hide from this, which a regex over the file could not promise (REFUTE r1).
+const LIST_EXIT = 3;
+function ciProbeLegs() {
+  const dir = mkdtempSync(join(tmpdir(), 'probe-legs-'));
+  try {
+    const env = { PATH: process.env.PATH ?? '', HOME: process.env.HOME ?? '', PROBE_LIST_LEGS: '1', PROBE_OUT_DIR: dir };
+    const r = spawnSync('bash', ['scripts/ci-probes.sh'], { cwd: fileURLToPath(new URL('..', import.meta.url)), env, encoding: 'utf8', timeout: 60_000 });
+    if (r.status !== LIST_EXIT) throw new Error(`ci-probes.sh list mode exited ${r.status}, not ${LIST_EXIT}: ${r.stderr}${r.stdout}`);
+    const legs = r.stdout.split('\n').filter((l) => l.startsWith('LEG ')).map((l) => l.slice(4));
+    if (legs.length === 0) throw new Error('ci-probes.sh list mode named no leg');
+    return legs;
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+async function manifestGames() {
+  const { games } = await import(new URL('../src/games/manifest.ts', import.meta.url).href);
+  if (!Array.isArray(games) || games.length === 0) throw new Error('the manifest exports no games');
+  return games;
+}
+const playRouteIds = (games) => games.filter((g) => g.playRoute).map((g) => g.id).sort();
+
+// Each subject set from the expression its own leg uses, never retyped. The strip set is the leg's
+// own listed ids plus any route whose main module mounts the counter, so a route gaining or losing the
+// counter still runs the leg whose stale-list check catches it.
+async function narrowSets() {
+  delete process.env.ROUTES_ONLY;
+  const games = await manifestGames();
+  const ids = playRouteIds(games);
+  const { canvas2dRouteIds } = await import('./canvas-ink-probe.mjs');
+  const { partyPlayRoutes } = await import('./player-screen-face-probe.mjs');
+  const stripSrc = readFileSync(new URL('./strip-chip-visibility-probe.mjs', import.meta.url), 'utf8');
+  const mountsCounter = (id) => ['main.js', 'main.ts'].some((n) => {
+    const f = new URL(`../src/play/${id}/${n}`, import.meta.url);
+    return existsSync(f) && readFileSync(f, 'utf8').includes('mountStripOverflowCounter');
+  });
+  const strip = ids.filter((id) => stripSrc.includes(`id: '${id}'`) || mountsCounter(id));
+  return { ids, party: partyPlayRoutes(games), canvas2d: canvas2dRouteIds(games), strip };
 }
 
 // Lines are taken verbatim, never trimmed: git keeps a trailing space in a file name, and trimming
@@ -72,11 +265,15 @@ const DIGEST_ARTIFACT = (hex, attempt) => `dist-digest-${hex}-a${attempt}`;
 // A partial re-run keeps the earlier attempts' artifacts and copies the jobs it did not re-run into the
 // new attempt (observed 2026-11-12, run 43165835700), so binding the name to an attempt would orphan a
 // verdict that was never re-run.
-const JOB_DIGEST_ARTIFACT = (hex) => `dist-digest-${hex}`;
+// Since the narrowing amendment the name also states the scope the probes covered: only a FULL run
+// publishes, and the consumer matches the `-full` name alone, so an unmarked or narrowed name never verifies.
+const JOB_DIGEST_ARTIFACT = (hex) => `dist-digest-${hex}-full`;
 // The probe jobs of the job layout, by the names GitHub gives them: the matrix lanes, WebGL, the verdict.
 const PROBE_VERDICT_JOB = 'probe-verdict';
 const WEBGL_JOB = 'webgl';
-const isProbeJob = (name) => name === PROBE_VERDICT_JOB || name === WEBGL_JOB || /^probes \(/.test(String(name));
+// The narrowed lane: a red there is still a red on these bytes, and a run that ran it is never full.
+const PROBES_NARROWED_JOB = 'probes-narrowed';
+const isProbeJob = (name) => name === PROBE_VERDICT_JOB || name === WEBGL_JOB || name === PROBES_NARROWED_JOB || /^probes \(/.test(String(name));
 // ci.yml at the SHA decides the layout: a `probe-verdict` job means the job graph, else the one-job steps.
 const layoutOf = (yamlText) => (/^  probe-verdict:\s*$/m.test(yamlText) ? 'jobs' : 'steps');
 
@@ -223,12 +420,14 @@ function decideVerified({ sha, digest, runs, jobsByRun, artifactsByRun, gated, e
       const lanes = latest.filter((j) => /^probes \(/.test(String(j.name)));
       const verdict = latest.find((j) => j.name === PROBE_VERDICT_JOB);
       const webgl = latest.find((j) => j.name === WEBGL_JOB);
+      const narrowed = latest.find((j) => j.name === PROBES_NARROWED_JOB && j.conclusion !== 'skipped');
+      if (narrowed) { why(`${PROBES_NARROWED_JOB} ${narrowed.conclusion}: a narrowed run is never a full verdict`); continue; }
       if (!verdict || verdict.conclusion !== 'success') { why(`${PROBE_VERDICT_JOB} ${verdict?.conclusion ?? 'absent'}`); continue; }
       if (!webgl || webgl.conclusion !== 'success') { why(`${WEBGL_JOB} ${webgl?.conclusion ?? 'absent'}`); continue; }
       if (lanes.length === 0 || lanes.some((j) => j.conclusion !== 'success')) { why(`probe lanes not all success (${lanes.length} listed)`); continue; }
       const jarts = artifactsByRun[r.id];
       if (!Array.isArray(jarts)) { why('artifacts not read'); continue; }
-      if (!jarts.some((a) => a.name === JOB_DIGEST_ARTIFACT(digest) && a.expired === false)) { why('no live artifact for this dist digest'); continue; }
+      if (!jarts.some((a) => a.name === JOB_DIGEST_ARTIFACT(digest) && a.expired === false)) { why('no live FULL attestation for this dist digest'); continue; }
       return { run: false, reason: `run ${r.id} (${r.head_branch}, attempt ${r.run_attempt}) passed ${PROBE_VERDICT_JOB}, ${WEBGL_JOB} and ${lanes.length} probe lane(s) on dist digest ${digest}` };
     }
     const steps = latest.flatMap((j) => j.steps ?? []);
@@ -372,6 +571,89 @@ function verifiedSelftest() {
   assert.deepEqual(one(['      - name: Commented if', `        if: ${PROBE_GATE}  # why`]), ['Commented if'], 'a trailing comment does not hide the gate');
   assert.deepEqual(one(['      - name: Folded if', '        if: >-', '          steps.probe-scope.outputs.run ==', "          'true'"]), ['Folded if'], 'a folded multi-line condition is the gate');
   assert.throws(() => one(['      - name: Compound', `        if: always() && ${PROBE_GATE}`]), /neither the gate nor a known non-measurement/, 'an unknown condition on probe-scope throws');
+  // Narrowing (ADR-0078 amendment 2026-11-13): only a FULL attestation verifies, and a run that ran the
+  // narrowed lane is never a full verdict. The names are literals here so the test pins the format.
+  assert.equal(JOB_DIGEST_ARTIFACT(D), `dist-digest-${D}-full`, 'the job-layout attestation names its scope');
+  assert.equal(jv((x) => { x.artifactsByRun[1] = [{ name: `dist-digest-${D}`, expired: false }]; }), true, 'an attestation without the full mark is refused');
+  assert.equal(jv((x) => { x.artifactsByRun[1] = [{ name: `dist-digest-${D}-routes-cannon-flag`, expired: false }]; }), true, 'a narrowed attestation is refused');
+  assert.equal(jv((x) => { x.jobsByRun[1].push(J('probes-narrowed')); }), true, 'a run that ran the narrowed lane is never a full verdict, whatever it published');
+  assert.equal(jv((x) => { x.jobsByRun[1].push(J('probes-narrowed', 'skipped')); }), false, 'a skipped narrowed lane is the full run\'s own shape');
+  assert.equal(jv((x) => { x.runs.push({ ...x.runs[1], id: 8, conclusion: 'failure' }); x.jobsByRun[8] = [J('probes-narrowed', 'failure')]; x.artifactsByRun[8] = []; }), true, 'a narrowed red at this SHA blocks reuse');
+}
+
+function narrowSelftest() {
+  const ids = ['cannon-flag', 'dice-loser', 'prize-draw'];
+  const BR = 'refs/heads/wt/narrow';
+  const s = (paths, ref = BR) => decideScope(paths, { ref, ids }).scope;
+  const A = 'src/play/cannon-flag/main.js';
+  assert.equal(s([A]), 'routes:cannon-flag', 'a one-route diff narrows to that route');
+  assert.equal(s([A, 'src/play/cannon-flag/style.css', 'docs/x.md']), 'routes:cannon-flag', 'inert paths beside one route keep it narrowed');
+  for (const shared of ['src/play/_player-screen/PlayerScreen.astro', 'src/play/_mascots.ts', 'src/play/name-escaping.test.mjs',
+    'src/prize-event/event.ts', 'src/prize-draw/x.ts', 'src/games/manifest.ts', 'src/games/cannon-flag.ts', 'src/layouts/Base.astro',
+    'src/styles/tokens.css', 'src/pages/game/cannon-flag/play.astro', 'scripts/ci-probes.sh', '.github/workflows/ci.yml',
+    'package.json', 'package-lock.json', 'astro.config.mjs', 'public/x.png']) {
+    assert.equal(s([A, shared]), 'full', `a shared path is full: ${shared}`);
+  }
+  assert.equal(s([A, 'src/play/dice-loser/main.ts']), 'full', 'two ids are full');
+  assert.equal(s([A, 'weird/unknown.bin']), 'full', 'an unknown path is full');
+  assert.equal(s(['src/play/not-a-game/main.js']), 'full', 'a src/play dir that is no manifest play route is full');
+  assert.equal(s(['src/play/cannon-flag/../dice-loser/main.ts']), 'full', 'a .. segment never rides a route prefix');
+  assert.equal(s(['src/play/cannon-flag']), 'full', 'only paths UNDER the route dir are owned');
+  const z = (...tokens) => parseNameStatusZ(`${tokens.join('\0')}\0`);
+  assert.deepEqual(z('R100', A, 'src/play/dice-loser/main.js'), [A, 'src/play/dice-loser/main.js'], 'a rename lists both endpoints');
+  assert.equal(s(z('R100', A, 'src/play/dice-loser/main.js')), 'full', 'a rename across a route boundary is full');
+  assert.equal(s(z('R087', 'src/shell/x.ts', 'src/play/cannon-flag/x.ts')), 'full', 'a rename from shared code into a route is full');
+  assert.equal(s(z('R100', A, 'src/play/cannon-flag/b.js', 'M', 'src/play/cannon-flag/c.css')), 'routes:cannon-flag', 'a rename inside one route stays narrowed');
+  assert.deepEqual(z('C075', 'a', 'b', 'D', 'c', 'A', 'd', 'T', 'e'), ['a', 'b', 'c', 'd', 'e'], 'copy and single-path statuses');
+  assert.deepEqual(z('M', 'src/example.md '), ['src/example.md '], 'a trailing space in a path is kept');
+  assert.throws(() => parseNameStatusZ('X\0a\0'), /status/, 'an unknown status throws');
+  assert.throws(() => parseNameStatusZ('R100\0a\0'), /path/, 'a rename missing its second path throws');
+  assert.deepEqual(parseNameStatusZ(''), [], 'empty output is an empty diff');
+  assert.equal(s([A], 'refs/heads/main'), 'full', 'main never narrows');
+  assert.equal(decideScope([A], { ids }).scope, 'full', 'no ref never narrows');
+  assert.equal(decideScope([A], { ref: BR, ids: [] }).scope, 'full', 'no manifest ids never narrows');
+  assert.deepEqual((({ run, scope }) => ({ run, scope }))(decideScope(['docs/a.md'], { ref: BR, ids })), { run: false, scope: 'full' }, 'an inert diff still skips');
+  assert.equal(decideScope([], { ref: BR, ids }).run, false, 'an empty diff still skips');
+  assert.equal(decideScope([A], { ref: BR, ids }).run, true, 'a narrowed run still runs');
+  assert.match(formatScope(decideScope([A], { ref: BR, ids })), /^run=true\nscope=routes:cannon-flag\nreason: /, 'the narrow answer format');
+  assert.match(formatScope(decideScope([A], { ref: 'refs/heads/main', ids })), /^run=true\nscope=full\n/, 'the full answer format');
+  // REFUTE r1 HIGH: a file name can carry a line feed. The published fields travel only in the decision
+  // file (formatDecision -> parseDecision, the parse the workflow's emit runs); stdout is a log.
+  const pd = (text, ref = BR) => parseDecision(text, { ref });
+  assert.deepEqual(pd(formatDecision(decideScope([A], { ref: BR, ids }))), { run: true, scope: 'routes:cannon-flag' }, 'positive control: a narrow decision survives the parse');
+  assert.deepEqual(pd('run=false\nscope=full\n'), { run: false, scope: 'full' }, 'positive control: a skip survives the parse');
+  for (const evil of ['a\nscope=routes:cannon-flag', 'a\nrun=false']) {
+    const d = decideScope([evil, 'src/styles/tokens.css'], { ref: BR, ids });
+    assert.deepEqual(pd(formatDecision(d)), { run: true, scope: 'full' }, `a file named ${JSON.stringify(evil)} beside a shared path publishes run=true scope=full`);
+    assert.deepEqual(pd(formatDecision(decideScope([evil], { ref: BR, ids }))), { run: true, scope: 'full' }, `a file named ${JSON.stringify(evil)} alone publishes run=true scope=full`);
+    assert.equal(formatScope(d).split('\n').length, 3, 'a file name never adds a line to the printed diagnostics');
+  }
+  assert.deepEqual(pd('run=true\nscope=full\nreason: a\nscope=routes:cannon-flag\n'), { run: true, scope: 'full' }, 'a reason line can never set scope');
+  assert.deepEqual(pd('run=true\nscope=full\nreason: a\nrun=false\n'), { run: true, scope: 'full' }, 'a reason line can never set run');
+  assert.deepEqual(pd(`reason: x\n${'run=false\nscope=full\n'}`), { run: true, scope: 'full' }, 'nothing may precede the fields');
+  assert.deepEqual(pd('run=true\nscope=routes:cannon-flag\n', MAIN_REF), { run: true, scope: 'full' }, 'the parse refuses a narrow scope on main');
+  assert.deepEqual(pd('run=true\nscope=routes:cannon-flag\n', ''), { run: true, scope: 'full' }, 'the parse refuses a narrow scope with no ref');
+  assert.deepEqual(pd('run=false\nscope=routes:cannon-flag\n'), { run: false, scope: 'full' }, 'a skip is never narrowed');
+  assert.deepEqual(pd(''), { run: true, scope: 'full' }, 'no decision file is full');
+  assert.equal(decideScope(['src/play/cannon-flag/a\nb.js'], { ref: BR, ids }).scope, 'full', 'a control character in a path is never route-owned');
+  assert.equal(decide(['docs/a\n.md']).run, true, 'a control character in a path is never inert');
+  assert.equal(decide(['docs/a\u007f.md']).run, true, 'DEL is a control character too');
+  // REFUTE r1 MEDIUM: the leg registry. ci-probes.sh's own functions are EXECUTED in its list mode (every
+  // probe()/standalone() call recorded, nothing run), so a leg no spelling of a regex sees is still seen.
+  const legs = ciProbeLegs();
+  assert.ok(legs.includes('play-exit') && legs.includes('play-screen-fit'), 'list mode enumerates the lanes');
+  assert.deepEqual([...new Set(legs.map(legFamily))].sort(), Object.keys(NARROW_PLAN).sort(), 'every leg ci-probes.sh can run is in the registry, and the registry names no other');
+  const sets = { ids, party: ['cannon-flag', 'prize-draw'], canvas2d: ['dice-loser'], strip: ['prize-draw'] };
+  const mode = (id, label) => narrowPlan(id, sets).find((p) => p.label === label).mode;
+  assert.equal(mode('cannon-flag', 'play-exit'), 'narrow', 'a route-walking leg narrows');
+  assert.equal(mode('cannon-flag', 'control-floor'), 'full', 'a play-route leg with no route knob runs full');
+  assert.equal(mode('cannon-flag', 'home-page-normal'), 'skip', 'a leg that never loads a play route skips');
+  assert.equal(mode('cannon-flag', 'canvas-ink'), 'skip', 'a canvas2d leg skips a route outside its set');
+  assert.equal(mode('dice-loser', 'canvas-ink'), 'narrow', 'a canvas2d leg narrows to a route in its set');
+  assert.equal(mode('dice-loser', 'player-screen-face'), 'skip', 'a party leg skips a route outside its set');
+  assert.equal(mode('prize-draw', 'strip-chip-visibility'), 'full', 'the strip leg runs full for a strip route');
+  assert.equal(mode('cannon-flag', 'strip-chip-visibility'), 'skip', 'the strip leg skips a route outside its set');
+  assert.throws(() => narrowPlan('not-a-game', sets), /not a manifest play route/, 'an unknown id throws');
 }
 
 function selftest() {
@@ -400,9 +682,10 @@ function selftest() {
   assert.equal(decide(parse('\n\n')).run, false, 'empty lines are an empty diff');
   assert.match(decide(['docs/a.md', 'src/x.ts']).reason, /src\/x\.ts$/, 'reason names the first non-inert path');
   verifiedSelftest();
+  narrowSelftest();
 }
 
-export { decide, decideVerified, distDigest, fetchVerified, gatedSteps, layoutOf };
+export { ciProbeLegs, decide, decideScope, decideVerified, distDigest, fetchVerified, formatDecision, gatedSteps, layoutOf, narrowPlan, parseDecision, parseNameStatusZ };
 
 // Imported (by a harness replaying real runs) -> no CLI. Run as a script -> the CLI below.
 // Compared as real paths, so a symlinked invocation can never fall through to a silent exit 0.
@@ -427,12 +710,31 @@ if (argv.includes('--selftest')) {
   const excludeRunId = argv.includes('--exclude-run') ? arg('--exclude-run') : undefined;
   const repo = process.env.GITHUB_REPOSITORY || '{owner}/{repo}';
   const { run, reason } = decideVerified({ sha, digest: arg('--digest'), excludeRunId, ...fetchVerified({ sha, repo }) });
-  console.log(`run=${run}\nreason: ${reason}`);
+  // Main never narrows: the decision file says full whatever the lookup decided about run.
+  if (argv.includes('--decision-out')) writeFileSync(arg('--decision-out'), formatDecision({ run, scope: 'full' }));
+  console.log(`run=${run}\nreason: ${JSON.stringify(reason)}`);
+} else if (argv.includes('--changed-z')) {
+  const ref = arg('--ref');
+  const paths = parseNameStatusZ(readFileSync(arg('--changed-z'), 'utf8'));
+  const d = decideScope(paths, { ref, ids: playRouteIds(await manifestGames()) });
+  if (argv.includes('--decision-out')) writeFileSync(arg('--decision-out'), formatDecision(d));
+  // The log's copy of the diff: one JSON string per path, so no file name can start a line of its own.
+  for (const p of paths) console.log(`changed: ${JSON.stringify(p)}`);
+  console.log(formatScope(d));
+} else if (argv.includes('--emit')) {
+  // The workflow's emit: the two validated lines, or run=true scope=full. A missing file is full.
+  const f = arg('--emit');
+  console.log(formatDecision(parseDecision(existsSync(f) ? readFileSync(f, 'utf8') : '', { ref: arg('--ref') })).trimEnd());
+} else if (argv.includes('--legs')) {
+  console.log(Object.keys(NARROW_PLAN).join('\n'));
+} else if (argv.includes('--narrow-plan')) {
+  const plan = narrowPlan(arg('--narrow-plan'), await narrowSets());
+  console.log(plan.map((p) => `${p.mode} ${p.label}`).join('\n'));
 } else if (argv.includes('--changed')) {
   const file = argv[argv.indexOf('--changed') + 1];
   if (!file) throw new Error('--changed needs a file of changed paths');
   const { run, reason } = decide(parse(readFileSync(file, 'utf8')));
-  console.log(`run=${run}\nreason: ${reason}`);
+  console.log(`run=${run}\nreason: ${JSON.stringify(reason)}`);
 } else if (isMain) {
-  throw new Error('usage: probe-scope.mjs --changed <file> | --inert | --dist-digest <dir> | --verified --sha <sha> --digest <hex> [--exclude-run <id>] | --selftest');
+  throw new Error('usage: probe-scope.mjs --changed <file> | --changed-z <file> --ref <ref> [--decision-out <file>] | --emit <file> --ref <ref> | --legs | --narrow-plan <id> | --inert | --dist-digest <dir> | --verified --sha <sha> --digest <hex> [--exclude-run <id>] [--decision-out <file>] | --selftest');
 }

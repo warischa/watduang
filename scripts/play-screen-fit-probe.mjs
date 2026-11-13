@@ -100,7 +100,7 @@
 //                                                           script, then ONLY the first-screen order verdict,
 //                                                           every manifest route once at the narrow viewport.
 //                                                           See NO_WEBGL_CONTEXTS for what it proves.
-//   ROUTES_ONLY=a,b                                      -> narrow a hand-run debug pass. Never in CI.
+//   ROUTES_ONLY=a,b                                      -> narrow the walk: iteration only, never the deploy verdict.
 //   FONT_READ=1                                          -> gh#287, REPORT-ONLY and dormant: no lane sets
 //                                                           it and nothing is gated on it. Unset, this file
 //                                                           behaves and prints exactly as without it. Set,
@@ -115,7 +115,7 @@
 //                                                           is split across n legs that between them walk
 //                                                           every route, so each leg still gates every row
 //                                                           it produces. Setting it together with
-//                                                           ROUTES_ONLY throws — one is a debug subset and
+//                                                           ROUTES_ONLY throws — one is a narrowed subset and
 //                                                           the other is a partition, and a run cannot be
 //                                                           both. Coverage is correct BY CONSTRUCTION here
 //                                                           and enforced anyway: every success path prints
@@ -696,19 +696,20 @@ export const recordedPx = (reason) => Number(KNOWN_OVERFLOW_PREFIX.exec(reason)[
  * this list is a route that exists. Hand-listing is what let short-stick ship unprobed.
  */
 export const playRoutes = () => {
-  // ROUTES_ONLY narrows the walk for a hand-run debug pass, the same knob and the same vacuity throw
-  // scripts/play-exit-probe.mjs carries. It is never set in ci-probes.sh, and a narrowed run says so
-  // on stdout so a shortened table can never be read as the whole set.
+  // ROUTES_ONLY narrows the walk (a hand run, or ci-probes.sh's narrowed run), the same knob and the same vacuity throw
+  // scripts/play-exit-probe.mjs carries. ci-probes.sh sets it only in its narrowed run (PROBE_SCOPE),
+  // which is never a deploy verdict, and a narrowed run says so on stdout so a shortened table can never
+  // be read as the whole set.
   const only = process.env.ROUTES_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
   // FIT_SHARD/FIT_SHARDS is the OTHER knob and it is the opposite kind of thing: a partition, not a
   // subset. Each shard walks a full-strength gate over the rows it produces, and the shards between them
-  // produce every row. Refusing the combination is not tidiness — ROUTES_ONLY prints "this is a debug
-  // run, not a gate", and a run that is both a debug subset and a member of a partition would report one
+  // produce every row. Refusing the combination is not tidiness — ROUTES_ONLY prints that the run is narrowed,
+  // iteration only and never the deploy verdict, and a run that is both a narrowed subset and a member of a partition would report one
   // shard's coverage under the other's verdict.
   const shardRaw = process.env.FIT_SHARD?.trim();
   const sharded = Boolean(shardRaw);
   if (sharded && only?.length) {
-    throw new Error('ROUTES_ONLY and FIT_SHARD are both set — one narrows a debug run and the other partitions a gated one. Pick one.');
+    throw new Error('ROUTES_ONLY and FIT_SHARD are both set — one narrows an iteration run and the other partitions a gated one. Pick one.');
   }
   let ids = games.filter((g) => g.playRoute).map((g) => g.id).sort()
     .filter((id) => !only?.length || only.includes(id));
@@ -1988,7 +1989,7 @@ function noWebglMain(out, log) {
   const faults = noWebglFaults(out, expected);
   for (const f of faults) console.error(`::error::${f}`);
   if (faults.length) process.exit(1);
-  if (process.env.ROUTES_ONLY?.trim()) log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} — ${expected.length} of ${games.filter((g) => g.playRoute).length} play route(s). This is a debug run, not a gate.`);
+  if (process.env.ROUTES_ONLY?.trim()) log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} — ${expected.length} of ${games.filter((g) => g.playRoute).length} play route(s). A narrowed run is iteration only, never the deploy verdict.`);
   // Both counted off the observation, never one as the other's remainder: noWebglFaults has already
   // refused a row that is neither.
   const judged = out.rows.filter((r) => r.firstScreen.final === 'open').length;
@@ -2654,7 +2655,7 @@ export function main({
   // The inverted guard. Only the rows recorded as scroll-free are asserted; the rest are reported.
   // A narrowed run cannot judge the pins it never walked, and must not be read as if it had.
   const narrowed = Boolean(process.env.ROUTES_ONLY?.trim());
-  if (narrowed) log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} — ${out.routesWalked} of ${games.filter((g) => g.playRoute).length} play route(s). This is a debug run, not a gate.`);
+  if (narrowed) log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} — ${out.routesWalked} of ${games.filter((g) => g.playRoute).length} play route(s). A narrowed run is iteration only, never the deploy verdict.`);
   // (i) EVERY produced row lands in exactly one set. A row in neither is the state this check exists
   // to kill: before it, a new route or a screen that started overflowing was simply "not pinned" and
   // printed into the report with nothing asserting anything about it.

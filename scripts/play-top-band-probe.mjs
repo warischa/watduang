@@ -104,6 +104,7 @@ const START = {
 };
 const SEED = JSON.stringify(['ต้น', 'มายด์', 'บอส']);
 
+// ROUTES_ONLY=a,b narrows the walk (a hand run, or ci-probes.sh's narrowed run): a narrowed run is iteration only, never the deploy verdict.
 export const playRoutes = () => {
   const only = process.env.ROUTES_ONLY?.split(',').map((s) => s.trim()).filter(Boolean);
   const ids = games.filter((g) => g.playRoute).map((g) => g.id).sort()

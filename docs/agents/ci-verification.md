@@ -99,21 +99,19 @@ the deploy job fails to federate despite a subject that matches the documentatio
 
 ## Calibrating a new gate at run level
 
-Moved to `docs/agents/ci-gate-calibration.md` (a further ADR-0012 task seam) — proving a **brand-new**
-gate fires on `main` is read only when someone is standing up that gate, not on every routine verify or
-read-a-verdict pass covered above.
+Moved to `docs/agents/ci-gate-calibration.md` (ADR-0012 task seam): proving a **brand-new** gate
+fires on `main`, read when standing that gate up, not on a routine verify or verdict read.
 
 ## A pixel the fit probe records is one machine's number
 
-Moved to `docs/agents/ci-gate-calibration.md` (a further ADR-0012 task seam) — the CI-vs-Mac fit-probe
-measurement drift is a gate-calibration post-mortem, read when standing up or re-checking that gate,
-not on every routine verify.
+Moved to `docs/agents/ci-gate-calibration.md` (ADR-0012 task seam): the CI-vs-Mac fit-probe drift
+post-mortem, read when standing up or re-checking that gate.
 
 ## The fast lane already exists — do not re-invent it, and do not hand-pick gates instead
 
 Routed from `CLAUDE.md` 2026-09-08 (ADR-0012 seam; that file keeps the heading as its trigger). One line, unwrapped, so the bytes are verbatim. 88% above is CI's clock, 542/577 below is this machine's — two scopes, not a conflict.
 
-`SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh` drops the two browser lanes and **exits non-zero whenever they are owed** (they count as not-executed), so a fast run can never be misread as a pass. NOT OWED (exit 0) only when every path since the merge-base with origin/main, untracked included, is inert. CI's `probe-scope` step: on `main` probes run unless a push run at this SHA passed them on the same `dist/` digest, no red at this SHA (`--verified`, owner pick 2026-11-12) · no usable base → run · skip only when every changed path is inert (`scripts/probe-scope.mjs`, gh#270) · otherwise run. Use the fast lane while iterating; the full suite still runs once before a push. Two things that are NOT true: "the suite is slow" as a reason to cut scope — the runner now times every step, and FOUR local runs (n=4, this machine, not CI) put ~542s of the suite's ~577s in ONE step, the gh#122 browser probe — the 542s reproduced exactly all four times, next slowest step 7s — so a broad cut is aimed at the wrong thing; and a small diff is not a small blast radius — a one-line `--font-sans` edit changes text metrics on every page, which is exactly the shape a by-eye subset lets through.
+`SKIP_EXPENSIVE=1 bash scripts/run-workflow-gates.sh` drops the two browser lanes and **exits non-zero whenever they are owed** (they count as not-executed), so a fast run can never be misread as a pass. NOT OWED (exit 0) only when every path since the merge-base with origin/main, untracked included, is inert. CI's `probe-scope` step: on `main` probes run unless a push run at this SHA passed them on the same `dist/` digest, no red at this SHA (`--verified`, owner pick 2026-11-12) · a branch diffs from its merge-base with the target (none → full) · skip only when every changed path is inert (`scripts/probe-scope.mjs`, gh#270) · `probes-narrowed` alone when the rest sits under ONE route's `src/play/<id>/` (iteration only: attests nothing, never deploys, never on main; ADR-0078 amendment) · otherwise full. Use the fast lane while iterating; the full suite still runs once before a push. Two things that are NOT true: "the suite is slow" as a reason to cut scope — the runner now times every step, and FOUR local runs (n=4, this machine, not CI) put ~542s of the suite's ~577s in ONE step, the gh#122 browser probe — the 542s reproduced exactly all four times, next slowest step 7s — so a broad cut is aimed at the wrong thing; and a small diff is not a small blast radius — a one-line `--font-sans` edit changes text metrics on every page, which is exactly the shape a by-eye subset lets through.
 
 ## A local browser green can be blind to the path CI actually tests (2026-09-09, gh#213)
 
@@ -139,13 +137,12 @@ swiftshader flags, and its own no-3D test asserts that path against a fake DOM. 
 you used whenever you report a browser measurement**, and confirm in-page that `getContext` returns
 null. A flag name is not a context state; only the read is.
 
-**A branch green can carry no probe at all.** `probe-scope` skips the browser lanes on a branch push whose every changed path is inert (docs, design, `.claude/`). Read the step conclusions, never the run's. To force the probes, push the commit to a fresh branch: with no usable base, they run.
+**A branch green can carry no probe, or one route's.** `probe-scope` skips the lanes when the branch's delta from its merge-base is inert, and narrows them when it is confined to one route. Read the job conclusions, never the run's; a narrowed green verifies nothing, and main re-measures in full.
 
 ## The probe's own dispatch latency sits inside the number it gates (2026-09-09, gh#122)
 
-Moved to `docs/agents/ci-gate-calibration.md` (a further ADR-0012 task seam) — the runner-latency
-post-mortem behind the `play-exit` probe's UNMEASURED reads is a gate-calibration incident, read when
-calibrating that probe's timing, not on every routine verify.
+Moved to `docs/agents/ci-gate-calibration.md` (ADR-0012 task seam): the runner-latency post-mortem
+behind `play-exit`'s UNMEASURED reads, read when calibrating that probe's timing.
 
 ## The suite measures the tree you ran it on — land every commit first (2026-09-17)
 

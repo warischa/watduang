@@ -56,7 +56,8 @@
 // font binding, so it never reaches a graded dialog row.
 //   node scripts/player-screen-face-probe.mjs
 // Serve dist/ and start Chrome with --remote-debugging-port first; BASE and CDP_PORT name them. Never
-// builds. ROUTES_ONLY=a,b narrows a hand run and says so; it is never set by a gate.
+// builds. ROUTES_ONLY=a,b narrows a run and says so; only a hand run or ci-probes.sh's narrowed run sets it, and
+// a narrowed run is iteration only, never the deploy verdict.
 // PROBE_ARTIFACT_DIR=<dir> writes clean.json, root.json and dialog.json (one per pass, full per-route
 // rows); PROBE_HOLD_ARTIFACT_DIR=<dir> writes hold.json for the gameplay-hold pass; CHROME_FLAGS=<text> is recorded verbatim in them, because the probe cannot read how its browser
 // was launched.
@@ -553,7 +554,7 @@ async function main() {
     fs.mkdirSync(process.env.PROBE_ARTIFACT_DIR, { recursive: true });
     for (const leg of ['clean', 'root', 'dialog']) fs.writeFileSync(path.join(process.env.PROBE_ARTIFACT_DIR, `${leg}.json`), JSON.stringify(artifact(leg), null, 1));
   }
-  if (narrowed) console.log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} -- ${routes.length} of ${games.filter((g) => g.playRoute && g.category === 'party').length} party play route(s). This is a debug run, not a gate.`);
+  if (narrowed) console.log(`NARROWED by ROUTES_ONLY=${process.env.ROUTES_ONLY} -- ${routes.length} of ${games.filter((g) => g.playRoute && g.category === 'party').length} party play route(s). A narrowed run is iteration only, never the deploy verdict.`);
   for (const b of bad) console.error(`::error::${b}`);
   if (bad.length) process.exit(1);
   console.log(`OK ${routes.length} party play route(s) in ${Math.round((Date.now() - t0) / 1000)}s: clean pass graded ${graded('clean')} row(s) across the shared screen and both dialogs, every first computed family a loaded self-hosted face; root pass reds the in-flow rows (${HOSTILE_PASSES.root.why}); dialog pass reds every one of ${graded('dialog')} dialog row(s) (${HOSTILE_PASSES.dialog.why}). Hold pass: ${rows.reduce((a, r) => a + r.hold.read.count, 0)} gameplay root(s) matched ${rows.reduce((a, r) => a + r.declared.length, 0)} declared across the routes, every one hidden / opacity 0 / pointer-events none, and a lifted root read visible on every route. Platform fonts reported per row, not graded.`);

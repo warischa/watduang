@@ -13,7 +13,8 @@ const BASE = process.env.BASE ?? 'http://localhost:5052';
 // Scenarios 1 and 4 run against EVERY play route, derived rather than listed. This list had drifted
 // two routes behind the site (power-meter and short-stick both shipped without being added), and a
 // probe that silently skips a route reads exactly like a probe that passed it. Same dynamic-import
-// idiom as landing-claims-check.mjs. Set ROUTES_ONLY=a,b to narrow it while debugging one route.
+// idiom as landing-claims-check.mjs. ROUTES_ONLY=a,b narrows it to those routes (a hand run, or
+// ci-probes.sh's narrowed run): a narrowed run is iteration only, never the deploy verdict.
 const { fileURLToPath } = await import('node:url');
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const { games } = await import(`${ROOT}src/games/manifest.ts`);

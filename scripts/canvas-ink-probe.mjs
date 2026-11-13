@@ -65,8 +65,8 @@
 // that draws must then report BLANK, and the control fails if any of them still reports DREW. The
 // RECORDED_IDLE routes report UNMEASURED on both legs, which is what makes the two legs comparable.
 //
-// KNOBS: INK_STUB=1 (the control) · ROUTES_ONLY=a,b (debug subset; prints that it is one, and the
-// set checks stand down because a subset cannot speak for the set) · INK_NO_PRESS=1 (walk nothing --
+// KNOBS: INK_STUB=1 (the control) · ROUTES_ONLY=a,b (a narrowed subset: iteration only, never the deploy verdict;
+// it prints that it is one, and the set checks stand down because a subset cannot speak for the set) · INK_NO_PRESS=1 (walk nothing --
 // strands routes whose canvas is hidden at setup, which is how the "no visible canvas" UNMEASURED is
 // demonstrated rather than asserted).
 import { games } from '../src/games/manifest.ts';
@@ -299,7 +299,7 @@ export default async function (session) {
   const full = !only?.length && !noPress;
   if (only?.length) {
     ids = ids.filter((id) => only.includes(id));
-    console.log(`::notice::ROUTES_ONLY is set -- this is a DEBUG run over ${ids.length} of ${derivedIds.length} derived route(s), not the leg's coverage.`);
+    console.log(`::notice::ROUTES_ONLY is set -- this is a NARROWED run over ${ids.length} of ${derivedIds.length} derived route(s), iteration only and never the deploy verdict.`);
     if (!ids.length) throw new Error(`ROUTES_ONLY matched none of the ${derivedIds.length} derived 2D routes`);
   }
   if (noPress) console.log('::notice::INK_NO_PRESS is set -- nothing is pressed, so this run measures what a route paints without a player and is not the leg.');

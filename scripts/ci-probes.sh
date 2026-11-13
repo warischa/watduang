@@ -166,6 +166,42 @@ if [ -n "$PROBE_LANES" ] && [ -n "$PROBE_AGGREGATE" ]; then
   echo "::error::PROBE_LANES and PROBE_AGGREGATE are two different runs -- set one."
   exit 1
 fi
+# --- narrowed mode: one route, branch iteration only (ADR-0078 amendment 2026-11-13) ---------------
+# PROBE_SCOPE=routes:<id> runs, on one runner and one browser, the legs that can see a change confined to
+# src/play/<id>/: route-walking legs narrowed to <id>, play-route legs with no route knob in full, and
+# nothing else. The plan is scripts/probe-scope.mjs's NARROW_PLAN (--narrow-plan), which says why per leg.
+# It is never the deploy verdict: no run-level check runs, nothing is attested, and its lane name is one
+# the aggregate refuses. ROUTES_ONLY from outside is refused in every mode: it would quietly narrow the
+# route-walking legs of a run that reports itself whole. Only this mode sets it, and only per leg.
+PROBE_SCOPE="${PROBE_SCOPE:-}"
+if [ -n "${ROUTES_ONLY:-}" ]; then
+  echo "::error::ROUTES_ONLY is set -- it narrows legs silently. Unset it; PROBE_SCOPE=routes:<id> is the narrowed run."
+  exit 1
+fi
+NARROW_ID=""
+NARROW_LEGS=""
+NARROW_FULL=""
+if [ -n "$PROBE_SCOPE" ]; then
+  if [ -n "$PROBE_LANES$PROBE_AGGREGATE" ]; then echo "::error::PROBE_SCOPE is its own run -- unset PROBE_LANES and PROBE_AGGREGATE."; exit 1; fi
+  if ! [[ "$PROBE_SCOPE" =~ ^routes:[a-z0-9][a-z0-9-]*$ ]]; then echo "::error::PROBE_SCOPE=${PROBE_SCOPE} is not routes:<id>."; exit 1; fi
+  NARROW_ID="${PROBE_SCOPE#routes:}"
+  # Exit code read off the assignment, never through a pipe.
+  if ! narrow_plan=$(node scripts/probe-scope.mjs --narrow-plan "$NARROW_ID"); then
+    echo "::error::scripts/probe-scope.mjs --narrow-plan ${NARROW_ID} failed: ${narrow_plan}"
+    exit 1
+  fi
+  while read -r m l; do
+    case "$m" in
+      narrow) NARROW_LEGS="$NARROW_LEGS $l" ;;
+      full) NARROW_FULL="$NARROW_FULL $l" ;;
+      skip) ;;
+      *) echo "::error::unreadable narrow-plan line: $m $l"; exit 1 ;;
+    esac
+  done <<< "$narrow_plan"
+  if [ -z "$NARROW_LEGS$NARROW_FULL" ]; then echo "::error::the narrow plan for ${NARROW_ID} runs no leg -- a run that measures nothing is not a green."; exit 1; fi
+  echo "ci-probes: NARROWED to ${NARROW_ID} -- iteration only, never the deploy verdict. narrowed:${NARROW_LEGS} · full:${NARROW_FULL:- none}"
+fi
+
 MATRIX_GROUPS="exit overflow topband nav home firstscreen"
 if [ -n "$PROBE_LANES$PROBE_AGGREGATE" ]; then
   EXPECTED_LANES="$MATRIX_GROUPS $(seq -f 'fit%g' 0 $((FIT_SHARDS - 1)) | tr '\n' ' ')"
@@ -306,7 +342,7 @@ if [ -n "$PROBE_AGGREGATE" ]; then
     if [ ! -d "$d" ]; then echo "::error::ci-probes: aggregate input ${d} is not a directory."; exit 1; fi
     found=0
     lane_logs=$(for n in $EXPECTED_LANES; do printf '%s ' "$d/$n.log"; done)
-    for f in "$d"/*.pass "$d"/*.fail $lane_logs "$d"/play-screen-fit*.log; do
+    for f in "$d"/*.pass "$d"/*.fail "$d"/*.scope $lane_logs "$d"/play-screen-fit*.log; do
       [ -e "$f" ] || continue
       b=$(basename "$f")
       if [ -e "$OUT_DIR/$b" ]; then echo "::error::ci-probes: ${b} arrives from two lane outputs (second: ${d})."; exit 1; fi
@@ -315,86 +351,20 @@ if [ -n "$PROBE_AGGREGATE" ]; then
     done
     if [ "$found" -ne 1 ]; then echo "::error::ci-probes: aggregate input ${d} holds no lane output."; exit 1; fi
   done
+  # FULL COVERAGE, asked of each lane's own word: lane mode writes `full` to <lane>.scope, the narrowed run
+  # writes `routes:<id>`. A lane with no scope file, or any scope file that is not `full` (a narrowed run's,
+  # a stale one), means this verdict would speak for coverage that never ran.
+  for f in "$OUT_DIR"/*.scope; do
+    [ -e "$f" ] || continue
+    n=$(basename "$f" .scope)
+    case " $EXPECTED_LANES " in *" $n "*) ;; *) echo "::error::ci-probes: $(basename "$f") is from a lane this run does not schedule (expected:${EXPECTED_LANES})."; exit 1 ;; esac
+  done
+  for n in $EXPECTED_LANES; do
+    got=$(cat "$OUT_DIR/$n.scope" 2>/dev/null || true)
+    if [ "$got" != full ]; then echo "::error::ci-probes: lane ${n} reports scope '${got:-none}', not full -- this verdict only speaks for a full run."; exit 1; fi
+  done
   run_verdict
   exit 0
-fi
-
-# --- preconditions -----------------------------------------------------------------------------
-if [ ! -f dist/index.html ]; then
-  echo "::error::dist/index.html not found -- this script probes an existing build and must never make one. Run it after the Build step."
-  exit 1
-fi
-
-# The browsers this run starts: every lane's in the packed run, the one lane's in lane mode. Chrome B
-# (reduced motion) serves lane4 only.
-if [ -n "$PROBE_LANES" ]; then
-  BROWSER_CDPS="$LANE_CDPS"
-  NEED_B=$([ "$PROBE_LANES" = home ] && echo 1 || echo 0)
-else
-  BROWSER_CDPS="$CDP_1 $CDP_2 $CDP_3 $CDP_4 $FIT_ACTIVE_CDPS"
-  NEED_B=1
-fi
-B_CDPS=$([ "$NEED_B" = 1 ] && echo "$CDP_B" || true)
-
-for p in "$PORT" $BROWSER_CDPS $B_CDPS; do
-  # A port already LISTENing before this script starts belongs to some other process -- probing it
-  # would report a green for someone else's (possibly stale) dist/ or browser profile.
-  if (exec 3<>"/dev/tcp/localhost/${p}") 2>/dev/null; then
-    exec 3>&- 3<&-
-    echo "::error::Port ${p} is already in use before this script started -- refusing to probe a foreign server/browser. Set PROBE_PORT / PROBE_CDP_PORT / PROBE_CDP_PORT_2..4 / PROBE_CDP_REDUCED_PORT / PROBE_CDP_FIT_PORTS."
-    exit 1
-  fi
-done
-
-CHROME="${CHROME:-}"
-if [ -z "$CHROME" ]; then
-  for c in "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" google-chrome google-chrome-stable chromium chromium-browser; do
-    if [ -x "$c" ] || command -v "$c" > /dev/null 2>&1; then CHROME="$c"; break; fi
-  done
-fi
-if [ -z "$CHROME" ]; then
-  # Loud, never a skip: a "no browser, nothing to check" pass is exactly the shape of gate that
-  # cannot fail (docs/agents/ci-verification.md).
-  echo "::error::No Chrome/Chromium found -- set CHROME=<path>. These probes cannot be skipped into a pass."
-  exit 1
-fi
-
-# --- serve + five browsers ---------------------------------------------------------------------
-# One normal Chrome per lane (CDP_1..CDP_4) so no two concurrent legs ever share a browser. Chrome B
-# exists only for home-page-probe.mjs's reduced-motion leg: prefers-reduced-motion is a launch
-# flag, not something CDP can toggle per tab, and that probe's own header prescribes two instances.
-# Both legs of that probe run, or its motion criterion is never checked at all. Chrome B is driven
-# only from lane four, so it is never shared either.
-npx serve@14 dist/ -l "$PORT" > "$OUT_DIR/serve.log" 2>&1 &
-KILL_PIDS="$!"
-for cdp in $BROWSER_CDPS; do
-  "$CHROME" --headless --disable-gpu --no-sandbox --remote-debugging-port="$cdp" \
-    --user-data-dir="$OUT_DIR/prof-$cdp" > /dev/null 2>&1 &
-  KILL_PIDS="$KILL_PIDS $!"
-done
-if [ "$NEED_B" = 1 ]; then
-  "$CHROME" --headless --disable-gpu --no-sandbox --force-prefers-reduced-motion \
-    --remote-debugging-port="$CDP_B" --user-data-dir="$OUT_DIR/prof-b" > /dev/null 2>&1 &
-  KILL_PIDS="$KILL_PIDS $!"
-fi
-# Unconditional teardown on every exit path, so a failure never leaves an orphan holding a port for
-# the next run to falsely pass against.
-trap 'kill $KILL_PIDS 2>/dev/null || true' EXIT
-
-wait_ready() { # url, label
-  for _ in $(seq 1 30); do
-    if curl -sf "$1" > /dev/null 2>&1; then return 0; fi
-    sleep 1
-  done
-  echo "::error::$2 did not become ready within 30s"
-  exit 1
-}
-wait_ready "${SITE}/" "server on ${PORT}"
-for cdp in $BROWSER_CDPS; do
-  wait_ready "http://127.0.0.1:${cdp}/json/version" "Chrome on ${cdp}"
-done
-if [ "$NEED_B" = 1 ]; then
-  wait_ready "http://127.0.0.1:${CDP_B}/json/version" "Chrome B (reduced motion) on ${CDP_B}"
 fi
 
 # --- the verdicts ------------------------------------------------------------------------------
@@ -409,8 +379,21 @@ fi
 # probe()/standalone() run inside lane subshells, so shell variables cannot carry results back to
 # the parent -- each leg appends its label to $LANE.pass or $LANE.fail instead, and the parent
 # aggregates from those files after the lanes join. LANE is set at the top of each lane function.
+# 0 when the registry names the label; a fit shard's `<label>-<K>` matches its `<label>-#` family.
+leg_registered() {
+  case " ${LEG_REGISTRY:-} " in *" $1 "*) return 0 ;; esac
+  case "$1" in *-[0-9]|*-[0-9][0-9]) case " ${LEG_REGISTRY:-} " in *" ${1%-*}-# "*) return 0 ;; esac ;; esac
+  return 1
+}
+refuse_unregistered() { # label -> 0 (and a recorded FAIL) when the registry does not name it
+  leg_registered "$1" && return 1
+  echo "::error::probe FAIL: $1 -- not in the leg registry (NARROW_PLAN in scripts/probe-scope.mjs); refused to run"
+  echo "$1" >> "$OUT_DIR/${MATRIX_LANE:-$LANE}.fail"
+  return 0
+}
 probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
   label="$1"; file="$2"; cdp="$3"; shift 3
+  if refuse_unregistered "$label"; then return 0; fi
   if ! keep_leg "$label"; then return 0; fi
   out="$OUT_DIR/$label.json"
   err="$OUT_DIR/$label.err"
@@ -473,6 +456,7 @@ probe() { # label, probe-file, cdp-port, [extra VAR=val ...]
 # control leg) and the meta-gate audits node-invoked steps only.
 standalone() { # label, command...
   label="$1"; shift
+  if refuse_unregistered "$label"; then return 0; fi
   if ! keep_leg "$label"; then return 0; fi
   echo "probe: $label (standalone)"
   leg_t0=$(date +%s)
@@ -647,6 +631,141 @@ lane4() {
   standalone play-top-band-control     env BASE="$SITE" CDP_PORT="$CDP_4" BREAK_BAND=1 node scripts/play-top-band-probe.mjs
 }
 
+# --- narrowed mode (see PROBE_SCOPE above): every lane's legs, filtered by the plan, on one browser ----
+# Each leg keeps its packed definition; the lanes only lend it. The fit pair is the one exception: the
+# packed pair is sharded, and FIT_SHARD refuses ROUTES_ONLY, so the narrowed run walks it unsharded.
+narrowed_fit_pair() {
+  standalone play-screen-fit         env BASE="$SITE" CDP_PORT="$CDP_1" node scripts/play-screen-fit-probe.mjs
+  standalone play-screen-fit-control env BASE="$SITE" CDP_PORT="$CDP_1" BREAK_WALK=1 node scripts/play-screen-fit-probe.mjs
+}
+narrowed_run() {
+  CDP_2="$CDP_1"; CDP_3="$CDP_1"; CDP_4="$CDP_1"
+  if [ -n "$NARROW_FULL" ]; then
+    MATRIX_KEEP="$NARROW_FULL"; lane1; lane2; lane3; lane4
+  fi
+  if [ -n "$NARROW_LEGS" ]; then
+    export ROUTES_ONLY="$NARROW_ID"
+    MATRIX_KEEP="$NARROW_LEGS"; lane1; lane2; lane3; lane4
+    narrowed_fit_pair
+    unset ROUTES_ONLY
+  fi
+}
+
+# --- the leg registry (REFUTE r1 of the narrowing) -----------------------------------------------------
+# Every leg this file may run is named in scripts/probe-scope.mjs's NARROW_PLAN, which also says what a
+# narrowed run does with it. Two locks, both before any server or browser starts: the lanes are EXECUTED
+# with probe()/standalone() swapped for a recorder (enumerate_legs), and the run refuses to start if any
+# leg they can call is unregistered; probe()/standalone() also refuse an unregistered label at call time,
+# for a caller the enumeration does not reach. PROBE_LIST_LEGS=1 prints the enumeration and exits 3,
+# never 0, so it can never pass for a measured run; probe-scope.mjs's selftest compares it with the registry.
+enumerate_legs() (
+  probe() { printf 'LEG %s\n' "$1"; }
+  standalone() { printf 'LEG %s\n' "$1"; }
+  MATRIX_KEEP=""
+  lane1; lane2; lane3; lane4
+  k=0
+  while [ "$k" -lt "$FIT_SHARDS" ]; do fit_pair "$k" "$CDP_3"; k=$((k + 1)); done
+  narrowed_fit_pair
+)
+if [ -n "${PROBE_LIST_LEGS:-}" ]; then
+  enumerate_legs
+  exit 3
+fi
+if ! leg_list=$(node scripts/probe-scope.mjs --legs) || [ -z "$leg_list" ]; then
+  echo "::error::could not read the leg registry (scripts/probe-scope.mjs --legs): ${leg_list:-}"
+  exit 1
+fi
+LEG_REGISTRY=$(printf '%s\n' "$leg_list" | tr '\n' ' ')
+# Read off the assignment, never through a pipe: an enumeration that died midway would list fewer legs.
+if ! legs_out=$(enumerate_legs) || [ -z "$legs_out" ]; then echo "::error::could not enumerate the lanes' legs"; exit 1; fi
+unregistered=$(printf '%s\n' "$legs_out" | sed 's/^LEG //' | while read -r l; do leg_registered "$l" || printf ' %s' "$l"; done)
+if [ -n "$unregistered" ]; then
+  echo "::error::leg(s) the lanes can run that the registry (NARROW_PLAN in scripts/probe-scope.mjs) does not name:${unregistered} -- register and classify each before it may run."
+  exit 1
+fi
+
+# --- preconditions -----------------------------------------------------------------------------
+if [ ! -f dist/index.html ]; then
+  echo "::error::dist/index.html not found -- this script probes an existing build and must never make one. Run it after the Build step."
+  exit 1
+fi
+
+# The browsers this run starts: every lane's in the packed run, the one lane's in lane mode. Chrome B
+# (reduced motion) serves lane4 only.
+if [ -n "$PROBE_LANES" ]; then
+  BROWSER_CDPS="$LANE_CDPS"
+  NEED_B=$([ "$PROBE_LANES" = home ] && echo 1 || echo 0)
+elif [ -n "$PROBE_SCOPE" ]; then
+  # One browser: the narrowed run drives every leg on it, one at a time.
+  BROWSER_CDPS="$CDP_1"
+  case " $NARROW_LEGS $NARROW_FULL " in *" home-page-reduced "*) NEED_B=1 ;; *) NEED_B=0 ;; esac
+else
+  BROWSER_CDPS="$CDP_1 $CDP_2 $CDP_3 $CDP_4 $FIT_ACTIVE_CDPS"
+  NEED_B=1
+fi
+B_CDPS=$([ "$NEED_B" = 1 ] && echo "$CDP_B" || true)
+
+for p in "$PORT" $BROWSER_CDPS $B_CDPS; do
+  # A port already LISTENing before this script starts belongs to some other process -- probing it
+  # would report a green for someone else's (possibly stale) dist/ or browser profile.
+  if (exec 3<>"/dev/tcp/localhost/${p}") 2>/dev/null; then
+    exec 3>&- 3<&-
+    echo "::error::Port ${p} is already in use before this script started -- refusing to probe a foreign server/browser. Set PROBE_PORT / PROBE_CDP_PORT / PROBE_CDP_PORT_2..4 / PROBE_CDP_REDUCED_PORT / PROBE_CDP_FIT_PORTS."
+    exit 1
+  fi
+done
+
+CHROME="${CHROME:-}"
+if [ -z "$CHROME" ]; then
+  for c in "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" google-chrome google-chrome-stable chromium chromium-browser; do
+    if [ -x "$c" ] || command -v "$c" > /dev/null 2>&1; then CHROME="$c"; break; fi
+  done
+fi
+if [ -z "$CHROME" ]; then
+  # Loud, never a skip: a "no browser, nothing to check" pass is exactly the shape of gate that
+  # cannot fail (docs/agents/ci-verification.md).
+  echo "::error::No Chrome/Chromium found -- set CHROME=<path>. These probes cannot be skipped into a pass."
+  exit 1
+fi
+
+# --- serve + five browsers ---------------------------------------------------------------------
+# One normal Chrome per lane (CDP_1..CDP_4) so no two concurrent legs ever share a browser. Chrome B
+# exists only for home-page-probe.mjs's reduced-motion leg: prefers-reduced-motion is a launch
+# flag, not something CDP can toggle per tab, and that probe's own header prescribes two instances.
+# Both legs of that probe run, or its motion criterion is never checked at all. Chrome B is driven
+# only from lane four, so it is never shared either.
+npx serve@14 dist/ -l "$PORT" > "$OUT_DIR/serve.log" 2>&1 &
+KILL_PIDS="$!"
+for cdp in $BROWSER_CDPS; do
+  "$CHROME" --headless --disable-gpu --no-sandbox --remote-debugging-port="$cdp" \
+    --user-data-dir="$OUT_DIR/prof-$cdp" > /dev/null 2>&1 &
+  KILL_PIDS="$KILL_PIDS $!"
+done
+if [ "$NEED_B" = 1 ]; then
+  "$CHROME" --headless --disable-gpu --no-sandbox --force-prefers-reduced-motion \
+    --remote-debugging-port="$CDP_B" --user-data-dir="$OUT_DIR/prof-b" > /dev/null 2>&1 &
+  KILL_PIDS="$KILL_PIDS $!"
+fi
+# Unconditional teardown on every exit path, so a failure never leaves an orphan holding a port for
+# the next run to falsely pass against.
+trap 'kill $KILL_PIDS 2>/dev/null || true' EXIT
+
+wait_ready() { # url, label
+  for _ in $(seq 1 30); do
+    if curl -sf "$1" > /dev/null 2>&1; then return 0; fi
+    sleep 1
+  done
+  echo "::error::$2 did not become ready within 30s"
+  exit 1
+}
+wait_ready "${SITE}/" "server on ${PORT}"
+for cdp in $BROWSER_CDPS; do
+  wait_ready "http://127.0.0.1:${cdp}/json/version" "Chrome on ${cdp}"
+done
+if [ "$NEED_B" = 1 ]; then
+  wait_ready "http://127.0.0.1:${CDP_B}/json/version" "Chrome B (reduced motion) on ${CDP_B}"
+fi
+
 # The union check below harvests FIT_SHARD_WALKED lines by globbing this directory. OUT_DIR is a fresh
 # mktemp on CI but is REUSED whenever PROBE_OUT_DIR is set, which is how it is run locally -- and a
 # leftover play-screen-fit-2.log from an earlier run would satisfy the union for a shard that no longer
@@ -654,12 +773,42 @@ lane4() {
 # stale file has to go before the lanes start rather than being reasoned about afterwards.
 rm -f "$OUT_DIR"/play-screen-fit*.log
 
+if [ -n "$PROBE_SCOPE" ]; then
+  ln=narrowed
+  rm -f "$OUT_DIR"/*.pass "$OUT_DIR"/*.fail "$OUT_DIR"/*.scope
+  printf '%s\n' "$PROBE_SCOPE" > "$OUT_DIR/$ln.scope"
+  MATRIX_LANE="$ln"
+  narrowed_run > "$OUT_DIR/$ln.log" 2>&1 &
+  lane_pid=$!
+  set +e
+  wait "$lane_pid"
+  set -e
+  cat "$OUT_DIR/$ln.log"
+  # Every planned leg reports exactly once: a label the lanes never reached is a leg that never ran.
+  unran=""
+  for l in $NARROW_LEGS $NARROW_FULL; do
+    if [ "$(cat "$OUT_DIR/$ln.pass" "$OUT_DIR/$ln.fail" 2>/dev/null | grep -cx -- "$l" || true)" -ne 1 ]; then unran="$unran $l"; fi
+  done
+  if [ -s "$OUT_DIR/$ln.fail" ]; then
+    echo "::error::ci-probes: narrowed to ${NARROW_ID}: failing leg(s): $(echo $(cat "$OUT_DIR/$ln.fail"))"
+    exit 1
+  fi
+  if [ -n "$unran" ]; then
+    echo "::error::ci-probes: narrowed to ${NARROW_ID}: planned leg(s) that did not report exactly once:${unran}"
+    exit 1
+  fi
+  echo "ci-probes: narrowed to ${NARROW_ID}: $(grep -c . "$OUT_DIR/$ln.pass") leg(s) passed -- iteration only, never the deploy verdict"
+  exit 0
+fi
+
 # --- lane mode: one lane, its own runner, no barrier ------------------------------------------------
 # The lane's own verdict only: a failing leg or a lane that reported nothing reds here; whether the run
 # as a whole is complete is PROBE_AGGREGATE's question, asked of every lane's output together.
 if [ -n "$PROBE_LANES" ]; then
-  rm -f "$OUT_DIR"/*.pass "$OUT_DIR"/*.fail
+  rm -f "$OUT_DIR"/*.pass "$OUT_DIR"/*.fail "$OUT_DIR"/*.scope
   ln="$PROBE_LANES"
+  # This lane ran its group whole (ROUTES_ONLY is refused above); the aggregate requires this word.
+  printf 'full\n' > "$OUT_DIR/$ln.scope"
   # Every leg of the group reports under the group's name, whichever packed lane it was taken from.
   MATRIX_LANE="$ln"
   if [[ "$PROBE_LANES" =~ ^fit ]]; then
