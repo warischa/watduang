@@ -1,0 +1,65 @@
+// gh314 pills + event card measurement. Run: CDP_PORT=9444 node scripts/driver.mjs <this file> (BASE, OUT env)
+import { writeFileSync } from 'node:fs';
+const BASE = process.env.BASE || 'http://localhost:4344';
+const OUT = process.env.OUT;
+const WIDTHS = [320, 375, 639, 640, 1098, 1099, 1440];
+const PAGES = ['/', '/c/party/', '/c/company-party/', '/game/prize-draw/'];
+const SHOT_W = [320, 640, 1440];
+const PROBE = `
+const q = (s) => [...document.querySelectorAll(s)];
+const r = (e) => { const b = e.getBoundingClientRect(); return { l: b.left, t: b.top, r: b.right, b: b.bottom, w: b.width, h: b.height }; };
+const de = document.documentElement;
+const pills = q('.chrome-pills .chrome-pill');
+const recs = pills.map((p) => {
+  const b = r(p); const cs = getComputedStyle(p, '::after');
+  const top = parseFloat(cs.top), height = parseFloat(cs.height), width = parseFloat(cs.width), left = parseFloat(cs.left);
+  const none = cs.position !== 'absolute'; const ok = none || [top, height, width, left].every(Number.isFinite);
+  return { text: p.textContent, textBytes: [...new TextEncoder().encode(p.textContent)].length, href: p.getAttribute('href'),
+    box: b, clipped: p.scrollWidth > p.clientWidth, scrollWidth: p.scrollWidth, clientWidth: p.clientWidth,
+    after: { top, height, width, left, ok, pos: cs.position },
+    tap: none ? { l: b.l, t: b.t, r: b.r, b: b.b, note: 'no ::after at this width; the pill box is the tap box' } : ok ? { l: b.l + left, t: b.t + top, r: b.l + left + width, b: b.t + top + height } : null };
+});
+const tops = [...new Set(recs.map((x) => Math.round(x.box.t)))];
+const lefts = [...new Set(recs.map((x) => Math.round(x.box.l)))];
+let overlaps = 0, minGap = null;
+for (let i = 0; i < recs.length; i++) for (let j = i + 1; j < recs.length; j++) {
+  const a = recs[i].tap, c = recs[j].tap; if (!a || !c) continue;
+  const ox = Math.min(a.r, c.r) - Math.max(a.l, c.l), oy = Math.min(a.b, c.b) - Math.max(a.t, c.t);
+  if (ox > 0.01 && oy > 0.01) overlaps++;
+  const gapx = -ox, gapy = -oy; const gap = Math.max(gapx, gapy);
+  if (minGap === null || gap < minGap) minGap = gap;
+}
+const art = document.querySelector('.game-card-event .game-card-art'), copy = document.querySelector('.game-card-event .event-copy'), h3 = document.querySelector('.game-card-event h3');
+const ev = art && copy && h3 ? { art: r(art), copy: r(copy), h3Font: getComputedStyle(h3).fontSize, artAboveCopy: r(art).b <= r(copy).t + 0.5, artBeside: r(art).r <= r(copy).l + 0.5 } : null;
+return { title: document.title, innerWidth, scrollWidth: de.scrollWidth, clientWidth: de.clientWidth, overflowX: de.scrollWidth > innerWidth,
+  pillCount: pills.length, pills: recs, distinctRowTops: tops.length, distinctColLefts: lefts.length, tapOverlaps: overlaps, tapMinGap: minGap, event: ev };`;
+export default async function (s) {
+  const records = [];
+  // instrument proof
+  await s.setWidth(375, 800); await s.nav(BASE + '/');
+  const proof = { title: (await s.evaluate('return document.title')).value, innerWidth: (await s.evaluate('return innerWidth')).value,
+    h1or_brand: (await s.evaluate("return document.querySelector('.chrome-brand')?.textContent")).value };
+  const good = (await s.evaluate(PROBE)).value;
+  await s.nav(BASE + '/game/prize-draw/play/');
+  const bad = (await s.evaluate(PROBE)).value;
+  const mustRed = { page: '/game/prize-draw/play/', title: bad?.title, pillCount: bad?.pillCount, reportedMissing: bad?.pillCount !== 4, controlPillCount: good?.pillCount };
+  for (const p of PAGES) for (const w of WIDTHS) {
+    await s.setWidth(w, 800); await s.nav(BASE + p);
+    const m = (await s.evaluate(PROBE)).value;
+    const c = {};
+    const narrow = w <= 639;
+    c.innerWidthMatches = m.innerWidth === w;
+    c.pillCount4 = m.pillCount === 4;
+    c.layout = narrow ? (m.distinctRowTops === 2 && m.distinctColLefts === 2) : m.distinctRowTops === 1;
+    c.unclipped = m.pills.length > 0 && m.pills.every((x) => !x.clipped);
+    c.noTapOverlap = m.tapOverlaps === 0 && m.pills.every((x) => x.after.ok);
+    const p4 = m.pills[3];
+    c.fourthPill = !!p4 && p4.href === '/c/company-party/' && p4.text === 'งานเลี้ยงบริษัท';
+    c.noHOverflow = !m.overflowX;
+    if (p === '/c/company-party/') c.eventCard = !!m.event && (w < 1099 ? m.event.artAboveCopy && m.event.h3Font === '22px' : true);
+    records.push({ page: p, width: w, ...m, checks: c });
+    if (SHOT_W.includes(w)) await s.screenshot(`${OUT}/${p === '/' ? 'home' : p.replace(/^\/|\/$/g, '').replace(/\//g, '-')}-${w}.png`);
+  }
+  writeFileSync(`${OUT}/measurements.json`, JSON.stringify({ proof, mustRed, records }, null, 1));
+  return { proof, mustRed, fails: records.flatMap((r) => Object.entries(r.checks).filter(([, v]) => !v).map(([k]) => `${r.page}@${r.width}:${k}`)), n: records.length };
+}

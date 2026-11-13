@@ -1,0 +1,28 @@
+import { writeFileSync } from 'node:fs';
+const BASE = 'http://localhost:4344', OUT = process.env.OUT;
+const PROBE = (sel) => `
+const c = document.querySelector(${JSON.stringify(sel)}); if (!c) return { missing: true };
+const cs = getComputedStyle(c); const img = c.querySelector('img');
+const b = c.getBoundingClientRect();
+const chain = []; for (let e = c; e && e !== document.documentElement; e = e.parentElement) { const s = getComputedStyle(e); if (s.opacity !== '1' || s.visibility !== 'visible' || s.display === 'none') chain.push({ tag: e.tagName, cls: e.className, opacity: s.opacity, visibility: s.visibility, display: s.display }); }
+return { opacity: cs.opacity, visibility: cs.visibility, transform: cs.transform, animationName: cs.animationName, transition: cs.transitionProperty,
+  img: img ? { complete: img.complete, naturalWidth: img.naturalWidth, src: img.currentSrc.slice(-60), opacity: getComputedStyle(img).opacity } : null,
+  hasArtEl: !!c.querySelector('.game-card-art'), artTag: c.querySelector('.game-card-art')?.tagName,
+  box: { t: b.top + scrollY, h: b.height, w: b.width }, ancestorsNotPlain: chain, scrollY, innerHeight };`;
+export default async function (s) {
+  const out = [];
+  for (const [p, sel, tag] of [['/c/company-party/', '.game-card-event', 'c-company-party'], ['/c/party/', '.game-card', 'c-party']])
+    for (const w of [320, 640, 1440]) {
+      await s.setWidth(w, 800); await s.nav(BASE + p);
+      const before = (await s.evaluate(PROBE(sel))).value;
+      await s.evaluate(`document.querySelector(${JSON.stringify(sel)}).scrollIntoView({block:'center'}); return 1`);
+      let n = -1; const t0 = Date.now();
+      while (Date.now() - t0 < 3000) { n = (await s.evaluate('return document.getAnimations().length')).value; if (n === 0) break; await new Promise(r => setTimeout(r, 100)); }
+      await new Promise(r => setTimeout(r, 300));
+      const after = (await s.evaluate(PROBE(sel))).value;
+      const file = `${tag}-${w}-card-visible.png`; await s.screenshot(`${OUT}/${file}`);
+      out.push({ page: p, width: w, before, animationsLeft: n, waitedMs: Date.now() - t0, after, file });
+    }
+  writeFileSync(`${OUT}/visibility.json`, JSON.stringify(out, null, 1));
+  return out.map(o => ({ p: o.page, w: o.width, op: o.after.opacity, vis: o.after.visibility, tr: o.after.transform, an: o.after.animationName, img: o.after.img, anim: o.animationsLeft, bad: o.after.ancestorsNotPlain, boxT: o.after.box.t, boxH: o.after.box.h }));
+}

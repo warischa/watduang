@@ -629,5 +629,10 @@ const { category, meta, otherCategories, games } = Astro.props as Props;
       width: 100%;
       height: 160px;
     }
+    /* gh#314 owner pick C (design/Gh314Frames.dc.html, frame i3-event, direction C, 375): stacked, the event
+       title at the game cards' own 22px (the generic .game-card h3 size), under the page h1. */
+    .game-card-event h3 {
+      font-size: 22px;
+    }
   }
 </style>

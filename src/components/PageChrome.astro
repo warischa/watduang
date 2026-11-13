@@ -17,13 +17,15 @@ interface SiteLink {
   accent: string;
 }
 
-// The three section links, declared exactly once and mapped into the top bar, so a label or href
+// The four section links, declared exactly once and mapped into the top bar, so a label or href
 // can never drift between consumers (gh#86 acceptance). The footer carries the brand only (gh#247).
-// Labels are byte-for-byte the design canvas's own copy (design/HomeShelfDesktop.dc.html).
+// Labels are byte-for-byte the design canvas's own copy (design/HomeShelfDesktop.dc.html); the fourth
+// is the picked board's pill (design/CatCompany-partyPop.dc.html), gh#314 owner pick B.
 const SITE_LINKS: SiteLink[] = [
   { label: 'ดูดวง', href: '/c/fortune/', accent: 'var(--accent-gold)' },
   { label: 'สุ่มคนโดน', href: '/c/party/', accent: 'var(--accent-punch)' },
   { label: 'เครื่องมือสุ่ม', href: '/tools/', accent: 'var(--accent-sky)' },
+  { label: 'งานเลี้ยงบริษัท', href: '/c/company-party/', accent: 'var(--accent-lilac)' },
 ];
 ---
 
@@ -111,6 +113,7 @@ const SITE_LINKS: SiteLink[] = [
     border-radius: 999px;
     padding: 9px 20px;
     color: var(--color-line-strong);
+    white-space: nowrap;
   }
 
   .chrome-footer-inner {
@@ -199,6 +202,23 @@ const SITE_LINKS: SiteLink[] = [
 
     .chrome-footer-brand {
       font-size: 22px;
+    }
+  }
+
+  /* gh#314 owner pick B (design/Gh314Frames.dc.html, frames i2-pills-generic-320 and i2-pills-prize-320): the
+     four pills sit in a 2 x 2 grid of equal widths under the phone break, gaps 10px x 6px, text centred.
+     One row at 320 leaves 12px of text room. The 10px row gap keeps the 44px tap areas (34px pill + the
+     5px reach above and below) from overlapping. Desktop stays one row. */
+  @media (max-width: 639px) {
+    .chrome-pills {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 6px;
+      width: 100%;
+    }
+
+    .chrome-pill {
+      text-align: center;
     }
   }
 </style>

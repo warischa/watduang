@@ -204,7 +204,9 @@ export function parseTokens(css) {
 export function parseRegistry(categoriesTs, manifestTs) {
   const reg = new Map();
   // `slug: {` … `accent: 'name'` — the slug is the nearest key opening a block above the accent line.
-  const slugs = [...categoriesTs.matchAll(/^\s*([a-z][a-z0-9-]*):\s*\{/gim)].map((m) => ({ slug: m[1], at: m.index }));
+  // A hyphenated slug must be a quoted key in TypeScript (`'company-party': {`), so the key may carry
+  // matching quotes; a bare-only pattern silently dropped that category from the registry.
+  const slugs = [...categoriesTs.matchAll(/^\s*(['"]?)([a-z][a-z0-9-]*)\1:\s*\{/gim)].map((m) => ({ slug: m[2], at: m.index }));
   for (const m of categoriesTs.matchAll(/accent:\s*'([^']+)'/g)) {
     const owner = slugs.filter((s) => s.at < m.index).pop();
     if (owner) reg.set(`/c/${owner.slug}/`, `--accent-${m[1]}`);
@@ -323,6 +325,11 @@ function selftest() {
   const registry = parseRegistry(categoriesTs, manifestTs);
   assert.deepEqual([...registry], [['/c/fortune/', '--accent-gold'], ['/c/party/', '--accent-punch'], ['/tools/', '--accent-sky']], 'the expected accent per href is DERIVED from the category record and the tools manifest — not listed here');
   console.log('PASS registry derivation: 3 href -> accent expectations derived from the category record + tools manifest');
+
+  const quotedTs = "export const categories = {\n  fortune: {\n    label: 'x',\n    accent: 'gold',\n    seo: { title: 't' },\n  },\n  'company-party': {\n    label: 'z',\n    accent: 'lilac',\n    seo: { title: 't' },\n  },\n};\n";
+  const quoted = parseRegistry(quotedTs, manifestTs);
+  assert.deepEqual([...quoted], [['/c/fortune/', '--accent-gold'], ['/c/company-party/', '--accent-lilac'], ['/tools/', '--accent-sky']], 'a quoted slug key owns its accent exactly as a bare key does — and does not steal the accent of the block above it');
+  console.log('PASS quoted slug: a quoted hyphenated category key derives its own href -> accent expectation');
 
   const palette = { rel: 'palette.ts', text: "export const P = ['#ffd27f', '#f89880', '#7fd8e8'] as const;" };
   const pills = {

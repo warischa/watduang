@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    /* Self-hosted faces, relative paths, the same files src/styles/fonts.css declares. The board is design
+       source and is never referenced at runtime. */
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 500; src: url('../public/fonts/mitr-medium-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    /* gh#314: proposal canvas, ADR-0033. Frames for what gh#304 built with no board frame. Annotations are
+       English and monospace. Every Thai string in a frame is copy that already ships (src/) or sits on a
+       picked board, verbatim; a string that exists nowhere is the literal placeholder [copy: owner].
+       Every value comes from src/styles/tokens.css or a picked board (Gh302Setup A, Gh302Projector B,
+       CatCompany-partyPop A, Gh303Home A) unless tagged NEW VALUE beside it. */
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    .brow { padding: 34px 34px; border-bottom: 3px dashed #14142b; }
+    .brow h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .brow h3 { margin: 26px 0 6px; font: 700 15px/1.3 ui-monospace, Menlo, monospace; }
+    .brow .why { margin: 0 0 16px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1420px; }
+    .brow .why b { color: #14142b; }
+    .cands { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+    .cands.col { flex-direction: column; gap: 34px; }
+    .cand { display: flex; flex-direction: column; gap: 8px; }
+    .cand:has(> [data-frame], > .scaler) { width: min-content; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; max-width: 1450px; }
+    .tag .d { display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.6 ui-monospace, Menlo, monospace; }
+    .tag .res { display: inline-block; background: #ffcc00; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; }
+    .tag .pc { display: inline-block; background: #ffffff; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 7px; margin-left: 4px; font: 700 10px/1.5 ui-monospace, Menlo, monospace; }
+    .nv { display: inline-block; background: #ff3d7f; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 7px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; }
+    .pin { font: 12px/1.6 ui-monospace, Menlo, monospace; color: #14142b; background: #ffffff; border: 2px solid #14142b; border-radius: 8px; padding: 10px 14px; max-width: 1420px; margin: 0 0 14px; }
+    .pin.q { border-width: 4px; font-size: 13px; }
+    .pin ul { margin: 4px 0 0; padding-left: 18px; }
+    .scaler { position: relative; overflow: hidden; box-shadow: 0 0 0 1px #14142b; }
+    .scaler > * { transform-origin: 0 0; }
+    .stub { display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 12px; font: 600 12px/1.4 ui-monospace, Menlo, monospace; color: #14142b;
+            background: repeating-linear-gradient(135deg, #e9e3cf 0 10px, #f5f1e3 10px 20px); }
+    .fold { position: absolute; left: 0; right: 0; border-top: 2px dashed #2b7bff; pointer-events: none; }
+    .frm { box-shadow: 0 0 0 1px #14142b; position: relative; overflow: hidden; }
+
+    /* ---- site chrome, PageChrome.astro values (canvas D): 1440 base, the 320 values at 1099 and under ---- */
+    .ch { background: #14142b; font-family: 'Mitr', sans-serif; padding-inline: 18px; }
+    .ch .in { box-sizing: border-box; max-width: 1280px; margin-inline: auto; height: 84px; display: flex; align-items: center; justify-content: space-between; }
+    .ch .brand { font-weight: 700; font-size: 32px; color: #ffcc00; }
+    .ch .pills { display: flex; flex-wrap: wrap; gap: 12px; font-weight: 600; font-size: 17px; }
+    .ch .pill { border-radius: 999px; padding: 9px 20px; color: #14142b; white-space: nowrap; }
+    .ch.ph { padding: 12px 14px; }
+    .ch.ph .in { height: auto; flex-direction: column; align-items: flex-start; justify-content: flex-start; }
+    .ch.ph .brand { font-size: 26px; }
+    .ch.ph .pills { margin-top: 10px; gap: 6px; font-size: 14px; }
+    .ch.ph .pill { padding: 6px 12px; }
+    .ch.ph .pills.rg { row-gap: 10px; }
+    .ch.ph .pills.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 6px; width: 100%; }
+    .ch.ph .pills.grid .pill { text-align: center; }
+    .foot { background: #14142b; height: 72px; display: flex; align-items: center; justify-content: center; font: 700 26px/1 'Mitr', sans-serif; color: #ffcc00; }
+
+    /* ---- setup page, direction A POSTER (Gh302Setup), with the page's own phone values (index.astro) ---- */
+    .su { background: #fff6e0; color: #14142b; font-family: 'Sarabun', sans-serif; }
+    .su .wrap { max-width: 880px; margin: 0 auto; padding: 48px 20px 64px; }
+    .su .wrap.top { padding-bottom: 24px; }
+    .su .crumb { margin: 0 0 16px; font: 400 16px/1.4 'Sarabun', sans-serif; }
+    .su .crumb a { display: inline-flex; align-items: center; min-height: 44px; color: #14142b; }
+    .su .crumb .sep { margin: 0 6px; }
+    .su .back { display: inline-flex; align-items: center; gap: 8px; box-sizing: border-box; min-height: 44px; padding: 0 16px; border-radius: 999px; background: #c9c2ff; border: 2px solid #14142b; color: #14142b; font: 600 16px/1 'Mitr', sans-serif; text-decoration: none; }
+    .su .h1 { margin: 0; font: 700 36px/1.2 'Mitr', sans-serif; }
+    .su .lead { margin: 12px 0 0; font: 400 20px/1.6 'Sarabun', sans-serif; color: #3d3b5c; }
+    .su .ad-slot { margin-top: 40px; height: 100px; display: grid; place-items: center; border: 3px dashed #c9c3a8; border-radius: 12px; color: #3d3b5c; font: 400 14px/1.4 'Sarabun', sans-serif; }
+    .su .step { margin-top: 32px; background: #ffffff; border: 2.5px solid #14142b; border-radius: 20px; box-shadow: 5px 5px 0 #14142b; padding: 20px 16px; }
+    .su .step-h { display: flex; align-items: center; gap: 14px; margin: 0 0 14px; font: 600 24px/1.3 'Mitr', sans-serif; }
+    .su .num { box-sizing: border-box; flex: none; width: 40px; height: 40px; border-radius: 50%; background: #ffcc00; border: 2.5px solid #14142b; display: grid; place-items: center; font: 700 20px/1 'Mitr', sans-serif; }
+    .su .hint { margin: 0 0 12px; font: 400 16px/1.55 'Sarabun', sans-serif; color: #3d3b5c; }
+    .su .field, .su .ta, .su .val, .su .sb, .su .btn2 { border: 2.5px solid #14142b; border-radius: 12px; background: #ffffff; color: #14142b; }
+    .su .field { box-sizing: border-box; width: 100%; height: 52px; display: flex; align-items: center; padding: 0 16px; font: 400 18px/1 'Sarabun', sans-serif; }
+    .su .ta { box-sizing: border-box; width: 100%; height: 130px; padding: 12px 16px; font: 400 18px/1.6 'Sarabun', sans-serif; white-space: pre; overflow: hidden; }
+    .su .count { margin-top: 8px; display: flex; justify-content: space-between; gap: 12px; font: 400 16px/1.4 'Sarabun', sans-serif; color: #3d3b5c; }
+    .su .count b { color: #14142b; white-space: nowrap; }
+    .su .count b.err { outline: 3px solid #ff3d7f; outline-offset: 2px; border-radius: 4px; }
+    .su .sched { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; }
+    .su .box { width: 118px; text-align: center; }
+    .su .val { box-sizing: border-box; width: 100%; height: 64px; display: grid; place-items: center; font: 700 30px/1 'Mitr', sans-serif; }
+    .su .val.lock { background: #fff6e0; border-style: dashed; }
+    .su .lab { margin-top: 6px; font: 400 16px/1.35 'Sarabun', sans-serif; color: #3d3b5c; }
+    .su .arr { height: 64px; display: grid; place-items: center; color: #14142b; }
+    .su .vs { display: flex; flex-direction: column; }
+    .su .vrow { display: grid; grid-template-columns: 1fr 118px; gap: 12px; align-items: center; }
+    .su .vrow .lab { margin: 0; }
+    .su .varr { display: grid; grid-template-columns: 1fr 118px; gap: 12px; height: 26px; }
+    .su .varr svg { justify-self: center; transform: rotate(90deg); }
+    .su .row2 { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
+    .su .row2 .hint { margin: 0; }
+    .su .btn2 { box-sizing: border-box; height: 52px; padding: 0 20px; display: inline-grid; place-items: center; font: 600 18px/1 'Mitr', sans-serif; }
+    .su .stepper { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .su .sb { box-sizing: border-box; flex: none; width: 48px; height: 48px; display: grid; place-items: center; font: 700 24px/1 'Mitr', sans-serif; }
+    .su .sv { min-width: 48px; text-align: center; font: 700 32px/1 'Mitr', sans-serif; }
+    .su .sx { font: 400 16px/1.4 'Sarabun', sans-serif; color: #3d3b5c; }
+    .su .prize { display: grid; grid-template-columns: 1fr; gap: 6px; align-items: center; margin-top: 10px; }
+    .su .pl { font: 600 17px/1.3 'Mitr', sans-serif; }
+    .su .go { margin-top: 40px; box-sizing: border-box; width: 100%; height: 64px; display: grid; place-items: center; background: #ffcc00; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 5px 5px 0 #14142b; color: #14142b; font: 700 24px/1 'Mitr', sans-serif; }
+    /* error rows (setup-page.ts errorRow, the board's emsg) */
+    .su .emsg { display: flex; gap: 8px; align-items: flex-start; margin-top: 14px; font: 700 16px/1.5 'Sarabun', sans-serif; color: #14142b; }
+    .su .emsg svg { flex: none; margin-top: 1px; }
+    .su .emsg-body { min-width: 0; }
+    .su .emsg-name, .su .emsg-why { display: block; }
+    .su .emsg-name { overflow-wrap: anywhere; }
+    .su .soft .emsg-why { font-weight: 400; color: #3d3b5c; }
+    .su .nchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .su .nchip { box-sizing: border-box; max-width: 100%; overflow-wrap: anywhere; padding: 2px 10px; border: 2px solid #14142b; border-radius: 999px; background: #ffffff; font: 400 14px/1.4 'Sarabun', sans-serif; }
+
+    /* ---- the category page's event card, CatCompany-partyPop A values (incl. the stacked amendment) ---- */
+    .cp { background: #fff6e0; color: #14142b; font-family: 'Sarabun', sans-serif; box-sizing: border-box; padding: 32px 18px 40px; }
+    .cp .kicker { margin: 0 0 20px; font: 500 18px/1.3 'Mitr', sans-serif; letter-spacing: 1px; color: #3d3b5c; }
+    .cp .gc { display: flex; gap: 12px; padding: 22px; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 4px 4px 0 0 #14142b; box-sizing: border-box; background: #c9c2ff; color: #14142b; }
+    .cp .gc h3 { margin: 0; font: 600 30px/1.3 'Mitr', sans-serif; }
+    .cp .gc p { margin: 0; font-size: 16px; line-height: 1.65; }
+    .cp .gc.row { flex-direction: row; align-items: center; gap: 28px; }
+    .cp .gc.row p { font-size: 17px; }
+    .cp .gc.col { flex-direction: column; align-items: stretch; gap: 16px; }
+    .cp .ev-copy { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .cp .go { flex: none; display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 26px; border-radius: 999px; background: #ffcc00; color: #14142b; border: 2.5px solid #14142b; font: 600 19px/1 'Mitr', sans-serif; box-sizing: border-box; }
+    .cp .ev-copy .go { align-self: flex-start; margin-top: 8px; }
+    .cp .gc.t22 h3 { font-size: 22px; }
+    .cp .art { display: block; width: 100%; height: 160px; object-fit: contain; object-position: center; }
+    .cp .gc.row .art { flex: none; width: 273px; height: 320px; }
+    .cp .h1ref { margin: 0 0 20px; font: 600 30px/1.2 'Mitr', sans-serif; letter-spacing: -1px; }
+
+    /* ---- projector, direction B NIGHT STAGE (Gh302Projector), authored 1920x1080 ---- */
+    .vp { position: relative; width: 1920px; height: 1080px; background: #14142b; overflow: hidden; }
+    .vp .band { position: absolute; left: 0; right: 0; top: 0; height: 56px; }
+    .pj { position: absolute; width: 1920px; height: 1080px; overflow: hidden; box-sizing: border-box; transform-origin: 0 0; font-family: 'Sarabun', sans-serif; background: linear-gradient(180deg, #14142b 0%, #23214d 100%); color: #ffffff; }
+    .pj .top { height: 96px; display: flex; align-items: center; justify-content: space-between; padding: 0 56px; }
+    .pj .ev { font: 600 36px/1.2 'Mitr', sans-serif; color: #d9d6f0; }
+    .dots { display: flex; align-items: center; gap: 14px; font: 600 30px/1 'Mitr', sans-serif; }
+    .dots .rl { margin-right: 14px; }
+    .dots i { box-sizing: border-box; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #d9d6f0; }
+    .dots i.done { background: #d9d6f0; }
+    .dots i.on { background: #ffcc00; border-color: #ffcc00; box-shadow: 0 0 18px rgba(255,204,0,0.45); }
+    .dots i.fin { width: 36px; border-radius: 999px; }
+    .pj .stage { position: absolute; left: 56px; right: 56px; top: 96px; height: 724px; display: grid; grid-template-columns: repeat(10, 1fr); grid-auto-rows: 32px; gap: 4px 10px; align-content: center; }
+    .chip { display: flex; align-items: center; justify-content: center; white-space: nowrap; overflow: hidden; font: 400 20px/1 'Sarabun', sans-serif; border-radius: 999px; background: #23214d; color: #ffffff; padding: 0 8px; }
+    .chip.in { font-weight: 700; background: #ffcc00; color: #14142b; box-shadow: 0 0 16px rgba(255,204,0,0.45); }
+    .chip.out { text-decoration: line-through; background: transparent; color: #9a97c0; box-shadow: inset 0 0 0 2px #23214d; }
+    .chip.wrap { white-space: normal; text-align: center; line-height: 1.05; overflow-wrap: anywhere; }
+    .chip.span2 { grid-column: span 2; }
+    .pj .low { position: absolute; left: 56px; right: 56px; bottom: 30px; height: 220px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 40px; }
+    .lk { font: 600 30px/1.35 'Mitr', sans-serif; color: #d9d6f0; }
+    .gname { font: 700 50px/1.2 'Mitr', sans-serif; color: #ffcc00; }
+    .flow { display: flex; align-items: center; gap: 28px; font: 700 150px/1 'Mitr', sans-serif; }
+    .flow .to { color: #ffcc00; text-shadow: 0 0 24px rgba(255,204,0,0.45); }
+    .flow small { font: 600 44px/1 'Mitr', sans-serif; color: #d9d6f0; }
+    .rt { text-align: right; }
+    /* the MC's control, play.css .pd-go values: real pixels, outside the scaled frame */
+    .mc { position: absolute; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 52px; padding: 0 32px; border: 0; border-radius: 999px; background: #ffcc00; color: #14142b; font: 600 22px/1.35 'Mitr', sans-serif; }
+    .mc.ghost { background: transparent; color: #ffcc00; border: 3px solid #ffcc00; }
+    .strip { position: relative; width: 1920px; background: linear-gradient(180deg, #14142b 0%, #23214d 100%); padding: 24px 56px; box-sizing: border-box; }
+    .strip .stage { display: grid; grid-template-columns: repeat(10, 1fr); grid-auto-rows: 32px; gap: 4px 10px; }
+    .strip .note { margin-top: 18px; font: 600 30px/1.35 'Mitr', sans-serif; color: #d9d6f0; }
+
+    /* ---- the projector route at phone width (item 5), B NIGHT STAGE values at phone sizes ---- */
+    .ph5 { position: relative; width: 320px; background: linear-gradient(180deg, #14142b 0%, #23214d 100%); color: #ffffff; font-family: 'Sarabun', sans-serif; overflow: hidden; }
+    .ph5 .band { height: 56px; }
+    .ph5 .body { padding: 16px 16px 96px; }
+    .ph5 .ev { margin: 0; font: 600 22px/1.2 'Mitr', sans-serif; color: #d9d6f0; }
+    .ph5 .dots { margin-top: 12px; gap: 10px; font-size: 16px; }
+    .ph5 .dots .rl { white-space: nowrap; margin-right: 4px; }
+    .ph5 .flow { margin-top: 18px; gap: 12px; font-size: 50px; }
+    .ph5 .flow small { font-size: 18px; }
+    .ph5 .lk { margin-top: 14px; font-size: 16px; }
+    .ph5 .gname { font-size: 22px; }
+    .ph5 .stage { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 32px; gap: 4px 10px; }
+    .ph5 .chip { font-size: 16px; }
+    .ph5 .msg { margin: 22px 0 0; font: 400 16px/1.55 'Sarabun', sans-serif; color: #d9d6f0; }
+    .ph5 .mc { left: 24px; }
+  </style>
+</helmet>
+
+<div style="width: 2040px; background: #ffffff; color: #14142b;">
+
+  <div style="padding: 30px 34px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#314 · prize draw · frames for what gh#304 built with no board frame · proposal canvas · AWAITING THE OWNER'S PICKS</div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;">Order (ADR-0033): owner picks, canvas, code. Code takes its design values only from the option picked here. Five items, taken by the owner on 2026-11-13 from gh#304's list. Each item: one frame where the answer is obvious, options A/B/C where there is a real choice, each with a one-line caption saying what differs. "AS BUILT" marks the option that draws what the code does today (gh#304), so picking it ratifies the code. Every Thai string in a frame already ships in src/ or sits on a picked board, verbatim; [copy: owner] marks a string that exists nowhere. Values: tokens.css or a picked board (Gh302Setup A, Gh302Projector B, CatCompany-partyPop A, Gh303Home A); a value from neither carries a <span class="nv">NEW VALUE</span> tag. Rules: ui-ux-pro-max 2.13.0, rules only (Touch Target Size, Touch Spacing, Readable Font Size, Horizontal Scroll, Reduced Motion, Excessive Motion, Essential Text Truncation, Compact Label Overflow), never its palette or fonts.</div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;"><div class="pin q"><b>DECISIONS FOR THE OWNER (one pick per question; "rec" is a recommendation, not a pick):</b><ul>
+  <li><b>1a. The MC button</b> (frames i1-mc): A bottom-left over the frame, as built · B in the play band's right end, off the frame · C bottom-left, gold outline instead of gold fill. rec B: it never covers the projected frame.</li>
+  <li><b>1b. The setup page below 640px</b> (frames i1-setup): A as built (the schedule wraps to one box per line) · B the schedule as a vertical list. rec B.</li>
+  <li><b>1c. The setup page's back link</b> (frames i1-back): A as built (the category name, underlined) · B the category page's own crumb trail · C a lilac pill with a back arrow. rec B.</li>
+  <li><b>1d. The wave step</b> (frames i1-wave): A 4ms per name, as built · B the whole wave spread over --motion-scroll 450ms for any head count · C no stagger. rec B.</li>
+  <li><b>1e. A refused name's row</b> (frames i1-refused): A as built (name over reason, both bold) · B the reason in regular muted text · C rows grouped by reason. rec B.</li>
+  <li><b>2. The 4th chrome pill, site-wide</b> (frames i2-pills): desktop is one row on both options · at 320: A the 4th pill wraps alone · B a 2 x 2 grid (one row at 320 measured impossible: 12px of text room). rec B.</li>
+  <li><b>3. The event card under 1099px</b> (frames i3-event): A as built (stacked at 1099 and under) · B a row down to 640, stacked under 640 · C stacked, title at the game cards' 22px. rec C.</li>
+  <li><b>4. Name fit</b> (frames i4-fit): A as built (the widest name wraps to two lines in its chip at 14px) · B a lower floor, 9px · C a name past the floor takes two cells at 20px. rec A.</li>
+  <li><b>5. The projector at phone width</b> (frames i5-phone): A as built (the whole frame scaled) · B a phone layout, names in two columns · C the MC's view, no names. rec B.</li>
+</ul></div></div>
+  </div>
+
+  <!-- ================================================================== ITEM 1 -->
+  <div class="brow">
+    <h2>ITEM 1 · LAYOUTS BUILT WITH NO BOARD FRAME</h2>
+    <p class="why">Five layouts gh#304 shipped from the boards' vocabulary with no frame of their own (gh#304 evidence README, "Gaps for the owner"). Each sub-item is its own pick.</p>
+
+    <h3>1a · THE MC BUTTON · the projector route at 1920 x 1080, shown at 50%</h3>
+    <p class="why">As built (play.css .pd-go): a gold 999px pill, 52px tall, 22px Mitr 600, in real pixels outside the scaled frame, so its tap size never shrinks; labels <b>เปิดผล</b> and <b>รอบต่อไป</b> (stage.ts). The frame is fitted under the 56px play band and centred (reveal.ts fitFrame): at 1920 x 1080 it scales to 0.948 and sits 50px in from each side. Drawn on proj-round, whose low row's left cell holds the round's game (gh#305 fills it). Touch Target Size: 52px on every option.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A · AS BUILT</span> · i1-mc · 1920 · bottom-left, 24px in, over the low row's left cell</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i1-mc" data-dir="A" data-width="1920" style="transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-proj="round" style="left:50px; top:56px; transform: scale(0.948);"></div><span class="mc" style="left:24px; bottom:24px;">เปิดผล</span></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i1-mc · 1920 · the play band's right end, never over the projected frame</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i1-mc" data-dir="B" data-width="1920" style="transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-proj="round" style="left:50px; top:56px; transform: scale(0.948);"></div><span class="mc" style="right:24px; top:2px;">เปิดผล</span></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">C</span> · i1-mc · 1920 · bottom-left as A, gold outline and gold text on the night ground</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="vp" data-frame="i1-mc" data-dir="C" data-width="1920" style="transform: scale(0.5);"><div class="band stub">play band 56px (PlayExit, unchanged)</div><div class="pj" data-proj="round" style="left:50px; top:56px; transform: scale(0.948);"></div><span class="mc ghost" style="left:24px; bottom:24px;">เปิดผล</span></div></div></div>
+    </div>
+
+    <h3>1b · THE SETUP PAGE BELOW 640px · 320</h3>
+    <p class="why">The board draws 1280 only. As built under 640px (index.astro): h1 36px, ad slot 100px tall with 14px text, step cards padded 20px 16px, prize label above its field; everything else the 1280 values. Frame A is drawn with the page's own rules, so its schedule wraps exactly as the page's flex-wrap does. B changes step 3 only; steps 1, 2 and 4 are A's. Horizontal Scroll: 0px sideways on both.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A · AS BUILT</span> · i1-setup · 320 · the 1280 schedule row wraps to one box and its arrow per line (measured on this frame)</div>
+        <div class="frm su" data-frame="i1-setup" data-dir="A" data-width="320" style="width:320px;">
+          <div class="stub" style="height:110px;">site chrome (item 2)</div>
+          <div class="wrap">
+            <p class="crumb"><a href="#">เกมงานเลี้ยงบริษัท</a></p>
+            <h1 class="h1">จับรางวัลปีใหม่</h1>
+            <p class="lead">คัดออกทีละรอบจนเหลือ 5 คนสุดท้าย แล้วชิงรางวัลบนจอใหญ่ ทุกคนมีโอกาสเท่ากันทุกรอบ</p>
+            <div class="ad-slot">ช่องโฆษณา</div>
+            <section class="step"><h2 class="step-h"><span class="num">1</span>ชื่องาน</h2><p class="hint">ขึ้นบนจอใหญ่ตลอดงาน</p><div class="field">ปาร์ตี้ปีใหม่ 2570</div></section>
+            <section class="step"><h2 class="step-h"><span class="num">2</span>รายชื่อคนในงาน</h2><p class="hint">ใส่เฉพาะคนที่มาถึงงานแล้ว ใช้จอใหญ่จอเดียว ไม่ต้องใช้มือถือ</p><div class="ta">ออม ท.
+พลอย ส.
+บีม ก.
+นุ่น ท.</div><div class="count"><span>ชื่อเล่นหรือชื่อจริงก็ได้ บรรทัดละ 1 ชื่อ</span><b>200 ชื่อ</b></div></section>
+            <section class="step" data-sched="wrap"><h2 class="step-h"><span class="num">3</span>ตารางคัดออก</h2><p class="hint">ระบบเสนอให้จากจำนวนคน แก้ตัวเลขได้ก่อนเริ่มงาน 4 รอบคัดออก แล้วรอบชิง 5 คน</p></section>
+            <section class="step"><h2 class="step-h"><span class="num">4</span>รางวัล</h2><div class="stepper"><span class="sb">−</span><span class="sv">5</span><span class="sb">+</span><span class="sx">รางวัล (1 ถึง 5)</span></div><p class="hint">ตั้งชื่อรางวัลที่จะขึ้นจอ</p><div class="prize"><span class="pl">รางวัลที่ 1</span><div class="field"></div></div><div class="prize"><span class="pl">รางวัลที่ 2</span><div class="field"></div></div></section>
+            <div class="go">เริ่มงาน</div>
+          </div>
+        </div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i1-setup · 320 · step 3 as a vertical list: each stage's name left, its box right, an arrow down between</div>
+        <div class="frm su" data-frame="i1-setup" data-dir="B" data-width="320" style="width:320px;">
+          <div class="stub" style="height:56px;">steps 1 and 2 as A</div>
+          <div class="wrap" style="padding-top:0;">
+            <section class="step" data-sched="list"><h2 class="step-h"><span class="num">3</span>ตารางคัดออก</h2><p class="hint">ระบบเสนอให้จากจำนวนคน แก้ตัวเลขได้ก่อนเริ่มงาน 4 รอบคัดออก แล้วรอบชิง 5 คน</p></section>
+          </div>
+          <div class="stub" style="height:56px;">step 4 and the start button as A</div>
+        </div></div>
+    </div>
+
+    <h3>1c · THE SETUP PAGE'S BACK LINK · 320 (the same at 1280)</h3>
+    <p class="why">As built: the category's label, underlined, 16px, its link box 44px tall (Touch Target Size). B reuses the crumb the category page shows ("หน้าแรก · เกมงานเลี้ยงบริษัท", CatCompany-partyPop), both parts linked. C reuses the lilac accent with the setup board's 2px ink outline; the arrow is the boards' arrow, mirrored. The link sits in static page chrome, above the form: not a play surface.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A · AS BUILT</span> · i1-back · 320 · the category name, underlined</div>
+        <div class="frm su" data-frame="i1-back" data-dir="A" data-width="320" style="width:320px;"><div class="wrap top"><p class="crumb"><a href="#">เกมงานเลี้ยงบริษัท</a></p><h1 class="h1">จับรางวัลปีใหม่</h1></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i1-back · 320 · the category page's crumb trail, two links</div>
+        <div class="frm su" data-frame="i1-back" data-dir="B" data-width="320" style="width:320px;"><div class="wrap top"><p class="crumb"><a href="#">หน้าแรก</a><span class="sep">·</span><a href="#">เกมงานเลี้ยงบริษัท</a></p><h1 class="h1">จับรางวัลปีใหม่</h1></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">C</span> · i1-back · 320 · a lilac pill with a back arrow, 44px</div>
+        <div class="frm su" data-frame="i1-back" data-dir="C" data-width="320" style="width:320px;"><div class="wrap top"><p class="crumb"><a class="back" href="#"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12H5M11 5.5L4.5 12l6.5 6.5" fill="none" stroke="#14142b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>เกมงานเลี้ยงบริษัท</a></p><h1 class="h1">จับรางวัลปีใหม่</h1></div></div></div>
+    </div>
+
+    <h3>1d · THE WAVE STEP · proj-reveal at 1920, shown at 50%, a snapshot 300ms after the press</h3>
+    <p class="why">The reveal marks each name in roster order; each chip's colour change runs --motion-reveal 280ms after a delay of its index x the step. Chips drawn marked have started by 300ms (drawn at their end state). Reduced motion is unchanged on every option: one --motion-rm-fade 200ms fade (ADR-0046). Excessive Motion: one moving element per view, the wave.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A · AS BUILT</span> · i1-wave · 1920 · 4ms per name <span class="nv">NEW VALUE: 4ms</span>: at 196 names the last chip starts at 780ms and settles at 1060ms; at 9 names the whole wave is 32ms, so it reads as one flash</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="pj" data-frame="i1-wave" data-dir="A" data-width="1920" data-proj="reveal" data-step="4ms" data-started="76" style="transform: scale(0.5); position: relative;"></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i1-wave · 1920 · the wave spans --motion-scroll 450ms whatever the head count: step = 450ms / (names - 1), 2.3ms at 196, 56ms at 9; every chip settles by 730ms</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="pj" data-frame="i1-wave" data-dir="B" data-width="1920" data-proj="reveal" data-step="450ms/n" data-started="131" style="transform: scale(0.5); position: relative;"></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">C</span> · i1-wave · 1920 · no stagger: every chip changes together over --motion-reveal 280ms</div>
+        <div class="scaler" style="width:960px; height:540px;"><div class="pj" data-frame="i1-wave" data-dir="C" data-width="1920" data-proj="reveal" data-step="none" data-started="196" style="transform: scale(0.5); position: relative;"></div></div></div>
+    </div>
+
+    <h3>1e · A REFUSED NAME'S ROW · the names step at 320</h3>
+    <p class="why">Roster drawn: a 13-letter name (too long) and a name typed twice (taken), so the head-count line shows too. As built (setup-page.ts errorRow): the board's error icon, then the name over its reason in one column, both 700 16px ink; the name breaks anywhere rather than push the page sideways (measured at 320 in gh#304: 0px sideways). Every reason string is the owner-approved REFUSAL_COPY.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A · AS BUILT</span> · i1-refused · 320 · name over reason, both bold ink</div>
+        <div class="frm su" data-frame="i1-refused" data-dir="A" data-width="320" style="width:320px;"><div class="wrap" style="padding-block:16px 24px;"><section class="step" style="margin-top:0;" data-refused="rows"></section></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i1-refused · 320 · the reason in regular weight, muted: the name is what the eye finds first</div>
+        <div class="frm su" data-frame="i1-refused" data-dir="B" data-width="320" style="width:320px;"><div class="wrap soft" style="padding-block:16px 24px;"><section class="step" style="margin-top:0;" data-refused="rows"></section></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">C</span> · i1-refused · 320 · one row per reason, its names as small outlined chips under it</div>
+        <div class="frm su" data-frame="i1-refused" data-dir="C" data-width="320" style="width:320px;"><div class="wrap" style="padding-block:16px 24px;"><section class="step" style="margin-top:0;" data-refused="grouped"></section></div></div></div>
+    </div>
+  </div>
+
+  <!-- ================================================================== ITEM 2 -->
+  <div class="brow">
+    <h2>ITEM 2 · THE 4TH CHROME PILL · site-wide (PageChrome.astro)</h2>
+    <p class="why">The pill "งานเลี้ยงบริษัท" in lilac with ink text, as cat-1440 drew it (CatCompany-partyPop A), now on every page that carries the chrome. Drawn on a generic page (the body is a stub: only the chrome changes) and on the prize-draw setup page. <b>Desktop (1100 and up)</b>: one row of four on every option, the 1440 values. <b>1099 and under</b> the chrome takes the 320 values (brand above the pills, 14px, 6px gaps), and at 320 four pills do not fit one row, hence the options. At 640 to 1099 the four fit one row on A; B keeps its grid at every width under 1100. <b>Not offered: one row at 320.</b> Measured on this canvas with the 320 values, the three existing pills and their gaps leave 36px for a 4th pill, 12px of it for text once its padding is taken: no label fits, so a shorter label cannot save one row. Touch Spacing: each pill's invisible 44px hit area (gh#263) reaches 5px above and below it, so two rows 6px apart would overlap by 4px; A and B open the row gap to 10px (the projector field's gap value).</p>
+    <div class="cands col">
+      <div class="cand"><div class="tag"><span class="d">ALL OPTIONS</span> · i2-pills · 1440 · a generic page</div>
+        <div class="frm" data-frame="i2-pills-generic-1440" data-dir="ALL" data-width="1440" style="width:1440px;"><div class="ch"><div class="in"><span class="brand">วัดดวง</span><span class="pills"><span class="pill" style="background:#ffcc00;">ดูดวง</span><span class="pill" style="background:#ff3d7f;">สุ่มคนโดน</span><span class="pill" style="background:#2b7bff;">เครื่องมือสุ่ม</span><span class="pill" style="background:#c9c2ff;">งานเลี้ยงบริษัท</span></span></div></div><div class="stub" style="height:90px;">page body (unchanged)</div><div class="foot">วัดดวง</div></div></div>
+      <div class="cand"><div class="tag"><span class="d">ALL OPTIONS</span> · i2-pills · 1440 · the prize-draw setup page</div>
+        <div class="frm" data-frame="i2-pills-prize-1440" data-dir="ALL" data-width="1440" style="width:1440px;"><div class="ch"><div class="in"><span class="brand">วัดดวง</span><span class="pills"><span class="pill" style="background:#ffcc00;">ดูดวง</span><span class="pill" style="background:#ff3d7f;">สุ่มคนโดน</span><span class="pill" style="background:#2b7bff;">เครื่องมือสุ่ม</span><span class="pill" style="background:#c9c2ff;">งานเลี้ยงบริษัท</span></span></div></div><div class="su"><div class="wrap top"><p class="crumb"><a href="#">เกมงานเลี้ยงบริษัท</a></p><h1 class="h1" style="font-size:48px;">จับรางวัลปีใหม่</h1></div></div></div></div>
+    </div>
+    <div class="cands" style="margin-top:28px;">
+      <div class="cand"><div class="tag"><span class="d">A</span> · i2-pills · 320 · generic · flex-wrap as the chrome already does: the 4th pill wraps alone, row gap 10px</div>
+        <div class="frm" data-frame="i2-pills-generic-320" data-dir="A" data-width="320" style="width:320px;"><div class="ch ph"><div class="in"><span class="brand">วัดดวง</span><span class="pills rg" data-pills="4"></span></div></div><div class="stub" style="height:90px;">page body (unchanged)</div></div></div>
+      <div class="cand"><div class="tag"><span class="d">A</span> · i2-pills · 320 · prize-draw</div>
+        <div class="frm" data-frame="i2-pills-prize-320" data-dir="A" data-width="320" style="width:320px;"><div class="ch ph"><div class="in"><span class="brand">วัดดวง</span><span class="pills rg" data-pills="4"></span></div></div><div class="su"><div class="wrap top"><p class="crumb"><a href="#">เกมงานเลี้ยงบริษัท</a></p><h1 class="h1">จับรางวัลปีใหม่</h1></div></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i2-pills · 320 · generic · a 2 x 2 grid, equal widths, gaps 10px x 6px</div>
+        <div class="frm" data-frame="i2-pills-generic-320" data-dir="B" data-width="320" style="width:320px;"><div class="ch ph"><div class="in"><span class="brand">วัดดวง</span><span class="pills grid" data-pills="4"></span></div></div><div class="stub" style="height:90px;">page body (unchanged)</div></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i2-pills · 320 · prize-draw</div>
+        <div class="frm" data-frame="i2-pills-prize-320" data-dir="B" data-width="320" style="width:320px;"><div class="ch ph"><div class="in"><span class="brand">วัดดวง</span><span class="pills grid" data-pills="4"></span></div></div><div class="su"><div class="wrap top"><p class="crumb"><a href="#">เกมงานเลี้ยงบริษัท</a></p><h1 class="h1">จับรางวัลปีใหม่</h1></div></div></div></div>
+    </div>
+  </div>
+
+  <!-- ================================================================== ITEM 3 -->
+  <div class="brow">
+    <h2>ITEM 3 · THE EVENT CARD UNDER 1099px · /c/company-party/</h2>
+    <p class="why">The board drew the card at 1440 (a row: art 273 x 320, copy, gold call to action at the right). Its AMENDMENT frames cat-event-1099 and cat-event-320 placed the art only and carried the live page's own break values (column, stretch, 16px gap, body 16px); nobody chose the stacking itself. Under 1099 the page h1 drops to 30px, the same size as the card's 30px title (drawn above each frame for reference). Touch Target Size: the call to action is 52px tall on every option.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A · AS BUILT</span> · i3-event · 640 · stacked: art above the copy, call to action full width</div>
+        <div class="frm cp" data-frame="i3-event" data-dir="A" data-width="640" style="width:640px;" data-ev="col"></div></div>
+      <div class="cand"><div class="tag"><span class="d">A · AS BUILT</span> · i3-event · 375 · the same</div>
+        <div class="frm cp" data-frame="i3-event" data-dir="A" data-width="375" style="width:375px;" data-ev="col"></div></div>
+      <div class="cand"><div class="tag"><span class="d">C</span><span class="d">rec</span> · i3-event · 375 · stacked as A, the title at the game cards' 22px, under the page h1</div>
+        <div class="frm cp" data-frame="i3-event" data-dir="C" data-width="375" style="width:375px;" data-ev="col t22"></div></div>
+    </div>
+    <div class="cands" style="margin-top:28px;">
+      <div class="cand"><div class="tag"><span class="d">B</span> · i3-event · 1099 · the 1440 row kept down to 640</div>
+        <div class="frm cp" data-frame="i3-event" data-dir="B" data-width="1099" style="width:1099px;" data-ev="row"></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span> · i3-event · 640 · still a row, the call to action under the copy; under 640, A's stack</div>
+        <div class="frm cp" data-frame="i3-event" data-dir="B" data-width="640" style="width:640px;" data-ev="row under"></div></div>
+    </div>
+  </div>
+
+  <!-- ================================================================== ITEM 4 -->
+  <div class="brow">
+    <h2>ITEM 4 · NAME FIT · three rows of proj-round's field at 1920, shown at 75%</h2>
+    <p class="why">A chip box is 156px wide (field 1808px, 10 columns, 10px gaps, 8px padding each side). Names start at 20px and shrink to the floor (names-dom.ts fitName); this canvas runs the boards' own fit loop live. gh#304 named (DDO + SARA AM) x 12 the widest valid name (316px at 20px); it does not fit at the 14px floor, and W x 12 fits at 15px. <b>Found here: it is not the widest.</b> The board's own (THO PHUTHAO + SARA AM) x 12 also passes parseRoster (names.ts, checked 2026-11-13) and is wider: this canvas's fit loop sets DDO's at 11px and THO PHUTHAO's at 9px. Drawn on row 1: W x 12, (DDO + SARA AM) x 12, (THO PHUTHAO + SARA AM) x 12, then a long board name. (The two x 12 test names are test data from the gh#304 evidence, not copy; the DDO one is built from its code points at render, since no file holds it.) Essential Text Truncation: no option clips a name.</p>
+    <div class="cands col">
+      <div class="cand"><div class="tag"><span class="d">A · AS BUILT</span><span class="d">rec</span> · i4-fit · 1920 · past the 14px floor the name wraps to two lines inside its 32px chip (14px x 1.05 x 2 = 29.4px): whole, readable, the grid unchanged</div>
+        <div class="scaler" style="width:1440px; height:114px;"><div class="strip" data-frame="i4-fit" data-dir="A" data-width="1920" data-fit="wrap" data-floor-px="14px" style="transform: scale(0.75);"></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span> · i4-fit · 1920 · floor lowered to <span class="nv">NEW VALUE: 9px</span>, what the widest name needs (DDO's lands at 11px): one line, but under half the 20px the rest of the field reads at</div>
+        <div class="scaler" style="width:1440px; height:114px;"><div class="strip" data-frame="i4-fit" data-dir="B" data-width="1920" data-fit="shrink" data-floor-px="9px" style="transform: scale(0.75);"></div></div></div>
+      <div class="cand"><div class="tag"><span class="d">C</span> · i4-fit · 1920 · a name past the floor takes two cells (337px) at 20px; at 200 names one extra cell makes a 21st row, 752px, past the 724px field</div>
+        <div class="scaler" style="width:1440px; height:114px;"><div class="strip" data-frame="i4-fit" data-dir="C" data-width="1920" data-fit="span" data-floor-px="14px" style="transform: scale(0.75);"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ================================================================== ITEM 5 -->
+  <div class="brow">
+    <h2>ITEM 5 · THE PROJECTOR AT PHONE WIDTH · 320 x 568 (the blue dashed line is the fold)</h2>
+    <p class="why">As built the 1920 x 1080 frame scales whole to the 320 x 512 left under the play band: scale 0.167, so a 20px name renders 3.3px. B and C are a phone layout under 640px (the tokens.css phone break), in B NIGHT STAGE's colours at the setup and chrome boards' phone sizes; the MC button stays as 1a picks it (drawn bottom-left). Readable Font Size: B's names are 16px, floor 14px. Risk on C: a phone mirrored to a TV would show no names.</p>
+    <div class="cands">
+      <div class="cand"><div class="tag"><span class="d">A · AS BUILT</span> · i5-phone · 320 · the whole frame, scaled</div>
+        <div class="frm" data-frame="i5-phone" data-dir="A" data-width="320" style="width:320px; height:568px; background:#14142b;"><div class="stub" style="height:56px;">play band</div><div class="pj" data-proj="round" style="left:0; top:222px; transform: scale(0.16667);"></div><span class="mc" style="left:24px; bottom:24px;">เปิดผล</span></div></div>
+      <div class="cand"><div class="tag"><span class="d">B</span><span class="d">rec</span> · i5-phone · 320 · round state on top, the names in two columns, the page scrolls; the fixed MC button covers the names behind it while scrolling, and the page ends 96px below the last row so the last row clears it</div>
+        <div class="ph5" data-frame="i5-phone" data-dir="B" data-width="320" style="height:900px;"><div class="band stub">play band</div><div class="body"><p class="ev">ปาร์ตี้ปีใหม่ 2570</p><div class="dots"><span class="rl">รอบที่ 1 จาก 4</span><i class="on"></i><i></i><i></i><i></i><i class="fin"></i></div><div class="flow">196<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h16M13 5.5l6.5 6.5-6.5 6.5" fill="none" stroke="#ffcc00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="to">100</span><small>คน</small></div><div class="lk">เกมรอบนี้</div><div class="gname">พลุนับถอยหลัง</div><div class="stage" data-fill="30"></div></div><div class="fold" style="top:568px;"></div><span class="mc" style="top:492px;">เปิดผล</span></div></div>
+      <div class="cand"><div class="tag"><span class="d">C</span> · i5-phone · 320 · the MC's view: round state only, a line saying the names are on the big screen</div>
+        <div class="ph5" data-frame="i5-phone" data-dir="C" data-width="320" style="height:568px;"><div class="band stub">play band</div><div class="body"><p class="ev">ปาร์ตี้ปีใหม่ 2570</p><div class="dots"><span class="rl">รอบที่ 1 จาก 4</span><i class="on"></i><i></i><i></i><i></i><i class="fin"></i></div><div class="flow">196<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h16M13 5.5l6.5 6.5-6.5 6.5" fill="none" stroke="#ffcc00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="to">100</span><small>คน</small></div><div class="lk">เกมรอบนี้</div><div class="gname">พลุนับถอยหลัง</div><p class="msg">[copy: owner]</p></div><span class="mc" style="bottom:24px;">เปิดผล</span></div></div>
+    </div>
+  </div>
+
+  <div class="brow">
+    <h2>NEW VALUES · values this canvas proposes that no token or picked board holds</h2>
+    <p class="why"><b>4ms</b> (1d A): the wave step as built, a stand-in gh#304 listed for the owner; picking A makes it a board value. <b>9px</b> (4 B): the chip floor. Nothing else on this canvas is new: colours, sizes, radii, borders and shadows are tokens.css or the four picked boards; 10px row gaps (2 A/B) and the outline-only button (1a C: 3px #ffcc00, proj-code's code-card border) reuse existing values in new places.</p>
+  </div>
+
+  <div class="brow">
+    <h2>COPY SOURCES · every Thai string on this canvas exists already, verbatim</h2>
+    <p class="why">Setup strings: src/pages/game/prize-draw/index.astro and src/prize-event/setup-page.ts (REFUSAL_COPY, HEAD_RANGE). MC labels: src/play/prize-draw/stage.ts. Projector strings and roster names: design/Gh302Projector.dc.html. Chrome, crumb and event card: src/components/PageChrome.astro and design/CatCompany-partyPop.dc.html. New copy needed: the MC-view line (5 C), drawn as [copy: owner].</p>
+  </div>
+</div>
+</x-dc>
+<script>
+  // Builds the repeated parts of the frames (chips, schedule, error rows) from verbatim strings.
+  const NAMES = ['ออม ท.', 'พลอย ส.', 'บีม ก.', 'นุ่น ท.', 'โอ๊ต ท.', 'ปาล์ม ก.', 'บีม ท.', 'หมิว พ.', 'พลอย ท.', 'เต้ย ส.', 'ปู ว.', 'ฝน ก.', 'เจน พ.', 'เก่ง พ.', 'น้ำ พ.', 'พลอย ว.', 'เอ็ม พ.', 'ออม ก.', 'ไผ่ ส.', 'เฟิร์น ก.', 'แบม พ.', 'ปู ส.', 'เอ็ม ท.', 'ต่าย ก.', 'ปาล์ม ส.', 'ต้น พ.', 'พลอย พ.', 'ปอ ก.', 'มะปรางหวานใจ', 'ตั้ม ส.', 'เฟิร์น ท.', 'ฟ้า ส.', 'โบ๊ท ท.', 'เต้ย ก.', 'บอส ท.', 'เฟิร์น ว.', 'ฟ้า ท.', 'บอส ส.', 'เก่ง ท.', 'มิว พ.'];
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const passes = (i) => (i * 7) % 196 < 100;
+  const ARROW = '<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h16M13 5.5l6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ICON = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#ff3d7f"/><path d="M12 6v8" stroke="#14142b" stroke-width="3" stroke-linecap="round"/><circle cx="12" cy="18" r="1.7" fill="#14142b"/></svg>';
+  const DDO_AM_12 = String.fromCodePoint(0x0e14, 0x0e33).repeat(12); // gh#304 test name: (DDO + SARA AM) x 12
+
+  // Projector frames: proj-round (196 names, round 1) and proj-reveal snapshots.
+  for (const pj of document.querySelectorAll('[data-proj]')) {
+    const reveal = pj.dataset.proj === 'reveal';
+    const top = el('div', 'top');
+    top.append(el('span', 'ev', 'ปาร์ตี้ปีใหม่ 2570'));
+    const dots = el('span', 'dots'); dots.append(el('span', 'rl', 'รอบที่ 1 จาก 4'));
+    for (const c of ['on', '', '', '', 'fin']) dots.append(el('i', c));
+    top.append(dots);
+    const stage = el('div', 'stage');
+    const started = Number(pj.dataset.started ?? -1);
+    for (let i = 0; i < 196; i++) {
+      let cls = 'chip';
+      if (reveal && i < started) cls += passes(i) ? ' in' : ' out';
+      stage.append(el('span', cls, NAMES[i % NAMES.length]));
+    }
+    const low = el('div', 'low');
+    low.innerHTML = '<div><div class="lk">เกมรอบนี้</div><div class="gname">พลุนับถอยหลัง</div></div><div class="flow">196<svg width="110" height="110" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h16M13 5.5l6.5 6.5-6.5 6.5" fill="none" stroke="#ffcc00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="to">100</span><small>คน</small></div><div class="rt lk">รอบนี้คัดเหลือ<br>100 คน</div>';
+    pj.append(top, stage, low);
+  }
+
+  // Phone field (item 5 B).
+  for (const st of document.querySelectorAll('.ph5 [data-fill]')) {
+    for (let i = 0; i < Number(st.dataset.fill); i++) st.append(el('span', 'chip fit', NAMES[i % NAMES.length]));
+  }
+
+  // Name-fit strips (item 4): three rows of ten.
+  for (const strip of document.querySelectorAll('.strip')) {
+    const mode = strip.dataset.fit;
+    const stage = el('div', 'stage');
+    const row1 = ['WWWWWWWWWWWW', DDO_AM_12, 'ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ', 'มะปรางหวานใจ'];
+    const all = [...row1, ...Array.from({ length: 26 - (mode === 'span' ? 2 : 0) }, (_, i) => NAMES[i % NAMES.length])];
+    all.forEach((n) => {
+      const c = el('span', 'chip fit', n);
+      c.dataset.max = '20';
+      c.dataset.min = parseFloat(strip.dataset.floorPx);
+      if (mode === 'span') c.dataset.span = '1';
+      stage.append(c);
+    });
+    strip.append(stage);
+  }
+
+  // Setup step 3: the schedule, as the page builds it (wrap) or as a list.
+  const SCHED = [['เริ่ม', 200, true], ['หลังรอบ 1', 100], ['หลังรอบ 2', 50], ['หลังรอบ 3', 20], ['รอบชิง', 5, true]];
+  for (const step of document.querySelectorAll('[data-sched]')) {
+    if (step.dataset.sched === 'wrap') {
+      const s = el('div', 'sched');
+      SCHED.forEach(([lab, v, lock], i) => {
+        if (i) { const a = el('div', 'arr'); a.innerHTML = ARROW; s.append(a); }
+        const b = el('div', 'box'); b.append(el('div', 'val' + (lock ? ' lock' : ''), String(v)));
+        const l = el('div', 'lab'); l.append(el('span', null, lab), el('br'), el('span', null, `${v} คน`)); b.append(l); s.append(b);
+      });
+      step.append(s);
+    } else {
+      const s = el('div', 'vs');
+      SCHED.forEach(([lab, v, lock], i) => {
+        if (i) { const a = el('div', 'varr'); a.innerHTML = '<span></span>' + ARROW; s.append(a); }
+        const r = el('div', 'vrow'); r.append(el('div', 'lab', lab), el('div', 'val' + (lock ? ' lock' : ''), String(v))); s.append(r);
+      });
+      step.append(s);
+    }
+    const r2 = el('div', 'row2'); r2.append(el('span', 'btn2', 'ใช้ค่าที่ระบบเสนอ'), el('span', 'hint', 'ช่องเส้นประแก้ไม่ได้ เริ่มตามจำนวนคน จบที่ 5 คนในรอบชิง')); step.append(r2);
+  }
+
+  // Item 1e: the names step with refused rows.
+  const W13 = 'WWWWWWWWWWWWW';
+  for (const step of document.querySelectorAll('[data-refused]')) {
+    step.innerHTML = '<h2 class="step-h"><span class="num">2</span>รายชื่อคนในงาน</h2>';
+    const ta = el('div', 'ta', `ฝน ก.\n${W13}\nฝน ก.`); step.append(ta);
+    const count = el('div', 'count'); count.append(el('span', null, 'ชื่อเล่นหรือชื่อจริงก็ได้ บรรทัดละ 1 ชื่อ')); const b = el('b', 'err', '3 ชื่อ'); count.append(b); step.append(count);
+    const msgs = el('div', 'msgs');
+    const row = (body) => { const r = el('div', 'emsg'); r.innerHTML = ICON; r.append(body); msgs.append(r); };
+    row(el('span', null, 'ใส่ได้ 9 ถึง 200 ชื่อ'));
+    if (step.dataset.refused === 'rows') {
+      for (const [n, why] of [[W13, 'ชื่อยาวเกิน 12 ตัว'], ['ฝน ก.', 'ชื่อนี้ซ้ำกับชื่อที่มีแล้ว']]) {
+        const body = el('div', 'emsg-body'); body.append(el('span', 'emsg-name', n), el('span', 'emsg-why', why)); row(body);
+      }
+    } else {
+      for (const [why, names] of [['ชื่อยาวเกิน 12 ตัว', [W13]], ['ชื่อนี้ซ้ำกับชื่อที่มีแล้ว', ['ฝน ก.']]]) {
+        const body = el('div', 'emsg-body'); body.append(el('span', null, why));
+        const chips = el('div', 'nchips'); names.forEach((n) => chips.append(el('span', 'nchip', n))); body.append(chips); row(body);
+      }
+    }
+    step.append(msgs);
+  }
+
+  // Item 2: the four chrome pills at 320.
+  const PILLS = [['ดูดวง', '#ffcc00'], ['สุ่มคนโดน', '#ff3d7f'], ['เครื่องมือสุ่ม', '#2b7bff'], ['งานเลี้ยงบริษัท', '#c9c2ff']];
+  for (const p of document.querySelectorAll('[data-pills]')) {
+    PILLS.forEach(([t, c]) => { const s = el('span', 'pill', t); s.style.background = c; p.append(s); });
+  }
+
+  // Item 3: the event card.
+  for (const f of document.querySelectorAll('[data-ev]')) {
+    const mode = f.dataset.ev.split(' ');
+    const rowMode = mode.includes('row');
+    f.innerHTML = '<p class="h1ref">เกมงานเลี้ยงบริษัท</p><h2 class="kicker">เกมในหมวดนี้</h2>';
+    const card = el('div', 'gc ' + (rowMode ? 'row' : 'col') + (mode.includes('t22') ? ' t22' : ''));
+    const img = el('img', 'art'); img.src = '../public/art/prize-draw.webp'; img.width = 273; img.height = 320; img.alt = '';
+    const copy = el('div', 'ev-copy');
+    copy.innerHTML = '<h3>จับรางวัลปีใหม่</h3><p><span>คัดออกทีละรอบจนเหลือ 5 คนสุดท้าย แล้วชิงรางวัลบน<span style="white-space: nowrap;">จอใหญ่</span></span></p>';
+    const go = el('span', 'go'); go.innerHTML = 'เริ่มจัดงาน<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h16M13 5.5l6.5 6.5-6.5 6.5" fill="none" stroke="#14142b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    if (mode.includes('under')) { copy.append(go); card.append(img, copy); } else card.append(img, copy, go);
+    f.append(card);
+  }
+
+  // The boards' fit loop (Gh302Projector, CatCompany-partyPop): shrink to the floor, then wrap. In span
+  // mode a name that misses the floor takes two cells at its full size instead.
+  const tw = (e) => { const g = document.createRange(); g.selectNodeContents(e); const rs = [...g.getClientRects()].filter((x) => x.width > 0); return rs.length ? Math.max(...rs.map((x) => x.right)) - Math.min(...rs.map((x) => x.left)) : 0; };
+  const cw = (e) => { const cs = getComputedStyle(e); return (e.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) * (e.getBoundingClientRect().width / e.offsetWidth); };
+  document.fonts.ready.then(() => {
+    for (const e of document.querySelectorAll('.fit')) {
+      const max = parseFloat(e.dataset.max ?? getComputedStyle(e).fontSize); const min = parseFloat(e.dataset.min ?? 14);
+      let px = max; e.style.fontSize = px + 'px';
+      while (tw(e) * 1.02 > cw(e) && px > min) { px -= 1; e.style.fontSize = px + 'px'; }
+      if (tw(e) * 1.02 > cw(e)) {
+        if (e.dataset.span) { e.classList.add('span2'); e.style.fontSize = max + 'px'; }
+        else e.classList.add('wrap');
+      }
+      e.dataset.fitPx = e.style.fontSize;
+    }
+    document.documentElement.dataset.fitDone = '1';
+  });
+</script>
+</body>
+</html>

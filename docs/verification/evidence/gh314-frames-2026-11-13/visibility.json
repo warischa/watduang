@@ -1,0 +1,426 @@
+[
+ {
+  "page": "/c/company-party/",
+  "width": 320,
+  "before": {
+   "opacity": "0",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "transform, box-shadow",
+   "img": {
+    "complete": true,
+    "naturalWidth": 273,
+    "src": "http://localhost:4344/art/prize-draw.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 1138.5625,
+    "h": 381.375,
+    "w": 284
+   },
+   "ancestorsNotPlain": [
+    {
+     "tag": "A",
+     "cls": "game-card game-card-event ui-press reveal-pending",
+     "opacity": "0",
+     "visibility": "visible",
+     "display": "flex"
+    },
+    {
+     "tag": "SECTION",
+     "cls": "reveal-pending",
+     "opacity": "0",
+     "visibility": "visible",
+     "display": "block"
+    }
+   ],
+   "scrollY": 0,
+   "innerHeight": 800
+  },
+  "animationsLeft": 0,
+  "waitedMs": 826,
+  "after": {
+   "opacity": "1",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "transform, box-shadow",
+   "img": {
+    "complete": true,
+    "naturalWidth": 273,
+    "src": "http://localhost:4344/art/prize-draw.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 1106.5625,
+    "h": 381.375,
+    "w": 284
+   },
+   "ancestorsNotPlain": [],
+   "scrollY": 929,
+   "innerHeight": 800
+  },
+  "file": "c-company-party-320-card-visible.png"
+ },
+ {
+  "page": "/c/company-party/",
+  "width": 640,
+  "before": {
+   "opacity": "0",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "transform, box-shadow",
+   "img": {
+    "complete": true,
+    "naturalWidth": 273,
+    "src": "http://localhost:4344/art/prize-draw.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 994.578125,
+    "h": 354.984375,
+    "w": 604
+   },
+   "ancestorsNotPlain": [
+    {
+     "tag": "A",
+     "cls": "game-card game-card-event ui-press reveal-pending",
+     "opacity": "0",
+     "visibility": "visible",
+     "display": "flex"
+    },
+    {
+     "tag": "SECTION",
+     "cls": "reveal-pending",
+     "opacity": "0",
+     "visibility": "visible",
+     "display": "block"
+    }
+   ],
+   "scrollY": 0,
+   "innerHeight": 800
+  },
+  "animationsLeft": 0,
+  "waitedMs": 870,
+  "after": {
+   "opacity": "1",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "transform, box-shadow",
+   "img": {
+    "complete": true,
+    "naturalWidth": 273,
+    "src": "http://localhost:4344/art/prize-draw.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 962.578125,
+    "h": 354.984375,
+    "w": 604
+   },
+   "ancestorsNotPlain": [],
+   "scrollY": 772,
+   "innerHeight": 800
+  },
+  "file": "c-company-party-640-card-visible.png"
+ },
+ {
+  "page": "/c/company-party/",
+  "width": 1440,
+  "before": {
+   "opacity": "0",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "transform, box-shadow",
+   "img": {
+    "complete": true,
+    "naturalWidth": 273,
+    "src": "http://localhost:4344/art/prize-draw.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 817.984375,
+    "h": 368,
+    "w": 940
+   },
+   "ancestorsNotPlain": [
+    {
+     "tag": "A",
+     "cls": "game-card game-card-event ui-press reveal-pending",
+     "opacity": "0",
+     "visibility": "visible",
+     "display": "flex"
+    }
+   ],
+   "scrollY": 0,
+   "innerHeight": 800
+  },
+  "animationsLeft": 0,
+  "waitedMs": 881,
+  "after": {
+   "opacity": "1",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "transform, box-shadow",
+   "img": {
+    "complete": true,
+    "naturalWidth": 273,
+    "src": "http://localhost:4344/art/prize-draw.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 801.984375,
+    "h": 368,
+    "w": 940
+   },
+   "ancestorsNotPlain": [],
+   "scrollY": 602,
+   "innerHeight": 800
+  },
+  "file": "c-company-party-1440-card-visible.png"
+ },
+ {
+  "page": "/c/party/",
+  "width": 320,
+  "before": {
+   "opacity": "0",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "transform, box-shadow",
+   "img": {
+    "complete": true,
+    "naturalWidth": 283,
+    "src": "http://localhost:4344/art/timebomb.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 1199.75,
+    "h": 359.375,
+    "w": 284
+   },
+   "ancestorsNotPlain": [
+    {
+     "tag": "A",
+     "cls": "game-card ui-press reveal-pending",
+     "opacity": "0",
+     "visibility": "visible",
+     "display": "flex"
+    },
+    {
+     "tag": "SECTION",
+     "cls": "reveal-pending",
+     "opacity": "0",
+     "visibility": "visible",
+     "display": "block"
+    }
+   ],
+   "scrollY": 0,
+   "innerHeight": 800
+  },
+  "animationsLeft": 0,
+  "waitedMs": 382,
+  "after": {
+   "opacity": "0.843753",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "opacity, translate",
+   "img": {
+    "complete": true,
+    "naturalWidth": 283,
+    "src": "http://localhost:4344/art/timebomb.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 1172.7498931884766,
+    "h": 359.375,
+    "w": 284
+   },
+   "ancestorsNotPlain": [
+    {
+     "tag": "A",
+     "cls": "game-card ui-press reveal-pending is-in",
+     "opacity": "0.843753",
+     "visibility": "visible",
+     "display": "flex"
+    },
+    {
+     "tag": "SECTION",
+     "cls": "reveal-pending is-in",
+     "opacity": "0.843753",
+     "visibility": "visible",
+     "display": "block"
+    }
+   ],
+   "scrollY": 979,
+   "innerHeight": 800
+  },
+  "file": "c-party-320-card-visible.png"
+ },
+ {
+  "page": "/c/party/",
+  "width": 640,
+  "before": {
+   "opacity": "0",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "transform, box-shadow",
+   "img": {
+    "complete": true,
+    "naturalWidth": 283,
+    "src": "http://localhost:4344/art/timebomb.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 994.578125,
+    "h": 332.984375,
+    "w": 604
+   },
+   "ancestorsNotPlain": [
+    {
+     "tag": "A",
+     "cls": "game-card ui-press reveal-pending",
+     "opacity": "0",
+     "visibility": "visible",
+     "display": "flex"
+    },
+    {
+     "tag": "SECTION",
+     "cls": "reveal-pending",
+     "opacity": "0",
+     "visibility": "visible",
+     "display": "block"
+    }
+   ],
+   "scrollY": 0,
+   "innerHeight": 800
+  },
+  "animationsLeft": 0,
+  "waitedMs": 394,
+  "after": {
+   "opacity": "0.81213",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "opacity, translate",
+   "img": {
+    "complete": true,
+    "naturalWidth": 283,
+    "src": "http://localhost:4344/art/timebomb.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 968.5899810791016,
+    "h": 332.984375,
+    "w": 604
+   },
+   "ancestorsNotPlain": [
+    {
+     "tag": "A",
+     "cls": "game-card ui-press reveal-pending is-in",
+     "opacity": "0.81213",
+     "visibility": "visible",
+     "display": "flex"
+    },
+    {
+     "tag": "SECTION",
+     "cls": "reveal-pending is-in",
+     "opacity": "0.81213",
+     "visibility": "visible",
+     "display": "block"
+    }
+   ],
+   "scrollY": 761,
+   "innerHeight": 800
+  },
+  "file": "c-party-640-card-visible.png"
+ },
+ {
+  "page": "/c/party/",
+  "width": 1440,
+  "before": {
+   "opacity": "0",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "transform, box-shadow",
+   "img": {
+    "complete": true,
+    "naturalWidth": 283,
+    "src": "http://localhost:4344/art/timebomb.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 817.984375,
+    "h": 356.09375,
+    "w": 300
+   },
+   "ancestorsNotPlain": [
+    {
+     "tag": "A",
+     "cls": "game-card ui-press reveal-pending",
+     "opacity": "0",
+     "visibility": "visible",
+     "display": "flex"
+    }
+   ],
+   "scrollY": 0,
+   "innerHeight": 800
+  },
+  "animationsLeft": 0,
+  "waitedMs": 903,
+  "after": {
+   "opacity": "1",
+   "visibility": "visible",
+   "transform": "none",
+   "animationName": "none",
+   "transition": "transform, box-shadow",
+   "img": {
+    "complete": true,
+    "naturalWidth": 283,
+    "src": "http://localhost:4344/art/timebomb.webp",
+    "opacity": "1"
+   },
+   "hasArtEl": true,
+   "artTag": "IMG",
+   "box": {
+    "t": 801.984375,
+    "h": 356.09375,
+    "w": 300
+   },
+   "ancestorsNotPlain": [],
+   "scrollY": 596,
+   "innerHeight": 800
+  },
+  "file": "c-party-1440-card-visible.png"
+ }
+]

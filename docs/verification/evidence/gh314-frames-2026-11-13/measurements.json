@@ -1,0 +1,4267 @@
+{
+ "proof": {
+  "title": "วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว",
+  "innerWidth": 375,
+  "h1or_brand": "วัดดวง"
+ },
+ "mustRed": {
+  "page": "/game/prize-draw/play/",
+  "title": "จับรางวัลปีใหม่ — จอใหญ่",
+  "pillCount": 0,
+  "reportedMissing": true,
+  "controlPillCount": 4
+ },
+ "records": [
+  {
+   "page": "/",
+   "width": 320,
+   "title": "วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 157,
+      "b": 97,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 157,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 163,
+      "t": 63,
+      "r": 306,
+      "b": 97,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 163,
+      "t": 58,
+      "r": 306,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 157,
+      "b": 141,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 157,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 163,
+      "t": 107,
+      "r": 306,
+      "b": 141,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 163,
+      "t": 102,
+      "r": 306,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/",
+   "width": 375,
+   "title": "วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว",
+   "innerWidth": 375,
+   "scrollWidth": 375,
+   "clientWidth": 375,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 184.5,
+      "b": 97,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 184.5,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 190.5,
+      "t": 63,
+      "r": 361,
+      "b": 97,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 190.5,
+      "t": 58,
+      "r": 361,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 184.5,
+      "b": 141,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 184.5,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 190.5,
+      "t": 107,
+      "r": 361,
+      "b": 141,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 190.5,
+      "t": 102,
+      "r": 361,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/",
+   "width": 639,
+   "title": "วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว",
+   "innerWidth": 639,
+   "scrollWidth": 639,
+   "clientWidth": 639,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 316.5,
+      "b": 97,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 316.5,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 322.5,
+      "t": 63,
+      "r": 625,
+      "b": 97,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 322.5,
+      "t": 58,
+      "r": 625,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 316.5,
+      "b": 141,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 316.5,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 322.5,
+      "t": 107,
+      "r": 625,
+      "b": 141,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 322.5,
+      "t": 102,
+      "r": 625,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/",
+   "width": 640,
+   "title": "วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว",
+   "innerWidth": 640,
+   "scrollWidth": 640,
+   "clientWidth": 640,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/",
+   "width": 1098,
+   "title": "วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว",
+   "innerWidth": 1098,
+   "scrollWidth": 1098,
+   "clientWidth": 1098,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/",
+   "width": 1099,
+   "title": "วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว",
+   "innerWidth": 1099,
+   "scrollWidth": 1099,
+   "clientWidth": 1099,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/",
+   "width": 1440,
+   "title": "วัดดวง — ดูดวง สุ่มคนโดน และเครื่องมือสุ่ม ฟรีบนมือถือเครื่องเดียว",
+   "innerWidth": 1440,
+   "scrollWidth": 1440,
+   "clientWidth": 1440,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 854.6875,
+      "t": 19.5,
+      "r": 937.015625,
+      "b": 64.5,
+      "w": 82.328125,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 854.6875,
+      "t": 19.5,
+      "r": 937.015625,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 949.015625,
+      "t": 19.5,
+      "r": 1059.9375,
+      "b": 64.5,
+      "w": 110.921875,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 111,
+     "clientWidth": 111,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 949.015625,
+      "t": 19.5,
+      "r": 1059.9375,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 1071.9375,
+      "t": 19.5,
+      "r": 1200.0625,
+      "b": 64.5,
+      "w": 128.125,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 128,
+     "clientWidth": 128,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 1071.9375,
+      "t": 19.5,
+      "r": 1200.0625,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 1212.0625,
+      "t": 19.5,
+      "r": 1360,
+      "b": 64.5,
+      "w": 147.9375,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 148,
+     "clientWidth": 148,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 1212.0625,
+      "t": 19.5,
+      "r": 1360,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 12,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/c/party/",
+   "width": 320,
+   "title": "เกมสุ่มคนโดน เล่นฟรีในวงเพื่อน | วัดดวง",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 157,
+      "b": 97,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 157,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 163,
+      "t": 63,
+      "r": 306,
+      "b": 97,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 163,
+      "t": 58,
+      "r": 306,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 157,
+      "b": 141,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 157,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 163,
+      "t": 107,
+      "r": 306,
+      "b": 141,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 163,
+      "t": 102,
+      "r": 306,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/c/party/",
+   "width": 375,
+   "title": "เกมสุ่มคนโดน เล่นฟรีในวงเพื่อน | วัดดวง",
+   "innerWidth": 375,
+   "scrollWidth": 375,
+   "clientWidth": 375,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 184.5,
+      "b": 97,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 184.5,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 190.5,
+      "t": 63,
+      "r": 361,
+      "b": 97,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 190.5,
+      "t": 58,
+      "r": 361,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 184.5,
+      "b": 141,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 184.5,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 190.5,
+      "t": 107,
+      "r": 361,
+      "b": 141,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 190.5,
+      "t": 102,
+      "r": 361,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/c/party/",
+   "width": 639,
+   "title": "เกมสุ่มคนโดน เล่นฟรีในวงเพื่อน | วัดดวง",
+   "innerWidth": 639,
+   "scrollWidth": 639,
+   "clientWidth": 639,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 316.5,
+      "b": 97,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 316.5,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 322.5,
+      "t": 63,
+      "r": 625,
+      "b": 97,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 322.5,
+      "t": 58,
+      "r": 625,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 316.5,
+      "b": 141,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 316.5,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 322.5,
+      "t": 107,
+      "r": 625,
+      "b": 141,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 322.5,
+      "t": 102,
+      "r": 625,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/c/party/",
+   "width": 640,
+   "title": "เกมสุ่มคนโดน เล่นฟรีในวงเพื่อน | วัดดวง",
+   "innerWidth": 640,
+   "scrollWidth": 640,
+   "clientWidth": 640,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/c/party/",
+   "width": 1098,
+   "title": "เกมสุ่มคนโดน เล่นฟรีในวงเพื่อน | วัดดวง",
+   "innerWidth": 1098,
+   "scrollWidth": 1098,
+   "clientWidth": 1098,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/c/party/",
+   "width": 1099,
+   "title": "เกมสุ่มคนโดน เล่นฟรีในวงเพื่อน | วัดดวง",
+   "innerWidth": 1099,
+   "scrollWidth": 1099,
+   "clientWidth": 1099,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/c/party/",
+   "width": 1440,
+   "title": "เกมสุ่มคนโดน เล่นฟรีในวงเพื่อน | วัดดวง",
+   "innerWidth": 1440,
+   "scrollWidth": 1440,
+   "clientWidth": 1440,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 854.6875,
+      "t": 19.5,
+      "r": 937.015625,
+      "b": 64.5,
+      "w": 82.328125,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 854.6875,
+      "t": 19.5,
+      "r": 937.015625,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 949.015625,
+      "t": 19.5,
+      "r": 1059.9375,
+      "b": 64.5,
+      "w": 110.921875,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 111,
+     "clientWidth": 111,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 949.015625,
+      "t": 19.5,
+      "r": 1059.9375,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 1071.9375,
+      "t": 19.5,
+      "r": 1200.0625,
+      "b": 64.5,
+      "w": 128.125,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 128,
+     "clientWidth": 128,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 1071.9375,
+      "t": 19.5,
+      "r": 1200.0625,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 1212.0625,
+      "t": 19.5,
+      "r": 1360,
+      "b": 64.5,
+      "w": 147.9375,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 148,
+     "clientWidth": 148,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 1212.0625,
+      "t": 19.5,
+      "r": 1360,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 12,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/c/company-party/",
+   "width": 320,
+   "title": "เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่ | วัดดวง",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 157,
+      "b": 97,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 157,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 163,
+      "t": 63,
+      "r": 306,
+      "b": 97,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 163,
+      "t": 58,
+      "r": 306,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 157,
+      "b": 141,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 157,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 163,
+      "t": 107,
+      "r": 306,
+      "b": 141,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 163,
+      "t": 102,
+      "r": 306,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": {
+    "art": {
+     "l": 42,
+     "t": 1162.5625,
+     "r": 278,
+     "b": 1322.5625,
+     "w": 236,
+     "h": 160
+    },
+    "copy": {
+     "l": 42,
+     "t": 1338.5625,
+     "r": 278,
+     "b": 1427.9375,
+     "w": 236,
+     "h": 89.375
+    },
+    "h3Font": "22px",
+    "artAboveCopy": true,
+    "artBeside": false
+   },
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true,
+    "eventCard": true
+   }
+  },
+  {
+   "page": "/c/company-party/",
+   "width": 375,
+   "title": "เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่ | วัดดวง",
+   "innerWidth": 375,
+   "scrollWidth": 375,
+   "clientWidth": 375,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 184.5,
+      "b": 97,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 184.5,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 190.5,
+      "t": 63,
+      "r": 361,
+      "b": 97,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 190.5,
+      "t": 58,
+      "r": 361,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 184.5,
+      "b": 141,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 184.5,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 190.5,
+      "t": 107,
+      "r": 361,
+      "b": 141,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 190.5,
+      "t": 102,
+      "r": 361,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": {
+    "art": {
+     "l": 42,
+     "t": 1162.5625,
+     "r": 333,
+     "b": 1322.5625,
+     "w": 291,
+     "h": 160
+    },
+    "copy": {
+     "l": 42,
+     "t": 1338.5625,
+     "r": 333,
+     "b": 1427.9375,
+     "w": 291,
+     "h": 89.375
+    },
+    "h3Font": "22px",
+    "artAboveCopy": true,
+    "artBeside": false
+   },
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true,
+    "eventCard": true
+   }
+  },
+  {
+   "page": "/c/company-party/",
+   "width": 639,
+   "title": "เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่ | วัดดวง",
+   "innerWidth": 639,
+   "scrollWidth": 639,
+   "clientWidth": 639,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 316.5,
+      "b": 97,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 316.5,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 322.5,
+      "t": 63,
+      "r": 625,
+      "b": 97,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 322.5,
+      "t": 58,
+      "r": 625,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 316.5,
+      "b": 141,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 316.5,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 322.5,
+      "t": 107,
+      "r": 625,
+      "b": 141,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 322.5,
+      "t": 102,
+      "r": 625,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": {
+    "art": {
+     "l": 42,
+     "t": 1062.578125,
+     "r": 597,
+     "b": 1222.578125,
+     "w": 555,
+     "h": 160
+    },
+    "copy": {
+     "l": 42,
+     "t": 1238.578125,
+     "r": 597,
+     "b": 1301.5625,
+     "w": 555,
+     "h": 62.984375
+    },
+    "h3Font": "22px",
+    "artAboveCopy": true,
+    "artBeside": false
+   },
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true,
+    "eventCard": true
+   }
+  },
+  {
+   "page": "/c/company-party/",
+   "width": 640,
+   "title": "เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่ | วัดดวง",
+   "innerWidth": 640,
+   "scrollWidth": 640,
+   "clientWidth": 640,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": {
+    "art": {
+     "l": 42,
+     "t": 1018.578125,
+     "r": 598,
+     "b": 1178.578125,
+     "w": 556,
+     "h": 160
+    },
+    "copy": {
+     "l": 42,
+     "t": 1194.578125,
+     "r": 598,
+     "b": 1257.5625,
+     "w": 556,
+     "h": 62.984375
+    },
+    "h3Font": "22px",
+    "artAboveCopy": true,
+    "artBeside": false
+   },
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true,
+    "eventCard": true
+   }
+  },
+  {
+   "page": "/c/company-party/",
+   "width": 1098,
+   "title": "เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่ | วัดดวง",
+   "innerWidth": 1098,
+   "scrollWidth": 1098,
+   "clientWidth": 1098,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": {
+    "art": {
+     "l": 42,
+     "t": 987.984375,
+     "r": 1056,
+     "b": 1147.984375,
+     "w": 1014,
+     "h": 160
+    },
+    "copy": {
+     "l": 42,
+     "t": 1163.984375,
+     "r": 1056,
+     "b": 1226.96875,
+     "w": 1014,
+     "h": 62.984375
+    },
+    "h3Font": "22px",
+    "artAboveCopy": true,
+    "artBeside": false
+   },
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true,
+    "eventCard": true
+   }
+  },
+  {
+   "page": "/c/company-party/",
+   "width": 1099,
+   "title": "เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่ | วัดดวง",
+   "innerWidth": 1099,
+   "scrollWidth": 1099,
+   "clientWidth": 1099,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": {
+    "art": {
+     "l": 42,
+     "t": 987.984375,
+     "r": 1057,
+     "b": 1147.984375,
+     "w": 1015,
+     "h": 160
+    },
+    "copy": {
+     "l": 42,
+     "t": 1163.984375,
+     "r": 1057,
+     "b": 1226.96875,
+     "w": 1015,
+     "h": 62.984375
+    },
+    "h3Font": "22px",
+    "artAboveCopy": true,
+    "artBeside": false
+   },
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true,
+    "eventCard": true
+   }
+  },
+  {
+   "page": "/c/company-party/",
+   "width": 1440,
+   "title": "เกมงานเลี้ยงบริษัท จับรางวัลปีใหม่ | วัดดวง",
+   "innerWidth": 1440,
+   "scrollWidth": 1440,
+   "clientWidth": 1440,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 854.6875,
+      "t": 19.5,
+      "r": 937.015625,
+      "b": 64.5,
+      "w": 82.328125,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 854.6875,
+      "t": 19.5,
+      "r": 937.015625,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 949.015625,
+      "t": 19.5,
+      "r": 1059.9375,
+      "b": 64.5,
+      "w": 110.921875,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 111,
+     "clientWidth": 111,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 949.015625,
+      "t": 19.5,
+      "r": 1059.9375,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 1071.9375,
+      "t": 19.5,
+      "r": 1200.0625,
+      "b": 64.5,
+      "w": 128.125,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 128,
+     "clientWidth": 128,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 1071.9375,
+      "t": 19.5,
+      "r": 1200.0625,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 1212.0625,
+      "t": 19.5,
+      "r": 1360,
+      "b": 64.5,
+      "w": 147.9375,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 148,
+     "clientWidth": 148,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 1212.0625,
+      "t": 19.5,
+      "r": 1360,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 12,
+   "event": {
+    "art": {
+     "l": 104,
+     "t": 841.984375,
+     "r": 377,
+     "b": 1161.984375,
+     "w": 273,
+     "h": 320
+    },
+    "copy": {
+     "l": 405,
+     "t": 950.4375,
+     "r": 795.625,
+     "b": 1053.53125,
+     "w": 390.625,
+     "h": 103.09375
+    },
+    "h3Font": "30px",
+    "artAboveCopy": false,
+    "artBeside": true
+   },
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true,
+    "eventCard": true
+   }
+  },
+  {
+   "page": "/game/prize-draw/",
+   "width": 320,
+   "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 157,
+      "b": 97,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 157,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 163,
+      "t": 63,
+      "r": 306,
+      "b": 97,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 163,
+      "t": 58,
+      "r": 306,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 157,
+      "b": 141,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 157,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 163,
+      "t": 107,
+      "r": 306,
+      "b": 141,
+      "w": 143,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 143,
+     "clientWidth": 143,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 143,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 163,
+      "t": 102,
+      "r": 306,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/game/prize-draw/",
+   "width": 375,
+   "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+   "innerWidth": 375,
+   "scrollWidth": 375,
+   "clientWidth": 375,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 184.5,
+      "b": 97,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 184.5,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 190.5,
+      "t": 63,
+      "r": 361,
+      "b": 97,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 190.5,
+      "t": 58,
+      "r": 361,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 184.5,
+      "b": 141,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 184.5,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 190.5,
+      "t": 107,
+      "r": 361,
+      "b": 141,
+      "w": 170.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 171,
+     "clientWidth": 171,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 170.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 190.5,
+      "t": 102,
+      "r": 361,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/game/prize-draw/",
+   "width": 639,
+   "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+   "innerWidth": 639,
+   "scrollWidth": 639,
+   "clientWidth": 639,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 316.5,
+      "b": 97,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 316.5,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 322.5,
+      "t": 63,
+      "r": 625,
+      "b": 97,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 322.5,
+      "t": 58,
+      "r": 625,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 14,
+      "t": 107,
+      "r": 316.5,
+      "b": 141,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 102,
+      "r": 316.5,
+      "b": 146
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 322.5,
+      "t": 107,
+      "r": 625,
+      "b": 141,
+      "w": 302.5,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 303,
+     "clientWidth": 303,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 302.5,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 322.5,
+      "t": 102,
+      "r": 625,
+      "b": 146
+     }
+    }
+   ],
+   "distinctRowTops": 2,
+   "distinctColLefts": 2,
+   "tapOverlaps": 0,
+   "tapMinGap": 0,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/game/prize-draw/",
+   "width": 640,
+   "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+   "innerWidth": 640,
+   "scrollWidth": 640,
+   "clientWidth": 640,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/game/prize-draw/",
+   "width": 1098,
+   "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+   "innerWidth": 1098,
+   "scrollWidth": 1098,
+   "clientWidth": 1098,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/game/prize-draw/",
+   "width": 1099,
+   "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+   "innerWidth": 1099,
+   "scrollWidth": 1099,
+   "clientWidth": 1099,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 14,
+      "t": 63,
+      "r": 72.859375,
+      "b": 97,
+      "w": 58.859375,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 59,
+     "clientWidth": 59,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 58.8594,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 14,
+      "t": 58,
+      "r": 72.8594,
+      "b": 102
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 78.859375,
+      "t": 63,
+      "r": 161.265625,
+      "b": 97,
+      "w": 82.40625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 82.4062,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 78.859375,
+      "t": 58,
+      "r": 161.265575,
+      "b": 102
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 167.265625,
+      "t": 63,
+      "r": 263.828125,
+      "b": 97,
+      "w": 96.5625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 97,
+     "clientWidth": 97,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 96.5625,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 167.265625,
+      "t": 58,
+      "r": 263.828125,
+      "b": 102
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 269.828125,
+      "t": 63,
+      "r": 382.71875,
+      "b": 97,
+      "w": 112.890625,
+      "h": 34
+     },
+     "clipped": false,
+     "scrollWidth": 113,
+     "clientWidth": 113,
+     "after": {
+      "top": -5,
+      "height": 44,
+      "width": 112.891,
+      "left": 0,
+      "ok": true,
+      "pos": "absolute"
+     },
+     "tap": {
+      "l": 269.828125,
+      "t": 58,
+      "r": 382.719125,
+      "b": 102
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 5.999975000000006,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  },
+  {
+   "page": "/game/prize-draw/",
+   "width": 1440,
+   "title": "จับรางวัลปีใหม่ — เกมงานเลี้ยงบริษัท คัดชื่อออกทีละรอบบนจอใหญ่",
+   "innerWidth": 1440,
+   "scrollWidth": 1440,
+   "clientWidth": 1440,
+   "overflowX": false,
+   "pillCount": 4,
+   "pills": [
+    {
+     "text": "ดูดวง",
+     "textBytes": 15,
+     "href": "/c/fortune/",
+     "box": {
+      "l": 854.6875,
+      "t": 19.5,
+      "r": 937.015625,
+      "b": 64.5,
+      "w": 82.328125,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 82,
+     "clientWidth": 82,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 854.6875,
+      "t": 19.5,
+      "r": 937.015625,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "สุ่มคนโดน",
+     "textBytes": 27,
+     "href": "/c/party/",
+     "box": {
+      "l": 949.015625,
+      "t": 19.5,
+      "r": 1059.9375,
+      "b": 64.5,
+      "w": 110.921875,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 111,
+     "clientWidth": 111,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 949.015625,
+      "t": 19.5,
+      "r": 1059.9375,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "เครื่องมือสุ่ม",
+     "textBytes": 42,
+     "href": "/tools/",
+     "box": {
+      "l": 1071.9375,
+      "t": 19.5,
+      "r": 1200.0625,
+      "b": 64.5,
+      "w": 128.125,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 128,
+     "clientWidth": 128,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 1071.9375,
+      "t": 19.5,
+      "r": 1200.0625,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    },
+    {
+     "text": "งานเลี้ยงบริษัท",
+     "textBytes": 45,
+     "href": "/c/company-party/",
+     "box": {
+      "l": 1212.0625,
+      "t": 19.5,
+      "r": 1360,
+      "b": 64.5,
+      "w": 147.9375,
+      "h": 45
+     },
+     "clipped": false,
+     "scrollWidth": 148,
+     "clientWidth": 148,
+     "after": {
+      "top": null,
+      "height": null,
+      "width": null,
+      "left": null,
+      "ok": true,
+      "pos": "static"
+     },
+     "tap": {
+      "l": 1212.0625,
+      "t": 19.5,
+      "r": 1360,
+      "b": 64.5,
+      "note": "no ::after at this width; the pill box is the tap box"
+     }
+    }
+   ],
+   "distinctRowTops": 1,
+   "distinctColLefts": 4,
+   "tapOverlaps": 0,
+   "tapMinGap": 12,
+   "event": null,
+   "checks": {
+    "innerWidthMatches": true,
+    "pillCount4": true,
+    "layout": true,
+    "unclipped": true,
+    "noTapOverlap": true,
+    "fourthPill": true,
+    "noHOverflow": true
+   }
+  }
+ ]
+}
