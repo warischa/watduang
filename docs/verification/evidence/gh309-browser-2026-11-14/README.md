@@ -65,3 +65,22 @@ Measured on the live projector (page reloaded at each width, card open): a card 
 
 Thai: opened `row1-card-320`, `row1-slot0-320`, `row1-provisional-320`, `row1-wrongCode-320`, `row1-slot4-320`, `row4-c5-320`, `row3-projector-result-1920`: no dotted circles.
 Not covered: a real backend (the answers are the harness's reading of the Contract table), real phones, the 3D deal and reveal frames of the cards round, the 12-name case from the brief (16 used).
+
+## Audit picks re-check
+
+On the freshly rebuilt `dist/` (not rebuilt here). Same harness as above (join API stubbed through CDP `Fetch`, projector and phones on separate origins, real-GPU Chrome 157, `mobile:false`, 16 names, 3 prizes, round 1 the cards game);
+the event was drawn again (a new event: round 1 drawn rule index 0, final order `ออม ท.`, `Pream`, `Oak`, `เจน`, `พลอย ส.`; round codes `8330 0536 5367`, `231 598 946`, ..., final `0306 639`). Phones at 320 x 568 and 375 x 667.
+Files in `recheck/` (`audit309.json`, `result309b.json`, `shots/a-*.png`, `probe/*.txt`).
+
+| Row | Result | Numbers |
+|---|---|---|
+| 1 PD-309-01, card screen without scrolling | **PASS** | Provisional card screen (status answers 503, note present directly under the heading). 320 x 568: rule button 1 top 434.3 / bottom **486.3**, button 2 top 504.3 / bottom **556.3**, both under 568, scrollY 0 (the page is 584px tall, 16px past the fold, below the buttons). 375 x 667: bottoms **570.3** and **640.3** under 667. `a-card-provisional-320`, `-375` |
+| 2 PD-309-02, change the rule | **PASS** | Tap the drawn rule: `ผ่านรอบที่ 1`, `กติกาที่คุณแตะ: ดอกจิกเท่านั้น`, `เปลี่ยนกติกา` shown. Tap it: back on the card screen (2 rule buttons). Tap the other rule: `รอบที่ 1 ไม่ผ่าน`, `กติกาที่คุณแตะ: เฉพาะไพ่หน้าคน`, `เปลี่ยนกติกา` (verdict flipped). Reload (uncut run): the out screen with the same tapped rule; change and tap the drawn rule again, reload: the pass screen with `ดอกจิกเท่านั้น`. Network cut after the status read, through the whole tap / change / flip sequence: **0 requests attempted** (cut log empty), and in the uncut reload run the API list is only `POST join` and `GET status`: 0 after the status read. Same at 320 and 375. `a-flip-out-320` |
+| 3 PD-309-03 / 13, scroll and focus | **PASS** | 12 screen swaps (code to card, card to pass, cut: code to card, to pass, change to card, tap other to out; at both widths), the page scrolled to 400 before each action: after every swap `scrollY` = **0** and `document.activeElement` is the new `h1` (`activeIsH1` true). Also true after a reload and on the claim, final-out and removed screens |
+| 4 PD-309-05 / 04 / 12 | **PASS** | Provisional note is the element directly after the `h1` on the card and pass screens (class `pj-prov`, text `ยังไม่ยืนยันชื่อ ผลจริงดูที่จอใหญ่`). Pass screen: the wait note `รอรหัสรอบถัดไปจากจอใหญ่` appears **0** times (the sub line and the form ask for the next code). Final out, places 4 and 5 (320 and 375): heading `รอบชิง ไม่ผ่าน` then the name card, no `ขอบคุณที่ร่วมสนุก` line (the round-1 out screen keeps its cheer line, as designed). `a-final-out4-320` |
+| 5 PD-309-09, grouped typing | **PASS** | Keys typed one by one into the field: 12 digits show `8330 0536 5367` (4-4-4), 9 digits `231 598 946` (3-3-3), 7 digits `0306 639` (4-3), equal to the projector's own grouping of each code (`expected` in the JSON). Each code was accepted and the finalist reached `คุณได้รางวัล` / `รางวัลที่ 1`, which is the projector's first prize for that name. 320 and 375. `a-typed-final-320` |
+| 6 PD-309-11, final code on the projector result | **PASS** | Result screen (code card closed with `ตกลง`): `รหัสรอบชิง` (600 weight, rgb 217,214,240) then `0306 639` (700, rgb 255,204,0). 1920: 30px and 44px; 320: 16px and 18px. Same digits as the final's code card (4-3). scrollWidth = innerWidth (1920, 320), 0 boxes past the viewport. `a-result-1920`, `a-result-320` |
+| 7 PD-309-07, no break inside the words | **PASS** | Every occurrence of `รายชื่อ`, `จอใหญ่`, `ทีมงาน` in the visible text of each screen, measured by the line count of its text range: code entry (`จอใหญ่`), card (x2), pass (x2), claim (`ทีมงาน`, `จอใหญ่`), removed (`รายชื่อ`): every one is on **1 line**, at 320 and 375. Must-red: a 30px box with `word-break:break-all` splits `จอใหญ่` over 2 lines; a `nowrap` copy reads 1 |
+
+Thai: opened `a-card-provisional-320`, `a-flip-out-320`, `a-final-out4-320`, `a-removed-320`, `a-result-320`: no dotted circles.
+Not covered: a real backend, real phones, the 3D cards frames.

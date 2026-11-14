@@ -1,0 +1,68 @@
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+import { setIn, setPrizes, pickGame, mkNames, openSetup, startEvent, readEvent, pickLane, schedRead } from './ev.mjs';
+const T = await openTab(); await T.view(1920, 1080);
+const PR = ['ทีวี', 'พัดลม', 'บัตรกำนัล', 'หูฟัง', 'ชุดกาแฟ'];
+await openSetup(T, mkNames(200), { event: 'Rehearsal200' });
+for (let i = 5; i > 5; i--) {}
+for (let i = 1; i <= 5; i++) await setIn(T, `pd-prize-${i}`, PR[i - 1]);
+await sleep(300);
+const sched = await schedRead(T); console.log('schedule', JSON.stringify(sched.vals), sched.msg);
+const plan = ['cards', 'fireworks', null, null];
+for (const [g, v] of [['pd-game-r1', 'cards'], ['pd-game-r2', 'fireworks'], ['pd-game-r3', null], ['pd-game-r4', null], ['pd-game-final', 'ladder']]) console.log('pick', g, await pickGame(T, g, v));
+console.log('pressed', JSON.stringify(await T.ev(`return ['pd-game-r1','pd-game-r2','pd-game-r3','pd-game-r4','pd-game-final'].map(g=>document.querySelector('#'+g+' button[aria-pressed="true"]')?.textContent.trim()??null)`)), 'prizes', await T.ev(`return document.getElementById('pd-prize-count').textContent`));
+await T.shot('setup-ready');
+console.log('arrived', await startEvent(T));
+const sizes = sched.vals.map(Number); // [200, s1, s2, s3, 5]
+const rows = []; const consoleErrs = () => T.S.exceptions.length + T.S.console.filter((c) => c.type === 'error').length + T.S.log.filter((l) => l.level === 'error').length;
+let resumed = null;
+const glCount = () => T.ev('return __wd.ctx.filter(c=>c.ok).length');
+const lostCount = () => T.ev('return __wd.lost.length');
+async function press(label, tag) {
+  const c0 = await glCount(), f0 = await T.ev('return (window.__watduangRevealFrameTime.frames||[]).length');
+  await T.tapEl('.pd-mc button', label, { settleMs: 450 });
+  const t0 = Date.now(); let saw = false, sawAt = null, gone = false, shot = false;
+  while (Date.now() - t0 < 420000) {
+    const s = await T.ev(`const b=document.querySelector('.pd-mc button'); return {c:!!document.querySelector('.pd-3d canvas'), btn:b?b.textContent.trim():null}`);
+    if (s.c && !saw) { saw = true; sawAt = Date.now() - t0; }
+    if (saw && !shot && Date.now() - t0 - sawAt > 2500) { shot = true; await T.shot(`${tag}-3d`); }
+    if (saw && !s.c) { gone = true; break; }
+    if (!saw && s.btn && s.btn !== label && Date.now() - t0 > 3000) break;
+    await sleep(120);
+  }
+  await sleep(500);
+  return { label, canvas: saw, finished: gone, ms: Date.now() - t0, newGl: (await glCount()) - c0, frames: (await T.ev('return (window.__watduangRevealFrameTime.frames||[]).length')) - f0, lost: await lostCount() };
+}
+for (let step = 0, round = 0; step < 60; step++) {
+  await sleep(500);
+  const st = await T.ev(`const b=[...document.querySelectorAll('.pd-mc button')].map(x=>x.textContent.trim()); return {screen:document.getElementById('pd-frame')?.dataset.screen, mc:b, lanes:document.querySelectorAll('.pd-lane').length}`);
+  const ev = await readEvent(T);
+  if (st.screen === 'result') {
+    const res = await T.ev(`return {pz:[...document.querySelectorAll('.pd-pz')].map(e=>e.textContent.trim()), wn:[...document.querySelectorAll('.pd-wn')].map(e=>e.textContent.trim())}`);
+    await T.shot('final-result'); rows.push({ result: res }); console.log('RESULT', JSON.stringify(res)); break;
+  }
+  if (st.lanes) { for (let l = 0; l < 5; l++) await pickLane(T, l); await T.shot('ladder-lanes-picked'); rows.push({ lanesPicked: 5 }); continue; }
+  const label = st.mc[0];
+  if (!label) { console.log('no button', JSON.stringify(st)); break; }
+  const nr = ev.nRounds; // rounds committed
+  if (nr === 2 && label === 'เปิดผล' && resumed === null) {
+    // refresh-and-resume at round 3 (before its reveal)
+    const before = await T.ev(`return {screen:document.getElementById('pd-frame').dataset.screen, text:document.querySelector('.pd-top, .pd-ev')?.parentElement.innerText.slice(0,80), mc:document.querySelector('.pd-mc button')?.textContent.trim()}`);
+    await T.shot('resume-before'); await T.nav(`${BASE}/game/prize-draw/play/`); await sleep(1500);
+    const after = await T.ev(`return {screen:document.getElementById('pd-frame').dataset.screen, text:document.querySelector('.pd-top, .pd-ev')?.parentElement.innerText.slice(0,80), mc:document.querySelector('.pd-mc button')?.textContent.trim()}`);
+    const ev2 = await readEvent(T); await T.shot('resume-after');
+    resumed = { before, after, roundsBefore: nr, roundsAfter: ev2.nRounds, same: JSON.stringify(before) === JSON.stringify(after) && ev2.nRounds === nr };
+    console.log('RESUME', JSON.stringify(resumed)); continue;
+  }
+  const rIdx = ev.final || st.screen === 'final' ? 5 : nr + 1;
+  const tag = `r${rIdx}-${label === 'แจกไพ่' ? 'deal' : label === 'เปิดผล' ? 'reveal' : 'next'}`;
+  const r = await press(label, tag);
+  const ev3 = await readEvent(T);
+  const entry = { step, round: rIdx, plannedGame: rIdx <= 4 ? plan[rIdx - 1] : 'ladder', ...r, roundsAfter: ev3.nRounds, kept: ev3.rounds[rIdx - 1]?.n ?? null, expectedKept: sizes[rIdx] , storedGame: ev3.rounds[rIdx - 1]?.game ?? ev3.final?.game ?? null, errs: consoleErrs() };
+  rows.push(entry); console.log(JSON.stringify(entry));
+}
+const ev = await readEvent(T);
+const out = { sched: sched.vals, rows, resumed, finalStored: ev.final, rounds: ev.rounds.map((r) => ({ round: r.round, game: r.game, n: r.n })), heads: ev.heads, exceptions: T.S.exceptions, consoleErrors: T.S.console.filter((c) => c.type === 'error'), logErrors: T.S.log.filter((l) => l.level === 'error'), dialogs: T.S.dialogs };
+writeFileSync(join(OUT, 'rehearsal.json'), JSON.stringify(out, null, 1)); console.log('DONE errs', consoleErrs());
+process.exit(0);

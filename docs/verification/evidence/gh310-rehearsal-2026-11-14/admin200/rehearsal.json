@@ -1,0 +1,363 @@
+{
+ "sched": [
+  "200",
+  "100",
+  "50",
+  "20",
+  "5"
+ ],
+ "rows": [
+  {
+   "step": 0,
+   "round": 1,
+   "plannedGame": "cards",
+   "label": "แจกไพ่",
+   "canvas": true,
+   "finished": true,
+   "ms": 5030,
+   "newGl": 1,
+   "frames": 254,
+   "lost": 1,
+   "roundsAfter": 0,
+   "kept": null,
+   "expectedKept": 100,
+   "storedGame": null,
+   "errs": 1
+  },
+  {
+   "step": 1,
+   "round": 1,
+   "plannedGame": "cards",
+   "label": "เปิดผล",
+   "canvas": true,
+   "finished": true,
+   "ms": 7180,
+   "newGl": 1,
+   "frames": 397,
+   "lost": 2,
+   "roundsAfter": 1,
+   "kept": 100,
+   "expectedKept": 100,
+   "storedGame": "cards",
+   "errs": 1
+  },
+  {
+   "step": 2,
+   "round": 2,
+   "plannedGame": "fireworks",
+   "label": "รอบต่อไป",
+   "canvas": false,
+   "finished": false,
+   "ms": 3559,
+   "newGl": 0,
+   "frames": 0,
+   "lost": 2,
+   "roundsAfter": 1,
+   "kept": null,
+   "expectedKept": 50,
+   "storedGame": null,
+   "errs": 1
+  },
+  {
+   "step": 3,
+   "round": 2,
+   "plannedGame": "fireworks",
+   "label": "เปิดผล",
+   "canvas": true,
+   "finished": true,
+   "ms": 20538,
+   "newGl": 1,
+   "frames": 1195,
+   "lost": 3,
+   "roundsAfter": 2,
+   "kept": 50,
+   "expectedKept": 50,
+   "storedGame": "fireworks",
+   "errs": 1
+  },
+  {
+   "step": 4,
+   "round": 3,
+   "plannedGame": null,
+   "label": "รอบต่อไป",
+   "canvas": false,
+   "finished": false,
+   "ms": 3547,
+   "newGl": 0,
+   "frames": 0,
+   "lost": 3,
+   "roundsAfter": 2,
+   "kept": null,
+   "expectedKept": 20,
+   "storedGame": null,
+   "errs": 1
+  },
+  {
+   "step": 6,
+   "round": 3,
+   "plannedGame": null,
+   "label": "เปิดผล",
+   "canvas": false,
+   "finished": false,
+   "ms": 3550,
+   "newGl": 0,
+   "frames": 0,
+   "lost": 0,
+   "roundsAfter": 3,
+   "kept": 20,
+   "expectedKept": 20,
+   "storedGame": null,
+   "errs": 1
+  },
+  {
+   "step": 7,
+   "round": 4,
+   "plannedGame": null,
+   "label": "รอบต่อไป",
+   "canvas": false,
+   "finished": false,
+   "ms": 3556,
+   "newGl": 0,
+   "frames": 0,
+   "lost": 0,
+   "roundsAfter": 3,
+   "kept": null,
+   "expectedKept": 5,
+   "storedGame": null,
+   "errs": 1
+  },
+  {
+   "step": 8,
+   "round": 4,
+   "plannedGame": null,
+   "label": "เปิดผล",
+   "canvas": false,
+   "finished": false,
+   "ms": 3575,
+   "newGl": 0,
+   "frames": 0,
+   "lost": 0,
+   "roundsAfter": 4,
+   "kept": 5,
+   "expectedKept": 5,
+   "storedGame": null,
+   "errs": 1
+  },
+  {
+   "step": 9,
+   "round": 5,
+   "plannedGame": "ladder",
+   "label": "รอบต่อไป",
+   "canvas": false,
+   "finished": false,
+   "ms": 3576,
+   "newGl": 0,
+   "frames": 0,
+   "lost": 0,
+   "roundsAfter": 4,
+   "kept": null,
+   "storedGame": null,
+   "errs": 1
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  },
+  {
+   "lanesPicked": 5
+  }
+ ],
+ "resumed": {
+  "before": {
+   "screen": "round",
+   "text": "Rehearsal200\nรอบที่ 3 จาก 4\nGuest12\nGuest15\nGuest19\nGuest30\nGuest31\nGuest35\nGues",
+   "mc": "เปิดผล"
+  },
+  "after": {
+   "screen": "round",
+   "text": "Rehearsal200\nรอบที่ 3 จาก 4\nGuest12\nGuest15\nGuest19\nGuest30\nGuest31\nGuest35\nGues",
+   "mc": "เปิดผล"
+  },
+  "roundsBefore": 2,
+  "roundsAfter": 2,
+  "same": true
+ },
+ "finalStored": null,
+ "rounds": [
+  {
+   "round": 1,
+   "game": "cards",
+   "n": 100
+  },
+  {
+   "round": 2,
+   "game": "fireworks",
+   "n": 50
+  },
+  {
+   "round": 3,
+   "game": null,
+   "n": 20
+  },
+  {
+   "round": 4,
+   "game": null,
+   "n": 5
+  }
+ ],
+ "heads": 200,
+ "exceptions": [],
+ "consoleErrors": [],
+ "logErrors": [
+  {
+   "level": "error",
+   "source": "network",
+   "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+   "url": "http://localhost:4797/favicon.ico"
+  }
+ ],
+ "dialogs": []
+}

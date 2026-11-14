@@ -1,0 +1,27 @@
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+import { readEvent, pickLane, lanesDom } from './ev.mjs';
+const T = await openTab(); await T.view(1920, 1080);
+await T.nav(`${BASE}/game/prize-draw/play/`); await T.view(1920, 1080); await sleep(1500);
+const before = await lanesDom(T); console.log('lanes before', JSON.stringify(before.lanes), before.mc);
+for (let l = 0; l < 5; l++) { const d = await lanesDom(T); if (d.lanes.filter((x) => x.pressed === 'true' || /[A-Za-z0-9ก-ฮ]{2}/.test(x.t)).length >= 5 && d.mc && !d.mc.disabled) break; if (l === 0 || !d.lanes[l] ) {} await pickLane(T, l).catch((e) => console.log('pickLane', l, String(e).slice(0, 80))); }
+const after = await lanesDom(T); console.log('lanes after', JSON.stringify(after.lanes), JSON.stringify(after.mc));
+await T.shot('ladder-lanes-picked');
+const c0 = await T.ev('return __wd.ctx.filter(c=>c.ok).length'); const f0 = await T.ev('return (window.__watduangRevealFrameTime.frames||[]).length');
+await T.tapEl('.pd-mc button', 'เปิดผล', { settleMs: 450 });
+const t0 = Date.now(); let saw = false, sawAt = null, gone = false, shots = 0;
+while (Date.now() - t0 < 480000) {
+  const s = await T.ev(`return {c:!!document.querySelector('.pd-3d canvas'), btn:document.querySelector('.pd-mc button')?.textContent.trim()??null}`);
+  if (s.c && !saw) { saw = true; sawAt = Date.now() - t0; }
+  if (saw && shots < 3 && Date.now() - t0 - sawAt > 3000 + shots * 20000) { shots++; await T.shot(`r5-ladder-3d-${shots}`); }
+  if (saw && !s.c) { gone = true; break; }
+  await sleep(150);
+}
+await sleep(1500);
+const st = await T.ev(`return {screen:document.getElementById('pd-frame')?.dataset.screen, pz:[...document.querySelectorAll('.pd-pz')].map(e=>e.textContent.trim()), wn:[...document.querySelectorAll('.pd-wn')].map(e=>e.textContent.trim()), mc:document.querySelector('.pd-mc button')?.textContent.trim()??null}`);
+await T.shot('final-result');
+const ev = await readEvent(T);
+const out = { ladder: { canvas: saw, sawAtMs: sawAt, finished: gone, ms: Date.now() - t0, newGl: (await T.ev('return __wd.ctx.filter(c=>c.ok).length')) - c0, frames: (await T.ev('return (window.__watduangRevealFrameTime.frames||[]).length')) - f0, lost: await T.ev('return __wd.lost.length') }, result: st, final: ev.final, nRounds: ev.nRounds, exceptions: T.S.exceptions, consoleErrors: T.S.console.filter((c) => c.type === 'error'), logErrors: T.S.log.filter((l) => l.level === 'error') };
+writeFileSync(join(OUT, 'rehearsal2.json'), JSON.stringify(out, null, 1)); console.log(JSON.stringify(out).slice(0, 1500));
+process.exit(0);

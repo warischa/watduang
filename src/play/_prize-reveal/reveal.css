@@ -233,6 +233,17 @@
   font: 400 34px/1.4 var(--font-sans);
   color: var(--ink-on-band-soft);
 }
+/* The site's no-wrap span: a compound the line must not split (gh#309 pick PD-309-07). */
+.pd-claim .nw {
+  white-space: nowrap;
+}
+/* The final's code kept in small type on the result's bar (gh#309 pick PD-309-11; canvas frame 6). */
+.pd-fcode {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  white-space: nowrap;
+}
 .pd-veil {
   position: absolute;
   inset: 0;

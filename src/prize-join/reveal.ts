@@ -104,9 +104,11 @@ export function applyStatus(rec: RevealRecord, out: StatusOutcome): RevealRecord
 export type RevealScreen =
   /** Type the code of `round` (FINAL_ROUND for the final). */
   | { kind: 'code'; round: number }
-  /** In after `round`; the form under it takes the code of `next`. */
-  | { kind: 'pass'; round: number; next: number }
-  | { kind: 'out'; round: number }
+  /** In after `round`; the form under it takes the code of `next`. `tapped`: see out. */
+  | { kind: 'pass'; round: number; next: number; tapped?: RuleId }
+  /** Out at `round`. `tapped`, on a card round still open to change (no later code typed): the rule the
+   *  person tapped, as the screen names it (owner pick PD-309-02, 2026-11-14). */
+  | { kind: 'out'; round: number; tapped?: RuleId }
   /** A card round dealt, its rule not tapped yet. */
   | { kind: 'card'; round: number; card: Card; pair: readonly [RuleId, RuleId] }
   /** A finalist's place in the final's order: index 0 is the first prize, and every claim's place holds one. */
@@ -116,13 +118,27 @@ export type RevealView = { screen: RevealScreen; provisional: boolean };
 
 const membership = (rec: RevealRecord): Membership => rec.member ?? 'unconfirmed';
 
+/** The rule tapped in the latest card round, while it may still change: nothing typed after it. */
+function openTap(rec: RevealRecord): { round: number; rule: RuleId } | null {
+  const n = rec.entries.length;
+  const last = rec.entries[n - 1];
+  if (rec.final !== null || !last || last.rule === undefined) return null;
+  const parsed = parseCode(last.code, n);
+  if (!parsed || parsed.kind !== 'deal') return null;
+  return { round: n, rule: pairFor(rec.eventKey, n, parsed.seed)[last.rule] };
+}
+
 /** The screen for a record and this phone's join id. Every fact on it comes from the codes typed. */
 export function revealView(rec: RevealRecord, identity: string): RevealView {
   const member = membership(rec);
   const { verdicts, provisional } = phoneVerdicts(rec.eventKey, identity, rec.entries, member);
   if (member === 'removed') return { screen: { kind: 'removed' }, provisional };
+  const tap = openTap(rec);
   const out = verdicts.indexOf('out');
-  if (out !== -1) return { screen: { kind: 'out', round: out + 1 }, provisional };
+  if (out !== -1) {
+    const screen: RevealScreen = tap?.round === out + 1 ? { kind: 'out', round: out + 1, tapped: tap.rule } : { kind: 'out', round: out + 1 };
+    return { screen, provisional };
+  }
   const n = verdicts.length;
   const last = verdicts[n - 1];
   if (last === 'awaiting-rule') {
@@ -143,7 +159,8 @@ export function revealView(rec: RevealRecord, identity: string): RevealView {
       return { screen, provisional };
     }
   }
-  return { screen: { kind: 'pass', round: n, next: n + 1 }, provisional };
+  const screen: RevealScreen = tap?.round === n ? { kind: 'pass', round: n, next: n + 1, tapped: tap.rule } : { kind: 'pass', round: n, next: n + 1 };
+  return { screen, provisional };
 }
 
 /** The round the screen's form takes, or null when it has none. */
@@ -164,6 +181,16 @@ export function enterCode(rec: RevealRecord, identity: string, raw: string): Rev
   if (parsed.kind === 'final') return null;
   // A stored entry for this round that did not read is replaced, never appended after.
   return { ...rec, entries: [...rec.entries.slice(0, round - 1), { code: raw.trim() }], final: null };
+}
+
+/** Take back the rule tapped in the latest card round, while no later code is typed: the card screen comes
+ *  back to tap again, and the verdict is computed afresh from the new tap. Null when nothing may change. */
+export function changeRule(rec: RevealRecord, identity: string): RevealRecord | null {
+  const { screen } = revealView(rec, identity);
+  if ((screen.kind !== 'pass' && screen.kind !== 'out') || screen.tapped === undefined) return null;
+  const entries = rec.entries.slice();
+  entries[entries.length - 1] = { code: entries[entries.length - 1]!.code };
+  return { ...rec, entries };
 }
 
 /** The drawn rule of the card round on screen, as tapped: 0 is the pair's first rule, 1 its second. */

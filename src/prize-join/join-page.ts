@@ -24,11 +24,12 @@ import { armAllButtons } from '../games/_arm-gate.ts';
 import { REFUSAL_COPY } from '../prize-event/setup-page.ts';
 import type { NameIssue } from '../prize-event/names.ts';
 import { CUT_CODE_LENGTH, FINAL_ROUND } from '../prize-draw/round-code.ts';
-import type { Card, Suit } from '../prize-draw/cards.ts';
+import type { Card, RuleId, Suit } from '../prize-draw/cards.ts';
 import { COPY as CARD_COPY, rankLabel } from '../play/prize-cards/renderer/copy.ts';
 import { SUITS, isRed } from '../play/prize-cards/renderer/paint.ts';
 import {
   applyStatus,
+  changeRule,
   chooseRule,
   classifyStatus,
   enterCode,
@@ -120,7 +121,6 @@ export const REVEAL_COPY = {
   passHeading: (round: number): string => `ผ่านรอบที่ ${round}`,
   /** Owner copy 2026-11-14: the board's line names the head count left, which no code carries to a phone. */
   passSub: (next: number): string => (next === FINAL_ROUND ? 'ไปต่อรอบชิง รอรหัสรอบชิงบนจอใหญ่' : `ไปต่อรอบที่ ${next} รอรหัสรอบถัดไปบนจอใหญ่`),
-  waitNext: 'รอรหัสรอบถัดไปจากจอใหญ่',
   outHeading: (round: number): string => `${roundName(round)} ไม่ผ่าน`,
   outSub: 'ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย',
   yourCard: 'ไพ่ของคุณ',
@@ -133,7 +133,24 @@ export const REVEAL_COPY = {
   prize: (place: number): string => `รางวัลที่ ${place}`,
   claimNote: 'แสดงหน้านี้ให้ทีมงานดู ชื่อต้องตรงกับบนจอใหญ่',
   provisional: 'ยังไม่ยืนยันชื่อ ผลจริงดูที่จอใหญ่',
+  /** Owner copy 2026-11-14 (audit pick PD-309-02): the rule a card round's result was computed from, and the
+   *  control that goes back to the card to tap again. */
+  tapped: (rule: string): string => `กติกาที่คุณแตะ: ${rule}`,
+  changeRule: 'เปลี่ยนกติกา',
 } as const;
+
+/** Compounds a 320px line must not split (audit pick PD-309-07): the site's no-wrap span, as on the setup page. */
+const WHOLE = { removed: 'รายชื่อ', claimNote: 'จอใหญ่' } as const;
+
+/** How the code field groups typed digits, as the projector shows a code (audit pick PD-309-09; design/
+ *  Gh305AuditFrames.dc.html frame 5): 3-3-3 up to 9 digits, 4-4-4 past 9, the final's 7 digits 4-3. Visual only. */
+export function groupTyped(digits: string, round: number): string {
+  const size = round === FINAL_ROUND || digits.length > CUT_CODE_LENGTH ? 4 : 3;
+  const groups: string[] = [];
+  for (let i = 0; i < digits.length; i += size) groups.push(digits.slice(i, i + size));
+  return groups.join(' ');
+}
+const DIGIT = /[0-9\u0E50-\u0E59]/;
 
 /** The status route is asked again this long after it says the event has not started. */
 export const STATUS_OPEN_MS = 15000;
@@ -166,6 +183,8 @@ export type JoinEnv = {
   getRandomValues: (a: Uint8Array) => Uint8Array;
   setTimeout: (fn: () => void, ms: number) => unknown;
   clearTimeout: (handle: unknown) => void;
+  /** window.scrollTo: a screen swap in the result flow starts at the page top (audit pick PD-309-03). */
+  scrollTo?: (x: number, y: number) => void;
 };
 
 export type JoinHandle = {
@@ -492,7 +511,15 @@ export function mountJoin(root: HTMLElement, env: JoinEnv): JoinHandle {
     if (out.kind === 'member' || out.kind === 'gone') statusDone = true;
     else if (mayAsk()) askStatus(out.kind === 'open' ? STATUS_OPEN_MS : STATUS_RETRY_MS[Math.min(statusMisses++, STATUS_RETRY_MS.length - 1)]!);
     // A membership answer changes what the screen says, never what the person is typing: the draft stays.
-    if (reveal.started && (!before.started || before.member !== reveal.member)) renderFlow(true);
+    // Entering the flow is a screen swap. A later membership answer changes the screen only when it changes
+    // what the screen is (removed); otherwise it only settles the provisional note, updated in place, so the
+    // field being typed in keeps its node, focus, value and selection.
+    if (!reveal.started || (before.started && before.member === reveal.member)) return;
+    if (!before.started || !rec.id) return renderFlow();
+    const was = revealView(before, rec.id);
+    const now = revealView(reveal, rec.id);
+    if (JSON.stringify(was.screen) !== JSON.stringify(now.screen)) return renderFlow();
+    if (!now.provisional) root.querySelector('.pj-prov')?.remove();
   }
 
   /** The board's check badge, drawn node by node. */
@@ -552,8 +579,48 @@ export function mountJoin(root: HTMLElement, env: JoinEnv): JoinHandle {
       if (digits > CUT_CODE_LENGTH) field.classList.add('pj-c12');
       else field.classList.remove('pj-c12');
     };
-    field.addEventListener('input', () => {
+    // Typed digits are grouped as the projector shows them; spaces and dashes are the reader's, and the
+    // parse ignores them. Anything else is left as typed, for the check to refuse.
+    // `last` is the value as this field last showed it, so an edit that removed only a group space (Delete
+    // or Backspace at a gap) is told apart and takes the digit beyond the gap instead: the regroup would put
+    // the space straight back and the key would never reach a digit.
+    let last = field.value;
+    const digitsOf = (text: string): string[] => [...text].filter((c) => DIGIT.test(c));
+    const group = (inputType: string | undefined): void => {
+      const value = field.value;
+      if (!/^[0-9\u0E50-\u0E59 -]*$/.test(value)) {
+        last = value;
+        return;
+      }
+      const caret = typeof field.selectionStart === 'number' ? field.selectionStart : value.length;
+      let digits = digitsOf(value);
+      let before = digitsOf(value.slice(0, caret)).length;
+      // A verified separator deletion only: one Delete or Backspace (or an edit with no inputType) that took
+      // exactly one character, a group space this field put there, at the caret, with nothing else changed.
+      // A paste, a selection replace or a stray non-digit removed keeps every digit.
+      let gap = 0;
+      while (gap < value.length && value[gap] === last[gap]) gap++;
+      const oneKey = inputType === undefined || inputType === 'deleteContentBackward' || inputType === 'deleteContentForward';
+      const atSeparator =
+        oneKey && last.length === value.length + 1 && last[gap] === ' ' && caret === gap && value === last.slice(0, gap) + last.slice(gap + 1);
+      if (atSeparator) {
+        const ahead = digitsOf(last.slice(0, gap)).length;
+        const back = inputType === 'deleteContentBackward';
+        const drop = back ? ahead - 1 : ahead;
+        if (drop >= 0 && drop < digits.length) digits = [...digits.slice(0, drop), ...digits.slice(drop + 1)];
+        before = Math.max(0, drop);
+      }
+      const grouped = groupTyped(digits.join(''), round);
+      last = grouped;
+      if (grouped === value) return;
+      field.value = grouped;
+      let at = 0;
+      for (let seen = 0; at < grouped.length && seen < before; at++) if (DIGIT.test(grouped[at]!)) seen++;
+      if (typeof field.setSelectionRange === 'function' && typeof field.selectionStart === 'number') field.setSelectionRange(at, at);
+    };
+    field.addEventListener('input', (ev) => {
       markTyped();
+      group((ev as InputEvent).inputType);
       size();
     });
     size();
@@ -566,7 +633,8 @@ export function mountJoin(root: HTMLElement, env: JoinEnv): JoinHandle {
     const f = form('pj-code-form', () => {
       markTyped();
       if (!reveal || !rec.id) return;
-      const next = enterCode(reveal, rec.id, field.value);
+      // The parsed and stored value is the digits: the groups are visual only.
+      const next = enterCode(reveal, rec.id, field.value.replace(/[ -]/g, ''));
       if (!next) {
         showError(field, slot, REVEAL_COPY.wrongCode(round));
         field.focus();
@@ -580,7 +648,7 @@ export function mountJoin(root: HTMLElement, env: JoinEnv): JoinHandle {
     return f;
   }
 
-  function cardScreen(body: HTMLElement, screen: Extract<RevealScreen, { kind: 'card' }>): void {
+  function cardScreen(body: HTMLElement, screen: Extract<RevealScreen, { kind: 'card' }>, head: HTMLElement[]): void {
     const card = el('div', 'pj-pcard');
     const rank = rankLabel(screen.card.rank);
     const red = isRed(screen.card.suit) ? ' pj-red' : '';
@@ -600,7 +668,7 @@ export function mountJoin(root: HTMLElement, env: JoinEnv): JoinHandle {
       rules.append(b);
     });
     body.append(
-      el('h1', 'pj-h', roundName(screen.round)),
+      ...head,
       el('p', 'pj-sub', CARD_COPY.gameName),
       el('div', 'pj-lbl', REVEAL_COPY.yourCard),
       card,
@@ -610,49 +678,86 @@ export function mountJoin(root: HTMLElement, env: JoinEnv): JoinHandle {
     );
   }
 
-  /** Draw the flow's screen for the record, then fit names and arm every control it put up (ADR-0057:
-   *  a button that replaces the one just tapped must not take the second contact of that tap). */
-  function renderFlow(keepDraft = false): void {
+  /** Text with one compound kept whole: the site's no-wrap span around `word` (PD-309-07). */
+  function whole(node: HTMLElement, text: string, word: string): HTMLElement {
+    const at = text.indexOf(word);
+    if (at === -1) node.textContent = text;
+    else node.append(doc.createTextNode(text.slice(0, at)), el('span', 'nw', word), doc.createTextNode(text.slice(at + word.length)));
+    return node;
+  }
+
+  /** The tapped rule of a card round's result and the control that takes it back (PD-309-02). */
+  function tappedRule(rule: RuleId): HTMLElement[] {
+    const change = el('button', 'pj-btn pj-alt', REVEAL_COPY.changeRule);
+    change.type = 'button';
+    change.addEventListener('click', () => {
+      if (!reveal || !rec.id) return;
+      const next = changeRule(reveal, rec.id);
+      if (!next) return;
+      reveal = next;
+      saveReveal();
+      renderFlow();
+    });
+    return [el('p', 'pj-note', REVEAL_COPY.tapped(CARD_COPY.rule[rule])), change];
+  }
+
+  /**
+   * Draw the flow's screen for the record, then fit names and arm every control it put up (ADR-0057: a
+   * button that replaces the one just tapped must not take the second contact of that tap). A screen swap
+   * starts at the page top with focus on the new heading (picks PD-309-03 and PD-309-13). A late membership
+   * answer that leaves the screen what it was never comes here (checkStatus updates it in place).
+   */
+  function renderFlow(): void {
     if (!reveal || !rec.id || rec.name === undefined) return;
     const name = rec.name;
-    // Only a refresh in place (a membership answer) keeps the code being typed; a screen an accepted code
-    // or rule moved to starts with an empty field.
-    const typed = keepDraft ? (root.querySelector<HTMLInputElement>('#pj-code')?.value ?? '') : '';
     const { screen, provisional } = revealView(reveal, rec.id);
     const body = frame(name);
+    const h1 = el('h1', 'pj-h');
+    // The provisional note sits directly under the heading (PD-309-05), on every result screen.
+    const shows = provisional && screen.kind !== 'code' && screen.kind !== 'removed';
+    const head = shows ? [h1, el('p', 'pj-note pj-prov', REVEAL_COPY.provisional)] : [h1];
     switch (screen.kind) {
       case 'code':
-        body.append(el('h1', 'pj-h', roundName(screen.round)), el('p', 'pj-sub', REVEAL_COPY.codeSub), codeForm(screen.round, typed), el('p', 'pj-note', REVEAL_COPY.offline));
+        h1.textContent = roundName(screen.round);
+        body.append(...head, el('p', 'pj-sub', REVEAL_COPY.codeSub), codeForm(screen.round, ''), el('p', 'pj-note', REVEAL_COPY.offline));
         break;
       case 'pass':
-        body.append(
-          passBadge(),
-          el('h1', 'pj-h', REVEAL_COPY.passHeading(screen.round)),
-          el('p', 'pj-sub', REVEAL_COPY.passSub(screen.next)),
-          nameCard(name),
-          el('p', 'pj-note', REVEAL_COPY.waitNext),
-          codeForm(screen.next, typed),
-        );
+        h1.textContent = REVEAL_COPY.passHeading(screen.round);
+        // The board's wait note is not drawn: passSub and the form under it ask for the next code (PD-309-04).
+        body.append(passBadge(), ...head, el('p', 'pj-sub', REVEAL_COPY.passSub(screen.next)), nameCard(name));
+        if (screen.tapped) body.append(...tappedRule(screen.tapped));
+        // A screen an accepted code or rule moved to starts with an empty field.
+        body.append(codeForm(screen.next, ''));
         break;
       case 'out':
-        body.append(el('h1', 'pj-h', REVEAL_COPY.outHeading(screen.round)), el('p', 'pj-sub', REVEAL_COPY.outSub), nameCard(name));
+        h1.textContent = REVEAL_COPY.outHeading(screen.round);
+        body.append(...head);
+        // The final's out has no one left to cheer: its heading stands alone (PD-309-12).
+        if (screen.round !== FINAL_ROUND) body.append(el('p', 'pj-sub', REVEAL_COPY.outSub));
+        body.append(nameCard(name));
+        if (screen.tapped) body.append(...tappedRule(screen.tapped));
         break;
       case 'card':
-        cardScreen(body, screen);
+        h1.textContent = roundName(screen.round);
+        cardScreen(body, screen, head);
         break;
       case 'claim': {
+        h1.textContent = REVEAL_COPY.claimHeading;
         const prize = el('div', 'pj-prize');
         prize.append(el('div', 'pj-pz', REVEAL_COPY.prize(screen.slot + 1)), nameBox(doc, 'div', 'pj-who', name, PHONE_FIT.card));
-        body.append(el('h1', 'pj-h', REVEAL_COPY.claimHeading), prize, el('p', 'pj-note', REVEAL_COPY.claimNote));
+        body.append(...head, prize, whole(el('p', 'pj-note'), REVEAL_COPY.claimNote, WHOLE.claimNote));
         break;
       }
       case 'removed':
-        body.append(el('h1', 'pj-h', ANSWER_COPY.removed), nameCard(name));
+        whole(h1, ANSWER_COPY.removed, WHOLE.removed);
+        body.append(...head, nameCard(name));
         break;
     }
-    if (provisional && screen.kind !== 'code' && screen.kind !== 'removed') body.append(el('p', 'pj-note', REVEAL_COPY.provisional));
     fitAll(root);
     armAllButtons(body);
+    env.scrollTo?.(0, 0);
+    h1.setAttribute('tabindex', '-1');
+    h1.focus();
   }
 
   // ---- sending -------------------------------------------------------------------------------------

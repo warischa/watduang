@@ -1,0 +1,256 @@
+# gh#309 UI audit instrument (2026-11-14). Reads painted pixels of the gh309 browser shots; renders nothing.
+# Run from anywhere:  python3 -I contrast309.py.txt <repo root>
+# Saved as .txt so repo tooling never treats it as code.
+#
+# What each read counts:
+#   text_read  - crop box; ground = the single most common RGB in the box; text = the pixel at the 99.5th
+#                percentile of contrast against that ground. Ratio = WCAG 2.x relative luminance.
+#   solid_read - mode RGB of box A (a solid fill: outline, icon disc, suit) against mode RGB of box B.
+#   extent     - rows of a box holding at least one pixel that passes a colour test: glyph box height in px.
+#   band       - Thai base band: rows whose count of text pixels is >= 50% of the busiest row's count.
+#   column     - run-length colour classes down one pixel column (gaps, fold, header band).
+import os
+import sys
+from collections import Counter
+
+from PIL import Image
+
+ROOT = sys.argv[1] if len(sys.argv) > 1 else '.'
+S9 = 'docs/verification/evidence/gh309-browser-2026-11-14/shots/'
+PRIOR = 'docs/verification/evidence/gh305-recheck-2026-11-13/shots/game-prize-draw-1280-picker.png'
+_cache = {}
+
+
+def load(rel):
+    full = os.path.join(ROOT, rel)
+    if not os.path.isfile(full):
+        raise SystemExit('MISSING ' + rel)
+    if rel not in _cache:
+        _cache[rel] = Image.open(full).convert('RGB')
+    return _cache[rel]
+
+
+def shot(name):
+    return load(S9 + name + '.png')
+
+
+def lin(c):
+    c = c / 255
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def lum(p):
+    return 0.2126 * lin(p[0]) + 0.7152 * lin(p[1]) + 0.0722 * lin(p[2])
+
+
+def ratio(a, b):
+    la, lb = lum(a), lum(b)
+    return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+
+
+def hx(p):
+    return '#%02x%02x%02x' % p[:3]
+
+
+def h2p(s):
+    return tuple(int(s[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def pixels(img, box):
+    x0, y0, x1, y1 = box
+    if not (0 <= x0 < x1 <= img.width and 0 <= y0 < y1 <= img.height):
+        raise SystemExit('BAD BOX %r on %dx%d' % (box, img.width, img.height))
+    return list(img.crop(box).getdata())
+
+
+def mode(img, box):
+    return Counter(pixels(img, box)).most_common(1)[0][0]
+
+
+def text_read(img, box):
+    px = pixels(img, box)
+    ground = Counter(px).most_common(1)[0][0]
+    ranked = sorted(px, key=lambda p: ratio(p, ground))
+    text = ranked[min(len(ranked) - 1, int(0.995 * len(ranked)))]
+    return ground, text, ratio(text, ground)
+
+
+def extent(img, box, test):
+    x0, y0, x1, y1 = box
+    rows = [y for y in range(y0, y1) if any(test(img.getpixel((x, y))) for x in range(x0, x1))]
+    if not rows:
+        return None
+    return rows[0], rows[-1], rows[-1] - rows[0] + 1
+
+
+def band(img, box, test):
+    x0, y0, x1, y1 = box
+    counts = [(y, sum(1 for x in range(x0, x1) if test(img.getpixel((x, y))))) for y in range(y0, y1)]
+    peak = max(c for _, c in counts)
+    rows = [y for y, c in counts if c >= 0.5 * peak]
+    return rows[0], rows[-1], rows[-1] - rows[0] + 1, peak
+
+
+def near(p, q, d=40):
+    return sum(abs(a - b) for a, b in zip(p, q)) <= d
+
+
+def column(img, x, y0, y1, classes):
+    runs = []
+    for y in range(y0, y1):
+        p = img.getpixel((x, y))
+        name = next((n for n, c in classes if near(p, c)), 'other')
+        if runs and runs[-1][0] == name:
+            runs[-1][2] = y
+        else:
+            runs.append([name, y, y])
+    return [(n, a, b, b - a + 1) for n, a, b in runs]
+
+
+def gold(p):
+    return p[0] > 180 and p[1] > 140 and p[2] < 110 and p[0] - p[2] > 100
+
+
+def dark(p):
+    return lum(p) < 0.2
+
+
+def light(p):
+    return lum(p) > 0.45
+
+
+def ink_text(p):
+    return lum(p) < 0.35
+
+
+INK, GOLD, CREAM, WHITE = h2p('#14142b'), h2p('#ffcc00'), h2p('#fff6e0'), h2p('#ffffff')
+
+print('== formula on token pairs (the values the positive control must reproduce)')
+for a, b in [('#14142b', '#ffcc00'), ('#ffffff', '#23214d'), ('#d9d6f0', '#23214d'), ('#14142b', '#fff6e0'),
+             ('#3d3b5c', '#fff6e0'), ('#ffcc00', '#23214d'), ('#ff3d7f', '#fff6e0'), ('#14142b', '#ffffff')]:
+    print('  %s on %s  %.2f' % (a, b, ratio(h2p(a), h2p(b))))
+
+print('== must-red: the prior audit\'s disabled + stepper (2026-11-13 read 2.31, #aaa9af on #fffefc)')
+g, t, r = text_read(load(PRIOR), (362, 872, 388, 899))
+print('  prior-picker-plus  ground %s text %s  %.2f' % (hx(g), hx(t), r))
+
+TEXT = [
+    # (label, shot, box)
+    ('ph320 heading ink/cream', 'row1-codeEntry-320', (14, 72, 104, 102)),
+    ('ph320 sub #3d3b5c/cream', 'row1-codeEntry-320', (14, 110, 270, 136)),
+    ('ph320 label ink/cream', 'row1-codeEntry-320', (14, 152, 80, 176)),
+    ('ph320 button ink/gold', 'row1-codeEntry-320', (100, 278, 215, 306)),
+    ('ph320 offline note', 'row1-codeEntry-320', (14, 330, 240, 356)),
+    ('ph320 name pill ink/gold', 'row1-codeEntry-320', (262, 13, 298, 35)),
+    ('ph320 error words ink/cream', 'row1-wrongCode-320', (44, 258, 282, 304)),
+    ('ph320 typed digits ink/white', 'row1-wrongCode-320', (80, 198, 240, 232)),
+    ('ph320 card rank red/white', 'row1-card-320', (28, 198, 58, 228)),
+    ('ph320 card caption', 'row1-card-320', (14, 405, 145, 432)),
+    ('ph320 rule prompt', 'row1-card-320', (14, 445, 165, 470)),
+    ('ph320 pass heading', 'row1-in-320', (14, 140, 150, 170)),
+    ('ph320 name card ink/white', 'row1-in-320', (32, 272, 96, 306)),
+    ('ph320 provisional note', 'row1-provisional-320', (14, 528, 222, 553)),
+    ('ph320 prize label ink/gold', 'row1-slot0-320', (32, 130, 115, 156)),
+    ('ph320 prize name ink/gold', 'row1-slot0-320', (32, 164, 95, 200)),
+    ('ph320 claim note', 'row1-slot0-320', (14, 238, 296, 286)),
+    ('ph320 removed heading', 'row1-removed-320', (14, 72, 280, 135)),
+    ('ph320 out sub', 'row1-out-320', (14, 110, 292, 136)),
+    ('ph375 heading', 'row1-codeEntry-375', (14, 72, 104, 102)),
+    ('ph375 button', 'row1-codeEntry-375', (130, 278, 245, 306)),
+    ('pj1920 code label #d9d6f0', 'row4-c1-1920', (850, 322, 1070, 374)),
+    ('pj1920 digits gold', 'row4-c1-1920', (330, 405, 1580, 520)),
+    ('pj1920 hint white', 'row4-c1-1920', (735, 550, 1180, 600)),
+    ('pj1920 ok button ink/gold', 'row4-c1-1920', (1800, 12, 1870, 44)),
+    ('pj1920 earlier label', 'row4-c5-1920', (855, 652, 1065, 690)),
+    ('pj1920 earlier round label', 'row4-c5-1920', (500, 712, 600, 750)),
+    ('pj1920 earlier code gold', 'row4-c5-1920', (605, 702, 975, 745)),
+    ('pj320 code label', 'row4-c1-320', (100, 98, 215, 126)),
+    ('pj320 digits 12 gold', 'row4-c1-320', (44, 142, 276, 176)),
+    ('pj320 hint white', 'row4-c1-320', (36, 190, 284, 216)),
+    ('pj320 earlier label', 'row4-c5-320', (95, 240, 225, 262)),
+    ('pj320 earlier round label', 'row4-c5-320', (48, 272, 104, 292)),
+    ('pj320 earlier code gold', 'row4-c5-320', (108, 270, 272, 292)),
+    ('pj320 ok button ink/gold', 'row4-c5-320', (205, 14, 265, 42)),
+    ('pj1920 result claim line', 'row3-projector-result-1920', (545, 980, 1375, 1032)),
+    ('pj1920 result prize line', 'row3-projector-result-1920', (825, 235, 1095, 285)),
+    ('pj1920 result winner gold', 'row3-projector-result-1920', (855, 315, 1065, 415)),
+    ('pj320 result claim line', 'row3-projector-result-320', (14, 432, 282, 488)),
+    ('MUST-RED pj1920 veiled event name', 'row4-c1-1920', (100, 82, 292, 122)),
+    ('MUST-RED pj1920 veiled count 16', 'row4-c1-1920', (712, 890, 880, 1002)),
+]
+print('== text reads')
+for label, name, box in TEXT:
+    g, t, r = text_read(shot(name), box)
+    print('  %-34s %-24s ground %s text %s  %.2f' % (label, name, hx(g), hx(t), r))
+
+print('== solid reads (non-text, 3:1 floor)')
+wc = shot('row1-wrongCode-320')
+cream = mode(wc, (150, 520, 300, 560))
+ring = Counter(p for p in pixels(wc, (4, 190, 19, 240)) if not near(p, cream, 60)).most_common(1)[0][0]
+print('  error field outline  %s on %s  %.2f' % (hx(ring), hx(cream), ratio(ring, cream)))
+disc = mode(wc, (20, 262, 34, 276))
+print('  error icon disc      %s on %s  %.2f' % (hx(disc), hx(cream), ratio(disc, cream)))
+cd = shot('row1-card-320')
+suit = mode(cd, (80, 278, 100, 298))
+cw = mode(cd, (120, 200, 150, 260))
+print('  card suit (diamond)  %s on %s  %.2f' % (hx(suit), hx(cw), ratio(suit, cw)))
+
+print('== exit X opacity (enabled look = glyph near #ffffff; disabled = opacity 0.55)')
+for name in ('row4-c1-1920', 'row4-c5-320', 'row3-projector-result-1920'):
+    img = shot(name)
+    px = pixels(img, (6, 6, 50, 50))
+    top = max(px, key=lum)
+    print('  %-28s brightest %s  disc mode %s' % (name, hx(top), hx(Counter(px).most_common(1)[0][0])))
+
+print('== glyph boxes: Mitr digits (1920 paints at 0.948; 320 unscaled)')
+DIG = [
+    ('pj1920 9-digit (ref, 180px)', 'row4-c3-1920', (350, 405, 1560, 548), gold, 180 * 0.948),
+    ('pj1920 12-digit (150px)', 'row4-c1-1920', (330, 400, 1580, 525), gold, 150 * 0.948),
+    ('pj1920 earlier code (44px)', 'row4-c5-1920', (605, 700, 975, 748), gold, 44 * 0.948),
+    ('pj320 final digits (32px)', 'row4-c5-320', (70, 140, 250, 182), gold, 32),
+    ('pj320 12-digit (26px)', 'row4-c1-320', (44, 140, 276, 178), gold, 26),
+    ('pj320 earlier code (18px)', 'row4-c5-320', (108, 270, 272, 294), gold, 18),
+    ('ph320 heading digit 1 (26px)', 'row1-codeEntry-320', (84, 70, 104, 104), dark, 26),
+    ('ph320 field digits 1 (30px)', 'row1-wrongCode-320', (78, 195, 242, 236), dark, 30),
+]
+ref = None
+for label, name, box, test, painted in DIG:
+    e = extent(shot(name), box, test)
+    h = e[2]
+    if ref is None:
+        ref = h / painted
+    print('  %-32s rows %d..%d  h %dpx  h/size %.3f  predicted %.1fpx (declared %.1f painted)' % (
+        label, e[0], e[1], h, h / painted, h / ref, painted))
+
+print('== Thai base band: Sarabun 400 (hint 34px at 1920 x0.948 and 18px at 320 are the knowns)')
+BANDS = [
+    ('pj1920 hint (34px x0.948)', 'row4-c1-1920', (735, 548, 1185, 604), light, 34 * 0.948),
+    ('pj320 hint (18px)', 'row4-c1-320', (36, 188, 284, 218), light, 18),
+    ('ph320 offline note (16px)', 'row1-codeEntry-320', (14, 330, 240, 358), ink_text, 16),
+    ('ph320 code sub (16px)', 'row1-codeEntry-320', (14, 108, 270, 138), ink_text, 16),
+    ('ph375 offline note (16px)', 'row1-codeEntry-375', (14, 330, 240, 358), ink_text, 16),
+    ('ph320 claim note line 1 (16px)', 'row1-slot0-320', (14, 236, 296, 262), ink_text, 16),
+]
+bref = []
+for label, name, box, test, painted in BANDS:
+    a, b, h, peak = band(shot(name), box, test)
+    if len(bref) < 2:
+        bref.append(h / painted)
+    k = sum(bref) / len(bref)
+    print('  %-32s band %d..%d  h %dpx  h/size %.3f  predicted %.1fpx (declared %.1f)' % (label, a, b, h, h / painted, h / k, painted))
+
+CL = [('ink', INK), ('gold', GOLD), ('cream', CREAM), ('white', WHITE)]
+print('== card screen 375: the two rule buttons down x=40 (gap = cream run between them)')
+for run in column(shot('row1-card-375'), 40, 480, 620, CL):
+    print('  ', run)
+print('== card screen 320: the fold (viewport ends at row 567) down x=40')
+for run in column(shot('row1-card-320'), 40, 480, 568, CL):
+    print('  ', run)
+print('== header band height (rows of ink from the top, x=100) and the badge top (x=72)')
+for name in ('row1-in-375', 'row1-in-320', 'row1-provisional-320', 'row1-provisional-375', 'row1-codeEntry-320', 'row1-card-320'):
+    img = shot(name)
+    runs = column(img, 100, 0, 120, CL)
+    bandh = runs[0][3] if runs[0][0] == 'ink' else 0
+    badge = column(img, 72, bandh, 200, CL)
+    first_ink = next((r[1] for r in badge if r[0] == 'ink'), None)
+    print('  %-24s band %dpx  first ink at x=72 below it: row %s' % (name, bandh, first_ink))

@@ -1,0 +1,290 @@
+{
+ "audit": "ui-audit-2026-11-14-gh309",
+ "build": {
+  "dist_mtime": null,
+  "head": "5b0c90163630f8c170fcd8eaaee81f22eb52c1ee",
+  "note": "shot build not on disk: dist/ rebuilt 17:51:33, after the shots (17:50:07 file times), from a dirty tree (5b0c901 plus uncommitted src edits). The shots predate two fixes (the earlier-codes list showing each card round's rule, pd-eru in src/play/_prize-reveal/reveal.ts and reveal.css dated 17:40:30; status polling stopping at the first typed character, src/prize-join/join-page.ts dated 17:58:26). HEAD at audit time, c09df2888586b2cdf0359f38c7fdb5c1181ad62b, carries both"
+ },
+ "findings": [
+  {
+   "id": "PD-309-01",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ reveal flow, card screen",
+   "width": "320 (375 passes)",
+   "severity": "major",
+   "rule": "content-priority, touch-density",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-card-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-card-375.png"
+   ],
+   "summary": "second rule button below the 568 fold at 320: its border starts at row 557, 11 of 52px visible, label hidden; at 375 both fit (button 2 ends at row 613 of 667). No board draws the rule buttons: the owner ruling of 2026-11-14 (gh#300 condition 4, as the source cites it) replaced the reveal-card note",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "the two rule buttons side by side at 320, 52px tall, saving one button row [canvas]",
+    "a smaller playing card at 320 so both buttons stack above the fold [canvas; the card size is the board's]",
+    "keep, with the 11px edge as the scroll cue"
+   ]
+  },
+  {
+   "id": "PD-309-02",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ reveal flow, card screen and its result",
+   "width": "320, 375",
+   "severity": "major",
+   "rule": "confirmation-dialogs, undo-support, error-recovery",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-card-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-in-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-out-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-out-375.png",
+    "src/prize-join/reveal.ts",
+    "src/prize-join/join-page.ts"
+   ],
+   "summary": "chooseRule accepts a tap only on the card screen, and the choice is stored in localStorage; renderFlow draws no later screen that names the rule tapped, and the out screen has no form. One tap on two equal gold buttons fixes the round's fate on the phone, and a wrong 'out' ends its flow. Degraded task: learning one's own result. Workaround: the main screen, which stays the authority. The tap is decision 13's stated cost (gh#299 last comment). No ruling on undo was found in gh#299 (body and 3 comments), gh#300 (body and comment), gh#309 (body), the source comments or the ADRs",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep: one tap, final",
+    "the result screen names the rule tapped, with a control to change it while the next code is untyped [copy: owner] [canvas]",
+    "a confirm step after the tap that names the rule [copy: owner] [canvas]"
+   ]
+  },
+  {
+   "id": "PD-309-03",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ reveal flow, every screen swap",
+   "width": "320 (375 when the page was scrolled)",
+   "severity": "minor",
+   "rule": "continuity, content-priority",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-in-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-in-375.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-provisional-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-provisional-375.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/probe/phones.mjs.txt",
+    "src/prize-join/join-page.ts"
+   ],
+   "summary": "a screen swap keeps the page's scroll offset: in-320 opens ~69px down (no header band; badge ink at row 7 vs 76 at 375), provisional-375 shows 39 of the 48px band. The offsets' size is the harness's: the probe centred the rule button (scrollIntoView block:center) before tapping. The page's part: nothing under src/prize-join/ calls scrollTo or scrollIntoView (frame replaces the body in place), and at 320 a person must scroll to reach the second rule (PD-309-01)",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep",
+    "every screen swap starts at the page top",
+    "scroll only when the new heading would sit above the viewport"
+   ]
+  },
+  {
+   "id": "PD-309-04",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ reveal flow, pass screen",
+   "width": "320, 375 (and 390 in the gh310 rehearsal)",
+   "severity": "minor",
+   "rule": "content-priority, whitespace-balance",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-in-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-in-375.png",
+    "docs/verification/evidence/gh310-rehearsal-2026-11-14/shots/phone-4-pass-r4-to-final.png"
+   ],
+   "summary": "two lines on one screen ask for the same wait: REVEAL_COPY.passSub (owner copy 2026-11-14, replacing the board's head count, which no code carries) under the heading, and the board's wait note under the name card. Each is approved; the board never drew them together",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep both",
+    "passSub keeps only its first clause (the next round's name) [copy: owner]",
+    "drop the board's wait note on the pass screen; the code form under it already asks for the next code"
+   ]
+  },
+  {
+   "id": "PD-309-05",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ reveal flow, provisional note",
+   "width": "320, 375",
+   "severity": "minor",
+   "rule": "visual-hierarchy, content-priority",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-provisional-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-provisional-375.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-in-375.png",
+    "src/prize-join/join-page.ts"
+   ],
+   "summary": "renderFlow appends the unconfirmed-result line after the form, under the button, in the same 16px #3d3b5c as every note. On the unscrolled pass screen (row1-in-375) the button starts at row 568; 320 breaks the same lines, so at 320 at the page top the button and the note under it are both below the 568 fold. Not drawn on the board (owner answer 2026-11-14). After the polling fix a phone that types before the status answer stays provisional for the event, so more phones show it",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep",
+    "move it under the heading, in the sub line's slot",
+    "move it under the heading in Sarabun 700 (the error row's weight, without its icon)"
+   ]
+  },
+  {
+   "id": "PD-309-06",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ reveal flow, removed screen",
+   "width": "320, 375",
+   "severity": "minor",
+   "rule": "error-recovery, error-clarity",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-removed-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-removed-375.png"
+   ],
+   "summary": "the owner-approved heading (gh#308 ANSWER_COPY.removed) states the removal with no next step, and the card under it is labelled 'your name on the screen' for a name no longer on it. After the polling fix a removed person who typed before the status answer never reaches this screen",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep",
+    "drop the name card on this screen",
+    "add a next-step line pointing to the organiser [copy: owner]"
+   ]
+  },
+  {
+   "id": "PD-309-07",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ removed heading and claim note; /game/prize-draw/play/ result claim line",
+   "width": "320 (375 and 1920 fit one line)",
+   "severity": "minor",
+   "rule": "heading-line-balance, line-length-control",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-removed-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-slot0-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-slot1-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-slot2-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row3-projector-result-320.png"
+   ],
+   "summary": "the browser's Thai breaker splits three compounds at 320: the removed h1 inside the word for 'list' (a long line over a short one), the claim note leaving 'big' alone from 'big screen', the projector claim line inside the word for 'staff'",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep the browser's breaks",
+    "text-wrap: balance on the phone heading and pretty on notes (progressive, the browser decides)",
+    "keep the three named compounds whole with a no-wrap span each (targeted, not blanket non-breaking spaces)"
+   ]
+  },
+  {
+   "id": "PD-309-08",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ header band and claim screen",
+   "width": "320, 375",
+   "severity": "minor",
+   "rule": "content-priority; board deviation",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-codeEntry-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-slot0-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-slot0-375.png",
+    "src/prize-join/join-page.ts"
+   ],
+   "summary": "the picked board (Gh302Phone A header band, claim-320) draws the event name in the header band and the prize name on the prize card; the build has neither because the phone never receives them (frame leaves the title slot empty; REVEAL_COPY.prize carries the place only; both comments say why). Both are MC-typed data, so this is a data gap, not copy",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep both absent; the projector shows both",
+    "the join or status answer carries the event name and prize names, both set before the start (a server change, no new call)",
+    "the event name only"
+   ]
+  },
+  {
+   "id": "PD-309-09",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ round-code field",
+   "width": "320, 375",
+   "severity": "minor",
+   "rule": "board deviation (no quick-reference rule)",
+   "disposition": "fix-here",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-wrongCode-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-wrongCode-375.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row4-c1-1920.png",
+    "src/prize-join/join-page.ts"
+   ],
+   "summary": "typed digits show as one run ('111111111'); the board's field draws them grouped ('482 915 370') and the projector groups them, so a 12-digit run is compared by eye against '4671 9292 2925'. codeForm only switches the size class past 9 digits; nothing inserts group spaces. No test, comment, ADR or ticket read (gh#299, gh#300, gh#309) gives a reason for the raw field. A mistype is caught by the check digit, so the cost is a retype",
+   "fixHereValueSource": "12 digits: Gh302Phone reveal-code-card caption (PICKED 2026-11-11), 'grouped 4-4-4 like the projector. At 320 the field shows them at 26px with 1px letter spacing so the three groups stay apart on one line' (the 26px size is already built). 9 digits: Gh302Phone reveal-code and reveal-wrong A field values '482 915 307' / '482 915 370', and Gh302Projector ROUND CODE caption 'grouped 3-3-3'. The final's 7-digit code has no picked phone value (frame 4's 4-3 is a NEW VALUE row with no PICKED stamp), so it stays ungrouped unless the owner extends 4-3. normaliseDigits (src/prize-draw/round-code.ts) skips spaces and hyphens, so a grouped value parses; the fix's own test confirms it",
+   "ownerOptions": null
+  },
+  {
+   "id": "PD-309-10",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/play/ code card, MC controls in the play band",
+   "width": "1920, 320",
+   "severity": "minor",
+   "rule": "escape-routes, confirmation-dialogs, destructive-emphasis",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row4-c1-1920.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row4-c5-1920.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row4-c1-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row4-c5-320.png",
+    "src/shell/PlayExit.astro"
+   ],
+   "summary": "with the code card open, the band's exit X sits where a modal close usually is and the card's real close (ok button) is at the opposite end. The X paints #ffffff, full opacity, not its disabled 0.55 look (read from paint, not a click), and it leaves for the home page with no confirm. Owner rulings: one exit in the same corner on every play route (gh#143, gh#144), not a leave-confirm (PlayExit's header), the 56px band (gh#268, PlayTopBand B). Cost: the room sees the home page; returning to the play route resumes the stored step, so minor",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep; the rulings stand",
+    "the X takes its existing disabled look (opacity 0.55) while a code card is up",
+    "an ok button inside the card under the hint, the band's button unchanged [canvas]"
+   ]
+  },
+  {
+   "id": "PD-309-11",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/play/ after the code card closes",
+   "width": "1920, 320",
+   "severity": "minor",
+   "rule": "error-recovery, escape-routes",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row3-projector-result-1920.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row3-projector-result-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row4-c5-1920.png",
+    "src/play/prize-draw/stage.ts"
+   ],
+   "summary": "codeClosed is held in memory and nothing reopens the card; control returns no button on the final's result. A round code returns in the next card's earlier list, the final's 7-digit code never does, so a finalist who had not typed it gets no claim screen. This falls short of the condition that phones enter every code in order and the main screen keeps earlier codes visible (gh#299 last comment; frame 4 calls it gh#300 condition 1) for the final. A reload reopens the card: inferred (memory-only flag, and the gh309 pass shows the card open after reloads; nobody closed a card and then reloaded). Staff still match winners on the projector. Cost: a reload that resumes, so minor",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep; a reload reopens it and the claim is matched on the projector",
+    "a control in the band that shows the closed code again [copy: owner] [canvas]",
+    "the result screen keeps the final's code in small type [canvas]"
+   ]
+  },
+  {
+   "id": "PD-309-12",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ final out screen (places past the prize count)",
+   "width": "320, 375",
+   "severity": "minor",
+   "rule": "error-clarity, content-priority",
+   "disposition": "owner-pick",
+   "evidence": [
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-slot3-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-slot3-375.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-slot4-320.png",
+    "docs/verification/evidence/gh309-browser-2026-11-14/shots/row1-slot4-375.png"
+   ],
+   "summary": "a finalist placed past the prize count gets the elimination line 'cheer the ones still left' after the last round, when no one is left; the board approved it for round 1 and does not draw the final on the phone (Gh302Phone NOTES)",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep",
+    "a final-only second line [copy: owner]",
+    "on the final, the heading alone"
+   ]
+  },
+  {
+   "id": "PD-309-13",
+   "ticket": "gh#309",
+   "page": "/game/prize-draw/join/ reveal flow, every screen swap (read from source, not rendered)",
+   "width": "320, 375",
+   "severity": "minor",
+   "rule": "voiceover-sr, contextual-live-badge-updates, focus-management",
+   "disposition": "owner-pick",
+   "evidence": [
+    "src/prize-join/join-page.ts"
+   ],
+   "summary": "frame replaces the body with no live region and renderFlow moves no focus after a swap: a screen-reader user who presses the see-my-result or a rule button hears nothing, because focus goes with the removed button and the new heading (the verdict) is not announced. Field errors are announced (role=alert, aria-invalid, aria-describedby)",
+   "fixHereValueSource": null,
+   "ownerOptions": [
+    "keep",
+    "focus moves to the new screen's heading after each swap (tabindex -1)",
+    "a polite live region carries the new heading"
+   ]
+  }
+ ]
+}

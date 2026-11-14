@@ -195,7 +195,15 @@ export function renderScreen(frame: HTMLElement, view: ScreenView, doc: Doc = do
     flow.append(count(doc, view.chips.length, true), el(doc, 'small', '', 'คน'));
     parts.push(low(doc, gameSlot(doc, 'รอบชิง', null), flow, el(doc, 'div', 'pd-rt')));
   } else {
-    parts.push(top(doc, view.eventName, null, null));
+    const bar = top(doc, view.eventName, null, null);
+    // QR mode: the final's code in small type at the bar's right end, where the round label sits on every
+    // other screen (owner pick PD-309-11; design/Gh305AuditFrames.dc.html frame 6, frame 4's item values).
+    if (view.finalCode) {
+      const kept = el(doc, 'span', 'pd-fcode');
+      kept.append(el(doc, 'span', 'pd-er', CODE_COPY.label(view.finalCode.round)), el(doc, 'span', 'pd-ed', groupCode(view.finalCode.digits)));
+      bar.appendChild(kept);
+    }
+    parts.push(bar);
     const [first, ...rest] = view.winners;
     const spot = el(doc, 'div', 'pd-spot');
     spot.appendChild(el(doc, 'h2', '', 'ผู้ได้รับรางวัล'));
@@ -215,7 +223,14 @@ export function renderScreen(frame: HTMLElement, view: ScreenView, doc: Doc = do
       parts.push(cards);
     }
     // The board's claim line is QR mode's: admin mode has no phones, so it is drawn only when asked.
-    if (view.claim) parts.push(el(doc, 'div', 'pd-claim', CODE_COPY.claim));
+    if (view.claim) {
+      // The staff compound stays whole on a 320px line (owner pick PD-309-07): the site's no-wrap span.
+      const line = el(doc, 'div', 'pd-claim');
+      const word = 'ทีมงาน';
+      const at = CODE_COPY.claim.indexOf(word);
+      line.append(doc.createTextNode(CODE_COPY.claim.slice(0, at)), el(doc, 'span', 'nw', word), doc.createTextNode(CODE_COPY.claim.slice(at + word.length)));
+      parts.push(line);
+    }
   }
   // QR mode: the step's code, over everything else on the frame until the MC closes it (stage.ts).
   if (view.kind !== 'final' && view.code) parts.push(...codeCard(doc, view.code));

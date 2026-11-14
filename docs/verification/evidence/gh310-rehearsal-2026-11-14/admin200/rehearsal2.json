@@ -1,0 +1,64 @@
+{
+ "ladder": {
+  "canvas": true,
+  "sawAtMs": 153,
+  "finished": true,
+  "ms": 35345,
+  "newGl": 1,
+  "frames": 2016,
+  "lost": 1
+ },
+ "result": {
+  "screen": "result",
+  "pz": [
+   "รางวัลที่ 1 · ทีวี",
+   "รางวัลที่ 2 · พัดลม",
+   "รางวัลที่ 3 · บัตรกำนัล",
+   "รางวัลที่ 4 · หูฟัง",
+   "รางวัลที่ 5 · ชุดกาแฟ"
+  ],
+  "wn": [
+   "Guest74",
+   "Guest104",
+   "Guest78",
+   "Guest49",
+   "Guest65"
+  ],
+  "mc": null
+ },
+ "final": {
+  "game": "ladder",
+  "order": [
+   "Guest74",
+   "Guest104",
+   "Guest78",
+   "Guest49",
+   "Guest65"
+  ],
+  "picks": [
+   "Guest49",
+   "Guest65",
+   "Guest74",
+   "Guest78",
+   "Guest104"
+  ],
+  "permutation": [
+   2,
+   4,
+   0,
+   1,
+   3
+  ],
+  "slotRanks": [
+   0,
+   2,
+   3,
+   1,
+   4
+  ]
+ },
+ "nRounds": 4,
+ "exceptions": [],
+ "consoleErrors": [],
+ "logErrors": []
+}

@@ -174,6 +174,11 @@ export class FakeElement extends FakeNode {
   click() {
     if (!this.disabled) this.dispatch('click');
   }
+  /** Element.remove(): out of its parent, nothing else touched. */
+  remove() {
+    if (this.parentNode?.childNodes) this.parentNode.childNodes = this.parentNode.childNodes.filter((c) => c !== this);
+    this.parentNode = null;
+  }
   focus() {}
   /** Every element below this one, depth first. */
   all() {

@@ -50,6 +50,7 @@ const title = `${COPY.nameHeading} — ${game.names.th}`;
       getRandomValues: (a) => crypto.getRandomValues(a),
       setTimeout: (fn, ms) => window.setTimeout(fn, ms),
       clearTimeout: (h) => window.clearTimeout(h as number),
+      scrollTo: (x, y) => window.scrollTo(x, y),
     });
     document.fonts?.ready.then(() => page.refit());
     window.addEventListener('resize', () => page.refit());
@@ -271,6 +272,41 @@ const title = `${COPY.nameHeading} — ${game.names.th}`;
   }
   .pj :global(.pj-prize .pj-who) {
     margin-top: 8px;
+  }
+  /* gh#309 audit picks (owner, 2026-11-14), drawn in design/Gh305AuditFrames.dc.html frame 5. */
+  /* PD-309-07: a compound a 320px line must not split, the site's no-wrap span (as on the setup page). */
+  .pj :global(.nw) {
+    white-space: nowrap;
+  }
+  /* PD-309-05: the provisional note directly under the heading, at the heading's own gap. */
+  .pj :global(.pj-note.pj-prov) {
+    margin: 0 0 6px;
+  }
+  /* PD-309-02: the change control, the board's button with the white fill of its field and box. */
+  .pj :global(.pj-btn.pj-alt) {
+    background: var(--surface-tile);
+  }
+  /* PD-309-01: under 375px the card is the board's x 0.6, so both rule buttons sit above a 568 fold. */
+  @media (max-width: 374px) {
+    .pj :global(.pj-pcard) {
+      inline-size: 90px;
+      block-size: 126px;
+    }
+    .pj :global(.pj-rk), .pj :global(.pj-rk2) {
+      font-size: 23px;
+    }
+    .pj :global(.pj-rk) {
+      left: 7px;
+      top: 5px;
+    }
+    .pj :global(.pj-rk2) {
+      right: 7px;
+      bottom: 5px;
+    }
+    .pj :global(.pj-pcard svg) {
+      inline-size: 50px;
+      block-size: 50px;
+    }
   }
   .pj :global(.pj-inp:focus-visible),
   .pj :global(.pj-btn:focus-visible) {

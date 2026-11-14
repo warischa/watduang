@@ -1,0 +1,18 @@
+import { writeFileSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { sleep, OUT } from './lib.mjs';
+import { A, stubTab } from './g309lib.mjs';
+const T = await stubTab(); const out = {};
+const walk = JSON.parse(readFileSync(join(OUT, 'walk309.json'), 'utf8')); out.expectedFinal = walk.codes[walk.codes.length - 1].digits;
+for (const [W, H] of [[1920, 1080], [320, 568]]) {
+  await T.view(W, H, false); await T.nav(`${A}/game/prize-draw/play/`); await T.view(W, H, false); await sleep(1500);
+  await T.tapEl('.pd-mc button', 'ตกลง', { settleMs: 500 }); await sleep(900);
+  out[W] = await T.ev(`const q=(e)=>{const r=e.getBoundingClientRect();return {l:+r.left.toFixed(1),t:+r.top.toFixed(1),r:+r.right.toFixed(1),b:+r.bottom.toFixed(1)}};
+    const de=document.documentElement; const leaves=[...document.querySelectorAll('body *')].filter(e=>e.children.length===0&&e.textContent.trim());
+    const lab=leaves.find(e=>e.textContent.includes('รหัสรอบชิง')); const dig=leaves.find(e=>/^\\d{4} \\d{3}$/.test(e.textContent.trim())||/0\\d*\\s?\\d{3}$/.test(e.textContent.trim())&&e.textContent.trim().length<=9&&e!==lab);
+    const info=(e)=>e?{text:e.textContent.trim(),cls:e.className,fs:getComputedStyle(e).fontSize,fw:getComputedStyle(e).fontWeight,color:getComputedStyle(e).color,rect:q(e)}:null;
+    const over=[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();return r.width>1&&r.height>1&&(r.right>${W}+0.5||r.left<-0.5)&&!e.closest('.pd-sr')&&getComputedStyle(e).clipPath==='none'}).map(e=>e.tagName+'.'+e.className);
+    return {screen:document.getElementById('pd-frame').dataset.screen,cardOpen:!!document.querySelector('.pd-codebox'),label:info(lab),digits:info(dig),winners:[...document.querySelectorAll('.pd-wn')].map(e=>e.textContent.trim()),inner:[innerWidth,de.scrollWidth],over,rows:leaves.map(e=>e.textContent.trim()).filter(t=>/รหัส|\\d{4} \\d{3}/.test(t))};`);
+  await T.shot(`a-result-${W}`); console.log(W, JSON.stringify(out[W]).slice(0, 700));
+}
+writeFileSync(join(OUT, 'result309b.json'), JSON.stringify(out, null, 1)); process.exit(0);

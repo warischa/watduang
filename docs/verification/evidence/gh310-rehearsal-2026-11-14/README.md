@@ -86,3 +86,28 @@ Owner order for gh#310 (2026-11-14): Simulator rehearsal → the deploy ask → 
 
 - **No call at reveal time:** the server log (`rehearsal-run-server-log.txt`, admin header lines removed) has its last phone request at the status read right after the start (10:56:05). The phone then entered five codes and a rule tap (10:56–11:03) with 0 further requests, and the projector made none after the start either.
 - Not covered here: real phones and the real Function App with Blob storage, which come after the deploy on the live site (owner order). A finalist placed past the prize count was not played on this phone; it is covered by `reveal-page.test.mjs` and the stubbed-API browser pass (`docs/verification/evidence/gh309-browser-2026-11-14/`: places 4–5 show `รอบชิง ไม่ผ่าน`).
+
+## Admin-mode 200-name rehearsal
+
+One complete event in ADMIN mode, 200 names typed into the setup page, real UI at 1920 x 1080, current `dist/` (built from c09df28's source, not rebuilt), Chrome 157
+`--headless=new --use-angle=metal --enable-gpu` (real GPU: `ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro)`), no QR mode, no backend. Files in `admin200/`
+(`rehearsal.json`, `rehearsal2.json`, `shots/` PNGs next to them, `probe/*.txt`).
+
+Setup: 200 names (`Guest01`..., the last two Thai), event name `Rehearsal200`, 5 prizes named `ทีวี`, `พัดลม`, `บัตรกำนัล`, `หูฟัง`, `ชุดกาแฟ`. The suggested schedule was kept: 200 / 100 / 50 / 20 / 5.
+Games picked on the setup buttons (read back as pressed): round 1 ไพ่แจกทั้งห้อง (200 to 100 is an exact half, so cards is legal), round 2 พลุนับถอยหลัง, rounds 3 and 4 แบบปกติ, final ทางแยกเลือกเส้น.
+Start, then every round through the MC's buttons on the projector.
+
+| Round | Game | Presses | 3D reveal ran (canvas, new WebGL2 contexts) and finished | Kept | Schedule | Result |
+|---|---|---|---|---|---|---|
+| 1 | cards | `แจกไพ่`, `เปิดผล` | deal: canvas yes, 1 context, 254 frames, finished in 5.0s. reveal: canvas yes, 1 context, 397 frames, finished in 7.2s | 100 | 100 | PASS |
+| 2 | fireworks | `เปิดผล` | canvas yes, 1 context, 1195 frames, finished in 20.5s | 50 | 50 | PASS |
+| 3 | none (plain 2D) | `เปิดผล` | no 3D by design | 20 | 20 | PASS |
+| 4 | none (plain 2D) | `เปิดผล` | no 3D by design | 5 | 5 | PASS |
+| Final | ladder | 5 lane picks (lane tap, then name tap), `เปิดผล` | canvas yes (up at 0.15s), 1 context, 2016 frames, finished in 35.3s | 5 winners | 5 | PASS |
+
+- Final result lists **5 winners**: `รางวัลที่ 1 · ทีวี` Guest74, `รางวัลที่ 2 · พัดลม` Guest104, `รางวัลที่ 3 · บัตรกำนัล` Guest78, `รางวัลที่ 4 · หูฟัง` Guest49, `รางวัลที่ 5 · ชุดกาแฟ` Guest65; the stored final record has the same order. Screenshot `admin200/final-result.png`.
+- Errors: page errors 0 (`Runtime.exceptionThrown`), console errors 0, dialogs 0 in the whole event. The only browser log error is a `favicon.ico` 404 from the static server, not the page.
+  A `webglcontextlost` count rises by 1 per 3D reveal (released on dispose), none while a reveal ran and none unexpected.
+- Refresh-and-resume: at round 3 (rounds 1 and 2 committed, `เปิดผล` not yet pressed) the projector was reloaded; after the reload it showed the same screen (round, `รอบที่ 3 จาก 4`, the same first chips, the same `เปิดผล`) and the store still held 2 committed rounds. `admin200/resume-before.png`, `admin200/resume-after.png`.
+- Harness note: after the five lane picks my first loop kept re-tapping the lanes (the lane controls stay on screen until the reveal), so the run was resumed in a second tab on the same event (store and picks intact, shown in `ladder-lanes-picked.png`); the ladder reveal and the result are from that second tab, the rounds from the first.
+- Not covered: QR mode (box 1's other half), real phones, other projector widths, a mid-3D reload.

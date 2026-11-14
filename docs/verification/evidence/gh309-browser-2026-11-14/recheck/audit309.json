@@ -1,0 +1,456 @@
+{
+ "rows": {
+  "typed12-320": "8330 0536 5367",
+  "row1-card-320": {
+   "rules": [
+    {
+     "t": "ดอกจิกเท่านั้น",
+     "top": 434.3,
+     "bottom": 486.3
+    },
+    {
+     "t": "เฉพาะไพ่หน้าคน",
+     "top": 504.3,
+     "bottom": 556.3
+    }
+   ],
+   "innerH": 568,
+   "scrollH": 584,
+   "scrollY": 0,
+   "prov": true,
+   "provDirectlyUnderH1": true,
+   "afterH1": "pj-note pj-prov:ยังไม่ยืนยันชื่อ ผลจ"
+  },
+  "row4-pass-320": {
+   "h": "ผ่านรอบที่ 1",
+   "afterH1": "pj-note pj-prov:ยังไม่ยืนยันชื่อ ผลจ",
+   "provDirectlyUnderH1": true,
+   "waitNote": 0,
+   "tapped": "กติกาที่คุณแตะ: ดอกจิกเท่านั้น",
+   "change": true,
+   "activeIsH1": true
+  },
+  "row2-cut-320": {
+   "seq": [
+    {
+     "step": "tap drawn",
+     "h": "ผ่านรอบที่ 1",
+     "tapped": "กติกาที่คุณแตะ: ดอกจิกเท่านั้น",
+     "change": true
+    },
+    {
+     "step": "change",
+     "h": "รอบที่ 1",
+     "rules": 2
+    },
+    {
+     "step": "tap other",
+     "h": "รอบที่ 1 ไม่ผ่าน",
+     "tapped": "กติกาที่คุณแตะ: เฉพาะไพ่หน้าคน",
+     "change": true
+    }
+   ],
+   "cutAttempts": [],
+   "apiAfterStatus": 0
+  },
+  "row2-reload-320": {
+   "seq": [
+    {
+     "step": "tap other (out)",
+     "h": "รอบที่ 1 ไม่ผ่าน",
+     "tapped": "กติกาที่คุณแตะ: เฉพาะไพ่หน้าคน"
+    },
+    {
+     "step": "reload",
+     "h": "รอบที่ 1 ไม่ผ่าน",
+     "tapped": "กติกาที่คุณแตะ: เฉพาะไพ่หน้าคน",
+     "change": true,
+     "activeIsH1": true
+    },
+    {
+     "step": "change+tap drawn (pass)",
+     "h": "ผ่านรอบที่ 1",
+     "tapped": "กติกาที่คุณแตะ: ดอกจิกเท่านั้น"
+    },
+    {
+     "step": "reload",
+     "h": "ผ่านรอบที่ 1",
+     "tapped": "กติกาที่คุณแตะ: ดอกจิกเท่านั้น",
+     "change": true
+    }
+   ],
+   "apiAfterStatus": 0,
+   "apiList": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ]
+  },
+  "row5-320": {
+   "typed": {
+    "d12": "8330 0536 5367",
+    "d9": "231 598 946",
+    "d7": "0306 639"
+   },
+   "expected": {
+    "d12": "8330 0536 5367",
+    "d9": "231 598 946",
+    "d7": "0306 639"
+   },
+   "resultH": "คุณได้รางวัล",
+   "resultPz": "รางวัลที่ 1",
+   "expectedPlace": 1,
+   "activeIsH1": true,
+   "scrollY": 0
+  },
+  "row4-finalout4-320": {
+   "h": "รอบชิง ไม่ผ่าน",
+   "cheer": false,
+   "afterH1": "pj-box:ชื่อของคุณบนจอเจน",
+   "activeIsH1": true,
+   "scrollY": 0
+  },
+  "row4-finalout5-320": {
+   "h": "รอบชิง ไม่ผ่าน",
+   "cheer": false,
+   "afterH1": "pj-box:ชื่อของคุณบนจอพลอย ส",
+   "activeIsH1": true,
+   "scrollY": 0
+  },
+  "removed-320": {
+   "h": "ผู้จัดนำชื่อนี้ออกจากรายชื่อแล้ว",
+   "activeIsH1": true
+  },
+  "out-320": {
+   "h": "รอบที่ 1 ไม่ผ่าน",
+   "cheer": true,
+   "tapped": "กติกาที่คุณแตะ: เฉพาะไพ่หน้าคน"
+  },
+  "typed12-375": "8330 0536 5367",
+  "row1-card-375": {
+   "rules": [
+    {
+     "t": "ดอกจิกเท่านั้น",
+     "top": 518.3,
+     "bottom": 570.3
+    },
+    {
+     "t": "เฉพาะไพ่หน้าคน",
+     "top": 588.3,
+     "bottom": 640.3
+    }
+   ],
+   "innerH": 667,
+   "scrollH": 668,
+   "scrollY": 0,
+   "prov": true,
+   "provDirectlyUnderH1": true,
+   "afterH1": "pj-note pj-prov:ยังไม่ยืนยันชื่อ ผลจ"
+  },
+  "row4-pass-375": {
+   "h": "ผ่านรอบที่ 1",
+   "afterH1": "pj-note pj-prov:ยังไม่ยืนยันชื่อ ผลจ",
+   "provDirectlyUnderH1": true,
+   "waitNote": 0,
+   "tapped": "กติกาที่คุณแตะ: ดอกจิกเท่านั้น",
+   "change": true,
+   "activeIsH1": true
+  },
+  "row2-cut-375": {
+   "seq": [
+    {
+     "step": "tap drawn",
+     "h": "ผ่านรอบที่ 1",
+     "tapped": "กติกาที่คุณแตะ: ดอกจิกเท่านั้น",
+     "change": true
+    },
+    {
+     "step": "change",
+     "h": "รอบที่ 1",
+     "rules": 2
+    },
+    {
+     "step": "tap other",
+     "h": "รอบที่ 1 ไม่ผ่าน",
+     "tapped": "กติกาที่คุณแตะ: เฉพาะไพ่หน้าคน",
+     "change": true
+    }
+   ],
+   "cutAttempts": [],
+   "apiAfterStatus": 0
+  },
+  "row2-reload-375": {
+   "seq": [
+    {
+     "step": "tap other (out)",
+     "h": "รอบที่ 1 ไม่ผ่าน",
+     "tapped": "กติกาที่คุณแตะ: เฉพาะไพ่หน้าคน"
+    },
+    {
+     "step": "reload",
+     "h": "รอบที่ 1 ไม่ผ่าน",
+     "tapped": "กติกาที่คุณแตะ: เฉพาะไพ่หน้าคน",
+     "change": true,
+     "activeIsH1": true
+    },
+    {
+     "step": "change+tap drawn (pass)",
+     "h": "ผ่านรอบที่ 1",
+     "tapped": "กติกาที่คุณแตะ: ดอกจิกเท่านั้น"
+    },
+    {
+     "step": "reload",
+     "h": "ผ่านรอบที่ 1",
+     "tapped": "กติกาที่คุณแตะ: ดอกจิกเท่านั้น",
+     "change": true
+    }
+   ],
+   "apiAfterStatus": 0,
+   "apiList": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ]
+  },
+  "row5-375": {
+   "typed": {
+    "d12": "8330 0536 5367",
+    "d9": "231 598 946",
+    "d7": "0306 639"
+   },
+   "expected": {
+    "d12": "8330 0536 5367",
+    "d9": "231 598 946",
+    "d7": "0306 639"
+   },
+   "resultH": "คุณได้รางวัล",
+   "resultPz": "รางวัลที่ 1",
+   "expectedPlace": 1,
+   "activeIsH1": true,
+   "scrollY": 0
+  },
+  "row4-finalout4-375": {
+   "h": "รอบชิง ไม่ผ่าน",
+   "cheer": false,
+   "afterH1": "pj-box:ชื่อของคุณบนจอเจน",
+   "activeIsH1": true,
+   "scrollY": 0
+  },
+  "row4-finalout5-375": {
+   "h": "รอบชิง ไม่ผ่าน",
+   "cheer": false,
+   "afterH1": "pj-box:ชื่อของคุณบนจอพลอย ส",
+   "activeIsH1": true,
+   "scrollY": 0
+  },
+  "removed-375": {
+   "h": "ผู้จัดนำชื่อนี้ออกจากรายชื่อแล้ว",
+   "activeIsH1": true
+  },
+  "out-375": {
+   "h": "รอบที่ 1 ไม่ผ่าน",
+   "cheer": true,
+   "tapped": "กติกาที่คุณแตะ: เฉพาะไพ่หน้าคน"
+  }
+ },
+ "words": {
+  "code-320": {
+   "จอใหญ่": [
+    {
+     "lines": 1
+    }
+   ]
+  },
+  "card-320": {
+   "จอใหญ่": [
+    {
+     "lines": 1
+    },
+    {
+     "lines": 1
+    }
+   ]
+  },
+  "pass-320": {
+   "จอใหญ่": [
+    {
+     "lines": 1
+    },
+    {
+     "lines": 1
+    }
+   ]
+  },
+  "claim-320": {
+   "ทีมงาน": [
+    {
+     "lines": 1
+    }
+   ],
+   "จอใหญ่": [
+    {
+     "lines": 1
+    }
+   ]
+  },
+  "out4-320": {},
+  "out5-320": {},
+  "removed-320": {
+   "รายชื่อ": [
+    {
+     "lines": 1
+    }
+   ]
+  },
+  "out-320": {},
+  "code-375": {
+   "จอใหญ่": [
+    {
+     "lines": 1
+    }
+   ]
+  },
+  "card-375": {
+   "จอใหญ่": [
+    {
+     "lines": 1
+    },
+    {
+     "lines": 1
+    }
+   ]
+  },
+  "pass-375": {
+   "จอใหญ่": [
+    {
+     "lines": 1
+    },
+    {
+     "lines": 1
+    }
+   ]
+  },
+  "claim-375": {
+   "ทีมงาน": [
+    {
+     "lines": 1
+    }
+   ],
+   "จอใหญ่": [
+    {
+     "lines": 1
+    }
+   ]
+  },
+  "out4-375": {},
+  "out5-375": {},
+  "removed-375": {
+   "รายชื่อ": [
+    {
+     "lines": 1
+    }
+   ]
+  },
+  "out-375": {}
+ },
+ "swaps": [
+  {
+   "W": 320,
+   "label": "code->card",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "รอบที่ 1",
+   "active": "H1:รอบที่ 1"
+  },
+  {
+   "W": 320,
+   "label": "card->pass(drawn rule)",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "ผ่านรอบที่ 1",
+   "active": "H1:ผ่านรอบที่ 1"
+  },
+  {
+   "W": 320,
+   "label": "cut: code->card",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "รอบที่ 1",
+   "active": "H1:รอบที่ 1"
+  },
+  {
+   "W": 320,
+   "label": "cut: card->tap drawn",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "ผ่านรอบที่ 1",
+   "active": "H1:ผ่านรอบที่ 1"
+  },
+  {
+   "W": 320,
+   "label": "cut: change->card",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "รอบที่ 1",
+   "active": "H1:รอบที่ 1"
+  },
+  {
+   "W": 320,
+   "label": "cut: card->tap other",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "รอบที่ 1 ไม่ผ่าน",
+   "active": "H1:รอบที่ 1 ไม่"
+  },
+  {
+   "W": 375,
+   "label": "code->card",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "รอบที่ 1",
+   "active": "H1:รอบที่ 1"
+  },
+  {
+   "W": 375,
+   "label": "card->pass(drawn rule)",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "ผ่านรอบที่ 1",
+   "active": "H1:ผ่านรอบที่ 1"
+  },
+  {
+   "W": 375,
+   "label": "cut: code->card",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "รอบที่ 1",
+   "active": "H1:รอบที่ 1"
+  },
+  {
+   "W": 375,
+   "label": "cut: card->tap drawn",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "ผ่านรอบที่ 1",
+   "active": "H1:ผ่านรอบที่ 1"
+  },
+  {
+   "W": 375,
+   "label": "cut: change->card",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "รอบที่ 1",
+   "active": "H1:รอบที่ 1"
+  },
+  {
+   "W": 375,
+   "label": "cut: card->tap other",
+   "scrollY": 0,
+   "activeIsH1": true,
+   "h": "รอบที่ 1 ไม่ผ่าน",
+   "active": "H1:รอบที่ 1 ไม่"
+  }
+ ],
+ "mustRed": {
+  "forcedBreakLines": 2,
+  "nowrapLines": 1
+ }
+}

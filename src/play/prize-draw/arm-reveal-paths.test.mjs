@@ -147,6 +147,13 @@ test('QR mode (gh#309): each code card comes up with its close armed, and the cl
     assert.ok(s.frame.querySelector('.pd-claim'), 'the claim line');
     await close('result', true);
     assert.equal(s.go(), null, 'the result ends the event: no MC button once the code is closed');
+    // PD-309-11 (owner pick 2026-11-14): with the card closed, the result keeps the final's code in small type.
+    const kept = s.frame.querySelector('.pd-fcode');
+    assert.ok(kept, 'the final code left the result with its card');
+    assert.equal(kept.querySelector('.pd-er').textContent, 'รหัสรอบชิง');
+    assert.match(kept.querySelector('.pd-ed').textContent, /^\d{4} \d{3}$/);
+    // PD-309-07: the claim line keeps the staff compound whole with the site's no-wrap span.
+    assert.deepEqual(s.frame.querySelector('.pd-claim').querySelectorAll('.nw').map((n) => n.textContent), ['ทีมงาน']);
   } finally {
     mock.timers.reset();
   }

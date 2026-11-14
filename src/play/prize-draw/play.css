@@ -609,6 +609,11 @@ body {
   /* QR mode (gh#309) in the phone layouts: the result's claim line follows the winner cards, and the code
      card and its veil hold the screen while the page scrolls under them. Values: design/Gh305AuditFrames.dc.html
      frame 4 at 320 (the largest code sizes measured to fit the card at 320). */
+  /* The final's code kept on the result (canvas frame 6 at 320): under the event name, frame 4's 320 sizes. */
+  .pd-viewport[data-result] .pd-fcode {
+    margin-block-start: 6px;
+    gap: 8px;
+  }
   .pd-viewport[data-result] .pd-claim {
     position: static;
     margin-block-start: 18px;

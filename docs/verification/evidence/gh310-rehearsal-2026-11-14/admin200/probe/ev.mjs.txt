@@ -1,0 +1,107 @@
+import { BASE, sleep } from './lib.mjs';
+export const READ_EVENT = `
+  const dbs = await indexedDB.databases(); if (!dbs.some(d => d.name === 'watduang-prize-draw')) return { none: true };
+  const db = await new Promise((res, rej) => { const q = indexedDB.open('watduang-prize-draw'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+  const raw = await new Promise((res) => { const q = db.transaction('event').objectStore('event').get('current'); q.onsuccess = () => res(q.result); });
+  db.close(); const st = typeof raw === 'string' ? JSON.parse(raw) : raw; if (!st) return { none: true };
+  const nm = new Map(st.setup.people.map(p => [p.id, p.name]));
+  return { at: st.at, nRounds: st.rounds.length, rounds: st.rounds.map(r => ({ round: r.round, game: r.game, survivors: r.survivors.map(i => nm.get(i)), n: r.survivors.length, rule: r.rule })),
+    prepared: st.prepared ? { game: st.prepared.game, round: st.prepared.round, slotRanks: st.prepared.slotRanks } : null,
+    final: st.final ? { game: st.final.game, order: st.final.order.map(i => nm.get(i)), picks: st.final.picks ? st.final.picks.map(i => nm.get(i)) : null, permutation: st.final.permutation, slotRanks: st.final.slotRanks } : null,
+    games: st.setup.games, prizes: st.setup.prizes, heads: st.setup.people.length };`;
+export const readEvent = (T) => T.ev(READ_EVENT);
+export const readChips = (T) => T.ev(`const f=document.querySelector('.pd-field'); if(!f) return null; const all=[...f.querySelectorAll('.pd-chip')]; return { screen: document.getElementById('pd-frame')?.getAttribute('data-screen'), total: all.length, inNames: all.filter(c=>c.classList.contains('in')).map(c=>c.textContent.trim()), outCount: all.filter(c=>c.classList.contains('out')).length };`);
+export const same = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+export const mcText = (T) => T.ev(`const b=document.querySelector('.pd-mc button'); return b?b.textContent.trim():null;`);
+export const wd = (T) => T.ev(`return JSON.parse(JSON.stringify({ ctx: __wd.ctx, lost: __wd.lost, canvas: __wd.canvas, raf: __wd.raf, btn: __wd.btn, frames: (window.__watduangRevealFrameTime.frames||[]).length, phases: Object.keys(window.__watduangRevealFrameTime.summary?window.__watduangRevealFrameTime.summary():{}) }));`);
+
+export const NAMES = [...Array.from({ length: 28 }, (_, i) => `Guest${String(i + 1).padStart(2, '0')}`), 'สมชาย', 'มานี'];
+export const PRIZE_NAMES = ['ทีวี', 'พัดลม', 'บัตรกำนัล'];
+
+
+// ===================================================================================================
+// recheck scenarios (appended to the readers above)
+export const summarize = (T) => ({
+  consoleAll: T.S.console.map((c) => `${c.type}: ${c.text}`.slice(0, 300)),
+  exceptions: T.S.exceptions, log: T.S.log.filter((l) => ['error', 'warning'].includes(l.level)).map((l) => `${l.level}/${l.source}: ${l.text} ${l.url}`.slice(0, 300)), dialogs: T.S.dialogs,
+});
+export const rendererOf = (w) => [...new Set(w.ctx.filter((c) => c.renderer).map((c) => c.renderer))];
+export const wd2 = (T) => T.ev(`return JSON.parse(JSON.stringify({ ctx: __wd.ctx, lost: __wd.lost, canvas: __wd.canvas, raf: __wd.raf, frames: (window.__watduangRevealFrameTime.frames||[]).length }));`);
+export const phaseNow = (T) => T.ev(`const fr=(window.__watduangRevealFrameTime.frames||[]); return fr.length ? String(fr[fr.length-1].phase) : 'none';`);
+export const mkNames = (n) => Array.from({ length: n }, (_, i) => (i === n - 1 ? 'มานี' : i === n - 2 ? 'สมชาย' : `Guest${String(i + 1).padStart(2, '0')}`));
+export const PRIZES = ['ทีวี', 'พัดลม', 'บัตรกำนัล'];
+export const nn = (i) => String(i).padStart(2, '0');
+export const setIn = (T, id, v, tag = 'input') => T.ev(`const el=document.getElementById(${JSON.stringify(id)}); const proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype; Object.getOwnPropertyDescriptor(proto,'value').set.call(el, ${JSON.stringify(String(v))}); el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); return true;`);
+export const cardStates = (T) => T.ev(`return [1,2,3,4].map(r=>{const b=document.querySelector('#pd-game-r'+r+' button[data-game="cards"]'); return b?{round:r,disabled:b.disabled,hidden:b.hidden,pressed:b.getAttribute('aria-pressed')}:{round:r,absent:true};});`);
+export const schedRead = (T) => T.ev(`const g=i=>{const e=document.getElementById('pd-s'+i); return e?(e.value??e.textContent):null;}; return { vals:[0,1,2,3,4].map(g), labels:[0,1,2,3].map(i=>document.getElementById('pd-l'+i)?.textContent), msg:document.getElementById('pd-sched-msg')?.textContent.trim(), count:document.getElementById('pd-count')?.textContent };`);
+export const pressedRead = (T) => T.ev(`return ['pd-game-r1','pd-game-r2','pd-game-r3','pd-game-r4','pd-game-final'].map(g=>document.querySelector('#'+g+' button[aria-pressed="true"]')?.textContent.trim()??null);`);
+export const pickGame = (T, group, game) => T.ev(`const b=document.querySelector('#${group} button[data-game="${game ?? ''}"]'); if(!b) return 'absent'; b.click(); return b.disabled?'disabled':'ok';`);
+
+export async function openSetup(T, names, { wipe = true, event = 'Recheck' } = {}) {
+  if (wipe) await T.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' });
+  await T.nav(`${BASE}/game/prize-draw/`);
+  await setIn(T, 'pd-names', names.join('\n'));
+  await setIn(T, 'pd-event', event);
+}
+export async function setPrizes(T, prizes = 3) {
+  for (let i = 5; i > prizes; i--) await T.ev(`document.getElementById('pd-prize-minus').click();return 1`);
+  for (let i = 1; i <= prizes; i++) await setIn(T, `pd-prize-${i}`, PRIZES[i - 1]);
+}
+export async function startEvent(T) {
+  await T.tapEl('#pd-start', null);
+  const arrived = await T.waitFor(`location.pathname.endsWith('/game/prize-draw/play/') ? location.pathname : null`, 15000);
+  await sleep(1500);
+  return arrived;
+}
+export const readPrepared = (T) => T.ev(`
+  const dbs = await indexedDB.databases(); if (!dbs.some(d => d.name === 'watduang-prize-draw')) return { none: true };
+  const db = await new Promise((res, rej) => { const q = indexedDB.open('watduang-prize-draw'); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+  const raw = await new Promise((res) => { const q = db.transaction('event').objectStore('event').get('current'); q.onsuccess = () => res(q.result); });
+  db.close(); const st = typeof raw === 'string' ? JSON.parse(raw) : raw; if (!st) return { none: true };
+  const nm = new Map(st.setup.people.map(p => [p.id, p.name]));
+  return JSON.parse(JSON.stringify({ prepared: st.prepared ?? null, nRounds: st.rounds.length }, (k, v) => (typeof v === 'string' && nm.has(v) ? nm.get(v) : v)));`);
+export const lanesDom = (T) => T.ev(`return { screen: document.getElementById('pd-frame')?.getAttribute('data-screen'), lanes: [...document.querySelectorAll('.pd-lane')].map(b=>({ t: b.textContent.trim(), pressed: b.getAttribute('aria-pressed') })), names: [...document.querySelectorAll('.pd-name')].map(b=>b.textContent.trim()), mc: (()=>{const b=document.querySelector('.pd-mc button'); return b?{t:b.textContent.trim(),disabled:b.disabled}:null})() };`);
+export const centerN = (T, sel, i) => T.ev(`const e=[...document.querySelectorAll(${JSON.stringify(sel)})][${i}]; if(!e) return null; e.scrollIntoView({block:'center'}); const r=e.getBoundingClientRect(); const x=r.left+r.width/2,y=r.top+r.height/2; const hit=document.elementFromPoint(x,y); return {x,y,disabled:!!e.disabled,hit:!!hit&&(hit===e||e.contains(hit))};`);
+export const laneNames = (d) => d?.lanes?.map((l) => l.t) ?? null;
+
+/** pick the finalist `which` (0 = first listed) onto lane `lane`; the lane tap, then the name tap. */
+export async function pickLane(T, lane) {
+  await sleep(450);
+  let c = await centerN(T, '.pd-lane', lane);
+  let blocked = null;
+  if (!c) throw new Error(`lane ${lane} absent`);
+  if (!c.hit) {
+    // record what covers the lane control's centre, then look for any point of the control that does hit it
+    blocked = await T.ev(`const e=[...document.querySelectorAll('.pd-lane')][${lane}]; const r=e.getBoundingClientRect(); const top=document.elementFromPoint(${c.x},${c.y}); const d=x=>x?(x.tagName.toLowerCase()+(x.id?'#'+x.id:'')+(x.className&&x.className.baseVal===undefined?'.'+String(x.className).split(' ').join('.'):'')):null; let free=null; for(let fy=0.1;fy<=0.9&&!free;fy+=0.2) for(let fx=0.1;fx<=0.9&&!free;fx+=0.2){const x=r.left+r.width*fx,y=r.top+r.height*fy; const h=document.elementFromPoint(x,y); if(h&&(h===e||e.contains(h))) free={x,y};} return { rect:{l:Math.round(r.left),t:Math.round(r.top),w:Math.round(r.width),h:Math.round(r.height)}, coveredBy:d(top), coveredByRect: top?(()=>{const q=top.getBoundingClientRect(); return {l:Math.round(q.left),t:Math.round(q.top),w:Math.round(q.width),h:Math.round(q.height)}})():null, free };`);
+    if (blocked.free) c = { ...c, x: blocked.free.x, y: blocked.free.y };
+    else { await T.ev(`[...document.querySelectorAll('.pd-lane')][${lane}].click(); return 1`); }
+  }
+  if (!blocked || blocked.free) await T.touch(c.x, c.y);
+  await sleep(300);
+  const nm = await T.ev(`const b=document.querySelector('.pd-name'); return b?b.textContent.trim():null`);
+  const n = await T.tapEl('.pd-name', null, { settleMs: 450 });
+  await sleep(300);
+  return { lane, name: nm, hit: n.hit, blocked };
+}
+
+/** one press with screenshots while a 3D canvas is up; names carry the host's own phase. */
+export async function pressShots(T, label, prefix, { sel = '.pd-mc button', canvasSel = '.pd-3d canvas', everyMs = 2000, maxShots = 6, maxMs = 150000 } = {}) {
+  const w0 = await wd2(T); const t0 = Date.now();
+  const tap = await T.tapEl(sel, label, { settleMs: 450 });
+  const shots = [], tl = []; let saw = false, last = -1e9, done = false;
+  while (Date.now() - t0 < maxMs) {
+    const r = await T.ev(`const c=document.querySelector(${JSON.stringify(canvasSel)}); const b=document.querySelector(${JSON.stringify(sel)}); return { canvas:!!c, btn:b?b.textContent.trim():null };`);
+    const ms = Date.now() - t0;
+    const ph = r.canvas ? await phaseNow(T) : '-';
+    if (!tl.length || tl[tl.length - 1].c !== r.canvas || tl[tl.length - 1].b !== r.btn || tl[tl.length - 1].p !== ph) tl.push({ ms, c: r.canvas, b: r.btn, p: ph });
+    if (r.canvas) {
+      saw = true;
+      if (shots.length < maxShots && ms - last >= everyMs) { last = ms; shots.push({ ms, phase: ph, file: await T.shot(`${prefix}-${nn(shots.length + 1)}-${ph}`) }); }
+    }
+    if (!r.canvas && saw) { await sleep(700); done = true; break; }
+    if (!r.canvas && r.btn && r.btn !== label && ms > 4000) { done = true; break; }
+    await sleep(80);
+  }
+  const w1 = await wd2(T);
+  return { tap: { disabledAtTap: tap.disabled, hit: tap.hit }, sawCanvas: saw, done, elapsedMs: Date.now() - t0, tl: tl.slice(0, 40), shots, canvasEvents: w1.canvas.length - w0.canvas.length, frames: w1.frames, finalBtn: await mcText(T) };
+}

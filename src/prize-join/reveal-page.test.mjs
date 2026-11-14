@@ -13,7 +13,8 @@ import { ARM_DELAY_MS } from '../games/_arm-gate.ts';
 import { COPY as CARD_COPY } from '../play/prize-cards/renderer/copy.ts';
 import { ANSWER_COPY, REVEAL_COPY, mountJoin } from './join-page.ts';
 import { storageKey } from './join.ts';
-import { revealKey } from './reveal.ts';
+import { chooseRule, enterCode, freshReveal, revealKey, revealView } from './reveal.ts';
+import { readFileSync } from 'node:fs';
 import { screenView } from '../prize-event/view.ts';
 
 const EV = 'AbCdEfGhIjKlMnOpQrStUv';
@@ -67,6 +68,7 @@ function phone(person, { status, kv = new Map(), fetchImpl } = {}) {
   kv.set(storageKey(EV), JSON.stringify({ token: 'T'.repeat(32), id: person.id, name: person.name }));
   const timers = [];
   const calls = [];
+  const scrolls = [];
   let cut = false;
   const violations = [];
   const h = mountJoin(root, {
@@ -90,12 +92,14 @@ function phone(person, { status, kv = new Map(), fetchImpl } = {}) {
     getRandomValues: (a) => webcrypto.getRandomValues(a),
     setTimeout: (fn) => timers.push(fn),
     clearTimeout: () => {},
+    scrollTo: (x, y) => scrolls.push([x, y]),
   });
   const $ = (sel) => root.querySelector(sel);
   const p = {
     root,
     h,
     timers,
+    scrolls,
     kv,
     calls,
     violations,
@@ -285,7 +289,8 @@ test('3 prizes: the finalists placed 4 and 5 get the out result, places 1 to 3 t
     seen.push(p.heading());
     if (slot < 3) assert.equal(p.$('.pj-pz').textContent, `รางวัลที่ ${slot + 1}`);
     else {
-      assert.equal(p.$('.pj-sub').textContent, REVEAL_COPY.outSub, `place ${slot + 1}: the board's out frame`);
+      // The board's out frame, heading only on the final (owner pick PD-309-12, 2026-11-14).
+      assert.equal(p.$('.pj-sub'), null, `place ${slot + 1}: the cheer line on the final`);
       assert.equal(p.$('.pj-prize'), null, `place ${slot + 1}: a prize box with no prize`);
     }
     assert.deepEqual(p.violations, []);
@@ -409,3 +414,337 @@ test('a late membership answer keeps the draft in the code field; an accepted co
   assert.equal(p.heading(), 'ผ่านรอบที่ 2');
   assert.equal(p.$('#pj-code').value, '', 'an accepted code and rule clear the field');
 });
+
+// ---- gh#309 audit picks (owner, 2026-11-14): docs/verification/evidence/ui-audit-2026-11-14-gh309/
+
+/** A member in after round 1 whose round-2 fate turns on the rule tapped: the drawn rule keeps them. */
+const ruleTurns = EVENT.setup.people.find((x) => {
+  if (!inAfter(x.id, 2)) return false;
+  let rec = { ...freshReveal(PIN), member: 'confirmed', started: true };
+  rec = enterCode(enterCode(rec, x.id, round(1).code), x.id, round(2).code);
+  return revealView(chooseRule(rec, x.id, round(2).rule === 0 ? 1 : 0), x.id).screen.kind === 'out';
+});
+const ruleLabel = (r, which) => CARD_COPY.rule[r.deal.pair[which]];
+
+/** Every control on screen is held inside the arm window, then live (ADR-0057). */
+function heldThenLive(p, label) {
+  const buttons = p.root.querySelectorAll('button');
+  assert.ok(buttons.length > 0, `${label}: no control on screen`);
+  for (const b of buttons) assert.equal(b.disabled, true, `${label}: "${b.textContent}" is live inside the arm window`);
+  mock.timers.tick(ARM_DELAY_MS);
+  for (const b of buttons) assert.equal(b.disabled, false, `${label}: "${b.textContent}" never armed`);
+}
+
+test('PD-309-02: the result names the rule tapped and its change goes back to the card; the latest tap is stored and survives a reload', async () => {
+  assert.ok(ruleTurns, 'the walk has no member whose round-2 fate turns on the rule');
+  const kv = new Map();
+  const p = phone(ruleTurns, { status: { state: 'started', member: true }, kv });
+  await p.runTimers();
+  await p.code(round(1).code);
+  await p.code(round(2).code);
+  const wrong = ruleLabel(round(2), round(2).rule === 0 ? 1 : 0);
+  const right = ruleLabel(round(2), round(2).rule);
+  await p.rule(wrong);
+  assert.equal(p.heading(), 'รอบที่ 2 ไม่ผ่าน');
+  assert.ok(p.noteTexts().includes(`กติกาที่คุณแตะ: ${wrong}`), 'the out screen names the rule tapped');
+  const tap = async (label) => {
+    p.root.querySelectorAll('button').find((b) => b.textContent === label).click();
+    await p.h.settled();
+  };
+  await tap('เปลี่ยนกติกา');
+  assert.equal(p.heading(), 'รอบที่ 2', 'the change goes back to the card screen');
+  assert.ok(p.$('.pj-pcard'));
+  heldThenLive(p, 'the card the change brought back');
+  await tap(right);
+  heldThenLive(p, 'the result of the second tap');
+  assert.equal(p.heading(), 'ผ่านรอบที่ 2');
+  assert.ok(p.noteTexts().includes(`กติกาที่คุณแตะ: ${right}`));
+  assert.equal(JSON.parse(kv.get(revealKey(EV))).entries[1].rule, round(2).rule, 'the latest tap is the stored one');
+  const again = phone(ruleTurns, { status: { state: 'started', member: true }, kv });
+  await again.runTimers();
+  assert.equal(again.heading(), 'ผ่านรอบที่ 2');
+  assert.ok(again.noteTexts().includes(`กติกาที่คุณแตะ: ${right}`), 'a reload shows the latest choice');
+  // Once the next code is accepted the change is gone: the rule stays as tapped.
+  await again.code(round(3).code);
+  assert.equal(again.root.querySelectorAll('button').find((b) => b.textContent === 'เปลี่ยนกติกา'), undefined);
+  assert.deepEqual([...p.violations, ...again.violations], []);
+});
+
+test('PD-309-03 and 13: every screen swap scrolls to the top and focuses the new heading; a wrong code does neither', async () => {
+  const proto = Object.getPrototypeOf(makeDoc().createElement('div'));
+  const own = Object.getOwnPropertyDescriptor(proto, 'focus');
+  let focused = null;
+  proto.focus = function () {
+    focused = this;
+  };
+  try {
+    const p = phone(winners(EVENT)[0].person, { status: { state: 'started', member: true } });
+    await p.runTimers();
+    const swaps = [];
+    for (const r of EVENT.rounds) {
+      swaps.push(() => p.code(r.code));
+      if (r.game === 'cards') swaps.push(() => p.rule(ruleLabel(r, r.rule)));
+    }
+    swaps.push(() => p.code(FINAL_CODE));
+    for (const step of swaps) {
+      const before = p.scrolls.length;
+      focused = null;
+      await step();
+      assert.deepEqual(p.scrolls.slice(before), [[0, 0]], `${p.heading()}: no scroll to the top`);
+      assert.equal(focused, p.$('h1'), `${p.heading()}: focus is not on the new heading`);
+      assert.equal(focused.getAttribute('tabindex'), '-1');
+    }
+    assert.equal(p.heading(), REVEAL_COPY.claimHeading, 'the walk reaches the claim');
+    // A wrong code changes no screen: the field keeps focus and the page stays where it is.
+    const q = phone(winners(EVENT)[0].person, { status: { state: 'started', member: true } });
+    await q.runTimers();
+    const before = q.scrolls.length;
+    await q.code(round(2).code);
+    assert.equal(focused, q.$('#pj-code'), 'a wrong code moves focus off the field');
+    assert.equal(q.scrolls.length, before, 'a wrong code scrolled the page');
+  } finally {
+    Object.defineProperty(proto, 'focus', own);
+  }
+});
+
+test('PD-309-04 and 05: the pass screen has no wait note, and the provisional note sits directly under the heading', async () => {
+  const p = phone(winners(EVENT)[0].person, { status: 'network' });
+  await p.runTimers();
+  await p.code(round(1).code);
+  assert.ok(!p.noteTexts().includes('รอรหัสรอบถัดไปจากจอใหญ่'), 'the wait note is back');
+  const h1 = p.$('h1');
+  const kids = h1.parentNode.children;
+  assert.equal(kids[kids.indexOf(h1) + 1].textContent, REVEAL_COPY.provisional, 'the element after the heading');
+});
+
+test('PD-309-12: the final\'s out screen shows the heading without the cheer line; an earlier round keeps it', async () => {
+  const three = walkedEvent(9, ['TV', 'Bike', 'Fryer']);
+  const code = hostFinalCode(PIN, three.final.order, 3);
+  const fin = three.setup.people.find((x) => x.id === three.final.order[4]);
+  const p = phone(fin, { status: { state: 'started', member: true } });
+  await p.runTimers();
+  for (const r of three.rounds) {
+    await p.code(r.code);
+    if (r.game === 'cards') await p.rule(ruleLabel(r, r.rule));
+  }
+  await p.code(code);
+  assert.equal(p.heading(), 'รอบชิง ไม่ผ่าน');
+  assert.equal(p.$('.pj-sub'), null, 'the cheer line on the final');
+  // Every elimination round keeps it: out at rounds 1 to 4, each through the real flow.
+  for (const n of [1, 2, 3, 4]) {
+    const out = EVENT.setup.people.find((x) => inAfter(x.id, n - 1) && !inAfter(x.id, n));
+    assert.ok(out, `the walk has nobody out at round ${n}`);
+    const q = phone(out, { status: { state: 'started', member: true } });
+    await q.runTimers();
+    for (const r of EVENT.rounds.slice(0, n)) {
+      await q.code(r.code);
+      if (r.game === 'cards') await q.rule(ruleLabel(r, r.rule));
+    }
+    assert.equal(q.heading(), `รอบที่ ${n} ไม่ผ่าน`);
+    assert.equal(q.$('.pj-sub')?.textContent, REVEAL_COPY.outSub, `round ${n}: the cheer line`);
+  }
+});
+
+test('PD-309-09: the code field groups typed digits as the projector does; the parsed and stored value is the digits', async () => {
+  const kv = new Map();
+  const p = phone(winners(EVENT)[0].person, { status: { state: 'started', member: true }, kv });
+  await p.runTimers();
+  const type = (digits) => {
+    p.$('#pj-code').value = digits;
+    p.$('#pj-code').dispatch('input');
+    return p.$('#pj-code').value;
+  };
+  assert.equal(type('482915307'), '482 915 307');
+  assert.equal(type('482-915 30'), '482 915 30');
+  assert.equal(type('482153076290'), '4821 5307 6290');
+  assert.equal(type(round(1).code), round(1).code.replace(/^(\d{3})(\d{3})(\d{3})$/, '$1 $2 $3'));
+  await p.code(p.$('#pj-code').value);
+  assert.equal(p.heading(), 'ผ่านรอบที่ 1', 'a grouped code reads');
+  assert.equal(JSON.parse(kv.get(revealKey(EV))).entries[0].code, round(1).code, 'the stored code is the digits');
+  // The final's 7 digits group 4-3, as the projector shows them.
+  for (const r of EVENT.rounds.slice(1)) {
+    await p.code(r.code);
+    if (r.game === 'cards') await p.rule(ruleLabel(r, r.rule));
+  }
+  assert.equal(type(FINAL_CODE), `${FINAL_CODE.slice(0, 4)} ${FINAL_CODE.slice(4)}`);
+});
+
+test('PD-309-07: the three named compounds are kept whole with the site\'s no-wrap span', async () => {
+  const removed = phone(winners(EVENT)[0].person, { status: { state: 'started', member: false } });
+  await removed.runTimers();
+  assert.equal(removed.heading(), ANSWER_COPY.removed);
+  assert.deepEqual(removed.$('h1').querySelectorAll('.nw').map((n) => n.textContent), ['รายชื่อ']);
+  const winner = winners(EVENT)[0].person;
+  const p = phone(winner, { status: { state: 'started', member: true } });
+  await p.runTimers();
+  for (const r of EVENT.rounds) {
+    await p.code(r.code);
+    if (r.game === 'cards') await p.rule(ruleLabel(r, r.rule));
+  }
+  await p.code(FINAL_CODE);
+  const note = p.root.querySelectorAll('.pj-note').find((n) => n.textContent === REVEAL_COPY.claimNote);
+  assert.deepEqual(note.querySelectorAll('.nw').map((n) => n.textContent), ['จอใหญ่']);
+  const css = readFileSync(new URL('../pages/game/prize-draw/join.astro', import.meta.url), 'utf8');
+  assert.match(css, /\.pj :global\(\.nw\) \{\s*white-space: nowrap;\s*\}/);
+  // Every rule that reaches the span only keeps it on one line: nothing hides it or restyles it.
+  const rules = [...css.matchAll(/([^{}]*\bnw\b[^{}]*)\{([^}]*)\}/g)];
+  assert.ok(rules.length >= 1);
+  for (const [, sel, body] of rules) assert.equal(body.trim(), 'white-space: nowrap;', `${sel.trim()} does more than keep the compound whole`);
+});
+
+test('PD-309-01: under 375px the card screen takes the canvas\'s smaller card (frame 5: 90 x 126, rank 23px, suit 50px)', () => {
+  const css = readFileSync(new URL('../pages/game/prize-draw/join.astro', import.meta.url), 'utf8');
+  const block = css.match(/@media \(max-width: 374px\) \{([\s\S]*?)\n  \}\n/);
+  assert.ok(block, 'no rule for viewports under 375px');
+  const rule = (sel) => block[1].match(new RegExp(`${sel.replace(/[().]/g, '\\$&')} \\{([^}]*)\\}`))?.[1] ?? '';
+  assert.match(rule(':global(.pj-pcard)'), /inline-size: 90px;[\s\S]*block-size: 126px;/);
+  assert.match(rule(':global(.pj-rk),\n    .pj :global(.pj-rk2)') + rule(':global(.pj-rk), .pj :global(.pj-rk2)'), /font-size: 23px;/);
+  assert.match(rule(':global(.pj-pcard svg)'), /inline-size: 50px;[\s\S]*block-size: 50px;/);
+  // The ranks' corner offsets are the board's 12px / 8px x 0.6 (frame 5), each corner exactly.
+  assert.match(block[1], /\.pj :global\(\.pj-rk\) \{\s*left: 7px;\s*top: 5px;\s*\}/);
+  assert.match(block[1], /\.pj :global\(\.pj-rk2\) \{\s*right: 7px;\s*bottom: 5px;\s*\}/);
+});
+
+/** The code field with a caret: selection, and setSelectionRange as a browser keeps them. */
+function caretField(p) {
+  const f = p.$('#pj-code');
+  f.selectionStart = f.selectionEnd = f.value.length;
+  f.setSelectionRange = (a, b) => {
+    f.selectionStart = a;
+    f.selectionEnd = b;
+  };
+  /** One edit as the browser applies it: replace [from, to) with `text`, caret after it, then input. */
+  f.edit = (from, to, text, inputType) => {
+    f.value = f.value.slice(0, from) + text + f.value.slice(to);
+    f.selectionStart = f.selectionEnd = from + text.length;
+    f.dispatch('input', { inputType });
+  };
+  return f;
+}
+
+test('PD-309-09, REFUTE r1: typing keeps the caret after the digit typed; Delete and Backspace across a group gap remove the digit beyond it; selections and pastes regroup', async () => {
+  const p = phone(winners(EVENT)[0].person, { status: { state: 'started', member: true } });
+  await p.runTimers();
+  const f = caretField(p);
+  for (const d of '482915307') {
+    f.edit(f.selectionStart, f.selectionEnd, d, 'insertText');
+    assert.equal(f.selectionStart, f.value.length, `caret after typing ${d} into ${f.value}`);
+  }
+  assert.equal(f.value, '482 915 307');
+  // Forward Delete with the caret before a gap: each press removes the next digit, the caret stays put.
+  f.setSelectionRange(3, 3);
+  for (const want of ['482 153 07', '482 530 7', '482 307']) {
+    f.edit(3, 4, '', 'deleteContentForward');
+    assert.deepEqual([f.value, f.selectionStart], [want, 3]);
+  }
+  // Backspace with the caret after a gap removes the digit before it.
+  f.value = '';
+  f.edit(0, 0, '482915307', 'insertFromPaste');
+  f.setSelectionRange(4, 4);
+  f.edit(3, 4, '', 'deleteContentBackward');
+  assert.deepEqual([f.value, f.selectionStart], ['489 153 07', 2]);
+  // A selection across a gap: the digits go, the rest regroups, the caret sits where they were.
+  f.edit(1, 5, '', 'deleteContentBackward');
+  assert.deepEqual([f.value, f.selectionStart], ['453 07', 1]);
+  // A paste with spaces and dashes regroups, caret at its end.
+  f.value = '';
+  f.edit(0, 0, '4821-5307 6290', 'insertFromPaste');
+  assert.deepEqual([f.value, f.selectionStart], ['4821 5307 6290', 14]);
+});
+
+test('REFUTE r1: a late membership answer keeps the focused field node, its value and its selection; only the provisional note goes', async () => {
+  const proto = Object.getPrototypeOf(makeDoc().createElement('div'));
+  const own = Object.getOwnPropertyDescriptor(proto, 'focus');
+  let focused = null;
+  proto.focus = function () {
+    focused = this;
+  };
+  try {
+    let release;
+    const gate = new Promise((resolve) => (release = resolve));
+    let calls = 0;
+    const fetchImpl = async () => {
+      calls++;
+      if (calls === 1) throw new TypeError('network down');
+      await gate;
+      return { status: 200, json: async () => ({ state: 'started', member: true }) };
+    };
+    const p = phone(winners(EVENT)[0].person, { fetchImpl });
+    await p.runTimers();
+    for (const fn of p.timers.splice(0)) fn();
+    await new Promise((resolve) => setImmediate(resolve));
+    p.$('#pj-code').value = round(1).code;
+    p.$('#pj-code-form').dispatch('submit');
+    assert.ok(p.noteTexts().includes(REVEAL_COPY.provisional), 'provisional before the answer');
+    const field = caretField(p);
+    field.focus();
+    field.edit(0, 0, '851', 'insertText');
+    field.setSelectionRange(1, 1);
+    release();
+    await p.h.settled();
+    assert.equal(p.$('#pj-code'), field, 'the late answer replaced the field being typed in');
+    assert.equal(focused, field, 'focus left the field');
+    assert.deepEqual([field.value, field.selectionStart, field.selectionEnd], ['851', 1, 1]);
+    assert.ok(!p.noteTexts().includes(REVEAL_COPY.provisional), 'the membership answer was not taken');
+  } finally {
+    Object.defineProperty(proto, 'focus', own);
+  }
+});
+
+test('PD-309-05: the provisional note sits directly under the heading on every result screen: pass, card, out and claim', async () => {
+  const under = (p, label) => {
+    const h1 = p.$('h1');
+    const kids = h1.parentNode.children;
+    assert.equal(kids[kids.indexOf(h1) + 1]?.textContent, REVEAL_COPY.provisional, `${label}: the element after the heading`);
+  };
+  const p = phone(winners(EVENT)[0].person, { status: 'network' });
+  await p.runTimers();
+  for (const r of EVENT.rounds) {
+    await p.code(r.code);
+    if (r.game === 'cards') {
+      under(p, `card, round ${r.round}`);
+      await p.rule(ruleLabel(r, r.rule));
+    }
+    under(p, `pass, round ${r.round}`);
+  }
+  await p.code(FINAL_CODE);
+  assert.equal(p.heading(), REVEAL_COPY.claimHeading);
+  under(p, 'claim');
+  const out = EVENT.setup.people.find((x) => !round(1).survivors.includes(x.id));
+  const q = phone(out, { status: 'network' });
+  await q.runTimers();
+  await q.code(round(1).code);
+  under(q, 'out');
+});
+
+// REFUTE r2: only a VERIFIED separator deletion takes the digit beyond the gap. A paste over the whole code,
+// or deleting a stray non-digit, keeps every digit (ASCII and Thai numerals).
+const toThai = (digits) => [...digits].map((d) => String.fromCodePoint(0x0e50 + Number(d))).join('');
+for (const thai of [false, true]) {
+  test(`REFUTE r2: pasting the same bare digits over the whole grouped code keeps them all (${thai ? 'Thai' : 'ASCII'})`, async () => {
+    const p = phone(winners(EVENT)[0].person, { status: { state: 'started', member: true } });
+    await p.runTimers();
+    const f = caretField(p);
+    const code = thai ? toThai(round(1).code) : round(1).code;
+    f.edit(0, 0, code, 'insertFromPaste');
+    f.edit(0, f.value.length, code, 'insertFromPaste');
+    assert.equal(f.value.replace(/ /g, ''), code, 'the paste lost a digit');
+    assert.equal(f.selectionStart, f.value.length);
+    p.$('#pj-code-form').dispatch('submit');
+    assert.equal(p.heading(), 'ผ่านรอบที่ 1');
+  });
+  for (const inputType of ['deleteContentBackward', 'deleteContentForward']) {
+    test(`REFUTE r2: deleting a stray non-digit keeps every digit (${inputType}, ${thai ? 'Thai' : 'ASCII'})`, async () => {
+      const p = phone(winners(EVENT)[0].person, { status: { state: 'started', member: true } });
+      await p.runTimers();
+      const f = caretField(p);
+      const code = thai ? toThai(round(1).code) : round(1).code;
+      f.edit(0, 0, `${code.slice(0, 3)}x${code.slice(3)}`, 'insertFromPaste');
+      f.edit(3, 4, '', inputType);
+      assert.equal(f.value.replace(/ /g, ''), code, 'deleting the x took a digit with it');
+      assert.equal(f.selectionStart, 3, 'the caret left the place of the x');
+      p.$('#pj-code-form').dispatch('submit');
+      assert.equal(p.heading(), 'ผ่านรอบที่ 1');
+    });
+  }
+}

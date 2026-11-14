@@ -57,6 +57,9 @@ export type ScreenView =
       code?: ShownCode;
       /** QR mode: winners claim on their phones, so the board's claim line is drawn. */
       claim?: true;
+      /** QR mode: the final's code again, kept in small type once the MC closes its card (owner pick
+       *  PD-309-11, 2026-11-14), since no later card lists it. */
+      finalCode?: RoundCode;
     };
 
 /** The codes of the rounds before `round`, in round order: each committed round's code (a card round's is its
@@ -109,7 +112,11 @@ export function screenView(state: EventState): ScreenView {
       };
       if (!isQrEvent(state)) return result;
       const code = finalCode(state);
-      return { ...result, claim: true, ...(code === null ? {} : { code: shown(state, FINAL_ROUND, code) }) };
+      return {
+        ...result,
+        claim: true,
+        ...(code === null ? {} : { code: shown(state, FINAL_ROUND, code), finalCode: { round: FINAL_ROUND, digits: code } }),
+      };
     }
     return { kind: 'final', eventName, dots: dots(ELIMINATION_ROUNDS + 1), chips: live.map((id) => chip(id, 'live')) };
   }

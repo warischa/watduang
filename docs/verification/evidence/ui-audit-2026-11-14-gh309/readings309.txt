@@ -1,0 +1,102 @@
+== formula on token pairs (the values the positive control must reproduce)
+  #14142b on #ffcc00  11.93
+  #ffffff on #23214d  15.04
+  #d9d6f0 on #23214d  10.62
+  #14142b on #fff6e0  16.75
+  #3d3b5c on #fff6e0  9.86
+  #ffcc00 on #23214d  9.95
+  #ff3d7f on #fff6e0  3.13
+  #14142b on #ffffff  18.03
+== must-red: the prior audit's disabled + stepper (2026-11-13 read 2.31, #aaa9af on #fffefc)
+  prior-picker-plus  ground #fffefc text #aaa9af  2.31
+== text reads
+  ph320 heading ink/cream            row1-codeEntry-320       ground #fff6e0 text #14142b  16.75
+  ph320 sub #3d3b5c/cream            row1-codeEntry-320       ground #fff6e0 text #3d3b5c  9.86
+  ph320 label ink/cream              row1-codeEntry-320       ground #fff6e0 text #14142b  16.75
+  ph320 button ink/gold              row1-codeEntry-320       ground #ffcc00 text #14142b  11.93
+  ph320 offline note                 row1-codeEntry-320       ground #fff6e0 text #3d3b5c  9.86
+  ph320 name pill ink/gold           row1-codeEntry-320       ground #ffcc00 text #14142b  11.93
+  ph320 error words ink/cream        row1-wrongCode-320       ground #fff6e0 text #14142b  16.75
+  ph320 typed digits ink/white       row1-wrongCode-320       ground #ffffff text #14142b  18.03
+  ph320 card rank red/white          row1-card-320            ground #c2185b text #ffffff  5.87
+  ph320 card caption                 row1-card-320            ground #fff6e0 text #14142b  16.75
+  ph320 rule prompt                  row1-card-320            ground #fff6e0 text #3d3b5c  9.86
+  ph320 pass heading                 row1-in-320              ground #fff6e0 text #14142b  16.75
+  ph320 name card ink/white          row1-in-320              ground #ffffff text #14142b  18.03
+  ph320 provisional note             row1-provisional-320     ground #fff6e0 text #3d3b5c  9.86
+  ph320 prize label ink/gold         row1-slot0-320           ground #ffcc00 text #14142b  11.93
+  ph320 prize name ink/gold          row1-slot0-320           ground #ffcc00 text #14142b  11.93
+  ph320 claim note                   row1-slot0-320           ground #fff6e0 text #3d3b5c  9.86
+  ph320 removed heading              row1-removed-320         ground #fff6e0 text #14142b  16.75
+  ph320 out sub                      row1-out-320             ground #fff6e0 text #3d3b5c  9.86
+  ph375 heading                      row1-codeEntry-375       ground #fff6e0 text #14142b  16.75
+  ph375 button                       row1-codeEntry-375       ground #ffcc00 text #14142b  11.93
+  pj1920 code label #d9d6f0          row4-c1-1920             ground #23214d text #d9d6f0  10.62
+  pj1920 digits gold                 row4-c1-1920             ground #23214d text #ffcc00  9.95
+  pj1920 hint white                  row4-c1-1920             ground #23214d text #ffffff  15.04
+  pj1920 ok button ink/gold          row4-c1-1920             ground #ffcc00 text #14142b  11.93
+  pj1920 earlier label               row4-c5-1920             ground #23214d text #d9d6f0  10.62
+  pj1920 earlier round label         row4-c5-1920             ground #23214d text #d9d6f0  10.62
+  pj1920 earlier code gold           row4-c5-1920             ground #23214d text #ffcc00  9.95
+  pj320 code label                   row4-c1-320              ground #23214d text #d9d6f0  10.62
+  pj320 digits 12 gold               row4-c1-320              ground #23214d text #ffcc00  9.95
+  pj320 hint white                   row4-c1-320              ground #23214d text #ffffff  15.04
+  pj320 earlier label                row4-c5-320              ground #23214d text #d9d6f0  10.62
+  pj320 earlier round label          row4-c5-320              ground #23214d text #d9d6f0  10.62
+  pj320 earlier code gold            row4-c5-320              ground #23214d text #ffcc00  9.95
+  pj320 ok button ink/gold           row4-c5-320              ground #ffcc00 text #14142b  11.93
+  pj1920 result claim line           row3-projector-result-1920 ground #22204b text #d9d6f0  10.77
+  pj1920 result prize line           row3-projector-result-1920 ground #171732 text #d9d6f0  12.30
+  pj1920 result winner gold          row3-projector-result-1920 ground #ffcc00 text #191833  11.39
+  pj320 result claim line            row3-projector-result-320 ground #22204a text #d9d6f0  10.80
+  MUST-RED pj1920 veiled event name  row4-c1-1920             ground #14142b text #3f3f56  1.77
+  MUST-RED pj1920 veiled count 16    row4-c1-1920             ground #48485a text #171631  1.97
+== solid reads (non-text, 3:1 floor)
+  error field outline  #ff3d7f on #fff6e0  3.13
+  error icon disc      #ff3d7f on #fff6e0  3.13
+  card suit (diamond)  #c2185b on #ffffff  5.87
+== exit X opacity (enabled look = glyph near #ffffff; disabled = opacity 0.55)
+  row4-c1-1920                 brightest #ffffff  disc mode #080811
+  row4-c5-320                  brightest #fffffc  disc mode #090911
+  row3-projector-result-1920   brightest #ffffff  disc mode #080811
+== glyph boxes: Mitr digits (1920 paints at 0.948; 320 unscaled)
+  pj1920 9-digit (ref, 180px)      rows 420..540  h 121px  h/size 0.709  predicted 170.6px (declared 170.6 painted)
+  pj1920 12-digit (150px)          rows 415..515  h 101px  h/size 0.710  predicted 142.4px (declared 142.2 painted)
+  pj1920 earlier code (44px)       rows 710..740  h 31px  h/size 0.743  predicted 43.7px (declared 41.7 painted)
+  pj320 final digits (32px)        rows 150..172  h 23px  h/size 0.719  predicted 32.4px (declared 32.0 painted)
+  pj320 12-digit (26px)            rows 149..166  h 18px  h/size 0.692  predicted 25.4px (declared 26.0 painted)
+  pj320 earlier code (18px)        rows 275..287  h 13px  h/size 0.722  predicted 18.3px (declared 18.0 painted)
+  ph320 heading digit 1 (26px)     rows 78..95  h 18px  h/size 0.692  predicted 25.4px (declared 26.0 painted)
+  ph320 field digits 1 (30px)      rows 204..224  h 21px  h/size 0.700  predicted 29.6px (declared 30.0 painted)
+== Thai base band: Sarabun 400 (hint 34px at 1920 x0.948 and 18px at 320 are the knowns)
+  pj1920 hint (34px x0.948)        band 568..586  h 19px  h/size 0.589  predicted 32.2px (declared 32.2)
+  pj320 hint (18px)                band 198..208  h 11px  h/size 0.611  predicted 18.3px (declared 18.0)
+  ph320 offline note (16px)        band 340..348  h 9px  h/size 0.562  predicted 15.0px (declared 16.0)
+  ph320 code sub (16px)            band 119..127  h 9px  h/size 0.562  predicted 15.0px (declared 16.0)
+  ph375 offline note (16px)        band 340..348  h 9px  h/size 0.562  predicted 15.0px (declared 16.0)
+  ph320 claim note line 1 (16px)   band 246..254  h 9px  h/size 0.562  predicted 15.0px (declared 16.0)
+== card screen 375: the two rule buttons down x=40 (gap = cream run between them)
+   ('cream', 480, 486, 7)
+   ('ink', 487, 488, 2)
+   ('gold', 489, 536, 48)
+   ('ink', 537, 543, 7)
+   ('cream', 544, 556, 13)
+   ('ink', 557, 558, 2)
+   ('gold', 559, 606, 48)
+   ('ink', 607, 613, 7)
+   ('cream', 614, 619, 6)
+== card screen 320: the fold (viewport ends at row 567) down x=40
+   ('cream', 480, 486, 7)
+   ('ink', 487, 488, 2)
+   ('gold', 489, 536, 48)
+   ('ink', 537, 543, 7)
+   ('cream', 544, 556, 13)
+   ('ink', 557, 558, 2)
+   ('gold', 559, 567, 9)
+== header band height (rows of ink from the top, x=100) and the badge top (x=72)
+  row1-in-375              band 48px  first ink at x=72 below it: row 76
+  row1-in-320              band 0px  first ink at x=72 below it: row 7
+  row1-provisional-320     band 0px  first ink at x=72 below it: row 25
+  row1-provisional-375     band 39px  first ink at x=72 below it: row 67
+  row1-codeEntry-320       band 48px  first ink at x=72 below it: row 77
+  row1-card-320            band 48px  first ink at x=72 below it: row 77
