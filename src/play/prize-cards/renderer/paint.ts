@@ -11,7 +11,7 @@
 import { COLOR, measurer, surface, type Paintable } from '../../prize-fireworks/renderer/paint.ts';
 import { fitName, graphemes, wrapLines, type Fit, type Measure } from '../../prize-fireworks/renderer/text-fit.ts';
 import type { Card, RuleId, Suit } from '../../../prize-draw/cards.ts';
-import { CARD, NAME_BOX_DOWN, NAME_BOX_UP, NAME_FIT, RULE_CARD, type Centre } from './plan.ts';
+import { CARD, NAME_FIT, RULE_CARD, nameBoxes, type Centre } from './plan.ts';
 import { rankLabel } from './copy.ts';
 
 export { COLOR };
@@ -217,21 +217,24 @@ export type CardPaint = { name: string; card: Card | null; verdict: 'pass' | 'fa
 export type Cell = [number, number, number, number];
 export type CardCells = { back: Cell; up: Cell | null; end: Cell | null; face: Cell | null };
 export type CardAtlas = { paint: Paintable; cells: CardCells[] };
+/** The cards' shape in card units: one width, and each card's height (a grown row is taller). */
+export type CardGeometry = { cardW: number; heights: readonly number[] };
 
 const ATLAS_MAX = 4096;
 const NO_CELL: Cell = [0, 0, 0, 0];
 
 export type NameFits = { back: Fit; up: Fit | null; end: Fit | null };
 
-/** NAME FIT on cards: 20px, floor 16px, then two lines; bold on a passing card. In card units. */
-export function fitCards(doc: Document, cards: readonly CardPaint[]): NameFits[] {
+/** NAME FIT on cards: 20px, floor 16px, then wrapped; bold on a passing card. In card units, for cards `cardW` wide. */
+export function fitCards(doc: Document, cards: readonly CardPaint[], cardW: number = CARD.w): NameFits[] {
+  const box = nameBoxes(cardW);
   const { ctx } = surface(doc, 1, 1, 1);
   const plain = measurer(ctx, 400, SARABUN);
   const bold = measurer(ctx, 700, SARABUN);
   return cards.map((c) => ({
-    back: fitName(c.name, plain, NAME_FIT.size, NAME_FIT.floor, NAME_BOX_DOWN),
-    up: c.card ? fitName(c.name, plain, NAME_FIT.size, NAME_FIT.floor, NAME_BOX_UP) : null,
-    end: c.verdict ? fitName(c.name, c.verdict === 'pass' ? bold : plain, NAME_FIT.size, NAME_FIT.floor, NAME_BOX_UP) : null,
+    back: fitName(c.name, plain, NAME_FIT.size, NAME_FIT.floor, box.down),
+    up: c.card ? fitName(c.name, plain, NAME_FIT.size, NAME_FIT.floor, box.up) : null,
+    end: c.verdict ? fitName(c.name, c.verdict === 'pass' ? bold : plain, NAME_FIT.size, NAME_FIT.floor, box.up) : null,
   }));
 }
 
@@ -240,34 +243,45 @@ export function fitCards(doc: Document, cards: readonly CardPaint[]): NameFits[]
  * coverage in one texture, shelf-packed in card units at `scale` backing px per unit; the scale drops if
  * the shelves would outgrow ATLAS_MAX. Cells are uv rects (u0, v0, u1, v1), v down.
  */
-export function paintCardAtlas(doc: Document, cards: readonly CardPaint[], fits: readonly NameFits[], scale: number): CardAtlas {
-  type Item = { w: number; draw: (p: Paintable, x: number, y: number) => void; put: (cell: Cell) => void };
+export function paintCardAtlas(
+  doc: Document,
+  cards: readonly CardPaint[],
+  fits: readonly NameFits[],
+  scale: number,
+  geometry: CardGeometry = { cardW: CARD.w, heights: [] },
+): CardAtlas {
+  type Item = { w: number; h: number; draw: (p: Paintable, x: number, y: number) => void; put: (cell: Cell) => void };
+  const box = nameBoxes(geometry.cardW);
   const items: Item[] = [];
   const cells: CardCells[] = cards.map(() => ({ back: NO_CELL, up: null, end: null, face: null }));
   const faces = new Map<string, Cell>();
-  const nameItem = (fit: Fit, box: number, weight: number, strike: boolean, put: (cell: Cell) => void): Item => ({
-    w: box,
-    draw: (p, x, y) => drawLines(p, fit.lines, x + box / 2, y + CARD.h / 2, fit.size, { weight, size: fit.size, family: SARABUN, color: '#ffffff', align: 'center', strike }),
+  // A cell is as tall as the card it is drawn for: the shader maps a cell over the card's whole height.
+  const nameItem = (fit: Fit, w: number, h: number, weight: number, strike: boolean, put: (cell: Cell) => void): Item => ({
+    w,
+    h,
+    draw: (p, x, y) => drawLines(p, fit.lines, x + w / 2, y + h / 2, fit.size, { weight, size: fit.size, family: SARABUN, color: '#ffffff', align: 'center', strike }),
     put,
   });
   cards.forEach((c, i) => {
     const f = fits[i]!;
-    items.push(nameItem(f.back, NAME_BOX_DOWN, 400, false, (cell) => (cells[i]!.back = cell)));
-    if (f.up) items.push(nameItem(f.up, NAME_BOX_UP, 400, false, (cell) => (cells[i]!.up = cell)));
-    if (f.end) items.push(nameItem(f.end, NAME_BOX_UP, c.verdict === 'pass' ? 700 : 400, c.verdict === 'fail', (cell) => (cells[i]!.end = cell)));
-    if (c.card && !faces.has(`${c.card.suit}${c.card.rank}`)) {
+    const h = geometry.heights[i] ?? CARD.h;
+    items.push(nameItem(f.back, box.down, h, 400, false, (cell) => (cells[i]!.back = cell)));
+    if (f.up) items.push(nameItem(f.up, box.up, h, 400, false, (cell) => (cells[i]!.up = cell)));
+    if (f.end) items.push(nameItem(f.end, box.up, h, c.verdict === 'pass' ? 700 : 400, c.verdict === 'fail', (cell) => (cells[i]!.end = cell)));
+    const faceKey = c.card ? `${c.card.suit}${c.card.rank}@${h}` : '';
+    if (c.card && !faces.has(faceKey)) {
       const card = c.card;
-      const key = `${card.suit}${card.rank}`;
-      faces.set(key, NO_CELL);
+      faces.set(faceKey, NO_CELL);
       items.push({
         w: CARD.face,
+        h,
         draw: (p, x, y) => {
           const label = rankLabel(card.rank);
           const rankW = measurer(p.ctx, 700, MITR)(label, 30);
-          drawLines(p, [label], x, y + CARD.h / 2, 30, { weight: 700, size: 30, family: MITR, color: '#ffffff' });
-          drawSuit(p.ctx, card.suit, x + rankW + 4, y + CARD.h / 2 - 12, 24, '#ffffff');
+          drawLines(p, [label], x, y + h / 2, 30, { weight: 700, size: 30, family: MITR, color: '#ffffff' });
+          drawSuit(p.ctx, card.suit, x + rankW + 4, y + h / 2 - 12, 24, '#ffffff');
         },
-        put: (cell) => faces.set(key, cell),
+        put: (cell) => faces.set(faceKey, cell),
       });
     }
   });
@@ -278,15 +292,18 @@ export function paintCardAtlas(doc: Document, cards: readonly CardPaint[], fits:
     const at: [number, number][] = [];
     let x = 0;
     let y = 0;
+    let shelf = 0;
     for (const it of items) {
       if (x + it.w > width) {
         x = 0;
-        y += CARD.h + gap;
+        y += shelf + gap;
+        shelf = 0;
       }
       at.push([x, y]);
+      shelf = Math.max(shelf, it.h);
       x += it.w + gap;
     }
-    return { w: width, h: y + CARD.h, at };
+    return { w: width, h: y + shelf, at };
   };
   let s = scale;
   let packed = pack(s);
@@ -298,10 +315,10 @@ export function paintCardAtlas(doc: Document, cards: readonly CardPaint[], fits:
   items.forEach((it, k) => {
     const [x, y] = packed.at[k]!;
     it.draw(paint, x, y);
-    it.put([x / packed.w, y / packed.h, (x + it.w) / packed.w, (y + CARD.h) / packed.h]);
+    it.put([x / packed.w, y / packed.h, (x + it.w) / packed.w, (y + it.h) / packed.h]);
   });
   cards.forEach((c, i) => {
-    if (c.card) cells[i]!.face = faces.get(`${c.card.suit}${c.card.rank}`)!;
+    if (c.card) cells[i]!.face = faces.get(`${c.card.suit}${c.card.rank}@${geometry.heights[i] ?? CARD.h}`)!;
   });
   return { paint, cells };
 }

@@ -1,0 +1,3 @@
+::error::prize-cards S1 320x568: 1 fixed/sticky route box(es) anchored above the band: div#app > div.pr-viewport > div.pr-bar (fixed top 2px)
+::error::prize-cards S2 320x568: 1 fixed/sticky route box(es) anchored above the band: div#app > div.pr-viewport > div.pr-bar (fixed top 2px)
+FAIL 2 failure(s) across 1/1 route(s): prize-cards

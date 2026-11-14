@@ -3,6 +3,7 @@
 // answer's screen, and one name per device (a stored join shows the device screen; a send whose answer was
 // lost is settled before a second name is ever sent).
 import { test } from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
 import { makeDoc } from '../prize-event/fake-dom.mjs';
@@ -12,9 +13,10 @@ import { DEVICE_TOKEN, TOKEN_CHARS, classify, newDeviceToken, readJoinLink, stor
 
 const EV = 'AbCdEfGhIjKlMnOpQrStUv';
 const JOIN_ID = 'j0j1j2j3j4j5j6j7j8j9jA';
+const GAME_NAME = 'จับรางวัลปีใหม่';
 const OTHER_ID = 'k0k1k2k3k4k5k6k7k8k9kA';
 
-function page({ hash = `#event=${EV}&pin=123456`, query = '', stored, seed = [], session = new Map(), answers = [], storage = true } = {}) {
+function page({ hash = `#event=${EV}&pin=123456`, query = '', stored, seed = [], session = new Map(), answers = [], storage = true, gate = null } = {}) {
   const doc = makeDoc();
   const root = doc.createElement('main');
   root.id = 'pj';
@@ -25,6 +27,7 @@ function page({ hash = `#event=${EV}&pin=123456`, query = '', stored, seed = [],
   const calls = [];
   const fetch = async (url, init) => {
     calls.push({ url, method: init.method, body: JSON.parse(init.body) });
+    if (gate) await gate;
     const a = answers.shift();
     if (!a) throw new Error('the test gave no answer for this send');
     if (a === 'network') throw new TypeError('network down');
@@ -34,6 +37,7 @@ function page({ hash = `#event=${EV}&pin=123456`, query = '', stored, seed = [],
   const location = { pathname: '/game/prize-draw/join/', search: query, hash };
   const replaced = [];
   const env = {
+    gameName: GAME_NAME,
     location,
     history: {
       replaceState: (_data, _unused, url) => {
@@ -65,6 +69,7 @@ function page({ hash = `#event=${EV}&pin=123456`, query = '', stored, seed = [],
     $,
     randomCalls: () => randomCalls,
     heading: () => $('h1')?.textContent,
+    notFoundWords: () => $('.pj-emsg')?.querySelector('span')?.textContent,
     record: () => JSON.parse(kv.get(storageKey(EV)) ?? 'null'),
     async name(text) {
       const field = $('#pj-name');
@@ -89,7 +94,7 @@ test('the link: an event id of the server shape and the PIN are read from the fr
 
 test('the link travels in the fragment only: a query-string event and PIN are ignored', () => {
   const p = page({ hash: '', query: `?event=${EV}&pin=123456` });
-  assert.equal(p.heading(), ANSWER_COPY.noEvent);
+  assert.equal(p.notFoundWords(), ANSWER_COPY.noEvent);
   assert.equal(p.calls.length, 0);
 });
 
@@ -119,8 +124,8 @@ test('a reload after the strip finds the event again in this tab, and a new frag
   await other.name('ต้น');
   assert.equal(other.calls[0].url, `/api/draw/events/${OTHER_ID}/join`);
   assert.equal(other.calls[0].body.pin, '999999');
-  assert.equal(page({ hash: '', session: null }).heading(), ANSWER_COPY.noEvent, 'no tab store, no memory');
-  assert.equal(page({ hash: '#event=nope&pin=1', session }).heading(), ANSWER_COPY.noEvent, 'a bad new scan never falls back to an old event');
+  assert.equal(page({ hash: '', session: null }).notFoundWords(), ANSWER_COPY.noEvent, 'no tab store, no memory');
+  assert.equal(page({ hash: '#event=nope&pin=1', session }).notFoundWords(), ANSWER_COPY.noEvent, 'a bad new scan never falls back to an old event');
 });
 
 test('every answer the board does not draw shows its owner-approved string, byte for byte', () => {
@@ -141,7 +146,7 @@ test('every answer the board does not draw shows its owner-approved string, byte
 test('no event in the link: the page says so and sends nothing', async () => {
   for (const hash of ['', '#event=nope&pin=1']) {
     const p = page({ hash });
-    assert.equal(p.heading(), ANSWER_COPY.noEvent);
+    assert.equal(p.notFoundWords(), ANSWER_COPY.noEvent);
     assert.equal(p.$('form'), null);
     assert.equal(p.calls.length, 0);
   }
@@ -392,4 +397,43 @@ test('classify: every answer the join route gives', () => {
     [null, null, 'unavailable'],
   ];
   for (const [status, body, kind] of cases) assert.equal(classify(status, body).kind, kind, `${status} ${JSON.stringify(body)}`);
+});
+
+test('while a name is being sent the button reads the sending label, and its own label returns after', async () => {
+  assert.equal(COPY.sending, 'กำลังส่ง\u2026', 'the owner-approved label, with the ellipsis character U+2026');
+  let release;
+  const gate = new Promise((r) => (release = r));
+  const p = page({ answers: [refused(503, 'unavailable')], gate });
+  const btn = p.$('.pj-btn');
+  assert.equal(btn.textContent, COPY.join);
+  p.$('#pj-name').value = 'ต้น';
+  p.$('#pj-name-form').dispatch('submit');
+  await new Promise((r) => setImmediate(r));
+  assert.equal(p.calls.length, 1, 'the send is in flight');
+  assert.equal(btn.disabled, true);
+  assert.equal(btn.textContent, COPY.sending);
+  release();
+  await p.h.settled();
+  assert.equal(btn.disabled, false);
+  assert.equal(btn.textContent, COPY.join, 'the button is back to its own label');
+  assert.equal(p.$('.pj-btn').textContent, COPY.join, 'the rebuilt form shows its own label too');
+});
+
+test('the disabled button visibly dims: the page stylesheet gives .pj-btn:disabled opacity 0.55', () => {
+  const src = readFileSync(new URL('../pages/game/prize-draw/join.astro', import.meta.url), 'utf8');
+  const rule = src.match(/\.pj :global\(\.pj-btn:disabled\) \{([^}]*)\}/);
+  assert.ok(rule, 'the disabled rule exists');
+  assert.match(rule[1], /opacity:\s*0\.55\s*;/);
+});
+
+test('event not found: the game name as the heading, then the error row with the unchanged answer', () => {
+  const p = page({ hash: '' });
+  assert.equal(p.heading(), 'จับรางวัลปีใหม่');
+  const row = p.$('.pj-emsg');
+  assert.ok(row, 'the error row is on screen');
+  assert.equal(row.getAttribute('role'), 'alert');
+  assert.ok(row.querySelector('svg'), 'the punch-disc icon is in the row');
+  assert.equal(row.querySelector('span').textContent, 'ไม่พบงานนี้ ลองสแกน QR บนจออีกครั้ง');
+  assert.equal(p.$('form'), null);
+  assert.equal(p.calls.length, 0);
 });

@@ -1,0 +1,26 @@
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+const read = (T) => T.ev(`
+  const q=(e)=>{const r=e.getBoundingClientRect();return {l:+r.left.toFixed(1),t:+r.top.toFixed(1),w:+r.width.toFixed(1),h:+r.height.toFixed(1),r:+r.right.toFixed(1),b:+r.bottom.toFixed(1)}};
+  const hit=(a,b)=>a.l<b.r-0.5&&b.l<a.r-0.5&&a.t<b.b-0.5&&b.t<a.b-0.5;
+  const bar=document.querySelector('.pr-bar'); const br=q(bar); const kids=[...bar.children].map(c=>({cls:c.className.slice(0,12),txt:c.textContent.trim().slice(0,14),...q(c)}));
+  const stack=document.elementsFromPoint(28,28).filter(e=>!bar.contains(e)&&e!==bar); const ex=stack.map(e=>e.closest('a,button')).find(Boolean); const er=ex?q(ex):null;
+  const tops=[...new Set(kids.map(k=>Math.round(k.t)))];
+  const goLeaf=[...bar.querySelectorAll('button')].map(b=>({txt:b.textContent.trim(),...q(b)}));
+  const overlapsExit=er?kids.filter(k=>hit(k,er)).map(k=>k.txt||k.cls):null;
+  const fl=(c)=>c.getBoundingClientRect(); const bandB=56;
+  return {inner:[innerWidth,document.documentElement.scrollWidth],bar:br,exit:er,exitTag:ex?(ex.tagName+':'+(ex.getAttribute('aria-label')||ex.textContent.trim()).slice(0,20)):null,kidsRows:tops.length,wraps:tops.length>1,withinBand:br.b<=bandB+0.5,barLeftMinusExitRight:er?+(br.l-er.r).toFixed(1):null,overlapsExit,buttons:goLeaf};`);
+const out = {};
+for (const g of ['fireworks', 'cards', 'ladder']) for (const W of [640, 700, 768, 1024, 1920]) {
+  const H = W < 1280 ? 900 : 1080; const T = await openTab(); await T.view(W, H);
+  await T.nav(`${BASE}/game/prize-${g}/play/`); await T.view(W, H); await sleep(600);
+  const k = `${g}-${W}`; out[k] = { default: await read(T) };
+  if (g === 'fireworks') { await T.ev(`[...document.querySelectorAll('.pr-chip')].find(x=>x.textContent.trim()==='รอบชิง').click(); return 1`); await sleep(500); out[k].final = await read(T); await T.shot(`row7b-${k}-final`); }
+  else await T.shot(`row7b-${k}`);
+  await T.close();
+  const f = out[k].final ?? out[k].default;
+  console.log(k, 'default l/w/rows/overlap', out[k].default.bar.l, out[k].default.bar.w, out[k].default.kidsRows, JSON.stringify(out[k].default.overlapsExit), 'gap', out[k].default.barLeftMinusExitRight, '| final', out[k].final ? [out[k].final.bar.l, out[k].final.bar.w, out[k].final.kidsRows, JSON.stringify(out[k].final.overlapsExit), out[k].final.barLeftMinusExitRight, out[k].final.withinBand, out[k].final.bar.h].join('/') : '-');
+}
+writeFileSync(join(OUT, 'results-row7b.json'), JSON.stringify(out, null, 1));
+process.exit(0);

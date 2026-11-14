@@ -9,7 +9,10 @@ import { BAND_PX, BAND_GROUND, MC_ROUTE, judge } from './play-top-band-probe.mjs
 import { screenlessPlayPaths } from './play-screen-fit-probe.mjs';
 
 const OTHER = 'timebomb';
-const ROUTES = [MC_ROUTE, OTHER];
+// A prize reveal demo page: its bar may stand in the band (owner ruling 2026-11-14). No round-start control,
+// so its walk is S1, D1, S2.
+const DEMO = 'prize-cards';
+const ROUTES = [MC_ROUTE, OTHER, DEMO];
 
 // Real chrome geometry at 320 wide: the close X at the band's left end, the edit pill beside it.
 const EXIT = { present: true, forced: false, l: 8, t: 6, r: 52, b: 50, visible: true, visibility: 'visible', opacity: 1, disabled: false };
@@ -45,8 +48,9 @@ function row(route, state) {
 // also carries D2, its seeded screen at the desktop width (on a fresh device D1 shows no event).
 function cleanRun() {
   const rows = [];
-  for (const id of ROUTES) for (const s of id === MC_ROUTE ? ['S1', 'D1', 'S2', 'S3', 'D2'] : ['S1', 'D1', 'S2', 'S3']) {
+  for (const id of ROUTES) for (const s of id === MC_ROUTE ? ['S1', 'D1', 'S2', 'S3', 'D2'] : id === DEMO ? ['S1', 'D1', 'S2'] : ['S1', 'D1', 'S2', 'S3']) {
     const r = row(id, s);
+    if (id === DEMO) placeDemoBar(r, desktop(s) ? 'band' : 'below');
     if (id === MC_ROUTE) {
       setMcs(r, [mcAt(r.clientWidth)]);
       r.hits = [mcHit(r.clientWidth)];
@@ -58,6 +62,20 @@ function cleanRun() {
   }
   return { routes: ROUTES, breakBand: false, rows };
 }
+
+/** The demo bar as demo.css places it. 'band' (640px and up, when it fits): fixed, 2px under the band's top,
+ *  24px in from the right, one row, its declared anchor above the band. 'below': static under the frame. */
+const barAt = (cw) => ({ present: true, shown: true, l: cw - 24 - 306, t: 2, r: cw - 24, b: 54, parts: 6, pseudo: 0, shape: [], mode: 'band', oneRow: true, rowTop: 15.5, rowBottom: 40.5 });
+const BAR_ANCHOR = { sel: 'div#app > div.pr-viewport > div.pr-bar', position: 'fixed', top: '2px', effectiveTop: 2, display: 'flex', mc: false, bar: 0 };
+function placeDemoBar(r, mode) {
+  if (mode === 'band') {
+    r.bars = [barAt(r.clientWidth)];
+    r.anchoredAbove = [{ ...BAR_ANCHOR }];
+  } else {
+    r.bars = [{ present: true, shown: true, l: 0, t: 400, r: r.clientWidth, b: 560, parts: 6, pseudo: 0, shape: [], mode: 'below', oneRow: false, rowTop: 500, rowBottom: 450 }];
+  }
+}
+const setBar = (r, patch) => { r.bars = [{ ...r.bars[0], ...patch }, ...r.bars.slice(1)]; };
 
 const rowsOf = (out, id, state) => out.rows.filter((r) => r.route === id && (!state || r.state === state));
 
@@ -309,3 +327,157 @@ for (const [what, at, patch] of [
     assert.ok(shape.some((m) => m.startsWith(chain[at].sel) && /ancestor/.test(m)), JSON.stringify(shape));
   });
 }
+
+// ---- the demo bar carve-out (owner ruling 2026-11-14: "carve-out for .pr-bar like .pd-mc") ----
+
+const barTag = (state) => `${DEMO} ${state} ${state.startsWith('D') ? '1280x800' : '320x568'}`;
+const redOn = (f, state, re) => f.some((m) => m.startsWith(barTag(state)) && re.test(m));
+
+test('the demo routes the bar carve-out names are manifest play routes, and the prize-draw projector is not one', () => {
+  assert.ok(Array.isArray(probe.DEMO_ROUTES) && probe.DEMO_ROUTES.length === 3, 'the probe exports its demo route set');
+  for (const id of probe.DEMO_ROUTES) assert.ok(screenlessPlayPaths().has(`/game/${id}/play/`), `${id} is not a play route the walk reaches`);
+  assert.ok(!probe.DEMO_ROUTES.includes(MC_ROUTE));
+  assert.equal(probe.BAR_SEL, '.pr-bar');
+});
+
+test('positive control: the demo bar standing in the band on a demo route is green', () => {
+  const out = cleanRun();
+  assert.ok(rowsOf(out, DEMO, 'D1')[0].anchoredAbove.length === 1, 'the fixture plants the anchored bar');
+  assert.deepEqual(judge(out), []);
+});
+
+test('must-red: the bar anchored above the band while its viewport is NOT data-bar="band"', () => {
+  const out = cleanRun();
+  setBar(rowsOf(out, DEMO, 'D1')[0], { mode: 'below' });
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /1 fixed\/sticky route box\(es\) anchored above the band: div#app > div\.pr-viewport > div\.pr-bar/), f.join('\n'));
+});
+
+test('must-red: the bar with no data-bar on its viewport at all', () => {
+  const out = cleanRun();
+  setBar(rowsOf(out, DEMO, 'D1')[0], { mode: null });
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /anchored above the band: .*pr-bar/), f.join('\n'));
+});
+
+test('must-red: the bar over the close X', () => {
+  const out = cleanRun();
+  setBar(rowsOf(out, DEMO, 'D1')[0], { l: 40 });
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /demo bar .* overlaps the close X/), f.join('\n'));
+});
+
+test('must-red: the bar over the edit control', () => {
+  const out = cleanRun();
+  setBar(rowsOf(out, DEMO, 'D1')[0], { l: 120 });
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /demo bar .* overlaps the edit control/), f.join('\n'));
+  assert.ok(!redOn(f, 'D1', /overlaps the close X/), 'l 120 is clear of the close X');
+});
+
+test('must-red: the bar reaching below the band', () => {
+  const out = cleanRun();
+  setBar(rowsOf(out, DEMO, 'D1')[0], { b: 60 });
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /demo bar .* is not inside the band/), f.join('\n'));
+});
+
+test('must-red: the bar off the right end of the band', () => {
+  const out = cleanRun();
+  setBar(rowsOf(out, DEMO, 'D1')[0], { r: 1300 });
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /demo bar .* is not inside the band/), f.join('\n'));
+});
+
+test('must-red: the bar wrapped to a second row', () => {
+  const out = cleanRun();
+  setBar(rowsOf(out, DEMO, 'D1')[0], { oneRow: false, rowTop: 30, rowBottom: 28 });
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /demo bar .* is not one row/), f.join('\n'));
+});
+
+test('must-red: the exempted bar shows no box, so nothing about it was judged', () => {
+  const out = cleanRun();
+  const r = rowsOf(out, DEMO, 'D1')[0];
+  r.bars = [{ present: true, shown: false, parts: 1, pseudo: 0, shape: [], mode: 'band', oneRow: true }];
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /demo bar .* anchored above the band but shows no box/), f.join('\n'));
+});
+
+test('must-red: the anchored entry names a bar the read never measured', () => {
+  const out = cleanRun();
+  rowsOf(out, DEMO, 'D1')[0].bars = [];
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /anchored above the band: .*pr-bar/), f.join('\n'));
+});
+
+test('must-red: the bar geometry outside the shape the read is exact for (a transformed ancestor)', () => {
+  const out = cleanRun();
+  setBar(rowsOf(out, DEMO, 'D1')[0], { shape: ['div.pr-viewport (an ancestor of the demo bar) transform: matrix(2, 0, 0, 2, 0, 0)'] });
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /outside the shape this probe can measure.*div\.pr-viewport/), f.join('\n'));
+});
+
+test('must-red: a second bar anchored above the band on a demo route', () => {
+  const out = cleanRun();
+  const r = rowsOf(out, DEMO, 'D1')[0];
+  r.bars = [...r.bars, { ...barAt(1280), l: 500, r: 700 }];
+  r.anchoredAbove = [...r.anchoredAbove, { ...BAR_ANCHOR, bar: 1 }];
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /2 demo bars \(\.pr-bar\) anchored above the band/), f.join('\n'));
+});
+
+test('must-red: a second fixed box (not the bar) anchored above the band on a demo route', () => {
+  const out = cleanRun();
+  rowsOf(out, DEMO, 'D1')[0].anchoredAbove.push({ sel: 'div#app > div.pr-viewport > div.pr-toast', position: 'fixed', top: '0px', effectiveTop: 0, display: 'block', mc: false, bar: -1 });
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /1 fixed\/sticky route box\(es\) anchored above the band: div#app > div\.pr-viewport > div\.pr-toast/), f.join('\n'));
+});
+
+test('must-red: a fixed descendant of the bar is not the bar', () => {
+  const out = cleanRun();
+  rowsOf(out, DEMO, 'D1')[0].anchoredAbove.push({ sel: 'div.pr-bar > button.pr-go', position: 'fixed', top: '0px', effectiveTop: 0, display: 'block', mc: false, bar: -1 });
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /1 fixed\/sticky route box\(es\) anchored above the band: div\.pr-bar > button\.pr-go/), f.join('\n'));
+});
+
+test('must-red: the bar in the band on a non-demo route', () => {
+  const out = cleanRun();
+  for (const id of [OTHER, MC_ROUTE]) {
+    const r = rowsOf(out, id, 'D1')[0];
+    r.bars = [barAt(1280)];
+    r.anchoredAbove = [...r.anchoredAbove, { ...BAR_ANCHOR }];
+  }
+  const f = judge(out);
+  assert.ok(f.some((m) => m.startsWith(`${OTHER} D1`) && /anchored above the band: .*pr-bar/.test(m)), f.join('\n'));
+  assert.ok(f.some((m) => m.startsWith(`${MC_ROUTE} D1`) && /anchored above the band: .*pr-bar/.test(m)), f.join('\n'));
+});
+
+test('must-red: the base case the gate exists for, any route box anchored above the band elsewhere', () => {
+  const out = cleanRun();
+  rowsOf(out, OTHER, 'S2')[0].anchoredAbove.push({ sel: 'header.tb-head', position: 'sticky', top: '0px', effectiveTop: 0, display: 'flex', mc: false });
+  const f = judge(out);
+  assert.ok(f.some((m) => m.startsWith(`${OTHER} S2`) && /1 fixed\/sticky route box\(es\) anchored above the band: header\.tb-head/.test(m)), f.join('\n'));
+});
+
+test('must-red: the bar carve-out does not cover route content intersecting the band on a demo route', () => {
+  const out = cleanRun();
+  const r = rowsOf(out, DEMO, 'D1')[0];
+  r.hits = [{ sel: 'div.pr-bar > button.pr-go', l: 1110, t: 2, r: 1256, b: 54, overlapPx: 52, pos: 'static', mc: false }];
+  r.hitCount = 1;
+  const f = judge(out);
+  assert.ok(redOn(f, 'D1', /1 route-content box\(es\) intersect the band/), f.join('\n'));
+});
+
+test('green: a below-the-frame bar on the phone screens is not judged by the carve-out', () => {
+  const out = cleanRun();
+  assert.equal(rowsOf(out, DEMO, 'S1')[0].bars[0].mode, 'below');
+  assert.ok(!judge(out).some((m) => m.startsWith(DEMO)));
+});
+
+test('shape: the classifier names the element it was asked about', () => {
+  const chain = [{ sel: 'div.pr-viewport', style: { transform: 'matrix(2, 0, 0, 2, 0, 0)', translate: 'none', rotate: 'none', scale: 'none', zoom: '1' } }];
+  const f = probe.carveOutShapeFaults([], chain, 'the demo bar');
+  assert.ok(f.some((m) => m === 'div.pr-viewport (an ancestor of the demo bar) transform: matrix(2, 0, 0, 2, 0, 0)'), JSON.stringify(f));
+  assert.ok(probe.carveOutShapeFaults([], chain).some((m) => m.includes('(an ancestor of the MC control)')), 'the MC wording is the default');
+});

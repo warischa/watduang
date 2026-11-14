@@ -1,0 +1,25 @@
+import sys,json
+import numpy as np
+from PIL import Image
+sys.path.insert(0,'<scratch>/work')
+import cardgrid, glyph
+EV=glyph.EV
+png=sys.argv[1]
+im=np.array(Image.open(EV+png).convert('RGB')).astype(int)
+boxes=cardgrid.analyse(EV+png,(0,140,1920,880),0.9481,49.78,56)
+# reference: the WWWW line (third), find its bbox
+refW=glyph.white_bbox(im,200,812,306,836); ref0=glyph.white_bbox(im,200,788,306,812)
+print('refW',refW,'ref digits(700)',ref0)
+row1=sorted([b for b in boxes if b[1]<260],key=lambda b:(round(b[1]/12),b[0]))
+out=[]
+for (x,y,w,h) in row1[:10]:
+    # bright-row runs inside the card
+    sub=im[y+4:y+h-4,x+6:x+w-6]; m=(sub[...,0]>170)&(sub[...,1]>170)&(sub[...,2]>170)
+    rows=m.any(axis=1); runs=[];s=None
+    for i,v in enumerate(rows):
+        if v and s is None: s=i
+        if not v and s is not None: runs.append((s,i-s)); s=None
+    if s is not None: runs.append((s,len(rows)-s))
+    cols=np.where(m.any(axis=0))[0]
+    out.append({'card':[x,y,w,h],'lineRuns(h)':[r[1] for r in runs],'textW':int(cols[-1]-cols[0]+1) if len(cols) else 0})
+for o in out: print(json.dumps(o))

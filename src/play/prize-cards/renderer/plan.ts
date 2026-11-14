@@ -52,41 +52,72 @@ export const FIELD = { left: 56, right: 1864, top: 100, height: 760 } as const;
 export const CARD = { w: 293, h: 40, colGap: 10, rowGap: 4, radius: 6, padL: 4, padR: 8, face: 66, faceGap: 6, downPad: 8 } as const;
 /** Names on cards (NAME FIT row): Sarabun 20px, floor 16px. */
 export const NAME_FIT = { size: 20, floor: 16 } as const;
-/** Name boxes in card units: face up beside the 66px rank column; face down across the whole card. */
-export const NAME_BOX_UP = CARD.w - CARD.padL - CARD.face - CARD.faceGap - CARD.padR;
-export const NAME_BOX_DOWN = CARD.w - 2 * CARD.downPad;
+/** Name boxes in card units for a card `cardW` wide: face up beside the 66px rank column; face down across the whole card. */
+export function nameBoxes(cardW: number): { up: number; down: number } {
+  return { up: cardW - CARD.padL - CARD.face - CARD.faceGap - CARD.padR, down: cardW - 2 * CARD.downPad };
+}
+export const NAME_BOX_UP = nameBoxes(CARD.w).up;
+export const NAME_BOX_DOWN = nameBoxes(CARD.w).down;
 /** The rule card (option B): 700px wide at left 610, top 250. */
 export const RULE_CARD = { x: 610, y: 250, w: 700 } as const;
 /** The lower band's centre line (190px tall, 20px off the bottom). */
 export const BAND_CY = FRAME_H - 20 - 190 / 2;
 
-export type Layout = { cols: number; rows: number; s: number; cells: { cx: number; cy: number }[] };
+/**
+ * `cardW` and `rowH` are in card units; the painted size is that times `s`. Every card of row r is rowH[r] tall.
+ */
+export type Layout = { cols: number; rows: number; s: number; cardW: number; rowH: number[]; cells: { cx: number; cy: number }[] };
+
+/** Past 102 names a row is two name lines at the 16px floor (PD-306-01, the audit canvas): 2 x 16 = 32px. */
+const DENSE_ROW = 2 * NAME_FIT.floor;
+const FIELD_W = FIELD.right - FIELD.left;
 
 /**
- * Where n cards sit. The board draws 100 cards on 6 columns of 40px rows; it draws no layout for more. So
- * the card keeps the board's proportions and the whole field scales by one factor `s`, with the column count
- * (6 to 10) that gives the largest `s` -- 6 columns at full size up to 102 cards. Rows fill left to right,
- * the field is centred in the stage, the last row starts at the left as a CSS grid's does.
+ * Where n cards sit. The board draws 100 cards on 6 columns of 40px rows, and that holds up to 102 cards.
+ * Above that the cards keep the board's sizes and only the grid changes (PD-306-01): rows are 32px, and
+ * the column count is the fewest from 6 to 10 whose rows fit the field, so no name is scaled under its 16px
+ * floor. A name may take up to 4 lines at the floor (line height = font size) and its row grows to hold it;
+ * `linesAt(cardW)` gives each card's longest name's line count at that card width, and is asked only above
+ * 102 cards. If even 10 columns cannot hold the grown rows, the field scales as one so no card leaves it.
+ * Rows fill left to right, the field is centred in the stage, the last row starts at the left as a CSS grid's does.
  */
-export function fieldLayout(n: number): Layout {
-  let best = { cols: 6, rows: Math.ceil(n / 6), s: 0 };
-  for (let cols = 6; cols <= 10; cols++) {
-    const rows = Math.max(1, Math.ceil(n / cols));
-    const w = cols * CARD.w + (cols - 1) * CARD.colGap;
-    const h = rows * CARD.h + (rows - 1) * CARD.rowGap;
-    const s = Math.min(1, (FIELD.right - FIELD.left) / w, FIELD.height / h);
-    if (s > best.s + 1e-9) best = { cols, rows, s };
+export function fieldLayout(n: number, linesAt?: (cardW: number) => readonly number[]): Layout {
+  const rows6 = Math.max(1, Math.ceil(n / 6));
+  let cols = 6;
+  let rowH: number[] = new Array<number>(rows6).fill(CARD.h);
+  let cardW: number = CARD.w;
+  let s = 1;
+  const heightOf = (hs: readonly number[]): number => hs.reduce((a, b) => a + b, 0) + (hs.length - 1) * CARD.rowGap;
+  if (heightOf(rowH) > FIELD.height) {
+    let found = false;
+    let last = { cols, rowH, cardW };
+    for (let c = 6; c <= 10 && !found; c++) {
+      const rows = Math.ceil(n / c);
+      const w = (FIELD_W - (c - 1) * CARD.colGap) / c;
+      const lines = linesAt?.(w) ?? [];
+      const hs = Array.from({ length: rows }, (_, r) => {
+        let most = 0;
+        for (let i = r * c; i < Math.min(n, (r + 1) * c); i++) most = Math.max(most, lines[i] ?? 1);
+        return Math.max(DENSE_ROW, most * NAME_FIT.floor);
+      });
+      last = { cols: c, rowH: hs, cardW: w };
+      found = heightOf(hs) <= FIELD.height;
+    }
+    ({ cols, rowH, cardW } = last);
+    s = Math.min(1, FIELD.height / heightOf(rowH));
   }
-  const { cols, rows, s } = best;
-  const w = (cols * CARD.w + (cols - 1) * CARD.colGap) * s;
-  const h = (rows * CARD.h + (rows - 1) * CARD.rowGap) * s;
+  const rows = rowH.length;
+  const w = (cols * cardW + (cols - 1) * CARD.colGap) * s;
+  const h = heightOf(rowH) * s;
   const x0 = (FIELD.left + FIELD.right) / 2 - w / 2;
   const y0 = FIELD.top + FIELD.height / 2 - h / 2;
+  const tops: number[] = [];
+  rowH.reduce((top, rh) => (tops.push(top), top + rh + CARD.rowGap), 0);
   const cells = Array.from({ length: n }, (_, i) => ({
-    cx: x0 + ((i % cols) * (CARD.w + CARD.colGap) + CARD.w / 2) * s,
-    cy: y0 + (Math.floor(i / cols) * (CARD.h + CARD.rowGap) + CARD.h / 2) * s,
+    cx: x0 + ((i % cols) * (cardW + CARD.colGap) + cardW / 2) * s,
+    cy: y0 + (tops[Math.floor(i / cols)]! + rowH[Math.floor(i / cols)]! / 2) * s,
   }));
-  return { cols, rows, s, cells };
+  return { cols, rows, s, cardW, rowH, cells };
 }
 
 /** Where the deal starts: one stack at the centre of the field. */

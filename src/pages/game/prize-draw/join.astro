@@ -20,7 +20,7 @@ const title = `${COPY.nameHeading} — ${game.names.th}`;
 ---
 
 <Base title={title} description={game.seo.description} ogImage={`/og/${game.og}`} noindex chrome>
-  <main id="pj" class="pj"></main>
+  <main id="pj" class="pj" data-game-name={game.names.th}></main>
 </Base>
 
 <script>
@@ -40,6 +40,7 @@ const title = `${COPY.nameHeading} — ${game.names.th}`;
   const session = store(() => window.sessionStorage);
   if (root) {
     const page = mountJoin(root, {
+      gameName: root.dataset.gameName ?? '',
       location,
       history,
       session,
@@ -168,6 +169,7 @@ const title = `${COPY.nameHeading} — ${game.names.th}`;
   }
   .pj :global(.pj-btn:disabled) {
     cursor: progress;
+    opacity: 0.55;
   }
   .pj :global(.pj-note) {
     margin: 14px 0 0;

@@ -1803,6 +1803,9 @@ const runMainOn = (key, screen) => {
   const rows = makeFixture42();
   // In place, so a desktop row keeps its composition reading and only the measurement under test changes.
   rows.find((r) => rowKey(r) === key).screens = [screen];
+  return runMainOnRows(rows);
+};
+function runMainOnRows(rows) {
   process.env.PROBE_OUT_JSON = JSON.stringify({ rows });
   const errors = [];
   let exitCode = null;
@@ -1823,7 +1826,7 @@ const runMainOn = (key, screen) => {
     delete process.env.PROBE_OUT_JSON;
   }
   return { exitCode, errors };
-};
+}
 
 test('prize-draw 320x568 is a recorded VERTICAL exception at its measured px, owned by the 2026-11-13 ruling', () => {
   const reason = KNOWN_OVERFLOW.get(PD_PHONE);
@@ -1838,7 +1841,7 @@ test('prize-draw 320x568 is a recorded VERTICAL exception at its measured px, ow
 test('MUST-RED 2026-11-13: the granted vertical scroll passes on prize-draw 320x568 and nowhere else', () => {
   const ok = runMainOn(PD_PHONE, pdScreen());
   assert.equal(ok.exitCode, null, `the granted row must pass: ${ok.errors.join(' | ')}`);
-  for (const other of ['prize-draw 390x844', 'prize-draw 1440x900', 'prize-fireworks 320x568', 'prize-cards 320x568']) {
+  for (const other of ['prize-draw 390x844', 'prize-draw 1440x900', 'prize-ladder 320x568', 'prize-cards 1440x900']) {
     const red = runMainOn(other, pdScreen());
     assert.equal(red.exitCode, 1, `${other}: the same vertical overflow must still red`);
     assert.ok(red.errors.some((l) => l.includes('no longer fits VERTICALLY') && l.includes(other.split(' ')[1])), `${other}: red for the wrong reason: ${red.errors.join(' | ')}`);
@@ -1849,4 +1852,83 @@ test('MUST-RED 2026-11-13: the vertical grant on prize-draw 320x568 does not lic
   const red = runMainOn(PD_PHONE, pdScreen({ overflowXPx: 120, overflowXFrom: 'div#planted' }));
   assert.equal(red.exitCode, 1, 'a sideways clip on the granted row must still red');
   assert.ok(red.errors.some((l) => l.includes('clips SIDEWAYS') && l.includes('320x568')), red.errors.join(' | '));
+});
+
+// Owner ruling 2026-11-14: the prize reveal demo pages scroll VERTICALLY on phones (gh#305 PD-305-03, the
+// i5-phone B phone layout for their 2D screens: names in two columns, the page scrolls). The grant is four
+// rows (prize-fireworks and prize-cards at 320x568 and 390x844) and one axis: the desktop rows and every
+// prize-ladder row stay pinned as fitting, and sideways on a granted row still reds.
+const DEMO_PHONE_PX = new Map([
+  ['prize-fireworks 320x568', 3493],
+  ['prize-fireworks 390x844', 3217],
+  ['prize-cards 320x568', 3429],
+  ['prize-cards 390x844', 3153],
+]);
+
+test('the four demo phone rows are recorded VERTICAL exceptions at their measured px, owned by the 2026-11-14 ruling', () => {
+  for (const [key, px] of DEMO_PHONE_PX) {
+    const reason = KNOWN_OVERFLOW.get(key);
+    assert.ok(reason, `${key} is not in KNOWN_OVERFLOW`);
+    assert.ok(reason.startsWith(`owner ruling 2026-11-14: ${px}px `), `${key} reads "${reason.slice(0, 60)}"`);
+    assert.match(reason, /0px clipped, 0px sideways/);
+    assert.match(reason, /PD-305-03/);
+    assert.ok(!FITS_ROWS.has(key), `${key}: a row in both sets reds as ambiguous`);
+    assert.ok(!KNOWN_OVERFLOW_X.has(key), `${key}: the grant is vertical only`);
+    assert.equal(KNOWN_OVERFLOW_SCREEN.get(key), 'round', key);
+  }
+  for (const key of ['prize-fireworks 1440x900', 'prize-cards 1440x900', 'prize-ladder 320x568', 'prize-ladder 390x844', 'prize-ladder 1440x900']) {
+    assert.ok(FITS_ROWS.has(key), `${key} must stay pinned as fitting`);
+  }
+});
+
+test('MUST-RED 2026-11-14: the granted vertical scroll passes on the four demo phone rows and not on prize-ladder or desktop', () => {
+  for (const [key, px] of DEMO_PHONE_PX) {
+    const ok = runMainOn(key, pdScreen({ overflowPx: px, scrollPx: px }));
+    assert.equal(ok.exitCode, null, `${key}: the granted row must pass: ${ok.errors.join(' | ')}`);
+  }
+  for (const other of ['prize-ladder 320x568', 'prize-ladder 390x844', 'prize-cards 1440x900', 'prize-fireworks 1440x900']) {
+    const red = runMainOn(other, pdScreen({ overflowPx: 3429, scrollPx: 3429 }));
+    assert.equal(red.exitCode, 1, `${other}: the same vertical overflow must still red`);
+    assert.ok(red.errors.some((l) => l.includes('no longer fits VERTICALLY') && l.includes(other.split(' ')[0]) && l.includes(other.split(' ')[1])), `${other}: red for the wrong reason: ${red.errors.join(' | ')}`);
+  }
+});
+
+test('MUST-RED 2026-11-14: the vertical grant on a demo phone row does not license a sideways clip', () => {
+  for (const key of DEMO_PHONE_PX.keys()) {
+    const red = runMainOn(key, pdScreen({ overflowPx: DEMO_PHONE_PX.get(key), scrollPx: DEMO_PHONE_PX.get(key), overflowXPx: 120, overflowXFrom: 'div#planted' }));
+    assert.equal(red.exitCode, 1, `${key}: a sideways clip on the granted row must still red`);
+    assert.ok(red.errors.some((l) => l.includes('clips SIDEWAYS') && l.includes(key.split(' ')[0]) && l.includes(key.split(' ')[1])), red.errors.join(' | '));
+    // The red is the sideways gate alone: the vertical px is granted, so nothing else may speak for it.
+    assert.ok(!red.errors.some((l) => l.includes('no longer fits VERTICALLY')), `${key}: ${red.errors.join(' | ')}`);
+  }
+});
+
+// REFUTE 2026-11-14: the 2026-11-13 and 2026-11-14 rulings let these rows SCROLL (content reachable), never
+// clip it away. A vertical exception on them must not absorb clipped content.
+const SCROLL_ONLY = ['prize-draw 320x568', ...DEMO_PHONE_PX.keys()];
+
+test('the scroll-only rows are exactly the five scroll rulings, each a KNOWN_OVERFLOW row recorded at 0px clipped', () => {
+  assert.ok(fit.SCROLL_ONLY_ROWS instanceof Set, 'the probe exports its scroll-only set');
+  assert.deepEqual([...fit.SCROLL_ONLY_ROWS].sort(), [...SCROLL_ONLY].sort());
+  for (const key of fit.SCROLL_ONLY_ROWS) {
+    assert.ok(KNOWN_OVERFLOW.has(key), `${key}: a scroll-only row outside KNOWN_OVERFLOW guards nothing`);
+    assert.match(KNOWN_OVERFLOW.get(key), /0px clipped, 0px sideways/, key);
+  }
+});
+
+test('MUST-RED REFUTE 2026-11-14: a round screen with 3429px CLIPPED and 0px to scroll reds on every scroll-only row', () => {
+  for (const key of SCROLL_ONLY) {
+    const red = runMainOn(key, pdScreen({ overflowPx: 3429, scrollPx: 0, clippedPx: 3429 }));
+    assert.equal(red.exitCode, 1, `${key}: clipped content must still red`);
+    assert.ok(red.errors.some((l) => l.includes('CLIPS content away') && l.includes(key.split(' ')[0]) && l.includes(key.split(' ')[1])), `${key}: ${red.errors.join(' | ')}`);
+  }
+});
+
+test('MUST-RED REFUTE 2026-11-14: one clipped px on a non-worst screen of a scroll-only row reds', () => {
+  const rows = makeFixture42();
+  const r = rows.find((x) => rowKey(x) === 'prize-cards 320x568');
+  r.screens = [pdScreen({ overflowPx: 3429, scrollPx: 3429 }), pdScreen({ press: 1, overflowPx: 1, scrollPx: 0, clippedPx: 1 })];
+  const red = runMainOnRows(rows);
+  assert.equal(red.exitCode, 1, red.errors.join(' | '));
+  assert.ok(red.errors.some((l) => l.includes('CLIPS content away') && l.includes('prize-cards')), red.errors.join(' | '));
 });

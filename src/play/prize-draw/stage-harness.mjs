@@ -72,14 +72,14 @@ export const setupWin = (env, rest) => ({ ...env, ...rest });
  * Mounts the projector on `env` (a tab of `origin`; a plain object for a browser without IndexedDB) and
  * returns at once; nothing is on screen until the store has opened and been read.
  */
-export function mountNow({ origin, env = origin.tab('A'), rng = seeded(2), reducedMotion = false, doc = makeDoc(), reload, startReveal, lobby, loadQr, joinOrigin }) {
+export function mountNow({ origin, env = origin.tab('A'), rng = seeded(2), reducedMotion = false, doc = makeDoc(), reload, startReveal, lobby, loadQr, joinOrigin, whenBoldLoaded }) {
   const root = doc.createElement('div');
   root.id = 'app';
   const live = doc.createElement('p');
   live.id = 'pd-live';
   doc.body.append(live, root);
   const frames = [];
-  const stage = mountStage({ doc, root, live, rng, reducedMotion, nextFrame: (cb) => frames.push(cb), reload, ...(startReveal ? { startReveal } : {}), ...(lobby ? { lobby, loadQr, joinOrigin } : {}), ...stageDeps(env) });
+  const stage = mountStage({ doc, root, live, rng, reducedMotion, nextFrame: (cb) => frames.push(cb), reload, ...(whenBoldLoaded ? { whenBoldLoaded } : {}), ...(startReveal ? { startReveal } : {}), ...(lobby ? { lobby, loadQr, joinOrigin } : {}), ...stageDeps(env) });
   const frame = doc.getElementById('pd-frame');
   const notice = root.querySelector('.pd-notice');
   const go = () => root.querySelector('.pd-mc').querySelector('button');

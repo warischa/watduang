@@ -1,0 +1,16 @@
+import { openTab, BASE, sleep } from './lib.mjs';
+import { pickGame, openSetup, setPrizes, startEvent, mkNames } from './ev.mjs';
+let T = await openTab(); await T.view(320, 568, false);
+await T.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' }); await T.nav(`${BASE}/game/prize-draw/`); await T.view(320, 568, false);
+const names = mkNames(200); await T.ev(`const el=document.getElementById('pd-names'); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(el, ${JSON.stringify(names.join('\n'))}); el.dispatchEvent(new Event('input',{bubbles:true})); return 1`); await sleep(400);
+console.log('arrow', JSON.stringify(await T.ev(`const s=document.getElementById('pd-sched').getBoundingClientRect(); const v=document.querySelector('#pd-sched .val').getBoundingClientRect(); return [...document.querySelectorAll('#pd-sched .arr')].map(a=>{const svg=a.querySelector('svg'); const r=(svg||a).getBoundingClientRect(); return {svgCenterOff:+((r.left+r.width/2)-s.left).toFixed(1), valCenterOff:+((v.left+v.width/2)-s.left).toFixed(1), box:a.getBoundingClientRect().width}})`)));
+await T.close();
+T = await openTab({ reducedMotion: true }); await T.view(1920, 1080);
+await openSetup(T, mkNames(196), { event: 'Audit' }); await setPrizes(T, 3);
+for (const g of ['pd-game-r1','pd-game-r2','pd-game-r3','pd-game-r4','pd-game-final']) await pickGame(T, g, null);
+await startEvent(T); await T.view(1920,1080); await T.nav(`${BASE}/game/prize-draw/play/`); await T.view(1920,1080); await sleep(900);
+await T.ev(`window.__s=[]; document.addEventListener('click',(ev)=>{ if(!ev.target.closest('.pd-mc button')) return; const t0=performance.now(); const tick=()=>{ const ins=[...document.querySelectorAll('.pd-chip.in')]; const outs=[...document.querySelectorAll('.pd-chip.out')]; window.__s.push({t:Math.round(performance.now()-t0),screen:document.getElementById('pd-frame').dataset.screen,in:ins.length,out:outs.length,bgIn:new Set(ins.map(c=>getComputedStyle(c).backgroundColor)).size, bgIn0:ins[0]&&getComputedStyle(ins[0]).backgroundColor, bgInLast:ins.length&&getComputedStyle(ins[ins.length-1]).backgroundColor, trans:document.getAnimations().filter(a=>a instanceof CSSTransition).length}); if(performance.now()-t0<600) requestAnimationFrame(tick)}; requestAnimationFrame(tick)},true); return 1`);
+await T.tapEl('.pd-mc button', 'เปิดผล', { settleMs: 450 }); await sleep(1000);
+const s = await T.ev('return window.__s'); const f = s.find((x) => x.screen === 'reveal');
+console.log('rm first reveal sample', JSON.stringify(f)); console.log('rm max chip transitions', Math.max(...s.map((x) => x.trans)), 'media', await T.ev(`return matchMedia('(prefers-reduced-motion: reduce)').matches`));
+await T.close(); process.exit(0);

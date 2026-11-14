@@ -4,7 +4,14 @@
 // 2D view exactly once.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { OUTCOME, baseOptions, launch, makeModule, makePage, makeRegistry, settle } from './host-harness.mjs';
+// The two callers first: the arm gate they import reads `document` as it loads, before host-harness.mjs
+// stands in its minimal one.
+import { mountDemo } from './demo.ts';
+import { makeDoc } from '../../prize-event/fake-dom.mjs';
+import { fakeOrigin, mount as mountStage, press, storedEvent } from '../prize-draw/stage-harness.mjs';
+import { OUTCOME, baseOptions, launch, makeModule, makePage, makeRegistry, settle, widthMatches } from './host-harness.mjs';
+import { GAMES, isAvailable } from './game-registry.ts';
+import { startReveal } from './game-host.ts';
 
 const RM_QUERY = '(prefers-reduced-motion: reduce)';
 
@@ -26,6 +33,7 @@ function assertCleanExit({ page, mod, calls, host }, state, reason) {
   assert.equal(calls.render2D[0], OUTCOME, 'the 2D view drew something other than the committed outcome');
   assert.equal(page.frames.size, 0, 'a frame is still queued');
   assert.equal(page.mql.count('change'), 0, 'the reduced-motion listener is still attached');
+  for (const list of page.widthMqls.values()) assert.equal(list.count('change'), 0, `the ${list.media} listener is still attached`);
   assert.equal(page.doc.count('visibilitychange'), 0, 'the visibility listener is still attached');
   assert.equal(page.mine(), 0, 'the host is still registered with the real render hold');
   assert.equal(page.container.children.length, 0, 'the 3D layer is still in the page');
@@ -312,6 +320,7 @@ test('every exit honours the same contract', async () => {
     error: (r) => r.mod.emit({ type: 'error', error: 0 }),
     contextLost: (r) => r.page.rendererCalls[0].canvas.dispatch('webglcontextlost', { preventDefault() {} }),
     reducedMotion: (r) => r.page.setReducedMotion(true),
+    narrowed: (r) => r.page.setWidth(320),
     disposeRunning: (r) => r.host.dispose(),
     disposeHeld: (r) => {
       r.page.setHeld(true);
@@ -801,3 +810,243 @@ test('a renderer call inside a resize disposes: the module gets no resize after 
   assert.equal(run.mod.commands.slice(before).filter((c) => c.type === 'resize').length, 0, 'a resize reached a disposed module');
   assertDisposedLast(run);
 });
+
+// ---- below 640px every game reveals in 2D (PD-305-04, PD-306-02, PD-307-02) ------------------------------
+// The set this switch must enumerate is the registry's games x the width classes {<640, >=640} x the two
+// callers (the projector stage and the games' own pages). Every case iterates GAMES, never a hand list, so
+// a game added there is covered here, and one that skips the switch reds its own case.
+
+const GAME_IDS = Object.keys(GAMES);
+const NARROW_WIDTHS = [320, 639, 639.5];
+const WIDE_WIDTHS = [640, 1920];
+
+/** The real registry's availability, with a loader that records which game was asked for. */
+function registryOf(mod) {
+  const reg = { loads: [] };
+  reg.registry = {
+    isAvailable,
+    loaderFor: (game) => () => {
+      reg.loads.push(game);
+      return Promise.resolve(mod.module);
+    },
+  };
+  return reg;
+}
+
+async function revealAt(game, width) {
+  const page = makePage({ width });
+  const mod = makeModule();
+  const reg = registryOf(mod);
+  const { options, calls } = baseOptions(page, { registry: reg.registry, game });
+  const host = launch(page, options);
+  await settle();
+  return { page, mod, reg, calls, host };
+}
+
+test('the fake reads width queries as a browser does: a whole-pixel max-width misses a fractional width', () => {
+  assert.equal(widthMatches('(max-width: 639px)', 639.5), false);
+  assert.equal(widthMatches('(min-width: 640px)', 639.5), false);
+  assert.equal(widthMatches('not all and (min-width: 640px)', 639.5), true);
+  assert.equal(widthMatches('not all and (min-width: 640px)', 640), false);
+  assert.throws(() => widthMatches('(orientation: portrait)', 320), /cannot evaluate/);
+});
+
+test('the registry holds every game and each is available, so the cases below measure the width switch', () => {
+  assert.deepEqual(GAME_IDS.sort(), ['cards', 'fireworks', 'ladder']);
+  for (const game of GAME_IDS) assert.equal(isAvailable(game), true, `${game} is unavailable, so its cases prove nothing`);
+});
+
+for (const game of GAME_IDS) {
+  for (const width of NARROW_WIDTHS) {
+    test(`${game} at ${width}px reveals in 2D before three or the game is imported`, async () => {
+      const run = await revealAt(game, width);
+      assertCleanExit(run, 'fallback', 'narrow-entry');
+      assert.deepEqual(run.reg.loads, [], `${game} was imported on a ${width}px screen`);
+      assert.equal(run.page.rendererLoads, 0, `three was imported on a ${width}px screen`);
+      assert.deepEqual(run.page.contextRequests, [], 'a WebGL context was asked for on a phone');
+    });
+  }
+  for (const width of WIDE_WIDTHS) {
+    test(`${game} at ${width}px runs in 3D (the control)`, async () => {
+      const run = await revealAt(game, width);
+      assert.equal(run.host.state, 'running');
+      assert.deepEqual(run.reg.loads, [game]);
+      assert.equal(run.mod.mounts.length, 1);
+      assert.equal(run.calls.render2D.length, 0);
+      run.host.dispose();
+      assertCleanExit(run, 'disposed');
+    });
+  }
+
+  test(`${game}: narrowing below 640px mid-reveal falls back once; widening again never restarts it`, async () => {
+    const run = await revealAt(game, 1920);
+    run.page.flush(16);
+    run.page.setWidth(800);
+    assert.equal(run.host.state, 'running', 'a resize that stays wide ended the reveal');
+    run.page.setWidth(639.5);
+    assertCleanExit(run, 'fallback', 'narrow');
+    run.page.setWidth(1920);
+    run.page.setWidth(320);
+    await settle();
+    assert.equal(run.mod.mounts.length, 1, 'the reveal mounted again');
+    assert.equal(run.calls.render2D.length, 1, 'the 2D view was drawn again');
+    assert.equal(run.host.state, 'fallback');
+  });
+
+  test(`${game}: narrowing while the game still loads falls back, and the late import is discarded`, async () => {
+    const page = makePage();
+    page.deferRenderer = true;
+    const mod = makeModule();
+    const reg = registryOf(mod);
+    const { options, calls } = baseOptions(page, { registry: reg.registry, game });
+    const host = launch(page, options);
+    assert.equal(host.state, 'loading');
+    page.setWidth(320);
+    page.resolveRenderer();
+    await settle();
+    assertCleanExit({ page, mod, calls, host }, 'fallback', 'narrow');
+    assert.equal(page.rendererCalls.length, 0, 'a renderer was made after the fallback');
+    assert.equal(mod.mounts.length, 0);
+  });
+
+  test(`${game}: a 2D reveal on a phone stays 2D when the screen widens`, async () => {
+    const run = await revealAt(game, 320);
+    run.page.setWidth(1920);
+    await settle();
+    assertCleanExit(run, 'fallback', 'narrow-entry');
+    assert.deepEqual(run.reg.loads, []);
+    assert.deepEqual(run.page.contextRequests, []);
+  });
+}
+
+test('reduced motion on a phone keeps its own reason: the reduced-motion check is unchanged and comes first', async () => {
+  const page = makePage({ reducedMotion: true, width: 320 });
+  const mod = makeModule();
+  const reg = registryOf(mod);
+  const { options, calls } = baseOptions(page, { registry: reg.registry });
+  const host = launch(page, options);
+  await settle();
+  assertCleanExit({ page, mod, calls, host }, 'fallback', 'reduced-motion-entry');
+});
+
+/** Starts each reveal through the real host on `page`, recording the hosts a caller made. */
+function realHosts(page, reg, container = null) {
+  const hosts = [];
+  const start = (o) => {
+    const host = startReveal({ ...o, registry: reg.registry, ...(container ? { container } : {}) }, page.env);
+    hosts.push(host);
+    return host;
+  };
+  return { hosts, start };
+}
+
+for (const game of GAME_IDS) {
+  test(`the ${game} page at 320px reveals in 2D through the real host; at 1920px it imports (control)`, async () => {
+    for (const [width, wide] of [[320, false], [1920, true]]) {
+      const page = makePage({ width });
+      const reg = registryOf(makeModule());
+      const { hosts, start } = realHosts(page, reg, wide ? page.container : null);
+      const doc = makeDoc();
+      const root = doc.createElement('div');
+      const live = doc.createElement('p');
+      doc.body.append(live, root);
+      const demo = mountDemo({ doc, root, live, game, startReveal: start });
+      const go = root.querySelector('.pr-go');
+      go.disabled = false;
+      go.click();
+      await settle();
+      assert.equal(hosts.length, 1, `${width}px: the page started no reveal`);
+      if (wide) {
+        assert.equal(hosts[0].state, 'running', `control: ${game} did not run in 3D at ${width}px`);
+        assert.deepEqual(reg.loads, [game]);
+      } else {
+        assert.equal(hosts[0].reason, 'narrow-entry', `${game} at ${width}px: ${hosts[0].state} ${hosts[0].reason}`);
+        assert.deepEqual(reg.loads, [], `${game} was imported on a phone`);
+        assert.equal(page.rendererLoads, 0);
+      }
+      demo.dispose();
+    }
+  });
+}
+
+test('the projector at 320px reveals in 2D through the real host; at 1920px it imports (control)', async () => {
+  for (const [width, wide] of [[320, false], [1920, true]]) {
+    const origin = fakeOrigin();
+    storedEvent(origin, { n: 50, games: { rounds: ['fireworks', null, null, null], final: null } });
+    const page = makePage({ width });
+    const reg = registryOf(makeModule());
+    const { hosts, start } = realHosts(page, reg, wide ? page.container : null);
+    const s = await mountStage({ origin, startReveal: start });
+    press(s);
+    await origin.idle();
+    await settle();
+    assert.equal(hosts.length, 1, `${width}px: the projector started no reveal`);
+    if (wide) {
+      assert.equal(hosts[0].state, 'running', 'control: the projector did not run in 3D');
+      assert.deepEqual(reg.loads, ['fireworks']);
+    } else {
+      assert.equal(hosts[0].reason, 'narrow-entry');
+      assert.deepEqual(reg.loads, [], 'the projector imported a game on a phone');
+      assert.equal(page.rendererLoads, 0);
+      assert.ok(s.go(), 'the MC can step on after the 2D reveal');
+    }
+  }
+});
+
+// ---- a width change while the page is hidden (REFUTE round 1) ----------------------------------------------
+// Two delivery models: `change` on the resize itself, hidden or not, and the spec's -- reported at the next
+// rendering update, which a hidden page never gets, so it lands after the page is visible again. Either way
+// the reveal narrowed while hidden comes back in 2D without drawing one more 3D frame, and a 2D reveal
+// widened while hidden stays 2D.
+
+const ticksOf = (mod) => mod.commands.filter((c) => c.type === 'tick').length;
+
+for (const media of ['immediate', 'next-frame']) {
+  for (const game of GAME_IDS) {
+    test(`${game} (${media}): narrowed while hidden, the reveal is in 2D once visible -- never another 3D frame`, async () => {
+      const page = makePage({ media });
+      const mod = makeModule();
+      const reg = registryOf(mod);
+      const { options, calls } = baseOptions(page, { registry: reg.registry, game });
+      const host = launch(page, options);
+      await settle();
+      page.flush(16);
+      assert.equal(host.state, 'running');
+      const before = ticksOf(mod);
+      page.setHidden(true);
+      page.setWidth(320);
+      page.setHidden(false);
+      page.flush(32);
+      page.flush(48);
+      assertCleanExit({ page, mod, calls, host }, 'fallback', 'narrow');
+      assert.equal(ticksOf(mod), before, 'a 3D frame was drawn after the viewport narrowed');
+      assert.equal(mod.mounts.length, 1);
+    });
+
+    test(`${game} (${media}): widened while hidden, a 2D reveal stays 2D once visible`, async () => {
+      for (const [label, start] of [['entry', 320], ['mid-reveal', 1920]]) {
+        const page = makePage({ media, width: start });
+        const mod = makeModule();
+        const reg = registryOf(mod);
+        const { options, calls } = baseOptions(page, { registry: reg.registry, game });
+        const host = launch(page, options);
+        await settle();
+        if (start > 320) {
+          page.setWidth(320);
+          page.flush(16);
+        }
+        const reason = start > 320 ? 'narrow' : 'narrow-entry';
+        assertCleanExit({ page, mod, calls, host }, 'fallback', reason);
+        const loads = reg.loads.length;
+        page.setHidden(true);
+        page.setWidth(1920);
+        page.setHidden(false);
+        page.flush(32);
+        await settle();
+        assertCleanExit({ page, mod, calls, host }, 'fallback', reason);
+        assert.equal(reg.loads.length, loads, `${label}: the game was imported again`);
+        assert.ok(mod.mounts.length <= 1, `${label}: the reveal mounted again`);
+      }
+    });
+  }
+}

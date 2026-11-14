@@ -1,0 +1,18 @@
+// positive control for row 9d: the wave CSS played by a manual unmark / flush / settle / mark
+import { openTab, BASE, sleep } from './lib.mjs';
+import { pickGame, openSetup, setPrizes, startEvent, mkNames } from './ev.mjs';
+const T = await openTab(); await T.view(1920, 1080);
+await openSetup(T, mkNames(196), { event: 'Audit' }); await setPrizes(T, 3);
+for (const g of ['pd-game-r1','pd-game-r2','pd-game-r3','pd-game-r4','pd-game-final']) await pickGame(T, g, null);
+await startEvent(T); await T.view(1920,1080); await T.nav(`${BASE}/game/prize-draw/play/`); await T.view(1920,1080); await sleep(900);
+await T.tapEl('.pd-mc button', 'เปิดผล', { settleMs: 450 }); await sleep(1500);
+await T.ev(`window.__e=[]; window.__t0=0; for (const type of ['transitionrun','transitionstart','transitionend','transitioncancel']) document.addEventListener(type,(ev)=>{ if(ev.propertyName!=='background-color'||!ev.target.classList.contains('pd-chip')) return; window.__e.push({type,t:performance.now()-window.__t0,wave:ev.target.style.getPropertyValue('--wave')}); },true);
+  const f=document.querySelector('.pd-field'); f.classList.remove('pd-marked'); f.getBoundingClientRect(); getComputedStyle(f.querySelector('.pd-chip')).backgroundColor; return 1`);
+await sleep(700); // unmarked state settled
+await T.ev(`window.__e.length=0; window.__t0=performance.now(); document.querySelector('.pd-field').classList.add('pd-marked'); return 1`);
+await sleep(1200);
+const ev = await T.ev('return window.__e');
+const c = (t) => ev.filter((e) => e.type === t);
+const st = c('transitionstart').map((e) => e.t);
+console.log(JSON.stringify({ run: c('transitionrun').length, start: st.length, end: c('transitionend').length, cancel: c('transitioncancel').length, startedBy300: st.filter((t) => t <= 300).length, lastStart: Math.round(Math.max(...st)), lastEnd: Math.round(Math.max(...c('transitionend').map((e) => e.t))) }));
+await T.close(); process.exit(0);

@@ -1,0 +1,31 @@
+// row 9d, passive instrument: transition events (no style flush from the probe). node wave2.mjs <names> [rm]
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+import { pickGame, openSetup, setPrizes, startEvent, mkNames } from './ev.mjs';
+const N = Number(process.argv[2] || 196); const rm = process.argv[3] === 'rm';
+const T = await openTab({ reducedMotion: rm }); await T.view(1920, 1080);
+await openSetup(T, mkNames(N), { event: 'Audit' }); await setPrizes(T, 3);
+for (const g of ['pd-game-r1', 'pd-game-r2', 'pd-game-r3', 'pd-game-r4', 'pd-game-final']) await pickGame(T, g, null);
+await startEvent(T); await T.view(1920, 1080); await T.nav(`${BASE}/game/prize-draw/play/`); await T.view(1920, 1080); await sleep(900);
+await T.ev(`window.__e=[]; window.__t0=0; window.__rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.addEventListener('click',(ev)=>{ if(ev.target.closest&&ev.target.closest('.pd-mc button')) window.__t0=performance.now(); },true);
+  for (const type of ['transitionrun','transitionstart','transitionend','transitioncancel']) document.addEventListener(type,(ev)=>{ if(ev.propertyName!=='background-color') return; const el=ev.target; window.__e.push({type,t:+(performance.now()-window.__t0).toFixed(1),wave:el.style.getPropertyValue('--wave'),chip:el.classList.contains('pd-chip'),cls:el.className.slice(0,20)}); },true);
+  // positive control for the listener: a transition the probe starts itself
+  const d=document.createElement('div'); d.id='__ctl'; d.style.cssText='position:fixed;left:0;top:0;width:10px;height:10px;background:#000;transition:background-color 100ms'; document.body.appendChild(d); d.getBoundingClientRect(); d.style.background='#fff'; return 1`);
+await sleep(400);
+const ctl = await T.ev(`const r=window.__e.filter(e=>e.cls===''||e.cls===undefined); return window.__e.map(e=>e.type+':'+e.chip).join(',')`);
+await T.ev(`window.__e.length=0; document.getElementById('__ctl').remove(); return 1`);
+await T.tapEl('.pd-mc button', 'เปิดผล', { settleMs: 450 });
+await sleep(1800);
+const ev = await T.ev(`return window.__e.filter(e=>e.chip)`);
+const first = ev.find((e) => e.type === 'transitionrun');
+const runs = ev.filter((e) => e.type === 'transitionrun'), starts = ev.filter((e) => e.type === 'transitionstart'), ends = ev.filter((e) => e.type === 'transitionend'), cancels = ev.filter((e) => e.type === 'transitioncancel');
+const t0 = first ? first.t : null;
+const startedBy = (ms) => new Set(starts.filter((e) => e.t - t0 <= ms).map((e) => e.wave)).size;
+const startedByClick = (ms) => new Set(starts.filter((e) => e.t <= ms).map((e) => e.wave)).size;
+const out = { N, rm, mediaRm: await T.ev('return window.__rm'), listenerControl: ctl, runEvents: runs.length, startEvents: starts.length, endEvents: ends.length, cancelEvents: cancels.length, firstRunMsAfterClick: t0,
+  distinctChipsRun: new Set(runs.map((e) => e.wave)).size, startedBy300FromFirstRun: t0 === null ? null : startedBy(300), startedBy300FromClick: startedByClick(300), lastStartFromFirstRun: starts.length ? Math.max(...starts.map((e) => e.t)) - t0 : null, lastEndFromFirstRun: ends.length ? Math.max(...ends.map((e) => e.t)) - t0 : null, sample: ev.slice(0, 6) };
+await T.shot(`row9d-wave-after-${N}${rm ? '-rm' : ''}`);
+const file = join(OUT, 'results-wave2.json'); const R = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {}; R[`n${N}${rm ? 'rm' : ''}`] = out; writeFileSync(file, JSON.stringify(R, null, 1));
+console.log(JSON.stringify(out)); await T.close(); process.exit(0);

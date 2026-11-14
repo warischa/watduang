@@ -620,6 +620,19 @@ export const REVEAL_DRIVERS = {
   },
 };
 
+// THE VIEWPORT A ROUTE IS DRIVEN AT (gh#305). Real device metrics, not a resized window: the engine sizes its
+// drawing buffer from innerWidth x devicePixelRatio, so at the phone size the buffer read back is the one a
+// phone would get -- that is why 390x844 is the default for every route. The four prize reveal routes are
+// the one difference: by owner pick (gh#305 PD-305-04 / PD-306-02 / PD-307-02, the shared reveal host in
+// src/play/_prize-reveal/game-host.ts) a viewport below the site's 640px phone boundary runs every prize
+// reveal on its 2D path and creates NO WebGL context, so driving them at 390 reads UNMEASURED by design and
+// the lane measures nothing there. They are driven at a width where they draw 3D instead. Nothing is
+// exempted: the same verdicts apply, only the width differs. The set is the routes that own a reveal
+// driver -- the prize routes and no others -- so a new driver lands wide with no second list to edit.
+export const PHONE_VIEWPORT = { width: 390, height: 844, deviceScaleFactor: 1, mobile: true };
+export const WIDE_VIEWPORT = { width: 1280, height: 800, deviceScaleFactor: 1, mobile: false };
+export const viewportFor = (route) => (REVEAL_DRIVERS[route] ? WIDE_VIEWPORT : PHONE_VIEWPORT);
+
 /** How long a driven reveal may take to create its WebGL context (three and the game load lazily). */
 const CONTEXT_CAP_MS = 15000;
 
@@ -769,9 +782,8 @@ async function main() {
       await send('Page.navigate', { url });
       await p;
     };
-    // Real device metrics, not a resized window: the engine sizes its drawing buffer from
-    // innerWidth x devicePixelRatio, so the buffer this reads back is the one a phone would get.
-    await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+    // Real device metrics, not a resized window (why 390 for most routes, and why the prize routes differ: viewportFor).
+    await send('Emulation.setDeviceMetricsOverride', viewportFor(route));
     // A first visit: an earlier route's start saved a roster on this same origin.
     // gh#305: and the prize-draw event an earlier route seeded.
     await send('Storage.clearDataForOrigin', { origin: new URL(BASE).origin, storageTypes: 'local_storage,indexeddb' });

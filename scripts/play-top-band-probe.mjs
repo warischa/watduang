@@ -15,6 +15,17 @@
 // any other route reds, and every other prize-draw box in the band (or anchored above it) still reds.
 // Proven without a browser on the verdict: play-top-band-probe.test.mjs.
 //
+// A SECOND CARVE-OUT (owner ruling 2026-11-14, "carve-out for .pr-bar like .pd-mc"; the placement is the owner
+// pick gh#305 PD-305-02, the demo bar at the band's right end): on the three prize reveal demo routes only
+// (DEMO_ROUTES), the demo bar (BAR_SEL) may be anchored fixed above the band, and ONLY while the viewport
+// that holds it (BAR_VIEWPORT_SEL) carries data-bar="band". The exemption is by route AND by the bar element
+// itself, not its descendants. Each exempted bar is then judged on that row: it shows a box, that box (root,
+// descendants, ::before/::after, the same union the MC read takes) lies inside the band, clears the close X
+// and the edit control, sits on one row (every item and every text line it holds crosses one horizontal
+// line), and is built from geometry the read is exact for; at most one bar is admitted per screen. A bar
+// anchored above with any other data-bar, a bar on any other route, and every other fixed/sticky box above
+// the band on a demo route still red. Route content intersecting the band is NOT covered by this carve-out.
+//
 //   npm run build && npx serve dist/ -l <port>
 //   Chrome --headless --remote-debugging-port=<cdp> --user-data-dir=<fresh>
 //   BASE=http://localhost:<port> CDP_PORT=<cdp> node scripts/play-top-band-probe.mjs
@@ -111,6 +122,11 @@ export const CHROME_IDS = ['play-band', 'play-exit', 'play-edit-players', 'play-
 // and that control's root. See the header for what is asserted instead.
 export const MC_ROUTE = 'prize-draw';
 export const MC_SEL = '.pd-mc';
+// THE SECOND CARVE-OUT (owner ruling 2026-11-14): the demo routes whose bar may stand in the band, the bar's
+// root, and the viewport whose data-bar attribute says where the page placed it. See the header.
+export const DEMO_ROUTES = ['prize-cards', 'prize-fireworks', 'prize-ladder'];
+export const BAR_SEL = '.pr-bar';
+export const BAR_VIEWPORT_SEL = '.pr-viewport';
 
 /**
  * THE SHAPE THE CARVE-OUT ADMITS. The box read below is exact only for untransformed geometry: a real
@@ -124,7 +140,7 @@ export const MC_SEL = '.pd-mc';
  * containing block a positioned pseudo can have is in `parts` or in `chain`). Returns one line per fault,
  * empty when the read is exact. Self-contained: its source is embedded into the in-page read as is.
  */
-export function carveOutShapeFaults(parts, chain = []) {
+export function carveOutShapeFaults(parts, chain = [], what = 'the MC control') {
   const isPx = (v) => /^-?\d*\.?\d+px$/.test(String(v ?? '').trim());
   const moved = (s) => {
     const out = ['transform', 'translate', 'rotate', 'scale'].filter((k) => s[k] && s[k] !== 'none').map((k) => `${k}: ${s[k]}`);
@@ -133,7 +149,7 @@ export function carveOutShapeFaults(parts, chain = []) {
     return out;
   };
   const faults = [];
-  for (const a of chain) for (const m of moved(a.style)) faults.push(`${a.sel} (an ancestor of the MC control) ${m}`);
+  for (const a of chain) for (const m of moved(a.style)) faults.push(`${a.sel} (an ancestor of ${what}) ${m}`);
   for (const p of parts) {
     for (const m of moved(p.style)) faults.push(`${p.sel} ${m}`);
     for (const [which, s] of p.pseudos) {
@@ -181,6 +197,9 @@ export const playRoutes = () => {
 // Both are recorded per row.
 const MEASURE = `
 const BAND = ${BAND_PX}, VW = innerWidth, CW = document.documentElement.clientWidth, VH = innerHeight, CHROME = ${JSON.stringify(CHROME_IDS)}, MC_SEL = ${JSON.stringify(MC_SEL)};
+const BAR_SEL = ${JSON.stringify(BAR_SEL)}, BAR_VIEWPORT_SEL = ${JSON.stringify(BAR_VIEWPORT_SEL)};
+// Every demo bar in the page, in document order: an anchored entry names its bar by index here.
+const barEls = [...document.querySelectorAll(BAR_SEL)];
 const r2 = (n) => +n.toFixed(2);
 const box = (r) => ({ l: r2(r.left), t: r2(r.top), r: r2(r.right), b: r2(r.bottom) });
 const sel = (e) => { const p = []; for (let n = e; n && n.nodeType === 1 && p.length < 4; n = n.parentElement) {
@@ -224,7 +243,7 @@ for (const e of document.body.querySelectorAll('*')) {
     let pinnedShut = false;
     if (s.display === 'none') { const prev = e.style.display; e.style.display = 'block';
       pinnedShut = getComputedStyle(e).display === 'none'; e.style.display = prev; }
-    if (!contained && !scroller && !pinnedShut && top < BAND - ${TOL}) anchoredAbove.push({ sel: sel(e), position: s.position, top: s.top, effectiveTop: r2(top), display: s.display, mc: !!e.closest(MC_SEL) });
+    if (!contained && !scroller && !pinnedShut && top < BAND - ${TOL}) anchoredAbove.push({ sel: sel(e), position: s.position, top: s.top, effectiveTop: r2(top), display: s.display, mc: !!e.closest(MC_SEL), bar: barEls.indexOf(e) });
   }
   const r = e.getBoundingClientRect(); if (r.width <= 0 || r.height <= 0) continue;
   if (s.visibility !== 'visible') continue;
@@ -263,8 +282,8 @@ const pseudoBox = (p, which, q) => { const s = getComputedStyle(p, which);
   const y = T0 !== null ? cb.t + T0 + pxv(s.marginTop) : B0 !== null ? cb.t + cb.h - B0 - pxv(s.marginBottom) - H : q.top;
   return { l: r2(x), t: r2(y), r: r2(x + W), b: r2(y + H) }; };
 // EVERY element matching the MC selector is measured: the exemption above covers each of them, so each is
-// judged, and the shape each is built from is classified (carveOutShapeFaults).
-const mcs = [...document.querySelectorAll(MC_SEL)].map((mcEl) => { let L = Infinity, T = Infinity, R = -Infinity, B = -Infinity, pseudo = 0; const parts = [mcEl, ...mcEl.querySelectorAll('*')];
+// judged, and the shape each is built from is classified (carveOutShapeFaults). The demo bar is read the same way.
+const whole = (mcEl, what) => { let L = Infinity, T = Infinity, R = -Infinity, B = -Infinity, pseudo = 0; const parts = [mcEl, ...mcEl.querySelectorAll('*')];
   const add = (q) => { if (!q || q.r - q.l <= 0 || q.b - q.t <= 0) return; L = Math.min(L, q.l); T = Math.min(T, q.t); R = Math.max(R, q.r); B = Math.max(B, q.b); };
   const styled = [];
   for (const p of parts) { const ps = getComputedStyle(p); if (ps.display === 'none') continue; const q = p.getBoundingClientRect(); add(box(q));
@@ -272,8 +291,18 @@ const mcs = [...document.querySelectorAll(MC_SEL)].map((mcEl) => { let L = Infin
     for (const w of ['::before', '::after']) { const pb = pseudoBox(p, w, q); if (pb) { pseudo++; add(pb); } } }
   const chain = [];
   for (let a = mcEl.parentElement; a; a = a.parentElement) chain.push({ sel: sel(a), style: getComputedStyle(a) });
-  const shape = carveOutShapeFaults(styled, chain);
-  return R > L ? { present: true, shown: true, l: r2(L), t: r2(T), r: r2(R), b: r2(B), parts: parts.length, pseudo, shape } : { present: true, shown: false, parts: parts.length, pseudo, shape }; });
+  const shape = carveOutShapeFaults(styled, chain, what);
+  return R > L ? { present: true, shown: true, l: r2(L), t: r2(T), r: r2(R), b: r2(B), parts: parts.length, pseudo, shape } : { present: true, shown: false, parts: parts.length, pseudo, shape }; };
+const mcs = [...document.querySelectorAll(MC_SEL)].map((e) => whole(e, 'the MC control'));
+// ONE ROW: every shown item under the bar and every line box of its text crosses one horizontal line, i.e.
+// the lowest top is above the highest bottom. A wrapped item, a wrapped group or a wrapped line breaks it.
+const rowOf = (el) => { let top = -Infinity, bottom = Infinity, n = 0;
+  const take = (q) => { if (q.width <= 0 || q.height <= 0) return; n++; top = Math.max(top, q.top); bottom = Math.min(bottom, q.bottom); };
+  for (const d of el.querySelectorAll('*')) if (getComputedStyle(d).display !== 'none') take(d.getBoundingClientRect());
+  const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  for (let t = tw.nextNode(); t; t = tw.nextNode()) { if (!t.textContent.trim()) continue; const rg = document.createRange(); rg.selectNodeContents(t); for (const q of rg.getClientRects()) take(q); }
+  return { oneRow: n === 0 || top < bottom - ${TOL}, rowItems: n, rowTop: n ? r2(top) : null, rowBottom: n ? r2(bottom) : null }; };
+const bars = barEls.map((e) => ({ ...whole(e, 'the demo bar'), ...rowOf(e), mode: e.closest(BAR_VIEWPORT_SEL)?.getAttribute('data-bar') ?? null }));
 // A fingerprint of what the route shows right now (visible elements by id/tag with their text), so a
 // transition that was meant to change the screen can be told from a click that changed nothing. An
 // animated counter only ever makes two reads differ, never makes two different screens agree.
@@ -285,7 +314,7 @@ for (const e of document.body.querySelectorAll('*')) {
 let sig = 0; for (let i = 0; i < sigSrc.length; i++) sig = (Math.imul(sig, 31) + sigSrc.charCodeAt(i)) | 0;
 return { sig, renderHold: document.documentElement.getAttribute('data-render-hold'), handover: document.documentElement.getAttribute('data-player-screen-handover'), vw: VW, vh: VH, clientWidth: CW, bodyPaddingTop: getComputedStyle(document.body).paddingTop,
   sharedScreenOpen: document.documentElement.getAttribute('data-player-screen'), band, exit, edit, checked, skippedTiny,
-  hitCount: hits.length, mcHitCount: hits.filter((h) => h.mc).length, hits: [...hits.filter((h) => !h.mc).slice(0, 12), ...hits.filter((h) => h.mc).slice(0, 4)], anchoredAbove, mcs };`;
+  hitCount: hits.length, mcHitCount: hits.filter((h) => h.mc).length, hits: [...hits.filter((h) => !h.mc).slice(0, 12), ...hits.filter((h) => h.mc).slice(0, 4)], anchoredAbove, mcs, bars };`;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const click = (s) => `const b=document.querySelector(${JSON.stringify(s)});if(!b)return 'absent';const r=b.getBoundingClientRect();if(!r.width)return 'hidden';if(b.disabled)return 'disabled';b.click();return 'clicked';`;
@@ -429,8 +458,26 @@ export function judge(out) {
         if (r.exit?.present && overlap(r.exit, r.edit)) failures.push(`${tag}: edit control overlaps the close X`);
       }
       const exempt = id === MC_ROUTE;
-      const anchored = (r.anchoredAbove || []).filter((a) => !(exempt && a.mc));
+      // The demo bar's exemption: a demo route, the bar element itself, and its viewport placed it in the band.
+      const barOf = (a) => (DEMO_ROUTES.includes(id) && a.bar >= 0 ? (r.bars || [])[a.bar] : undefined);
+      const barExempt = (a) => barOf(a)?.mode === 'band';
+      const anchored = (r.anchoredAbove || []).filter((a) => !(exempt && a.mc) && !barExempt(a));
       if (anchored.length) failures.push(`${tag}: ${anchored.length} fixed/sticky route box(es) anchored above the band: ${anchored.slice(0, 4).map((a) => `${a.sel} (${a.position} top ${a.top}${a.display === 'none' ? ', hidden now' : ''})`).join('; ')}`);
+      // The bar carve-out's own assertion, on every row that used the exemption: one bar, shown, measured exactly,
+      // inside the band, clear of both band controls, on one row.
+      const admitted = (r.anchoredAbove || []).filter(barExempt);
+      if (admitted.length > 1) failures.push(`${tag}: ${admitted.length} demo bars (${BAR_SEL}) anchored above the band -- the carve-out admits exactly one`);
+      for (const a of admitted) {
+        const m = barOf(a);
+        const what = `demo bar ${a.sel}`;
+        if (m.shape?.length) failures.push(`${tag}: ${what}: the carve-out geometry is outside the shape this probe can measure (no transform, translate, rotate, scale or zoom on it or any ancestor; hit areas are border boxes or inset-placed pseudo-elements): ${m.shape.slice(0, 4).join('; ')}`);
+        if (!m.shown) { failures.push(`${tag}: ${what} is anchored above the band but shows no box, so the carve-out judged nothing`); continue; }
+        const at = JSON.stringify({ l: m.l, t: m.t, r: m.r, b: m.b });
+        if (!inside(m, r.clientWidth)) failures.push(`${tag}: ${what} ${at} is not inside the band 0..${BAND_PX} x 0..${r.clientWidth}`);
+        if (r.exit?.present && overlap(m, r.exit)) failures.push(`${tag}: ${what} ${at} overlaps the close X ${JSON.stringify(r.exit)}`);
+        if (r.edit?.present && overlap(m, r.edit)) failures.push(`${tag}: ${what} ${at} overlaps the edit control${r.edit.forced ? ' (forced read)' : ''} ${JSON.stringify(r.edit)}`);
+        if (!m.oneRow) failures.push(`${tag}: ${what} ${at} is not one row (lowest item top ${m.rowTop}, highest item bottom ${m.rowBottom})`);
+      }
       const hitCount = contentHitCount(id, r);
       if (hitCount > 0) failures.push(`${tag}: ${hitCount} route-content box(es) intersect the band, worst ${(r.hits || []).filter((h) => !(exempt && h.mc)).slice(0, 3).map((h) => `${h.sel} (${h.overlapPx}px, top ${h.t})`).join('; ')}`);
       // The carve-out's own assertion, on every screen and width the walk reads, for EVERY .pd-mc element

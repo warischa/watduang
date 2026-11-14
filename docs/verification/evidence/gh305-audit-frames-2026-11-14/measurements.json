@@ -1,0 +1,478 @@
+{
+ "date": "2026-11-14",
+ "innerWidth": 1600,
+ "fonts": [
+  {
+   "face": "Sarabun 400",
+   "status": "loaded"
+  },
+  {
+   "face": "Sarabun 700",
+   "status": "loaded"
+  },
+  {
+   "face": "Mitr 600",
+   "status": "loaded"
+  },
+  {
+   "face": "Mitr 700",
+   "status": "loaded"
+  }
+ ],
+ "consoleErrors": [],
+ "viewport": {
+  "320": {
+   "innerWidth": 320,
+   "scrollWidth": 320,
+   "clientWidth": 320,
+   "over": 0
+  },
+  "375": {
+   "innerWidth": 375,
+   "scrollWidth": 375,
+   "clientWidth": 375,
+   "over": 0
+  },
+  "320-red": {
+   "innerWidth": 320,
+   "scrollWidth": 400,
+   "clientWidth": 320,
+   "over": 1
+  },
+  "375-red": {
+   "innerWidth": 375,
+   "scrollWidth": 400,
+   "clientWidth": 375,
+   "over": 1
+  }
+ },
+ "names": {
+  "total": 200,
+  "filled": [
+   "Guest1"
+  ]
+ },
+ "frames": {
+  "cards-ctl-200": {
+   "kind": "cards",
+   "n": 200,
+   "cols": 8,
+   "rows": 25,
+   "cardW": 203.2,
+   "cardH": 27.7,
+   "cardHmax": 27.7,
+   "minName": 11.1,
+   "maxName": 13.9,
+   "atFloor": 200,
+   "maxLines": 2,
+   "nameBox": 144.9,
+   "outside": 0,
+   "overlaps": 0,
+   "usedH": 760,
+   "headroom": 0,
+   "fieldTop": 100,
+   "fieldBottom": 860,
+   "wide": [
+    {
+     "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "px": 11.1,
+     "lines": 2,
+     "bold": "400"
+    }
+   ]
+  },
+  "cards-103": {
+   "kind": "cards",
+   "n": 103,
+   "cols": 6,
+   "rows": 18,
+   "cardW": 293,
+   "cardH": 32,
+   "cardHmax": 32,
+   "minName": 16,
+   "maxName": 20,
+   "atFloor": 1,
+   "maxLines": 2,
+   "nameBox": 209,
+   "outside": 0,
+   "overlaps": 0,
+   "usedH": 644,
+   "headroom": 116,
+   "fieldTop": 158,
+   "fieldBottom": 802,
+   "wide": [
+    {
+     "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "px": 16,
+     "lines": 2,
+     "bold": "400"
+    }
+   ]
+  },
+  "cards-150": {
+   "kind": "cards",
+   "n": 150,
+   "cols": 8,
+   "rows": 19,
+   "cardW": 217.3,
+   "cardH": 32,
+   "cardHmax": 32,
+   "minName": 16,
+   "maxName": 20,
+   "atFloor": 3,
+   "maxLines": 2,
+   "nameBox": 133.3,
+   "outside": 0,
+   "overlaps": 0,
+   "usedH": 680,
+   "headroom": 80,
+   "fieldTop": 140,
+   "fieldBottom": 820,
+   "wide": [
+    {
+     "name": "WWWWWWWWWWWW",
+     "px": 16,
+     "lines": 2,
+     "bold": "400"
+    },
+    {
+     "name": "ฒฒฒฒฒฒฒฒฒฒฒฒ",
+     "px": 16,
+     "lines": 2,
+     "bold": "400"
+    },
+    {
+     "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "px": 16,
+     "lines": 2,
+     "bold": "400"
+    }
+   ]
+  },
+  "cards-200": {
+   "kind": "cards",
+   "n": 200,
+   "cols": 10,
+   "rows": 20,
+   "cardW": 171.8,
+   "cardH": 32,
+   "cardHmax": 48,
+   "minName": 16,
+   "maxName": 20,
+   "atFloor": 4,
+   "maxLines": 3,
+   "nameBox": 87.8,
+   "outside": 0,
+   "overlaps": 0,
+   "usedH": 732,
+   "headroom": 28,
+   "fieldTop": 114,
+   "fieldBottom": 846,
+   "wide": [
+    {
+     "name": "WWWWWWWWWWWW",
+     "px": 16,
+     "lines": 2,
+     "bold": "400"
+    },
+    {
+     "name": "ฒฒฒฒฒฒฒฒฒฒฒฒ",
+     "px": 16,
+     "lines": 2,
+     "bold": "400"
+    },
+    {
+     "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "px": 16,
+     "lines": 3,
+     "bold": "400"
+    },
+    {
+     "name": "มะปรางหวานใจ",
+     "px": 16,
+     "lines": 2,
+     "bold": "400"
+    }
+   ]
+  },
+  "cards-200-result": {
+   "kind": "cards",
+   "n": 200,
+   "cols": 10,
+   "rows": 20,
+   "cardW": 171.8,
+   "cardH": 32,
+   "cardHmax": 64,
+   "minName": 16,
+   "maxName": 20,
+   "atFloor": 4,
+   "maxLines": 4,
+   "nameBox": 87.8,
+   "outside": 0,
+   "overlaps": 0,
+   "usedH": 748,
+   "headroom": 12,
+   "fieldTop": 106,
+   "fieldBottom": 854,
+   "wide": [
+    {
+     "name": "WWWWWWWWWWWW",
+     "px": 16,
+     "lines": 2,
+     "bold": "700"
+    },
+    {
+     "name": "ฒฒฒฒฒฒฒฒฒฒฒฒ",
+     "px": 16,
+     "lines": 2,
+     "bold": "700"
+    },
+    {
+     "name": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "px": 16,
+     "lines": 4,
+     "bold": "700"
+    },
+    {
+     "name": "มะปรางหวานใจ",
+     "px": 16,
+     "lines": 2,
+     "bold": "700"
+    }
+   ]
+  },
+  "res-320": {
+   "kind": "phone",
+   "w": 320,
+   "h": 676.9,
+   "excess": 0,
+   "nBad": 0,
+   "bad": [],
+   "overX": 0,
+   "minFont": 16,
+   "winnerPx": 24,
+   "winnerLines": 2,
+   "winnerBottom": 230.1,
+   "winnerBox": 288,
+   "cnameMin": 21,
+   "cnameMax": 22,
+   "cnameLines": 1,
+   "cnameBox": 256,
+   "cards": [
+    {
+     "name": "WWWWWWWWWWWW",
+     "px": 22,
+     "lines": 1
+    },
+    {
+     "name": "ฒฒฒฒฒฒฒฒฒฒฒฒ",
+     "px": 21,
+     "lines": 1
+    },
+    {
+     "name": "ต้น ส.",
+     "px": 22,
+     "lines": 1
+    },
+    {
+     "name": "มะปรางหวานใจ",
+     "px": 22,
+     "lines": 1
+    }
+   ],
+   "clipped": [],
+   "vpInner": 320,
+   "vpScrollW": 320,
+   "vpClientW": 320,
+   "vpOver": 0,
+   "vpRedScrollW": 400
+  },
+  "res-375": {
+   "kind": "phone",
+   "w": 375,
+   "h": 678,
+   "excess": 0,
+   "nBad": 0,
+   "bad": [],
+   "overX": 0,
+   "minFont": 16,
+   "winnerPx": 24,
+   "winnerLines": 2,
+   "winnerBottom": 230.1,
+   "winnerBox": 343,
+   "cnameMin": 22,
+   "cnameMax": 22,
+   "cnameLines": 1,
+   "cnameBox": 311,
+   "cards": [
+    {
+     "name": "WWWWWWWWWWWW",
+     "px": 22,
+     "lines": 1
+    },
+    {
+     "name": "ฒฒฒฒฒฒฒฒฒฒฒฒ",
+     "px": 22,
+     "lines": 1
+    },
+    {
+     "name": "ต้น ส.",
+     "px": 22,
+     "lines": 1
+    },
+    {
+     "name": "มะปรางหวานใจ",
+     "px": 22,
+     "lines": 1
+    }
+   ],
+   "clipped": [],
+   "vpInner": 375,
+   "vpScrollW": 375,
+   "vpClientW": 375,
+   "vpOver": 0,
+   "vpRedScrollW": 400
+  },
+  "rails-ctl": {
+   "kind": "ladder",
+   "hudLines": 1,
+   "lineRight": 594.4,
+   "clear": -74.9,
+   "gameClear": 61.9,
+   "lines": [
+    {
+     "l": 56,
+     "r": 594.4,
+     "t": 326,
+     "b": 373
+    }
+   ],
+   "samples": [
+    {
+     "y": 520,
+     "x": 448,
+     "rail": "#5e5c7b",
+     "ground": "#1b1a3b",
+     "cr": 2.62
+    },
+    {
+     "y": 700,
+     "x": 356,
+     "rail": "#5e5c7b",
+     "ground": "#1e1c41",
+     "cr": 2.54
+    },
+    {
+     "y": 900,
+     "x": 255,
+     "rail": "#5e5c7b",
+     "ground": "#211f47",
+     "cr": 2.44
+    }
+   ],
+   "railMid": "#5e5c7b",
+   "groundMid": "#1e1c41",
+   "crMid": 2.54,
+   "crMin": 2.44,
+   "crMax": 2.62
+  },
+  "rails-50": {
+   "kind": "ladder",
+   "hudLines": 2,
+   "lineRight": 348.8,
+   "clear": 170.7,
+   "gameClear": 41.4,
+   "lines": [
+    {
+     "l": 56,
+     "r": 348.8,
+     "t": 326,
+     "b": 373
+    },
+    {
+     "l": 56,
+     "r": 291.7,
+     "t": 366.5,
+     "b": 413.5
+    }
+   ],
+   "samples": [
+    {
+     "y": 520,
+     "x": 448,
+     "rail": "#7a7896",
+     "ground": "#1b1a3c",
+     "cr": 3.93
+    },
+    {
+     "y": 700,
+     "x": 356,
+     "rail": "#7c7a98",
+     "ground": "#1e1d41",
+     "cr": 3.9
+    },
+    {
+     "y": 900,
+     "x": 255,
+     "rail": "#7d7b9c",
+     "ground": "#211f47",
+     "cr": 3.84
+    }
+   ],
+   "railMid": "#7c7a98",
+   "groundMid": "#1e1d41",
+   "crMid": 3.9,
+   "crMin": 3.84,
+   "crMax": 3.93
+  },
+  "hud-ctl": {
+   "kind": "ladder",
+   "hudLines": 1,
+   "lineRight": 594.4,
+   "clear": -74.9,
+   "gameClear": 61.9,
+   "lines": [
+    {
+     "l": 56,
+     "r": 594.4,
+     "t": 326,
+     "b": 373
+    }
+   ]
+  },
+  "hud-wrap": {
+   "kind": "ladder",
+   "hudLines": 2,
+   "lineRight": 348.8,
+   "clear": 170.7,
+   "gameClear": 41.4,
+   "lines": [
+    {
+     "l": 56,
+     "r": 348.8,
+     "t": 326,
+     "b": 373
+    },
+    {
+     "l": 56,
+     "r": 291.7,
+     "t": 366.5,
+     "b": 413.5
+    }
+   ]
+  }
+ },
+ "shots": [
+  "cards-ctl-200.png",
+  "cards-103.png",
+  "cards-150.png",
+  "cards-200.png",
+  "cards-200-result.png",
+  "res-320.png",
+  "res-375.png",
+  "rails-ctl.png",
+  "rails-50.png",
+  "hud-ctl.png",
+  "hud-wrap.png"
+ ]
+}

@@ -126,8 +126,8 @@ export const STYLES = [
   { color: '#2b7bff', glow: '#213d80', dim: '#20336d', dashed: false },
   { color: '#ffffff', glow: '#6b6b80', dim: '#55546d', dashed: true },
 ] as const;
-/** Lanes and leaders at 35%, then 25% on the result; lit rungs full, then 25%. */
-export const TRACK = { lane: '#5e5c7b', laneDim: '#2d2b4c', rung: '#d9d6f0', rungDim: '#4b4a69' } as const;
+/** Lanes and leaders at 50% alpha of the rung ink (PD-307-04), then the result shade; lit rungs full, then 25%. */
+export const TRACK = { lane: '#7a7897', laneDim: '#2d2b4c', rung: '#d9d6f0', rungDim: '#4b4a69' } as const;
 
 // ---- the plan ---------------------------------------------------------------------------------------------
 

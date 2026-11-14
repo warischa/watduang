@@ -1,0 +1,33 @@
+import sys,json
+import numpy as np
+from PIL import Image
+from scipy import ndimage
+def analyse(png, region, scale, ox, oy):
+    im=np.array(Image.open(png).convert('RGB')).astype(int)
+    x0,y0,x1,y1=region
+    sub=im[y0:y1,x0:x1]
+    gold=(sub[...,0]>200)&(sub[...,1]>150)&(sub[...,2]<110)
+    lab,n=ndimage.label(gold,structure=np.ones((3,3)))
+    objs=ndimage.find_objects(lab)
+    boxes=[]
+    for i,sl in enumerate(objs):
+        h=sl[0].stop-sl[0].start; w=sl[1].stop-sl[1].start
+        if w>60 and h>15 and w<400 and h<120:
+            boxes.append((sl[1].start+x0,sl[0].start+y0,w,h))
+    return boxes
+def stats(boxes,scale,ox,oy):
+    if not boxes: return None
+    xs=sorted(set(round(b[0]/6) for b in boxes)); 
+    cols=len({round(b[0]/8) for b in boxes}); 
+    ws=[b[2] for b in boxes]; hs=[b[3] for b in boxes]
+    # rows by y cluster
+    ys=sorted(b[1] for b in boxes); rows=1
+    for a,b in zip(ys,ys[1:]):
+        if b-a>6: rows+=1
+    return {'count':len(boxes),'cols_by_x':cols,'rows_by_y':rows,'w_screen_med':float(np.median(ws)),'h_screen_med':float(np.median(hs)),
+            'w_frame_med':round(float(np.median(ws))/scale,1),'h_frame_med':round(float(np.median(hs))/scale,1),
+            'minx_frame':round((min(b[0] for b in boxes)-ox)/scale,1),'maxx_frame':round((max(b[0]+b[2] for b in boxes)-ox)/scale,1),
+            'miny_frame':round((min(b[1] for b in boxes)-oy)/scale,1),'maxy_frame':round((max(b[1]+b[3] for b in boxes)-oy)/scale,1)}
+if __name__=='__main__':
+    png=sys.argv[1]; scale=float(sys.argv[2]); ox=float(sys.argv[3]); oy=float(sys.argv[4])
+    b=analyse(png,(0,140,1920,880),scale,ox,oy); print(json.dumps(stats(b,scale,ox,oy)))

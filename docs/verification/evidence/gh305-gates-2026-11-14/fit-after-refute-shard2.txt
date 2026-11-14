@@ -1,0 +1,100 @@
+::notice::croc-bite          frame div#app cap    none  screen div#ui-root  [first-game-screen press 0]  display block  tracks 0 (none)  units 0 {} in 0 x-range(s)  span 0 of 1440px frame  side-by-side no  docs/verification/evidence/203/croc-bite-1440x900-first-game-screen.png
+::notice::freeze-tap         frame div#app cap    none  screen section#ftPlayers.ft-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [591-849] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no  docs/verification/evidence/203/freeze-tap-1440x900-first-game-screen.png
+::notice::pinocchio-luck     frame main#app.no-webgl cap    none  screen main#app.no-webgl  [first-game-screen press 0]  display grid  tracks 1 (1440px)  units 2 {div.webgl-error [350-1090] | section#plPlayers.panel.ps [510-930]} in 1 x-range(s)  span 0.514 of 1440px frame  side-by-side no  docs/verification/evidence/203/pinocchio-luck-1440x900-first-game-screen.png
+::notice::prize-draw         frame div#app.pd-app cap    none  screen p.pd-cold  [first-game-screen press 0]  display grid  tracks 1 (1600px)  units 0 {} in 0 x-range(s)  span 0 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-draw-1440x900-first-game-screen.png
+::notice::short-stick        frame main#app cap    none  screen section#ssPlayers.ss-players.ps  [first-game-screen press 1]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [579-861] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no  docs/verification/evidence/203/short-stick-1440x900-first-game-screen.png
+::notice::zero-trigger       frame div#app-container cap    none  screen section#zt-players.zt-players.ps  [first-game-screen press 1]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [511-929] | p.ps-limit [677-763] | ul.ps-players [510-930] | button.ps-add [510-930] | p.ps-hint [605-835] | button.ps-go [510-930]} in 1 x-range(s)  span 0.298 of 1408px frame  side-by-side no  docs/verification/evidence/203/zero-trigger-1440x900-first-game-screen.png
+::warning::/game/pinocchio-luck/play/ at 320x568 measured 0px SIDEWAYS, within the 8px tolerance, against KNOWN_OVERFLOW_X "gh#202 open: 79px on press 3 - sideways overflow on section#stageFrame, read on THIS MAC, the same box the 390x844 row below records. RE-RECORDED 2026-10-24 by gh#287 box 3. The row was removed in that batch on a CI runner reading of 0px (n=3 with fonts-noto-core) plus the old reason saying this Mac reads ZERO, and the local suite then red on this Mac at 50px. That ZERO was already contradicted on disk: docs/verification/evidence/182-375/README.md recorded 50px sideways on this Mac on 2026-09-05. This Mac reads the row intermittently: 0, 79, 6, 0, 6, 0, 0 and 49px on eight walks of ROUTES_ONLY=pinocchio-luck under the ci-probes.sh lane flags (--headless --disable-gpu --no-sandbox), always on press 3 (docs/verification/evidence/gh287-2026-10-24/box3-mac-pinocchio-320.txt; the 79px walk is in its header only, its log was overwritten). The cause is NOT identified: four walks landed on the identical press-3 screen and read 6, 6, 0 and 49px, so something inside section#stageFrame moves on its own timer. DO NOT delete this row on a 0px reading or on the clear-row warning: it is intermittent on this Mac, and a single 0px on either machine is not a clear. Recorded at the larger of the two machines, per this map. The h1 offender below no longer reads on either machine. Previously: gh#202 open: 11px on press 0 - the widest offender is an h1, so this is Thai text overflowing its own heading rather than a container mis-sized. CI runner 11px, this Mac ZERO, which is consistent with the runner wrapping Thai differently; docs/agents/ci-verification.md names a self-hosted Thai webfont as the converging fix and reserves it for the owner" — this row no longer clips sideways here. If that holds on the CI runner too, delete the row: an exception nobody can trigger is a licence to regress.
+::warning::/game/pinocchio-luck/play/ at 390x844 measured 39px SIDEWAYS against a recorded 10px (widest offender section#stageFrame) at press 3. Same machine as the recording? Then the sideways clip GREW past what was excused — fix it or re-record with the reason. Different machine? Fonts, not layout: leave the number alone.
+::notice::croc-bite          320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill  87.5%  (worst of 6 screen(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  87.5%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  ink 14  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.9%  ink 43  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.9%  ink 47  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.9%  ink 43  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.9%  ink 47  class round
+::notice::croc-bite          390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  89.7%  (worst of 7 screen(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  89.7%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  ink 14  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  97.4%  ink 43  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  97.4%  ink 47  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  97.4%  ink 43  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  97.4%  ink 47  class round
+::notice::  screen [press 6]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  97.4%  ink 43  class round
+::notice::croc-bite          1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  29.2%  (worst of 4 screen(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  29.2%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  33.3%  ink 14  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  98.8%  ink 43  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  98.8%  ink 47  class round
+::notice::freeze-tap         320x568   scrolls YES    37px  clipped     0px  sideways     0px  width-fill    90%  (worst of 4 screen(s) x 9 draw(s): press 0, 20 ink)
+::notice::  screen [press 0]  overflow    37px  scrolls YES    37px  clipped     0px  sideways     0px  width-fill    90%  ink 20  class player
+::notice::  screen [press 1]  overflow    26px  scrolls YES    26px  clipped     0px  sideways     0px  width-fill   100%  ink 9  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 11  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 7  class round
+::notice::  fold [press 2 draw 0.05555555555555555]  #playerReadyBtn  clears the fold  visible   60px of   60px  top   475  bottom   535
+::notice::freeze-tap         390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 4 screen(s) x 9 draw(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 9  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 11  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 7  class round
+::notice::freeze-tap         1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  (worst of 4 screen(s) x 9 draw(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 9  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 11  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 7  class round
+::notice::pinocchio-luck     320x568   scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  (worst of 4 screen(s): press 0, 21 ink) [sideways excepted]
+::notice::  screen [press 0]  overflow   270px  scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  ink 21  class player
+::notice::  screen [press 1]  overflow    63px  scrolls YES    63px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 7  class round
+::notice::  screen [press 2]  overflow   163px  scrolls YES   163px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 14  class round
+::notice::  screen [press 3]  overflow    49px  scrolls YES    49px  clipped     4px by div.css-mouth  sideways     0px  width-fill  97.8%  ink 7  class round
+::notice::pinocchio-luck     390x844   scrolls YES   170px  clipped     0px  sideways    39px by section#stageFrame  width-fill  86.2%  (worst of 4 screen(s): press 0, 21 ink) [sideways excepted]
+::notice::  screen [press 0]  overflow   170px  scrolls YES   170px  clipped     0px  sideways     0px  width-fill  86.2%  ink 21  class player
+::notice::  screen [press 1]  overflow     4px  scrolls no      0px  clipped     4px by div.css-mouth  sideways     0px  width-fill  96.4%  ink 7  class round
+::notice::  screen [press 2]  overflow    70px  scrolls YES    70px  clipped     4px by div.css-mouth  sideways     0px  width-fill  96.4%  ink 14  class round
+::notice::  screen [press 3]  overflow     4px  scrolls no      0px  clipped     4px by div.css-mouth  sideways    39px by section#stageFrame  width-fill  98.2%  ink 7  class round
+::notice::pinocchio-luck     1440x900  scrolls YES   174px  clipped     0px  sideways     0px  width-fill  51.4%  (worst of 4 screen(s): press 0, 21 ink)
+::notice::  screen [press 0]  overflow   174px  scrolls YES   174px  clipped     0px  sideways     0px  width-fill  51.4%  ink 21  class player
+::notice::  screen [press 1]  overflow    34px  scrolls YES    34px  clipped     4px by div.css-mouth  sideways     0px  width-fill  54.2%  ink 7  class round
+::notice::  screen [press 2]  overflow     4px  scrolls no      0px  clipped     4px by div.css-mouth  sideways     0px  width-fill  54.2%  ink 14  class round
+::notice::  screen [press 3]  overflow     4px  scrolls no      0px  clipped     4px by div.css-mouth  sideways     0px  width-fill  77.1%  ink 7  class round
+::notice::prize-draw         320x568   scrolls YES  3378px  clipped     0px  sideways     0px  width-fill  87.5%  (worst of 7 screen(s): press 1, 206 ink)
+::notice::  screen [press 0]  overflow  3342px  scrolls YES  3342px  clipped     0px  sideways     0px  width-fill  90.1%  ink 206  class round
+::notice::  screen [press 1]  overflow  3378px  scrolls YES  3378px  clipped     0px  sideways     0px  width-fill  87.5%  ink 206  class round
+::notice::  screen [press 2]  overflow  1542px  scrolls YES  1542px  clipped     0px  sideways     0px  width-fill  87.5%  ink 106  class round
+::notice::  screen [press 3]  overflow  1578px  scrolls YES  1578px  clipped     0px  sideways     0px  width-fill  87.5%  ink 106  class round
+::notice::  screen [press 4]  overflow   642px  scrolls YES   642px  clipped     0px  sideways     0px  width-fill  87.5%  ink 56  class round
+::notice::  screen [press 5]  overflow   678px  scrolls YES   678px  clipped     0px  sideways     0px  width-fill  87.5%  ink 56  class round
+::notice::  screen [press 6]  overflow   102px  scrolls YES   102px  clipped     0px  sideways     0px  width-fill  87.5%  ink 26  class round
+::notice::prize-draw         390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 0, 1 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 1  class round
+::notice::prize-draw         1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 0, 1 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 1  class round
+::notice::short-stick        320x568   scrolls YES   156px  clipped     0px  sideways     0px  width-fill  89.4%  (worst of 3 screen(s): press 3, 17 ink)
+::notice::  screen [press 1]  overflow    54px  scrolls YES    54px  clipped     0px  sideways     0px  width-fill    90%  ink 20  class player
+::notice::  screen [press 2]  overflow   114px  scrolls YES   114px  clipped     0px  sideways     0px  width-fill    90%  ink 8  class round
+::notice::  screen [press 3]  overflow   156px  scrolls YES   156px  clipped     0px  sideways     0px  width-fill  89.4%  ink 17  class round
+::notice::short-stick        390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  90.8%  (worst of 3 screen(s): press 3, 16 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 8  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  90.8%  ink 16  class round
+::notice::short-stick        1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  (worst of 3 screen(s): press 1, 20 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  62.2%  ink 8  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  50.8%  ink 16  class round
+::notice::zero-trigger       320x568   scrolls YES   143px  clipped     0px  sideways     0px  width-fill    87%  (worst of 4 screen(s): press 2, 19 ink)
+::notice::  screen [press 1]  overflow    68px  scrolls YES    68px  clipped     0px  sideways     0px  width-fill    90%  ink 20  class player
+::notice::  screen [press 2]  overflow   143px  scrolls YES   143px  clipped     0px  sideways     0px  width-fill    87%  ink 19  class round
+::notice::  screen [press 3]  overflow   143px  scrolls YES   143px  clipped     0px  sideways     0px  width-fill    87%  ink 19  class round
+::notice::  screen [press 4]  overflow   143px  scrolls YES   143px  clipped     0px  sideways     0px  width-fill    87%  ink 19  class round
+::notice::zero-trigger       390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  80.3%  (worst of 4 screen(s): press 2, 18 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  80.3%  ink 18  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  80.3%  ink 18  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  80.3%  ink 18  class round
+::notice::zero-trigger       1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  29.2%  (worst of 4 screen(s): press 1, 20 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  29.2%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    48%  ink 18  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    48%  ink 18  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    48%  ink 18  class round
+FIT_SHARD_WALKED clean 2/3 routes=croc-bite,freeze-tap,pinocchio-luck,prize-draw,short-stick,zero-trigger
+OK 18 route/viewport row(s) left the fresh screen; 71 distinct play screen(s) measured across 6 route(s) x 3 viewport(s). 11 row(s) asserted to fit within 8px and 7 row(s) held as recorded exceptions in KNOWN_OVERFLOW (their px reported, never gated: growth or a 0px reading prints a warning; the screen class each ruling names IS gated, gh#284) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all 18 row(s) are asserted to clip no more than 8px horizontally except the 2 in KNOWN_OVERFLOW_X.

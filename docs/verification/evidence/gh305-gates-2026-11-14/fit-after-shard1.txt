@@ -1,0 +1,76 @@
+::notice::cannon-flag        frame div#app-container cap    none  screen section#cf-players.cf-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [582-858] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no  docs/verification/evidence/203/cannon-flag-1440x900-first-game-screen.png
+::notice::dice-loser         frame div#app cap    none  screen section#dl-players.dl-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.dl-tagline [552-888] | p.ps-limit [677-763] | ul.ps-players [389-1051] | button.ps-add [389-1051] | p.ps-hint [605-835] | button.ps-go [389-1051]} in 1 x-range(s)  span 0.46 of 1440px frame  side-by-side no  docs/verification/evidence/203/dice-loser-1440x900-first-game-screen.png
+::notice::one-bomb           frame div#app cap    none  screen div.menuBox  [first-game-screen press 0]  display flex  tracks 0 (none)  units 3 {div.logoArea [480-960] | section#ob-player-screen.ob-player-screen.ps [510-930] | div.menuBtnCol [480-960]} in 1 x-range(s)  span 0.333 of 1440px frame  side-by-side no  docs/verification/evidence/203/one-bomb-1440x900-first-game-screen.png
+::notice::prize-cards        frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 1]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [1110-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-cards-1440x900-first-game-screen.png
+::notice::prize-ladder       frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 1]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [744-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-ladder-1440x900-first-game-screen.png
+::notice::wire-snip-panic    frame div#app cap    none  screen section#wspPlayers.wsp-players.ps  [first-game-screen press 1]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [526-914] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no  docs/verification/evidence/203/wire-snip-panic-1440x900-first-game-screen.png
+::notice::cannon-flag        320x568   scrolls YES    20px  clipped     0px  sideways     0px  width-fill    90%  (worst of 3 screen(s): press 0, 20 ink)
+::notice::  screen [press 0]  overflow    20px  scrolls YES    20px  clipped     0px  sideways     0px  width-fill    90%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.9%  ink 8  class round
+::notice::  screen [press 2]  overflow     2px  scrolls no      0px  clipped     2px by div.power-gauge-container [furthest below: div#power-gauge-text.power-lcd-text 135,487,50,16 (+1px)]  sideways     0px  width-fill   100%  ink 23  class round
+::notice::cannon-flag        390x844   scrolls no      0px  clipped     2px  sideways     0px  width-fill   100%  (worst of 3 screen(s): press 2, 23 ink)
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  89.2%  ink 8  class round
+::notice::  screen [press 2]  overflow     2px  scrolls no      0px  clipped     2px by div.power-gauge-container [furthest below: div#power-gauge-text.power-lcd-text 170,763,50,16 (+1px)]  sideways     0px  width-fill   100%  ink 23  class round
+::notice::cannon-flag        1440x900  scrolls no      0px  clipped     2px  sideways     0px  width-fill   100%  (worst of 3 screen(s): press 2, 23 ink)
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  63.5%  ink 8  class round
+::notice::  screen [press 2]  overflow     2px  scrolls no      0px  clipped     2px by div.power-gauge-container [furthest below: div#power-gauge-text.power-lcd-text 695,815,50,16 (+1px)]  sideways     0px  width-fill   100%  ink 23  class round
+::notice::dice-loser         320x568   scrolls YES    70px  clipped     0px  sideways     0px  width-fill    90%  (worst of 4 screen(s): press 0, 20 ink) [pinned fits] [player screen excepted]
+::notice::  screen [press 0]  overflow    70px  scrolls YES    70px  clipped     0px  sideways     0px  width-fill    90%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    90%  ink 11  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    95%  ink 7  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    95%  ink 8  class round
+::notice::dice-loser         390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 4 screen(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 11  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  95.9%  ink 7  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  95.9%  ink 8  class round
+::notice::dice-loser         1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill    46%  (worst of 4 screen(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    46%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    46%  ink 11  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    73%  ink 7  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    73%  ink 8  class round
+::notice::one-bomb           320x568   scrolls YES   174px  clipped     0px  sideways     0px  width-fill    92%  (worst of 2 screen(s): press 0, 23 ink) [pinned fits] [player screen excepted]
+::notice::  screen [press 0]  overflow   174px  scrolls YES   174px  clipped     0px  sideways     0px  width-fill    92%  ink 23  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.9%  ink 51  class round
+::notice::one-bomb           390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  (worst of 2 screen(s): press 0, 23 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    92%  ink 23  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  97.4%  ink 51  class round
+::notice::one-bomb           1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  33.3%  (worst of 4 screen(s): press 0, 23 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  33.3%  ink 23  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  98.6%  ink 51  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  98.6%  ink 51  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  98.6%  ink 51  class round
+::notice::prize-cards        320x568   scrolls YES  3429px  clipped     0px  sideways     0px  width-fill    90%  (worst of 2 screen(s): press 2, 208 ink)
+::notice::  screen [press 1]  overflow  3429px  scrolls YES  3429px  clipped     0px  sideways     0px  width-fill  90.1%  ink 209  class round
+::notice::  screen [press 2]  overflow  3429px  scrolls YES  3429px  clipped     0px  sideways     0px  width-fill    90%  ink 208  class round
+::notice::prize-cards        390x844   scrolls YES  3153px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 2 screen(s): press 1, 209 ink)
+::notice::  screen [press 1]  overflow  3153px  scrolls YES  3153px  clipped     0px  sideways     0px  width-fill  91.8%  ink 209  class round
+::notice::  screen [press 2]  overflow  3153px  scrolls YES  3153px  clipped     0px  sideways     0px  width-fill  91.8%  ink 208  class round
+::notice::prize-cards        1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  95.4%  (worst of 2 screen(s): press 1, 209 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  95.4%  ink 209  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  95.4%  ink 210  class round
+::notice::prize-ladder       320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 15  class round
+::notice::prize-ladder       390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  99.8%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  99.8%  ink 15  class round
+::notice::prize-ladder       1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 15  class round
+::notice::wire-snip-panic    320x568   scrolls YES    67px  clipped     0px  sideways     0px  width-fill    90%  (worst of 4 screen(s): press 1, 20 ink)
+::notice::  screen [press 1]  overflow    67px  scrolls YES    67px  clipped     0px  sideways     0px  width-fill    90%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 14  class round
+::notice::  screen [press 3]  overflow    19px  scrolls YES    19px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::  screen [press 4]  overflow    19px  scrolls YES    19px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::wire-snip-panic    390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 4 screen(s): press 1, 20 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 14  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::wire-snip-panic    1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  (worst of 4 screen(s): press 1, 20 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 14  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 25  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 25  class round
+FIT_SHARD_WALKED clean 1/3 routes=cannon-flag,dice-loser,one-bomb,prize-cards,prize-ladder,wire-snip-panic
+OK 18 route/viewport row(s) left the fresh screen; 50 distinct play screen(s) measured across 6 route(s) x 3 viewport(s). 12 row(s) asserted to fit within 8px and 6 row(s) held as recorded exceptions in KNOWN_OVERFLOW (their px reported, never gated: growth or a 0px reading prints a warning; the screen class each ruling names IS gated, gh#284) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all 18 row(s) are asserted to clip no more than 8px horizontally except the 0 in KNOWN_OVERFLOW_X.

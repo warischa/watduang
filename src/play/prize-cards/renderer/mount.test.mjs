@@ -216,3 +216,34 @@ test('cosmetic choices follow the key: the same key replays the same tremble, an
   assert.notDeepEqual(a, phase(mountFor({ ...input, key: 'another' })));
   assert.equal(new Set(a).size, a.length, 'every card trembles on the same phase');
 });
+
+// PD-306-01 through the renderer's own card-building path (buildCards): the card rects the shader draws are
+// placed from the MEASURED line counts, so a row holding a 3- or 4-line name is taller, and every rect stays
+// inside the stage's field at 200 names. The fake canvas measures 0.55em per character; a name of one
+// repeated letter has no space, so it wraps between clusters at the 16px floor, 9 per line in the 87.8px box.
+test('200 names: a card whose name needs 3 or 4 lines gets a taller row, and every rect stays inside the field', () => {
+  const FIELD = { left: 56, right: 1864, top: 100, bottom: 860 };
+  const rects = (longAt, letters) => {
+    const ps = people(200).map((p, i) => ({ ...p, name: i === longAt ? 'ก'.repeat(letters) : `นาม ${i}` }));
+    const m = mountFor(dealInput(ps, 100));
+    const rect = cardsMesh(m.renders[0].scene).geometry.getAttribute('aRect');
+    const out = Array.from({ length: 200 }, (_, i) => Array.from(rect.array.slice(i * 4, i * 4 + 4)));
+    m.abort.abort();
+    return out;
+  };
+  // The attribute is Float32: edges are exact to ~1e-4.
+  const inside = (all) => {
+    for (const [cx, cy, w, h] of all) {
+      assert.ok(cx - w / 2 >= FIELD.left - 1e-3 && cx + w / 2 <= FIELD.right + 1e-3, `a card leaves the field sideways (${cx}, ${w})`);
+      assert.ok(cy - h / 2 >= FIELD.top - 1e-3 && cy + h / 2 <= FIELD.bottom + 1e-3, `a card leaves the field (${cy}, ${h})`);
+    }
+  };
+  const three = rects(3, 22);
+  assert.ok(Math.abs(three[0][2] - 171.8) < 0.06, `card width ${three[0][2]}`);
+  assert.deepEqual([three[0][3], three[9][3], three[10][3]], [48, 48, 32], 'the 3-line name grows its own row only');
+  inside(three);
+  const four = rects(13, 30);
+  assert.deepEqual([four[0][3], four[10][3], four[19][3], four[20][3]], [32, 64, 64, 32], 'the 4-line name grows its own row only');
+  assert.ok(four[10][1] - four[0][1] >= (32 + 64) / 2 + 4 - 1e-3, 'the grown row overlaps the row above');
+  inside(four);
+});

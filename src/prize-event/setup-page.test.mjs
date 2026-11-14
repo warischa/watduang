@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ACTIVE_TAGS, HOSTILE, makeDoc } from './fake-dom.mjs';
 import { createEvent, decodeEvent, encodeEvent } from './event.ts';
-import { CONFIRM_REPLACE, NO_GAME_LABEL, NO_WEBGL_NOTE, STORAGE_FAILED, hasWebGL2, mountSetup } from './setup-page.ts';
+import { CARDS_HALF_NOTE, CONFIRM_REPLACE, NO_GAME_LABEL, NO_WEBGL_NOTE, STORAGE_FAILED, hasWebGL2, mountSetup } from './setup-page.ts';
 import { DB, REFUSED_BROWSER } from './store.ts';
 import { nameIssue, parseRoster } from './names.ts';
 import { fakeOrigin } from './fake-idb.mjs';
@@ -51,6 +51,8 @@ function page({ origin = fakeOrigin(), env = origin.tab('setup'), confirm = () =
       b.setAttribute('data-game', game);
       group.append(b);
     }
+    // A cut round's row has the slot for the cards reason line under it.
+    if (offered.includes('cards')) add('div', `${id}-note`, form);
   }
   for (let r = 1; r <= 4; r++) {
     add('span', `pd-game-r${r}-from`, form);
@@ -512,6 +514,33 @@ test('a round offers cards only while it cuts exactly in half, recomputed as the
   assert.deepEqual(decodeEvent(p.stored()).setup.games, { rounds: [null, null, 'cards', null], final: null });
 });
 
+// PD-305-01: a disabled cards button says why, once for the page, under the first round that holds it back.
+test('while any round holds cards back, one reason line shows under the first such round; none when every round halves', () => {
+  assert.equal(CARDS_HALF_NOTE, 'เกมไพ่ใช้ได้เฉพาะรอบที่คัดออกครึ่งหนึ่งพอดี');
+  const p = page();
+  const notes = () => [1, 2, 3, 4].map((r) => p.$(`pd-game-r${r}-note`).textContent);
+  const rows = () => [1, 2, 3, 4].reduce((n, r) => n + p.$(`pd-game-r${r}-note`).querySelectorAll('div.emsg').length, 0);
+  assert.deepEqual(notes(), [CARDS_HALF_NOTE, '', '', ''], 'no roster: every round holds cards back; the line sits under round 1');
+  p.type('pd-names', roster(200).join('\n'));
+  assert.deepEqual(notes(), ['', '', CARDS_HALF_NOTE, ''], '200 -> 100 -> 50 -> 20 -> 5: rounds 3 and 4 hold back; one line, under round 3');
+  assert.equal(rows(), 1, 'one line for the page, not one per round');
+  p.type('pd-names', roster(80).join('\n'));
+  for (const [id, v] of [['pd-s1', '40'], ['pd-s2', '20'], ['pd-s3', '10']]) p.type(id, v);
+  assert.deepEqual(notes(), ['', '', '', ''], '80 -> 40 -> 20 -> 10 -> 5 halves every round: no line');
+  assert.equal(rows(), 0);
+  p.type('pd-s3', '9');
+  assert.deepEqual(notes(), ['', '', CARDS_HALF_NOTE, ''], 'a round stops halving: the line comes back under it');
+});
+
+test('a disabled game button paints the locked-choice look (Gh305GamePick: dashed, cream, muted); each cut row has its reason slot', () => {
+  const rule = PAGE.match(/\.segb:disabled \{([^}]*)\}/);
+  assert.ok(rule, 'the page styles a disabled game button');
+  assert.match(rule[1], /border-style: dashed;/);
+  assert.match(rule[1], /background: var\(--color-ground-warm\);/);
+  assert.match(rule[1], /color: var\(--color-muted\);/);
+  assert.match(PAGE, /\{row\.cut && <div id=\{`\$\{row\.id\}-note`\} class="msgs games-note"><\/div>\}/);
+});
+
 test('the WebGL2 probe: a detached canvas, its context released; no context or a throw is no WebGL2', () => {
   const made = [];
   const docWith = (getContext) => ({
@@ -567,7 +596,9 @@ function phoneBlock() {
 
 test('gh#314 1b: below 640px the schedule is a vertical list, stage name left, box right, an arrow down between', () => {
   const css = phoneBlock().replace(/\s+/g, ' ');
-  assert.match(css, /\.sched \{ flex-direction: column; flex-wrap: nowrap; gap: 0; \}/);
+  // The frame's list (.vs) is a flex column at the default stretch: every row is the schedule's full width, so
+  // the 118px value column sits at one x. The wide row's flex-start would shrink each row to its own label.
+  assert.match(css, /\.sched \{ flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 0; \}/);
   assert.match(css, /\.box \{ display: grid; grid-template-columns: 1fr 118px; gap: 12px; align-items: center; inline-size: auto; text-align: start; \}/);
   assert.match(css, /\.arr \{ display: grid; grid-template-columns: 1fr 118px; gap: 12px; block-size: 26px; \}/);
   assert.match(css, /\.arr svg \{ grid-column: 2; justify-self: center; transform: rotate\(90deg\); \}/);

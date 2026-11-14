@@ -36,8 +36,37 @@ export function fakeHosts() {
   return { started, startReveal };
 }
 
-export function mountFake(game) {
+/**
+ * Stubbed boxes for the placement decision (the fake DOM has no layout). `layout` is read on every
+ * measurement, so a test changes it to model a resize: `width` the screen width, `exitRight` the exit
+ * control's right edge, `band` the play band's height (where the viewport starts), `barBottom` the bar's
+ * bottom edge in the band, `badge` and `button` the content widths that make up the bar's one-row width.
+ */
+export function stubLayout(doc, layout) {
+  const exit = doc.createElement('button');
+  exit.id = 'play-exit';
+  exit.getBoundingClientRect = () => ({ left: 6, right: layout.exitRight, top: 6, bottom: 50 });
+  doc.body.append(exit);
+  const create = doc.createElement;
+  doc.createElement = (tag) => {
+    const el = create(tag);
+    el.getBoundingClientRect = function () {
+      if (this.className === 'pr-viewport') return { left: 0, right: layout.width, top: layout.band, bottom: 800 };
+      if (this.className === 'pr-bar') return { left: 0, right: layout.width - 24, top: 2, bottom: layout.barBottom };
+      return { left: 0, right: 0, top: 0, bottom: 0 };
+    };
+    Object.defineProperty(el, 'scrollWidth', {
+      get() {
+        return this.className === 'pr-bar' ? layout.badge + layout.button * this.querySelectorAll('button').length : 0;
+      },
+    });
+    return el;
+  };
+}
+
+export function mountFake(game, layout = null) {
   const doc = makeDoc();
+  if (layout) stubLayout(doc, layout);
   const root = doc.createElement('div');
   root.id = 'app';
   const live = doc.createElement('p');

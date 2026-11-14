@@ -131,6 +131,11 @@ body {
   inset-inline-start: 56px;
   inset-block-start: 330px;
 }
+/* The pick line breaks at its own space and each half stays on one line, so it ends left of rail 1 (owner
+   pick PD-307-03, design/Gh305AuditFrames.dc.html frame 3: no width value added). stage.ts puts the break. */
+.pd-hud2 .pd-lk {
+  white-space: pre;
+}
 
 /* ---- The lane picks' controls: real pixels over the frame (the frame holds no control). fitFrame gives
    this layer the frame's scale and offset, so a lane's control covers its plate's box at any screen size,
@@ -462,9 +467,11 @@ body {
   .pd-viewport[data-lanes] .pd-hud2 {
     position: static;
   }
+  /* The 1920 frame's break (PD-307-03) is a plain space here: the owner-ratified phone line (PD-307-01). */
   .pd-viewport[data-lanes] .pd-hud2 .pd-lk {
     margin-block-start: 14px;
     font-size: 16px;
+    white-space: normal;
   }
   .pd-viewport[data-lanes] .pd-gname {
     font-size: 22px;
@@ -528,5 +535,75 @@ body {
     white-space: normal;
     overflow-wrap: anywhere;
     text-align: center;
+  }
+
+  /* The final result (stage.ts marks it data-result): design/Gh305AuditFrames.dc.html frame 2, owner pick
+     PD-305-05, at i5-phone B's sizes (Gh314Frames) mapped role to role from proj-result B. The frame is not
+     scaled: one column under the band on the frame's night ground, the winner on top, then the prize cards
+     one per row, and the page scrolls. No MC button shows here, so the body ends at its 16px padding. The
+     names keep the fit rule at this layout's own sizes and floors (stage.ts layoutFloors); no rule here pins
+     their white-space, so the rule's last resort (.nm-wrap) still wraps them. */
+  .pd-viewport[data-result] {
+    overflow-y: auto;
+  }
+  .pd-viewport[data-result] .pd-scaled {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    transform: none;
+  }
+  .pd-viewport[data-result] .pd-frame {
+    position: static;
+    padding: 16px;
+  }
+  .pd-viewport[data-result] .pd-top {
+    display: block;
+    block-size: auto;
+    padding: 0;
+  }
+  .pd-viewport[data-result] .pd-ev {
+    display: block;
+    font-size: 22px;
+  }
+  .pd-viewport[data-result] .pd-spot {
+    position: static;
+    text-align: start;
+  }
+  .pd-viewport[data-result] .pd-spot h2 {
+    margin: 12px 0 0;
+    font-size: 22px;
+  }
+  .pd-viewport[data-result] .pd-spot .pd-pz {
+    margin-block-start: 18px;
+    font-size: 18px;
+  }
+  .pd-viewport[data-result] .pd-spot .pd-wn {
+    --fit-size: 50;
+    --fit-floor: 24;
+    margin-block-start: 0;
+    font-size: 50px;
+    line-height: 1.1;
+    text-align: start;
+    text-shadow: 0 0 24px var(--pd-glow);
+  }
+  .pd-viewport[data-result] .pd-wcards {
+    position: static;
+    margin-block-start: 18px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .pd-viewport[data-result] .pd-wcard {
+    padding: 16px;
+  }
+  .pd-viewport[data-result] .pd-wcard .pd-pz {
+    font-size: 16px;
+  }
+  .pd-viewport[data-result] .pd-wcard .pd-wn {
+    --fit-size: 22;
+    --fit-floor: 21;
+    margin-block-start: 0;
+    font-size: 22px;
+    line-height: 1.15;
+    text-align: start;
   }
 }

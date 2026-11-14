@@ -1,0 +1,29 @@
+::notice::prize-cards        frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 1]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [1110-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-cards-1440x900-first-game-screen.png
+::notice::prize-fireworks    frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 2]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [804-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-fireworks-1440x900-first-game-screen.png
+::notice::prize-ladder       frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 1]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [744-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-ladder-1440x900-first-game-screen.png
+NARROWED by ROUTES_ONLY=prize-fireworks,prize-cards,prize-ladder — 3 of 18 play route(s). A narrowed run is iteration only, never the deploy verdict.
+::error::/game/prize-cards/play/ at 320x568 no longer fits VERTICALLY: 3429px to scroll and 0px clipped away on a play screen (press 2). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.
+::error::/game/prize-cards/play/ at 390x844 no longer fits VERTICALLY: 3153px to scroll and 0px clipped away on a play screen (press 1). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.
+::error::/game/prize-fireworks/play/ at 320x568 no longer fits VERTICALLY: 3493px to scroll and 0px clipped away on a play screen (press 2). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.
+::error::/game/prize-fireworks/play/ at 390x844 no longer fits VERTICALLY: 3217px to scroll and 0px clipped away on a play screen (press 2). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.
+::notice::prize-cards        320x568   scrolls YES  3429px  clipped     0px  sideways     0px  width-fill    90%  (worst of 2 screen(s): press 2, 208 ink) [pinned fits]
+::notice::  screen [press 1]  overflow  3429px  scrolls YES  3429px  clipped     0px  sideways     0px  width-fill  90.1%  ink 209  class round
+::notice::  screen [press 2]  overflow  3429px  scrolls YES  3429px  clipped     0px  sideways     0px  width-fill    90%  ink 208  class round
+::notice::prize-cards        390x844   scrolls YES  3153px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 2 screen(s): press 1, 209 ink) [pinned fits]
+::notice::  screen [press 1]  overflow  3153px  scrolls YES  3153px  clipped     0px  sideways     0px  width-fill  91.8%  ink 209  class round
+::notice::  screen [press 2]  overflow  3153px  scrolls YES  3153px  clipped     0px  sideways     0px  width-fill  91.8%  ink 208  class round
+::notice::prize-cards        1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  95.4%  (worst of 2 screen(s): press 1, 209 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  95.4%  ink 209  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  95.4%  ink 210  class round
+::notice::prize-fireworks    320x568   scrolls YES  3493px  clipped     0px  sideways     0px  width-fill    90%  (worst of 1 screen(s): press 2, 210 ink) [pinned fits]
+::notice::  screen [press 2]  overflow  3493px  scrolls YES  3493px  clipped     0px  sideways     0px  width-fill    90%  ink 210  class round
+::notice::prize-fireworks    390x844   scrolls YES  3217px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 1 screen(s): press 2, 210 ink) [pinned fits]
+::notice::  screen [press 2]  overflow  3217px  scrolls YES  3217px  clipped     0px  sideways     0px  width-fill  91.8%  ink 210  class round
+::notice::prize-fireworks    1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  95.4%  (worst of 1 screen(s): press 2, 212 ink) [pinned fits]
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  95.4%  ink 212  class round
+::notice::prize-ladder       320x568   scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 15  class round
+::notice::prize-ladder       390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  99.8%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  99.8%  ink 15  class round
+::notice::prize-ladder       1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 15  class round

@@ -260,11 +260,9 @@ export const FITS_ROWS = new Set([
   // byte-identical rows each time (ROUTES_ONLY=prize-fireworks,prize-cards,prize-ladder, --disable-gpu
   // Chrome as ci-probes.sh launches it): fit-run1.txt, fit-run2.txt, fit-run3.txt in
   // docs/verification/evidence/gh305-probes-2026-11-13/.
-  'prize-fireworks 320x568',
-  'prize-fireworks 390x844',
+  // 'prize-fireworks 320x568', 'prize-fireworks 390x844', 'prize-cards 320x568' and 'prize-cards 390x844' left
+  // this set 2026-11-14 for KNOWN_OVERFLOW, VERTICAL axis only: see their rows there.
   'prize-fireworks 1440x900',
-  'prize-cards 320x568',
-  'prize-cards 390x844',
   'prize-cards 1440x900',
   'prize-ladder 320x568',
   'prize-ladder 390x844',
@@ -457,9 +455,35 @@ export const KNOWN_OVERFLOW = new Map([
   // 390x844 or 1440x900 still reds (they stay in FITS_ROWS), and a sideways clip here still reds because
   // KNOWN_OVERFLOW_X holds no prize-draw row.
   ['prize-draw 320x568', 'owner ruling 2026-11-13: 3378px to scroll on the projector route at 320x568, 0px clipped, 0px sideways. Reason: owner ruling 2026-11-13: #314 item 5 B (i5-phone B) scrolls the name list on phones. The owner-picked phone layout (frame i5-phone B in design/Gh314Frames.dc.html, whose caption says the page scrolls) lists every name in two columns. The px is the height of that list for the seeded roster of the walk (ROUTE_SEEDS stores a 200-name event, the setup page maximum), measured on this Mac, n=1; it grows and shrinks with the roster and the font, so it is printed against this recorded px when it drifts past the tolerance and never gated. What IS gated: every other prize-draw row stays pinned as fitting, and the horizontal axis of this row is still gated at zero. The screen class is round (the route has no shared player screen).'],
+  // Added 2026-11-14, moved from FITS_ROWS. The grant is these four rows and the VERTICAL axis only: the same px at
+  // 1440x900, or on any prize-ladder row, still reds (they stay in FITS_ROWS), and a sideways clip here still
+  // reds because KNOWN_OVERFLOW_X holds none of these rows.
+  ['prize-cards 320x568', 'owner ruling 2026-11-14: 3429px to scroll on the prize-cards demo page at 320x568, 0px clipped, 0px sideways. Reason: owner ruling 2026-11-14: vertical KNOWN_OVERFLOW for the four demo phone rows (prize-fireworks and prize-cards at 320x568 and 390x844), "as for prize-draw 320x568 yesterday". The cause is the owner pick gh#305 PD-305-03 (i5-phone B phone layout for the demo 2D screens: "names in two columns, the page scrolls"), built 2026-11-14. Worst screen press 2. Measured on this Mac, n=3 byte-identical runs (ROUTES_ONLY=prize-fireworks,prize-cards,prize-ladder, --disable-gpu Chrome as ci-probes.sh launches it), evidence docs/verification/evidence/gh305-gates-2026-11-14/ (fit-before-run1.txt, fit-before-run2.txt, fit-before-run3.txt). The px is the height of the name list the demo seeds and moves with the font, so it is printed when it drifts past the tolerance and never gated. What IS gated: the 1440x900 row of this route and every prize-ladder row stay pinned as fitting, and the horizontal axis of this row is still gated at zero. The screen class is round (every screen of the walk reads class round; the page mounts no shared player screen).'],
+  ['prize-cards 390x844', 'owner ruling 2026-11-14: 3153px to scroll on the prize-cards demo page at 390x844, 0px clipped, 0px sideways. Reason: owner ruling 2026-11-14: vertical KNOWN_OVERFLOW for the four demo phone rows (prize-fireworks and prize-cards at 320x568 and 390x844), "as for prize-draw 320x568 yesterday". The cause is the owner pick gh#305 PD-305-03 (i5-phone B phone layout for the demo 2D screens: "names in two columns, the page scrolls"), built 2026-11-14. Worst screen press 1. Measured on this Mac, n=3 byte-identical runs (ROUTES_ONLY=prize-fireworks,prize-cards,prize-ladder, --disable-gpu Chrome as ci-probes.sh launches it), evidence docs/verification/evidence/gh305-gates-2026-11-14/ (fit-before-run1.txt, fit-before-run2.txt, fit-before-run3.txt). The px is the height of the name list the demo seeds and moves with the font, so it is printed when it drifts past the tolerance and never gated. What IS gated: the 1440x900 row of this route and every prize-ladder row stay pinned as fitting, and the horizontal axis of this row is still gated at zero. The screen class is round (every screen of the walk reads class round; the page mounts no shared player screen).'],
+  ['prize-fireworks 320x568', 'owner ruling 2026-11-14: 3493px to scroll on the prize-fireworks demo page at 320x568, 0px clipped, 0px sideways. Reason: owner ruling 2026-11-14: vertical KNOWN_OVERFLOW for the four demo phone rows (prize-fireworks and prize-cards at 320x568 and 390x844), "as for prize-draw 320x568 yesterday". The cause is the owner pick gh#305 PD-305-03 (i5-phone B phone layout for the demo 2D screens: "names in two columns, the page scrolls"), built 2026-11-14. Worst screen press 2. Measured on this Mac, n=3 byte-identical runs (ROUTES_ONLY=prize-fireworks,prize-cards,prize-ladder, --disable-gpu Chrome as ci-probes.sh launches it), evidence docs/verification/evidence/gh305-gates-2026-11-14/ (fit-before-run1.txt, fit-before-run2.txt, fit-before-run3.txt). The px is the height of the name list the demo seeds and moves with the font, so it is printed when it drifts past the tolerance and never gated. What IS gated: the 1440x900 row of this route and every prize-ladder row stay pinned as fitting, and the horizontal axis of this row is still gated at zero. The screen class is round (every screen of the walk reads class round; the page mounts no shared player screen).'],
+  ['prize-fireworks 390x844', 'owner ruling 2026-11-14: 3217px to scroll on the prize-fireworks demo page at 390x844, 0px clipped, 0px sideways. Reason: owner ruling 2026-11-14: vertical KNOWN_OVERFLOW for the four demo phone rows (prize-fireworks and prize-cards at 320x568 and 390x844), "as for prize-draw 320x568 yesterday". The cause is the owner pick gh#305 PD-305-03 (i5-phone B phone layout for the demo 2D screens: "names in two columns, the page scrolls"), built 2026-11-14. Worst screen press 2. Measured on this Mac, n=3 byte-identical runs (ROUTES_ONLY=prize-fireworks,prize-cards,prize-ladder, --disable-gpu Chrome as ci-probes.sh launches it), evidence docs/verification/evidence/gh305-gates-2026-11-14/ (fit-before-run1.txt, fit-before-run2.txt, fit-before-run3.txt). The px is the height of the name list the demo seeds and moves with the font, so it is printed when it drifts past the tolerance and never gated. What IS gated: the 1440x900 row of this route and every prize-ladder row stay pinned as fitting, and the horizontal axis of this row is still gated at zero. The screen class is round (every screen of the walk reads class round; the page mounts no shared player screen).'],
   ['wire-snip-panic 320x568', 'owner ruling 2026-10-20: 67px on press 1 - 67px to scroll on the shared player screen with the seeded names (the worst screen is the player screen, not a round screen; the box that scrolls was not read). Accepted by owner ruling 2026-10-20 (popup, batch S2026-10-20#3), resting on the existing owner ruling 2026-10-15 (gh#264 popup: the shared player screen may scroll). Found by the gh#284 screen-class check: the 2026-09-15 ruling below was made on a round screen (div#screen-game), and no round screen reads near its 111px any more. The largest round screen reads 19px on press 3 (presses 2-4 read 0/19/19px), above the 8px OVERFLOW_TOLERANCE_PX, which is why this row stays in KNOWN_OVERFLOW and does not move to FITS_ROWS. Measured on this Mac 2026-10-20 with the ci-probes.sh lane flags (--headless --disable-gpu --no-sandbox), n=4 identical runs (one unsharded, three with ROUTES_ONLY), evidence docs/verification/evidence/gh284-2026-10-20/. The 2026-09-11 primary-control reading the previous ruling rests on predates the shared player screen and the band and was not repeated here. Previously: owner ruling 2026-09-15: 111px on press 0 - 111px to scroll on div#screen-game.screen.active. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned.'],
   ['zero-trigger 320x568', 'owner ruling 2026-10-20: 143px on press 2 - 143px to scroll, 0px clipped. RE-RECORDED UPWARD from 131px, measured on the integration run of 2026-10-20 (scripts/run-workflow-gates.sh, this Mac, n=1): the before-band run read 131px, and the band build reads 143px on a different screen (press 2 now wins over press 0), so the 56px reserved top band of gh#268 grew the worst screen by 12px, not the full 56px. No primary-control fold reading is produced for this route. Previously: owner ruling 2026-09-15: 131px on press 0 - 131px to scroll on section#screen-game.screen.active. RE-RECORDED UPWARD from 96px, measured this run on this Mac: gh#194 deliberately gives the player strip its real height (flex-shrink:0 in overrides.css), and that height is added to a screen that was already over. The growth is the fix, not a regression — a chip row nobody can see is not a saving. Promotion to FITS_ROWS is not owed here; this row still overflows by design until the 320px play screen is redesigned. The binding requirement for a play screen is the 2026-09-10 rule — the primary control is reachable above the fold at 320px — not that the whole screen fits. This route was measured against that rule on 2026-09-11 and was not found in violation, so the remaining scroll is accepted rather than redesigned. This supersedes the preceding clause of this reason: after the 2026-09-15 ruling no redesign is owed here.'],
 ]);
+/**
+ * THE KNOWN_OVERFLOW rows whose ruling grants SCROLLING only (content the player can reach), never content
+ * clipped away. KNOWN_OVERFLOW admits a row's vertical overflowPx, which is the max of scrolled and clipped,
+ * so without this set a clip of the same size passes under a scroll ruling. Gate (vii) reds any screen of
+ * these rows with clippedPx above 0, independent of the recorded px. Each member's reason records 0px clipped
+ * (a unit test pins both). Added after REFUTE 2026-11-14, which ran a 3429px clip with 0px scroll through
+ * these rows and saw it pass.
+ */
+export const SCROLL_ONLY_ROWS = new Set([
+  'prize-draw 320x568',
+  'prize-cards 320x568',
+  'prize-cards 390x844',
+  'prize-fireworks 320x568',
+  'prize-fireworks 390x844',
+]);
+/** (vii) Every screen of a scroll-only row that clips content away vertically. */
+export const scrollOnlyClips = (rows) => rows
+  .filter((r) => SCROLL_ONLY_ROWS.has(rowKey(r)))
+  .flatMap((r) => (r.screens || []).filter((sc) => (sc.clippedPx ?? 0) > 0).map((sc) => ({ r, sc })));
 /**
  * gh#284 — WHICH SCREEN each KNOWN_OVERFLOW ruling was made on, as data beside the map and keyed
  * identically (a unit test pins the two key sets equal). 'player' = the shared player screen
@@ -493,6 +517,10 @@ export const KNOWN_OVERFLOW_SCREEN = new Map([
   ['power-meter 390x844', 'round'],
   ['power-meter 1440x900', 'round'],
   ['prize-draw 320x568', 'round'],
+  ['prize-cards 320x568', 'round'],
+  ['prize-cards 390x844', 'round'],
+  ['prize-fireworks 320x568', 'round'],
+  ['prize-fireworks 390x844', 'round'],
   ['freeze-tap 320x568', 'player'],
   ['short-stick 320x568', 'round'],
   ['wire-snip-panic 320x568', 'player'],
@@ -2779,9 +2807,14 @@ export function main({
   // A rollback trigger that only exists in an uploaded artifact is a rollback trigger nobody reads.
   // gh#182 reporting: emit the per-row summary and every measured screen line before the verdict exit
   // so a failing run retains the evidence in its log instead of discarding it on exit 1.
+  // (vii) A scroll ruling does not license a clip: on the SCROLL_ONLY_ROWS any clipped px reds, on every screen.
+  const clipsUnderScroll = scrollOnlyClips(out.rows);
+  for (const c of clipsUnderScroll) {
+    console.error(`::error::${c.r.url} at ${c.r.vp} CLIPS content away VERTICALLY: ${Math.round(c.sc.clippedPx)}px clipped (${Math.round(c.sc.scrollPx ?? 0)}px to scroll) on a play screen (press ${c.sc.press}). This row is in KNOWN_OVERFLOW under a ruling that lets the page SCROLL, which keeps content reachable; clipped content is not reachable, so SCROLL_ONLY_ROWS gates it at 0px. Fix the layout -- the scroll grant does not cover it.`);
+  }
   emitRowReports(out.rows, emit);
 
-  if (unclassified.length || inBoth.length || regressions.length || sideways.length || classMoved.length) process.exit(1);
+  if (unclassified.length || inBoth.length || regressions.length || sideways.length || classMoved.length || clipsUnderScroll.length) process.exit(1);
 
   log(shardWalkedLine(walked));
 

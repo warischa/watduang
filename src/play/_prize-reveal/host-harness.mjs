@@ -93,15 +93,33 @@ class FakeEl extends FakeTarget {
   }
 }
 
+const WIDTH_FEATURE = /^\((max|min)-width:\s*(\d+(?:\.\d+)?)px\)$/;
+
+/** Reads a viewport-width query as a browser does at a CSS width: `max-width` is <=, `min-width` is >=, so a
+ *  fractional width between two whole-pixel bounds matches neither. A query the fake cannot read throws, so a
+ *  test never passes on a query nobody evaluated. */
+export function widthMatches(query, width) {
+  const q = query.trim();
+  const negated = /^not all and (.+)$/.exec(q);
+  if (negated) return !widthMatches(negated[1], width);
+  const m = WIDTH_FEATURE.exec(q);
+  if (!m) throw new Error(`the fake page cannot evaluate the media query ${JSON.stringify(query)}`);
+  return m[1] === 'max' ? width <= Number(m[2]) : width >= Number(m[2]);
+}
+
 /**
  * A fresh fake page. Options: webgl2 (default true), reducedMotion (default false), held (default false),
- * hidden (default false).
+ * hidden (default false), width -- the viewport's CSS width (default 1920), media -- when a width query's
+ * `change` is reported: 'immediate' (default; on the resize itself, hidden or not) or 'next-frame' (as the
+ * HTML spec does: at the next rendering update, which a hidden page never gets, before that update's frames
+ * run, and only for a list whose answer differs from the one last reported).
  */
-export function makePage({ webgl2 = true, reducedMotion = false, held = false, hidden = false } = {}) {
+export function makePage({ webgl2 = true, reducedMotion = false, held = false, hidden = false, width = 1920, media = 'immediate' } = {}) {
   const page = { webgl2, contextRequests: [], canvases: [], gls: [], loseExtension: true, onGetContext: null, getContextThrows: null, onFactory: null };
 
   const doc = new FakeTarget();
   doc.visibilityState = hidden ? 'hidden' : 'visible';
+  Object.defineProperty(doc, 'hidden', { get: () => doc.visibilityState === 'hidden' });
   doc.createElement = (tag) => new FakeEl(tag, page);
   page.doc = doc;
   page.container = new FakeEl('div', page);
@@ -120,6 +138,33 @@ export function makePage({ webgl2 = true, reducedMotion = false, held = false, h
     mql.dispatch('change', { matches: on });
   };
 
+  // Every other query is a viewport-width one, one list per query string as a browser hands out, read live
+  // against the page's width; a resize fires `change` only on the lists whose answer flipped.
+  page.width = width;
+  page.widthMqls = new Map();
+  const widthList = (query) => {
+    if (!page.widthMqls.has(query)) {
+      const list = new FakeTarget();
+      list.media = query;
+      Object.defineProperty(list, 'matches', { get: () => widthMatches(query, page.width) });
+      list.reported = list.matches;
+      page.widthMqls.set(query, list);
+    }
+    return page.widthMqls.get(query);
+  };
+  /** Reports every list whose answer changed since it was last reported. */
+  const reportMedia = () => {
+    for (const list of [...page.widthMqls.values()]) {
+      if (list.matches === list.reported) continue;
+      list.reported = list.matches;
+      list.dispatch('change', { matches: list.matches });
+    }
+  };
+  page.setWidth = (w) => {
+    page.width = w;
+    if (media === 'immediate') reportMedia();
+  };
+
   const frames = new Map();
   let nextFrame = 1;
   page.clock = 0;
@@ -128,6 +173,7 @@ export function makePage({ webgl2 = true, reducedMotion = false, held = false, h
   page.flush = (t) => {
     // Runs the frames queued before this call, at time t, the way a browser runs one RAF batch.
     page.clock = t;
+    if (media === 'next-frame' && doc.visibilityState !== 'hidden') reportMedia();
     const batch = [...frames.entries()];
     frames.clear();
     for (const [, cb] of batch) cb(t);
@@ -201,7 +247,7 @@ export function makePage({ webgl2 = true, reducedMotion = false, held = false, h
     document: doc,
     matchMedia: (q) => {
       page.mqlQueries.push(q);
-      return mql;
+      return q === mql.media ? mql : widthList(q);
     },
     requestAnimationFrame: (cb) => {
       const id = nextFrame++;

@@ -1,0 +1,577 @@
+#!/usr/bin/env node
+// gh#305 audit frames canvas: writes design/Gh305AuditFrames.dc.html, then (step "render") measures every frame in
+// headless Chrome and writes one PNG per frame, measurements.json and a markdown table to stdout.
+// Saved as .txt so repo tooling never treats it as code. Run from a copy OUTSIDE the repo:
+//   cp make-audit-frames.mjs.txt /tmp/gh305-af/make-audit-frames.mjs
+//   node /tmp/gh305-af/make-audit-frames.mjs <repo root> write [measurements.json]   # captions take numbers from a prior run
+//   CDP_PORT=9347 SHOT_TMP=/tmp/gh305-af node /tmp/gh305-af/make-audit-frames.mjs <repo root> render
+// render exits 1 when: the control cards frame paints a name at 16px or more (the instrument is broken); a proposal
+// cards frame paints a name under 16px, puts a card outside the field or overlaps two cards; a phone frame has a box
+// outside its parent or the frame, or scrolls sideways in a real viewport of its width; the viewport must-red does not
+// fire; the as-built HUD line does not cross rail 1 or the wrapped one does; a face is not loaded; a dotted circle
+// (U+25CC) is in the rendered text; innerWidth is not the width set; a caption number differs from the fresh measurement.
+
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const [root, step = 'write', prior] = process.argv.slice(2);
+if (!root) { console.error('usage: make-audit-frames.mjs <repo root> write|render [measurements.json]'); process.exit(2); }
+const CANVAS = path.join(root, 'design/Gh305AuditFrames.dc.html');
+const OUT = path.join(root, 'docs/verification/evidence/gh305-audit-frames-2026-11-14');
+const M = prior ? JSON.parse(readFileSync(prior, 'utf8')).frames : {};
+const board = (f) => readFileSync(path.join(root, 'design', f), 'utf8');
+
+// ---- sample data, read from the picked boards (sample data, not copy) ----
+// The 100 face-up cards of cd-reveal B (Gh303Cards): rank, suit glyph, red or not, name, in board order.
+const cardsBoard = board('Gh303Cards.dc.html');
+const revB = cardsBoard.slice(cardsBoard.indexOf('data-frame="cd-reveal" data-dir="B"'));
+const FACES = [...revB.slice(0, revB.indexOf('<div class="low">')).matchAll(/<span class="card (up(?: red)?)"><span class="face">([^<]+)(<svg.*?<\/svg>)<\/span><span class="fit"[^>]*>([^<]+)<\/span><\/span>/g)]
+  .map(([, cls, rank, svg, name]) => ({ red: cls.includes('red'), rank, svg, name }));
+if (FACES.length !== 100) { console.error(`expected 100 cards on cd-reveal B, found ${FACES.length}`); process.exit(1); }
+// Names: the cards board's 100, then the gh#302 projector roster (proj-round B), the gh#314 roster, the gh#302 setup
+// list; all distinct (a name joins once). Short of 200, the shipped demo's own GuestNN pattern fills the rest.
+const projBoard = board('Gh302Projector.dc.html');
+const roundB = projBoard.slice(projBoard.indexOf('data-frame="proj-round" data-dir="B"'));
+const roster302 = [...roundB.slice(0, roundB.indexOf('<div class="low">')).matchAll(/<span class="chip[^"]*"[^>]*>([^<]+)<\/span>/g)].map((m) => m[1]);
+const roster314 = [...board('Gh314Frames.dc.html').match(/const NAMES = \[(.*?)\];/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+const setup302 = [...board('Gh302Setup.dc.html').matchAll(/>([ก-๛A-Za-z]+ [ก-ฮ]\.)</g)].map((m) => m[1]);
+const POOL = [...new Set([...FACES.map((f) => f.name), ...roster302, ...roster314, ...setup302])];
+const FILLED = [];
+for (let k = 1; POOL.length < 200; k++) { const g = `Guest${k}`; if (!POOL.includes(g)) { POOL.push(g); FILLED.push(g); } }
+
+// ---- verbatim strings ----
+// Gh303Cards cd-reveal B / cd-result B; Gh302Projector proj-round B (round 1 label) and proj-result B; the ladder HUD
+// from the shipped stage copy (lanePick, owner-approved for gh#305 item 2; Gh305GamePick i2-lanes draws it as a
+// placeholder), the ladder chrome from Gh305GamePick i2-lanes B (ld-idle B, Gh303Ladder).
+const T = {
+  ev: 'ปาร์ตี้ปีใหม่ 2570',
+  r1: 'รอบที่ 1 จาก 4',
+  revLk: 'เปิดพร้อมกันทั้งห้อง', game: 'ไพ่แจกทั้งห้อง', ruleK: 'กติการอบนี้', rule: 'ดำอยู่ต่อ', ruleFull: 'ไพ่ดำอยู่ต่อ ไพ่แดงตกรอบ',
+  passed1: 'ผ่านรอบที่ 1', unit: 'คน', pass: 'ผ่าน', fail: 'ไม่ผ่าน',
+  winners: 'ผู้ได้รับรางวัล',
+  prize1: 'รางวัลที่ 1 · ทีวี 55 นิ้ว',
+  prizes: [['รางวัลที่ 2 · จักรยานไฟฟ้า', 'WWWWWWWWWWWW'], ['รางวัลที่ 3 · หม้อทอดไร้น้ำมัน', 'ฒฒฒฒฒฒฒฒฒฒฒฒ'], ['รางวัลที่ 4 · ลำโพงไร้สาย', 'ต้น ส.'], ['รางวัลที่ 5 · หูฟังไร้สาย', 'มะปรางหวานใจ']],
+  winner: 'ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ',
+  claim: 'ผู้ได้รางวัล เปิดหน้าผลในมือถือให้ทีมงานดู ชื่อต้องตรงกับบนจอนี้',
+  finalRl: 'รอบชิงรางวัล', ladder: 'ทางแยกเลือกเส้น',
+  hud: ['ให้ผู้เข้ารอบชิงเลือกเส้น', 'แตะเส้นแล้วแตะชื่อ'],
+};
+
+// a caption number: the render step checks it against the fresh measurement
+const num = (key, unit = 'px') => {
+  const [fid, k] = key.split(':');
+  const v = M[fid]?.[k];
+  return `<span data-num="${key}">${v ?? '?'}</span>${v == null ? '' : unit}`;
+};
+
+// ---- frame 1: the cards field ----
+const FIELD = { left: 56, right: 1864, top: 100, height: 760 };
+const CARD = { w: 293, h: 40, colGap: 10, rowGap: 4 };
+const ROW_ABOVE_102 = 32; // two name lines at the 16px floor, line-height 1 (Gh303Cards NAME FIT + .card font)
+// Above 102 cards: rows of 32px, and the fewest columns from 6 up whose rows fit the 760px field.
+const colsFor = (n) => { for (let c = 6; ; c++) { const r = Math.ceil(n / c); if (r * ROW_ABOVE_102 + (r - 1) * CARD.rowGap <= FIELD.height) return c; } };
+// Today's layout (fieldLayout in the cards renderer's plan): the board card at 100-card metrics, the whole field
+// scaled by one factor with the column count 6 to 10 that gives the largest factor.
+const todayLayout = (n) => {
+  let best = { cols: 6, s: 0 };
+  for (let cols = 6; cols <= 10; cols++) {
+    const rows = Math.max(1, Math.ceil(n / cols));
+    const w = cols * CARD.w + (cols - 1) * CARD.colGap;
+    const h = rows * CARD.h + (rows - 1) * CARD.rowGap;
+    const s = Math.min(1, (FIELD.right - FIELD.left) / w, FIELD.height / h);
+    if (s > best.s + 1e-9) best = { cols, rows, s, w, h };
+  }
+  return best;
+};
+const cardHtml = (i, state) => {
+  const f = FACES[i % 100];
+  const name = POOL[i];
+  const cls = state === 'result' ? (f.red ? 'up red fail' : 'up pass') : `up${f.red ? ' red' : ''}`;
+  return `<span class="card ${cls}" data-m="card"><span class="face">${f.rank}${f.svg}</span><span class="fit" data-m="name" data-min="16" data-max="20">${name}</span></span>`;
+};
+const top1 = `<div class="top"><span class="ev">${T.ev}</span><span class="dots"><span class="rl">${T.r1}</span><i class="on"></i><i></i><i></i><i></i><i class="fin"></i></span></div>`;
+const lowReveal = `<div class="low"><div><div class="lk">${T.revLk}</div><div class="gname">${T.game}</div></div><div><div class="lk" style="text-align:center;">${T.ruleK}</div><div class="rule">${T.rule}</div></div><div class="rt"><div class="lk">${T.ruleFull}</div></div></div>`;
+const lowResult = (kept) => `<div class="low"><div><div class="lk">${T.passed1}</div><div class="gname">${T.game}</div></div><div class="flow"><span class="to">${kept}</span><small>${T.unit}</small></div><div class="rt"><div class="legend"><div><span class="chip in">${T.pass}</span></div><div><span class="chip out">${T.fail}</span></div></div></div></div>`;
+const projFrame = (fid, inner, n) => `<div class="scaler" style="width:1440px; height:810px;"><div class="pj" data-frame="${fid}" data-kind="cards" data-n="${n}" style="transform: scale(0.75);">${inner}</div></div>`;
+const cardsFrame = (n, state = 'reveal') => {
+  const c = colsFor(n);
+  const cards = Array.from({ length: n }, (_, i) => cardHtml(i, state)).join('');
+  const kept = Array.from({ length: n }, (_, i) => !FACES[i % 100].red).filter(Boolean).length;
+  return projFrame(`cards-${n}${state === 'result' ? '-result' : ''}`, `${top1}<div class="grid cards x${c}" style="grid-template-columns: repeat(${c}, minmax(0, 1fr));">${cards}</div>${state === 'result' ? lowResult(kept) : lowReveal}`, n);
+};
+const controlFrame = (n) => {
+  const L = todayLayout(n);
+  const x0 = (FIELD.left + FIELD.right) / 2 - (L.w * L.s) / 2;
+  const y0 = FIELD.top + FIELD.height / 2 - (L.h * L.s) / 2;
+  const cards = Array.from({ length: n }, (_, i) => cardHtml(i, 'reveal')).join('');
+  return projFrame(`cards-ctl-${n}`, `${top1}<div class="grid cards ctl" style="left:${x0}px; right:auto; top:${y0}px; width:${L.w}px; height:${L.h}px; transform: scale(${L.s}); transform-origin: 0 0; grid-template-columns: repeat(${L.cols}, ${CARD.w}px); grid-auto-rows: ${CARD.h}px; align-content: start;">${cards}</div>${lowReveal}`, n);
+};
+
+// ---- frame 2: the final result on a phone ----
+const FOLD = { 320: 568, 375: 667 };
+const resFrame = (w) => `<div class="pr" data-frame="res-${w}" data-kind="phone" data-width="${w}" data-fold="${FOLD[w]}" style="width:${w}px;"><div class="band stub">play band</div><div class="body" data-m="body"><p class="ev" data-m="ev">${T.ev}</p><h2 data-m="h2">${T.winners}</h2><div class="pz" data-m="pz">${T.prize1}</div><div class="wn fit" data-m="winner" data-max="50" data-min="24">${T.winner}</div><div class="wcards" data-m="list">${T.prizes.map(([pz, n]) => `<div class="wcard" data-m="card"><div class="pz" data-m="cpz">${pz}</div><div class="wn fit" data-m="cname" data-max="22" data-min="21">${n}</div></div>`).join('')}</div><p class="msg" data-m="claim">${T.claim}</p></div><div class="fold" style="top:${FOLD[w]}px;"></div></div>`;
+
+// ---- frame 3: the ladder before the picks (Gh305GamePick i2-lanes B chrome, ld-idle B) ----
+const LANES = [
+  { x: 240, far: 280, dot: 'background:#ff3d7f;' },
+  { x: 600, far: 620, dot: 'background:#ffffff;' },
+  { x: 960, far: 960, dot: 'background:#ffcc00;' },
+  { x: 1320, far: 1300, dot: 'background:#ffffff; box-shadow: inset 0 0 0 4px #23214d;' },
+  { x: 1680, far: 1640, dot: 'background:#2b7bff;' },
+];
+const SLOTS = [
+  '<div class="sk"><span style="white-space: nowrap;">ไม่มีรางวัล</span></div><div class="sp">ขอบคุณที่ร่วมลุ้น</div>',
+  '<div class="sk">รางวัลที่ 1</div><div class="sp">ทีวี 55 นิ้ว</div>',
+  '<div class="sk"><span style="white-space: nowrap;">ไม่มีรางวัล</span></div><div class="sp">ขอบคุณที่ร่วมลุ้น</div>',
+  '<div class="sk">รางวัลที่ 2</div><div class="sp">จักรยานไฟฟ้า</div>',
+  '<div class="sk">รางวัลที่ 3</div><div class="sp">หม้อทอดไร้น้ำมัน</div>',
+];
+const SLOTCLS = ['none', 'prize', 'none', 'prize', 'prize'];
+const RAIL = { ctl: 'stroke="#5e5c7b"', half: 'stroke="#d9d6f0" stroke-opacity="0.5"' };
+const ladder = (rail, wrapped) => {
+  let h = `<div class="top"><span class="ev">${T.ev}</span><span class="dots"><span class="rl">${T.finalRl}</span><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="fin on"></i></span></div>`;
+  h += '<svg class="layer" width="1920" height="1080" viewBox="0 0 1920 1080" style="z-index:1;" aria-hidden="true">';
+  for (const l of LANES) { const mx = 960 + (l.x - 960) * 0.55; h += `<line x1="${l.x}" y1="930" x2="${mx}" y2="290" ${RAIL[rail]} stroke-width="5"/><line x1="${mx}" y1="290" x2="${l.far}" y2="226" ${RAIL[rail]} stroke-width="5"/>`; }
+  h += '</svg>';
+  LANES.forEach((l, i) => {
+    h += `<div class="lplate empty" style="left:${l.x}px; top:950px;"><i style="${l.dot}"></i><span class="fit">${i + 1}</span></div>`;
+    h += `<div class="slot ${SLOTCLS[i]}" style="left:${l.far}px; top:112px;">${SLOTS[i]}</div>`;
+  });
+  const line = wrapped ? T.hud.map((p) => `<span class="hl">${p}</span>`).join(' ') : T.hud.join(' ');
+  h += `<div class="hud2"><div class="lk" data-m="hud">${line}</div><div class="gname" data-m="hudgame">${T.ladder}</div></div>`;
+  return h;
+};
+const railsFrame = (fid, rail, wrapped) => `<div class="scaler" style="width:960px; height:540px;"><div class="pj" data-frame="${fid}" data-kind="ladder" style="transform: scale(0.5);">${ladder(rail, wrapped)}</div></div>`;
+const HUD_CROP = { x: 0, y: 250, w: 760, h: 300 };
+const hudFrame = (fid, wrapped) => `<div class="crop" style="width:${HUD_CROP.w}px; height:${HUD_CROP.h}px;"><div class="pj" data-frame="${fid}" data-kind="ladder" style="position: absolute; left:${-HUD_CROP.x}px; top:${-HUD_CROP.y}px;">${ladder('half', wrapped)}</div></div>`;
+
+const cand = (tags, caption, frames) => `<div class="cand"><div class="tag">${tags} · ${caption}</div><div class="pair">${frames}</div></div>`;
+const fw = (label, inner) => `<div class="fw"><div class="wl">${label}</div>${inner}</div>`;
+const CTL = (s) => `<span class="ctl">${s}</span>`;
+const D = (s) => `<span class="d">${s}</span>`;
+
+const C103 = colsFor(103), C150 = colsFor(150), C200 = colsFor(200);
+const TL = todayLayout(200);
+
+const html = `<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    /* Self-hosted faces, relative paths, the same files src/styles/fonts.css declares. The board is design
+       source and is never referenced at runtime. */
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    /* gh#305 audit frames: proposal canvas drawn to the owner's picks, ADR-0033. Generated by
+       docs/verification/evidence/gh305-audit-frames-2026-11-14/make-audit-frames.mjs.txt; edit the generator, not this
+       file. Annotations are English and monospace. Every Thai string in a frame is verbatim from a picked board or the
+       shipped stage copy (COPY SOURCES). Every value comes from a picked board unless tagged NEW VALUE beside it. */
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    .brow { padding: 34px 34px; border-bottom: 3px dashed #14142b; }
+    .brow h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .brow .why { margin: 0 0 16px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1420px; }
+    .brow .why b { color: #14142b; }
+    .tbl { border-collapse: collapse; font: 12px/1.5 ui-monospace, Menlo, monospace; margin: 0 0 18px; max-width: 1450px; }
+    .tbl th, .tbl td { border: 1px solid #14142b; padding: 5px 9px; text-align: left; vertical-align: top; }
+    .tbl th { background: #14142b; color: #ffcc00; }
+    .cands { display: flex; flex-direction: column; gap: 34px; align-items: flex-start; }
+    .cands.row { flex-direction: row; flex-wrap: wrap; gap: 34px 40px; }
+    .cand { display: flex; flex-direction: column; gap: 8px; }
+    .pair { display: flex; gap: 40px; align-items: flex-start; }
+    .fw { display: flex; flex-direction: column; gap: 4px; }
+    .wl { font: 700 11px/1.4 ui-monospace, Menlo, monospace; color: #3d3b5c; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; max-width: 1450px; }
+    .tag .d { display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.6 ui-monospace, Menlo, monospace; }
+    .tag .ctl { display: inline-block; background: #ffffff; color: #14142b; border: 1.5px dashed #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; }
+    .nv { display: inline-block; background: #ff3d7f; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 7px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; }
+    .pin { font: 12px/1.6 ui-monospace, Menlo, monospace; color: #14142b; background: #ffffff; border: 2px solid #14142b; border-radius: 8px; padding: 10px 14px; max-width: 1420px; margin: 0 0 14px; }
+    .pin.q { border-width: 4px; font-size: 13px; }
+    .pin ul { margin: 4px 0 0; padding-left: 18px; }
+    .stub { display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 12px; font: 600 12px/1.4 ui-monospace, Menlo, monospace; color: #14142b;
+            background: repeating-linear-gradient(135deg, #e9e3cf 0 10px, #f5f1e3 10px 20px); }
+    .fold { position: absolute; left: 0; right: 0; border-top: 2px dashed #2b7bff; pointer-events: none; }
+    .scaler { position: relative; overflow: hidden; box-shadow: 0 0 0 1px #14142b; }
+    .scaler > * { transform-origin: 0 0; }
+    .crop { position: relative; overflow: hidden; box-shadow: 0 0 0 1px #14142b; }
+
+    /* ---- projected frames, authored at 1920x1080 CSS px: Gh303Cards B values (picked), copied unchanged ---- */
+    .pj { position: relative; width: 1920px; height: 1080px; overflow: hidden; box-sizing: border-box; font-family: 'Sarabun', system-ui, sans-serif;
+          background: linear-gradient(180deg, #14142b 0%, #23214d 100%); color: #ffffff; }
+    .pj .layer { position: absolute; inset: 0; pointer-events: none; }
+    .pj .top { position: absolute; left: 0; right: 0; top: 0; height: 96px; display: flex; align-items: center; justify-content: space-between; padding: 0 56px; z-index: 3; }
+    .pj .ev { font: 600 36px/1.2 'Mitr', sans-serif; color: #d9d6f0; }
+    .pj .dots { display: flex; align-items: center; gap: 14px; font: 600 30px/1 'Mitr', sans-serif; }
+    .pj .dots .rl { margin-right: 14px; }
+    .pj .dots i { box-sizing: border-box; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #d9d6f0; }
+    .pj .dots i.done { background: #d9d6f0; }
+    .pj .dots i.on { background: #ffcc00; border-color: #ffcc00; box-shadow: 0 0 18px rgba(255,204,0,0.45); }
+    .pj .dots i.fin { width: 36px; border-radius: 999px; }
+    .pj .chip { display: flex; align-items: center; justify-content: center; white-space: nowrap; overflow-x: clip; overflow-y: visible; box-sizing: border-box; padding: 0 6px; font: 400 20px/1 'Sarabun', sans-serif; border-radius: 999px; background: #23214d; color: #ffffff; }
+    .pj .chip.in { font-weight: 700; background: #ffcc00; color: #14142b; box-shadow: 0 0 16px rgba(255,204,0,0.45); }
+    .pj .chip.out { text-decoration: line-through; background: transparent; color: #9a97c0; box-shadow: inset 0 0 0 2px #23214d; }
+    .pj .grid { position: absolute; left: 56px; right: 56px; top: 100px; height: 760px; display: grid; gap: 2px 10px; align-content: center; z-index: 1; }
+    .pj .low { position: absolute; left: 56px; right: 56px; bottom: 20px; height: 190px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 40px; z-index: 3; }
+    .pj .lk { font: 600 30px/1.35 'Mitr', sans-serif; color: #d9d6f0; }
+    .pj .gname { font: 700 50px/1.2 'Mitr', sans-serif; color: #ffcc00; }
+    .pj .flow { display: flex; align-items: center; gap: 28px; font: 700 130px/1 'Mitr', sans-serif; }
+    .pj .flow .to { color: #ffcc00; text-shadow: 0 0 24px rgba(255,204,0,0.45); }
+    .pj .flow small { font: 600 44px/1 'Mitr', sans-serif; color: #d9d6f0; }
+    .pj .rt { text-align: right; }
+    .pj .legend { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+    .pj .legend .chip { width: 170px; height: 48px; font-size: 30px; }
+    .pj .rule { font: 700 64px/1.2 'Mitr', sans-serif; color: #ffcc00; text-shadow: 0 0 24px rgba(255,204,0,0.45); white-space: nowrap; }
+    .pj .grid .card { display: flex; align-items: center; gap: 6px; box-sizing: border-box; padding: 0 8px 0 4px; border-radius: 6px; overflow-x: clip; overflow-y: visible; font: 400 20px/1 'Sarabun', sans-serif; }
+    .pj .grid.cards { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: minmax(40px, auto); gap: 4px 10px; }
+    .pj .grid .card .face { flex: none; width: 66px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 4px; font: 700 30px/1 'Mitr', sans-serif; }
+    .pj .grid .card .fit { flex: 1 1 auto; min-width: 0; text-align: center; white-space: nowrap; overflow-x: clip; overflow-y: visible; }
+    .pj .grid .card.up { background: #ffffff; color: #14142b; }
+    .pj .grid .card.up.red .face { color: #c2185b; }
+    .pj .grid .card.pass { box-shadow: 0 0 0 3px #ffcc00, 0 0 16px rgba(255,204,0,0.45); font-weight: 700; }
+    .pj .grid .card.fail { background: transparent; color: #9a97c0; box-shadow: inset 0 0 0 2px #23214d; text-decoration: line-through; }
+    .pj .grid .card.fail .face, .pj .grid .card.up.red.fail .face { color: #9a97c0; }
+    .pj .grid .card.fail .face svg * { fill: #9a97c0; }
+    /* PD-306-01, above 102 cards: rows of 32px (two name lines at the 16px floor); the column count is set per frame */
+    .pj .grid.cards.x6, .pj .grid.cards.x7, .pj .grid.cards.x8, .pj .grid.cards.x9, .pj .grid.cards.x10 { grid-auto-rows: minmax(${ROW_ABOVE_102}px, auto); }
+
+    /* ---- the ladder before the picks: Gh305GamePick i2-lanes B chrome (ld-idle B, Gh303Ladder), copied unchanged ---- */
+    .pj .lplate { position: absolute; margin-left: -160px; box-sizing: border-box; width: 320px; min-height: 64px; padding: 4px 14px 4px 12px; display: flex; align-items: center; gap: 10px;
+                  border-radius: 999px; background: #23214d; color: #ffffff; font: 700 40px/1.15 'Sarabun', sans-serif; z-index: 3; }
+    .pj .lplate i { flex: none; width: 18px; height: 18px; border-radius: 50%; }
+    .pj .lplate .fit { flex: 1 1 auto; min-width: 0; text-align: center; line-height: 1.15; white-space: nowrap; overflow-x: clip; overflow-y: visible; }
+    .pj .lplate.empty { background: transparent; border: 3px dashed #9a97c0; color: #9a97c0; }
+    .pj .slot { position: absolute; margin-left: -150px; box-sizing: border-box; width: 300px; padding: 14px 16px; border-radius: 24px; background: #23214d; text-align: center; z-index: 3; }
+    .pj .slot.prize { box-shadow: inset 0 0 0 3px #ffcc00; }
+    .pj .slot.none { background: transparent; box-shadow: inset 0 0 0 2px #23214d; }
+    .pj .slot .sk { font: 600 30px/1.25 'Mitr', sans-serif; color: #ffcc00; }
+    .pj .slot.none .sk { color: #9a97c0; }
+    .pj .slot .sp { font: 400 30px/1.3 'Sarabun', sans-serif; color: #d9d6f0; white-space: nowrap; }
+    .pj .hud2 { position: absolute; left: 56px; top: 330px; z-index: 3; }
+    /* PD-307-03: the HUD line breaks at its own space, each half on one line */
+    .pj .hud2 .hl { display: block; white-space: nowrap; }
+
+    /* ---- PD-305-05: the final result on a phone, Gh314Frames i5-phone B values (night ground, phone sizes) ---- */
+    .pr { position: relative; box-sizing: border-box; background: linear-gradient(180deg, #14142b 0%, #23214d 100%); color: #ffffff; font-family: 'Sarabun', sans-serif; outline: 1px solid #14142b; }
+    .pr .band { height: 56px; }
+    .pr .body { padding: 16px; }
+    .pr .ev { margin: 0; font: 600 22px/1.2 'Mitr', sans-serif; color: #d9d6f0; }
+    .pr h2 { margin: 12px 0 0; font: 600 22px/1.2 'Mitr', sans-serif; color: #ffffff; }
+    .pr .pz { margin-top: 18px; font: 600 18px/1.25 'Mitr', sans-serif; color: #d9d6f0; }
+    .pr .wn { font: 700 50px/1.1 'Mitr', sans-serif; color: #ffcc00; text-shadow: 0 0 24px rgba(255,204,0,0.45); }
+    .pr .fit { white-space: nowrap; overflow-x: clip; overflow-y: visible; }
+    .pr .wcards { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .pr .wcard { background: #23214d; border-radius: 24px; padding: 16px; }
+    .pr .wcard .pz { margin: 0; font: 600 16px/1.3 'Mitr', sans-serif; color: #d9d6f0; }
+    .pr .wcard .wn { font: 700 22px/1.15 'Mitr', sans-serif; color: #ffffff; text-shadow: none; }
+    .pr .msg { margin: 22px 0 0; font: 400 16px/1.55 'Sarabun', sans-serif; color: #d9d6f0; }
+  </style>
+</helmet>
+<div style="width: 1600px; background: #ffffff; color: #14142b;">
+
+  <div style="padding: 30px 34px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#305 · gh#306 · gh#307 · prize draw · audit frames · DRAWN TO THE OWNER'S PICKS 2026-11-14 — NO SEPARATE SIGN-OFF (owner ruling)</div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;">Order (ADR-0033): owner picks, canvas, code. The owner picked these on 2026-11-14 (ticket comments on gh#305, gh#306, gh#307; audit file docs/verification/evidence/ui-audit-2026-11-13-prize-draw/findings.json) and ruled that frames drawn to implement a pick go to code without a separate sign-off. So every value drawn here is the value code copies. "CONTROL" frames are not proposals: they draw the code as it is today, to show the gap and to prove the measurement. Every Thai string in a frame is verbatim from a picked board or the shipped stage copy (COPY SOURCES). Values: picked boards (Gh303Cards B, Gh302Projector B, Gh314Frames i5-phone B, Gh305GamePick i2-lanes B); a value from none of them carries a <span class="nv">NEW VALUE</span> tag. Every number in a caption is measured from the rendered frame (README in docs/verification/evidence/gh305-audit-frames-2026-11-14/). Rules: ui-ux-pro-max 2.13.0, rules only (see NOTES), never its palette or fonts.</div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;"><div class="pin q"><b>PICKS DRAWN (quoted from the ticket comments):</b><ul>
+  <li><b>PD-306-01</b> (frames cards-*): "hold 16px in frame px: narrower card above 102 (needs a board frame for 200)". <b>One gap left for the owner, see FRAME 1 and NOTES.</b></li>
+  <li><b>PD-305-05</b> (frames res-*): "phone layout for the result: winner on top, prize cards in one column at i5-phone B sizes".</li>
+  <li><b>PD-307-04</b> (frames rails-*): "50% alpha = #7a7897, 3.89:1 (arithmetic)" (to be measured from painted pixels).</li>
+  <li><b>PD-307-03</b> (frames hud-*): "wrap the line left of the rail".</li>
+</ul></div></div>
+  </div>
+
+  <!-- ================================================================== FRAME 1 -->
+  <div class="brow">
+    <h2>FRAME 1 · PD-306-01 · THE CARDS FIELD ABOVE 102 NAMES · 1920 x 1080, shown at 75%</h2>
+    <p class="why"><b>Today</b> (the cards renderer's fieldLayout): the board's 100-card card (293 x 40, rank 30px, name 20px floor 16px) up to 102 cards, then the whole field scales as one: at 200 names 8 columns x 25 rows at ${TL.s.toFixed(4)}, so every name, rank and gap shrinks with it. <b>Drawn here:</b> above 102 cards the card keeps every board value in frame px (name 20px shrinking to the 16px floor, then two lines; rank 30px Mitr 700 beside its 24px suit in the 66px column; padding 0 8px 0 4px; radius 6px; gaps 4px x 10px) and only the grid changes: <b>rows of 32px</b> <span class="nv">NEW VALUE</span> (two name lines at the 16px floor, line-height 1: the height the board's own wrap needs; the 30px rank fits it), and <b>the fewest columns from 6 up whose rows fit the 760px field</b>, so the card narrows only when the rows run out: ${C103} columns at 103, ${C150} at 150, ${C200} at 200. Rows grow for a name that wraps past two lines (the board's minmax rows), and the field keeps the leftover height for that. Fit rule unchanged (Gh303Cards NAME FIT: 20px, 1px steps with 2% slack, floor 16px, then wrap). Sample names: the board's 100 then the gh#302 / gh#314 rosters, the three widest drawn in the first row.</p>
+    <div class="cands">
+      ${cand(CTL('CONTROL · today at 200 · not a proposal'), `fieldLayout at 200: ${TL.cols} x ${TL.rows} at scale ${TL.s.toFixed(4)}; the smallest painted name is ${num('cards-ctl-200:minName')} and the largest ${num('cards-ctl-200:maxName')} (frame px), card ${num('cards-ctl-200:cardW')} x ${num('cards-ctl-200:cardH')}. Under the 16px floor: the gap the pick closes`, controlFrame(200))}
+      ${cand(D('103'), `${num('cards-103:cols', '')} columns x ${num('cards-103:rows', '')} rows; card ${num('cards-103:cardW')} x ${num('cards-103:cardH')} (the tallest ${num('cards-103:cardHmax')}); smallest painted name ${num('cards-103:minName')}; cards outside the field: ${num('cards-103:outside', '')}; field used ${num('cards-103:usedH')} of 760`, cardsFrame(103))}
+      ${cand(D('150'), `${num('cards-150:cols', '')} columns x ${num('cards-150:rows', '')} rows; card ${num('cards-150:cardW')} x ${num('cards-150:cardH')} (the tallest ${num('cards-150:cardHmax')}); smallest painted name ${num('cards-150:minName')}; cards outside the field: ${num('cards-150:outside', '')}; field used ${num('cards-150:usedH')} of 760`, cardsFrame(150))}
+      ${cand(D('200'), `${num('cards-200:cols', '')} columns x ${num('cards-200:rows', '')} rows; card ${num('cards-200:cardW')} x ${num('cards-200:cardH')} (the tallest ${num('cards-200:cardHmax')}); smallest painted name ${num('cards-200:minName')}; most lines in a name ${num('cards-200:maxLines', '')}; cards outside the field: ${num('cards-200:outside', '')}; field used ${num('cards-200:usedH')} of 760`, cardsFrame(200))}
+      ${cand(D('200 · result'), `the round result (cd-result B: a passing card bold with the gold ring, a failing one dimmed and struck): smallest painted name ${num('cards-200-result:minName')}; most lines in a name ${num('cards-200-result:maxLines', '')} (the bold widest name); cards outside the field: ${num('cards-200-result:outside', '')}; field used ${num('cards-200-result:usedH')} of 760`, cardsFrame(200, 'result'))}
+    </div>
+  </div>
+
+  <!-- ================================================================== FRAME 2 -->
+  <div class="brow">
+    <h2>FRAME 2 · PD-305-05 · THE FINAL RESULT ON A PHONE · 320 x 568 and 375 x 667 (the blue dashed line is the fold)</h2>
+    <p class="why"><b>Today</b> the result is the 1920 x 1080 frame scaled to the phone (audit evidence game-prize-draw-play-320-final-result.png: prize labels and runner-up names about 4 to 6px). <b>Drawn here:</b> the i5-phone B layout (Gh314Frames): the play band, then one left-aligned column on the night ground, the page scrolls. Winner on top, prize cards under it in one column. Each projector role takes the i5-phone B size of the projector role it matches (same face, weight and colour on Gh302Projector B): the event name as i5's event name (22px); the heading as i5's event name size in its own white (22px); the prize label as i5's count unit (Mitr 600 18px, #d9d6f0); the winner as i5's count (Mitr 700 50px, gold, its 24px glow); a prize card's label as i5's game label (16px) and its name as i5's game name (Mitr 700 22px, white as on the projector card); the claim line as i5's message line (Sarabun 16px). Spacing: i5's 12px and 18px block gaps, its 22px message gap, its 10px grid gap between cards, its 16px body padding inside a card; the card keeps the projector card's #23214d and 24px radius. No MC button: the shipped stage shows none on the final result, so the body ends at its 16px padding (i5's 96px bottom only clears the button). Names: the projector board's worst cases, as on proj-result B.</p>
+    <div class="cands row">
+      ${cand(D('320'), `winner ${num('res-320:winnerPx')} on ${num('res-320:winnerLines', '')} lines, its bottom at ${num('res-320:winnerBottom')} (fold 568); card names ${num('res-320:cnameMin')} to ${num('res-320:cnameMax')}; smallest text ${num('res-320:minFont')}; boxes outside parent or frame: ${num('res-320:nBad', '')}; page ${num('res-320:h')} tall; viewport ${num('res-320:vpInner', '')}: scroll width ${num('res-320:vpScrollW', '')}`, fw('320', resFrame(320)))}
+      ${cand(D('375'), `winner ${num('res-375:winnerPx')} on ${num('res-375:winnerLines', '')} lines, its bottom at ${num('res-375:winnerBottom')} (fold 667); card names ${num('res-375:cnameMin')} to ${num('res-375:cnameMax')}; smallest text ${num('res-375:minFont')}; boxes outside parent or frame: ${num('res-375:nBad', '')}; page ${num('res-375:h')} tall; viewport ${num('res-375:vpInner', '')}: scroll width ${num('res-375:vpScrollW', '')}`, fw('375', resFrame(375)))}
+    </div>
+  </div>
+
+  <!-- ================================================================== FRAME 3 -->
+  <div class="brow">
+    <h2>FRAME 3 · PD-307-04 AND PD-307-03 · THE LADDER BEFORE THE PICKS · values only, no new layout</h2>
+    <p class="why">The ladder final before the lane picks, Gh305GamePick i2-lanes B chrome (ld-idle B, Gh303Ladder: lanes, empty dashed plates, prize slots) without the MC's controls. <b>Rails</b> (PD-307-04): today #5e5c7b solid, the board's #d9d6f0 at 35% pre-composited; picked: #d9d6f0 at 50% alpha over the night ground. The ground is a gradient, so the painted rail differs along its length; both are sampled from the PNG at three heights on rail 1 with the ground 40px to its right. <b>HUD line</b> (PD-307-03): the shipped line runs one line to x ${num('hud-ctl:lineRight')} and rail 1 crosses it; picked: wrap it left of the rail. Drawn: the line breaks at its own space, each half on one line; no width value is added. Crops at 1:1, frame x 0 to 760, y 250 to 550.</p>
+    <div class="cands row">
+      ${cand(CTL('CONTROL · rails as built'), `#5e5c7b solid: painted ${num('rails-ctl:railMid', '')} on ${num('rails-ctl:groundMid', '')} at y 700, ${num('rails-ctl:crMid', ':1')}; range over y 520 / 700 / 900: ${num('rails-ctl:crMin', ':1')} to ${num('rails-ctl:crMax', ':1')}`, railsFrame('rails-ctl', 'ctl', false))}
+      ${cand(D('PD-307-04 · 50%'), `#d9d6f0 at 50% alpha: painted ${num('rails-50:railMid', '')} on ${num('rails-50:groundMid', '')} at y 700, ${num('rails-50:crMid', ':1')}; range over y 520 / 700 / 900: ${num('rails-50:crMin', ':1')} to ${num('rails-50:crMax', ':1')}`, railsFrame('rails-50', 'half', true))}
+      ${cand(CTL('CONTROL · HUD as built'), `one line, its right end at x ${num('hud-ctl:lineRight')}; clearance to rail 1's edge ${num('hud-ctl:clear')} (negative = crossed)`, hudFrame('hud-ctl', false))}
+      ${cand(D('PD-307-03 · wrapped'), `two lines, the longer ending at x ${num('hud-wrap:lineRight')}; clearance to rail 1's edge ${num('hud-wrap:clear')} at its nearest line; the game name under it clears by ${num('hud-wrap:gameClear')}`, hudFrame('hud-wrap', true))}
+    </div>
+  </div>
+
+  <div class="brow">
+    <h2>VALUES · where every value in the frames comes from</h2>
+    <table class="tbl">
+      <tr><th>value</th><th>where</th><th>source</th></tr>
+      <tr><td>card 66px rank column, rank Mitr 700 30px, suit 24px, gap 6px, padding 0 8px 0 4px, radius 6px · name Sarabun 20px, floor 16px, 2% slack, then two lines · column gap 10px, row gap 4px · field 56px in, 100px to 860px · card face, pass ring, fail dim, red #c2185b</td><td>frame 1, every card frame</td><td>Gh303Cards B (picked 2026-11-11), unchanged</td></tr>
+      <tr><td>rows of 32px above 102 cards <span class="nv">NEW VALUE</span></td><td>frame 1, 103 / 150 / 200</td><td>derived: two name lines at the board's 16px floor at line-height 1 (Gh303Cards NAME FIT, its .card font)</td></tr>
+      <tr><td>the fewest columns from 6 up whose 32px rows fit 760px</td><td>frame 1</td><td>the rule the pick implies ("narrower card above 102"); 6 columns is the board's own count</td></tr>
+      <tr><td>top bar, round dots, lower band (reveal and result), legend chips</td><td>frame 1</td><td>Gh303Cards B cd-reveal / cd-result, unchanged</td></tr>
+      <tr><td>night ground #14142b to #23214d · #d9d6f0 secondary text · #ffcc00 gold and its glow · #23214d card surface, radius 24px</td><td>frame 2</td><td>Gh302Projector B proj-result (picked), Gh314Frames i5-phone B</td></tr>
+      <tr><td>play band 56px · body padding 16px · event 22px · block gaps 12px and 18px · count 50px Mitr 700 · count unit 18px · label 16px · game name 22px Mitr 700 · grid gap 10px · message 16px / 1.55, gap 22px</td><td>frame 2</td><td>Gh314Frames i5-phone B, mapped role to role as FRAME 2 says</td></tr>
+      <tr><td>winner floor 24px <span class="nv">NEW VALUE</span> · prize-card name floor 21px <span class="nv">NEW VALUE</span></td><td>frame 2</td><td>derived by the NAME FIT rule of Gh302Projector B: a floor is the smallest size at which W x12 and U+0E12 x12 stay on one line with 2% slack, here in the 320 content box (288px; a card's 256px). Then two lines at the floor</td></tr>
+      <tr><td>rails #d9d6f0 at 50% alpha, 5px</td><td>frame 3</td><td>owner pick PD-307-04 (2026-11-14); #d9d6f0 is tokens.css --ink-on-band-soft; the 5px stroke is Gh305GamePick i2-lanes</td></tr>
+      <tr><td>HUD at 56px / 330px, Mitr 600 30px / 1.35 #d9d6f0, game name Mitr 700 50px gold; lanes, plates, slots</td><td>frame 3</td><td>Gh305GamePick i2-lanes B (ld-idle B, Gh303Ladder), unchanged; the break at the line's own space is owner pick PD-307-03</td></tr>
+    </table>
+  </div>
+
+  <div class="brow">
+    <h2>NEW VALUES · values this canvas proposes that no token or picked board holds</h2>
+    <p class="why">Three, each derived from a board rule rather than chosen: <b>32px card rows</b> above 102 cards (two lines at the 16px floor); <b>24px</b> winner floor and <b>21px</b> prize-card name floor on the phone result (the NAME FIT rule's own floor definition, applied at 320). The 50% rail alpha is the owner's pick, not new here.</p>
+  </div>
+
+  <div class="brow">
+    <h2>NOTES · decisions, the gap left for the owner, ui-ux-pro-max 2.13.0 rules used (rules only, never its palette or fonts)</h2>
+    <div class="pin q"><b>THE GAP (PD-306-01), for the owner:</b> the 16px floor holds at every count to 200 (frames 103, 150, 200, 200 result). The board's other promise does not: <b>"every surface holds two lines at its floor"</b>. At 200 a card's name box is ${num('cards-200:nameBox')} wide (${C200} columns: the 66px rank column stays). W x12 and U+0E12 x12 take two lines, but U+0E12 U+0E33 x12 (the widest valid name, 253px at 16px) takes ${num('cards-200:maxLines', '')} lines, and ${num('cards-200-result:maxLines', '')} when bold on a passing card; its row grows (${num('cards-200-result:cardHmax')} tall). At 200 the ${num('cards-200:rows', '')} rows of 32px use 716px before any name passes two lines (20 x 32 + 19 x 4), so 44px is spare: with the drawn worst case ${num('cards-200:headroom')} is left (reveal) and ${num('cards-200-result:headroom')} (result, bold). By that arithmetic two rows holding a 3-line name, or one holding a 4-line name, fit; more would push the field past 760px. No 200-card geometry holds that name on two lines at 16px with the 30px rank beside it: two lines need a name box of at least 127px (134px bold), so at most 8 columns, so 25 rows, and 25 rows of two 16px lines need 25 x 32 + 24 x 4 = 896px, past 760. Choices: (a) accept up to four lines for a name made of SARA AM clusters, rows growing into the spare height (drawn); (b) a name past two lines takes two cells (the gh#314 i4-fit C mechanism); (c) a lower floor for that name only. No floor was lowered on this canvas.</div>
+    <p class="why"><b>Execution choice, named:</b> above 102 the row shortens to 32px before the card narrows, so at 103 the card keeps its full 293px width (6 columns, 18 rows) instead of narrowing to 7 columns: width is what holds a name, and the pick's goal is the 16px floor. From 150 up the card narrows (${C150}, then ${C200} columns). The rule as written for code: n at most 102, the board's 6 columns of 40px rows; above, rows of 32px and the fewest columns c from 6 up with ceil(n / c) x 32 + (ceil(n / c) - 1) x 4 at most 760.<br><b>readable-font-size</b> (16px minimum on mobile; the board's 16px card floor on the projector): measured on painted pixels in frame px, never computed styles alone; on the phone no text is under 16px. <b>Color Contrast</b> (3:1 for non-text graphics such as the rails, 4.5:1 for text): the rails are measured from the PNG, both pairs listed. <b>horizontal-scroll</b> (content fits the viewport width): each phone frame is loaded alone in a real viewport of its width and its scroll width read; a 400px box injected into the same page must make it scroll (must-red). <b>visual-hierarchy</b>: the winner leads the phone result; the HUD line stays clear of the rail. <b>truncation-strategy</b> (prefer wrapping over truncation): names shrink to their floor, then wrap, never clip.</p>
+  </div>
+
+  <div class="brow">
+    <h2>COPY SOURCES · every Thai string on this canvas exists already, verbatim</h2>
+    <p class="why">Frame 1: design/Gh303Cards.dc.html cd-reveal B and cd-result B (the reveal and result lines, the game name, the rule, the legend); design/Gh302Projector.dc.html proj-round B (the round-1 label) and the round-1 passed heading on the same board. Frame 2: design/Gh302Projector.dc.html proj-result B (heading, five prize lines, claim line, the worst-case winners). Frame 3: the ladder chrome from design/Gh305GamePick.dc.html i2-lanes B (round label, game name, slots, lane numbers); the HUD line from the shipped stage copy (lanePick, owner-approved for gh#305 item 2), which Gh305GamePick i2-lanes still draws as [copy: owner]. Sample names are sample data, not copy: the cards board's 100 names, then the gh#302 projector, gh#314 and gh#302 setup rosters${FILLED.length ? `, and ${FILLED.length} of the shipped demo's GuestNN names to reach 200 (${FILLED.join(', ')})` : ''}. New copy needed: none.</p>
+  </div>
+</div>
+</x-dc>
+<script>
+  // The boards' name fit: text width from a Range, shrink in 1px steps with 2% slack to the floor, then wrap.
+  const tw = (e) => { const g = document.createRange(); g.selectNodeContents(e); const rs = [...g.getClientRects()].filter((x) => x.width > 0); return rs.length ? Math.max(...rs.map((x) => x.right)) - Math.min(...rs.map((x) => x.left)) : 0; };
+  const cw = (e) => { const cs = getComputedStyle(e); return (e.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) * (e.getBoundingClientRect().width / e.offsetWidth); };
+  document.fonts.ready.then(() => {
+    for (const e of document.querySelectorAll('.fit[data-max]')) {
+      let px = parseFloat(e.dataset.max); const min = parseFloat(e.dataset.min);
+      e.style.fontSize = px + 'px';
+      while (tw(e) * 1.02 > cw(e) && px > min) { px -= 1; e.style.fontSize = px + 'px'; }
+      if (tw(e) * 1.02 > cw(e)) { e.style.whiteSpace = 'normal'; e.style.overflowWrap = 'anywhere'; }
+    }
+    document.documentElement.dataset.fitDone = '1';
+  });
+</script>
+</body>
+</html>
+`;
+
+if (step === 'write') {
+  writeFileSync(CANVAS, html);
+  console.log(`wrote ${CANVAS} (${html.length} chars); names ${POOL.length} (filled ${FILLED.length}); captions without a number: ${(html.match(/data-num="[^"]+">\?</g) ?? []).length}`);
+  process.exit(0);
+}
+
+// ================================================================== render
+const PORT = process.env.CDP_PORT || 9347;
+const SHOT_TMP = process.env.SHOT_TMP;
+if (!SHOT_TMP) { console.error('SHOT_TMP must name a scratch dir outside the repo'); process.exit(2); }
+const WIDTH = 1600;
+const FACES_USED = ['Sarabun 400', 'Sarabun 700', 'Mitr 600', 'Mitr 700'];
+
+const PROBE = `(async () => {
+  await document.fonts.ready;
+  for (let i = 0; i < 100 && !document.documentElement.dataset.fitDone; i++) await new Promise((r) => setTimeout(r, 50));
+  await new Promise((r) => setTimeout(r, 300));
+  const r1 = (x) => Math.round(x * 10) / 10;
+  const fonts = [...document.fonts].map((f) => ({ face: f.family.replace(/["']/g, '') + ' ' + f.weight, status: f.status }));
+  const lines = (c) => { const rg = document.createRange(); rg.selectNodeContents(c); const tops = [...rg.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top)).sort((a, b) => a - b);
+    let n = 0, last = -1e9; for (const t of tops) { if (t - last > 4) n++; last = t; } return n; };
+  const painted = (e, k) => parseFloat(getComputedStyle(e).fontSize) * (e.getBoundingClientRect().width / e.offsetWidth) / k;
+  const frames = {};
+  for (const e of document.querySelectorAll('[data-frame]')) {
+    const F = e.getBoundingClientRect(); const fid = e.dataset.frame; const kind = e.dataset.kind;
+    const k = F.width / e.offsetWidth;
+    const fx = (r) => ({ l: (r.left - F.left) / k, t: (r.top - F.top) / k, r: (r.right - F.left) / k, b: (r.bottom - F.top) / k, w: r.width / k, h: r.height / k });
+    if (kind === 'cards') {
+      const cards = [...e.querySelectorAll('[data-m="card"]')].map((c) => fx(c.getBoundingClientRect()));
+      const names = [...e.querySelectorAll('[data-m="name"]')];
+      const sizes = names.map((n) => painted(n, k));
+      const outside = cards.filter((c) => c.l < 56 - 0.5 || c.r > 1864 + 0.5 || c.t < 100 - 0.5 || c.b > 860 + 0.5).length;
+      let overlaps = 0;
+      for (let i = 0; i < cards.length; i++) for (let j = i + 1; j < cards.length; j++) { const a = cards[i], b = cards[j];
+        if (Math.min(a.r, b.r) - Math.max(a.l, b.l) > 0.5 && Math.min(a.b, b.b) - Math.max(a.t, b.t) > 0.5) overlaps++; }
+      const cols = new Set(cards.map((c) => Math.round(c.l))).size, rows = new Set(cards.map((c) => Math.round(c.t))).size;
+      const nameBoxes = names.map((n) => fx(n.getBoundingClientRect()).w);
+      const top = Math.min(...cards.map((c) => c.t)), bottom = Math.max(...cards.map((c) => c.b));
+      frames[fid] = { kind, n: cards.length, cols, rows, cardW: r1(Math.min(...cards.map((c) => c.w))), cardH: r1(Math.min(...cards.map((c) => c.h))), cardHmax: r1(Math.max(...cards.map((c) => c.h))),
+        minName: r1(Math.min(...sizes)), maxName: r1(Math.max(...sizes)), atFloor: sizes.filter((s) => s < 16.05).length,
+        maxLines: Math.max(...names.map(lines)), nameBox: r1(Math.min(...nameBoxes)), outside, overlaps,
+        usedH: r1(bottom - top), headroom: r1(760 - (bottom - top)), fieldTop: r1(top), fieldBottom: r1(bottom),
+        wide: names.filter((n) => lines(n) > 1).map((n) => ({ name: n.textContent, px: r1(painted(n, k)), lines: lines(n), bold: getComputedStyle(n).fontWeight })) };
+    } else if (kind === 'phone') {
+      const ms = [...e.querySelectorAll('[data-m]')];
+      let excess = 0; const bad = [];
+      for (const c of ms) {
+        const r = c.getBoundingClientRect(); const pr = c.parentElement.getBoundingClientRect();
+        const inParent = Math.max(0, r.right - pr.right, pr.left - r.left, r.bottom - pr.bottom, pr.top - r.top);
+        const inFrame = Math.max(0, r.right - F.right, F.left - r.left, r.bottom - F.bottom, F.top - r.top);
+        const out = Math.max(inParent, inFrame); if (out > 0.5) bad.push(c.dataset.m + ':' + r1(out)); excess = Math.max(excess, out);
+      }
+      const overX = [...e.querySelectorAll('*')].filter((c) => !c.closest('.fold, .stub')).filter((c) => { const r = c.getBoundingClientRect(); return r.width > 0 && (r.right > F.right + 0.5 || r.left < F.left - 0.5); }).length;
+      const texts = [...e.querySelectorAll('*')].filter((c) => !c.closest('.fold, .stub') && [...c.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+      const w = e.querySelector('[data-m="winner"]'); const cn = [...e.querySelectorAll('[data-m="cname"]')];
+      frames[fid] = { kind, w: r1(F.width), h: r1(F.height), excess: r1(excess), nBad: bad.length, bad: bad.slice(0, 8), overX,
+        minFont: Math.min(...texts.map((c) => parseFloat(getComputedStyle(c).fontSize))),
+        winnerPx: r1(painted(w, 1)), winnerLines: lines(w), winnerBottom: r1(w.getBoundingClientRect().bottom - F.top), winnerBox: r1(w.clientWidth),
+        cnameMin: r1(Math.min(...cn.map((n) => painted(n, 1)))), cnameMax: r1(Math.max(...cn.map((n) => painted(n, 1)))), cnameLines: Math.max(...cn.map(lines)), cnameBox: r1(Math.min(...cn.map((n) => n.clientWidth))),
+        cards: cn.map((n) => ({ name: n.textContent, px: r1(painted(n, 1)), lines: lines(n) })),
+        clipped: [...e.querySelectorAll('.fit')].filter((n) => n.style.whiteSpace !== 'normal' && n.scrollWidth > n.clientWidth + 0.5).map((n) => n.textContent) };
+    } else if (kind === 'ladder') {
+      // rail 1, first segment: (240, 930) to (564, 290), 5px stroke
+      const railX = (y) => 240 + (930 - y) * (564 - 240) / 640;
+      // text-node rects only: a block span's own box is as wide as the HUD block, not as its text
+      const hud = e.querySelector('[data-m="hud"]'); const rects = []; const walker = document.createTreeWalker(hud, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) if (walker.currentNode.textContent.trim()) { const g = document.createRange(); g.selectNodeContents(walker.currentNode); rects.push(...[...g.getClientRects()].filter((x) => x.width > 0).map(fx)); }
+      const byLine = []; for (const r of rects) { const L = byLine.find((b) => Math.abs(b.t - r.t) < 4); if (L) { L.l = Math.min(L.l, r.l); L.r = Math.max(L.r, r.r); L.b = Math.max(L.b, r.b); } else byLine.push({ ...r }); }
+      const clear = Math.min(...byLine.map((L) => railX(L.b) - 2.5 - L.r));
+      const gm = fx(e.querySelector('[data-m="hudgame"]').getBoundingClientRect()); const gr = document.createRange(); gr.selectNodeContents(e.querySelector('[data-m="hudgame"]'));
+      const gRight = Math.max(...[...gr.getClientRects()].map((x) => fx(x).r));
+      frames[fid] = { kind, hudLines: byLine.length, lineRight: r1(Math.max(...byLine.map((L) => L.r))), clear: r1(clear), gameClear: r1(railX(gm.b) - 2.5 - gRight), lines: byLine.map((L) => ({ l: r1(L.l), r: r1(L.r), t: r1(L.t), b: r1(L.b) })) };
+    }
+  }
+  return { innerWidth, fonts, frames, body: document.body.innerText };
+})()`;
+
+const api = async (p, method = 'GET') => (await fetch(`http://127.0.0.1:${PORT}${p}`, { method })).json();
+const open = async () => {
+  const target = await api('/json/new?about:blank', 'PUT');
+  const ws = new WebSocket(target.webSocketDebuggerUrl);
+  let id = 0; const pending = new Map(); const errors = []; let loaded = null;
+  const send = (method, params = {}) => new Promise((res) => { pending.set(++id, res); ws.send(JSON.stringify({ id, method, params })); });
+  ws.addEventListener('message', (ev) => {
+    const m = JSON.parse(ev.data);
+    if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); return; }
+    if (m.method === 'Page.loadEventFired' && loaded) { loaded(); loaded = null; }
+    if (m.method === 'Runtime.exceptionThrown') errors.push(m.params.exceptionDetails?.exception?.description ?? m.params.exceptionDetails?.text);
+    if (m.method === 'Log.entryAdded' && m.params.entry.level === 'error') errors.push(`${m.params.entry.text} ${m.params.entry.url ?? ''}`.trim());
+  });
+  await new Promise((r) => ws.addEventListener('open', r));
+  await send('Page.enable'); await send('Runtime.enable'); await send('Log.enable');
+  const nav = async (url, w, h) => {
+    // The protocol call that genuinely sets the viewport (browser-verification.md, trap 1); innerWidth is checked.
+    await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false });
+    const lp = new Promise((r) => { loaded = r; }); await send('Page.navigate', { url }); await lp;
+  };
+  const evaluate = async (expression) => (await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true })).result?.result?.value;
+  const close = async () => { await fetch(`http://127.0.0.1:${PORT}/json/close/${target.id}`); ws.close(); };
+  return { send, nav, evaluate, close, errors };
+};
+
+const tab = await open();
+await tab.nav(pathToFileURL(CANVAS).href, WIDTH, 1000);
+const m = await tab.evaluate(PROBE);
+if (!m) { console.error('probe failed'); process.exit(1); }
+
+// one PNG per frame: projector frames at 1920 x 1080 frame px, crops at 1:1, phones at 2x
+mkdirSync(OUT, { recursive: true }); mkdirSync(SHOT_TMP, { recursive: true });
+const shots = [];
+for (const fid of Object.keys(m.frames)) {
+  const b = await tab.evaluate(`(() => { const e = document.querySelector('[data-frame="${fid}"]'); const c = e.closest('.crop') || e; const r = c.getBoundingClientRect(); return { x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height, k: e.getBoundingClientRect().width / e.offsetWidth }; })()`);
+  const scale = m.frames[fid].kind === 'phone' ? 2 : 1 / b.k;
+  const shot = await tab.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: b.x, y: b.y, width: b.w, height: b.h, scale } });
+  const out = path.join(OUT, `${fid}.png`);
+  writeFileSync(out, Buffer.from(shot.result.data, 'base64'));
+  shots.push(path.basename(out));
+}
+const canvasErrors = [...tab.errors];
+await tab.close();
+
+// rails: painted pixels on rail 1 at three heights, the ground 40px to the right (frame px = PNG px)
+const lum = ([r, g, b]) => { const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+const cr = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return Math.round(((x + 0.05) / (y + 0.05)) * 100) / 100; };
+const hex = (c) => '#' + c.map((v) => v.toString(16).padStart(2, '0')).join('');
+// the mean of a 5 x 5 patch: the night gradient is dithered, so one pixel moves by a level between runs
+// the rail's own paint: across a 15px row centred on the rail's line, the mean of the three brightest pixels (the
+// stroke's interior; its anti-aliased edges and the ground are darker), so a 1-2px raster offset cannot land on an edge
+// stroke's interior; its anti-aliased edges and the ground are darker), over the five rows y-2 to y+2 (the ground under a
+// 50% stroke is dithered, so one row moves by a level between runs)
+const railPx = (file, x, y) => { const top = [];
+  for (let yy = y - 2; yy <= y + 2; yy++) { const row = execFileSync('magick', [file, '-crop', `15x1+${x - 7}+${yy}`, '-depth', '8', 'txt:-']).toString().trim().split('\n').slice(1)
+    .map((l) => l.match(/#([0-9A-F]{6})/i)[1]).map((h) => [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)));
+    top.push(...row.sort((a, b) => lum(b) - lum(a)).slice(0, 3)); }
+  return [0, 1, 2].map((c) => Math.round(top.reduce((t, p) => t + p[c], 0) / top.length)); };
+const px = (file, x, y) => execFileSync('magick', [file, '-crop', `5x5+${x - 2}+${y - 2}`, '-format', '%[fx:round(255*mean.r)],%[fx:round(255*mean.g)],%[fx:round(255*mean.b)]', 'info:']).toString().trim().split(',').map(Number);
+for (const fid of ['rails-ctl', 'rails-50']) {
+  const file = path.join(OUT, `${fid}.png`); const f = m.frames[fid];
+  f.samples = [520, 700, 900].map((y) => { const x = Math.round(240 + (930 - y) * 324 / 640); const rail = railPx(file, x, y), ground = px(file, x + 40, y); return { y, x, rail: hex(rail), ground: hex(ground), cr: cr(rail, ground) }; });
+  const mid = f.samples[1]; f.railMid = mid.rail; f.groundMid = mid.ground; f.crMid = mid.cr;
+  f.crMin = Math.min(...f.samples.map((s) => s.cr)); f.crMax = Math.max(...f.samples.map((s) => s.cr));
+}
+
+// phone frames alone in a real viewport of their width: scroll width, plus a must-red with a 400px box
+const fontAbs = (s) => s.replaceAll("url('../public/fonts/", `url('${pathToFileURL(path.join(root, 'public/fonts')).href}/`);
+const css = fontAbs(html.slice(html.indexOf('<style>'), html.indexOf('</style>') + 8));
+const fitScript = html.slice(html.lastIndexOf('<script>'), html.lastIndexOf('</script>') + 9);
+const VP = `(async () => { await document.fonts.ready; for (let i = 0; i < 100 && !document.documentElement.dataset.fitDone; i++) await new Promise((r) => setTimeout(r, 50));
+  const de = document.documentElement; return { innerWidth, scrollWidth: de.scrollWidth, clientWidth: de.clientWidth,
+  over: [...document.querySelectorAll('body *')].filter((e) => e.getBoundingClientRect().right > de.clientWidth + 0.5).length }; })()`;
+const vtab = await open();
+const vp = {};
+for (const w of [320, 375]) {
+  for (const red of [false, true]) {
+    const page = `<!doctype html><html lang="th"><head><meta charset="utf-8">${css}</head><body style="margin:0;">${resFrame(w)}${red ? '<div style="width:400px; height:10px;"></div>' : ''}${fitScript}</body></html>`;
+    const file = path.join(SHOT_TMP, `vp-${w}${red ? '-red' : ''}.html`); writeFileSync(file, page);
+    await vtab.nav(pathToFileURL(file).href, w, FOLD[w]);
+    vp[`${w}${red ? '-red' : ''}`] = await vtab.evaluate(VP);
+  }
+  const f = m.frames[`res-${w}`]; f.vpInner = vp[w].innerWidth; f.vpScrollW = vp[w].scrollWidth; f.vpClientW = vp[w].clientWidth; f.vpOver = vp[w].over; f.vpRedScrollW = vp[`${w}-red`].scrollWidth;
+}
+const vpErrors = [...vtab.errors];
+await vtab.close();
+
+// ---- verdicts ----
+const problems = [];
+if (m.innerWidth !== WIDTH) problems.push(`innerWidth ${m.innerWidth} != ${WIDTH}`);
+for (const face of FACES_USED) { const got = m.fonts.filter((f) => f.face === face); if (!got.length || got.some((f) => f.status !== 'loaded')) problems.push(`font ${face}: ${JSON.stringify(got)}`); }
+if (m.body.includes('◌')) problems.push('dotted circle U+25CC in the rendered text');
+const ctl = m.frames['cards-ctl-200'];
+if (!ctl || !(ctl.minName < 16)) problems.push(`MUST-RED FAILED: today's layout at 200 paints its smallest name at ${ctl?.minName}px, not under 16: the measurement is broken`);
+for (const [fid, f] of Object.entries(m.frames)) {
+  if (f.kind === 'cards' && !fid.includes('ctl')) {
+    if (f.minName < 16 - 0.05) problems.push(`${fid}: a name painted at ${f.minName}px`);
+    if (f.outside) problems.push(`${fid}: ${f.outside} cards outside the field`);
+    if (f.overlaps) problems.push(`${fid}: ${f.overlaps} overlapping card pairs`);
+    if (f.n !== Number(fid.match(/\d+/)[0])) problems.push(`${fid}: ${f.n} cards drawn`);
+  }
+  if (f.kind === 'phone') {
+    if (f.nBad || f.overX) problems.push(`${fid}: boxes outside parent or frame ${f.bad.join(' ')}, ${f.overX} past the frame edge`);
+    if (f.clipped.length) problems.push(`${fid}: clipped ${f.clipped.join(' | ')}`);
+    if (f.minFont < 16) problems.push(`${fid}: text at ${f.minFont}px`);
+    if (f.vpInner !== f.w || f.vpScrollW !== f.vpClientW || f.vpOver) problems.push(`${fid}: viewport ${f.vpInner}, scroll ${f.vpScrollW} vs client ${f.vpClientW}, ${f.vpOver} past`);
+    if (!(f.vpRedScrollW > f.w)) problems.push(`MUST-RED FAILED: a 400px box at ${f.w} did not scroll (${f.vpRedScrollW})`);
+  }
+}
+if (!(m.frames['hud-ctl'].clear < 0)) problems.push(`MUST-RED FAILED: the as-built HUD line clears the rail (${m.frames['hud-ctl'].clear})`);
+if (!(m.frames['hud-wrap'].clear > 0) || !(m.frames['hud-wrap'].gameClear > 0)) problems.push(`the wrapped HUD does not clear rail 1 (${m.frames['hud-wrap'].clear}, game ${m.frames['hud-wrap'].gameClear})`);
+const canvasHtml = readFileSync(CANVAS, 'utf8');
+for (const [, key, shown] of canvasHtml.matchAll(/data-num="([^"]+)">([^<]*)</g)) {
+  const [fid, k] = key.split(':'); const v = m.frames[fid]?.[k];
+  if (String(v) !== shown) problems.push(`caption ${key} says ${shown}, measured ${v}`);
+}
+const inherited = /ERR_FILE_NOT_FOUND file:\/\/\S*\/design\/support\.js$/;
+const consoleErrors = [...canvasErrors, ...vpErrors].filter((e) => !inherited.test(e));
+if (consoleErrors.length) problems.push(`console: ${consoleErrors.join(' | ')}`);
+
+writeFileSync(path.join(OUT, 'measurements.json'), JSON.stringify({ date: '2026-11-14', innerWidth: m.innerWidth, fonts: m.fonts, consoleErrors, viewport: vp, names: { total: POOL.length, filled: FILLED }, frames: m.frames, shots }, null, 1) + '\n');
+console.log(JSON.stringify(Object.fromEntries(Object.entries(m.frames).map(([k, f]) => [k, Object.fromEntries(Object.entries(f).filter(([kk]) => !['wide', 'cards', 'lines', 'samples', 'bad'].includes(kk)))]))));
+console.log(problems.length ? `PROBLEMS (${problems.length}):\n- ${problems.join('\n- ')}` : 'problems: none');
+process.exit(problems.length ? 1 : 0);

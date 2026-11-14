@@ -1,0 +1,139 @@
+{
+ "n196": {
+  "N": 196,
+  "rm": false,
+  "mediaRm": false,
+  "listenerControl": "transitionrun:false,transitionstart:false,transitionend:false",
+  "runEvents": 196,
+  "startEvents": 1,
+  "endEvents": 0,
+  "cancelEvents": 196,
+  "firstRunMsAfterClick": 30.6,
+  "distinctChipsRun": 196,
+  "startedBy300FromFirstRun": 1,
+  "startedBy300FromClick": 1,
+  "lastStartFromFirstRun": 0.5999999999999979,
+  "lastEndFromFirstRun": null,
+  "sample": [
+   {
+    "type": "transitionrun",
+    "t": 30.6,
+    "wave": "44",
+    "chip": true,
+    "cls": "pd-chip out"
+   },
+   {
+    "type": "transitionrun",
+    "t": 30.6,
+    "wave": "113",
+    "chip": true,
+    "cls": "pd-chip out"
+   },
+   {
+    "type": "transitionrun",
+    "t": 30.7,
+    "wave": "50",
+    "chip": true,
+    "cls": "pd-chip out"
+   },
+   {
+    "type": "transitionrun",
+    "t": 30.7,
+    "wave": "29",
+    "chip": true,
+    "cls": "pd-chip out"
+   },
+   {
+    "type": "transitionrun",
+    "t": 30.7,
+    "wave": "54",
+    "chip": true,
+    "cls": "pd-chip in"
+   },
+   {
+    "type": "transitionrun",
+    "t": 30.7,
+    "wave": "108",
+    "chip": true,
+    "cls": "pd-chip out"
+   }
+  ]
+ },
+ "n196rm": {
+  "N": 196,
+  "rm": true,
+  "mediaRm": true,
+  "listenerControl": "transitionrun:false,transitionstart:false,transitionend:false",
+  "runEvents": 0,
+  "startEvents": 0,
+  "endEvents": 0,
+  "cancelEvents": 0,
+  "firstRunMsAfterClick": null,
+  "distinctChipsRun": 0,
+  "startedBy300FromFirstRun": null,
+  "startedBy300FromClick": 0,
+  "lastStartFromFirstRun": null,
+  "lastEndFromFirstRun": null,
+  "sample": []
+ },
+ "n9": {
+  "N": 9,
+  "rm": false,
+  "mediaRm": false,
+  "listenerControl": "transitionrun:false,transitionstart:false,transitionend:false",
+  "runEvents": 9,
+  "startEvents": 1,
+  "endEvents": 0,
+  "cancelEvents": 9,
+  "firstRunMsAfterClick": 29.3,
+  "distinctChipsRun": 9,
+  "startedBy300FromFirstRun": 1,
+  "startedBy300FromClick": 1,
+  "lastStartFromFirstRun": 0.09999999999999787,
+  "lastEndFromFirstRun": null,
+  "sample": [
+   {
+    "type": "transitionrun",
+    "t": 29.3,
+    "wave": "2",
+    "chip": true,
+    "cls": "pd-chip in"
+   },
+   {
+    "type": "transitionrun",
+    "t": 29.3,
+    "wave": "6",
+    "chip": true,
+    "cls": "pd-chip in"
+   },
+   {
+    "type": "transitionrun",
+    "t": 29.3,
+    "wave": "1",
+    "chip": true,
+    "cls": "pd-chip in"
+   },
+   {
+    "type": "transitionrun",
+    "t": 29.3,
+    "wave": "8",
+    "chip": true,
+    "cls": "pd-chip in"
+   },
+   {
+    "type": "transitionrun",
+    "t": 29.3,
+    "wave": "3",
+    "chip": true,
+    "cls": "pd-chip in"
+   },
+   {
+    "type": "transitionrun",
+    "t": 29.3,
+    "wave": "7",
+    "chip": true,
+    "cls": "pd-chip in"
+   }
+  ]
+ }
+}

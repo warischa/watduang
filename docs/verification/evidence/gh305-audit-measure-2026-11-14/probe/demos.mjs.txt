@@ -1,0 +1,59 @@
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+const file = join(OUT, 'results-demos.json');
+const R = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
+const save = (k, v) => { R[k] = v; writeFileSync(file, JSON.stringify(R, null, 1)); };
+const barRead = (T) => T.ev(`
+  const q=(e)=>{const r=e.getBoundingClientRect();return {l:+r.left.toFixed(1),t:+r.top.toFixed(1),w:+r.width.toFixed(1),h:+r.height.toFixed(1),r:+r.right.toFixed(1),b:+r.bottom.toFixed(1)}};
+  const hit=(a,b)=>a.l<b.r-0.5&&b.l<a.r-0.5&&a.t<b.b-0.5&&b.t<a.b-0.5;
+  const bar=document.querySelector('.pr-bar'); const br=q(bar); const kids=[...bar.children].map(c=>({cls:c.className,r:q(c),txt:c.textContent.trim().slice(0,24)}));
+  const exitEl=document.elementFromPoint(28,28)?.closest('a,button'); const ex=exitEl?q(exitEl):null;
+  const sb=document.querySelector('.pr-stagebox'); const fr=document.querySelector('.pd-frame'); const frr=q(fr);
+  const leaves=[...fr.querySelectorAll('*')].filter(e=>e.children.length===0&&e.textContent.trim()&&e.getBoundingClientRect().width>0);
+  const hitsFrame=leaves.filter(e=>hit(br,q(e))).map(e=>e.className+':'+e.textContent.trim().slice(0,14));
+  const gn=document.querySelector('.pd-gname'); const gnr=gn?q(gn):null;
+  const tops=[...new Set(kids.map(k=>Math.round(k.r.t)))];
+  const de=document.documentElement;
+  return {inner:[innerWidth,de.scrollWidth],bar:br,kids,exit:ex,exitHit:ex?kids.some(k=>hit(k.r,ex))||hit(br,ex):null,rowsOfKids:tops.length,tops,frame:frr,barBelowFrame:br.t>=frr.b-0.5,gname:gnr,barHitsGname:gnr?hit(br,gnr):null,hitsFrame,barRightGap:+(innerWidth-br.r).toFixed(1),barLeftOfExitGap:ex?+(br.l-ex.r).toFixed(1):null,vp:q(document.querySelector('.pr-viewport'))};`);
+const GAMES = ['fireworks', 'cards', 'ladder'];
+const WIDTHS = [320, 639, 640, 768, 1024, 1920];
+const out = {};
+for (const g of GAMES) for (const W of WIDTHS) {
+  const H = W < 640 ? 568 : W < 1280 ? 900 : 1080;
+  const T = await openTab(); const mobile = W < 640;
+  await T.view(W, H, mobile); await T.nav(`${BASE}/game/prize-${g}/play/`); await T.view(W, H, mobile); await sleep(700);
+  const key = `${g}-${W}`; const r = { innerOK: await T.ev('return innerWidth') === W };
+  r.idle = await barRead(T);
+  r.narrowQuery = await T.ev(`return matchMedia('not all and (min-width: 640px)').matches`);
+  await T.shot(`row7-${key}-idle`);
+  // row 1: press, see if a canvas/3D appears; the three chunk must (not) be requested
+  const req0 = T.S.requests.length;
+  const label = await T.ev(`return document.querySelector('.pr-go')?.textContent.trim()`);
+  await T.tapEl('.pr-go', null, { settleMs: 450 });
+  let saw = false, sawAt = null, t0 = Date.now(), lastBtn = null; const ctl = [];
+  while (Date.now() - t0 < 14000) {
+    const s = await T.ev(`const c=document.querySelector('.pr-3d canvas'); return {c:!!c, w:c?c.width:0, bar:document.querySelector('.pr-go')?.textContent.trim()??null, ctx:__wd.ctx.length}`);
+    if (s.c && !saw) { saw = true; sawAt = Date.now() - t0; }
+    lastBtn = s.bar;
+    if (saw && !s.c) break;
+    if (!saw && s.bar && s.bar !== label && Date.now() - t0 > 1500) break;
+    await sleep(100);
+  }
+  const reqs = T.S.requests.slice(req0).map((u) => u.split('/').pop());
+  const w = await T.ev(`return JSON.parse(JSON.stringify({ctx:__wd.ctx, frames:(window.__watduangRevealFrameTime.frames||[]).length}))`);
+  r.press = { label, sawCanvas: saw, sawAtMs: sawAt, endBtn: lastBtn, glContexts: w.ctx.filter((c) => c.ok).length, frames: w.frames, threeChunk: reqs.some((u) => /three\.module/.test(u)), chunkReqs: reqs.filter((u) => /\.js/.test(u)) };
+  r.threeBeforePress = T.S.requests.slice(0, req0).some((u) => /three\.module/.test(u));
+  r.after = await barRead(T);
+  if (g === 'fireworks') {
+    // the widest bar: the final mode (modes group + prize-count group + go)
+    await T.ev(`const b=[...document.querySelectorAll('.pr-chip')].find(x=>x.textContent.trim()==='รอบชิง'); if(b) b.click(); return 1`); await sleep(500);
+    r.finalBar = await barRead(T);
+    await T.shot(`row7-${key}-final-bar`);
+  }
+  r.exceptions = T.S.exceptions.slice();
+  out[key] = r; await T.close();
+  console.log(key, 'innerOK', r.innerOK, 'saw3D', saw, 'three', r.press.threeChunk, 'gl', r.press.glContexts, 'scroll', r.idle.inner.join('/'));
+}
+save('demos', out);
+process.exit(0);

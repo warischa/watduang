@@ -3,14 +3,17 @@
 //
 //   idle -> loading -> running <-> held -> settled
 //   loading | running | held -> fallback        (sticky for this outcome)
-//   idle -> fallback                            (no game, unavailable game, reduced motion at entry)
+//   idle -> fallback                            (no game, unavailable game, reduced motion or a phone-width
+//                                                viewport at entry)
 //   any -> disposed
 //
-// Reduced motion at entry, a null game or an unavailable one go straight to the 2D view, before three or
-// the game is imported. No WebGL2, an import or init failure, a mount or render exception, a module error,
-// a lost context, or reduced motion turning on mid-reveal fall back to that same 2D view, and nothing
-// restarts the reveal afterwards -- not a restored context, not motion turned back on. Slow frames never
-// fall back.
+// Reduced motion at entry, a viewport narrower than the phone boundary at entry, a null game or an
+// unavailable one go straight to the 2D view, before three or the game is imported: a phone shows the 2D
+// reveal, never the 1920 frame scaled down until its names are unreadable. No WebGL2, an import or init
+// failure, a mount or render exception, a module error, a lost context, reduced motion turning on or the
+// viewport narrowing past that boundary mid-reveal fall back to that same 2D view, and nothing restarts the
+// reveal afterwards -- not a restored context, not motion turned back on, not a viewport widened again.
+// Slow frames never fall back.
 //
 // Every exit, whichever way: abort the module's signal, cancel the frame, drop every listener and
 // observer, dispose the module's handle, everything it registered through `own`, and the renderer;
@@ -38,7 +41,9 @@ export type FallbackReason =
   | 'render'
   | 'module-error'
   | 'context-lost'
-  | 'reduced-motion';
+  | 'reduced-motion'
+  | 'narrow-entry'
+  | 'narrow';
 
 /** The slice of three's WebGLRenderer the host itself touches. */
 export type HostRenderer = {
@@ -104,6 +109,10 @@ export type RevealHost = {
 };
 
 export const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+/** A viewport narrower than the site's phone boundary (640px, the tokens' breakpoints). Written as the
+ *  complement of `min-width: 640px` rather than `max-width: 639px`: a fractional width (a zoomed page,
+ *  639.5px) matches neither whole-pixel bound, and would otherwise get the 3D reveal on a phone. */
+export const NARROW_QUERY = 'not all and (min-width: 640px)';
 /** The context the host asks for; three builds on it as given. */
 const GL_ATTRIBUTES: WebGLContextAttributes = {
   alpha: false,
@@ -422,6 +431,8 @@ export function startReveal<G extends GameId>(options: HostOptions<G>, env: Host
     if (!registry.isAvailable(game)) return exit('fallback', 'unavailable');
     const motion = env.matchMedia(REDUCED_MOTION_QUERY);
     if (motion.matches) return exit('fallback', 'reduced-motion-entry');
+    const width = env.matchMedia(NARROW_QUERY);
+    if (width.matches) return exit('fallback', 'narrow-entry');
 
     if (!enter('loading')) return;
     const loadStart = env.now();
@@ -430,6 +441,11 @@ export function startReveal<G extends GameId>(options: HostOptions<G>, env: Host
     };
     motion.addEventListener('change', onMotion);
     offs.push(() => motion.removeEventListener('change', onMotion));
+    const onWidth = (e: { matches: boolean }): void => {
+      if (e.matches) exit('fallback', 'narrow');
+    };
+    width.addEventListener('change', onWidth);
+    offs.push(() => width.removeEventListener('change', onWidth));
     offs.push(onRenderHold(sync, instance));
     doc.addEventListener('visibilitychange', sync);
     offs.push(() => doc.removeEventListener('visibilitychange', sync));

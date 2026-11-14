@@ -115,6 +115,7 @@ const howToJsonLd = {
             <p class="hint games-line" id="pd-games-line">เลือกเกมให้แต่ละรอบ ไม่เลือกก็เปิดผลแบบปกติ</p>
             <div id="pd-games-note" class="msgs games-note"></div>
             {gameRows.map((row) => (
+              <Fragment>
               <div class="grow">
                 <div class="gl" id={`${row.id}-h`}>
                   {row.label}
@@ -137,6 +138,8 @@ const howToJsonLd = {
                   ))}
                 </div>
               </div>
+              {row.cut && <div id={`${row.id}-note`} class="msgs games-note"></div>}
+              </Fragment>
             ))}
           </div>
         </section>
@@ -400,6 +403,14 @@ const howToJsonLd = {
     background: var(--accent-gold);
     box-shadow: 3px 3px 0 var(--color-line-strong);
   }
+  /* A choice the round may not take now (cards off a cut that is not exactly half): Gh305GamePick's locked
+     choice, the locked schedule box (dashed, cream) in the muted text colour. */
+  .segb:disabled {
+    border-style: dashed;
+    background: var(--color-ground-warm);
+    color: var(--color-muted);
+    cursor: default;
+  }
   .segb[hidden] {
     display: none;
   }
@@ -642,9 +653,12 @@ const howToJsonLd = {
       grid-template-columns: 1fr;
       gap: 6px;
     }
+    /* The frame's list stretches every row to the full width (the wide row's flex-start would shrink each to
+       its own label and stagger the value column); the arrow rows likewise. */
     .sched {
       flex-direction: column;
       flex-wrap: nowrap;
+      align-items: stretch;
       gap: 0;
     }
     .box {

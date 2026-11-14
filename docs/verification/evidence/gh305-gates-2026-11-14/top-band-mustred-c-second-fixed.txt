@@ -1,0 +1,5 @@
+::error::prize-cards S1 320x568: 1 fixed/sticky route box(es) anchored above the band: div#app > div.pr-viewport > div.pr-bar > p.pr-badge (fixed top 0px)
+::error::prize-cards D1 1280x800: 1 fixed/sticky route box(es) anchored above the band: div#app > div.pr-viewport > div.pr-bar > p.pr-badge (fixed top 0px)
+::error::prize-cards D1 1280x800: demo bar div#app > div.pr-viewport > div.pr-bar {"l":1128.27,"t":0,"r":1294.92,"b":54} is not inside the band 0..56 x 0..1280
+::error::prize-cards S2 320x568: 1 fixed/sticky route box(es) anchored above the band: div#app > div.pr-viewport > div.pr-bar > p.pr-badge (fixed top 0px)
+FAIL 4 failure(s) across 1/1 route(s): prize-cards

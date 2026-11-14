@@ -1,0 +1,4 @@
+::error::prize-cards D1 1280x800: demo bar div#app > div.pr-viewport > div.pr-bar {"l":-350.39,"t":2,"r":1256,"b":54} is not inside the band 0..56 x 0..1280
+::error::prize-cards D1 1280x800: demo bar div#app > div.pr-viewport > div.pr-bar {"l":-350.39,"t":2,"r":1256,"b":54} overlaps the close X {"present":true,"forced":false,"l":6,"t":6,"r":50,"b":50,"visible":true,"visibility":"visible","opacity":1,"disabled":false}
+::error::prize-cards D1 1280x800: demo bar div#app > div.pr-viewport > div.pr-bar {"l":-350.39,"t":2,"r":1256,"b":54} overlaps the edit control (forced read) {"present":true,"forced":true,"l":56,"t":6,"r":130.13,"b":50,"visible":true,"visibility":"visible","opacity":1,"disabled":false}
+FAIL 3 failure(s) across 1/1 route(s): prize-cards

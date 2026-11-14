@@ -1,0 +1,1750 @@
+{
+ "ladder1920": {
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    1920,
+    1920
+   ]
+  },
+  "hud": {
+   "hud": {
+    "l": 102.9,
+    "t": 368.9,
+    "w": 353.2,
+    "h": 133.7,
+    "r": 456.1,
+    "b": 502.6
+   },
+   "lineText": "ให้ผู้เข้ารอบชิงเลือกเส้น\nแตะเส้นแล้วแตะชื่อ",
+   "lines": [
+    {
+     "l": 102.87406921386719,
+     "r": 380.5037078857422,
+     "t": 365.0962829589844,
+     "b": 409.65924072265625
+    },
+    {
+     "l": 102.87406921386719,
+     "r": 326.31109619140625,
+     "t": 403.49627685546875,
+     "b": 448.05926513671875
+    }
+   ],
+   "gname": {
+    "l": 102.87406921386719,
+    "r": 456.0592498779297,
+    "t": 437.1555480957031,
+    "b": 511.1111145019531
+   },
+   "frame": {
+    "l": 49.8,
+    "t": 56,
+    "w": 1820.4,
+    "h": 1024,
+    "r": 1870.2,
+    "b": 1080
+   },
+   "scale": null,
+   "x": 0,
+   "y": 0
+  },
+  "lanes": {
+   "inner": [
+    1920,
+    1920
+   ],
+   "names": [
+    {
+     "t": 560.4,
+     "l": 545.8,
+     "w": 152.9,
+     "h": 52,
+     "r": 698.7,
+     "b": 612.4
+    },
+    {
+     "t": 560.4,
+     "l": 714.7,
+     "w": 152.9,
+     "h": 52,
+     "r": 867.6,
+     "b": 612.4
+    },
+    {
+     "t": 560.4,
+     "l": 883.6,
+     "w": 152.9,
+     "h": 52,
+     "r": 1036.4,
+     "b": 612.4
+    },
+    {
+     "t": 560.4,
+     "l": 1052.4,
+     "w": 152.9,
+     "h": 52,
+     "r": 1205.3,
+     "b": 612.4
+    },
+    {
+     "t": 560.4,
+     "l": 1221.3,
+     "w": 152.9,
+     "h": 52,
+     "r": 1374.2,
+     "b": 612.4
+    }
+   ],
+   "lanes": [
+    {
+     "i": 0,
+     "l": 125.6,
+     "t": 956.7,
+     "w": 303.4,
+     "h": 60.7,
+     "r": 429,
+     "b": 1017.4
+    },
+    {
+     "i": 1,
+     "l": 467,
+     "t": 956.7,
+     "w": 303.4,
+     "h": 60.7,
+     "r": 770.4,
+     "b": 1017.4
+    },
+    {
+     "i": 2,
+     "l": 808.3,
+     "t": 956.7,
+     "w": 303.4,
+     "h": 60.7,
+     "r": 1111.7,
+     "b": 1017.4
+    },
+    {
+     "i": 3,
+     "l": 1149.6,
+     "t": 956.7,
+     "w": 303.4,
+     "h": 60.7,
+     "r": 1453,
+     "b": 1017.4
+    },
+    {
+     "i": 4,
+     "l": 1491,
+     "t": 956.7,
+     "w": 303.4,
+     "h": 60.7,
+     "r": 1794.4,
+     "b": 1017.4
+    }
+   ],
+   "nameLaneIntersections": [],
+   "nameNameIntersections": [],
+   "laneLaneIntersections": [],
+   "minTap": 52,
+   "minNameTap": 52,
+   "minLaneTap": 60.7
+  },
+  "exceptions": []
+ },
+ "final-320": {
+  "W": 320,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    320,
+    320
+   ]
+  },
+  "lanePick": {
+   "hud": {
+    "hud": {
+     "l": 16,
+     "t": 132.4,
+     "w": 287.1,
+     "h": 62,
+     "r": 303.1,
+     "b": 194.4
+    },
+    "lineText": "ให้ผู้เข้ารอบชิงเลือกเส้น แตะเส้นแล้วแตะชื่อ",
+    "lines": [
+     {
+      "l": 16,
+      "r": 303.125,
+      "t": 144.390625,
+      "b": 169.390625
+     }
+    ],
+    "gname": {
+     "l": 16,
+     "r": 179.90625,
+     "t": 163.984375,
+     "b": 197.984375
+    },
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 138.4,
+     "r": 320,
+     "b": 194.4
+    },
+    "scale": null,
+    "x": 0,
+    "y": 0
+   },
+   "lanes": {
+    "inner": [
+     320,
+     320
+    ],
+    "names": [
+     {
+      "t": 356.4,
+      "l": 16,
+      "w": 139,
+      "h": 52,
+      "r": 155,
+      "b": 408.4
+     },
+     {
+      "t": 356.4,
+      "l": 165,
+      "w": 139,
+      "h": 52,
+      "r": 304,
+      "b": 408.4
+     },
+     {
+      "t": 412.4,
+      "l": 16,
+      "w": 139,
+      "h": 52,
+      "r": 155,
+      "b": 464.4
+     },
+     {
+      "t": 412.4,
+      "l": 165,
+      "w": 139,
+      "h": 52,
+      "r": 304,
+      "b": 464.4
+     },
+     {
+      "t": 468.4,
+      "l": 16,
+      "w": 139,
+      "h": 52,
+      "r": 155,
+      "b": 520.4
+     }
+    ],
+    "lanes": [
+     {
+      "i": 0,
+      "l": 16,
+      "t": 212.4,
+      "w": 139,
+      "h": 44,
+      "r": 155,
+      "b": 256.4
+     },
+     {
+      "i": 1,
+      "l": 165,
+      "t": 212.4,
+      "w": 139,
+      "h": 44,
+      "r": 304,
+      "b": 256.4
+     },
+     {
+      "i": 2,
+      "l": 16,
+      "t": 260.4,
+      "w": 139,
+      "h": 44,
+      "r": 155,
+      "b": 304.4
+     },
+     {
+      "i": 3,
+      "l": 165,
+      "t": 260.4,
+      "w": 139,
+      "h": 44,
+      "r": 304,
+      "b": 304.4
+     },
+     {
+      "i": 4,
+      "l": 16,
+      "t": 308.4,
+      "w": 139,
+      "h": 44,
+      "r": 155,
+      "b": 352.4
+     }
+    ],
+    "nameLaneIntersections": [],
+    "nameNameIntersections": [],
+    "laneLaneIntersections": [],
+    "minTap": 44,
+    "minNameTap": 52,
+    "minLaneTap": 44
+   }
+  },
+  "result": {
+   "screen": "result",
+   "inner": [
+    320,
+    320,
+    320
+   ],
+   "win": {
+    "text": "ฒำฒำฒำฒำฒำ08",
+    "fs": 33,
+    "innerFs": [
+     33
+    ],
+    "scale": 1,
+    "painted": 33,
+    "lines": 1,
+    "rect": {
+     "l": 16,
+     "t": 177.3,
+     "w": 288,
+     "h": 36.3,
+     "r": 304,
+     "b": 213.6
+    },
+    "fw": "700"
+   },
+   "cards": [
+    {
+     "text": "ฒำฒำฒำฒำฒำ09",
+     "fs": 22,
+     "innerFs": [
+      22
+     ],
+     "scale": 1,
+     "painted": 22,
+     "lines": 1,
+     "rect": {
+      "l": 32,
+      "t": 268.4,
+      "w": 256,
+      "h": 25.3,
+      "r": 288,
+      "b": 293.7
+     },
+     "fw": "700"
+    },
+    {
+     "text": "WWWWWWWWWW13",
+     "fs": 22,
+     "innerFs": [
+      22
+     ],
+     "scale": 1,
+     "painted": 22,
+     "lines": 1,
+     "rect": {
+      "l": 32,
+      "t": 356.5,
+      "w": 256,
+      "h": 25.3,
+      "r": 288,
+      "b": 381.8
+     },
+     "fw": "700"
+    },
+    {
+     "text": "WWWWWWWWWW07",
+     "fs": 22,
+     "innerFs": [
+      22
+     ],
+     "scale": 1,
+     "painted": 22,
+     "lines": 1,
+     "rect": {
+      "l": 32,
+      "t": 444.6,
+      "w": 256,
+      "h": 25.3,
+      "r": 288,
+      "b": 469.9
+     },
+     "fw": "700"
+    },
+    {
+     "text": "WWWWWWWWWW04",
+     "fs": 22,
+     "innerFs": [
+      22
+     ],
+     "scale": 1,
+     "painted": 22,
+     "lines": 1,
+     "rect": {
+      "l": 32,
+      "t": 532.7,
+      "w": 256,
+      "h": 25.3,
+      "r": 288,
+      "b": 558
+     },
+     "fw": "700"
+    }
+   ],
+   "over": [
+    "SPAN. r=338",
+    "SPAN. r=591",
+    "SPAN. r=845",
+    "SPAN. r=1099",
+    "SPAN. r=1353"
+   ],
+   "minPainted": 22,
+   "minCard": 22,
+   "prizeLines": [
+    {
+     "t": "รางวัลที่ 1 · ทีวี",
+     "fs": 18
+    },
+    {
+     "t": "รางวัลที่ 2 · พัดลม",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 3 · บัตรกำนัล",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 4 · undefined",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 5 · undefined",
+     "fs": 16
+    }
+   ]
+  },
+  "mustRed": {
+   "scrollWidth": 400,
+   "innerWidth": 400,
+   "red": false
+  },
+  "afterRemove": {
+   "scrollWidth": 320,
+   "innerWidth": 320
+  },
+  "exceptions": []
+ },
+ "final-375": {
+  "W": 375,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    375,
+    375
+   ]
+  },
+  "lanePick": {
+   "hud": {
+    "hud": {
+     "l": 16,
+     "t": 132.4,
+     "w": 287.1,
+     "h": 62,
+     "r": 303.1,
+     "b": 194.4
+    },
+    "lineText": "ให้ผู้เข้ารอบชิงเลือกเส้น แตะเส้นแล้วแตะชื่อ",
+    "lines": [
+     {
+      "l": 16,
+      "r": 303.125,
+      "t": 144.390625,
+      "b": 169.390625
+     }
+    ],
+    "gname": {
+     "l": 16,
+     "r": 179.90625,
+     "t": 163.984375,
+     "b": 197.984375
+    },
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 375,
+     "h": 138.4,
+     "r": 375,
+     "b": 194.4
+    },
+    "scale": null,
+    "x": 0,
+    "y": 0
+   },
+   "lanes": {
+    "inner": [
+     375,
+     375
+    ],
+    "names": [
+     {
+      "t": 356.4,
+      "l": 16,
+      "w": 166.5,
+      "h": 52,
+      "r": 182.5,
+      "b": 408.4
+     },
+     {
+      "t": 356.4,
+      "l": 192.5,
+      "w": 166.5,
+      "h": 52,
+      "r": 359,
+      "b": 408.4
+     },
+     {
+      "t": 412.4,
+      "l": 16,
+      "w": 166.5,
+      "h": 52,
+      "r": 182.5,
+      "b": 464.4
+     },
+     {
+      "t": 412.4,
+      "l": 192.5,
+      "w": 166.5,
+      "h": 52,
+      "r": 359,
+      "b": 464.4
+     },
+     {
+      "t": 468.4,
+      "l": 16,
+      "w": 166.5,
+      "h": 52,
+      "r": 182.5,
+      "b": 520.4
+     }
+    ],
+    "lanes": [
+     {
+      "i": 0,
+      "l": 16,
+      "t": 212.4,
+      "w": 166.5,
+      "h": 44,
+      "r": 182.5,
+      "b": 256.4
+     },
+     {
+      "i": 1,
+      "l": 192.5,
+      "t": 212.4,
+      "w": 166.5,
+      "h": 44,
+      "r": 359,
+      "b": 256.4
+     },
+     {
+      "i": 2,
+      "l": 16,
+      "t": 260.4,
+      "w": 166.5,
+      "h": 44,
+      "r": 182.5,
+      "b": 304.4
+     },
+     {
+      "i": 3,
+      "l": 192.5,
+      "t": 260.4,
+      "w": 166.5,
+      "h": 44,
+      "r": 359,
+      "b": 304.4
+     },
+     {
+      "i": 4,
+      "l": 16,
+      "t": 308.4,
+      "w": 166.5,
+      "h": 44,
+      "r": 182.5,
+      "b": 352.4
+     }
+    ],
+    "nameLaneIntersections": [],
+    "nameNameIntersections": [],
+    "laneLaneIntersections": [],
+    "minTap": 44,
+    "minNameTap": 52,
+    "minLaneTap": 44
+   }
+  },
+  "result": {
+   "screen": "result",
+   "inner": [
+    375,
+    375,
+    375
+   ],
+   "win": {
+    "text": "WWWWWWWWWW17",
+    "fs": 34,
+    "innerFs": [
+     34
+    ],
+    "scale": 1,
+    "painted": 34,
+    "lines": 1,
+    "rect": {
+     "l": 16,
+     "t": 177.3,
+     "w": 343,
+     "h": 37.4,
+     "r": 359,
+     "b": 214.7
+    },
+    "fw": "700"
+   },
+   "cards": [
+    {
+     "text": "WWWWWWWWWW12",
+     "fs": 22,
+     "innerFs": [
+      22
+     ],
+     "scale": 1,
+     "painted": 22,
+     "lines": 1,
+     "rect": {
+      "l": 32,
+      "t": 269.5,
+      "w": 311,
+      "h": 25.3,
+      "r": 343,
+      "b": 294.8
+     },
+     "fw": "700"
+    },
+    {
+     "text": "ฒำฒำฒำฒำฒำ18",
+     "fs": 22,
+     "innerFs": [
+      22
+     ],
+     "scale": 1,
+     "painted": 22,
+     "lines": 1,
+     "rect": {
+      "l": 32,
+      "t": 357.6,
+      "w": 311,
+      "h": 25.3,
+      "r": 343,
+      "b": 382.9
+     },
+     "fw": "700"
+    },
+    {
+     "text": "WWWWWWWWWW03",
+     "fs": 22,
+     "innerFs": [
+      22
+     ],
+     "scale": 1,
+     "painted": 22,
+     "lines": 1,
+     "rect": {
+      "l": 32,
+      "t": 445.7,
+      "w": 311,
+      "h": 25.3,
+      "r": 343,
+      "b": 471
+     },
+     "fw": "700"
+    },
+    {
+     "text": "ฒำฒำฒำฒำฒำ07",
+     "fs": 22,
+     "innerFs": [
+      22
+     ],
+     "scale": 1,
+     "painted": 22,
+     "lines": 1,
+     "rect": {
+      "l": 32,
+      "t": 533.8,
+      "w": 311,
+      "h": 25.3,
+      "r": 343,
+      "b": 559
+     },
+     "fw": "700"
+    }
+   ],
+   "over": [
+    "SPAN. r=593",
+    "SPAN. r=846",
+    "SPAN. r=1100",
+    "SPAN. r=1353"
+   ],
+   "minPainted": 22,
+   "minCard": 22,
+   "prizeLines": [
+    {
+     "t": "รางวัลที่ 1 · ทีวี",
+     "fs": 18
+    },
+    {
+     "t": "รางวัลที่ 2 · พัดลม",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 3 · บัตรกำนัล",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 4 · undefined",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 5 · undefined",
+     "fs": 16
+    }
+   ]
+  },
+  "mustRed": {
+   "scrollWidth": 401,
+   "innerWidth": 401,
+   "red": false
+  },
+  "afterRemove": {
+   "scrollWidth": 375,
+   "innerWidth": 375
+  },
+  "exceptions": []
+ },
+ "leg-fireworks-320": {
+  "game": "fireworks",
+  "W": 320,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    320,
+    320
+   ]
+  },
+  "press": {
+   "label": "เปิดผล",
+   "sawCanvas": false,
+   "sawAtMs": null,
+   "endBtn": "รอบต่อไป",
+   "newGlContexts": 0,
+   "threeChunkSincePress": false,
+   "threeChunkEver": false,
+   "jsSincePress": 0
+  },
+  "exceptions": []
+ },
+ "leg-fireworks-639": {
+  "game": "fireworks",
+  "W": 639,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    639,
+    639
+   ]
+  },
+  "press": {
+   "label": "เปิดผล",
+   "sawCanvas": false,
+   "sawAtMs": null,
+   "endBtn": "รอบต่อไป",
+   "newGlContexts": 0,
+   "threeChunkSincePress": false,
+   "threeChunkEver": false,
+   "jsSincePress": 0
+  },
+  "exceptions": []
+ },
+ "leg-fireworks-640": {
+  "game": "fireworks",
+  "W": 640,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    640,
+    640
+   ]
+  },
+  "press": {
+   "label": "เปิดผล",
+   "sawCanvas": true,
+   "sawAtMs": 101,
+   "endBtn": null,
+   "newGlContexts": 1,
+   "threeChunkSincePress": true,
+   "threeChunkEver": true,
+   "jsSincePress": 3
+  },
+  "exceptions": []
+ },
+ "leg-fireworks-1920": {
+  "game": "fireworks",
+  "W": 1920,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    1920,
+    1920
+   ]
+  },
+  "press": {
+   "label": "เปิดผล",
+   "sawCanvas": true,
+   "sawAtMs": 101,
+   "endBtn": null,
+   "newGlContexts": 1,
+   "threeChunkSincePress": true,
+   "threeChunkEver": true,
+   "jsSincePress": 3
+  },
+  "exceptions": []
+ },
+ "leg-cards-320": {
+  "game": "cards",
+  "W": 320,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    320,
+    320
+   ]
+  },
+  "press": {
+   "label": "แจกไพ่",
+   "sawCanvas": false,
+   "sawAtMs": null,
+   "endBtn": "เปิดผล",
+   "newGlContexts": 0,
+   "threeChunkSincePress": false,
+   "threeChunkEver": false,
+   "jsSincePress": 0
+  },
+  "exceptions": []
+ },
+ "leg-cards-639": {
+  "game": "cards",
+  "W": 639,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    639,
+    639
+   ]
+  },
+  "press": {
+   "label": "แจกไพ่",
+   "sawCanvas": false,
+   "sawAtMs": null,
+   "endBtn": "เปิดผล",
+   "newGlContexts": 0,
+   "threeChunkSincePress": false,
+   "threeChunkEver": false,
+   "jsSincePress": 0
+  },
+  "exceptions": []
+ },
+ "leg-cards-640": {
+  "game": "cards",
+  "W": 640,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    640,
+    640
+   ]
+  },
+  "press": {
+   "label": "แจกไพ่",
+   "sawCanvas": true,
+   "sawAtMs": 102,
+   "endBtn": "เปิดผล",
+   "newGlContexts": 1,
+   "threeChunkSincePress": true,
+   "threeChunkEver": true,
+   "jsSincePress": 3
+  },
+  "exceptions": []
+ },
+ "leg-cards-1920": {
+  "game": "cards",
+  "W": 1920,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    1920,
+    1920
+   ]
+  },
+  "press": {
+   "label": "แจกไพ่",
+   "sawCanvas": true,
+   "sawAtMs": 101,
+   "endBtn": "เปิดผล",
+   "newGlContexts": 1,
+   "threeChunkSincePress": true,
+   "threeChunkEver": true,
+   "jsSincePress": 3
+  },
+  "exceptions": []
+ },
+ "leg-ladder-320": {
+  "game": "ladder",
+  "W": 320,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    320,
+    320
+   ]
+  },
+  "lanePickScreen": "lanes|true",
+  "press": {
+   "label": "เปิดผล",
+   "sawCanvas": false,
+   "sawAtMs": null,
+   "endBtn": null,
+   "newGlContexts": 0,
+   "threeChunkSincePress": false,
+   "threeChunkEver": false,
+   "jsSincePress": 0
+  },
+  "exceptions": []
+ },
+ "leg-ladder-639": {
+  "game": "ladder",
+  "W": 639,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    639,
+    639
+   ]
+  },
+  "lanePickScreen": "lanes|true",
+  "press": {
+   "label": "เปิดผล",
+   "sawCanvas": false,
+   "sawAtMs": null,
+   "endBtn": null,
+   "newGlContexts": 0,
+   "threeChunkSincePress": false,
+   "threeChunkEver": false,
+   "jsSincePress": 0
+  },
+  "exceptions": []
+ },
+ "leg-ladder-640": {
+  "game": "ladder",
+  "W": 640,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    640,
+    640
+   ]
+  },
+  "lanePickScreen": "lanes|true",
+  "press": {
+   "label": "เปิดผล",
+   "sawCanvas": true,
+   "sawAtMs": 105,
+   "endBtn": null,
+   "newGlContexts": 1,
+   "threeChunkSincePress": true,
+   "threeChunkEver": true,
+   "jsSincePress": 3
+  },
+  "exceptions": []
+ },
+ "leg-ladder-1920": {
+  "game": "ladder",
+  "W": 1920,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    1920,
+    1920
+   ]
+  },
+  "lanePickScreen": "lanes|true",
+  "press": {
+   "label": "เปิดผล",
+   "sawCanvas": true,
+   "sawAtMs": 103,
+   "endBtn": null,
+   "newGlContexts": 1,
+   "threeChunkSincePress": true,
+   "threeChunkEver": true,
+   "jsSincePress": 3
+  },
+  "exceptions": []
+ },
+ "final-320-desk": {
+  "W": 320,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    320,
+    320
+   ]
+  },
+  "lanePick": {
+   "hud": {
+    "hud": {
+     "l": 16,
+     "t": 132.4,
+     "w": 287.1,
+     "h": 62,
+     "r": 303.1,
+     "b": 194.4
+    },
+    "lineText": "ให้ผู้เข้ารอบชิงเลือกเส้น แตะเส้นแล้วแตะชื่อ",
+    "lines": [
+     {
+      "l": 16,
+      "r": 303.125,
+      "t": 144.390625,
+      "b": 169.390625
+     }
+    ],
+    "gname": {
+     "l": 16,
+     "r": 179.90625,
+     "t": 163.984375,
+     "b": 197.984375
+    },
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 138.4,
+     "r": 320,
+     "b": 194.4
+    },
+    "scale": null,
+    "x": 0,
+    "y": 0
+   },
+   "lanes": {
+    "inner": [
+     320,
+     320
+    ],
+    "names": [
+     {
+      "t": 356.4,
+      "l": 16,
+      "w": 139,
+      "h": 70.8,
+      "r": 155,
+      "b": 427.2
+     },
+     {
+      "t": 356.4,
+      "l": 165,
+      "w": 139,
+      "h": 70.8,
+      "r": 304,
+      "b": 427.2
+     },
+     {
+      "t": 431.2,
+      "l": 16,
+      "w": 139,
+      "h": 70.8,
+      "r": 155,
+      "b": 501.9
+     },
+     {
+      "t": 431.2,
+      "l": 165,
+      "w": 139,
+      "h": 70.8,
+      "r": 304,
+      "b": 501.9
+     },
+     {
+      "t": 505.9,
+      "l": 16,
+      "w": 139,
+      "h": 52,
+      "r": 155,
+      "b": 557.9
+     }
+    ],
+    "lanes": [
+     {
+      "i": 0,
+      "l": 16,
+      "t": 212.4,
+      "w": 139,
+      "h": 44,
+      "r": 155,
+      "b": 256.4
+     },
+     {
+      "i": 1,
+      "l": 165,
+      "t": 212.4,
+      "w": 139,
+      "h": 44,
+      "r": 304,
+      "b": 256.4
+     },
+     {
+      "i": 2,
+      "l": 16,
+      "t": 260.4,
+      "w": 139,
+      "h": 44,
+      "r": 155,
+      "b": 304.4
+     },
+     {
+      "i": 3,
+      "l": 165,
+      "t": 260.4,
+      "w": 139,
+      "h": 44,
+      "r": 304,
+      "b": 304.4
+     },
+     {
+      "i": 4,
+      "l": 16,
+      "t": 308.4,
+      "w": 139,
+      "h": 44,
+      "r": 155,
+      "b": 352.4
+     }
+    ],
+    "nameLaneIntersections": [],
+    "nameNameIntersections": [],
+    "laneLaneIntersections": [],
+    "minTap": 44,
+    "minNameTap": 52,
+    "minLaneTap": 44
+   }
+  },
+  "result": {
+   "screen": "result",
+   "inner": [
+    320,
+    320,
+    320
+   ],
+   "win": {
+    "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฝ",
+    "fs": 24,
+    "innerFs": [
+     24
+    ],
+    "scale": 1,
+    "painted": 24,
+    "lines": 2,
+    "rect": {
+     "l": 16,
+     "t": 177.3,
+     "w": 288,
+     "h": 52.8,
+     "r": 304,
+     "b": 230.1
+    },
+    "fw": "700"
+   },
+   "cards": [
+    {
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำข",
+     "fs": 21,
+     "innerFs": [
+      21
+     ],
+     "scale": 1,
+     "painted": 21,
+     "lines": 2,
+     "rect": {
+      "l": 32,
+      "t": 284.9,
+      "w": 256,
+      "h": 48.3,
+      "r": 288,
+      "b": 333.1
+     },
+     "fw": "700"
+    },
+    {
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำจ",
+     "fs": 21,
+     "innerFs": [
+      21
+     ],
+     "scale": 1,
+     "painted": 21,
+     "lines": 2,
+     "rect": {
+      "l": 32,
+      "t": 395.9,
+      "w": 256,
+      "h": 48.3,
+      "r": 288,
+      "b": 444.2
+     },
+     "fw": "700"
+    },
+    {
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒ",
+     "fs": 21,
+     "innerFs": [
+      21
+     ],
+     "scale": 1,
+     "painted": 21,
+     "lines": 2,
+     "rect": {
+      "l": 32,
+      "t": 507,
+      "w": 256,
+      "h": 48.3,
+      "r": 288,
+      "b": 555.3
+     },
+     "fw": "700"
+    },
+    {
+     "text": "WWWWWWWWWWWG",
+     "fs": 22,
+     "innerFs": [
+      22
+     ],
+     "scale": 1,
+     "painted": 22,
+     "lines": 1,
+     "rect": {
+      "l": 32,
+      "t": 618.1,
+      "w": 256,
+      "h": 25.3,
+      "r": 288,
+      "b": 643.4
+     },
+     "fw": "700"
+    }
+   ],
+   "over": [
+    {
+     "el": "SPAN.",
+     "r": 512,
+     "w": 339.5,
+     "h": 18,
+     "clip": "none",
+     "pos": "static",
+     "ov": "visible",
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "chain": "SPAN < P#pd-live.pd-sr < BODY < HTML"
+    },
+    {
+     "el": "SPAN.",
+     "r": 938,
+     "w": 339.2,
+     "h": 18,
+     "clip": "none",
+     "pos": "static",
+     "ov": "visible",
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "chain": "SPAN < P#pd-live.pd-sr < BODY < HTML"
+    },
+    {
+     "el": "SPAN.",
+     "r": 1363,
+     "w": 338.5,
+     "h": 18,
+     "clip": "none",
+     "pos": "static",
+     "ov": "visible",
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "chain": "SPAN < P#pd-live.pd-sr < BODY < HTML"
+    },
+    {
+     "el": "SPAN.",
+     "r": 1794,
+     "w": 343.6,
+     "h": 18,
+     "clip": "none",
+     "pos": "static",
+     "ov": "visible",
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "chain": "SPAN < P#pd-live.pd-sr < BODY < HTML"
+    },
+    {
+     "el": "SPAN.",
+     "r": 2059,
+     "w": 177.7,
+     "h": 18,
+     "clip": "none",
+     "pos": "static",
+     "ov": "visible",
+     "text": "WWWWWWWWWWWG",
+     "chain": "SPAN < P#pd-live.pd-sr < BODY < HTML"
+    }
+   ],
+   "minPainted": 21,
+   "minCard": 21,
+   "prizeLines": [
+    {
+     "t": "รางวัลที่ 1 · ทีวี",
+     "fs": 18
+    },
+    {
+     "t": "รางวัลที่ 2 · พัดลม",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 3 · บัตรกำนัล",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 4 · undefined",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 5 · undefined",
+     "fs": 16
+    }
+   ]
+  },
+  "mustRed": {
+   "scrollWidth": 400,
+   "innerWidth": 320,
+   "requested": 320,
+   "red": true,
+   "visibleOver": 6
+  },
+  "afterRemove": {
+   "scrollWidth": 320,
+   "innerWidth": 320
+  },
+  "exceptions": []
+ },
+ "final-375-desk": {
+  "W": 375,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    375,
+    375
+   ]
+  },
+  "lanePick": {
+   "hud": {
+    "hud": {
+     "l": 16,
+     "t": 132.4,
+     "w": 287.1,
+     "h": 62,
+     "r": 303.1,
+     "b": 194.4
+    },
+    "lineText": "ให้ผู้เข้ารอบชิงเลือกเส้น แตะเส้นแล้วแตะชื่อ",
+    "lines": [
+     {
+      "l": 16,
+      "r": 303.125,
+      "t": 144.390625,
+      "b": 169.390625
+     }
+    ],
+    "gname": {
+     "l": 16,
+     "r": 179.90625,
+     "t": 163.984375,
+     "b": 197.984375
+    },
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 375,
+     "h": 138.4,
+     "r": 375,
+     "b": 194.4
+    },
+    "scale": null,
+    "x": 0,
+    "y": 0
+   },
+   "lanes": {
+    "inner": [
+     375,
+     375
+    ],
+    "names": [
+     {
+      "t": 356.4,
+      "l": 16,
+      "w": 166.5,
+      "h": 70.8,
+      "r": 182.5,
+      "b": 427.2
+     },
+     {
+      "t": 356.4,
+      "l": 192.5,
+      "w": 166.5,
+      "h": 70.8,
+      "r": 359,
+      "b": 427.2
+     },
+     {
+      "t": 431.2,
+      "l": 16,
+      "w": 166.5,
+      "h": 70.8,
+      "r": 182.5,
+      "b": 501.9
+     },
+     {
+      "t": 431.2,
+      "l": 192.5,
+      "w": 166.5,
+      "h": 70.8,
+      "r": 359,
+      "b": 501.9
+     },
+     {
+      "t": 505.9,
+      "l": 16,
+      "w": 166.5,
+      "h": 70.8,
+      "r": 182.5,
+      "b": 576.7
+     }
+    ],
+    "lanes": [
+     {
+      "i": 0,
+      "l": 16,
+      "t": 212.4,
+      "w": 166.5,
+      "h": 44,
+      "r": 182.5,
+      "b": 256.4
+     },
+     {
+      "i": 1,
+      "l": 192.5,
+      "t": 212.4,
+      "w": 166.5,
+      "h": 44,
+      "r": 359,
+      "b": 256.4
+     },
+     {
+      "i": 2,
+      "l": 16,
+      "t": 260.4,
+      "w": 166.5,
+      "h": 44,
+      "r": 182.5,
+      "b": 304.4
+     },
+     {
+      "i": 3,
+      "l": 192.5,
+      "t": 260.4,
+      "w": 166.5,
+      "h": 44,
+      "r": 359,
+      "b": 304.4
+     },
+     {
+      "i": 4,
+      "l": 16,
+      "t": 308.4,
+      "w": 166.5,
+      "h": 44,
+      "r": 182.5,
+      "b": 352.4
+     }
+    ],
+    "nameLaneIntersections": [],
+    "nameNameIntersections": [],
+    "laneLaneIntersections": [],
+    "minTap": 44,
+    "minNameTap": 70.8,
+    "minLaneTap": 44
+   }
+  },
+  "result": {
+   "screen": "result",
+   "inner": [
+    375,
+    375,
+    375
+   ],
+   "win": {
+    "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำง",
+    "fs": 24,
+    "innerFs": [
+     24
+    ],
+    "scale": 1,
+    "painted": 24,
+    "lines": 2,
+    "rect": {
+     "l": 16,
+     "t": 177.3,
+     "w": 343,
+     "h": 52.8,
+     "r": 359,
+     "b": 230.1
+    },
+    "fw": "700"
+   },
+   "cards": [
+    {
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำด",
+     "fs": 21,
+     "innerFs": [
+      21
+     ],
+     "scale": 1,
+     "painted": 21,
+     "lines": 2,
+     "rect": {
+      "l": 32,
+      "t": 284.9,
+      "w": 311,
+      "h": 48.3,
+      "r": 343,
+      "b": 333.1
+     },
+     "fw": "700"
+    },
+    {
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำบ",
+     "fs": 21,
+     "innerFs": [
+      21
+     ],
+     "scale": 1,
+     "painted": 21,
+     "lines": 2,
+     "rect": {
+      "l": 32,
+      "t": 395.9,
+      "w": 311,
+      "h": 48.3,
+      "r": 343,
+      "b": 444.2
+     },
+     "fw": "700"
+    },
+    {
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำน",
+     "fs": 21,
+     "innerFs": [
+      21
+     ],
+     "scale": 1,
+     "painted": 21,
+     "lines": 2,
+     "rect": {
+      "l": 32,
+      "t": 507,
+      "w": 311,
+      "h": 48.3,
+      "r": 343,
+      "b": 555.3
+     },
+     "fw": "700"
+    },
+    {
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒ",
+     "fs": 21,
+     "innerFs": [
+      21
+     ],
+     "scale": 1,
+     "painted": 21,
+     "lines": 2,
+     "rect": {
+      "l": 32,
+      "t": 618.1,
+      "w": 311,
+      "h": 48.3,
+      "r": 343,
+      "b": 666.4
+     },
+     "fw": "700"
+    }
+   ],
+   "over": [
+    {
+     "el": "SPAN.",
+     "r": 510,
+     "w": 337.6,
+     "h": 18,
+     "clip": "none",
+     "pos": "static",
+     "ov": "visible",
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "chain": "SPAN < P#pd-live.pd-sr < BODY < HTML"
+    },
+    {
+     "el": "SPAN.",
+     "r": 937,
+     "w": 340.1,
+     "h": 18,
+     "clip": "none",
+     "pos": "static",
+     "ov": "visible",
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "chain": "SPAN < P#pd-live.pd-sr < BODY < HTML"
+    },
+    {
+     "el": "SPAN.",
+     "r": 1364,
+     "w": 340.4,
+     "h": 18,
+     "clip": "none",
+     "pos": "static",
+     "ov": "visible",
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "chain": "SPAN < P#pd-live.pd-sr < BODY < HTML"
+    },
+    {
+     "el": "SPAN.",
+     "r": 1791,
+     "w": 339.9,
+     "h": 18,
+     "clip": "none",
+     "pos": "static",
+     "ov": "visible",
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "chain": "SPAN < P#pd-live.pd-sr < BODY < HTML"
+    },
+    {
+     "el": "SPAN.",
+     "r": 2222,
+     "w": 343.6,
+     "h": 18,
+     "clip": "none",
+     "pos": "static",
+     "ov": "visible",
+     "text": "ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ",
+     "chain": "SPAN < P#pd-live.pd-sr < BODY < HTML"
+    }
+   ],
+   "minPainted": 21,
+   "minCard": 21,
+   "prizeLines": [
+    {
+     "t": "รางวัลที่ 1 · ทีวี",
+     "fs": 18
+    },
+    {
+     "t": "รางวัลที่ 2 · พัดลม",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 3 · บัตรกำนัล",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 4 · undefined",
+     "fs": 16
+    },
+    {
+     "t": "รางวัลที่ 5 · undefined",
+     "fs": 16
+    }
+   ]
+  },
+  "mustRed": {
+   "scrollWidth": 400,
+   "innerWidth": 375,
+   "requested": 375,
+   "red": true,
+   "visibleOver": 6
+  },
+  "afterRemove": {
+   "scrollWidth": 375,
+   "innerWidth": 375
+  },
+  "exceptions": []
+ },
+ "leg-fireworks-639-desk": {
+  "game": "fireworks",
+  "W": 639,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    639,
+    639
+   ]
+  },
+  "press": {
+   "label": "เปิดผล",
+   "sawCanvas": false,
+   "sawAtMs": null,
+   "endBtn": "รอบต่อไป",
+   "newGlContexts": 0,
+   "threeChunkSincePress": false,
+   "threeChunkEver": false,
+   "jsSincePress": 0
+  },
+  "exceptions": []
+ },
+ "leg-fireworks-640-desk": {
+  "game": "fireworks",
+  "W": 640,
+  "arrived": "/game/prize-draw/play/",
+  "view": {
+   "inner": [
+    640,
+    640
+   ]
+  },
+  "press": {
+   "label": "เปิดผล",
+   "sawCanvas": true,
+   "sawAtMs": 103,
+   "endBtn": null,
+   "newGlContexts": 1,
+   "threeChunkSincePress": true,
+   "threeChunkEver": true,
+   "jsSincePress": 3
+  },
+  "exceptions": []
+ }
+}

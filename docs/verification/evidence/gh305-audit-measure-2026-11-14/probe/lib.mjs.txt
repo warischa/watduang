@@ -1,0 +1,124 @@
+// lib: raw-CDP tab helpers (adapted from the 2026-11-13 recheck driver). Ports: HTTP 4791, CDP 9791.
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+export const CDP_PORT = process.env.CDPP || '9791';
+export const BASE = process.env.BASEURL || 'http://localhost:4791';
+export const OUT = process.env.OUTDIR || '<repo>/docs/verification/evidence/gh305-audit-measure-2026-11-14';
+mkdirSync(join(OUT, 'shots'), { recursive: true });
+export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// ---------- in-page instrument (runs before every document's own script) ----------
+export const initSource = (noGL) => `(() => {
+  if (window.__wd) return;
+  const wd = window.__wd = { ctx: [], lost: [], canvas: [], texts: [], raf: 0, gls: [], noGL: ${noGL ? 'true' : 'false'} };
+  window.__watduangRevealFrameTime = { enabled: true };
+  const now = () => Math.round(performance.now());
+  const orig = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (type, ...a) {
+    const isGL = typeof type === 'string' && /webgl/.test(type);
+    if (isGL && wd.noGL) { wd.ctx.push({ type, t: now(), blocked: true }); return null; }
+    const c = orig.call(this, type, ...a);
+    if (isGL) {
+      const rec = { type, t: now(), ok: !!c, parent: this.parentElement ? this.parentElement.className : null };
+      if (c) {
+        try { const e = c.getExtension('WEBGL_debug_renderer_info'); rec.renderer = e ? c.getParameter(e.UNMASKED_RENDERER_WEBGL) : 'no-ext'; rec.vendor = e ? c.getParameter(e.UNMASKED_VENDOR_WEBGL) : null; } catch (e) { rec.renderer = 'err ' + e; }
+        const cv = this;
+        cv.addEventListener('webglcontextlost', () => wd.lost.push({ t: now(), connected: cv.isConnected, parent: cv.parentElement ? cv.parentElement.className : null }));
+        wd.gls.push({ gl: c, cv });
+      }
+      wd.ctx.push(rec);
+    }
+    return c;
+  };
+  for (const fn of ['fillText', 'strokeText']) {
+    const o = CanvasRenderingContext2D.prototype[fn];
+    CanvasRenderingContext2D.prototype[fn] = function (text, ...r) { if (wd.texts.length < 20000) wd.texts.push({ t: now(), s: String(text), font: this.font, cw: this.canvas.width, ch: this.canvas.height }); return o.call(this, text, ...r); };
+  }
+  const tick = () => { wd.raf++; requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+  const note = (ev, n) => { if (n.nodeType !== 1) return; const list = n.tagName === 'CANVAS' ? [n] : [...n.querySelectorAll('canvas')]; for (const c of list) { const p = c.parentElement || null; wd.canvas.push({ t: now(), ev, parent: p ? p.className : (ev === 'canvas-' ? 'detached' : null) }); } };
+  const watch = () => new MutationObserver((ms) => { for (const m of ms) { m.addedNodes.forEach((n) => note('canvas+', n)); m.removedNodes.forEach((n) => note('canvas-', n)); } }).observe(document.documentElement, { childList: true, subtree: true });
+  if (document.documentElement) watch(); else document.addEventListener('DOMContentLoaded', watch);
+  // time a MC button appears, with its disabled flag at that moment
+  wd.btn = [];
+  const bw = () => new MutationObserver(() => { const b = document.querySelector('.pd-mc button, .pr-go'); const key = b ? b.textContent + '|' + (b.disabled ? 'd' : 'e') : null; const last = wd.btn[wd.btn.length - 1]; if (!last || last.key !== key) wd.btn.push({ t: now(), key }); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
+  if (document.documentElement) bw(); else document.addEventListener('DOMContentLoaded', bw);
+})();`;
+
+// ---------- CDP session ----------
+export async function openTab({ noGL = false, reducedMotion = false } = {}) {
+  const target = await (await fetch(`http://127.0.0.1:${CDP_PORT}/json/new?about:blank`, { method: 'PUT' })).json();
+  const ws = new WebSocket(target.webSocketDebuggerUrl);
+  let id = 0;
+  const pending = new Map();
+  const S = { console: [], exceptions: [], log: [], requests: [], dialogs: [], lostEvents: [] };
+  let loadResolve = null;
+  ws.addEventListener('message', (e) => {
+    const m = JSON.parse(e.data);
+    if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); return; }
+    const p = m.params;
+    if (m.method === 'Page.loadEventFired' && loadResolve) { loadResolve(); loadResolve = null; }
+    if (m.method === 'Runtime.consoleAPICalled') S.console.push({ type: p.type, text: (p.args || []).map((a) => a.value ?? a.description ?? '').join(' ').slice(0, 400), url: p.stackTrace?.callFrames?.[0]?.url?.slice(-60) });
+    if (m.method === 'Runtime.exceptionThrown') S.exceptions.push((p.exceptionDetails?.exception?.description ?? p.exceptionDetails?.text ?? '').split('\n')[0].slice(0, 400));
+    if (m.method === 'Log.entryAdded') S.log.push({ level: p.entry.level, source: p.entry.source, text: p.entry.text.slice(0, 400), url: (p.entry.url || '').slice(-60) });
+    if (m.method === 'Network.requestWillBeSent') S.requests.push(p.request.url);
+    if (m.method === 'Page.javascriptDialogOpening') {
+      S.dialogs.push({ type: p.type, message: p.message.slice(0, 80) });
+      send('Page.handleJavaScriptDialog', { accept: true });
+    }
+  });
+  await new Promise((r) => ws.addEventListener('open', r));
+  const send = (method, params = {}) => new Promise((res) => { pending.set(++id, res); ws.send(JSON.stringify({ id, method, params })); });
+  for (const d of ['Page', 'Runtime', 'Log', 'Network']) await send(`${d}.enable`);
+  await send('Network.setCacheDisabled', { cacheDisabled: true });
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: initSource(noGL) });
+  if (reducedMotion) await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  const T = {
+    S, send,
+    async nav(url) { const p = new Promise((r) => { loadResolve = r; }); await send('Page.navigate', { url }); await p; await sleep(900); },
+    async ev(body) {
+      const r = await send('Runtime.evaluate', { expression: `(async () => { ${body} })()`, awaitPromise: true, returnByValue: true });
+      if (r.result?.exceptionDetails) return { __error: r.result.exceptionDetails.exception?.description ?? r.result.exceptionDetails.text };
+      return r.result?.result?.value;
+    },
+    async view(w, h, mobile = false) { await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile }); await sleep(300); },
+    async shot(name, { clip } = {}) {
+      await send('Page.bringToFront');
+      const r = await send('Page.captureScreenshot', { format: 'png', ...(clip ? { clip } : {}) });
+      writeFileSync(join(OUT, 'shots', name + '.png'), Buffer.from(r.result.data, 'base64'));
+      return name + '.png';
+    },
+    async touch(x, y) {
+      await send('Page.bringToFront');
+      await send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+      await send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    },
+    async center(sel, text) {
+      return T.ev(`const els=[...document.querySelectorAll(${JSON.stringify(sel)})].filter(e=>!${JSON.stringify(text ?? null)}||e.textContent.trim()===${JSON.stringify(text ?? null)});
+        const e=els[0]; if(!e) return null; e.scrollIntoView({block:'center'}); const r=e.getBoundingClientRect(); const x=r.left+r.width/2,y=r.top+r.height/2;
+        const hit=document.elementFromPoint(x,y); return {x,y,disabled:!!e.disabled,hit:!!hit&&(hit===e||e.contains(hit)),text:e.textContent.trim().slice(0,30)};`);
+    },
+    async waitFor(expr, ms = 15000, step = 100) {
+      const t0 = Date.now();
+      while (Date.now() - t0 < ms) { const v = await T.ev(`return (${expr});`); if (v && !v.__error) return v; await sleep(step); }
+      return null;
+    },
+    /** tap an enabled control found by selector (+exact text); returns the pre-tap reading. */
+    async tapEl(sel, text, { waitMs = 15000, settleMs = 150 } = {}) {
+      const t0 = Date.now();
+      let c = null;
+      while (Date.now() - t0 < waitMs) {
+        c = await T.center(sel, text);
+        if (c && !c.disabled) break;
+        await sleep(80);
+      }
+      if (!c || c.disabled) throw new Error(`tapEl: ${sel} ${text ?? ''} not enabled in ${waitMs}ms (${JSON.stringify(c)})`);
+      await sleep(settleMs);
+      c = await T.center(sel, text);
+      if (!c.hit) throw new Error(`tapEl: ${sel} ${text ?? ''} covered at its centre`);
+      await T.touch(c.x, c.y);
+      return c;
+    },
+    async close() { await fetch(`http://127.0.0.1:${CDP_PORT}/json/close/${target.id}`); ws.close(); },
+  };
+  await T.view(1920, 1080);
+  return T;
+}

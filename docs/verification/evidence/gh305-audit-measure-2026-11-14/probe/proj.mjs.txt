@@ -1,0 +1,125 @@
+// projector scenarios. usage: node proj.mjs leg <fireworks|cards|ladder> <W>   |  node proj.mjs final <W>  |  node proj.mjs cards <N> | wave
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+import { setIn, pickGame, openSetup, setPrizes, startEvent, pickLane, mkNames, PRIZES } from './ev.mjs';
+const [kind, a1, a2] = process.argv.slice(2);
+const file = join(OUT, 'results-proj.json');
+const save = (k, v) => { const R = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {}; R[k] = v; writeFileSync(file, JSON.stringify(R, null, 1)); };
+const H = (W) => (W < 640 ? (W < 340 ? 568 : 667) : W >= 1920 ? 1080 : 900);
+const TH = 'กขคงจชซญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ'; const WIDENAMES = ['ฒำ'.repeat(12), ...Array.from({ length: 24 }, (_, i) => 'ฒำ'.repeat(11) + TH[i]), ...Array.from({ length: 15 }, (_, i) => 'W'.repeat(11) + 'ABCDEFGHIJKLMNO'[i])];
+const MOB = process.env.MOBILE === '0' ? false : null; const tagMob = process.env.MOBILE === '0' ? '-desk' : '';
+
+async function seed(T, { names, prizes = 3, sched = null, games = {} }) {
+  await openSetup(T, names, { event: 'Audit' });
+  await setPrizes(T, prizes);
+  if (sched) for (let i = 0; i < 3; i++) await setIn(T, `pd-s${i + 1}`, sched[i]);
+  for (const [g, v] of [['pd-game-r1', games.r1 ?? null], ['pd-game-r2', games.r2 ?? null], ['pd-game-r3', null], ['pd-game-r4', null], ['pd-game-final', games.final ?? null]]) await pickGame(T, g, v);
+  const arrived = await startEvent(T);
+  return arrived;
+}
+async function toWidth(T, W) { const mobile = MOB ?? W < 640; await T.view(W, H(W), mobile); await T.nav(`${BASE}/game/prize-draw/play/`); await T.view(W, H(W), mobile); await sleep(900); return { inner: await T.ev('return [innerWidth, document.documentElement.scrollWidth]') }; }
+async function rounds2D(T, n) { for (let i = 0; i < n; i++) { await T.tapEl('.pd-mc button', 'เปิดผล', { settleMs: 450 }); await sleep(1300); await T.tapEl('.pd-mc button', 'รอบต่อไป'); await sleep(900); } }
+async function observe(T, label, tag, { maxMs = 15000, afterSawMs = 2500, shotAt = [1500] } = {}) {
+  const req0 = T.S.requests.length; const c0 = await T.ev('return __wd.ctx.filter(c=>c.ok).length');
+  await T.tapEl('.pd-mc button', label, { settleMs: 450 });
+  const t0 = Date.now(); let saw = false, sawAt = null, shots = []; let endBtn = null;
+  while (Date.now() - t0 < maxMs) {
+    const s = await T.ev(`const c=document.querySelector('.pd-3d canvas'); const b=document.querySelector('.pd-mc button'); return {c:!!c,cw:c?c.getBoundingClientRect().width:0,btn:b?b.textContent.trim():null,ph:(window.__watduangRevealFrameTime.frames||[]).length}`);
+    endBtn = s.btn;
+    if (s.c && !saw) { saw = true; sawAt = Date.now() - t0; }
+    if (saw) { const since = Date.now() - t0 - sawAt; for (const sa of shotAt) if (since >= sa && !shots.includes(sa)) { shots.push(sa); await T.shot(`${tag}-3d-${sa}`); } if (since >= afterSawMs) break; }
+    if (!saw && s.btn && s.btn !== label && Date.now() - t0 > 2500) break;
+    await sleep(100);
+  }
+  const reqs = T.S.requests.slice(req0).map((u) => u.split('/').pop());
+  const c1 = await T.ev('return __wd.ctx.filter(c=>c.ok).length');
+  if (!saw) await T.shot(`${tag}-2d`);
+  return { label, sawCanvas: saw, sawAtMs: sawAt, endBtn, newGlContexts: c1 - c0, threeChunkSincePress: reqs.some((u) => /three\.module/.test(u)), threeChunkEver: T.S.requests.some((u) => /three\.module/.test(u)), jsSincePress: reqs.filter((u) => /\.js$/.test(u)).length };
+}
+
+const HUD = `
+  const q=(e)=>{const r=e.getBoundingClientRect();return {l:+r.left.toFixed(1),t:+r.top.toFixed(1),w:+r.width.toFixed(1),h:+r.height.toFixed(1),r:+r.right.toFixed(1),b:+r.bottom.toFixed(1)}};
+  const hud=document.querySelector('.pd-hud2'); if(!hud) return {none:true};
+  const lk=hud.querySelector('.pd-lk'); const rg=document.createRange(); rg.selectNodeContents(lk); const lines={}; for(const r of rg.getClientRects()){ if(r.width<1) continue; const k=Math.round(r.top/4); lines[k]=lines[k]||{l:1e9,r:-1e9,t:1e9,b:-1e9}; const o=lines[k]; o.l=Math.min(o.l,r.left); o.r=Math.max(o.r,r.right); o.t=Math.min(o.t,r.top); o.b=Math.max(o.b,r.bottom); }
+  const gn=hud.querySelector('.pd-gname'); const gr=document.createRange(); gr.selectNodeContents(gn); let g={l:1e9,r:-1e9,t:1e9,b:-1e9}; for(const r of gr.getClientRects()){ if(r.width<1) continue; g.l=Math.min(g.l,r.left); g.r=Math.max(g.r,r.right); g.t=Math.min(g.t,r.top); g.b=Math.max(g.b,r.bottom);} 
+  const fr=document.querySelector('.pd-frame'); const fq=q(fr); const sc=parseFloat(fr.style.getPropertyValue('--pd-scale'))||null;
+  return {hud:q(hud),lineText:lk.innerText,lines:Object.values(lines),gname:g,frame:fq,scale:sc,x:parseFloat(fr.style.getPropertyValue('--pd-x'))||0,y:parseFloat(fr.style.getPropertyValue('--pd-y'))||0};`;
+const LANES = `
+  const q=(e)=>{const r=e.getBoundingClientRect();return {l:+r.left.toFixed(1),t:+r.top.toFixed(1),w:+r.width.toFixed(1),h:+r.height.toFixed(1),r:+r.right.toFixed(1),b:+r.bottom.toFixed(1)}};
+  const hit=(a,b)=>a.l<b.r-0.5&&b.l<a.r-0.5&&a.t<b.b-0.5&&b.t<a.b-0.5;
+  const names=[...document.querySelectorAll('.pd-name')].map(e=>({t:e.textContent.trim(),...q(e)})); const lanes=[...document.querySelectorAll('.pd-lane')].map((e,i)=>({i,...q(e)}));
+  const inter=[]; for(const n of names) for(const l of lanes) if(hit(n,l)) inter.push(n.t+'x'+l.i);
+  const nn=[]; for(let i=0;i<names.length;i++) for(let j=i+1;j<names.length;j++) if(hit(names[i],names[j])) nn.push(names[i].t+'x'+names[j].t);
+  const ll=[]; for(let i=0;i<lanes.length;i++) for(let j=i+1;j<lanes.length;j++) if(hit(lanes[i],lanes[j])) ll.push(i+'x'+j);
+  const de=document.documentElement;
+  return {inner:[innerWidth,de.scrollWidth],names,lanes,nameLaneIntersections:inter,nameNameIntersections:nn,laneLaneIntersections:ll,minTap:Math.min(...names.map(n=>Math.min(n.w,n.h)),...lanes.map(n=>Math.min(n.w,n.h))),minNameTap:names.length?Math.min(...names.map(n=>Math.min(n.w,n.h))):null,minLaneTap:lanes.length?Math.min(...lanes.map(n=>Math.min(n.w,n.h))):null};`;
+const RESULT = `
+  const q=(e)=>{const r=e.getBoundingClientRect();return {l:+r.left.toFixed(1),t:+r.top.toFixed(1),w:+r.width.toFixed(1),h:+r.height.toFixed(1),r:+r.right.toFixed(1),b:+r.bottom.toFixed(1)}};
+  const de=document.documentElement;
+  const paint=(e)=>{ const c=getComputedStyle(e); const r=e.getBoundingClientRect(); const sx=e.offsetWidth?r.width/e.offsetWidth:1; /* effective scale of the element's transform chain */ const fs=parseFloat(c.fontSize); const kids=[...e.querySelectorAll('*')]; const inner=kids.length?kids.map(k=>parseFloat(getComputedStyle(k).fontSize)):[]; const lh=parseFloat(c.lineHeight)||fs*1.15; const lines=Math.round(r.height/ (lh*sx)); return {text:e.textContent.trim(),fs,innerFs:inner.slice(0,3),scale:+sx.toFixed(4),painted:+(fs*sx).toFixed(2),lines,rect:q(e),fw:c.fontWeight}};
+  const spot=document.querySelector('.pd-spot'); if(!spot) return {none:true,screen:document.getElementById('pd-frame')?.getAttribute('data-screen')};
+  const win=paint(spot.querySelector('.pd-wn')); const cards=[...document.querySelectorAll('.pd-wcard .pd-wn')].map(paint);
+  const over=[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect(); return r.width>0&&r.height>0&&(r.right>innerWidth+0.5||r.left<-0.5)&&getComputedStyle(e).position!=='fixed'&&!e.closest('.pd-picks')}).map(e=>{const r=e.getBoundingClientRect(); const c=getComputedStyle(e); const chain=[]; for(let p=e;p&&chain.length<5;p=p.parentElement) chain.push(p.tagName+(p.id?'#'+p.id:'')+(p.className&&typeof p.className==='string'?'.'+p.className.split(' ')[0]:'')); return {el:e.tagName+'.'+String(e.className).slice(0,24),r:Math.round(r.right),w:+r.width.toFixed(1),h:+r.height.toFixed(1),clip:c.clipPath,pos:c.position,ov:c.overflow,text:e.textContent.trim().slice(0,20),chain:chain.join(' < ')}});
+  return {screen:document.getElementById('pd-frame')?.getAttribute('data-screen'),inner:[innerWidth,de.scrollWidth,de.clientWidth],win,cards,over,minPainted:Math.min(win.painted,...cards.map(c=>c.painted)),minCard:cards.length?Math.min(...cards.map(c=>c.painted)):null,prizeLines:[...document.querySelectorAll('.pd-pz')].map(e=>({t:e.textContent.trim().slice(0,30),fs:parseFloat(getComputedStyle(e).fontSize)}))};`;
+
+const runs = {
+  async leg() { // row 1 on the projector: game a1, width a2
+    const game = a1, W = Number(a2); const T = await openTab();
+    const names = mkNames(40);
+    const cfg = game === 'fireworks' ? { sched: [20, 10, 7], games: { r1: 'fireworks' } } : game === 'cards' ? { sched: [20, 10, 7], games: { r1: 'cards' } } : { sched: [20, 10, 7], games: { final: 'ladder' } };
+    const r = { game, W, arrived: await seed(T, { names, ...cfg }) };
+    r.view = await toWidth(T, W);
+    const tag = `row1-proj-${game}-${W}`;
+    if (game === 'ladder') {
+      await rounds2D(T, 4);
+      r.lanePickScreen = await T.ev(`return document.getElementById('pd-frame')?.getAttribute('data-screen')+'|'+!!document.querySelector('.pd-lane')`);
+      for (let l = 0; l < 5; l++) await pickLane(T, l);
+      r.press = await observe(T, 'เปิดผล', tag, { afterSawMs: 3000, shotAt: [1500, 3000] });
+    } else {
+      r.press = await observe(T, game === 'cards' ? 'แจกไพ่' : 'เปิดผล', tag, { afterSawMs: 2500, shotAt: [1200] });
+    }
+    r.exceptions = T.S.exceptions.slice();
+    save(`leg-${game}-${W}${tagMob}`, r); await T.close();
+    console.log(game, W, 'inner', r.view.inner.join('/'), 'saw3D', r.press.sawCanvas, 'threeSincePress', r.press.threeChunkSincePress, 'glNew', r.press.newGlContexts, 'end', r.press.endBtn);
+  },
+  async final() { // rows 2, 4 (and a lane-pick measure) at width a1
+    const W = Number(a1); const T = await openTab();
+    const r = { W, arrived: await seed(T, { names: WIDENAMES, prizes: 5, sched: [20, 10, 7], games: { final: 'ladder' } }) };
+    r.view = await toWidth(T, W);
+    await rounds2D(T, 4);
+    await sleep(500);
+    r.lanePick = { hud: await T.ev(HUD), lanes: await T.ev(LANES) };
+    await T.shot(`row4-lanepick-${W}`);
+    for (let l = 0; l < 5; l++) await pickLane(T, l);
+    await T.ev(`window.scrollTo(0,0);return 1`);
+    await T.tapEl('.pd-mc button', 'เปิดผล', { settleMs: 450 });
+    let m = null; for (let i = 0; i < 100; i++) { await sleep(300); m = await T.ev(RESULT); if (m && !m.none) break; }
+    await sleep(800); m = await T.ev(RESULT);
+    r.result = m; await T.ev(`window.scrollTo(0,0);return 1`); await T.shot(`row2-result-${W}-top`);
+    // must-red: inject a 400px box; scrollWidth must read 400, so the same check would fail
+    await T.ev(`const d=document.createElement('div'); d.id='__plant'; d.style.cssText='width:400px;height:10px;background:red'; document.body.appendChild(d); return 1`);
+    await sleep(200);
+    r.mustRed = await T.ev(`const de=document.documentElement; return {scrollWidth:de.scrollWidth, innerWidth, requested:${W}, red: !(innerWidth===${W}&&de.scrollWidth===${W}), visibleOver:[...document.querySelectorAll('body *')].filter(e=>{const x=e.getBoundingClientRect(); return x.width>2&&x.height>2&&x.right>${W}+0.5&&getComputedStyle(e).clipPath==='none'}).length}`);
+    await T.shot(`row2-mustred-planted-${W}`);
+    await T.ev(`document.getElementById('__plant').remove(); return 1`); await sleep(200);
+    r.afterRemove = await T.ev(`return {scrollWidth:document.documentElement.scrollWidth, innerWidth}`);
+    r.exceptions = T.S.exceptions.slice();
+    // full-page capture of the result for the thai-render check
+    save(`final-${W}${tagMob}`, r); await T.close();
+    console.log('final', W, tagMob, 'inner', JSON.stringify(m.inner), 'win', m.win && m.win.painted, m.win && m.win.lines, 'cards', JSON.stringify(m.cards.map((c) => c.painted)), 'over', m.over.length, 'mustRed', JSON.stringify(r.mustRed));
+  },
+  async ladder1920() { // rows 3 and 6 at 1920: lane-pick screen
+    const W = 1920; const T = await openTab(); await T.view(1920, 1080);
+    const r = { arrived: await seed(T, { names: mkNames(40), prizes: 3, sched: [20, 10, 7], games: { final: 'ladder' } }) };
+    r.view = await toWidth(T, 1920);
+    await rounds2D(T, 4); await sleep(800);
+    r.hud = await T.ev(HUD); r.lanes = await T.ev(LANES);
+    await T.shot('row3-lanepick-1920');
+    r.exceptions = T.S.exceptions.slice();
+    save('ladder1920', r); await T.close();
+    console.log(JSON.stringify(r.hud).slice(0, 900));
+  },
+};
+await runs[kind]();
+process.exit(0);

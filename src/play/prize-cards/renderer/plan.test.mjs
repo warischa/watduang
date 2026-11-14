@@ -3,7 +3,11 @@
 // only draw by inventing or contradicting something is refused, never repaired.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as plan from './plan.ts';
+import { fitName, graphemes } from '../../prize-fireworks/renderer/text-fit.ts';
 import { dealInput, people, roundInput } from './fixtures.mjs';
 
 const label = (e) => (e.type === 'beat' ? `${e.beat}:${e.index}` : e.type);
@@ -123,21 +127,85 @@ test('an outcome the module cannot draw faithfully is refused, never repaired', 
   assert.throws(() => plan.planFor({ ...r, outcome: { ...o, round: 5 } }), /round/);
 });
 
-test('layout: the board metrics hold to 102 cards, then the field scales as one and stays inside the stage', () => {
+test('layout: the board metrics hold to 102 cards, then the grid changes and every card stays inside the field', () => {
   const hundred = plan.fieldLayout(100);
-  assert.deepEqual([hundred.cols, hundred.s], [6, 1]);
+  assert.deepEqual([hundred.cols, hundred.s, hundred.cardW, hundred.rowH[0]], [6, 1, plan.CARD.w, plan.CARD.h]);
   for (const n of [9, 52, 102, 103, 150, 200]) {
     const l = plan.fieldLayout(n);
-    const w = plan.CARD.w * l.s;
-    const h = plan.CARD.h * l.s;
-    for (const c of l.cells) {
+    l.cells.forEach((c, i) => {
+      const w = l.cardW * l.s;
+      const h = l.rowH[Math.floor(i / l.cols)] * l.s;
       assert.ok(c.cx - w / 2 >= plan.FIELD.left - 1e-6 && c.cx + w / 2 <= plan.FIELD.right + 1e-6, `n ${n}: a card leaves the field sideways`);
       assert.ok(c.cy - h / 2 >= plan.FIELD.top - 1e-6 && c.cy + h / 2 <= plan.FIELD.top + plan.FIELD.height + 1e-6, `n ${n}: a card leaves the field`);
-    }
+    });
     const keys = new Set(l.cells.map((c) => `${Math.round(c.cx)},${Math.round(c.cy)}`));
     assert.equal(keys.size, n, `n ${n}: two cards share a slot`);
   }
-  assert.ok(plan.fieldLayout(200).s < 1);
+});
+
+// PD-306-01: above 102 names the cards keep the board's sizes (no scaled field) and only the grid changes:
+// 32px rows (two name lines at the 16px floor), the fewest columns from 6 that fit the field. The numbers
+// are the audit canvas's (docs/verification/evidence/gh305-audit-frames-2026-11-14, frames cards-103/150/200).
+test('layout above 102: 6x18, 8x19, 10x20 at the canvas card sizes, never scaled', () => {
+  for (const [n, cols, rows, w] of [
+    [103, 6, 18, 293],
+    [150, 8, 19, 217.3],
+    [200, 10, 20, 171.8],
+  ]) {
+    const l = plan.fieldLayout(n);
+    assert.deepEqual([l.cols, l.rows], [cols, rows], `n ${n}`);
+    assert.equal(l.s, 1, `n ${n}: the field is scaled`);
+    assert.ok(Math.abs(l.cardW - w) < 0.06, `n ${n}: card width ${l.cardW}, the canvas has ${w}`);
+    assert.deepEqual(l.rowH, new Array(rows).fill(32), `n ${n}`);
+  }
+  assert.equal(plan.fieldLayout(102).rows, 17, 'at 102 the board layout is unchanged');
+  assert.equal(plan.fieldLayout(102).rowH[0], plan.CARD.h);
+});
+
+test('layout above 102: a row grows with its longest name (up to 4 lines at 16px) and the field still holds', () => {
+  const cardWs = [];
+  const lines = (n, at) => (cardW) => {
+    cardWs.push(cardW);
+    return Array.from({ length: n }, (_, i) => at[i] ?? 1);
+  };
+  // The canvas's two grown states: one 3-line name (field used 732) and one 4-line name (748).
+  const three = plan.fieldLayout(200, lines(200, { 3: 3 }));
+  assert.deepEqual([three.cols, three.s, three.rowH[0], three.rowH[1]], [10, 1, 48, 32], 'the row of a 3-line name is 3 x 16');
+  const l = plan.fieldLayout(200, lines(200, { 13: 4, 3: 2 }));
+  assert.deepEqual([l.cols, l.s, l.rowH[0], l.rowH[1], l.rowH[2]], [10, 1, 32, 64, 32], 'the row of a 4-line name is 4 x 16');
+  assert.ok(cardWs.length > 0, 'the measured line counts were never asked for');
+  // Cells follow the grown rows: a row starts below the one above it, rowGap apart.
+  const top = (r) => l.cells[r * l.cols].cy - l.rowH[r] / 2;
+  assert.ok(Math.abs(top(1) - (top(0) + 32 + plan.CARD.rowGap)) < 1e-9);
+  assert.ok(Math.abs(top(2) - (top(1) + 64 + plan.CARD.rowGap)) < 1e-9);
+  const used = l.cells.at(-1).cy + 16 - top(0);
+  assert.ok(Math.abs(used - 748) < 1e-9, `field used ${used}, the canvas has 748`);
+  // Names so long every row needs 4 lines cannot all keep 16px inside the field: the field scales as one
+  // (the honest fallback), and still no card leaves it.
+  const worst = plan.fieldLayout(200, lines(200, Object.fromEntries(Array.from({ length: 200 }, (_, i) => [i, 4]))));
+  assert.ok(worst.s < 1);
+  worst.cells.forEach((c, i) => {
+    const h = worst.rowH[Math.floor(i / worst.cols)] * worst.s;
+    assert.ok(c.cy - h / 2 >= plan.FIELD.top - 1e-6 && c.cy + h / 2 <= plan.FIELD.top + plan.FIELD.height + 1e-6);
+  });
+});
+
+// The painted size of a name is its card-unit size times the field's scale. At 200 names the old layout
+// scaled the field to 0.69, so a name fitted to its 16px floor painted at 11.1px.
+test('layout at 200: the widest names on the canvas paint no smaller than the 16px floor', () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const measured = JSON.parse(readFileSync(path.join(here, '../../../../docs/verification/evidence/gh305-audit-frames-2026-11-14/measurements.json'), 'utf8'));
+  const wide = measured.frames['cards-200'].wide.map((w) => w.name);
+  assert.ok(wide.length >= 4);
+  const l = plan.fieldLayout(200);
+  const { up } = plan.nameBoxes(l.cardW);
+  // A fixed-advance stand-in for the font: this proves the scale arithmetic, not the font's widths.
+  const measure = (text, size) => graphemes(text).length * size * 0.55;
+  for (const name of wide) {
+    const fit = fitName(name, measure, plan.NAME_FIT.size, plan.NAME_FIT.floor, up);
+    assert.ok(fit.size * l.s >= 16 - 1e-9, `${name}: paints at ${fit.size * l.s}px`);
+  }
+  assert.ok(Math.abs(up - 87.8) < 0.06, `the name box is ${up}px, the canvas has 87.8`);
 });
 
 test('beatsIn is half open: each beat is reported once across consecutive ticks', () => {

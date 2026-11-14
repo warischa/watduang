@@ -40,6 +40,8 @@ export const COPY = {
   nameHint: 'ชื่อเล่นหรือชื่อเรียกก็ได้ ไม่เกิน 12 ตัว',
   nameLabel: 'ชื่อของคุณ',
   join: 'เข้าร่วม',
+  /** The join button's label while a name is being sent (owner-approved 2026-11-14); the ellipsis is U+2026. */
+  sending: 'กำลังส่ง…',
   deletionNote: 'รายชื่อทั้งหมดจะถูกลบหลังจบงาน',
   deviceHeading: 'เครื่องนี้เข้าร่วมแล้ว',
   onePerDevice: '1 เครื่องเข้าร่วมได้ 1 ชื่อ',
@@ -81,6 +83,8 @@ export const SEND_TIMEOUT_MS = 15000;
 type KeyStore = { getItem(key: string): string | null; setItem(key: string, value: string): void };
 
 export type JoinEnv = {
+  /** The game's Thai name from the manifest (read where the page is built): the neutral heading above the not-found row. */
+  gameName: string;
   /** The page URL. Only the fragment carries the link; the query is never read for it. */
   location: { pathname: string; search: string; hash: string };
   /** Used once, to take the link out of the visible URL after it is read. */
@@ -114,7 +118,7 @@ export function mountJoin(root: HTMLElement, env: JoinEnv): JoinHandle {
 
   const handle: JoinHandle = { settled: () => queue, refit: () => fitAll(root) };
   if (!link.eventId) {
-    message(ANSWER_COPY.noEvent);
+    notFound();
     return handle;
   }
   const eventId = link.eventId;
@@ -313,6 +317,15 @@ export function mountJoin(root: HTMLElement, env: JoinEnv): JoinHandle {
     frame(null).append(el('h1', 'pj-h', text));
   }
 
+  /** No event in the link: the game's name as a neutral heading, then the answer as the board's error row. */
+  function notFound(): void {
+    const body = frame(null);
+    const row = el('div', 'pj-emsg');
+    row.setAttribute('role', 'alert');
+    row.append(errorIcon(), el('span', undefined, ANSWER_COPY.noEvent));
+    body.append(el('h1', 'pj-h', env.gameName), row);
+  }
+
   function takenMessage(name: string): Node {
     const span = el('span');
     for (const run of takenRuns(name)) {
@@ -366,7 +379,9 @@ export function mountJoin(root: HTMLElement, env: JoinEnv): JoinHandle {
       field.focus();
       return;
     }
+    const idle = btn.textContent;
     btn.disabled = true;
+    btn.textContent = COPY.sending;
     field.readOnly = true;
     try {
       // One name per device: a name whose send may have landed is settled before any other is sent.
@@ -378,6 +393,7 @@ export function mountJoin(root: HTMLElement, env: JoinEnv): JoinHandle {
       show(await send(checked.name), checked.name);
     } finally {
       btn.disabled = false;
+      btn.textContent = idle;
       field.readOnly = false;
     }
   }

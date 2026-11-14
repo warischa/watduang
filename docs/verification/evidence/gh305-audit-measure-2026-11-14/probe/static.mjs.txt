@@ -1,0 +1,113 @@
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+import { setIn, mkNames, pickGame, cardStates, setPrizes } from './ev.mjs';
+const only = process.argv[2];
+const file = join(OUT, 'results-static.json');
+const R = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : {};
+const save = (k, v) => { R[k] = v; writeFileSync(file, JSON.stringify(R, null, 1)); };
+const rect = `const q=(e)=>{const r=e.getBoundingClientRect();return {l:+r.left.toFixed(1),t:+r.top.toFixed(1),w:+r.width.toFixed(1),h:+r.height.toFixed(1),r:+r.right.toFixed(1)}};`;
+const overflow = `const de=document.documentElement; const over=[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect(); return r.width>0&&r.height>0&&(r.right>de.clientWidth+0.5||r.left<-0.5)&&getComputedStyle(e).position!=='fixed'}).map(e=>e.tagName+'.'+String(e.className).slice(0,30)+':'+Math.round(e.getBoundingClientRect().right));`;
+
+const rows = {
+  // row 8
+  async setupCards() {
+    const out = {};
+    for (const [W, H, mobile] of [[1280, 900, false], [320, 568, true]]) {
+      const T = await openTab(); await T.view(W, H, mobile);
+      await T.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' });
+      await T.nav(`${BASE}/game/prize-draw/`); await T.view(W, H, mobile); await sleep(500);
+      await setIn(T, 'pd-names', mkNames(30).join('\n')); await setIn(T, 'pd-event', 'Audit'); await sleep(400);
+      const r = await T.ev(`${rect} const REASON='เกมไพ่ใช้ได้เฉพาะรอบที่คัดออกครึ่งหนึ่งพอดี';
+        const cs=(b)=>{const c=getComputedStyle(b); return {text:b.textContent.trim(),disabled:b.disabled,ariaDisabled:b.getAttribute('aria-disabled'),borderStyle:c.borderTopStyle,borderWidth:c.borderTopWidth,borderColor:c.borderTopColor,bg:c.backgroundColor,color:c.color,opacity:c.opacity,w:q(b).w,h:q(b).h}};
+        const cards=[1,2,3,4].map(i=>document.querySelector('#pd-game-r'+i+' button[data-game="cards"]')).filter(Boolean).map(cs);
+        const enabled=[...document.querySelectorAll('#pd-game-r1 button')].filter(b=>!b.disabled&&b.dataset.game!=='cards').map(cs);
+        const body=document.body.innerText; let occ=0,ix=-1; while((ix=body.indexOf(REASON,ix+1))>=0)occ++;
+        const vis=[...document.querySelectorAll('.games-note, [id$="-note"]')].filter(n=>n.innerText.includes(REASON)).map(n=>({id:n.id,visible:n.offsetParent!==null,rect:q(n)}));
+        return {inner:[innerWidth,document.documentElement.scrollWidth],cards,enabledSample:enabled[0]??null,reasonOccurrences:occ,reasonNodes:vis};`);
+      await T.ev(`document.getElementById('pd-game-r1').scrollIntoView({block:'center'}); return 1`); await sleep(300);
+      r.shot = await T.shot(`row8-setup-cards-disabled-${W}`);
+      r.exceptions = T.S.exceptions.slice();
+      out[W] = r; await T.close();
+    }
+    save('row8', out); return out;
+  },
+  // row 9b + 9c + 9e (setup page) with canvas values
+  async frames314() {
+    const out = {};
+    // canvas B values, measured by rendering the canvas in the same Chrome
+    {
+      const T = await openTab(); await T.view(1600, 1000);
+      await T.nav('file://<repo>/design/Gh314Frames.dc.html'); await sleep(2500);
+      out.canvas = await T.ev(`${rect}
+        const one=(f,d)=>document.querySelector('[data-frame="'+f+'"][data-dir="'+d+'"]');
+        const sch=one('i1-setup','B'); const vrows=[...sch.querySelectorAll('.vrow')].map(r=>({lab:q(r.querySelector('.lab')),val:q(r.querySelector('.val'))}));
+        const varr=[...sch.querySelectorAll('.varr')].map(q);
+        const back=one('i1-back','B'); const links=[...back.querySelectorAll('.crumb a')].map(a=>({text:a.textContent,r:q(a),fs:getComputedStyle(a).fontSize,td:getComputedStyle(a).textDecorationLine})); const sep=back.querySelector('.sep'); const sepcs=getComputedStyle(sep);
+        const ref=one('i1-refused','B'); const nm=ref.querySelector('.emsg-name'), why=ref.querySelector('.emsg-why'); const g=(e)=>{const c=getComputedStyle(e);return {fw:c.fontWeight,fs:c.fontSize,color:c.color,ow:c.overflowWrap}};
+        const sched=one('i1-setup','B').getBoundingClientRect().width;
+        return {vrows,varr,back:{links,sepMargin:sepcs.marginLeft+'/'+sepcs.marginRight,crumbFs:getComputedStyle(back.querySelector('.crumb')).fontSize,crumbFw:getComputedStyle(back.querySelector('.crumb')).fontWeight},refused:{name:g(nm),why:g(why),nameRect:q(nm),whyRect:q(why),rowCount:ref.querySelectorAll('.emsg').length},frameW:sched};`);
+      out.canvas.fonts = await T.ev(`await document.fonts.ready; return [...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family+f.weight)`);
+      await T.close();
+    }
+    for (const [W, H] of [[320, 568], [1280, 900]]) {
+      const T = await openTab(); const mobile = W < 640; await T.view(W, H, mobile);
+      await T.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' });
+      await T.nav(`${BASE}/game/prize-draw/`); await T.view(W, H, mobile); await sleep(600);
+      // 1c back link
+      const back = await T.ev(`${rect} ${overflow} const links=[...document.querySelectorAll('.crumb a')].map(a=>({text:a.textContent.trim(),href:a.getAttribute('href'),r:q(a),fs:getComputedStyle(a).fontSize,td:getComputedStyle(a).textDecorationLine,fw:getComputedStyle(a).fontWeight})); const sep=document.querySelector('.crumb .sep'); const c=sep&&getComputedStyle(sep); const cr=document.querySelector('.crumb'); return {inner:[innerWidth,document.documentElement.scrollWidth],links,sepMargin:c?c.marginLeft+'/'+c.marginRight:null,sepText:sep?.textContent,crumbFs:getComputedStyle(cr).fontSize,crumbFw:getComputedStyle(cr).fontWeight,over};`);
+      await T.ev(`document.querySelector('.crumb').scrollIntoView({block:'center'});return 1`);
+      back.shot = await T.shot(`row9c-back-${W}`);
+      out[`back-${W}`] = back;
+      if (W === 320) {
+        // 1b schedule list
+        await setIn(T, 'pd-names', mkNames(200).join('\n')); await setIn(T, 'pd-event', 'Audit'); await sleep(400);
+        const sch = await T.ev(`${rect} ${overflow}
+          const boxes=[...document.querySelectorAll('#pd-sched .box')].map(b=>{const v=b.querySelector('.val'); const labs=b.querySelector('.lab'); return {lab:q(labs),val:q(v),labText:labs.innerText.replace(/\\n/g,' ')}});
+          const arrs=[...document.querySelectorAll('#pd-sched .arr')].map(a=>({r:q(a),display:getComputedStyle(a).display,vis:a.offsetParent!==null}));
+          const sched=document.getElementById('pd-sched'); const sc=getComputedStyle(sched);
+          return {inner:[innerWidth,document.documentElement.scrollWidth],boxes,arrs,schedDisplay:sc.display,schedDir:sc.flexDirection,schedRect:q(sched),over};`);
+        await T.ev(`document.getElementById('pd-sched').scrollIntoView({block:'start'});window.scrollBy(0,-90);return 1`); await sleep(300);
+        sch.shot = await T.shot('row9b-schedule-320'); out['sched-320'] = sch;
+        // 1e refused row
+        await setIn(T, 'pd-names', 'ฝน ก.\nWWWWWWWWWWWWW\nฝน ก.'); await sleep(500);
+        const ref = await T.ev(`${rect} ${overflow}
+          const g=(e)=>{const c=getComputedStyle(e);return {fw:c.fontWeight,fs:c.fontSize,color:c.color,ow:c.overflowWrap,display:c.display}};
+          const rows=[...document.querySelectorAll('#pd-names-msg .emsg')].map(r=>{const n=r.querySelector('.emsg-name'),w=r.querySelector('.emsg-why'); return {text:r.innerText.replace(/\\n/g,' | '),row:q(r),name:n?{...g(n),r:q(n),t:n.textContent}:null,why:w?{...g(w),r:q(w),t:w.textContent}:null}});
+          return {inner:[innerWidth,document.documentElement.scrollWidth],rows,count:document.querySelector('.count')?.innerText.replace(/\\n/g,' | '),over};`);
+        await T.ev(`document.getElementById('pd-names').scrollIntoView({block:'start'});window.scrollBy(0,-20);return 1`); await sleep(300);
+        ref.shot = await T.shot('row9e-refused-320'); out['refused-320'] = ref;
+      }
+      out[`exc-${W}`] = T.S.exceptions.slice();
+      await T.close();
+    }
+    save('frames314', out); return out;
+  },
+  // row 10
+  async join() {
+    const T = await openTab(); await T.view(320, 568, true);
+    await T.nav(`${BASE}/game/prize-draw/join/#event=abcdefghijklmnopqrstuv&pin=123456`); await T.view(320, 568, true); await sleep(2500);
+    const out = { screen0: await T.ev(`return {path:location.pathname+location.hash,text:document.body.innerText.slice(0,200),inputs:[...document.querySelectorAll('input')].map(i=>i.id),btns:[...document.querySelectorAll('button')].map(b=>b.textContent)}`) };
+    await T.shot('row10-join-initial-320');
+    await T.send('Fetch.enable', { patterns: [{ urlPattern: '*/api/*' }] });
+    const held = [];
+    // never continue: the request stays held
+    const nameOk = await T.ev(`const f=document.getElementById('pj-name'); if(!f) return 'no-name-field'; return 'ok'`);
+    out.nameField = nameOk;
+    if (nameOk === 'ok') {
+      await setIn(T, 'pj-name', 'ฝน');
+      await T.ev(`document.querySelector('#pj-name-form .pj-btn').click(); return 1`);
+      await sleep(1200);
+      out.held = await T.ev(`const b=document.querySelector('#pj-name-form .pj-btn'); const c=getComputedStyle(b); return {text:b.textContent,disabled:b.disabled,opacity:c.opacity,w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height,inner:[innerWidth,document.documentElement.scrollWidth]}`);
+      await T.shot('row10-join-sending-320');
+      // must-red: a different instrument state — release the request and the button must return to idle
+      await T.send('Fetch.disable');
+      await sleep(300);
+    }
+    out.exceptions = T.S.exceptions; out.requests = T.S.requests.filter((u) => /api/.test(u));
+    await T.close(); save('join', out); return out;
+  },
+};
+const names = only ? [only] : Object.keys(rows);
+for (const n of names) { console.log('== ' + n); console.log(JSON.stringify(await rows[n](), null, 1).slice(0, 9000)); }
+process.exit(0);

@@ -139,9 +139,26 @@ const COPY = {
 };
 
 /** The screens with a name field: under 640px they take the phone layout, names in two columns (gh#314
- *  item 5 B). The lane picks take their own phone layout (markField); the result and the cold screen keep the
- *  scaled frame. */
+ *  item 5 B). The lane picks and the result take their own phone layouts (markField); the cold screen keeps
+ *  the scaled frame. */
 const FIELD_SCREENS = new Set(['round', 'reveal', 'final']);
+
+/**
+ * A layout that sets its names at another size may also give them another floor, as `--fit-floor` in its
+ * stylesheet (the result's phone layout, design/Gh305AuditFrames.dc.html frame 2). The fit rule reads its
+ * floor from the box (names-dom.ts fitName), so each box under `root` takes the floor its layout asks for, or
+ * goes back to its surface's own floor when the layout asks none. Run before a fit. Needs computed styles, so
+ * it does nothing outside a browser.
+ */
+export function layoutFloors(root: ParentNode): void {
+  if (typeof getComputedStyle !== 'function') return;
+  root.querySelectorAll<HTMLElement>('[data-fit-floor]').forEach((box) => {
+    const own = box.getAttribute('data-fit-own') ?? box.getAttribute('data-fit-floor')!;
+    box.setAttribute('data-fit-own', own);
+    const asked = parseFloat(getComputedStyle(box).getPropertyValue('--fit-floor'));
+    box.setAttribute('data-fit-floor', Number.isFinite(asked) ? String(asked) : own);
+  });
+}
 
 /** A committed outcome some 3D game plays (a step with no game reveals in 2D and never reaches the host). */
 type Presented = CommittedOutcome & { game: GameId };
@@ -326,7 +343,9 @@ export function mountStage(deps: StageDeps): StageHandle {
         plates: picksOf(s).map((id) => (id === null ? null : finalists.findIndex((p) => p.id === id))),
         next: nextLane,
         laneLabel: COPY.lane,
-        picking: COPY.lanePick,
+        // Broken at its own space so the line ends left of rail 1 at 1920 (owner pick PD-307-03,
+        // design/Gh305AuditFrames.dc.html frame 3); the stylesheet keeps each half on one line.
+        picking: COPY.lanePick.replace(' ', '\n'),
       },
       doc,
     );
@@ -409,14 +428,22 @@ export function mountStage(deps: StageDeps): StageHandle {
     mounted = button ? seen : null;
   };
 
-  /** Mark whether the screen on the frame has a name field, or is the ladder's lane picks: each takes its
-   *  own phone layout under 640px (play.css). */
+  /** Mark whether the screen on the frame has a name field, is the ladder's lane picks, or is the final
+   *  result: each takes its own phone layout under 640px (play.css). */
   const markField = (): void => {
     const screen = frame.getAttribute('data-screen');
     if (screen !== null && FIELD_SCREENS.has(screen)) viewport.setAttribute('data-field', '');
     else viewport.removeAttribute('data-field');
     if (screen === 'lanes') viewport.setAttribute('data-lanes', '');
     else viewport.removeAttribute('data-lanes');
+    if (screen === 'result') viewport.setAttribute('data-result', '');
+    else viewport.removeAttribute('data-result');
+  };
+
+  /** Fit every name on the frame at the floors its layout asks for (layoutFloors). */
+  const fitFrameNames = (): void => {
+    layoutFloors(frame);
+    fitAll(frame);
   };
 
   /**
@@ -582,17 +609,28 @@ export function mountStage(deps: StageDeps): StageHandle {
     else renderScreen(frame, view, doc);
     paintControls(state);
     markField();
+    // The result's names were fitted before the mark reached its phone layout, at the projector's floors.
+    if (view.kind === 'result') fitFrameNames();
     announce(live, view, doc);
     const field = frame.querySelector<HTMLElement>('.pd-field');
     if (field && view.kind === 'reveal') {
       if (deps.reducedMotion) field.classList.add('pd-fade');
       else if (wave && deps.nextFrame) {
-        // Rendered with its end state so names were fitted bold; the wave runs from unmarked to marked.
+        // Rendered with its end state so names were fitted bold, and that fit computed the marked style. The
+        // wave is ONE style change, unmarked to marked, so the unmarked style must be computed first without a
+        // transition of its own: a marked -> unmarked change would run one per name, and the re-mark would
+        // cancel them all in their delays (gh#314 1d, measured in Chrome). So the field leaves rendering while
+        // it drops the mark (a flush at display none keeps no style to start from), comes back unmarked (a
+        // second flush), and only the next frame marks it.
+        field.style.setProperty('display', 'none');
         field.classList.remove('pd-marked');
+        void field.offsetWidth;
+        field.style.setProperty('display', '');
+        void field.offsetWidth;
         deps.nextFrame(() => field.classList.add('pd-marked'));
       }
     }
-    if (view.kind === 'reveal') deps.whenBoldLoaded?.(() => fitAll(frame));
+    if (view.kind === 'reveal') deps.whenBoldLoaded?.(fitFrameNames);
     show(viewport);
   };
 
@@ -709,7 +747,7 @@ export function mountStage(deps: StageDeps): StageHandle {
       fitFrame(picks, viewport);
       // Names are fitted at their layout's size, so crossing the phone break refits them (gh#314 item 5).
       const now = win.innerWidth < 640;
-      if (narrow !== null && now !== narrow) fitAll(frame);
+      if (narrow !== null && now !== narrow) fitFrameNames();
       narrow = now;
     };
     win.addEventListener('resize', refit);
@@ -771,7 +809,7 @@ export function mountStage(deps: StageDeps): StageHandle {
 
   return {
     current: () => state,
-    refit: () => fitAll(frame),
+    refit: fitFrameNames,
     version: () => ({ seen, token: mounted, busy }),
     ready,
   };

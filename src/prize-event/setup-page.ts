@@ -93,6 +93,9 @@ export const NO_GAME_LABEL = 'แบบปกติ';
 /** Owner-approved (gh#305): shown over the game rows when this browser cannot draw WebGL2. */
 export const NO_WEBGL_NOTE = 'เครื่องนี้แสดงเกม 3D ไม่ได้ ถ้าวันงานก็แสดงไม่ได้ ระบบจะเปิดผลแบบปกติให้เอง';
 
+/** Owner-approved 2026-11-14 (PD-305-01): why a round's cards button is locked. */
+export const CARDS_HALF_NOTE = 'เกมไพ่ใช้ได้เฉพาะรอบที่คัดออกครึ่งหนึ่งพอดี';
+
 /** Can this browser draw the 3D games? One WebGL2 context on a canvas that never joins the document, then
  *  released at once. No context, or a browser that throws, is no. */
 export function hasWebGL2(doc: Pick<Document, 'createElement'>): boolean {
@@ -452,17 +455,23 @@ export function mountSetup(doc: Document, win: Win, options: SetupOptions = {}):
   });
   // Cards play only a round that cuts exactly in half (event.ts cutsInHalf), so a round's cards button is
   // disabled on any other cut, checked again on every schedule change; a cards pick on a round that stops
-  // halving is cleared there and then, never kept for the start to refuse.
+  // halving is cleared there and then, never kept for the start to refuse. While any round holds cards back,
+  // one reason line (for the page) sits under the first such round's row. Its slots are looked up softly, as
+  // the mode toggle is: a page without them still gets the locking, just not the line.
+  const cardNotes = Array.from({ length: ELIMINATION_ROUNDS }, (_, i) => doc.getElementById(`${GAME_GROUPS[i]}-note`));
   function offerCards(sched: readonly number[]): void {
+    let firstHeld = -1;
     for (let step = 0; step < ELIMINATION_ROUNDS; step++) {
       const halves = cutsInHalf(sched, step + 1);
       const b = cardButtons[step];
       if (b) b.disabled = !halves;
+      if (b && !halves && firstHeld < 0) firstHeld = step;
       if (!halves && chosen[step] === 'cards') {
         chosen[step] = null;
         renders[step]?.();
       }
     }
+    cardNotes.forEach((slot, step) => slot?.replaceChildren(...(step === firstHeld ? [errorRow(doc, { text: CARDS_HALF_NOTE })] : [])));
   }
   const cut = (step: number): CutGame => {
     const g = chosen[step];

@@ -9,7 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { classify, exitCodeFor, aggregate, resolveGLContext, judgeHold, RECORDER, measureRoute, REVEAL_DRIVERS, HOLD_EXERCISE, judgeHoldExercise } from './webgl-pixels-probe.mjs';
+import { classify, exitCodeFor, aggregate, resolveGLContext, judgeHold, RECORDER, measureRoute, REVEAL_DRIVERS, HOLD_EXERCISE, judgeHoldExercise, viewportFor, PHONE_VIEWPORT, WIDE_VIEWPORT } from './webgl-pixels-probe.mjs';
 import * as hold from '../src/play/_render-hold.ts';
 import { loadDeclarations, renderPlayRoutes } from './render-suspension-check.mjs';
 import { screenlessPlayPaths } from './play-screen-fit-probe.mjs';
@@ -757,4 +757,14 @@ test('recheck: the cards demo is driven by one press, to its deal -- the reveal 
   assert.equal(await REVEAL_DRIVERS['prize-cards']({ evaluate }), null);
   assert.equal(presses.length, 1, 'the driver went past the deal, through an exit the route policy reds');
   assert.match(await REVEAL_DRIVERS['prize-cards']({ evaluate: async () => ({ value: 'no armed .pr-go within 8000ms' }) }), /no armed/);
+});
+
+test('viewport: every prize reveal route is driven at a width where it draws 3D; every other route keeps the phone buffer', async () => {
+  assert.ok(WIDE_VIEWPORT.width >= 640, 'below 640px a prize reveal runs the 2D path and creates no WebGL context');
+  assert.equal(WIDE_VIEWPORT.mobile, false);
+  assert.deepEqual(PHONE_VIEWPORT, { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  for (const id of Object.keys(REVEAL_DRIVERS)) assert.deepEqual(viewportFor(id), WIDE_VIEWPORT, `${id} would be driven below 640px and read UNMEASURED`);
+  const others = (await renderPlayRoutes()).map((g) => g.id).filter((id) => !REVEAL_DRIVERS[id]);
+  assert.ok(others.length > 0);
+  for (const id of others) assert.deepEqual(viewportFor(id), PHONE_VIEWPORT, `${id} left the phone buffer`);
 });

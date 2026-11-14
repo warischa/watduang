@@ -1,0 +1,3822 @@
+{
+ "demos": {
+  "fireworks-320": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     320,
+     320
+    ],
+    "bar": {
+     "l": 0,
+     "t": 3876.4,
+     "w": 320,
+     "h": 184.3,
+     "r": 320,
+     "b": 4060.7
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 3892.4,
+       "w": 288,
+       "h": 24.3,
+       "r": 304,
+       "b": 3916.7
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 3928.7,
+       "w": 276.9,
+       "h": 52,
+       "r": 292.9,
+       "b": 3980.7
+      },
+      "txt": "รอบคัดออกรอบชิง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 16,
+       "t": 3992.7,
+       "w": 127.3,
+       "h": 52,
+       "r": 143.3,
+       "b": 4044.7
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 3,
+    "tops": [
+     3892,
+     3929,
+     3993
+    ],
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 3820.4,
+     "r": 320,
+     "b": 3876.4
+    },
+    "barBelowFrame": true,
+    "gname": {
+     "l": 16,
+     "t": 236,
+     "w": 139.2,
+     "h": 26.4,
+     "r": 155.2,
+     "b": 262.4
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 512,
+     "r": 320,
+     "b": 568
+    }
+   },
+   "narrowQuery": true,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": false,
+    "sawAtMs": null,
+    "endBtn": "ดูอีกครั้ง",
+    "glContexts": 0,
+    "frames": 0,
+    "threeChunk": false,
+    "chunkReqs": []
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     320,
+     320
+    ],
+    "bar": {
+     "l": 0,
+     "t": 383.4,
+     "w": 320,
+     "h": 184.3,
+     "r": 320,
+     "b": 567.7
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 399.4,
+       "w": 288,
+       "h": 24.3,
+       "r": 304,
+       "b": 423.7
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 435.7,
+       "w": 276.9,
+       "h": 52,
+       "r": 292.9,
+       "b": 487.7
+      },
+      "txt": "รอบคัดออกรอบชิง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 16,
+       "t": 499.7,
+       "w": 144.7,
+       "h": 52,
+       "r": 160.7,
+       "b": 551.7
+      },
+      "txt": "ดูอีกครั้ง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 3,
+    "tops": [
+     399,
+     436,
+     500
+    ],
+    "frame": {
+     "l": 0,
+     "t": -3437,
+     "w": 320,
+     "h": 3820.4,
+     "r": 320,
+     "b": 383.4
+    },
+    "barBelowFrame": true,
+    "gname": {
+     "l": 16,
+     "t": -3257,
+     "w": 139.2,
+     "h": 26.4,
+     "r": 155.2,
+     "b": -3230.6
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 512,
+     "r": 320,
+     "b": 568
+    }
+   },
+   "finalBar": {
+    "inner": [
+     320,
+     320
+    ],
+    "bar": {
+     "l": 0,
+     "t": 358,
+     "w": 320,
+     "h": 308.3,
+     "r": 320,
+     "b": 666.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 374,
+       "w": 288,
+       "h": 24.3,
+       "r": 304,
+       "b": 398.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 410.3,
+       "w": 276.9,
+       "h": 52,
+       "r": 292.9,
+       "b": 462.3
+      },
+      "txt": "รอบคัดออกรอบชิง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 474.3,
+       "w": 288,
+       "h": 112,
+       "r": 304,
+       "b": 586.3
+      },
+      "txt": "12345"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 16,
+       "t": 598.3,
+       "w": 127.3,
+       "h": 52,
+       "r": 143.3,
+       "b": 650.3
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 4,
+    "tops": [
+     374,
+     410,
+     474,
+     598
+    ],
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 302,
+     "r": 320,
+     "b": 358
+    },
+    "barBelowFrame": true,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 512,
+     "r": 320,
+     "b": 568
+    }
+   },
+   "exceptions": []
+  },
+  "fireworks-639": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     639,
+     639
+    ],
+    "bar": {
+     "l": 0,
+     "t": 3876.4,
+     "w": 639,
+     "h": 120.3,
+     "r": 639,
+     "b": 3996.7
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 3892.4,
+       "w": 607,
+       "h": 24.3,
+       "r": 623,
+       "b": 3916.7
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 3928.7,
+       "w": 276.9,
+       "h": 52,
+       "r": 292.9,
+       "b": 3980.7
+      },
+      "txt": "รอบคัดออกรอบชิง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 304.9,
+       "t": 3928.7,
+       "w": 127.3,
+       "h": 52,
+       "r": 432.2,
+       "b": 3980.7
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     3892,
+     3929
+    ],
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 3820.4,
+     "r": 639,
+     "b": 3876.4
+    },
+    "barBelowFrame": true,
+    "gname": {
+     "l": 16,
+     "t": 236,
+     "w": 139.2,
+     "h": 26.4,
+     "r": 155.2,
+     "b": 262.4
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 512,
+     "r": 639,
+     "b": 568
+    }
+   },
+   "narrowQuery": true,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": false,
+    "sawAtMs": null,
+    "endBtn": "ดูอีกครั้ง",
+    "glContexts": 0,
+    "frames": 0,
+    "threeChunk": false,
+    "chunkReqs": []
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     639,
+     639
+    ],
+    "bar": {
+     "l": 0,
+     "t": 447.4,
+     "w": 639,
+     "h": 120.3,
+     "r": 639,
+     "b": 567.7
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 463.4,
+       "w": 607,
+       "h": 24.3,
+       "r": 623,
+       "b": 487.7
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 499.7,
+       "w": 276.9,
+       "h": 52,
+       "r": 292.9,
+       "b": 551.7
+      },
+      "txt": "รอบคัดออกรอบชิง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 304.9,
+       "t": 499.7,
+       "w": 144.7,
+       "h": 52,
+       "r": 449.6,
+       "b": 551.7
+      },
+      "txt": "ดูอีกครั้ง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     463,
+     500
+    ],
+    "frame": {
+     "l": 0,
+     "t": -3373,
+     "w": 639,
+     "h": 3820.4,
+     "r": 639,
+     "b": 447.4
+    },
+    "barBelowFrame": true,
+    "gname": {
+     "l": 16,
+     "t": -3193,
+     "w": 139.2,
+     "h": 26.4,
+     "r": 155.2,
+     "b": -3166.6
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 512,
+     "r": 639,
+     "b": 568
+    }
+   },
+   "finalBar": {
+    "inner": [
+     639,
+     639
+    ],
+    "bar": {
+     "l": 0,
+     "t": 358,
+     "w": 639,
+     "h": 184.3,
+     "r": 639,
+     "b": 542.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 374,
+       "w": 607,
+       "h": 24.3,
+       "r": 623,
+       "b": 398.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 410.3,
+       "w": 276.9,
+       "h": 52,
+       "r": 292.9,
+       "b": 462.3
+      },
+      "txt": "รอบคัดออกรอบชิง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 474.3,
+       "w": 336.4,
+       "h": 52,
+       "r": 352.4,
+       "b": 526.3
+      },
+      "txt": "12345"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 364.4,
+       "t": 474.3,
+       "w": 127.3,
+       "h": 52,
+       "r": 491.7,
+       "b": 526.3
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 3,
+    "tops": [
+     374,
+     410,
+     474
+    ],
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 302,
+     "r": 639,
+     "b": 358
+    },
+    "barBelowFrame": true,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 512,
+     "r": 639,
+     "b": 568
+    }
+   },
+   "exceptions": []
+  },
+  "fireworks-640": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     640,
+     640
+    ],
+    "bar": {
+     "l": 21.2,
+     "t": 2,
+     "w": 594.8,
+     "h": 52,
+     "r": 616,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 21.2,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 187.8,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 199.8,
+       "t": 2,
+       "w": 276.9,
+       "h": 52,
+       "r": 476.7,
+       "b": 54
+      },
+      "txt": "รอบคัดออกรอบชิง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 488.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 616,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": null,
+    "exitHit": null,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 298,
+     "w": 640,
+     "h": 360,
+     "r": 640,
+     "b": 658
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 18.7,
+     "t": 608.1,
+     "w": 144.6,
+     "h": 20,
+     "r": 163.2,
+     "b": 628.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": null,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 640,
+     "h": 844,
+     "r": 640,
+     "b": 900
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": true,
+    "sawAtMs": 117,
+    "endBtn": null,
+    "glContexts": 1,
+    "frames": 832,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.Ee-nG3RP.js",
+     "three.module.BRVBmMrM.js",
+     "seed.HtOFMeQE.js",
+     "paint.B989SKNL.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     640,
+     640
+    ],
+    "bar": {
+     "l": 449.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 616,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 449.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 616,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 298,
+     "w": 640,
+     "h": 360,
+     "r": 640,
+     "b": 658
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 18.7,
+     "t": 608.1,
+     "w": 144.6,
+     "h": 20,
+     "r": 163.2,
+     "b": 628.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 399.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 640,
+     "h": 844,
+     "r": 640,
+     "b": 900
+    }
+   },
+   "finalBar": {
+    "inner": [
+     640,
+     640
+    ],
+    "bar": {
+     "l": 449.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 616,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 449.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 616,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 298,
+     "w": 640,
+     "h": 360,
+     "r": 640,
+     "b": 658
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 18.7,
+     "t": 608.1,
+     "w": 144.6,
+     "h": 20,
+     "r": 163.2,
+     "b": 628.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 399.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 640,
+     "h": 844,
+     "r": 640,
+     "b": 900
+    }
+   },
+   "exceptions": []
+  },
+  "fireworks-768": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     768,
+     768
+    ],
+    "bar": {
+     "l": 149.2,
+     "t": 2,
+     "w": 594.8,
+     "h": 52,
+     "r": 744,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 149.2,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 315.8,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 327.8,
+       "t": 2,
+       "w": 276.9,
+       "h": 52,
+       "r": 604.7,
+       "b": 54
+      },
+      "txt": "รอบคัดออกรอบชิง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 616.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 744,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 262,
+     "w": 768,
+     "h": 432,
+     "r": 768,
+     "b": 694
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 22.4,
+     "t": 634.1,
+     "w": 173.5,
+     "h": 24,
+     "r": 195.9,
+     "b": 658.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 99.2,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 768,
+     "h": 844,
+     "r": 768,
+     "b": 900
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": true,
+    "sawAtMs": 104,
+    "endBtn": null,
+    "glContexts": 1,
+    "frames": 841,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.Ee-nG3RP.js",
+     "three.module.BRVBmMrM.js",
+     "seed.HtOFMeQE.js",
+     "paint.B989SKNL.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     768,
+     768
+    ],
+    "bar": {
+     "l": 577.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 744,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 577.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 744,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 262,
+     "w": 768,
+     "h": 432,
+     "r": 768,
+     "b": 694
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 22.4,
+     "t": 634.1,
+     "w": 173.5,
+     "h": 24,
+     "r": 195.9,
+     "b": 658.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 527.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 768,
+     "h": 844,
+     "r": 768,
+     "b": 900
+    }
+   },
+   "finalBar": {
+    "inner": [
+     768,
+     768
+    ],
+    "bar": {
+     "l": 577.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 744,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 577.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 744,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 262,
+     "w": 768,
+     "h": 432,
+     "r": 768,
+     "b": 694
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 22.4,
+     "t": 634.1,
+     "w": 173.5,
+     "h": 24,
+     "r": 195.9,
+     "b": 658.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 527.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 768,
+     "h": 844,
+     "r": 768,
+     "b": 900
+    }
+   },
+   "exceptions": []
+  },
+  "fireworks-1024": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     1024,
+     1024
+    ],
+    "bar": {
+     "l": 405.2,
+     "t": 2,
+     "w": 594.8,
+     "h": 52,
+     "r": 1000,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 405.2,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 571.8,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 583.8,
+       "t": 2,
+       "w": 276.9,
+       "h": 52,
+       "r": 860.7,
+       "b": 54
+      },
+      "txt": "รอบคัดออกรอบชิง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 872.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 1000,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 190,
+     "w": 1024,
+     "h": 576,
+     "r": 1024,
+     "b": 766
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 29.9,
+     "t": 686.1,
+     "w": 231.3,
+     "h": 32,
+     "r": 261.2,
+     "b": 718.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 355.2,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1024,
+     "h": 844,
+     "r": 1024,
+     "b": 900
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": true,
+    "sawAtMs": 104,
+    "endBtn": null,
+    "glContexts": 1,
+    "frames": 844,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.Ee-nG3RP.js",
+     "three.module.BRVBmMrM.js",
+     "seed.HtOFMeQE.js",
+     "paint.B989SKNL.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     1024,
+     1024
+    ],
+    "bar": {
+     "l": 833.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 1000,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 833.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 1000,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 190,
+     "w": 1024,
+     "h": 576,
+     "r": 1024,
+     "b": 766
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 29.9,
+     "t": 686.1,
+     "w": 231.3,
+     "h": 32,
+     "r": 261.2,
+     "b": 718.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 783.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1024,
+     "h": 844,
+     "r": 1024,
+     "b": 900
+    }
+   },
+   "finalBar": {
+    "inner": [
+     1024,
+     1024
+    ],
+    "bar": {
+     "l": 833.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 1000,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 833.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 1000,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 190,
+     "w": 1024,
+     "h": 576,
+     "r": 1024,
+     "b": 766
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 29.9,
+     "t": 686.1,
+     "w": 231.3,
+     "h": 32,
+     "r": 261.2,
+     "b": 718.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 783.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1024,
+     "h": 844,
+     "r": 1024,
+     "b": 900
+    }
+   },
+   "exceptions": []
+  },
+  "fireworks-1920": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     1920,
+     1920
+    ],
+    "bar": {
+     "l": 1301.2,
+     "t": 2,
+     "w": 594.8,
+     "h": 52,
+     "r": 1896,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 1301.2,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 1467.8,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 1479.8,
+       "t": 2,
+       "w": 276.9,
+       "h": 52,
+       "r": 1756.7,
+       "b": 54
+      },
+      "txt": "รอบคัดออกรอบชิง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 1768.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 1896,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 49.8,
+     "t": 56,
+     "w": 1820.4,
+     "h": 1024,
+     "r": 1870.2,
+     "b": 1080
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 102.9,
+     "t": 938,
+     "w": 411.2,
+     "h": 56.9,
+     "r": 514.1,
+     "b": 994.9
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 1251.2,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1920,
+     "h": 1024,
+     "r": 1920,
+     "b": 1080
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": true,
+    "sawAtMs": 103,
+    "endBtn": null,
+    "glContexts": 1,
+    "frames": 841,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.Ee-nG3RP.js",
+     "three.module.BRVBmMrM.js",
+     "seed.HtOFMeQE.js",
+     "paint.B989SKNL.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     1920,
+     1920
+    ],
+    "bar": {
+     "l": 1729.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 1896,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 1729.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 1896,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 49.8,
+     "t": 56,
+     "w": 1820.4,
+     "h": 1024,
+     "r": 1870.2,
+     "b": 1080
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 102.9,
+     "t": 938,
+     "w": 411.2,
+     "h": 56.9,
+     "r": 514.1,
+     "b": 994.9
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 1679.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1920,
+     "h": 1024,
+     "r": 1920,
+     "b": 1080
+    }
+   },
+   "finalBar": {
+    "inner": [
+     1920,
+     1920
+    ],
+    "bar": {
+     "l": 1729.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 1896,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 1729.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 1896,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 49.8,
+     "t": 56,
+     "w": 1820.4,
+     "h": 1024,
+     "r": 1870.2,
+     "b": 1080
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 102.9,
+     "t": 938,
+     "w": 411.2,
+     "h": 56.9,
+     "r": 514.1,
+     "b": 994.9
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 1679.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1920,
+     "h": 1024,
+     "r": 1920,
+     "b": 1080
+    }
+   },
+   "exceptions": []
+  },
+  "cards-320": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     320,
+     320
+    ],
+    "bar": {
+     "l": 0,
+     "t": 3876.4,
+     "w": 320,
+     "h": 120.3,
+     "r": 320,
+     "b": 3996.7
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 3892.4,
+       "w": 288,
+       "h": 24.3,
+       "r": 304,
+       "b": 3916.7
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 16,
+       "t": 3928.7,
+       "w": 127.7,
+       "h": 52,
+       "r": 143.7,
+       "b": 3980.7
+      },
+      "txt": "แจกไพ่"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     3892,
+     3929
+    ],
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 3820.4,
+     "r": 320,
+     "b": 3876.4
+    },
+    "barBelowFrame": true,
+    "gname": {
+     "l": 16,
+     "t": 236,
+     "w": 132.3,
+     "h": 26.4,
+     "r": 148.3,
+     "b": 262.4
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 512,
+     "r": 320,
+     "b": 568
+    }
+   },
+   "narrowQuery": true,
+   "press": {
+    "label": "แจกไพ่",
+    "sawCanvas": false,
+    "sawAtMs": null,
+    "endBtn": "เปิดผล",
+    "glContexts": 0,
+    "frames": 0,
+    "threeChunk": false,
+    "chunkReqs": []
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     320,
+     320
+    ],
+    "bar": {
+     "l": 0,
+     "t": 447.4,
+     "w": 320,
+     "h": 120.3,
+     "r": 320,
+     "b": 567.7
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 463.4,
+       "w": 288,
+       "h": 24.3,
+       "r": 304,
+       "b": 487.7
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 16,
+       "t": 499.7,
+       "w": 127.3,
+       "h": 52,
+       "r": 143.3,
+       "b": 551.7
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     463,
+     500
+    ],
+    "frame": {
+     "l": 0,
+     "t": -3373,
+     "w": 320,
+     "h": 3820.4,
+     "r": 320,
+     "b": 447.4
+    },
+    "barBelowFrame": true,
+    "gname": {
+     "l": 16,
+     "t": -3193,
+     "w": 132.3,
+     "h": 26.4,
+     "r": 148.3,
+     "b": -3166.6
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 512,
+     "r": 320,
+     "b": 568
+    }
+   },
+   "exceptions": []
+  },
+  "cards-639": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     639,
+     639
+    ],
+    "bar": {
+     "l": 0,
+     "t": 3876.4,
+     "w": 639,
+     "h": 120.3,
+     "r": 639,
+     "b": 3996.7
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 3892.4,
+       "w": 607,
+       "h": 24.3,
+       "r": 623,
+       "b": 3916.7
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 16,
+       "t": 3928.7,
+       "w": 127.7,
+       "h": 52,
+       "r": 143.7,
+       "b": 3980.7
+      },
+      "txt": "แจกไพ่"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     3892,
+     3929
+    ],
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 3820.4,
+     "r": 639,
+     "b": 3876.4
+    },
+    "barBelowFrame": true,
+    "gname": {
+     "l": 16,
+     "t": 236,
+     "w": 132.3,
+     "h": 26.4,
+     "r": 148.3,
+     "b": 262.4
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 512,
+     "r": 639,
+     "b": 568
+    }
+   },
+   "narrowQuery": true,
+   "press": {
+    "label": "แจกไพ่",
+    "sawCanvas": false,
+    "sawAtMs": null,
+    "endBtn": "เปิดผล",
+    "glContexts": 0,
+    "frames": 0,
+    "threeChunk": false,
+    "chunkReqs": []
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     639,
+     639
+    ],
+    "bar": {
+     "l": 0,
+     "t": 447.4,
+     "w": 639,
+     "h": 120.3,
+     "r": 639,
+     "b": 567.7
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 463.4,
+       "w": 607,
+       "h": 24.3,
+       "r": 623,
+       "b": 487.7
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 16,
+       "t": 499.7,
+       "w": 127.3,
+       "h": 52,
+       "r": 143.3,
+       "b": 551.7
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     463,
+     500
+    ],
+    "frame": {
+     "l": 0,
+     "t": -3373,
+     "w": 639,
+     "h": 3820.4,
+     "r": 639,
+     "b": 447.4
+    },
+    "barBelowFrame": true,
+    "gname": {
+     "l": 16,
+     "t": -3193,
+     "w": 132.3,
+     "h": 26.4,
+     "r": 148.3,
+     "b": -3166.6
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 512,
+     "r": 639,
+     "b": 568
+    }
+   },
+   "exceptions": []
+  },
+  "cards-640": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     640,
+     640
+    ],
+    "bar": {
+     "l": 309.6,
+     "t": 2,
+     "w": 306.4,
+     "h": 52,
+     "r": 616,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 309.6,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 476.3,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 488.3,
+       "t": 2,
+       "w": 127.7,
+       "h": 52,
+       "r": 616,
+       "b": 54
+      },
+      "txt": "แจกไพ่"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 298,
+     "w": 640,
+     "h": 360,
+     "r": 640,
+     "b": 658
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 18.7,
+     "t": 608.1,
+     "w": 144.6,
+     "h": 20,
+     "r": 163.2,
+     "b": 628.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 259.6,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 640,
+     "h": 844,
+     "r": 640,
+     "b": 900
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "แจกไพ่",
+    "sawCanvas": true,
+    "sawAtMs": 104,
+    "endBtn": "เปิดผล",
+    "glContexts": 1,
+    "frames": 263,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.BxsrjcdF.js",
+     "three.module.BRVBmMrM.js",
+     "paint.B989SKNL.js",
+     "seed.HtOFMeQE.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     640,
+     640
+    ],
+    "bar": {
+     "l": 310,
+     "t": 2,
+     "w": 306,
+     "h": 52,
+     "r": 616,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 310,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 476.7,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 488.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 616,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 298,
+     "w": 640,
+     "h": 360,
+     "r": 640,
+     "b": 658
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 18.7,
+     "t": 608.1,
+     "w": 144.6,
+     "h": 20,
+     "r": 163.2,
+     "b": 628.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 260,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 640,
+     "h": 844,
+     "r": 640,
+     "b": 900
+    }
+   },
+   "exceptions": []
+  },
+  "cards-768": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     768,
+     768
+    ],
+    "bar": {
+     "l": 437.6,
+     "t": 2,
+     "w": 306.4,
+     "h": 52,
+     "r": 744,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 437.6,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 604.3,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 616.3,
+       "t": 2,
+       "w": 127.7,
+       "h": 52,
+       "r": 744,
+       "b": 54
+      },
+      "txt": "แจกไพ่"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 262,
+     "w": 768,
+     "h": 432,
+     "r": 768,
+     "b": 694
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 22.4,
+     "t": 634.1,
+     "w": 173.5,
+     "h": 24,
+     "r": 195.9,
+     "b": 658.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 387.6,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 768,
+     "h": 844,
+     "r": 768,
+     "b": 900
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "แจกไพ่",
+    "sawCanvas": true,
+    "sawAtMs": 105,
+    "endBtn": "เปิดผล",
+    "glContexts": 1,
+    "frames": 263,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.BxsrjcdF.js",
+     "three.module.BRVBmMrM.js",
+     "paint.B989SKNL.js",
+     "seed.HtOFMeQE.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     768,
+     768
+    ],
+    "bar": {
+     "l": 438,
+     "t": 2,
+     "w": 306,
+     "h": 52,
+     "r": 744,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 438,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 604.7,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 616.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 744,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 262,
+     "w": 768,
+     "h": 432,
+     "r": 768,
+     "b": 694
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 22.4,
+     "t": 634.1,
+     "w": 173.5,
+     "h": 24,
+     "r": 195.9,
+     "b": 658.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 388,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 768,
+     "h": 844,
+     "r": 768,
+     "b": 900
+    }
+   },
+   "exceptions": []
+  },
+  "cards-1024": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     1024,
+     1024
+    ],
+    "bar": {
+     "l": 693.6,
+     "t": 2,
+     "w": 306.4,
+     "h": 52,
+     "r": 1000,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 693.6,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 860.3,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 872.3,
+       "t": 2,
+       "w": 127.7,
+       "h": 52,
+       "r": 1000,
+       "b": 54
+      },
+      "txt": "แจกไพ่"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 190,
+     "w": 1024,
+     "h": 576,
+     "r": 1024,
+     "b": 766
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 29.9,
+     "t": 686.1,
+     "w": 231.3,
+     "h": 32,
+     "r": 261.2,
+     "b": 718.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 643.6,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1024,
+     "h": 844,
+     "r": 1024,
+     "b": 900
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "แจกไพ่",
+    "sawCanvas": true,
+    "sawAtMs": 103,
+    "endBtn": "เปิดผล",
+    "glContexts": 1,
+    "frames": 263,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.BxsrjcdF.js",
+     "three.module.BRVBmMrM.js",
+     "paint.B989SKNL.js",
+     "seed.HtOFMeQE.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     1024,
+     1024
+    ],
+    "bar": {
+     "l": 694,
+     "t": 2,
+     "w": 306,
+     "h": 52,
+     "r": 1000,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 694,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 860.7,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 872.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 1000,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 190,
+     "w": 1024,
+     "h": 576,
+     "r": 1024,
+     "b": 766
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 29.9,
+     "t": 686.1,
+     "w": 231.3,
+     "h": 32,
+     "r": 261.2,
+     "b": 718.1
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 644,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1024,
+     "h": 844,
+     "r": 1024,
+     "b": 900
+    }
+   },
+   "exceptions": []
+  },
+  "cards-1920": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     1920,
+     1920
+    ],
+    "bar": {
+     "l": 1589.6,
+     "t": 2,
+     "w": 306.4,
+     "h": 52,
+     "r": 1896,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 1589.6,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 1756.3,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 1768.3,
+       "t": 2,
+       "w": 127.7,
+       "h": 52,
+       "r": 1896,
+       "b": 54
+      },
+      "txt": "แจกไพ่"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 49.8,
+     "t": 56,
+     "w": 1820.4,
+     "h": 1024,
+     "r": 1870.2,
+     "b": 1080
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 102.9,
+     "t": 938,
+     "w": 411.2,
+     "h": 56.9,
+     "r": 514.1,
+     "b": 994.9
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 1539.6,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1920,
+     "h": 1024,
+     "r": 1920,
+     "b": 1080
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "แจกไพ่",
+    "sawCanvas": true,
+    "sawAtMs": 104,
+    "endBtn": "เปิดผล",
+    "glContexts": 1,
+    "frames": 262,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.BxsrjcdF.js",
+     "three.module.BRVBmMrM.js",
+     "paint.B989SKNL.js",
+     "seed.HtOFMeQE.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     1920,
+     1920
+    ],
+    "bar": {
+     "l": 1590,
+     "t": 2,
+     "w": 306,
+     "h": 52,
+     "r": 1896,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 1590,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 1756.7,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 1768.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 1896,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 49.8,
+     "t": 56,
+     "w": 1820.4,
+     "h": 1024,
+     "r": 1870.2,
+     "b": 1080
+    },
+    "barBelowFrame": false,
+    "gname": {
+     "l": 102.9,
+     "t": 938,
+     "w": 411.2,
+     "h": 56.9,
+     "r": 514.1,
+     "b": 994.9
+    },
+    "barHitsGname": false,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 1540,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1920,
+     "h": 1024,
+     "r": 1920,
+     "b": 1080
+    }
+   },
+   "exceptions": []
+  },
+  "ladder-320": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     320,
+     320
+    ],
+    "bar": {
+     "l": 0,
+     "t": 358,
+     "w": 320,
+     "h": 244.3,
+     "r": 320,
+     "b": 602.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 374,
+       "w": 288,
+       "h": 24.3,
+       "r": 304,
+       "b": 398.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 410.3,
+       "w": 288,
+       "h": 112,
+       "r": 304,
+       "b": 522.3
+      },
+      "txt": "12345"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 16,
+       "t": 534.3,
+       "w": 127.3,
+       "h": 52,
+       "r": 143.3,
+       "b": 586.3
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 3,
+    "tops": [
+     374,
+     410,
+     534
+    ],
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 302,
+     "r": 320,
+     "b": 358
+    },
+    "barBelowFrame": true,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 512,
+     "r": 320,
+     "b": 568
+    }
+   },
+   "narrowQuery": true,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": false,
+    "sawAtMs": null,
+    "endBtn": "ดูอีกครั้ง",
+    "glContexts": 0,
+    "frames": 0,
+    "threeChunk": false,
+    "chunkReqs": []
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     320,
+     320
+    ],
+    "bar": {
+     "l": 0,
+     "t": 236,
+     "w": 320,
+     "h": 244.3,
+     "r": 320,
+     "b": 480.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 252,
+       "w": 288,
+       "h": 24.3,
+       "r": 304,
+       "b": 276.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 288.3,
+       "w": 288,
+       "h": 112,
+       "r": 304,
+       "b": 400.3
+      },
+      "txt": "12345"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 16,
+       "t": 412.3,
+       "w": 144.7,
+       "h": 52,
+       "r": 160.7,
+       "b": 464.3
+      },
+      "txt": "ดูอีกครั้ง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 3,
+    "tops": [
+     252,
+     288,
+     412
+    ],
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 180,
+     "r": 320,
+     "b": 236
+    },
+    "barBelowFrame": true,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 320,
+     "h": 512,
+     "r": 320,
+     "b": 568
+    }
+   },
+   "exceptions": []
+  },
+  "ladder-639": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     639,
+     639
+    ],
+    "bar": {
+     "l": 0,
+     "t": 358,
+     "w": 639,
+     "h": 120.3,
+     "r": 639,
+     "b": 478.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 374,
+       "w": 607,
+       "h": 24.3,
+       "r": 623,
+       "b": 398.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 410.3,
+       "w": 336.4,
+       "h": 52,
+       "r": 352.4,
+       "b": 462.3
+      },
+      "txt": "12345"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 364.4,
+       "t": 410.3,
+       "w": 127.3,
+       "h": 52,
+       "r": 491.7,
+       "b": 462.3
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     374,
+     410
+    ],
+    "frame": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 302,
+     "r": 639,
+     "b": 358
+    },
+    "barBelowFrame": true,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 512,
+     "r": 639,
+     "b": 568
+    }
+   },
+   "narrowQuery": true,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": false,
+    "sawAtMs": null,
+    "endBtn": "ดูอีกครั้ง",
+    "glContexts": 0,
+    "frames": 0,
+    "threeChunk": false,
+    "chunkReqs": []
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     639,
+     639
+    ],
+    "bar": {
+     "l": 0,
+     "t": 415.4,
+     "w": 639,
+     "h": 120.3,
+     "r": 639,
+     "b": 535.7
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 16,
+       "t": 431.4,
+       "w": 607,
+       "h": 24.3,
+       "r": 623,
+       "b": 455.7
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 16,
+       "t": 467.7,
+       "w": 336.4,
+       "h": 52,
+       "r": 352.4,
+       "b": 519.7
+      },
+      "txt": "12345"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 364.4,
+       "t": 467.7,
+       "w": 144.7,
+       "h": 52,
+       "r": 509.1,
+       "b": 519.7
+      },
+      "txt": "ดูอีกครั้ง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     431,
+     468
+    ],
+    "frame": {
+     "l": 0.4,
+     "t": 56,
+     "w": 638.2,
+     "h": 359,
+     "r": 638.6,
+     "b": 415
+    },
+    "barBelowFrame": true,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 0,
+    "barLeftOfExitGap": -50,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 639,
+     "h": 512,
+     "r": 639,
+     "b": 568
+    }
+   },
+   "exceptions": []
+  },
+  "ladder-640": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     640,
+     640
+    ],
+    "bar": {
+     "l": 0,
+     "t": 2,
+     "w": 616,
+     "h": 112,
+     "r": 616,
+     "b": 114
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 0,
+       "t": 45.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 166.7,
+       "b": 70.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 178.7,
+       "t": 2,
+       "w": 304.1,
+       "h": 112,
+       "r": 482.8,
+       "b": 114
+      },
+      "txt": "12345"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 494.8,
+       "t": 28.3,
+       "w": 121.2,
+       "h": 59.4,
+       "r": 616,
+       "b": 87.7
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": null,
+    "exitHit": null,
+    "rowsOfKids": 3,
+    "tops": [
+     46,
+     2,
+     28
+    ],
+    "frame": {
+     "l": 0,
+     "t": 298,
+     "w": 640,
+     "h": 360,
+     "r": 640,
+     "b": 658
+    },
+    "barBelowFrame": false,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": null,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 640,
+     "h": 844,
+     "r": 640,
+     "b": 900
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": true,
+    "sawAtMs": 103,
+    "endBtn": null,
+    "glContexts": 1,
+    "frames": 843,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.BgRs5K3w.js",
+     "three.module.BRVBmMrM.js",
+     "paint.B989SKNL.js",
+     "plan.aqMCxVgO.js",
+     "seed.HtOFMeQE.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     640,
+     640
+    ],
+    "bar": {
+     "l": 449.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 616,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 449.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 616,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 298,
+     "w": 640,
+     "h": 360,
+     "r": 640,
+     "b": 658
+    },
+    "barBelowFrame": false,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 399.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 640,
+     "h": 844,
+     "r": 640,
+     "b": 900
+    }
+   },
+   "exceptions": []
+  },
+  "ladder-768": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     768,
+     768
+    ],
+    "bar": {
+     "l": 89.7,
+     "t": 2,
+     "w": 654.3,
+     "h": 52,
+     "r": 744,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 89.7,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 256.3,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 268.3,
+       "t": 2,
+       "w": 336.4,
+       "h": 52,
+       "r": 604.7,
+       "b": 54
+      },
+      "txt": "12345"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 616.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 744,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 262,
+     "w": 768,
+     "h": 432,
+     "r": 768,
+     "b": 694
+    },
+    "barBelowFrame": false,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 39.7,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 768,
+     "h": 844,
+     "r": 768,
+     "b": 900
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": true,
+    "sawAtMs": 103,
+    "endBtn": null,
+    "glContexts": 1,
+    "frames": 840,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.BgRs5K3w.js",
+     "three.module.BRVBmMrM.js",
+     "paint.B989SKNL.js",
+     "plan.aqMCxVgO.js",
+     "seed.HtOFMeQE.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     768,
+     768
+    ],
+    "bar": {
+     "l": 577.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 744,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 577.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 744,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 262,
+     "w": 768,
+     "h": 432,
+     "r": 768,
+     "b": 694
+    },
+    "barBelowFrame": false,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 527.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 768,
+     "h": 844,
+     "r": 768,
+     "b": 900
+    }
+   },
+   "exceptions": []
+  },
+  "ladder-1024": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     1024,
+     1024
+    ],
+    "bar": {
+     "l": 345.7,
+     "t": 2,
+     "w": 654.3,
+     "h": 52,
+     "r": 1000,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 345.7,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 512.3,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 524.3,
+       "t": 2,
+       "w": 336.4,
+       "h": 52,
+       "r": 860.7,
+       "b": 54
+      },
+      "txt": "12345"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 872.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 1000,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 190,
+     "w": 1024,
+     "h": 576,
+     "r": 1024,
+     "b": 766
+    },
+    "barBelowFrame": false,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 295.7,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1024,
+     "h": 844,
+     "r": 1024,
+     "b": 900
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": true,
+    "sawAtMs": 103,
+    "endBtn": null,
+    "glContexts": 1,
+    "frames": 844,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.BgRs5K3w.js",
+     "three.module.BRVBmMrM.js",
+     "paint.B989SKNL.js",
+     "plan.aqMCxVgO.js",
+     "seed.HtOFMeQE.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     1024,
+     1024
+    ],
+    "bar": {
+     "l": 833.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 1000,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 833.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 1000,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 0,
+     "t": 190,
+     "w": 1024,
+     "h": 576,
+     "r": 1024,
+     "b": 766
+    },
+    "barBelowFrame": false,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 783.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1024,
+     "h": 844,
+     "r": 1024,
+     "b": 900
+    }
+   },
+   "exceptions": []
+  },
+  "ladder-1920": {
+   "innerOK": true,
+   "idle": {
+    "inner": [
+     1920,
+     1920
+    ],
+    "bar": {
+     "l": 1241.7,
+     "t": 2,
+     "w": 654.3,
+     "h": 52,
+     "r": 1896,
+     "b": 54
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 1241.7,
+       "t": 15.8,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 1408.3,
+       "b": 40.1
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     },
+     {
+      "cls": "pr-group",
+      "r": {
+       "l": 1420.3,
+       "t": 2,
+       "w": 336.4,
+       "h": 52,
+       "r": 1756.7,
+       "b": 54
+      },
+      "txt": "12345"
+     },
+     {
+      "cls": "pr-go",
+      "r": {
+       "l": 1768.7,
+       "t": 2,
+       "w": 127.3,
+       "h": 52,
+       "r": 1896,
+       "b": 54
+      },
+      "txt": "เปิดผล"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 2,
+    "tops": [
+     16,
+     2
+    ],
+    "frame": {
+     "l": 49.8,
+     "t": 56,
+     "w": 1820.4,
+     "h": 1024,
+     "r": 1870.2,
+     "b": 1080
+    },
+    "barBelowFrame": false,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 1191.7,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1920,
+     "h": 1024,
+     "r": 1920,
+     "b": 1080
+    }
+   },
+   "narrowQuery": false,
+   "press": {
+    "label": "เปิดผล",
+    "sawCanvas": true,
+    "sawAtMs": 104,
+    "endBtn": null,
+    "glContexts": 1,
+    "frames": 839,
+    "threeChunk": true,
+    "chunkReqs": [
+     "index.BgRs5K3w.js",
+     "three.module.BRVBmMrM.js",
+     "paint.B989SKNL.js",
+     "plan.aqMCxVgO.js",
+     "seed.HtOFMeQE.js"
+    ]
+   },
+   "threeBeforePress": false,
+   "after": {
+    "inner": [
+     1920,
+     1920
+    ],
+    "bar": {
+     "l": 1729.3,
+     "t": 2,
+     "w": 166.7,
+     "h": 24.3,
+     "r": 1896,
+     "b": 26.3
+    },
+    "kids": [
+     {
+      "cls": "pr-badge",
+      "r": {
+       "l": 1729.3,
+       "t": 2,
+       "w": 166.7,
+       "h": 24.3,
+       "r": 1896,
+       "b": 26.3
+      },
+      "txt": "ตัวอย่าง ไม่ใช่งานจริง"
+     }
+    ],
+    "exit": {
+     "l": 6,
+     "t": 6,
+     "w": 44,
+     "h": 44,
+     "r": 50,
+     "b": 50
+    },
+    "exitHit": false,
+    "rowsOfKids": 1,
+    "tops": [
+     2
+    ],
+    "frame": {
+     "l": 49.8,
+     "t": 56,
+     "w": 1820.4,
+     "h": 1024,
+     "r": 1870.2,
+     "b": 1080
+    },
+    "barBelowFrame": false,
+    "gname": null,
+    "barHitsGname": null,
+    "hitsFrame": [],
+    "barRightGap": 24,
+    "barLeftOfExitGap": 1679.3,
+    "vp": {
+     "l": 0,
+     "t": 56,
+     "w": 1920,
+     "h": 1024,
+     "r": 1920,
+     "b": 1080
+    }
+   },
+   "exceptions": []
+  }
+ }
+}

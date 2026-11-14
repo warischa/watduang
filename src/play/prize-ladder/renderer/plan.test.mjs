@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ladderOrder } from '../../../prize-event/game-contract.ts';
 import { COPY } from './copy.ts';
-import { RIG, planFor, project, slotName, unproject } from './plan.ts';
+import { RIG, TRACK, planFor, project, slotName, unproject } from './plan.ts';
 
 function permutations(xs) {
   if (xs.length <= 1) return [xs];
@@ -167,4 +167,30 @@ test('the rig reproduces the picked frame: lane ends land where the board draws 
   const back = project(p);
   assert.ok(Math.abs(back.x - 280) < 1e-6 && Math.abs(back.y - 226) < 1e-6);
   assert.ok(Math.abs(back.depth - RIG.farDepth) < 1e-9);
+});
+
+// The rails the room follows (PD-307-04): the board's #d9d6f0 at 50% alpha over the night ground #1c1b3e,
+// pre-composited. At the earlier 35% the painted rail was under WCAG 1.4.11's 3:1 for graphics.
+const channels = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+const luminance = (hex) => {
+  const [r, g, b] = channels(hex).map((c) => {
+    const v = c / 255;
+    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a, b) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+};
+
+test('the rails are the board ink at 50% alpha over the ground, and read at 3:1 or more', () => {
+  const ink = channels('#d9d6f0');
+  const ground = channels('#1c1b3e');
+  const half = ink.map((c, i) => Math.round((c + ground[i]) / 2));
+  const laneRgb = channels(TRACK.lane);
+  for (let i = 0; i < 3; i++) assert.ok(Math.abs(laneRgb[i] - half[i]) <= 1, `lane channel ${i}: ${laneRgb[i]} vs 50% of the ink ${half[i]}`);
+  assert.equal(TRACK.lane, '#7a7897', 'the board arithmetic for the picked rail');
+  const ratio = contrast(TRACK.lane, '#1c1b3e');
+  assert.ok(ratio >= 3, `rail contrast ${ratio.toFixed(2)}:1 is under 3:1`);
 });

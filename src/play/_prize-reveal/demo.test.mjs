@@ -141,3 +141,153 @@ test('show() is the only un-hide, and every control rebuild goes through it', ()
   assert.deepEqual(rebuilds, ['...parts)', 'badge()']);
   assert.match(src, /bar\.replaceChildren\(\.\.\.parts\);\s*show\(bar\);/);
 });
+
+// ---- The demo page's layout (gh#305 PD-305-02, PD-305-03) -------------------------------------------------
+
+const CSS = fs.readFileSync(path.join(import.meta.dirname, 'demo.css'), 'utf8');
+
+/** The body of the `@media <query> { ... }` block, by brace matching, or '' when there is none. */
+function mediaBlock(css, query) {
+  const at = css.indexOf(`@media ${query} {`);
+  if (at < 0) return '';
+  const open = css.indexOf('{', at);
+  let depth = 0;
+  for (let i = open; i < css.length; i++) {
+    if (css[i] === '{') depth++;
+    else if (css[i] === '}' && --depth === 0) return css.slice(open + 1, i);
+  }
+  return '';
+}
+/** The phone rule's query: the exact complement of the wide one (the reveal host's own 2D switch uses it). */
+const PHONE_QUERY = 'not all and (min-width: 640px)';
+
+/** The declarations of the first rule whose selector is exactly `selector` in `css`, or ''. */
+function ruleBody(css, selector) {
+  const esc = selector.replace(/[.[\]()*+?^$|\\]/g, '\\$&');
+  return new RegExp(`(?:^|[}\\s])${esc}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+}
+
+test('the bar takes the play band at its right end only when it fits, and the band rule is one more override under min-width 640 (design/Gh314Frames.dc.html 1a B)', () => {
+  const wide = mediaBlock(CSS, '(min-width: 640px)');
+  assert.ok(wide, 'no min-width: 640px block: the band placement has no breakpoint');
+  const bar = ruleBody(wide, ".pr-viewport[data-bar='band'] .pr-bar");
+  assert.match(bar, /position:\s*fixed/, 'the bar is not fixed to the screen');
+  assert.match(bar, /inset-block-start:\s*2px/, 'the bar is not at the band top the board draws (top 2px)');
+  assert.match(bar, /inset-inline-end:\s*24px/, 'the bar is not 24px in from the right end');
+  assert.match(bar, /flex-wrap:\s*nowrap/, 'the bar wraps to a second row below the band');
+  assert.match(bar, /white-space:\s*nowrap/, 'a label can wrap, so the one-row width is not the measured one');
+  // The frame goes back to the full viewport and the viewport stops scrolling, as the band placement needs.
+  assert.match(ruleBody(wide, ".pr-viewport[data-bar='band'] .pr-stagebox"), /position:\s*absolute/);
+  assert.match(ruleBody(wide, ".pr-viewport[data-bar='band']"), /overflow:\s*hidden/);
+  // The band paints at 299 (PlayExit.astro); the bar is inside this box, so the box must clear it.
+  assert.match(ruleBody(CSS, '.pr-viewport'), /z-index:\s*300/, 'the viewport is under the play band, so the bar in the band is hidden');
+  // The base placement is the below-frame one, so a bar that does not fit (or has no decision yet) covers nothing.
+  assert.match(ruleBody(CSS, '.pr-bar'), /position:\s*static/, 'the bar is not below the frame by default');
+  assert.doesNotMatch(ruleBody(CSS, '.pr-bar'), /inset-block-end/, 'the bar still sits at the bottom of the frame');
+});
+
+test('below the frame (the base placement, and under 640px always) the page scrolls and the bar flows after the frame; under 640px the i5-phone B layout (design/Gh314Frames.dc.html i5-phone B)', () => {
+  assert.match(ruleBody(CSS, '.pr-viewport'), /overflow-y:\s*auto/, 'the below placement cannot scroll');
+  // A screen with no name field (the result) keeps the scaled frame, at exactly its width, so the bar can follow it.
+  assert.match(ruleBody(CSS, '.pr-stagebox'), /aspect-ratio:\s*16\s*\/\s*9/);
+  assert.match(ruleBody(CSS, '.pr-stagebox'), /position:\s*relative/);
+  assert.match(ruleBody(CSS, '.pr-badge'), /flex-basis:\s*100%/);
+  const phone = mediaBlock(CSS, PHONE_QUERY);
+  assert.ok(phone, 'no phone block: the phone layout has no breakpoint');
+  assert.match(ruleBody(phone, '.pr-viewport[data-field] .pd-scaled'), /transform:\s*none/, 'the frame is still scaled whole');
+  const field = ruleBody(phone, '.pr-viewport[data-field] .pd-field');
+  assert.match(field, /grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/, 'the names are not in two columns');
+  assert.match(field, /gap:\s*4px 10px/);
+  assert.match(ruleBody(phone, '.pr-viewport[data-field] .pd-chip'), /--fit-size:\s*16/, 'names are not at the 16px phone size');
+  assert.match(ruleBody(phone, '.pr-viewport[data-field] .pd-ev'), /font-size:\s*22px/);
+  assert.match(ruleBody(phone, '.pr-viewport[data-field] .pd-flow'), /font-size:\s*50px/);
+  assert.match(ruleBody(phone, '.pr-viewport[data-field] .pd-gname'), /font-size:\s*22px/);
+  assert.match(ruleBody(phone, '.pr-viewport[data-field] .pr-stagebox'), /aspect-ratio:\s*auto/);
+});
+
+test('the frame and the bar are one column in the viewport: the bar follows the frame, and the field screens are marked', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const s = mountFake('ladder');
+    const viewport = s.root.querySelector('.pr-viewport');
+    const kids = viewport.children.map((c) => c.className);
+    assert.deepEqual(kids, ['pr-stagebox', 'pr-3d', 'pr-bar'], 'the bar must come after the frame in the page order');
+    assert.equal(viewport.children[0].querySelector('.pd-scaled')?.querySelector('.pd-frame') != null, true, 'the frame is not inside the stage box');
+    assert.equal(viewport.hasAttribute('data-field'), true, 'the final screen has a name field, so it takes the phone field layout');
+    mock.timers.tick(1000);
+    s.go().click();
+    s.hosts.started[0].exit();
+    assert.equal(s.root.querySelector('.pd-frame').getAttribute('data-screen'), 'result');
+    assert.equal(viewport.hasAttribute('data-field'), false, 'the result has no name field, so it must not take the field layout');
+    mock.timers.tick(1000);
+    s.go().click();
+    assert.equal(viewport.hasAttribute('data-field'), true, 'the replay did not mark the final screen again');
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+test('the wide and phone rules are complements: every width, a fractional one included, matches exactly one', () => {
+  const queries = [...CSS.matchAll(/@media\s+([^{]+?)\s*\{/g)].map((m) => m[1]);
+  assert.deepEqual([...queries].sort(), ['(min-width: 640px)', PHONE_QUERY].sort(), 'the stylesheet holds a media query this test does not evaluate');
+  /** Evaluates the two query shapes used here: `(min-width: Npx)` and `not all and (min-width: Npx)`. */
+  const matches = (q, w) => {
+    const m = /^(not all and )?\(min-width:\s*(\d+)px\)$/.exec(q);
+    assert.ok(m, `unsupported query ${q}`);
+    return Boolean(m[1]) !== w >= Number(m[2]);
+  };
+  for (const w of [320, 639, 639.5, 639.99, 640, 641, 1920]) {
+    assert.equal(queries.filter((q) => matches(q, w)).length, 1, `${w}px matches ${queries.filter((q) => matches(q, w)).length} of the layout rules`);
+  }
+  assert.equal(matches(PHONE_QUERY, 639.5), true);
+  assert.equal(matches('(min-width: 640px)', 640), true);
+});
+
+// ---- Where the bar stands is measured, never a pixel breakpoint (gh#305 PD-305-02) ------------------------
+
+const WIDE = { width: 1920, exitRight: 50, band: 56, barBottom: 54, badge: 200, button: 150 };
+
+test('the bar stands in the band when it fits: one row, right of the exit control, inside the band', () => {
+  const s = mountFake('fireworks', { ...WIDE });
+  assert.equal(s.root.querySelector('.pr-viewport').getAttribute('data-bar'), 'band');
+});
+
+test('the bar goes below the frame when it would cover the exit control, or does not stay inside the band', () => {
+  // 3 buttons + badge = 650px, right edge 676: its left edge is 26, under the exit control's right edge 50.
+  const narrow = mountFake('fireworks', { ...WIDE, width: 700 });
+  assert.equal(narrow.root.querySelector('.pr-viewport').getAttribute('data-bar'), 'below', 'the bar covers the exit control');
+  // Fits across, but a row taller than the band (a wrapped label) reaches under the band.
+  const tall = mountFake('fireworks', { ...WIDE, barBottom: 112 });
+  assert.equal(tall.root.querySelector('.pr-viewport').getAttribute('data-bar'), 'below', 'the bar leaves the band');
+  // Exactly touching the exit control's edge is not covering it.
+  const edge = mountFake('fireworks', { ...WIDE, width: 650 + 24 + 50 });
+  assert.equal(edge.root.querySelector('.pr-viewport').getAttribute('data-bar'), 'band');
+});
+
+test('the placement is decided again after a resize and after the bar grows or shrinks', () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const layout = { ...WIDE, width: 1000 };
+    const s = mountFake('fireworks', layout);
+    const viewport = s.root.querySelector('.pr-viewport');
+    assert.equal(viewport.getAttribute('data-bar'), 'band', '3 controls fit at 1000');
+    // The final mode adds five prize-count chips: 9 buttons + badge = 1550px, which no longer fits.
+    mock.timers.tick(1000);
+    s.chip(COPY.mode.final).click();
+    assert.equal(s.chips().length, 7);
+    assert.equal(viewport.getAttribute('data-bar'), 'below', 'the bar grew past its room and kept the band');
+    // Back to the round mode: 3 buttons again, so the band again.
+    mock.timers.tick(1000);
+    s.chip(COPY.mode.round).click();
+    assert.equal(viewport.getAttribute('data-bar'), 'band', 'the bar shrank and stayed below');
+    // A resize: a narrower screen puts the bar over the exit control; a wider one gives the band back.
+    layout.width = 700;
+    s.demo.refit();
+    assert.equal(viewport.getAttribute('data-bar'), 'below', 'a resize to 700 kept the band');
+    layout.width = 1920;
+    s.demo.refit();
+    assert.equal(viewport.getAttribute('data-bar'), 'band', 'a resize back to 1920 stayed below');
+  } finally {
+    mock.timers.reset();
+  }
+});

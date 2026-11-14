@@ -1,0 +1,245 @@
+{
+ "demo200": {
+  "ref": {
+   "x": 200,
+   "y": 760,
+   "width": 104.15625,
+   "height": 54.46875,
+   "top": 760,
+   "right": 304.15625,
+   "bottom": 814.46875,
+   "left": 200
+  },
+  "deal": {
+   "saw": true,
+   "shots": [
+    {
+     "ms": 3013,
+     "file": "row5-demo200-deal-00.png"
+    },
+    {
+     "ms": 3273,
+     "file": "row5-demo200-deal-01.png"
+    },
+    {
+     "ms": 3542,
+     "file": "row5-demo200-deal-02.png"
+    },
+    {
+     "ms": 3788,
+     "file": "row5-demo200-deal-03.png"
+    },
+    {
+     "ms": 4035,
+     "file": "row5-demo200-deal-04.png"
+    }
+   ]
+  },
+  "reveal": {
+   "saw": true,
+   "shots": [
+    {
+     "ms": 932,
+     "file": "row5-demo200-reveal-00.png"
+    },
+    {
+     "ms": 1538,
+     "file": "row5-demo200-reveal-01.png"
+    },
+    {
+     "ms": 2101,
+     "file": "row5-demo200-reveal-02.png"
+    },
+    {
+     "ms": 2723,
+     "file": "row5-demo200-reveal-03.png"
+    }
+   ]
+  },
+  "fonts": {
+   "digitTexts": 0,
+   "byFont": {},
+   "allFonts": [
+    "20px Sarabun, sans-serif @3884x547",
+    "bold 30px Mitr, sans-serif @3884x547",
+    "bold 20px Sarabun, sans-serif @3884x547",
+    "600 40px Mitr, sans-serif @778x522",
+    "bold 120px Mitr, sans-serif @778x522",
+    "600 30px Mitr, sans-serif @1821x92",
+    "600 36px Mitr, sans-serif @1821x92",
+    "600 30px Mitr, sans-serif @1821x209",
+    "bold 50px Mitr, sans-serif @1821x209",
+    "600 30px Mitr, sans-serif @854x209",
+    "bold 64px Mitr, sans-serif @854x209",
+    "bold 30px Sarabun, sans-serif @1821x209"
+   ]
+  },
+  "frame": {
+   "l": 49.77777862548828,
+   "t": 56,
+   "w": 1820.4444580078125,
+   "h": 1024,
+   "scale": 0.9481481552124024
+  }
+ },
+ "proj104": {
+  "ref": {
+   "x": 200,
+   "y": 760,
+   "width": 104.3125,
+   "height": 54.46875,
+   "top": 760,
+   "right": 304.3125,
+   "bottom": 814.46875,
+   "left": 200
+  },
+  "deal": {
+   "saw": true,
+   "shots": []
+  },
+  "reveal": {
+   "saw": true,
+   "shots": [
+    {
+     "ms": 920,
+     "file": "row5-proj104-reveal-00.png"
+    },
+    {
+     "ms": 1522,
+     "file": "row5-proj104-reveal-01.png"
+    },
+    {
+     "ms": 2122,
+     "file": "row5-proj104-reveal-02.png"
+    },
+    {
+     "ms": 2727,
+     "file": "row5-proj104-reveal-03.png"
+    }
+   ]
+  },
+  "fonts": {
+   "digitTexts": 0,
+   "byFont": {},
+   "allFonts": [
+    "20px Sarabun, sans-serif @3884x611",
+    "bold 30px Mitr, sans-serif @3884x611",
+    "bold 20px Sarabun, sans-serif @3884x611",
+    "600 40px Mitr, sans-serif @778x604",
+    "bold 120px Mitr, sans-serif @778x604",
+    "600 30px Mitr, sans-serif @1821x92",
+    "600 36px Mitr, sans-serif @1821x92",
+    "600 30px Mitr, sans-serif @1821x209",
+    "bold 50px Mitr, sans-serif @1821x209",
+    "600 30px Mitr, sans-serif @854x209",
+    "bold 64px Mitr, sans-serif @854x209",
+    "bold 30px Sarabun, sans-serif @1821x209"
+   ]
+  },
+  "setupCards": [
+   [
+    false,
+    "true"
+   ],
+   [
+    false,
+    "false"
+   ],
+   [
+    false,
+    "false"
+   ],
+   [
+    true,
+    "false"
+   ]
+  ],
+  "arrived": "/game/prize-draw/play/",
+  "frame": {
+   "l": 49.77777862548828,
+   "t": 56,
+   "w": 1820.4444580078125,
+   "h": 1024,
+   "scale": 0.9481481552124024
+  },
+  "exceptions": []
+ },
+ "proj200": {
+  "ref": {
+   "x": 200,
+   "y": 760,
+   "width": 104.3125,
+   "height": 75.703125,
+   "top": 760,
+   "right": 304.3125,
+   "bottom": 835.703125,
+   "left": 200
+  },
+  "deal": {
+   "saw": true,
+   "shots": [
+    {
+     "ms": 3013,
+     "file": "row5-proj200-deal-00.png"
+    },
+    {
+     "ms": 3256,
+     "file": "row5-proj200-deal-01.png"
+    },
+    {
+     "ms": 3523,
+     "file": "row5-proj200-deal-02.png"
+    },
+    {
+     "ms": 3752,
+     "file": "row5-proj200-deal-03.png"
+    },
+    {
+     "ms": 4032,
+     "file": "row5-proj200-deal-04.png"
+    }
+   ]
+  },
+  "reveal": {
+   "saw": true,
+   "shots": [
+    {
+     "ms": 929,
+     "file": "row5-proj200-reveal-00.png"
+    },
+    {
+     "ms": 1517,
+     "file": "row5-proj200-reveal-01.png"
+    },
+    {
+     "ms": 2142,
+     "file": "row5-proj200-reveal-02.png"
+    },
+    {
+     "ms": 2712,
+     "file": "row5-proj200-reveal-03.png"
+    }
+   ]
+  },
+  "fonts": {
+   "digitTexts": 0,
+   "byFont": {},
+   "allFonts": [
+    "16px Sarabun, sans-serif @3884x609",
+    "bold 16px Sarabun, sans-serif @3884x609",
+    "bold 30px Mitr, sans-serif @3884x609",
+    "20px Sarabun, sans-serif @3884x609",
+    "bold 19px Sarabun, sans-serif @3884x609",
+    "600 40px Mitr, sans-serif @778x522",
+    "bold 120px Mitr, sans-serif @778x522",
+    "600 30px Mitr, sans-serif @1821x92",
+    "600 36px Mitr, sans-serif @1821x92",
+    "600 30px Mitr, sans-serif @1821x209",
+    "bold 50px Mitr, sans-serif @1821x209",
+    "600 30px Mitr, sans-serif @854x209"
+   ]
+  },
+  "arrived": "/game/prize-draw/play/",
+  "exceptions": []
+ }
+}

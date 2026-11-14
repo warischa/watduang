@@ -1,7 +1,9 @@
 /* The own page of each prize-draw 3D game (gh#305-gh#307): the night ground around the scaled 1920x1080
    frame (reveal.css), the 3D layer over it, and the demo's bar at real pixels. No board draws this page;
    it reuses the projector route's own vocabulary (src/play/prize-draw/play.css: the night ground, the gold
-   999px pill, the 52px button floor), so every value below is one that page already ships. */
+   999px pill, the 52px button floor), so every value below is one that page already ships. The bar's place
+   is design/Gh314Frames.dc.html 1a B (the play band's right end, owner pick 2026-11-13) and, under 640px,
+   i5-phone B's phone layout with the bar below it (the same pick applied to this page, gh#305 PD-305-02/03). */
 
 html,
 body {
@@ -9,11 +11,28 @@ body {
   background: var(--color-line-strong);
 }
 
-/* Fills the screen under the shared play band (PlayExit.astro pads <body> by --play-band). */
+/* Fills the screen under the shared play band (PlayExit.astro pads <body> by --play-band). It sits at the
+   band's own layer (300, over the band's 299) so the bar, fixed inside it, can stand in the band. The box
+   itself starts under the band, so it covers none of the band.
+   The base placement is BELOW the frame: the page scrolls, the frame is fitted to its own 16:9 box at the
+   page's width, and the bar follows it in the flow. demo.ts measures where the bar fits and marks the viewport
+   data-bar="band" when it stands in the play band (below); under 640px that mark is ignored. */
 .pr-viewport {
   position: fixed;
   inset: var(--play-band) 0 0 0;
-  overflow: hidden;
+  overflow-y: auto;
+  z-index: 300;
+  background: linear-gradient(180deg, var(--color-line-strong) 0%, #23214d 100%); /* VALUES: i5-phone B ground */
+}
+.pr-viewport .pd-frame {
+  background: none;
+}
+
+/* The frame's box: the 1920x1080 frame is fitted to it (reveal.ts fitFrame). */
+.pr-stagebox {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
 }
 
 .pr-sr {
@@ -35,13 +54,12 @@ body {
 
 /* The bar, OUTSIDE the scaled frame: real pixels, so a tap size never shrinks with the screen. */
 .pr-bar {
-  position: absolute;
-  inset-inline: 24px;
-  inset-block-end: 24px;
+  position: static;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
+  padding: 16px;
 }
 
 /* The demo label: always on screen, so the page never reads as a real event. */
@@ -94,4 +112,121 @@ body {
 .pr-chip:focus-visible {
   outline: 3px solid var(--ink-light);
   outline-offset: 4px;
+}
+
+/* 640px and up, when demo.ts measured that the bar fits there: it stands in the play band at its right end,
+   2px under its top and 24px in, one row (design/Gh314Frames.dc.html 1a B), so it never covers the projected
+   frame, the game name or the exit control, which keeps the band's left end. Every rule here puts back what
+   the base placement (below the frame) changes. A bar that does not fit stays below the frame. */
+@media (min-width: 640px) {
+  .pr-viewport[data-bar='band'] {
+    overflow: hidden;
+    background: none;
+  }
+  .pr-viewport[data-bar='band'] .pd-frame {
+    background: linear-gradient(180deg, var(--color-line-strong) 0%, var(--pd-raised) 100%);
+  }
+  .pr-viewport[data-bar='band'] .pr-stagebox {
+    position: absolute;
+    inset: 0;
+    inline-size: auto;
+    aspect-ratio: auto;
+  }
+  .pr-viewport[data-bar='band'] .pr-bar {
+    position: fixed;
+    inset-block-start: 2px;
+    inset-inline-end: 24px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    padding: 0;
+  }
+  .pr-viewport[data-bar='band'] .pr-group {
+    flex-wrap: nowrap;
+  }
+  .pr-viewport[data-bar='band'] .pr-badge {
+    flex-basis: auto;
+  }
+}
+
+/* Under 640px (the phone break, design/Gh314Frames.dc.html i5-phone B): a screen with a name field takes the
+   phone layout instead of the scaled frame, above the bar the base placement puts below it: the round state
+   stacks on top (event, round and dots, the cut, the game), then the names in two columns at the frame's own
+   sizes. The board's 96px under the last row cleared a fixed button; here the bar is in the flow, so the frame
+   ends where the bar begins. The result keeps the scaled frame, at exactly the page's width. */
+@media not all and (min-width: 640px) {
+  .pr-viewport[data-field] .pr-stagebox {
+    aspect-ratio: auto;
+  }
+  .pr-viewport[data-field] .pd-scaled {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    transform: none;
+  }
+  .pr-viewport[data-field] .pd-frame {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 16px 0;
+  }
+  .pr-viewport[data-field] .pd-top,
+  .pr-viewport[data-field] .pd-low {
+    display: contents;
+  }
+  .pr-viewport[data-field] .pd-ev {
+    order: 1;
+    font-size: 22px;
+  }
+  .pr-viewport[data-field] .pd-dots {
+    order: 2;
+    margin-block-start: 12px;
+    gap: 10px;
+    font-size: 16px;
+  }
+  .pr-viewport[data-field] .pd-rl {
+    white-space: nowrap;
+    margin-inline-end: 4px;
+  }
+  .pr-viewport[data-field] .pd-flow {
+    order: 3;
+    margin-block-start: 18px;
+    gap: 12px;
+    font-size: 50px;
+  }
+  .pr-viewport[data-field] .pd-flow small {
+    font-size: 18px;
+  }
+  .pr-viewport[data-field] .pd-flow svg {
+    inline-size: 26px;
+    block-size: 26px;
+  }
+  .pr-viewport[data-field] .pd-left {
+    order: 4;
+  }
+  .pr-viewport[data-field] .pd-left .pd-lk {
+    margin-block-start: 14px;
+    font-size: 16px;
+  }
+  .pr-viewport[data-field] .pd-gname {
+    font-size: 22px;
+  }
+  .pr-viewport[data-field] .pd-rt,
+  .pr-viewport[data-field] .pd-legend {
+    display: none;
+  }
+  .pr-viewport[data-field] .pd-field {
+    order: 5;
+    position: static;
+    align-self: stretch;
+    block-size: auto;
+    margin-block-start: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 32px;
+    gap: 4px 10px;
+    align-content: start;
+  }
+  .pr-viewport[data-field] .pd-chip {
+    --fit-size: 16;
+  }
 }

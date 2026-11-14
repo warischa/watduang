@@ -36,7 +36,6 @@ import {
   COPY,
   FRAME_H,
   FRAME_W,
-  NAME_BOX_UP,
   STACK,
   T,
   VFOV_DEG,
@@ -44,6 +43,7 @@ import {
   beatsIn,
   chromeBox,
   drumroll,
+  fieldLayout,
   flipAt,
   planFor,
   ruleCardAt,
@@ -226,7 +226,7 @@ void main() {
     float fm = mask(vFace, lo + vec2(${f(CARD.padL)} * uS, 0.0), vec2(${f(CARD.face)} * uS, h), p);
     col = over(vec4(rank, 1.0) * fm, col);
     vec2 nameLo = lo + vec2(${f(CARD.padL + CARD.face + CARD.faceGap)} * uS, 0.0);
-    vec2 nameSize = vec2(${f(NAME_BOX_UP)} * uS, h);
+    vec2 nameSize = vec2(vHalf.x * 2.0 - ${f(CARD.padL + CARD.face + CARD.faceGap + CARD.padR)} * uS, h);
     float judged = vPass > -0.5 ? vJudge : 0.0;
     float nm = mix(mask(vUp, nameLo, nameSize, p), mask(vEnd, nameLo, nameSize, p), judged);
     col = over(vec4(mix(${glsl(CARD_COLOR.ink)}, ${glsl(COLOR.out)}, fail), 1.0) * nm, col);
@@ -329,7 +329,7 @@ function mountCards(context: GameContext, input: RevealInput<'cards'>, emit: (ev
   let viewport: Viewport = input.viewport;
   let scale = backingScale(viewport);
   const n = plan.slots.length;
-  const s = plan.layout.s;
+  let s = plan.layout.s;
 
   const scene = new Scene();
   const camera = new PerspectiveCamera(VFOV_DEG, 16 / 9, 10, 10000);
@@ -360,7 +360,8 @@ function mountCards(context: GameContext, input: RevealInput<'cards'>, emit: (ev
   geometry.instanceCount = n;
   const attr = (size: number, values?: number[]): InstanceType<typeof InstancedBufferAttribute> =>
     new InstancedBufferAttribute(values ? new Float32Array(values) : new Float32Array(n * size), size);
-  const aRect = attr(4, plan.slots.flatMap((c) => [c.cx, c.cy, CARD.w * s, CARD.h * s]));
+  // Placed in buildCards, once the names are measured: a row grows with its longest name.
+  const aRect = attr(4);
   const aBack = attr(4);
   const aUp = attr(4);
   const aEnd = attr(4);
@@ -397,7 +398,18 @@ function mountCards(context: GameContext, input: RevealInput<'cards'>, emit: (ev
   }));
   let atlasTex: CanvasTextureT | null = null;
   const buildCards = (): void => {
-    const atlas = paintCardAtlas(doc, toPaint, fitCards(doc, toPaint), scale * s);
+    // Past 102 names the grid depends on how many lines each name needs at the card width being tried. It is
+    // measured for the widest state (face up, bold, as on a passing card) whatever this mount shows, so the
+    // deal, the round and the result all lay the same cards on the same grid.
+    const widest = toPaint.map((c) => ({ ...c, card: { suit: 'S' as const, rank: 1 }, verdict: 'pass' as const }));
+    const linesAt = (cardW: number): number[] => fitCards(doc, widest, cardW).map((f) => Math.max(f.back.lines.length, f.up?.lines.length ?? 0, f.end?.lines.length ?? 0));
+    const layout = fieldLayout(n, linesAt);
+    s = layout.s;
+    cardMaterial.uniforms.uS!.value = s;
+    const heights = layout.cells.map((_, i) => layout.rowH[Math.floor(i / layout.cols)]!);
+    layout.cells.forEach((c, i) => aRect.set([c.cx, c.cy, layout.cardW * s, heights[i]! * s], i * 4));
+    aRect.needsUpdate = true;
+    const atlas = paintCardAtlas(doc, toPaint, fitCards(doc, toPaint, layout.cardW), scale * s, { cardW: layout.cardW, heights });
     atlas.cells.forEach((cell, i) => {
       aBack.set(cell.back, i * 4);
       if (cell.up) aUp.set(cell.up, i * 4);

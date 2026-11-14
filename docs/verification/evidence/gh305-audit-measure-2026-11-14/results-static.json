@@ -1,0 +1,733 @@
+{
+ "row8": {
+  "320": {
+   "inner": [
+    320,
+    320
+   ],
+   "cards": [
+    {
+     "text": "ไพ่แจกทั้งห้อง",
+     "disabled": true,
+     "ariaDisabled": null,
+     "borderStyle": "dashed",
+     "borderWidth": "2px",
+     "borderColor": "rgb(20, 20, 43)",
+     "bg": "rgb(255, 246, 224)",
+     "color": "rgb(61, 59, 92)",
+     "opacity": "1",
+     "w": 244,
+     "h": 52
+    },
+    {
+     "text": "ไพ่แจกทั้งห้อง",
+     "disabled": false,
+     "ariaDisabled": null,
+     "borderStyle": "solid",
+     "borderWidth": "2px",
+     "borderColor": "rgb(20, 20, 43)",
+     "bg": "rgb(255, 255, 255)",
+     "color": "rgb(20, 20, 43)",
+     "opacity": "1",
+     "w": 244,
+     "h": 52
+    },
+    {
+     "text": "ไพ่แจกทั้งห้อง",
+     "disabled": true,
+     "ariaDisabled": null,
+     "borderStyle": "dashed",
+     "borderWidth": "2px",
+     "borderColor": "rgb(20, 20, 43)",
+     "bg": "rgb(255, 246, 224)",
+     "color": "rgb(61, 59, 92)",
+     "opacity": "1",
+     "w": 244,
+     "h": 52
+    },
+    {
+     "text": "ไพ่แจกทั้งห้อง",
+     "disabled": true,
+     "ariaDisabled": null,
+     "borderStyle": "dashed",
+     "borderWidth": "2px",
+     "borderColor": "rgb(20, 20, 43)",
+     "bg": "rgb(255, 246, 224)",
+     "color": "rgb(61, 59, 92)",
+     "opacity": "1",
+     "w": 244,
+     "h": 52
+    }
+   ],
+   "enabledSample": {
+    "text": "แบบปกติ",
+    "disabled": false,
+    "ariaDisabled": null,
+    "borderStyle": "solid",
+    "borderWidth": "2px",
+    "borderColor": "rgb(20, 20, 43)",
+    "bg": "rgb(255, 204, 0)",
+    "color": "rgb(20, 20, 43)",
+    "opacity": "1",
+    "w": 244,
+    "h": 52
+   },
+   "reasonOccurrences": 1,
+   "reasonNodes": [
+    {
+     "id": "pd-game-r1-note",
+     "visible": true,
+     "rect": {
+      "l": 38,
+      "t": 2520.6,
+      "w": 244,
+      "h": 48,
+      "r": 282
+     }
+    }
+   ],
+   "shot": "row8-setup-cards-disabled-320.png",
+   "exceptions": []
+  },
+  "1280": {
+   "inner": [
+    1280,
+    1280
+   ],
+   "cards": [
+    {
+     "text": "ไพ่แจกทั้งห้อง",
+     "disabled": true,
+     "ariaDisabled": null,
+     "borderStyle": "dashed",
+     "borderWidth": "2px",
+     "borderColor": "rgb(20, 20, 43)",
+     "bg": "rgb(255, 246, 224)",
+     "color": "rgb(61, 59, 92)",
+     "opacity": "1",
+     "w": 222,
+     "h": 52
+    },
+    {
+     "text": "ไพ่แจกทั้งห้อง",
+     "disabled": false,
+     "ariaDisabled": null,
+     "borderStyle": "solid",
+     "borderWidth": "2px",
+     "borderColor": "rgb(20, 20, 43)",
+     "bg": "rgb(255, 255, 255)",
+     "color": "rgb(20, 20, 43)",
+     "opacity": "1",
+     "w": 222,
+     "h": 52
+    },
+    {
+     "text": "ไพ่แจกทั้งห้อง",
+     "disabled": true,
+     "ariaDisabled": null,
+     "borderStyle": "dashed",
+     "borderWidth": "2px",
+     "borderColor": "rgb(20, 20, 43)",
+     "bg": "rgb(255, 246, 224)",
+     "color": "rgb(61, 59, 92)",
+     "opacity": "1",
+     "w": 222,
+     "h": 52
+    },
+    {
+     "text": "ไพ่แจกทั้งห้อง",
+     "disabled": true,
+     "ariaDisabled": null,
+     "borderStyle": "dashed",
+     "borderWidth": "2px",
+     "borderColor": "rgb(20, 20, 43)",
+     "bg": "rgb(255, 246, 224)",
+     "color": "rgb(61, 59, 92)",
+     "opacity": "1",
+     "w": 222,
+     "h": 52
+    }
+   ],
+   "enabledSample": {
+    "text": "แบบปกติ",
+    "disabled": false,
+    "ariaDisabled": null,
+    "borderStyle": "solid",
+    "borderWidth": "2px",
+    "borderColor": "rgb(20, 20, 43)",
+    "bg": "rgb(255, 204, 0)",
+    "color": "rgb(20, 20, 43)",
+    "opacity": "1",
+    "w": 222,
+    "h": 52
+   },
+   "reasonOccurrences": 1,
+   "reasonNodes": [
+    {
+     "id": "pd-game-r1-note",
+     "visible": true,
+     "rect": {
+      "l": 230,
+      "t": 1848.4,
+      "w": 820,
+      "h": 24,
+      "r": 1050
+     }
+    }
+   ],
+   "shot": "row8-setup-cards-disabled-1280.png",
+   "exceptions": []
+  }
+ },
+ "frames314": {
+  "canvas": {
+   "vrows": [
+    {
+     "lab": {
+      "l": 412,
+      "t": 2332.2,
+      "w": 114,
+      "h": 21.6,
+      "r": 526
+     },
+     "val": {
+      "l": 538,
+      "t": 2311,
+      "w": 118,
+      "h": 64,
+      "r": 656
+     }
+    },
+    {
+     "lab": {
+      "l": 412,
+      "t": 2422.2,
+      "w": 114,
+      "h": 21.6,
+      "r": 526
+     },
+     "val": {
+      "l": 538,
+      "t": 2401,
+      "w": 118,
+      "h": 64,
+      "r": 656
+     }
+    },
+    {
+     "lab": {
+      "l": 412,
+      "t": 2512.2,
+      "w": 114,
+      "h": 21.6,
+      "r": 526
+     },
+     "val": {
+      "l": 538,
+      "t": 2491,
+      "w": 118,
+      "h": 64,
+      "r": 656
+     }
+    },
+    {
+     "lab": {
+      "l": 412,
+      "t": 2602.2,
+      "w": 114,
+      "h": 21.6,
+      "r": 526
+     },
+     "val": {
+      "l": 538,
+      "t": 2581,
+      "w": 118,
+      "h": 64,
+      "r": 656
+     }
+    },
+    {
+     "lab": {
+      "l": 412,
+      "t": 2692.2,
+      "w": 114,
+      "h": 21.6,
+      "r": 526
+     },
+     "val": {
+      "l": 538,
+      "t": 2671,
+      "w": 118,
+      "h": 64,
+      "r": 656
+     }
+    }
+   ],
+   "varr": [
+    {
+     "l": 412,
+     "t": 2375,
+     "w": 244,
+     "h": 26,
+     "r": 656
+    },
+    {
+     "l": 412,
+     "t": 2465,
+     "w": 244,
+     "h": 26,
+     "r": 656
+    },
+    {
+     "l": 412,
+     "t": 2555,
+     "w": 244,
+     "h": 26,
+     "r": 656
+    },
+    {
+     "l": 412,
+     "t": 2645,
+     "w": 244,
+     "h": 26,
+     "r": 656
+    }
+   ],
+   "back": {
+    "links": [
+     {
+      "text": "หน้าแรก",
+      "r": {
+       "l": 394,
+       "t": 4898.8,
+       "w": 54.4,
+       "h": 44,
+       "r": 448.4
+      },
+      "fs": "16px",
+      "td": "underline"
+     },
+     {
+      "text": "เกมงานเลี้ยงบริษัท",
+      "r": {
+       "l": 464.4,
+       "t": 4898.8,
+       "w": 119.3,
+       "h": 44,
+       "r": 583.7
+      },
+      "fs": "16px",
+      "td": "underline"
+     }
+    ],
+    "sepMargin": "6px/6px",
+    "crumbFs": "16px",
+    "crumbFw": "400"
+   },
+   "refused": {
+    "name": {
+     "fw": "700",
+     "fs": "16px",
+     "color": "rgb(20, 20, 43)",
+     "ow": "anywhere"
+    },
+    "why": {
+     "fw": "400",
+     "fs": "16px",
+     "color": "rgb(61, 59, 92)",
+     "ow": "normal"
+    },
+    "nameRect": {
+     "l": 442,
+     "t": 6818.3,
+     "w": 181.8,
+     "h": 24,
+     "r": 623.8
+    },
+    "whyRect": {
+     "l": 442,
+     "t": 6842.3,
+     "w": 181.8,
+     "h": 24,
+     "r": 623.8
+    },
+    "rowCount": 3
+   },
+   "frameW": 320,
+   "fonts": [
+    "Sarabun400",
+    "Sarabun700",
+    "Mitr500",
+    "Mitr600",
+    "Mitr700"
+   ]
+  },
+  "back-320": {
+   "inner": [
+    320,
+    320
+   ],
+   "links": [
+    {
+     "text": "หน้าแรก",
+     "href": "/",
+     "r": {
+      "l": 20,
+      "t": 201,
+      "w": 54.4,
+      "h": 44,
+      "r": 74.4
+     },
+     "fs": "16px",
+     "td": "underline",
+     "fw": "400"
+    },
+    {
+     "text": "เกมงานเลี้ยงบริษัท",
+     "href": "/c/company-party/",
+     "r": {
+      "l": 90.4,
+      "t": 201,
+      "w": 119.3,
+      "h": 44,
+      "r": 209.7
+     },
+     "fs": "16px",
+     "td": "underline",
+     "fw": "400"
+    }
+   ],
+   "sepMargin": "6px/6px",
+   "sepText": "·",
+   "crumbFs": "16px",
+   "crumbFw": "400",
+   "over": [],
+   "shot": "row9c-back-320.png"
+  },
+  "sched-320": {
+   "inner": [
+    320,
+    320
+   ],
+   "boxes": [
+    {
+     "lab": {
+      "l": 38,
+      "t": 1671,
+      "w": 22.5,
+      "h": 21.6,
+      "r": 60.5
+     },
+     "val": {
+      "l": 72.5,
+      "t": 1649.8,
+      "w": 118,
+      "h": 64,
+      "r": 190.5
+     },
+     "labText": "เริ่ม"
+    },
+    {
+     "lab": {
+      "l": 38,
+      "t": 1761,
+      "w": 66.9,
+      "h": 21.6,
+      "r": 104.9
+     },
+     "val": {
+      "l": 116.9,
+      "t": 1739.8,
+      "w": 118,
+      "h": 64,
+      "r": 234.9
+     },
+     "labText": "หลังรอบ 1"
+    },
+    {
+     "lab": {
+      "l": 38,
+      "t": 1851,
+      "w": 66.9,
+      "h": 21.6,
+      "r": 104.9
+     },
+     "val": {
+      "l": 116.9,
+      "t": 1829.8,
+      "w": 118,
+      "h": 64,
+      "r": 234.9
+     },
+     "labText": "หลังรอบ 2"
+    },
+    {
+     "lab": {
+      "l": 38,
+      "t": 1941,
+      "w": 66.9,
+      "h": 21.6,
+      "r": 104.9
+     },
+     "val": {
+      "l": 116.9,
+      "t": 1919.8,
+      "w": 118,
+      "h": 64,
+      "r": 234.9
+     },
+     "labText": "หลังรอบ 3"
+    },
+    {
+     "lab": {
+      "l": 38,
+      "t": 2031,
+      "w": 44.4,
+      "h": 21.6,
+      "r": 82.4
+     },
+     "val": {
+      "l": 94.4,
+      "t": 2009.8,
+      "w": 118,
+      "h": 64,
+      "r": 212.4
+     },
+     "labText": "รอบชิง"
+    }
+   ],
+   "arrs": [
+    {
+     "r": {
+      "l": 38,
+      "t": 1713.8,
+      "w": 130,
+      "h": 26,
+      "r": 168
+     },
+     "display": "grid",
+     "vis": true
+    },
+    {
+     "r": {
+      "l": 38,
+      "t": 1803.8,
+      "w": 130,
+      "h": 26,
+      "r": 168
+     },
+     "display": "grid",
+     "vis": true
+    },
+    {
+     "r": {
+      "l": 38,
+      "t": 1893.8,
+      "w": 130,
+      "h": 26,
+      "r": 168
+     },
+     "display": "grid",
+     "vis": true
+    },
+    {
+     "r": {
+      "l": 38,
+      "t": 1983.8,
+      "w": 130,
+      "h": 26,
+      "r": 168
+     },
+     "display": "grid",
+     "vis": true
+    }
+   ],
+   "schedDisplay": "flex",
+   "schedDir": "column",
+   "schedRect": {
+    "l": 38,
+    "t": 1649.8,
+    "w": 244,
+    "h": 424,
+    "r": 282
+   },
+   "over": [],
+   "shot": "row9b-schedule-320.png"
+  },
+  "refused-320": {
+   "inner": [
+    320,
+    320
+   ],
+   "rows": [
+    {
+     "text": "ใส่ได้ 9 ถึง 200 ชื่อ",
+     "row": {
+      "l": 38,
+      "t": -128.6,
+      "w": 244,
+      "h": 24,
+      "r": 282
+     },
+     "name": null,
+     "why": null
+    },
+    {
+     "text": "WWWWWWWWWWWWW | ชื่อยาวเกิน 12 ตัว",
+     "row": {
+      "l": 38,
+      "t": -90.6,
+      "w": 244,
+      "h": 48,
+      "r": 282
+     },
+     "name": {
+      "fw": "700",
+      "fs": "16px",
+      "color": "rgb(20, 20, 43)",
+      "ow": "anywhere",
+      "display": "block",
+      "r": {
+       "l": 68,
+       "t": -90.6,
+       "w": 181.8,
+       "h": 24,
+       "r": 249.8
+      },
+      "t": "WWWWWWWWWWWWW"
+     },
+     "why": {
+      "fw": "400",
+      "fs": "16px",
+      "color": "rgb(61, 59, 92)",
+      "ow": "normal",
+      "display": "block",
+      "r": {
+       "l": 68,
+       "t": -66.6,
+       "w": 181.8,
+       "h": 24,
+       "r": 249.8
+      },
+      "t": "ชื่อยาวเกิน 12 ตัว"
+     }
+    },
+    {
+     "text": "ฝน ก. | ชื่อนี้ซ้ำกับชื่อที่มีแล้ว",
+     "row": {
+      "l": 38,
+      "t": -28.6,
+      "w": 244,
+      "h": 48,
+      "r": 282
+     },
+     "name": {
+      "fw": "700",
+      "fs": "16px",
+      "color": "rgb(20, 20, 43)",
+      "ow": "anywhere",
+      "display": "block",
+      "r": {
+       "l": 68,
+       "t": -28.6,
+       "w": 132.6,
+       "h": 24,
+       "r": 200.6
+      },
+      "t": "ฝน ก."
+     },
+     "why": {
+      "fw": "400",
+      "fs": "16px",
+      "color": "rgb(61, 59, 92)",
+      "ow": "normal",
+      "display": "block",
+      "r": {
+       "l": 68,
+       "t": -4.6,
+       "w": 132.6,
+       "h": 24,
+       "r": 200.6
+      },
+      "t": "ชื่อนี้ซ้ำกับชื่อที่มีแล้ว"
+     }
+    }
+   ],
+   "count": "ชื่อเล่นหรือชื่อจริงก็ได้ บรรทัดละ 1 ชื่อ | 3 ชื่อ",
+   "over": [],
+   "shot": "row9e-refused-320.png"
+  },
+  "exc-320": [],
+  "back-1280": {
+   "inner": [
+    1280,
+    1280
+   ],
+   "links": [
+    {
+     "text": "หน้าแรก",
+     "href": "/",
+     "r": {
+      "l": 200,
+      "t": 132,
+      "w": 54.4,
+      "h": 44,
+      "r": 254.4
+     },
+     "fs": "16px",
+     "td": "underline",
+     "fw": "400"
+    },
+    {
+     "text": "เกมงานเลี้ยงบริษัท",
+     "href": "/c/company-party/",
+     "r": {
+      "l": 270.4,
+      "t": 132,
+      "w": 119.3,
+      "h": 44,
+      "r": 389.7
+     },
+     "fs": "16px",
+     "td": "underline",
+     "fw": "400"
+    }
+   ],
+   "sepMargin": "6px/6px",
+   "sepText": "·",
+   "crumbFs": "16px",
+   "crumbFw": "400",
+   "over": [],
+   "shot": "row9c-back-1280.png"
+  },
+  "exc-1280": []
+ },
+ "join": {
+  "screen0": {
+   "path": "/game/prize-draw/join/",
+   "text": "ตั้งชื่อที่จะขึ้นจอ\n\nชื่อเล่นหรือชื่อเรียกก็ได้ ไม่เกิน 12 ตัว\n\nชื่อของคุณ\nเข้าร่วม\n\nรายชื่อทั้งหมดจะถูกลบหลังจบงาน",
+   "inputs": [
+    "pj-name"
+   ],
+   "btns": [
+    "เข้าร่วม"
+   ]
+  },
+  "nameField": "ok",
+  "held": {
+   "text": "กำลังส่ง…",
+   "disabled": true,
+   "opacity": "0.55",
+   "w": 288,
+   "h": 52,
+   "inner": [
+    320,
+    320
+   ]
+  },
+  "exceptions": [],
+  "requests": [
+   "http://localhost:4791/api/draw/events/abcdefghijklmnopqrstuv/join"
+  ]
+ }
+}

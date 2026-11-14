@@ -222,3 +222,14 @@ test('an inconsistent record is refused at mount, before anything is drawn', () 
   input.outcome.order = [...input.outcome.order].reverse();
   assert.throws(() => mountFor(input), /order/);
 });
+
+test('the 3D scene hands the rail colour to its lane and leader meshes: TRACK.lane, the 50% rail (PD-307-04)', () => {
+  const m = mountFor(inputFor([3, 0, 4, 1, 2], [3, 0, 4, 1, 2], 3));
+  const hexes = new Map();
+  m.renders[0].scene.traverse((obj) => {
+    if (obj.name === 'lanes' || obj.name === 'leaders') hexes.set(obj.name, obj.material.color.getHexString());
+  });
+  assert.deepEqual([...hexes.keys()].sort(), ['lanes', 'leaders'], 'a rail mesh is missing from the scene');
+  for (const [name, hex] of hexes) assert.equal(hex, '7a7897', `the ${name} mesh was painted #${hex}`);
+  m.handle.dispose();
+});

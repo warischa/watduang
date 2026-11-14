@@ -40,6 +40,9 @@ import { announce, fitFrame, renderScreen } from './reveal.ts';
 
 export type DemoMode = 'round' | 'final';
 
+/** The screens that draw a name field (the projector route's own set, src/play/prize-draw/stage.ts). */
+const FIELD_SCREENS = new Set(['round', 'reveal', 'final']);
+
 /** Which steps each game plays (game-registry.ts eligibility), in the order its page offers them. */
 export const DEMO_MODES: Record<GameId, readonly DemoMode[]> = {
   fireworks: ['round', 'final'],
@@ -162,7 +165,7 @@ export type DemoDeps = {
 };
 
 export type DemoHandle = {
-  /** Scale the frame to the screen again (a resize, the site faces loading). */
+  /** Place the bar and scale the frame to the screen again (a resize, the site faces loading). */
   refit(): void;
   dispose(): void;
 };
@@ -182,17 +185,21 @@ export function mountDemo(deps: DemoDeps): DemoHandle {
 
   const viewport = doc.createElement('div');
   viewport.className = 'pr-viewport';
+  // The frame is fitted to this box, not to the viewport: under 640px the bar flows below the box (demo.css).
+  const stagebox = doc.createElement('div');
+  stagebox.className = 'pr-stagebox';
   const scaled = doc.createElement('div');
   scaled.className = 'pd-scaled';
   const frame = doc.createElement('div');
   frame.className = 'pd-frame';
   scaled.appendChild(frame);
+  stagebox.appendChild(scaled);
   // The host fills this layer over the frame while a step presents, and empties it on exit.
   const layer3d = doc.createElement('div');
   layer3d.className = 'pr-3d';
   const bar = doc.createElement('div');
   bar.className = 'pr-bar';
-  viewport.append(scaled, layer3d, bar);
+  viewport.append(stagebox, layer3d, bar);
   root.replaceChildren(viewport);
 
   /** The one way a control becomes visible here: un-hide the region, then arm it. */
@@ -231,8 +238,29 @@ export function mountDemo(deps: DemoDeps): DemoHandle {
     const view = screenView(state);
     renderScreen(frame, view, doc);
     announce(live, view, doc);
+    // A screen with a name field takes the phone field layout under 640px (demo.css); the result keeps the scaled frame.
+    const screen = frame.getAttribute('data-screen');
+    if (screen !== null && FIELD_SCREENS.has(screen)) viewport.setAttribute('data-field', '');
+    else viewport.removeAttribute('data-field');
     deps.whenBoldLoaded?.(() => fitAll(frame));
-    fitFrame(scaled, viewport);
+    fitFrame(scaled, stagebox);
+  };
+
+  /** Where the bar stands, decided by measuring, never by a screen width: in the play band's right end
+   *  (design/Gh314Frames.dc.html 1a B) only when it fits there -- one row (demo.css forbids a wrap), entirely
+   *  right of the exit control's box, inside the band -- and below the frame otherwise. The band is tried
+   *  first, then kept or given up; both happen before the browser paints. Under 640px demo.css ignores the
+   *  attribute. Without layout (no box to measure) the band stays. */
+  const placeBar = (): void => {
+    viewport.setAttribute('data-bar', 'band');
+    if (typeof bar.getBoundingClientRect === 'function') {
+      const box = bar.getBoundingClientRect();
+      const exitRight = doc.getElementById('play-exit')?.getBoundingClientRect().right ?? 0;
+      const bandBottom = viewport.getBoundingClientRect().top;
+      const oneRowLeft = box.right - bar.scrollWidth;
+      if (oneRowLeft < exitRight || box.bottom > bandBottom) viewport.setAttribute('data-bar', 'below');
+    }
+    fitFrame(scaled, stagebox);
   };
 
   const paintControls = (): void => {
@@ -254,6 +282,7 @@ export function mountDemo(deps: DemoDeps): DemoHandle {
     parts.push(button(label, 'pr-go', step ? () => present(step) : () => restart(mode, prizes)));
     bar.replaceChildren(...parts);
     show(bar);
+    placeBar();
   };
 
   const stopReveal = (): void => {
@@ -302,7 +331,7 @@ export function mountDemo(deps: DemoDeps): DemoHandle {
 
   return {
     refit() {
-      fitFrame(scaled, viewport);
+      placeBar();
       fitAll(frame);
     },
     dispose() {

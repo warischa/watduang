@@ -1,0 +1,9 @@
+::error::timebomb S1 320x568: 1 fixed/sticky route box(es) anchored above the band: header#tb-top (fixed top 0px)
+::error::timebomb S1 320x568: 3 route-content box(es) intersect the band, worst header#tb-top (56px, top 0); button#tb-mute (42px, top 14); header#tb-top > h1.tb-brand (31px, top 20.5)
+::error::timebomb D1 1280x800: 1 fixed/sticky route box(es) anchored above the band: header#tb-top (fixed top 0px)
+::error::timebomb D1 1280x800: 3 route-content box(es) intersect the band, worst header#tb-top (56px, top 0); header#tb-top > h1.tb-brand (42px, top 14); button#tb-mute (42px, top 14)
+::error::timebomb S2 320x568: 1 fixed/sticky route box(es) anchored above the band: header#tb-top (fixed top 0px)
+::error::timebomb S2 320x568: 3 route-content box(es) intersect the band, worst header#tb-top (56px, top 0); button#tb-mute (42px, top 14); header#tb-top > h1.tb-brand (31px, top 20.5)
+::error::timebomb S3 320x568: 1 fixed/sticky route box(es) anchored above the band: header#tb-top (fixed top 0px)
+::error::timebomb S3 320x568: 3 route-content box(es) intersect the band, worst header#tb-top (56px, top 0); button#tb-mute (42px, top 14); header#tb-top > h1.tb-brand (31px, top 20.5)
+FAIL 8 failure(s) across 1/1 route(s): timebomb

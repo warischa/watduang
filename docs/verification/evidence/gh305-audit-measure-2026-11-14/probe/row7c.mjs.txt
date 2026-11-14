@@ -1,0 +1,24 @@
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+const read = (T, W) => T.ev(`
+  const q=(e)=>{const r=e.getBoundingClientRect();return {l:+r.left.toFixed(1),t:+r.top.toFixed(1),w:+r.width.toFixed(1),h:+r.height.toFixed(1),r:+r.right.toFixed(1),b:+r.bottom.toFixed(1)}};
+  const vp=document.querySelector('.pr-viewport'); const bar=document.querySelector('.pr-bar'); const ex=document.getElementById('play-exit'); const br=q(bar); const er=ex?q(ex):null;
+  const ix=er?Math.max(0,Math.min(br.r,er.r)-Math.max(br.l,er.l))*Math.max(0,Math.min(br.b,er.b)-Math.max(br.t,er.t)):null;
+  const kids=[...bar.children].map(q); const kidIx=er?kids.map(k=>Math.max(0,Math.min(k.r,er.r)-Math.max(k.l,er.l))*Math.max(0,Math.min(k.b,er.b)-Math.max(k.t,er.t))).reduce((a,b)=>a+b,0):null;
+  const fr=q(document.querySelector('.pd-frame')); const de=document.documentElement;
+  const centers=kids.map(k=>Math.round((k.t+k.b)/2)); 
+  return {inner:innerWidth,scroll:de.scrollWidth,dataBar:vp.getAttribute('data-bar'),bar:br,exit:er,intersection:ix,kidIntersection:kidIx,oneRow:br.h<=52.5,centersSpread:Math.max(...centers)-Math.min(...centers),frameBottom:fr.b,barBelowFrame:br.t>=fr.b-0.5,buttons:[...bar.querySelectorAll('button')].map(b=>({t:b.textContent.trim(),h:b.getBoundingClientRect().height}))};`);
+const out = {};
+const rows = [];
+for (const g of ['fireworks', 'cards', 'ladder']) for (const W of (process.env.WS||'639,640,700,768,1024,1280,1920').split(',').map(Number)) {
+  const H = W < 640 ? 568 : W < 1280 ? 900 : 1080; const T = await openTab(); const mobile = W < 640 ? false : false;
+  await T.view(W, H, mobile); await T.nav(`${BASE}/game/prize-${g}/play/`); await T.view(W, H, mobile); await sleep(700);
+  const k = `${g}-${W}`; out[k] = { default: await read(T, W) };
+  if (g === 'fireworks') { await T.ev(`[...document.querySelectorAll('.pr-chip')].find(x=>x.textContent.trim()==='รอบชิง').click(); return 1`); await sleep(500); out[k].final = await read(T, W); await T.shot(`re7-${k}-final`); }
+  else await T.shot(`re7-${k}`);
+  await T.close();
+  for (const [s, r] of Object.entries(out[k])) rows.push([k, s, r.inner, r.scroll, r.dataBar, `${r.bar.l}..${r.bar.r}x${r.bar.t}..${r.bar.b}`, r.exit ? `${r.exit.l}..${r.exit.r}` : null, r.intersection, r.kidIntersection, r.oneRow, r.barBelowFrame].join(' | '));
+  console.log(rows[rows.length - 1]);
+}
+writeFileSync(join(OUT, (process.env.RES||'results-row7c.json')), JSON.stringify(out, null, 1)); process.exit(0);
