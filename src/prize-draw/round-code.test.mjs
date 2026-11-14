@@ -59,8 +59,8 @@ test('a cut code is 9 ASCII digits (5-digit seed), keeps its leading zeros, and 
   assert.equal(parsed?.seed, '00000');
 });
 
-// Overturned by the gh300 SOLVE verdict D2: round 5 is no longer refused outright. It admits a 6-digit final
-// code and nothing else (see the length/round matrix test below); 9- and 12-digit codes stay refused there,
+// Overturned by the gh300 SOLVE verdict D2: round 5 is no longer refused outright. It admits a 7-digit final
+// code (6 before the prize-count digit of ADR-0079) and nothing else (see the length/round matrix test below); 9- and 12-digit codes stay refused there,
 // and both elimination host functions still refuse round 5.
 test('elimination round domain: cut and deal codes belong to rounds 1-4; a code drawn for one round never parses in another', () => {
   assert.deepEqual(ROUNDS, [1, 2, 3, 4]);
@@ -365,15 +365,15 @@ function finalEvent(seed) {
   return { roster, entries: rounds.map((r) => ({ code: r.code })), order, code: hostFinalCode(EVENT, order) };
 }
 
-test('final code: 6 digits, encodes the given order, and every finalist phone decodes its own index', () => {
+test('final code: 7 digits, encodes the given order, and every finalist phone decodes its own index', () => {
   assert.equal(FINAL_ROUND, 5);
   for (let e = 0; e < 25; e++) {
     const { entries, order, code } = finalEvent(900 + e);
     assert.ok(code !== null, `event ${e}: no seed encodes the order`);
-    assert.match(code, /^\d{6}$/);
+    assert.match(code, /^\d{7}$/);
     assert.equal(hostFinalCode(EVENT, order), code, 'the final code is a function of the order: no new draw');
     order.forEach((id, i) => {
-      assert.deepEqual(phoneFinalSlot(EVENT, id, entries, code, 'confirmed'), { verdict: 'in', slot: i, provisional: false }, `event ${e} ${id}`);
+      assert.deepEqual(phoneFinalSlot(EVENT, id, entries, code, 'confirmed'), { verdict: 'in', slot: i, prizes: 5, provisional: false }, `event ${e} ${id}`);
     });
   }
 });
@@ -385,7 +385,7 @@ test('final code: an eliminated phone holding the final code reads out with no s
     for (const id of roster) {
       if (order.includes(id)) continue;
       eliminated++;
-      assert.deepEqual(phoneFinalSlot(EVENT, id, entries, code, 'confirmed'), { verdict: 'out', slot: null, provisional: false }, id);
+      assert.deepEqual(phoneFinalSlot(EVENT, id, entries, code, 'confirmed'), { verdict: 'out', slot: null, prizes: null, provisional: false }, id);
     }
   }
   assert.equal(eliminated, 5 * 45);
@@ -394,30 +394,52 @@ test('final code: an eliminated phone holding the final code reads out with no s
 test('final code: removed stays removed, unconfirmed is provisional, a missing round or a typo gives no slot', () => {
   const { entries, order, code } = finalEvent(77);
   const finalist = order[2];
-  assert.deepEqual(phoneFinalSlot(EVENT, finalist, entries, code, 'removed'), { verdict: 'removed', slot: null, provisional: false });
-  assert.deepEqual(phoneFinalSlot(EVENT, finalist, entries, code, 'unconfirmed'), { verdict: 'in', slot: 2, provisional: true });
-  assert.deepEqual(phoneFinalSlot(EVENT, finalist, entries.slice(0, 3), code, 'confirmed'), { verdict: 'unknown', slot: null, provisional: false });
+  assert.deepEqual(phoneFinalSlot(EVENT, finalist, entries, code, 'removed'), { verdict: 'removed', slot: null, prizes: null, provisional: false });
+  assert.deepEqual(phoneFinalSlot(EVENT, finalist, entries, code, 'unconfirmed'), { verdict: 'in', slot: 2, prizes: 5, provisional: true });
+  assert.deepEqual(phoneFinalSlot(EVENT, finalist, entries.slice(0, 3), code, 'confirmed'), { verdict: 'unknown', slot: null, prizes: null, provisional: false });
   const typo = code.slice(0, 5) + ((Number(code[5]) + 1) % 10);
-  assert.deepEqual(phoneFinalSlot(EVENT, finalist, entries, typo, 'confirmed'), { verdict: 'bad-code', slot: null, provisional: false });
+  assert.deepEqual(phoneFinalSlot(EVENT, finalist, entries, typo, 'confirmed'), { verdict: 'bad-code', slot: null, prizes: null, provisional: false });
   assert.throws(() => hostFinalCode(EVENT, order.slice(0, 4)), RangeError);
   assert.throws(() => hostFinalCode(EVENT, [order[0], ...order.slice(0, 4)]), RangeError);
 });
 
-test('length/round matrix: rounds 1-4 take only 9 or 12 digits, round 5 only 6, whatever the check digit says', () => {
+test('length/round matrix: rounds 1-4 take only 9 or 12 digits, round 5 only 7, whatever the check digit says', () => {
   const withCheckFor = (round, payload) => payload + dammCheck(String(round) + payload);
   const random = rng(4242);
   const digits = (k) => Array.from({ length: k }, () => Math.floor(random() * 10)).join('');
   for (let i = 0; i < 200; i++) {
     for (const round of [1, 2, 3, 4, 5]) {
-      for (const length of [6, 9, 12]) {
-        const code = withCheckFor(round, digits(length - 1));
-        const admitted = round === FINAL_ROUND ? length === 6 : length !== 6;
+      for (const length of [7, 9, 12]) {
+        // A 7-digit payload ends in a prize count the final admits (1-5), so only its length decides.
+        const payload = length === 7 ? digits(5) + String(1 + Math.floor(random() * 5)) : digits(length - 1);
+        const code = withCheckFor(round, payload);
+        const admitted = round === FINAL_ROUND ? length === 7 : length !== 7;
         if (admitted) assert.ok(parseCode(code, round), `round ${round} refused its own ${length}-digit code ${code}`);
         else assert.equal(parseCode(code, round), null, `round ${round} accepted a ${length}-digit code ${code}`);
       }
     }
   }
   assert.equal(parseCode(withCheckFor(6, digits(5)), 6), null, 'round 6 is outside the domain');
+});
+
+test('final code carries the prize count (ADR-0079): 1-5 read back, the seed is the same for every count, anything else refused', () => {
+  const { entries, order } = finalEvent(77);
+  const base = hostFinalCode(EVENT, order);
+  for (let prizes = 1; prizes <= 5; prizes++) {
+    const code = hostFinalCode(EVENT, order, prizes);
+    assert.equal(code.slice(0, 5), base.slice(0, 5), 'the count changed which seed encodes the order');
+    assert.deepEqual(parseCode(code, FINAL_ROUND), { kind: 'final', seed: base.slice(0, 5), prizes });
+    order.forEach((id, i) => assert.deepEqual(phoneFinalSlot(EVENT, id, entries, code, 'confirmed'), { verdict: 'in', slot: i, prizes, provisional: false }));
+  }
+  // A count digit outside 1-5 is refused even under a valid check digit.
+  for (const bad of [0, 6, 7, 8, 9]) {
+    const payload = base.slice(0, 5) + String(bad);
+    assert.equal(parseCode(payload + dammCheck(String(FINAL_ROUND) + payload), FINAL_ROUND), null, `count ${bad}`);
+  }
+  // A typo in the count digit alone is caught by the check digit.
+  const code = hostFinalCode(EVENT, order, 3);
+  assert.equal(parseCode(code.slice(0, 5) + '4' + code[6], FINAL_ROUND), null);
+  for (const bad of [0, 6, 2.5, Number.NaN]) assert.throws(() => hostFinalCode(EVENT, order, bad), RangeError, String(bad));
 });
 
 test('hostFinalCode refuses a sparse order (array holes are not identities)', () => {

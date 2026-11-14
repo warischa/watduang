@@ -6,7 +6,8 @@
 // talks to is the linked Function App behind /api (ADR-0074, ADR-0076).
 //
 // Design source: direction A POSTER of design/Gh302Phone.dc.html, frames join-pin, join-name, join-taken
-// and join-device at 320 and 375 (owner pick 2026-11-11, ADR-0033). Page chrome per the board: its dark
+// and join-device at 320 and 375, and the result flow's reveal-code, reveal-wrong, reveal-pass, reveal-out,
+// reveal-card and claim-320 (gh#309) (owner pick 2026-11-11, ADR-0033). Page chrome per the board: its dark
 // header band and nothing else, so no site top bar and no footer (Base gets chrome, and no PageChrome).
 // No ad slot: the board draws none. noindex, and out of the sitemap (astro.config.mjs sitemapFilter): with
 // no event in its fragment the page is empty, useless in search.
@@ -194,6 +195,82 @@ const title = `${COPY.nameHeading} — ${game.names.th}`;
   }
   .pj :global(.nm-wrap .nm) {
     overflow-wrap: anywhere;
+  }
+  /* gh#309, the result flow: frames reveal-code, reveal-pass, reveal-card and claim-320 of the same board. */
+  .pj :global(.pj-inp.pj-code.pj-c12) {
+    font-size: 26px;
+    letter-spacing: 1px;
+  }
+  .pj :global(.pj-note + .pj-form) {
+    margin-top: 18px;
+  }
+  .pj :global(.pj-badge) {
+    box-sizing: border-box;
+    inline-size: 112px;
+    block-size: 112px;
+    display: grid;
+    place-items: center;
+    margin: 6px 0 18px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+    color: var(--color-line-strong);
+    border: 3px solid var(--color-line-strong);
+    box-shadow: 5px 5px 0 var(--color-line-strong);
+  }
+  .pj :global(.pj-pcard) {
+    box-sizing: border-box;
+    position: relative;
+    inline-size: 150px;
+    block-size: 210px;
+    display: grid;
+    place-items: center;
+    margin: 4px 0 12px;
+    border-radius: 14px;
+    background: var(--surface-tile);
+    border: 2.5px solid var(--color-line-strong);
+    box-shadow: 5px 5px 0 var(--color-line-strong);
+  }
+  .pj :global(.pj-rk),
+  .pj :global(.pj-rk2) {
+    position: absolute;
+    font: 700 38px/1 var(--font-display);
+    color: var(--color-line-strong);
+  }
+  .pj :global(.pj-rk) {
+    left: 12px;
+    top: 8px;
+  }
+  .pj :global(.pj-rk2) {
+    right: 12px;
+    bottom: 8px;
+    transform: rotate(180deg);
+  }
+  .pj :global(.pj-suit) {
+    fill: var(--color-line-strong);
+  }
+  /* A red suit and its rank: the cards game's own picked red (design/Gh303Cards.dc.html, cards renderer CARD_COLOR). */
+  .pj :global(.pj-rk.pj-red),
+  .pj :global(.pj-rk2.pj-red) {
+    color: #c2185b;
+  }
+  .pj :global(.pj-suit.pj-red) {
+    fill: #c2185b;
+  }
+  .pj :global(.pj-cap) {
+    font: 700 20px/1.3 var(--font-display);
+  }
+  .pj :global(.pj-prize) {
+    background: var(--accent-gold);
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 20px;
+    box-shadow: 5px 5px 0 var(--color-line-strong);
+    padding: 18px 16px;
+  }
+  .pj :global(.pj-pz) {
+    font: 600 18px/1.35 var(--font-display);
+  }
+  .pj :global(.pj-prize .pj-who) {
+    margin-top: 8px;
   }
   .pj :global(.pj-inp:focus-visible),
   .pj :global(.pj-btn:focus-visible) {

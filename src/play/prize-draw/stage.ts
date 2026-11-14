@@ -1,6 +1,6 @@
 // The projector screen of a prize-draw event (gh#304): reads the event the setup page stored, shows the
-// step it is at, and walks it forward on the MC's taps. Admin mode only in this ticket, so there is no
-// round code on screen and no phone; QR mode (gh#308, gh#309) adds both on top of the same walk.
+// step it is at, and walks it forward on the MC's taps. Admin mode has no round code on screen and no
+// phone; QR mode (gh#308, gh#309) adds the join lobby and the round codes on top of the same walk.
 //
 // The walk is src/prize-event/event.ts's, never re-implemented here. This file owns four things:
 //   1. When to draw. A ready step draws on the MC's tap through drawAndSave, which hands the draw back only
@@ -41,6 +41,11 @@
 //      the join QR, the PIN and the joined count instead of any stored step, with no MC control; the start
 //      stores the new event and drops the record, and the screen walks that event. The QR module is loaded
 //      with import() and only for a lobby, so an admin-mode event never fetches lean-qr (ADR-0077).
+//   8. The round code (gh#309, QR mode). A step with a code (a cut round's reveal, a card round's deal, the
+//      final's result) draws the code card over its frame (reveal.ts, proj-code B), and the MC's only control
+//      is the close: closing it is a reveal like the notice's (ADR-0057) and goes through render(), armed, and
+//      the step's own button comes back. Which step's card was closed is this screen's own, never stored: a
+//      reload or another tab shows the code again.
 //
 // Where the controls sit (gh#314 1a B): the MC's button at the play band's right end, off the projected
 // frame; the notice's veil does not reach it there, so it is held disabled while the notice is open and
@@ -67,7 +72,7 @@ import {
 } from '../../prize-event/event.ts';
 import { FINAL_SIZE } from '../../prize-draw/schedule.ts';
 import { OLD_TAB_OPEN, REFUSED_BROWSER, type EventStore, type Loss, type PutResult, type Snapshot } from '../../prize-event/store.ts';
-import { screenView } from '../../prize-event/view.ts';
+import { screenView, type ScreenView } from '../../prize-event/view.ts';
 import { announce, fitFrame, renderScreen } from '../_prize-reveal/reveal.ts';
 import { laneX, renderLanes } from './lanes.ts';
 import { fitAll, writeName } from '../_prize-reveal/names-dom.ts';
@@ -306,10 +311,27 @@ export function mountStage(deps: StageDeps): StageHandle {
   /** The `seen` the mounted control was rendered at; null while no control is mounted. */
   let mounted: string | null = null;
 
+  /** The step whose code card the MC closed on this screen (QR mode), as event key and step key. */
+  let codeClosed: string | null = null;
+  const stepId = (s: EventState): string => `${s.eventKey}|${key(s)}`;
+  /** The view of `s` as this screen draws it: without the code card once the MC has closed it. */
+  const shownView = (s: EventState): ScreenView => {
+    const view = screenView(s);
+    if (view.kind === 'final' || !view.code || codeClosed !== stepId(s)) return view;
+    const closed = { ...view };
+    delete closed.code;
+    return closed;
+  };
+  const codeOpen = (s: EventState): boolean => {
+    const view = shownView(s);
+    return view.kind !== 'final' && view.code !== undefined;
+  };
+
   /** The MC's button for the step `s` is at. A press only acts on the step, and the stored text, it was
    *  rendered at: a failed reveal-save moves the step on screen ahead of `seen`, so both are checked. */
   const control = (s: EventState): HTMLElement | null => {
     const pos = position(s);
+    if (codeOpen(s)) return closeCode(s);
     if (pos.kind === 'final' && pos.at === 'revealed') return null;
     const button = doc.createElement('button');
     button.type = 'button';
@@ -324,6 +346,24 @@ export function mountStage(deps: StageDeps): StageHandle {
     button.addEventListener('click', () => {
       if (!notice.hidden || token !== seen || !state || key(state) !== builtFor) return;
       request(token, builtFor);
+    });
+    return button;
+  };
+
+  /** The code card's close: the MC's one control while a code is up. It writes nothing; the render it
+   *  makes runs the reveal's wave the card covered and brings the step's own button back, armed. */
+  const closeCode = (s: EventState): HTMLElement => {
+    const button = doc.createElement('button');
+    button.type = 'button';
+    button.className = 'pd-go';
+    button.textContent = COPY.ok;
+    if (!notice.hidden) button.disabled = true;
+    const builtFor = key(s);
+    const token = seen;
+    button.addEventListener('click', () => {
+      if (!notice.hidden || busy || token !== seen || !state || key(state) !== builtFor) return;
+      codeClosed = stepId(state);
+      render(true);
     });
     return button;
   };
@@ -603,7 +643,7 @@ export function mountStage(deps: StageDeps): StageHandle {
       show(viewport);
       return;
     }
-    const view = screenView(state);
+    const view = shownView(state);
     syncLanes(state);
     if (picksLanes(state)) paintLaneFrame(state);
     else renderScreen(frame, view, doc);

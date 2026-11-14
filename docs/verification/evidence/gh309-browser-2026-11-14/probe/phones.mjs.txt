@@ -1,0 +1,78 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { sleep, OUT } from './lib.mjs';
+import { B, EVENT_ID, PIN, PEOPLE, stub, stubTab, MEASURE } from './g309lib.mjs';
+import { setIn } from './ev.mjs';
+const walk = JSON.parse(readFileSync(join(OUT, 'walk309.json'), 'utf8'));
+const ev = walk.event;
+const fin = walk.codes[walk.codes.length - 1];
+const strip = (s) => s.replace(/\s+/g, '');
+const ROUND = fin.earlier.map((e) => strip(e[1]));
+const FINAL = strip(fin.digits);
+const idOf = (name) => PEOPLE.find((p) => p.name === name).id;
+const surv = ev.rounds.map((r) => r.survivors);
+const order = ev.final.order;
+const results = {};
+const only = process.argv.slice(2);
+const TXT = `return {t:document.body.innerText.replace(/\\n+/g,' | ').slice(0,260), hasCode:!!document.getElementById('pj-code'), rules:[...document.querySelectorAll('.pj-rules .pj-btn')].map(b=>b.textContent.trim()), badge:!!document.querySelector('.pj-badge'), card:!!document.querySelector('.pj-pcard'), who:[...document.querySelectorAll('.pj-who')].map(e=>e.textContent.trim()), pz:document.querySelector('.pj-pz')?.textContent.trim()??null, h:document.querySelector('.pj-h')?.textContent.trim()??null}`;
+async function joinPhone(T, W, name, id, { member = 'yes', fail = false } = {}) {
+  stub.joinAs = id; stub.memberIds = member === 'no' ? [] : null; stub.failStatus = fail;
+  await T.send('Storage.clearDataForOrigin', { origin: B, storageTypes: 'all' });
+  await T.view(W, W === 320 ? 568 : 667, false);
+  await T.nav(`${B}/game/prize-draw/join/#event=${EVENT_ID}&pin=${PIN}`); await T.view(W, W === 320 ? 568 : 667, false); await sleep(600);
+  await setIn(T, 'pj-name', name); await T.tapEl('#pj-name-form .pj-btn', null, { settleMs: 300 });
+  await sleep(1200);
+}
+async function enter(T, digits) { await setIn(T, 'pj-code', digits); await sleep(100); await T.tapEl('#pj-code-form .pj-btn', null, { settleMs: 250 }); await sleep(500); }
+async function scenario(key, W, name, opts, play) {
+  if (only.length && !only.includes(key.split('-')[0])) return;
+  for (const ruleIdx of [0, 1]) {
+    const T = await stubTab({ all: true });
+    try {
+      await joinPhone(T, W, name, idOf(name), opts);
+      const r = { name, W, ruleIdx, apiAfterJoin: T.S.apiLog.length };
+      const out = await play(T, r, ruleIdx);
+      if (out === 'RETRY') { await T.close(); continue; }
+      r.measure = await T.ev(MEASURE(W)); r.dom = await T.ev(TXT);
+      await T.shot(`row1-${key}-${W}`);
+      r.api = T.S.apiLog.map((x) => x.method + ' ' + x.path.replace(/\/events\/[^/]+/, '/events/<id>').replace(/status\/.+/, 'status/<id>'));
+      r.exceptions = T.S.exceptions.slice();
+      results[`${key}-${W}`] = r; await T.close();
+      console.log(key, W, 'inner', r.measure.inner, 'scroll', r.measure.scroll, 'over', r.measure.over.length, 'minFs', r.measure.minFs, 'minTap', r.measure.minTap, '|', (r.dom.h || '').slice(0, 24), r.dom.pz || '', JSON.stringify(r.dom.who));
+      return;
+    } catch (e) { console.log('ERR', key, W, String(e).slice(0, 200)); try { await T.close(); } catch {} return; }
+  }
+  console.log('NO RULE WORKED', key, W);
+}
+const expectRule = async (T, r, ruleIdx, expect) => { // tap rule button ruleIdx, check verdict
+  const btns = await T.ev(`return document.querySelectorAll('.pj-rules .pj-btn').length`); if (btns < 2) throw new Error('no rule buttons');
+  await T.ev(`document.querySelectorAll('.pj-rules .pj-btn')[${ruleIdx}].scrollIntoView({block:'center'}); return 1`);
+  await T.tapEl(`.pj-rules .pj-btn:nth-of-type(${ruleIdx + 1})`, null, { settleMs: 300 }); await sleep(600);
+  const d = await T.ev(TXT); const pass = d.hasCode || d.card === false && d.badge; const verdict = d.badge ? 'in' : (d.hasCode ? 'in' : 'out');
+  r.ruleVerdict = verdict;
+  return verdict === expect ? 'ok' : 'RETRY';
+};
+const inR1 = surv[0][0]; const outR1 = PEOPLE.map((p) => p.name).find((n) => !surv[0].includes(n));
+const W2 = [320, 375];
+for (const W of W2) {
+  await scenario('codeEntry', W, inR1, {}, async () => {});
+  await scenario('wrongCode', W, inR1, {}, async (T) => { await setIn(T, 'pj-code', '111111111'); await T.tapEl('#pj-code-form .pj-btn', null, { settleMs: 250 }); await sleep(500); });
+  await scenario('card', W, inR1, {}, async (T) => { await enter(T, strip(walk.codes[0].digits)); });
+  await scenario('in', W, inR1, {}, async (T, r, k) => { await enter(T, strip(walk.codes[0].digits)); return (await expectRule(T, r, k, 'in')) === 'ok' ? null : 'RETRY'; });
+  await scenario('out', W, outR1, {}, async (T, r, k) => { await enter(T, strip(walk.codes[0].digits)); return (await expectRule(T, r, k, 'out')) === 'ok' ? null : 'RETRY'; });
+  await scenario('provisional', W, inR1, { fail: true }, async (T, r, k) => { await enter(T, strip(walk.codes[0].digits)); return (await expectRule(T, r, k, 'in')) === 'ok' ? null : 'RETRY'; });
+  await scenario('removed', W, inR1, { member: 'no' }, async () => {});
+  for (const slot of [0, 1, 2, 3, 4]) {
+    if (W === 375 && (slot === 1 || slot === 2)) continue;
+    await scenario(`slot${slot}`, W, order[slot], {}, async (T, r, k) => {
+      const cut = (slot === 0);
+      if (cut) { r.apiBeforeCut = T.S.apiLog.length; T.cut = true; T.S.cutLog.length = 0; }
+      await enter(T, ROUND[0]); const v = await expectRule(T, r, k, 'in'); if (v !== 'ok') return 'RETRY';
+      for (let i = 1; i < 4; i++) await enter(T, ROUND[i]);
+      await enter(T, FINAL);
+      if (cut) { r.cutAttempts = T.S.cutLog.map((x) => x.method + ' ' + x.path.slice(0, 40)); r.apiAfterCut = T.S.apiLog.length - r.apiBeforeCut; }
+    });
+  }
+}
+writeFileSync(join(OUT, 'phones309.json'), JSON.stringify({ results, ROUND, FINAL, order, surv0: surv[0] }, null, 1));
+process.exit(0);

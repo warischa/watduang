@@ -1,0 +1,144 @@
+// gh#310 rehearsal server: dist/ + the REAL /api/draw/* routing (join.mjs) over an in-memory store.
+// Run a COPY of this file from outside the repo:  node <copy> --repo <repo path>   (PORT, default 4795)
+// Mirrors services/feedback/src/functions/join.mjs: method, path after /api/draw/, X-Draw-Admin,
+// Content-Length pre-check and capped body read. The store double keeps the port's conditional
+// semantics (create-only without ifMatch, ETag-guarded replace/delete, ASCII-only metadata).
+import http from 'node:http';
+import { readFile, stat } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const argIndex = process.argv.indexOf('--repo');
+const repo = argIndex > 0 ? path.resolve(process.argv[argIndex + 1] ?? '') : '';
+if (!repo || !existsSync(path.join(repo, 'services/feedback/src/join.mjs'))) {
+  console.error('usage: node rehearsal-server.mjs --repo <repo path>');
+  process.exit(2);
+}
+const dist = path.join(repo, 'dist');
+if (!existsSync(path.join(dist, 'index.html'))) {
+  console.error(`no ${dist}/index.html: build first`);
+  process.exit(2);
+}
+const svc = (file) => import(pathToFileURL(path.join(repo, 'services/feedback/src', file)).href);
+const { ADMIN_HEADER, BODY_CAP, handleDraw, routeDraw, tooLarge } = await svc('join.mjs');
+const { declaredTooLarge, readCapped } = await svc('record.mjs');
+const swa = JSON.parse(await readFile(path.join(repo, 'public/staticwebapp.config.json'), 'utf8'));
+const globalHeaders = swa.globalHeaders ?? {};
+const redirects = new Map((swa.routes ?? []).filter((r) => r.redirect).map((r) => [r.route, r]));
+const mimeOverrides = swa.mimeTypes ?? {};
+
+// ---- in-memory store: the port documented on handleDraw ----
+const blobs = new Map();
+let seq = 0;
+const nextEtag = () => `"0x8DE${(++seq).toString(16).toUpperCase().padStart(11, '0')}"`;
+const asciiMeta = (metadata = {}) => {
+  const out = {};
+  for (const [k, v] of Object.entries(metadata)) {
+    if (/[^\x20-\x7e]/.test(String(v))) throw new TypeError(`non-ASCII metadata value for ${k}`);
+    out[k.toLowerCase()] = String(v);
+  }
+  return out;
+};
+const store = {
+  async read(p) {
+    const cur = blobs.get(p);
+    return cur ? { doc: JSON.parse(cur.body), etag: cur.etag } : null;
+  },
+  async put(p, { json, metadata, ifMatch } = {}) {
+    const cur = blobs.get(p);
+    if (ifMatch ? !cur || cur.etag !== ifMatch : cur) return null;
+    const etag = nextEtag();
+    blobs.set(p, { body: json === undefined ? '' : JSON.stringify(json), metadata: asciiMeta(metadata), etag });
+    return etag;
+  },
+  async head(p) {
+    const cur = blobs.get(p);
+    return cur ? { metadata: { ...cur.metadata }, etag: cur.etag } : null;
+  },
+  async del(p, ifMatch) {
+    const cur = blobs.get(p);
+    if (!cur) return true;
+    if (ifMatch && cur.etag !== ifMatch) return false;
+    blobs.delete(p);
+    return true;
+  },
+  async list(prefix) {
+    return [...blobs.keys()].filter((n) => n.startsWith(prefix)).sort().map((n) => ({ path: n, metadata: { ...blobs.get(n).metadata } }));
+  },
+};
+
+// ---- /api/draw/* ----
+async function draw(req, res, subpath) {
+  const method = req.method ?? 'GET';
+  let result;
+  if (method !== 'GET' && method !== 'POST') result = { status: 405, headers: { 'Content-Type': 'application/json' }, body: '{"error":"method"}' };
+  else {
+    const cap = BODY_CAP[routeDraw(method, subpath)?.op] ?? 0;
+    if (declaredTooLarge(req.headers['content-length'], cap)) result = tooLarge();
+    else {
+      const body = method === 'POST' ? await readCapped(req, cap) : { ok: true, text: '' };
+      result = body.ok
+        ? await handleDraw(
+            { method, path: subpath, admin: req.headers[ADMIN_HEADER] ?? null, bodyText: body.text },
+            { store, now: () => new Date(), log: (...parts) => console.log('  [join]', ...parts) },
+          )
+        : tooLarge();
+    }
+  }
+  res.writeHead(result.status, result.headers);
+  res.end(result.body);
+  return result.status;
+}
+
+// ---- static dist/ ----
+const TYPES = {
+  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.webmanifest': 'application/manifest+json',
+  '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.avif': 'image/avif',
+  '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff', '.txt': 'text/plain; charset=utf-8',
+  '.xml': 'application/xml', '.glb': 'model/gltf-binary', '.wasm': 'application/wasm', ...mimeOverrides,
+};
+async function resolveFile(urlPath) {
+  const rel = path.normalize(decodeURIComponent(urlPath)).replace(/^([/\\])+/, '');
+  const abs = path.join(dist, rel);
+  if (abs !== dist && !abs.startsWith(dist + path.sep)) return null;
+  for (const candidate of [abs, path.join(abs, 'index.html')]) {
+    const s = await stat(candidate).catch(() => null);
+    if (s?.isFile()) return candidate;
+  }
+  return null;
+}
+async function serveStatic(req, res, urlPath) {
+  const redirect = redirects.get(urlPath.replace(/\/$/, '') || '/');
+  if (redirect) {
+    res.writeHead(redirect.statusCode ?? 301, { ...globalHeaders, Location: redirect.redirect });
+    res.end();
+    return redirect.statusCode ?? 301;
+  }
+  let status = 200;
+  let file = await resolveFile(urlPath).catch(() => null);
+  if (!file) {
+    status = 404;
+    file = path.join(dist, '404.html');
+  }
+  const data = await readFile(file).catch(() => Buffer.from('not found'));
+  res.writeHead(status, { ...globalHeaders, 'Content-Type': TYPES[path.extname(file).toLowerCase()] ?? 'application/octet-stream', 'Content-Length': data.length });
+  res.end(req.method === 'HEAD' ? undefined : data);
+  return status;
+}
+
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url ?? '/', 'http://localhost');
+  const isApi = url.pathname.startsWith('/api/draw/');
+  try {
+    const status = isApi ? await draw(req, res, url.pathname.slice('/api/draw/'.length)) : await serveStatic(req, res, url.pathname);
+    if (isApi) console.log(`${new Date().toISOString()} ${req.method} ${url.pathname} -> ${status}`);
+  } catch (error) {
+    console.log(`${req.method} ${url.pathname} -> 500 ${error?.message}`);
+    if (!res.headersSent) res.writeHead(500);
+    res.end();
+  }
+});
+const port = Number(process.env.PORT ?? 4795);
+server.listen(port, '0.0.0.0', () => console.log(`rehearsal server on http://0.0.0.0:${port}  dist=${dist}`));

@@ -12,8 +12,10 @@
 // createElement and textContent too, and holds no innerHTML: a name is not the only string here that a
 // person typed (the event name and the prize names are the MC's).
 
-import type { Chip, Dot, ScreenView, Winner } from '../../prize-event/view.ts';
+import type { Chip, Dot, ScreenView, ShownCode, Winner } from '../../prize-event/view.ts';
 import type { GameId } from '../../prize-event/game-contract.ts';
+import { FINAL_ROUND } from '../../prize-draw/round-code.ts';
+import { COPY as CARD_COPY } from '../prize-cards/renderer/copy.ts';
 import { FIT, fitAll, nameBox, writeName } from './names-dom.ts';
 
 /** Each game's name as the boards print it: design/Gh302Projector.dc.html draws the fireworks and cards
@@ -112,6 +114,52 @@ function gameSlot(doc: Doc, key: string | null, game: GameId | null): HTMLElemen
   return cell;
 }
 
+/** A code as the board groups it for a room to read aloud: 3-3-3 for a cut round, 4-4-4 for a deal (frames
+ *  proj-code and proj-code-card); the 7-digit final code 4-3 (design/Gh305AuditFrames.dc.html frame 4). */
+export function groupCode(digits: string): string {
+  const size = digits.length === 9 ? 3 : 4;
+  const groups: string[] = [];
+  for (let i = 0; i < digits.length; i += size) groups.push(digits.slice(i, i + size));
+  return groups.join(' ');
+}
+
+/** The board's QR-mode copy (design/Gh302Projector.dc.html B, COPY APPROVED): the code card and the claim line.
+ *  The final's card label puts the frame's own name for the final where the board puts a round number. */
+export const CODE_COPY = {
+  label: (round: number): string => (round === FINAL_ROUND ? 'รหัสรอบชิง' : `รหัสรอบที่ ${round}`),
+  /** Owner-approved 2026-11-14: the earlier codes' label (gh#300 condition 1). */
+  earlier: 'รหัสรอบก่อนหน้า',
+  round: (round: number): string => `รอบที่ ${round}`,
+  hint: 'ใส่รหัสนี้ในมือถือ เพื่อดูผลของคุณ',
+  claim: 'ผู้ได้รางวัล เปิดหน้าผลในมือถือให้ทีมงานดู ชื่อต้องตรงกับบนจอนี้',
+} as const;
+
+/** The code card over the veiled frame (proj-code B, owner pick 2026-11-11: a centred card over the field). */
+function codeCard(doc: Doc, code: ShownCode): HTMLElement[] {
+  const box = el(doc, 'div', 'pd-codebox');
+  box.append(
+    el(doc, 'div', 'pd-ck', CODE_COPY.label(code.round)),
+    el(doc, 'div', code.digits.length === 12 ? 'pd-digits d12' : 'pd-digits', groupCode(code.digits)),
+    el(doc, 'div', 'pd-ci', CODE_COPY.hint),
+  );
+  // Every earlier round's code, round order, so a phone that missed one can still type them all in order
+  // (design/Gh305AuditFrames.dc.html frame 4).
+  if (code.earlier.length) {
+    const list = el(doc, 'div', 'pd-earlier');
+    const row = el(doc, 'div', 'pd-erow');
+    for (const e of code.earlier) {
+      const item = el(doc, 'div', 'pd-eitem');
+      item.append(el(doc, 'span', 'pd-er', CODE_COPY.round(e.round)), el(doc, 'span', 'pd-ed', groupCode(e.digits)));
+      // A card round's drawn rule, in the rule card's own words: the label of the phone's rule button.
+      if (e.rule) item.appendChild(el(doc, 'span', 'pd-eru', CARD_COPY.rule[e.rule]));
+      row.appendChild(item);
+    }
+    list.append(el(doc, 'div', 'pd-ek', CODE_COPY.earlier), row);
+    box.appendChild(list);
+  }
+  return [el(doc, 'div', 'pd-veil'), box];
+}
+
 function winnerText(doc: Doc, w: Winner, className: string): HTMLElement {
   const pz = el(doc, 'div', className);
   pz.textContent = w.prize ? `รางวัลที่ ${w.place} · ${w.prize}` : `รางวัลที่ ${w.place}`;
@@ -166,9 +214,11 @@ export function renderScreen(frame: HTMLElement, view: ScreenView, doc: Doc = do
       }
       parts.push(cards);
     }
-    // The board's claim line ("show the result on your phone") is QR mode's (gh#309): admin mode has no
-    // phones, so it is not drawn here.
+    // The board's claim line is QR mode's: admin mode has no phones, so it is drawn only when asked.
+    if (view.claim) parts.push(el(doc, 'div', 'pd-claim', CODE_COPY.claim));
   }
+  // QR mode: the step's code, over everything else on the frame until the MC closes it (stage.ts).
+  if (view.kind !== 'final' && view.code) parts.push(...codeCard(doc, view.code));
   frame.replaceChildren(...parts);
   frame.setAttribute('data-screen', view.kind);
   fitAll(frame);

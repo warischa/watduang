@@ -19,8 +19,10 @@
 // Code layout, digits only (a Thai keyboard has no handy Latin letters; a numeric pad is universal):
 //   cut round : seed (5) + cut (3) + check (1)                = 9 digits
 //   deal round: seed (5) + low cut (3) + high cut (3) + check (1) = 12 digits (the dealt-card game, cards.ts)
-//   final     : seed (5) + check (1)                          = 6 digits (round FINAL_ROUND, hostFinalCode)
-// The seed is 5 digits by owner ruling (2026-11-11).
+//   final     : seed (5) + prize count (1) + check (1)        = 7 digits (round FINAL_ROUND, hostFinalCode)
+// The seed is 5 digits by owner ruling (2026-11-11). The final's prize-count digit (1 to FINAL_SIZE) is the
+// owner ruling of 2026-11-14 (ADR-0079): five finalists always, one to five prizes, so a phone placed past the
+// count holds no prize. The count is no input to any fate or slot: it only rides in the code, under its check.
 //
 // Fairness. Ex ante the odds are EXACTLY equal, by exchangeability: identities are random strings from a
 // CSPRNG (server-issued in QR mode), and the survivor set ignores roster order, so no identity is favoured
@@ -33,7 +35,7 @@
 // adjacent swap, or a code typed into the wrong round is refused instead of yielding a confident wrong fate.
 // That wrong-round guarantee holds because every round number is one digit: round 10 would share Damm state
 // with round 2. ROUNDS is the 4 elimination rounds (cut or deal codes, 9 or 12 digits); FINAL_ROUND admits a
-// 6-digit final code only. Lengths never overlap, so a code typed into the wrong kind of round is refused too.
+// 7-digit final code only. Lengths never overlap, so a code typed into the wrong kind of round is refused too.
 //
 // The final code encodes an order the caller already drew (the tracer's final record): hostFinalCode scans
 // seeds from zero for the first one whose final hash sends every finalist to its own index, and never draws.
@@ -58,13 +60,14 @@ export const DEAL_CODE_LENGTH = SEED_DIGITS + 2 * CUT_DIGITS + 1;
 export const ROUNDS: readonly number[] = Array.from({ length: ELIMINATION_ROUNDS }, (_, i) => i + 1);
 /** The final's round number; its code is a seed plus a check digit. */
 export const FINAL_ROUND = ELIMINATION_ROUNDS + 1;
-export const FINAL_CODE_LENGTH = SEED_DIGITS + 1;
+export const FINAL_CODE_LENGTH = SEED_DIGITS + 2;
 
 export type FateValue = (eventKey: string, round: number, seed: string, identity: string) => number;
 export type ParsedCode =
   | { kind: 'cut'; seed: string; cut: number }
   | { kind: 'deal'; seed: string; low: number; high: number }
-  | { kind: 'final'; seed: string };
+  /** prizes: how many of the final's places hold a prize, 1 to FINAL_SIZE (place index < prizes). */
+  | { kind: 'final'; seed: string; prizes: number };
 /** One typed code; a deal round also needs which of its two rules the main screen drew (0 or 1). */
 export type PhoneEntry = { code: string; rule?: 0 | 1 };
 export type PhoneVerdict = 'in' | 'out' | 'removed' | 'bad-code' | 'awaiting-rule' | 'unknown';
@@ -72,8 +75,9 @@ export type PhoneVerdict = 'in' | 'out' | 'removed' | 'bad-code' | 'awaiting-rul
 export type Membership = 'confirmed' | 'removed' | 'unconfirmed';
 /** provisional: the fates were computed without confirmed membership, so the main screen decides. */
 export type PhoneResult = { verdicts: PhoneVerdict[]; provisional: boolean };
-/** A finalist's index in the encoded order; slot is null unless the verdict is 'in'. */
-export type FinalResult = { verdict: PhoneVerdict; slot: number | null; provisional: boolean };
+/** A finalist's index in the encoded order; slot is null unless the verdict is 'in'. prizes is the count the
+ *  final code carries (a slot at or past it holds no prize), null when no final code was read. */
+export type FinalResult = { verdict: PhoneVerdict; slot: number | null; prizes: number | null; provisional: boolean };
 
 // ---- hash: FNV-1a over UTF-8, then the MurmurHash3 32-bit finaliser for avalanche. Synchronous and tiny,
 // because crypto.subtle is async-only. FNV is a stream, so the hash of "f1 SEP f2 ... SEP last" is the state
@@ -211,7 +215,9 @@ export function parseCode(raw: string, round: number): ParsedCode | null {
   if (digits === null) return null;
   if (final) {
     if (digits.length !== FINAL_CODE_LENGTH || dammCheck(String(round) + digits) !== 0) return null;
-    return { kind: 'final', seed: digits.slice(0, SEED_DIGITS) };
+    const prizes = Number(digits[SEED_DIGITS]);
+    if (prizes < 1 || prizes > FINAL_SIZE) return null;
+    return { kind: 'final', seed: digits.slice(0, SEED_DIGITS), prizes };
   }
   if (digits.length !== CUT_CODE_LENGTH && digits.length !== DEAL_CODE_LENGTH) return null;
   if (dammCheck(String(round) + digits) !== 0) return null;
@@ -364,12 +370,15 @@ function finalSlot(eventKey: string, seed: string, identity: string): number {
 }
 
 /**
- * The final code for an order the caller already drew (index = slot). Scans 5-digit seeds from zero for the
- * first whose final hash sends every finalist to its own index; null when no seed does, and the caller then
- * shows no final code. It draws nothing, so it can never change the order it encodes.
+ * The final code for an order the caller already drew (index = slot), carrying the event's prize count. Scans
+ * 5-digit seeds from zero for the first whose final hash sends every finalist to its own index; null when no
+ * seed does, and the caller then shows no final code. It draws nothing, so it can never change the order it
+ * encodes, and the count never changes which seed is found. `prizes` defaults to FINAL_SIZE (every place holds
+ * a prize) so the gh300 evidence scripts, which never pass it, run unchanged; the projector always passes it.
  */
-export function hostFinalCode(eventKey: string, order: readonly string[]): string | null {
+export function hostFinalCode(eventKey: string, order: readonly string[], prizes: number = FINAL_SIZE): string | null {
   if (order.length !== FINAL_SIZE) throw new RangeError(`the final order must hold ${FINAL_SIZE} identities, got ${order.length}`);
+  if (!Number.isInteger(prizes) || prizes < 1 || prizes > FINAL_SIZE) throw new RangeError(`the prize count must be 1 to ${FINAL_SIZE}, got ${prizes}`);
   // A hole is skipped by every() and map(), so a sparse array would encode a slot for nobody.
   for (let i = 0; i < order.length; i++) {
     if (!(i in order) || typeof order[i] !== 'string') throw new RangeError(`final order slot ${i} holds no identity`);
@@ -378,14 +387,15 @@ export function hostFinalCode(eventKey: string, order: readonly string[]): strin
   const space = 10 ** SEED_DIGITS;
   for (let s = 0; s < space; s++) {
     const seed = String(s).padStart(SEED_DIGITS, '0');
-    if (order.every((id, i) => finalSlot(eventKey, seed, id) === i)) return withCheck(FINAL_ROUND, seed);
+    if (order.every((id, i) => finalSlot(eventKey, seed, id) === i)) return withCheck(FINAL_ROUND, seed + String(prizes));
   }
   return null;
 }
 
 /**
  * The phone's place in the final: its index in the encoded order, given only when the fold over all
- * elimination rounds reads 'in'. 'removed' stays 'removed'; 'unconfirmed' marks the result provisional.
+ * elimination rounds reads 'in', with the prize count the code carries. 'removed' stays 'removed';
+ * 'unconfirmed' marks the result provisional.
  */
 export function phoneFinalSlot(
   eventKey: string,
@@ -395,11 +405,11 @@ export function phoneFinalSlot(
   membership: Membership,
 ): FinalResult {
   const { verdicts, provisional } = phoneVerdicts(eventKey, identity, entries, membership);
-  if (membership === 'removed') return { verdict: 'removed', slot: null, provisional };
-  if (verdicts.length !== ELIMINATION_ROUNDS) return { verdict: 'unknown', slot: null, provisional };
+  if (membership === 'removed') return { verdict: 'removed', slot: null, prizes: null, provisional };
+  if (verdicts.length !== ELIMINATION_ROUNDS) return { verdict: 'unknown', slot: null, prizes: null, provisional };
   const last = verdicts[verdicts.length - 1]!;
-  if (last !== 'in') return { verdict: last, slot: null, provisional };
+  if (last !== 'in') return { verdict: last, slot: null, prizes: null, provisional };
   const parsed = parseCode(finalCode, FINAL_ROUND);
-  if (!parsed || parsed.kind !== 'final') return { verdict: 'bad-code', slot: null, provisional };
-  return { verdict: 'in', slot: finalSlot(eventKey, parsed.seed, identity), provisional };
+  if (!parsed || parsed.kind !== 'final') return { verdict: 'bad-code', slot: null, prizes: null, provisional };
+  return { verdict: 'in', slot: finalSlot(eventKey, parsed.seed, identity), prizes: parsed.prizes, provisional };
 }

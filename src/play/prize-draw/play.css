@@ -606,4 +606,63 @@ body {
     line-height: 1.15;
     text-align: start;
   }
+  /* QR mode (gh#309) in the phone layouts: the result's claim line follows the winner cards, and the code
+     card and its veil hold the screen while the page scrolls under them. Values: design/Gh305AuditFrames.dc.html
+     frame 4 at 320 (the largest code sizes measured to fit the card at 320). */
+  .pd-viewport[data-result] .pd-claim {
+    position: static;
+    margin-block-start: 18px;
+    text-align: start;
+    font-size: 18px;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-veil {
+    position: fixed;
+    inset: var(--play-band) 0 0 0;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-codebox {
+    position: fixed;
+    inset-inline: 16px;
+    inset-block-start: calc(var(--play-band) + 16px);
+    inline-size: auto;
+    padding: 24px 16px;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-ck {
+    font-size: 22px;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-digits {
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-digits.d12 {
+    font-size: 26px;
+    letter-spacing: 1px;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-ci {
+    font-size: 18px;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-earlier {
+    margin-block-start: 20px;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-ek {
+    font-size: 18px;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-erow {
+    margin-block-start: 8px;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-eitem {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px 8px;
+  }
+  /* A card round's rule cannot share the line with a 12-digit code at 320: it wraps under it. */
+  .pd-viewport:is([data-field], [data-result]) :is(.pd-er, .pd-eru) {
+    font-size: 16px;
+  }
+  .pd-viewport:is([data-field], [data-result]) .pd-ed {
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
 }

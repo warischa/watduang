@@ -11,6 +11,13 @@ import { hostFinalCode, phoneFinalSlot, phoneVerdicts } from '../prize-draw/roun
 import { phoneCard } from '../prize-draw/cards.ts';
 import { fakeOrigin } from './fake-idb.mjs';
 import { openEventStore } from './store.ts';
+import { screenView } from './view.ts';
+import { renderScreen } from '../play/_prize-reveal/reveal.ts';
+import { makeDoc } from './fake-dom.mjs';
+import { chooseRule, enterCode, freshReveal, revealView } from '../prize-join/reveal.ts';
+import { REVEAL_COPY, mountJoin } from '../prize-join/join-page.ts';
+import { storageKey } from '../prize-join/join.ts';
+import { COPY as CARD_COPY } from '../play/prize-cards/renderer/copy.ts';
 
 function seeded(seed) {
   let a = seed >>> 0;
@@ -154,4 +161,173 @@ test('a phone with only (PIN, its join id, the round codes) computes exactly wha
     if (phoneVerdicts('048214', id, entries, 'confirmed').verdicts.join() !== truth.join()) disagreeWithWrongKey++;
   }
   assert.ok(disagreeWithWrongKey > 0, 'the key does not matter: this test proves nothing about it');
+});
+
+// gh#309: the same agreement, end to end through what each side SHOWS. The codes are read off the
+// projector's own view at the step that paints them (a cut round's reveal, a card round's deal, the
+// result), the drawn rule as its rule card names it; the phone side is the page's own flow (reveal.ts),
+// and for every finalist the real page, whose claim screen must name the projector's winner of its place.
+
+/** Walk a QR event as the projector does, keeping the code each step painted. */
+function walkShown(rng) {
+  let s = createEvent(qrInput(), rng);
+  const shown = [];
+  for (let r = 1; r <= 4; r++) {
+    const cards = s.setup.games.rounds[r - 1] === 'cards';
+    if (cards) {
+      s = prepareCards(s, rng);
+      shown.push(screenView(s).code);
+    }
+    s = revealDrawn(drawNext(s, rng));
+    if (cards) assert.equal(screenView(s).code, undefined, `round ${r}: a card round paints its code at the deal only`);
+    else shown.push(screenView(s).code);
+    assert.equal(shown[r - 1].round, r, `round ${r}: the code card names another round`);
+    s = advance(s, rng);
+  }
+  s = revealDrawn(drawNext(s, rng, [...liveIds(s)].reverse()));
+  const view = screenView(s);
+  assert.equal(view.claim, true, 'the result draws the claim line in QR mode');
+  return { s, shown, final: view.code };
+}
+
+/** The rule index on the phone's own pair for the rule the projector's card names. */
+const tapped = (screen, r) => screen.pair.findIndex((rule) => CARD_COPY.rule[rule] === CARD_COPY.rule[r.deal.pair[r.rule]]);
+
+test('every member: the phone flow fed the codes the projector painted reaches the projector\'s outcome', () => {
+  const { s, shown, final } = walkShown(seeded(11));
+  assert.ok(final, 'no final code painted');
+  let finalists = 0;
+  for (const { id } of s.setup.people) {
+    let rec = { ...freshReveal(PIN), member: 'confirmed', started: true };
+    for (let r = 1; r <= 4; r++) {
+      const round = s.rounds[r - 1];
+      rec = enterCode(rec, id, shown[r - 1].digits);
+      assert.ok(rec, `${id}: the phone refused the code painted for round ${r}`);
+      let { screen } = revealView(rec, id);
+      if (round.game === 'cards') {
+        assert.equal(screen.kind, 'card', `${id} round ${r}: no card before the rule`);
+        assert.deepEqual(screen.card, round.deal.cards.find((c) => c.id === id).card, `${id} round ${r}: another card`);
+        rec = chooseRule(rec, id, tapped(screen, round));
+        screen = revealView(rec, id).screen;
+      }
+      const kept = round.survivors.includes(id);
+      assert.equal(screen.kind, kept ? 'pass' : 'out', `${id} round ${r}: phone and projector disagree`);
+      assert.equal(screen.round, r);
+      if (!kept) break;
+    }
+    if (!s.final.order.includes(id)) continue;
+    finalists++;
+    rec = enterCode(rec, id, final.digits);
+    const { screen } = revealView(rec, id);
+    const slot = s.final.order.indexOf(id);
+    // The final code carries the prize count: a place past it holds no prize and reads out (ADR-0079).
+    const want = slot < s.setup.prizes.length ? { kind: 'claim', slot } : { kind: 'out', round: 5 };
+    assert.deepEqual(screen, want, `${id}: another place in the final`);
+  }
+  assert.equal(finalists, 5);
+  assert.equal(s.setup.prizes.length, 3, 'the walk must leave finalists past the prize count');
+});
+
+test('the claim screen names the projector\'s winner of the place the phone computed', async () => {
+  const { s, shown, final } = walkShown(seeded(11));
+  const shownWinners = screenView(s).winners;
+  for (const id of s.final.order) {
+    const person = s.setup.people.find((p) => p.id === id);
+    const doc = makeDoc();
+    const root = doc.createElement('main');
+    doc.body.append(root);
+    const kv = new Map([[storageKey('AbCdEfGhIjKlMnOpQrStUv'), JSON.stringify({ token: 'T'.repeat(32), id, name: person.name })]]);
+    // The phone has typed every code already and the status answered: the page draws from the record.
+    let rec = { ...freshReveal(PIN), member: 'confirmed', started: true };
+    s.rounds.forEach((round, i) => {
+      rec = enterCode(rec, id, shown[i].digits);
+      if (round.game === 'cards') rec = chooseRule(rec, id, tapped(revealView(rec, id).screen, round));
+    });
+    rec = enterCode(rec, id, final.digits);
+    kv.set('watduang:prize-draw:reveal:AbCdEfGhIjKlMnOpQrStUv', JSON.stringify(rec));
+    mountJoin(root, {
+      gameName: 'x',
+      location: { pathname: '/', search: '', hash: `#event=AbCdEfGhIjKlMnOpQrStUv&pin=${PIN}` },
+      history: { replaceState: () => {} },
+      session: null,
+      storage: { getItem: (k) => kv.get(k) ?? null, setItem: (k, v) => kv.set(k, String(v)) },
+      fetch: () => assert.fail('a server call on a page whose codes are all typed'),
+      getRandomValues: (a) => a,
+      setTimeout: () => 0,
+      clearTimeout: () => {},
+    });
+    const slot = s.final.order.indexOf(id);
+    if (slot >= s.setup.prizes.length) {
+      assert.equal(root.querySelector('.pj-prize'), null, `${person.name}: a claim for a place with no prize`);
+      assert.equal(root.querySelector('h1').textContent, REVEAL_COPY.outHeading(5));
+      continue;
+    }
+    const place = root.querySelector('.pj-pz').textContent;
+    const shownName = root.querySelector('.pj-prize').querySelector('.pj-who').textContent;
+    assert.equal(place, REVEAL_COPY.prize(slot + 1), `${person.name}: another place`);
+    // The projector draws a winner card for each prize; a place past the prize count has none.
+    const card = shownWinners.find((w) => w.place === slot + 1);
+    if (card) assert.equal(shownName, card.name, `the phone of ${person.name} shows a name the projector does not show for its place`);
+  }
+  assert.ok(shownWinners.length >= 3, 'the walk paints too few winners to prove anything');
+});
+
+test('the code card lists every earlier round\'s code, in round order, under its label (gh#300 condition 1)', () => {
+  const { s, shown, final } = walkShown(seeded(11));
+  // A card round in the history carries the rule its main screen drew (REFUTE r1 finding 2).
+  const own = (c, i) => {
+    const r = s.rounds[i];
+    return r.game === 'cards' ? { round: c.round, digits: c.digits, rule: r.deal.pair[r.rule] } : { round: c.round, digits: c.digits };
+  };
+  shown.forEach((code, i) => assert.deepEqual(code.earlier, shown.slice(0, i).map(own), `round ${i + 1}`));
+  assert.deepEqual(final.earlier, shown.map(own), 'the final lists all four round codes');
+  // As painted: the label, then one item per earlier round, its round and its digits as the card groups them.
+  const doc = makeDoc();
+  const frame = doc.createElement('div');
+  doc.body.append(frame);
+  renderScreen(frame, screenView(s), doc);
+  const list = frame.querySelector('.pd-codebox').querySelector('.pd-earlier');
+  assert.ok(list, 'no earlier-codes list on the final code card');
+  assert.equal(list.querySelector('.pd-ek').textContent, 'รหัสรอบก่อนหน้า');
+  const items = list.querySelectorAll('.pd-eitem').map((it) => [it.querySelector('.pd-er').textContent, it.querySelector('.pd-ed').textContent.replace(/ /g, '')]);
+  assert.deepEqual(items, shown.map((c) => [`รอบที่ ${c.round}`, c.digits]));
+});
+
+// REFUTE r1 finding 2: a latecomer who saw no round as it happened catches up from the final's code card
+// alone: every earlier code, and for a card round the rule drawn, read as the card paints it (the rule card's
+// words, which are the phone's rule-tap labels). Every member must reach the projector's outcome that way.
+test('every member catching up from the final code card alone reaches the projector\'s outcome, card rounds included', () => {
+  const { s, final } = walkShown(seeded(11));
+  const doc = makeDoc();
+  const frame = doc.createElement('div');
+  doc.body.append(frame);
+  renderScreen(frame, screenView(s), doc);
+  const painted = frame.querySelectorAll('.pd-eitem').map((it) => ({
+    digits: it.querySelector('.pd-ed').textContent.replace(/ /g, ''),
+    rule: it.querySelector('.pd-eru')?.textContent ?? null,
+  }));
+  assert.equal(painted.length, 4);
+  s.rounds.forEach((r, i) => {
+    const want = r.game === 'cards' ? CARD_COPY.rule[r.deal.pair[r.rule]] : null;
+    assert.equal(painted[i].rule, want, `round ${r.round}: the card paints ${painted[i].rule} for the drawn rule`);
+  });
+  for (const { id } of s.setup.people) {
+    let rec = { ...freshReveal(PIN), member: 'confirmed', started: true };
+    let alive = true;
+    for (const [i, item] of painted.entries()) {
+      rec = enterCode(rec, id, item.digits);
+      let { screen } = revealView(rec, id);
+      if (screen.kind === 'card') {
+        rec = chooseRule(rec, id, screen.pair.findIndex((rule) => CARD_COPY.rule[rule] === item.rule));
+        screen = revealView(rec, id).screen;
+      }
+      alive = alive && s.rounds[i].survivors.includes(id);
+      assert.equal(screen.kind, alive ? 'pass' : 'out', `${id} round ${i + 1}`);
+      if (!alive) break;
+    }
+    if (!alive) continue;
+    rec = enterCode(rec, id, final.digits);
+    const slot = s.final.order.indexOf(id);
+    assert.deepEqual(revealView(rec, id).screen, slot < s.setup.prizes.length ? { kind: 'claim', slot } : { kind: 'out', round: 5 }, id);
+  }
 });

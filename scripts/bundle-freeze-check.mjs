@@ -116,6 +116,10 @@ const BASELINE_BASENAMES = [
   // gh#308 -- the QR lobby's join-code chunk: lobby-qr.ts with lean-qr bundled into it, reached only by the
   // projector's dynamic import while a QR lobby is on screen (ADR-0077). One new basename, no new page pair.
   'lobby-qr.js',
+  // gh#309 -- the cards game's approved copy (src/play/prize-cards/renderer/copy.ts), now also read by the
+  // phone join page (the rule buttons) and the projector's code card (each card round's drawn rule), so the
+  // bundler splits it into its own shared chunk (1047 B measured 2026-11-14). One new basename.
+  'copy.js',
   // gh#305 -- the three prize-draw 3D games (fireworks, cards, ladder) and the QR join page, fifteen new
   // basenames. three.module.js is the shared library chunk (the host's dynamic import, ADR-0068), and
   // preload-helper.js is the bundler's wrapper for that lazy import. reveal.js is the shared reveal host
@@ -532,7 +536,12 @@ const BASELINE_BASENAMES = [
 // already existed (the projector entry with the lobby, setup-page.js with the QR review list and its
 // lifecycle, event.js with the PIN identity). Per visitor: the projector route's initial closure is now
 // 66928 B raw / 27984 B gzip; the QR chunk loads only on the QR lobby (ADR-0077).
-const BASELINE_TOTAL_BYTES = 1267555;
+// Re-pinned 2026-11-14 (gh#305-308 audit picks + gh#309 phone results), 1267555 -> 1284587 (+17032, +1.3%, in
+// band; re-stated on purpose), n=1 local `npm run build`, read from this file's own pass line. The set leg was
+// red on one new basename, copy.js (1047 B, the cards copy now shared with the join page). INFERRED, not
+// isolated per change: the rest is the phone result flow (src/prize-join/reveal.ts and the join page), the
+// projector's code card, and the audit-pick layout code.
+const BASELINE_TOTAL_BYTES = 1284587;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as

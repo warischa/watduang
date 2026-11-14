@@ -1,0 +1,878 @@
+{
+ "results": {
+  "codeEntry-320": {
+   "name": "มานี",
+   "W": 320,
+   "ruleIdx": 0,
+   "apiAfterJoin": 2,
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [
+     {
+      "t": "pj-code",
+      "w": 288,
+      "h": 64
+     },
+     {
+      "t": "ดูผลของฉัน",
+      "w": 288,
+      "h": 52
+     }
+    ],
+    "minTap": 52,
+    "text": "มานี | รอบที่ 1 | ใส่รหัสรอบจากจอใหญ่ เพื่อดูผลของคุณ | รหัสรอบ | ดูผลของฉัน | ผลคำนวณในเครื่องนี้ ไม่ต้องรอเน็ต"
+   },
+   "dom": {
+    "t": "มานี | รอบที่ 1 | ใส่รหัสรอบจากจอใหญ่ เพื่อดูผลของคุณ | รหัสรอบ | ดูผลของฉัน | ผลคำนวณในเครื่องนี้ ไม่ต้องรอเน็ต",
+    "hasCode": true,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [],
+    "pz": null,
+    "h": "รอบที่ 1"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "wrongCode-320": {
+   "name": "มานี",
+   "W": 320,
+   "ruleIdx": 0,
+   "apiAfterJoin": 2,
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [
+     {
+      "t": "pj-code",
+      "w": 288,
+      "h": 64
+     },
+     {
+      "t": "ดูผลของฉัน",
+      "w": 288,
+      "h": 52
+     }
+    ],
+    "minTap": 52,
+    "text": "มานี | รอบที่ 1 | ใส่รหัสรอบจากจอใหญ่ เพื่อดูผลของคุณ | รหัสรอบ | รหัสนี้ไม่ใช่ของรอบที่ 1 ดูรหัสบนจอใหญ่อีกครั้ง | ดูผลของฉัน | ผลคำนวณในเครื่องนี้ ไม่ต้องรอเน็ต"
+   },
+   "dom": {
+    "t": "มานี | รอบที่ 1 | ใส่รหัสรอบจากจอใหญ่ เพื่อดูผลของคุณ | รหัสรอบ | รหัสนี้ไม่ใช่ของรอบที่ 1 ดูรหัสบนจอใหญ่อีกครั้ง | ดูผลของฉัน | ผลคำนวณในเครื่องนี้ ไม่ต้องรอเน็ต",
+    "hasCode": true,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [],
+    "pz": null,
+    "h": "รอบที่ 1"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "card-320": {
+   "name": "มานี",
+   "W": 320,
+   "ruleIdx": 0,
+   "apiAfterJoin": 2,
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [
+     {
+      "t": "ดำอยู่ต่อ",
+      "w": 288,
+      "h": 52
+     },
+     {
+      "t": "เฉพาะไพ่หน้าคน",
+      "w": 288,
+      "h": 52
+     }
+    ],
+    "minTap": 52,
+    "text": "มานี | รอบที่ 1 | ไพ่แจกทั้งห้อง | ไพ่ของคุณ | K | K | K ข้าวหลามตัด | แตะกติกาที่จอใหญ่เปิด | ดำอยู่ต่อ | เฉพาะไพ่หน้าคน"
+   },
+   "dom": {
+    "t": "มานี | รอบที่ 1 | ไพ่แจกทั้งห้อง | ไพ่ของคุณ | K | K | K ข้าวหลามตัด | แตะกติกาที่จอใหญ่เปิด | ดำอยู่ต่อ | เฉพาะไพ่หน้าคน",
+    "hasCode": false,
+    "rules": [
+     "ดำอยู่ต่อ",
+     "เฉพาะไพ่หน้าคน"
+    ],
+    "badge": false,
+    "card": true,
+    "who": [],
+    "pz": null,
+    "h": "รอบที่ 1"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "in-320": {
+   "name": "มานี",
+   "W": 320,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "in",
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [
+     {
+      "t": "pj-code",
+      "w": 288,
+      "h": 64
+     },
+     {
+      "t": "ดูผลของฉัน",
+      "w": 288,
+      "h": 52
+     }
+    ],
+    "minTap": 52,
+    "text": "มานี | ผ่านรอบที่ 1 | ไปต่อรอบที่ 2 รอรหัสรอบถัดไปบนจอใหญ่ | ชื่อของคุณบนจอ | มานี | รอรหัสรอบถัดไปจากจอใหญ่ | รหัสรอบ | ดูผลของฉัน"
+   },
+   "dom": {
+    "t": "มานี | ผ่านรอบที่ 1 | ไปต่อรอบที่ 2 รอรหัสรอบถัดไปบนจอใหญ่ | ชื่อของคุณบนจอ | มานี | รอรหัสรอบถัดไปจากจอใหญ่ | รหัสรอบ | ดูผลของฉัน",
+    "hasCode": true,
+    "rules": [],
+    "badge": true,
+    "card": false,
+    "who": [
+     "มานี"
+    ],
+    "pz": null,
+    "h": "ผ่านรอบที่ 1"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "out-320": {
+   "name": "สมชาย",
+   "W": 320,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "out",
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:สมชาย",
+    "taps": [],
+    "minTap": null,
+    "text": "สมชาย | รอบที่ 1 ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | สมชาย"
+   },
+   "dom": {
+    "t": "สมชาย | รอบที่ 1 ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | สมชาย",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "สมชาย"
+    ],
+    "pz": null,
+    "h": "รอบที่ 1 ไม่ผ่าน"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "provisional-320": {
+   "name": "มานี",
+   "W": 320,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "in",
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [
+     {
+      "t": "pj-code",
+      "w": 288,
+      "h": 64
+     },
+     {
+      "t": "ดูผลของฉัน",
+      "w": 288,
+      "h": 52
+     }
+    ],
+    "minTap": 52,
+    "text": "มานี | ผ่านรอบที่ 1 | ไปต่อรอบที่ 2 รอรหัสรอบถัดไปบนจอใหญ่ | ชื่อของคุณบนจอ | มานี | รอรหัสรอบถัดไปจากจอใหญ่ | รหัสรอบ | ดูผลของฉัน | ยังไม่ยืนยันชื่อ ผลจริงดูที่จอใหญ่"
+   },
+   "dom": {
+    "t": "มานี | ผ่านรอบที่ 1 | ไปต่อรอบที่ 2 รอรหัสรอบถัดไปบนจอใหญ่ | ชื่อของคุณบนจอ | มานี | รอรหัสรอบถัดไปจากจอใหญ่ | รหัสรอบ | ดูผลของฉัน | ยังไม่ยืนยันชื่อ ผลจริงดูที่จอใหญ่",
+    "hasCode": true,
+    "rules": [],
+    "badge": true,
+    "card": false,
+    "who": [
+     "มานี"
+    ],
+    "pz": null,
+    "h": "ผ่านรอบที่ 1"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "removed-320": {
+   "name": "มานี",
+   "W": 320,
+   "ruleIdx": 0,
+   "apiAfterJoin": 2,
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [],
+    "minTap": null,
+    "text": "มานี | ผู้จัดนำชื่อนี้ออกจากรายชื่อแล้ว | ชื่อของคุณบนจอ | มานี"
+   },
+   "dom": {
+    "t": "มานี | ผู้จัดนำชื่อนี้ออกจากรายชื่อแล้ว | ชื่อของคุณบนจอ | มานี",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "มานี"
+    ],
+    "pz": null,
+    "h": "ผู้จัดนำชื่อนี้ออกจากรายชื่อแล้ว"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "slot0-320": {
+   "name": "Fah",
+   "W": 320,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "apiBeforeCut": 2,
+   "ruleVerdict": "in",
+   "cutAttempts": [],
+   "apiAfterCut": 0,
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:Fah",
+    "taps": [],
+    "minTap": null,
+    "text": "Fah | คุณได้รางวัล | รางวัลที่ 1 | Fah | แสดงหน้านี้ให้ทีมงานดู ชื่อต้องตรงกับบนจอใหญ่"
+   },
+   "dom": {
+    "t": "Fah | คุณได้รางวัล | รางวัลที่ 1 | Fah | แสดงหน้านี้ให้ทีมงานดู ชื่อต้องตรงกับบนจอใหญ่",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "Fah"
+    ],
+    "pz": "รางวัลที่ 1",
+    "h": "คุณได้รางวัล"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "slot1-320": {
+   "name": "Tae",
+   "W": 320,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "in",
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:Tae",
+    "taps": [],
+    "minTap": null,
+    "text": "Tae | คุณได้รางวัล | รางวัลที่ 2 | Tae | แสดงหน้านี้ให้ทีมงานดู ชื่อต้องตรงกับบนจอใหญ่"
+   },
+   "dom": {
+    "t": "Tae | คุณได้รางวัล | รางวัลที่ 2 | Tae | แสดงหน้านี้ให้ทีมงานดู ชื่อต้องตรงกับบนจอใหญ่",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "Tae"
+    ],
+    "pz": "รางวัลที่ 2",
+    "h": "คุณได้รางวัล"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "slot2-320": {
+   "name": "Oak",
+   "W": 320,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "in",
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:Oak",
+    "taps": [],
+    "minTap": null,
+    "text": "Oak | คุณได้รางวัล | รางวัลที่ 3 | Oak | แสดงหน้านี้ให้ทีมงานดู ชื่อต้องตรงกับบนจอใหญ่"
+   },
+   "dom": {
+    "t": "Oak | คุณได้รางวัล | รางวัลที่ 3 | Oak | แสดงหน้านี้ให้ทีมงานดู ชื่อต้องตรงกับบนจอใหญ่",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "Oak"
+    ],
+    "pz": "รางวัลที่ 3",
+    "h": "คุณได้รางวัล"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "slot3-320": {
+   "name": "ใบเตย",
+   "W": 320,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "in",
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:ใบเตย",
+    "taps": [],
+    "minTap": null,
+    "text": "ใบเตย | รอบชิง ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | ใบเตย"
+   },
+   "dom": {
+    "t": "ใบเตย | รอบชิง ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | ใบเตย",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "ใบเตย"
+    ],
+    "pz": null,
+    "h": "รอบชิง ไม่ผ่าน"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "slot4-320": {
+   "name": "ฝน ก.",
+   "W": 320,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "in",
+   "measure": {
+    "inner": 320,
+    "scroll": 320,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:ฝน ก.",
+    "taps": [],
+    "minTap": null,
+    "text": "ฝน ก. | รอบชิง ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | ฝน ก."
+   },
+   "dom": {
+    "t": "ฝน ก. | รอบชิง ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | ฝน ก.",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "ฝน ก."
+    ],
+    "pz": null,
+    "h": "รอบชิง ไม่ผ่าน"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "codeEntry-375": {
+   "name": "มานี",
+   "W": 375,
+   "ruleIdx": 0,
+   "apiAfterJoin": 2,
+   "measure": {
+    "inner": 375,
+    "scroll": 375,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [
+     {
+      "t": "pj-code",
+      "w": 343,
+      "h": 64
+     },
+     {
+      "t": "ดูผลของฉัน",
+      "w": 343,
+      "h": 52
+     }
+    ],
+    "minTap": 52,
+    "text": "มานี | รอบที่ 1 | ใส่รหัสรอบจากจอใหญ่ เพื่อดูผลของคุณ | รหัสรอบ | ดูผลของฉัน | ผลคำนวณในเครื่องนี้ ไม่ต้องรอเน็ต"
+   },
+   "dom": {
+    "t": "มานี | รอบที่ 1 | ใส่รหัสรอบจากจอใหญ่ เพื่อดูผลของคุณ | รหัสรอบ | ดูผลของฉัน | ผลคำนวณในเครื่องนี้ ไม่ต้องรอเน็ต",
+    "hasCode": true,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [],
+    "pz": null,
+    "h": "รอบที่ 1"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "wrongCode-375": {
+   "name": "มานี",
+   "W": 375,
+   "ruleIdx": 0,
+   "apiAfterJoin": 2,
+   "measure": {
+    "inner": 375,
+    "scroll": 375,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [
+     {
+      "t": "pj-code",
+      "w": 343,
+      "h": 64
+     },
+     {
+      "t": "ดูผลของฉัน",
+      "w": 343,
+      "h": 52
+     }
+    ],
+    "minTap": 52,
+    "text": "มานี | รอบที่ 1 | ใส่รหัสรอบจากจอใหญ่ เพื่อดูผลของคุณ | รหัสรอบ | รหัสนี้ไม่ใช่ของรอบที่ 1 ดูรหัสบนจอใหญ่อีกครั้ง | ดูผลของฉัน | ผลคำนวณในเครื่องนี้ ไม่ต้องรอเน็ต"
+   },
+   "dom": {
+    "t": "มานี | รอบที่ 1 | ใส่รหัสรอบจากจอใหญ่ เพื่อดูผลของคุณ | รหัสรอบ | รหัสนี้ไม่ใช่ของรอบที่ 1 ดูรหัสบนจอใหญ่อีกครั้ง | ดูผลของฉัน | ผลคำนวณในเครื่องนี้ ไม่ต้องรอเน็ต",
+    "hasCode": true,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [],
+    "pz": null,
+    "h": "รอบที่ 1"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "card-375": {
+   "name": "มานี",
+   "W": 375,
+   "ruleIdx": 0,
+   "apiAfterJoin": 2,
+   "measure": {
+    "inner": 375,
+    "scroll": 375,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [
+     {
+      "t": "ดำอยู่ต่อ",
+      "w": 343,
+      "h": 52
+     },
+     {
+      "t": "เฉพาะไพ่หน้าคน",
+      "w": 343,
+      "h": 52
+     }
+    ],
+    "minTap": 52,
+    "text": "มานี | รอบที่ 1 | ไพ่แจกทั้งห้อง | ไพ่ของคุณ | K | K | K ข้าวหลามตัด | แตะกติกาที่จอใหญ่เปิด | ดำอยู่ต่อ | เฉพาะไพ่หน้าคน"
+   },
+   "dom": {
+    "t": "มานี | รอบที่ 1 | ไพ่แจกทั้งห้อง | ไพ่ของคุณ | K | K | K ข้าวหลามตัด | แตะกติกาที่จอใหญ่เปิด | ดำอยู่ต่อ | เฉพาะไพ่หน้าคน",
+    "hasCode": false,
+    "rules": [
+     "ดำอยู่ต่อ",
+     "เฉพาะไพ่หน้าคน"
+    ],
+    "badge": false,
+    "card": true,
+    "who": [],
+    "pz": null,
+    "h": "รอบที่ 1"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "in-375": {
+   "name": "มานี",
+   "W": 375,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "in",
+   "measure": {
+    "inner": 375,
+    "scroll": 375,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [
+     {
+      "t": "pj-code",
+      "w": 343,
+      "h": 64
+     },
+     {
+      "t": "ดูผลของฉัน",
+      "w": 343,
+      "h": 52
+     }
+    ],
+    "minTap": 52,
+    "text": "มานี | ผ่านรอบที่ 1 | ไปต่อรอบที่ 2 รอรหัสรอบถัดไปบนจอใหญ่ | ชื่อของคุณบนจอ | มานี | รอรหัสรอบถัดไปจากจอใหญ่ | รหัสรอบ | ดูผลของฉัน"
+   },
+   "dom": {
+    "t": "มานี | ผ่านรอบที่ 1 | ไปต่อรอบที่ 2 รอรหัสรอบถัดไปบนจอใหญ่ | ชื่อของคุณบนจอ | มานี | รอรหัสรอบถัดไปจากจอใหญ่ | รหัสรอบ | ดูผลของฉัน",
+    "hasCode": true,
+    "rules": [],
+    "badge": true,
+    "card": false,
+    "who": [
+     "มานี"
+    ],
+    "pz": null,
+    "h": "ผ่านรอบที่ 1"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "out-375": {
+   "name": "สมชาย",
+   "W": 375,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "out",
+   "measure": {
+    "inner": 375,
+    "scroll": 375,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:สมชาย",
+    "taps": [],
+    "minTap": null,
+    "text": "สมชาย | รอบที่ 1 ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | สมชาย"
+   },
+   "dom": {
+    "t": "สมชาย | รอบที่ 1 ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | สมชาย",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "สมชาย"
+    ],
+    "pz": null,
+    "h": "รอบที่ 1 ไม่ผ่าน"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "provisional-375": {
+   "name": "มานี",
+   "W": 375,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "in",
+   "measure": {
+    "inner": 375,
+    "scroll": 375,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [
+     {
+      "t": "pj-code",
+      "w": 343,
+      "h": 64
+     },
+     {
+      "t": "ดูผลของฉัน",
+      "w": 343,
+      "h": 52
+     }
+    ],
+    "minTap": 52,
+    "text": "มานี | ผ่านรอบที่ 1 | ไปต่อรอบที่ 2 รอรหัสรอบถัดไปบนจอใหญ่ | ชื่อของคุณบนจอ | มานี | รอรหัสรอบถัดไปจากจอใหญ่ | รหัสรอบ | ดูผลของฉัน | ยังไม่ยืนยันชื่อ ผลจริงดูที่จอใหญ่"
+   },
+   "dom": {
+    "t": "มานี | ผ่านรอบที่ 1 | ไปต่อรอบที่ 2 รอรหัสรอบถัดไปบนจอใหญ่ | ชื่อของคุณบนจอ | มานี | รอรหัสรอบถัดไปจากจอใหญ่ | รหัสรอบ | ดูผลของฉัน | ยังไม่ยืนยันชื่อ ผลจริงดูที่จอใหญ่",
+    "hasCode": true,
+    "rules": [],
+    "badge": true,
+    "card": false,
+    "who": [
+     "มานี"
+    ],
+    "pz": null,
+    "h": "ผ่านรอบที่ 1"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "removed-375": {
+   "name": "มานี",
+   "W": 375,
+   "ruleIdx": 0,
+   "apiAfterJoin": 2,
+   "measure": {
+    "inner": 375,
+    "scroll": 375,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:มานี",
+    "taps": [],
+    "minTap": null,
+    "text": "มานี | ผู้จัดนำชื่อนี้ออกจากรายชื่อแล้ว | ชื่อของคุณบนจอ | มานี"
+   },
+   "dom": {
+    "t": "มานี | ผู้จัดนำชื่อนี้ออกจากรายชื่อแล้ว | ชื่อของคุณบนจอ | มานี",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "มานี"
+    ],
+    "pz": null,
+    "h": "ผู้จัดนำชื่อนี้ออกจากรายชื่อแล้ว"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "slot0-375": {
+   "name": "Fah",
+   "W": 375,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "apiBeforeCut": 2,
+   "ruleVerdict": "in",
+   "cutAttempts": [],
+   "apiAfterCut": 0,
+   "measure": {
+    "inner": 375,
+    "scroll": 375,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:Fah",
+    "taps": [],
+    "minTap": null,
+    "text": "Fah | คุณได้รางวัล | รางวัลที่ 1 | Fah | แสดงหน้านี้ให้ทีมงานดู ชื่อต้องตรงกับบนจอใหญ่"
+   },
+   "dom": {
+    "t": "Fah | คุณได้รางวัล | รางวัลที่ 1 | Fah | แสดงหน้านี้ให้ทีมงานดู ชื่อต้องตรงกับบนจอใหญ่",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "Fah"
+    ],
+    "pz": "รางวัลที่ 1",
+    "h": "คุณได้รางวัล"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "slot3-375": {
+   "name": "ใบเตย",
+   "W": 375,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "in",
+   "measure": {
+    "inner": 375,
+    "scroll": 375,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:ใบเตย",
+    "taps": [],
+    "minTap": null,
+    "text": "ใบเตย | รอบชิง ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | ใบเตย"
+   },
+   "dom": {
+    "t": "ใบเตย | รอบชิง ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | ใบเตย",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "ใบเตย"
+    ],
+    "pz": null,
+    "h": "รอบชิง ไม่ผ่าน"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  },
+  "slot4-375": {
+   "name": "ฝน ก.",
+   "W": 375,
+   "ruleIdx": 1,
+   "apiAfterJoin": 2,
+   "ruleVerdict": "in",
+   "measure": {
+    "inner": 375,
+    "scroll": 375,
+    "over": [],
+    "minFs": 16,
+    "minEl": "nm:ฝน ก.",
+    "taps": [],
+    "minTap": null,
+    "text": "ฝน ก. | รอบชิง ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | ฝน ก."
+   },
+   "dom": {
+    "t": "ฝน ก. | รอบชิง ไม่ผ่าน | ขอบคุณที่ร่วมสนุก เชียร์คนที่เหลือต่อได้เลย | ชื่อของคุณบนจอ | ฝน ก.",
+    "hasCode": false,
+    "rules": [],
+    "badge": false,
+    "card": false,
+    "who": [
+     "ฝน ก."
+    ],
+    "pz": null,
+    "h": "รอบชิง ไม่ผ่าน"
+   },
+   "api": [
+    "POST /api/draw/events/<id>/join",
+    "GET /api/draw/events/<id>/status/<id>"
+   ],
+   "exceptions": []
+  }
+ },
+ "ROUND": [
+  "467192922925",
+  "687869266",
+  "464659992",
+  "633319256"
+ ],
+ "FINAL": "0057238",
+ "order": [
+  "Fah",
+  "Tae",
+  "Oak",
+  "ใบเตย",
+  "ฝน ก."
+ ],
+ "surv0": [
+  "มานี",
+  "ฝน ก.",
+  "Oak",
+  "ออม ท.",
+  "Tae",
+  "ใบเตย",
+  "ต้น",
+  "Fah"
+ ]
+}

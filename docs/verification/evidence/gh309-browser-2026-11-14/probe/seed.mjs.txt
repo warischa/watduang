@@ -1,0 +1,27 @@
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { sleep } from './lib.mjs';
+import { A, stubTab, stub, PEOPLE } from './g309lib.mjs';
+import { setIn, setPrizes, pickGame } from './ev.mjs';
+const OUT = process.env.OUTDIR;
+process.env.OUTDIR = OUT;
+const T = await stubTab(); await T.view(1920, 1080);
+await T.send('Storage.clearDataForOrigin', { origin: A, storageTypes: 'all' });
+await T.nav(`${A}/game/prize-draw/`);
+await T.ev(`document.querySelector('#pd-mode [data-mode="qr"]').click(); return 1`); await sleep(300);
+await setIn(T, 'pd-event', 'ปาร์ตี้ทดสอบ'); await setIn(T, 'pd-qr-heads', 16);
+await T.tapEl('#pd-qr-open', null);
+// the popup (projector window) opens; keep our tab foreground
+for (let i = 0; i < 40; i++) { await sleep(500); await T.send('Page.bringToFront'); const n = await T.ev(`return document.querySelectorAll('#pd-qr-list > *').length`); if (n >= 16) break; }
+console.log('listed', await T.ev(`return document.querySelectorAll('#pd-qr-list > *').length`), 'api', JSON.stringify(T.S.apiLog.map((x) => x.method + ' ' + x.path.slice(-20))));
+await setPrizes(T, 3);
+await setIn(T, 'pd-s1', 8); await setIn(T, 'pd-s2', 7); await setIn(T, 'pd-s3', 6);
+for (const [g, v] of [['pd-game-r1', 'cards'], ['pd-game-r2', null], ['pd-game-r3', null], ['pd-game-r4', null], ['pd-game-final', null]]) await pickGame(T, g, v);
+console.log(await T.ev(`return {start:document.getElementById('pd-start').textContent, msg:document.getElementById('pd-start-msg').innerText, sched:[0,1,2,3,4].map(i=>{const e=document.getElementById('pd-s'+i);return e.value??e.textContent}), cards:document.querySelector('#pd-game-r1 [data-game="cards"]')?.getAttribute('aria-pressed')}`));
+await T.tapEl('#pd-start', null);
+const arrived = await T.waitFor(`location.pathname.endsWith('/game/prize-draw/play/') ? location.pathname : null`, 15000);
+console.log('arrived', arrived, 'api', JSON.stringify(T.S.apiLog.slice(-3).map((x) => x.method + ' ' + x.path.slice(-12))), 'exc', JSON.stringify(T.S.exceptions));
+await sleep(1500); await T.shot('seed-after-start');
+console.log(JSON.stringify(await T.ev(`return {screen:document.getElementById('pd-frame')?.dataset.screen, mc:[...document.querySelectorAll('.pd-mc button')].map(b=>b.textContent.trim()), text:document.body.innerText.slice(0,200)}`)));
+const tg = await (await fetch('http://127.0.0.1:9795/json/list')).json(); console.log(tg.map((t) => t.type + ' ' + t.url.slice(0, 60)).join('\n'));
+process.exit(0);

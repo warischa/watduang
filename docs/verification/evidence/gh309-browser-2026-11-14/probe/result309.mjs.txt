@@ -1,0 +1,12 @@
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { sleep, OUT } from './lib.mjs';
+import { A, stubTab } from './g309lib.mjs';
+const T = await stubTab(); const out = {};
+for (const [W, H] of [[1920, 1080], [320, 568]]) {
+  await T.view(W, H, false); await T.nav(`${A}/game/prize-draw/play/`); await T.view(W, H, false); await sleep(1500); await T.tapEl('.pd-mc button', 'ตกลง', { settleMs: 500 }); await sleep(900);
+  out[W] = await T.ev(`return {screen:document.getElementById('pd-frame').dataset.screen, code:!!document.querySelector('.pd-codebox'), pz:[...document.querySelectorAll('.pd-pz')].map(e=>e.textContent.trim()), wn:[...document.querySelectorAll('.pd-wn')].map(e=>e.textContent.trim()), claim:document.querySelector('.pd-claim')?.textContent.trim()||null, inner:[innerWidth,document.documentElement.scrollWidth]}`);
+  await T.shot(`row3-projector-result-${W}`);
+  console.log(W, JSON.stringify(out[W]));
+}
+writeFileSync(join(OUT, 'result309.json'), JSON.stringify(out, null, 1)); process.exit(0);

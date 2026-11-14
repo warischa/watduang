@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ARM_DELAY_MS } from '../../games/_arm-gate.ts';
 import { fakeHosts, fakeOrigin, mount, seedRaw, seeded, storedEvent, storedRaw } from './stage-harness.mjs';
-import { advance, drawNext, encodeEvent, revealDrawn } from '../../prize-event/event.ts';
+import { advance, createEvent, drawNext, encodeEvent, revealDrawn } from '../../prize-event/event.ts';
 
 const SOURCE = fs
   .readFileSync(path.join(import.meta.dirname, 'stage.ts'), 'utf8')
@@ -33,7 +33,7 @@ test('show() is the only un-hide, and it arms the region it shows', () => {
 
 // receiver -> why it is shown. Every entry is a decision.
 const EXPECTED_SHOWS = new Map([
-  ['viewport', 'every render (cold, refused, round, reveal, final, result, and the QR lobby of gh#308, which holds no control) rebuilds the frame and the MC bar inside the viewport and arms it, including a follower render (another tab moved the event: taken up on its commit notice or on this screen\'s own stale press) and the render a 3D reveal\'s first exit draws (gh#305); every ladder lane tap and name tap repaints the lane frame, the picks and the MC bar inside it and re-arms it; and the notice close path rebuilds the MC\'s button, held while the notice was open, and uncovers it again (ADR-0057)'],
+  ['viewport', 'every render (cold, refused, round, reveal, final, result, and the QR lobby of gh#308, which holds no control; and the close of a QR-mode code card, gh#309, which uncovers the frame and brings the step\'s own button back) rebuilds the frame and the MC bar inside the viewport and arms it, including a follower render (another tab moved the event: taken up on its commit notice or on this screen\'s own stale press) and the render a 3D reveal\'s first exit draws (gh#305); every ladder lane tap and name tap repaints the lane frame, the picks and the MC bar inside it and re-arms it; and the notice close path rebuilds the MC\'s button, held while the notice was open, and uncovers it again (ADR-0057)'],
   ['notice', 'the storage-failure notice, which carries its own close button'],
 ]);
 
@@ -83,6 +83,70 @@ test('every transition arms the button it reveals, round 1 to the result', async
     await origin.idle();
     assert.equal(s.frame.getAttribute('data-screen'), 'result');
     assert.equal(s.go(), null, 'the result ends the event: no MC button');
+  } finally {
+    mock.timers.reset();
+  }
+});
+
+/** A QR-mode event (gh#309): server-shaped ids and a PIN key, so its steps paint round codes. */
+function storedQrEvent(origin, games) {
+  const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  const people = Array.from({ length: 80 }, (_, i) => ({ id: B64[i >> 6] + B64[i & 63] + 'x'.repeat(20), name: `P${i + 1}` }));
+  const ev = createEvent(
+    { eventName: 'Party', names: people.map((p) => p.name), schedule: [80, 40, 20, 10, 5], prizes: ['TV', 'Bike'], games, qr: { pin: '048213', roster: people } },
+    seeded(5),
+  );
+  seedRaw(origin, encodeEvent(ev));
+}
+
+test('QR mode (gh#309): each code card comes up with its close armed, and the close re-arms the step\'s own button', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const origin = fakeOrigin();
+    storedQrEvent(origin, { rounds: [null, 'cards', null, null], final: null });
+    // The card round's 3D deal falls back at once, so its 2D view (where the code card is) draws.
+    const { start } = fakeHosts();
+    const instant = (options) => {
+      const h = start(options);
+      h.exit('fallback');
+      return h;
+    };
+    const s = await mount({ origin, rng: seeded(9), startReveal: instant });
+    const codeUp = () => s.frame.querySelector('.pd-codebox') !== null;
+    const close = async (label, last = false) => {
+      assert.ok(codeUp(), `${label}: no code card`);
+      armedThenLive(s.go(), `${label}: the code card's close`);
+      assert.equal(s.go().textContent, 'ตกลง');
+      s.go().click();
+      await origin.idle();
+      assert.ok(!codeUp(), `${label}: the close left the card up`);
+      if (!last) armedThenLive(s.go(), `${label}: the button the close uncovered`);
+    };
+    armedThenLive(s.go(), 'first screen');
+    for (let r = 1; r <= 4; r++) {
+      if (r === 2) {
+        s.go().click(); // deal
+        await origin.idle();
+        await close(`round ${r} deal`);
+      }
+      s.go().click(); // reveal
+      await origin.idle();
+      assert.equal(s.frame.getAttribute('data-screen'), 'reveal', `round ${r}`);
+      if (r !== 2) await close(`round ${r} reveal`);
+      else {
+        assert.ok(!codeUp(), 'a card round paints its code at the deal only');
+        armedThenLive(s.go(), `round ${r} reveal`);
+      }
+      s.go().click(); // next
+      await origin.idle();
+      armedThenLive(s.go(), `after round ${r}`);
+    }
+    s.go().click();
+    await origin.idle();
+    assert.equal(s.frame.getAttribute('data-screen'), 'result');
+    assert.ok(s.frame.querySelector('.pd-claim'), 'the claim line');
+    await close('result', true);
+    assert.equal(s.go(), null, 'the result ends the event: no MC button once the code is closed');
   } finally {
     mock.timers.reset();
   }

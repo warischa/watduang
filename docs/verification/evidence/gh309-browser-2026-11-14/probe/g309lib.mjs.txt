@@ -1,0 +1,55 @@
+// gh#309 harness: join API stubbed through CDP Fetch. Origins: A (setup + projector) 4795, B (phones) 4796. CDP 9795.
+import { openTab, sleep } from './lib.mjs';
+export const A = 'http://localhost:4795', B = 'http://localhost:4796';
+export const EVENT_ID = 'Gh309EventIdAbcdEF012x'; // 22 chars
+export const PIN = '482915';
+export const ADMIN = 'A'.repeat(43);
+const RAW = ['สมชาย', 'มานี', 'Guest03', 'ฝน ก.', 'บีม', 'นุ่น ท.', 'Oak', 'พลอย ส.', 'Mint', 'ออม ท.', 'Tae', 'ใบเตย', 'Pream', 'ต้น', 'Fah', 'เจน'];
+export const PEOPLE = RAW.map((name, i) => ({ id: 'Gh309Person' + String(i + 1).padStart(2, '0') + 'x'.repeat(9), name }));
+export const stub = { statusMode: 'member', joinAs: null, memberIds: null, started: false, roster: null, log: [], cut: false, cutLog: [], failStatus: false };
+const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64');
+function answer(method, path, body) {
+  if (method === 'POST' && path === '/api/draw/events') return [201, { eventId: EVENT_ID, pin: PIN, adminToken: ADMIN, expiresAt: new Date(Date.now() + 72 * 3600e3).toISOString() }];
+  const m = path.match(/^\/api\/draw\/events\/([^/]+)\/(.*)$/); if (!m) return [404, { error: 'no-route' }];
+  const rest = m[2];
+  if (method === 'GET' && rest === 'names') return [200, { state: stub.started ? 'started' : 'open', names: PEOPLE.map((p) => ({ ...p, joined: Date.now() })) }];
+  if (method === 'POST' && rest === 'start') { stub.started = true; let ids = []; try { ids = JSON.parse(body).ids; } catch {} stub.roster = ids.map((id) => PEOPLE.find((p) => p.id === id)).filter(Boolean).map(({ id, name }) => ({ id, name })); return [200, { roster: stub.roster }]; }
+  if (method === 'POST' && rest === 'join') { const j = JSON.parse(body || '{}'); const p = PEOPLE.find((q) => q.id === stub.joinAs) || PEOPLE[0]; return [201, { id: p.id, name: j.name || p.name, eventKey: PIN }]; }
+  const s = rest.match(/^status\/(.+)$/);
+  if (method === 'GET' && s) {
+    if (stub.failStatus) return [503, { error: 'unavailable' }];
+    if (stub.statusMode === 'open') return [200, { state: 'open' }];
+    return [200, { state: 'started', member: stub.memberIds ? stub.memberIds.includes(s[1]) : true }];
+  }
+  return [404, { error: 'no-route' }];
+}
+/** A tab with the stub on. `all` pauses every request (to cut or to log the network). */
+export async function stubTab(opts = {}) {
+  const T = await openTab(opts);
+  T.S.apiLog = [];
+  T.S.onEvent = (m) => {
+    if (m.method !== 'Fetch.requestPaused') return;
+    const p = m.params; const u = new URL(p.request.url); const path = u.pathname;
+    const entry = { t: Date.now(), method: p.request.method, path: path.length > 70 ? path.slice(0, 70) : path };
+    if (T.cut) { T.S.cutLog.push(entry); T.send('Fetch.failRequest', { requestId: p.requestId, errorReason: 'InternetDisconnected' }); return; }
+    if (path.startsWith('/api/draw/')) {
+      T.S.apiLog.push(entry);
+      const [code, obj] = answer(p.request.method, path, p.request.postData);
+      T.send('Fetch.fulfillRequest', { requestId: p.requestId, responseCode: code, responseHeaders: [{ name: 'content-type', value: 'application/json' }, { name: 'cache-control', value: 'no-store' }], body: b64(obj) });
+      return;
+    }
+    T.send('Fetch.continueRequest', { requestId: p.requestId });
+  };
+  T.S.cutLog = [];
+  await T.send('Fetch.enable', { patterns: [{ urlPattern: opts.all ? '*' : '*/api/draw/*' }] });
+  return T;
+}
+export const MEASURE = (W) => `
+  const q=(e)=>{const r=e.getBoundingClientRect();return {l:r.left,t:r.top,w:r.width,h:r.height,r:r.right,b:r.bottom}};
+  const de=document.documentElement;
+  const vis=(e)=>{const r=e.getBoundingClientRect(); if(r.width<=1||r.height<=1) return false; const c=getComputedStyle(e); return c.visibility!=='hidden'&&c.display!=='none'&&c.opacity!=='0'&&!e.closest('.pd-sr,[hidden]')&&c.clipPath==='none'};
+  const all=[...document.querySelectorAll('body *')].filter(vis);
+  const over=all.filter(e=>{const r=e.getBoundingClientRect(); return r.right>${W}+0.5||r.left<-0.5}).map(e=>e.tagName+'.'+String(e.className&&e.className.baseVal!==undefined?e.className.baseVal:e.className).slice(0,20)+':'+Math.round(e.getBoundingClientRect().left)+'..'+Math.round(e.getBoundingClientRect().right));
+  let minFs=1e9,minEl=null; for(const e of all){ const own=[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()); if(!own) continue; const fs=parseFloat(getComputedStyle(e).fontSize); if(fs<minFs){minFs=fs;minEl=(e.className||e.tagName)+':'+e.textContent.trim().slice(0,14)} }
+  const taps=[...document.querySelectorAll('button,input,a,select,textarea')].filter(vis).map(e=>{const r=q(e);return {t:(e.textContent||e.id||e.tagName).trim().slice(0,16),w:+r.w.toFixed(1),h:+r.h.toFixed(1)}});
+  return {inner:innerWidth,scroll:de.scrollWidth,over,minFs,minEl,taps,minTap:taps.length?Math.min(...taps.map(t=>Math.min(t.w,t.h))):null,text:document.body.innerText.replace(/\\n+/g,' | ').slice(0,300)};`;

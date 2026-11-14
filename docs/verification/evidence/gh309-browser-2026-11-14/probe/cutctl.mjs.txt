@@ -1,0 +1,11 @@
+import { sleep } from './lib.mjs';
+import { B, EVENT_ID, PIN, PEOPLE, stub, stubTab } from './g309lib.mjs';
+import { setIn } from './ev.mjs';
+const T = await stubTab({ all: true }); stub.joinAs = PEOPLE[0].id; stub.memberIds = null; stub.failStatus = false;
+await T.send('Storage.clearDataForOrigin', { origin: B, storageTypes: 'all' }); await T.view(320, 568, false);
+await T.nav(`${B}/game/prize-draw/join/#event=${EVENT_ID}&pin=${PIN}`); await T.view(320, 568, false); await sleep(600);
+await setIn(T, 'pj-name', PEOPLE[0].name); await T.tapEl('#pj-name-form .pj-btn', null, { settleMs: 300 }); await sleep(1200);
+const before = T.S.apiLog.length; T.cut = true; T.S.cutLog.length = 0;
+const r = await T.ev(`try { const x=await fetch('/api/draw/events/${EVENT_ID}/status/${PEOPLE[0].id}'); return 'resolved '+x.status } catch(e) { return 'rejected '+e.message }`);
+console.log('control fetch after cut ->', r, 'cutLog', JSON.stringify(T.S.cutLog), 'apiLog grew', T.S.apiLog.length - before);
+process.exit(0);

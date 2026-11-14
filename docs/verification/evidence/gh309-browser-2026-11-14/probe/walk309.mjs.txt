@@ -1,0 +1,40 @@
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { sleep, OUT } from './lib.mjs';
+import { A, stubTab, MEASURE } from './g309lib.mjs';
+import { READ_EVENT } from './ev.mjs';
+const EXTRA = "const cb=document.querySelector('.pd-codebox'); const cs=(sel)=>{const e=cb&&cb.querySelector(sel); if(!e) return null; const c=getComputedStyle(e); return {fs:c.fontSize,fw:c.fontWeight,color:c.color,ls:c.letterSpacing}}; const bq=cb?cb.getBoundingClientRect():null; return {cardRect:bq&&{l:bq.left,t:bq.top,w:bq.width,h:bq.height,r:bq.right,b:bq.bottom}, styles:{ck:cs('.pd-ck'),digits:cs('.pd-digits'),ci:cs('.pd-ci'),ek:cs('.pd-ek'),er:cs('.pd-er'),ed:cs('.pd-ed')}, digitsText:document.querySelector('.pd-digits')?.textContent, ";
+const withExtra = (ms) => { const k = ms.lastIndexOf('return {'); return ms.slice(0, k) + EXTRA + ms.slice(k + 8); };
+const T = await stubTab(); await T.view(1920, 1080);
+await T.nav(`${A}/game/prize-draw/play/`); await T.view(1920, 1080); await sleep(1200);
+const steps = []; const codes = [];
+const state = () => T.ev(`const cb=document.querySelector('.pd-codebox'); const mc=[...document.querySelectorAll('.pd-mc button')].map(b=>({t:b.textContent.trim(),d:b.disabled}));
+  return {screen:document.getElementById('pd-frame')?.dataset.screen, canvas:!!document.querySelector('.pd-3d canvas'), mc, code:cb?{label:cb.querySelector('.pd-ck')?.textContent,digits:cb.querySelector('.pd-digits')?.textContent,cls:cb.querySelector('.pd-digits')?.className,earlier:[...cb.querySelectorAll('.pd-eitem')].map(i=>[i.querySelector('.pd-er').textContent,i.querySelector('.pd-ed').textContent]),ek:cb.querySelector('.pd-ek')?.textContent}:null, winners:[...document.querySelectorAll('.pd-pz, .pd-wn')].map(e=>e.textContent.trim()), claim:document.querySelector('.pd-claim')?.textContent};`);
+let idx = 0;
+for (let step = 0; step < 40; step++) {
+  let s = null;
+  for (let i = 0; i < 400; i++) { s = await state(); const btn = s.mc.find((b) => !b.d); if (!s.canvas && (s.code || btn)) break; await sleep(200); }
+  const ev = await T.ev(READ_EVENT);
+  console.log(step, s.screen, 'mc', JSON.stringify(s.mc.map((b) => b.t + (b.d ? '|d' : ''))), s.code ? 'CODE ' + s.code.label + ' ' + s.code.digits + ' earlier ' + s.code.earlier.length : '', 'rounds', ev.nRounds, ev.final ? 'FINAL' : '');
+  if (s.code) {
+    idx++; const key = `c${idx}`;
+    const rec = { step, screen: s.screen, ...s.code };
+    for (const [W, H] of [[1920, 1080], [320, 568]]) {
+      await T.view(W, H, false); await T.nav(`${A}/game/prize-draw/play/`); await T.view(W, H, false); await sleep(1500);
+      const m = await T.ev(withExtra(MEASURE(W)));
+      rec[`m${W}`] = m; await T.shot(`row4-${key}-${W}`);
+      console.log('   ', W, 'inner', m.inner, 'scroll', m.scroll, 'cardR', m.cardRect && Math.round(m.cardRect.r), 'over', m.over.length, 'digitsFs', m.styles.digits && m.styles.digits.fs);
+    }
+    codes.push(rec);
+    await T.view(1920, 1080, false); await T.nav(`${A}/game/prize-draw/play/`); await T.view(1920, 1080, false); await sleep(1200);
+    await T.tapEl('.pd-mc button', 'ตกลง', { settleMs: 500 }); await sleep(900);
+    continue;
+  }
+  const btn = s.mc.find((b) => !b.d);
+  if (!btn) { console.log('no button, stop'); break; }
+  if (s.screen === 'result') { steps.push({ result: s.winners, claim: s.claim }); await T.shot('row3-projector-result-1920'); console.log('RESULT', JSON.stringify(s.winners), s.claim); break; }
+  await T.tapEl('.pd-mc button', btn.t, { settleMs: 450 }); await sleep(600);
+}
+const ev = await T.ev(READ_EVENT);
+writeFileSync(join(OUT, 'walk309.json'), JSON.stringify({ codes, event: ev, steps }, null, 1));
+process.exit(0);
