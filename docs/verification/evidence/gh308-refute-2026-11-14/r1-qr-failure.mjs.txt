@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {fakeOrigin,mount} from '<repo>/src/play/prize-draw/stage-harness.mjs';
+import {makeDoc} from '<repo>/src/prize-event/fake-dom.mjs';
+import {mountJoin} from '<repo>/src/prize-join/join-page.ts';
+const lobby={eventId:'A'.repeat(22),pin:'048213',eventName:'Party',joined:9,expiresAt:'2999-01-01T00:00:00Z'};
+const s=await mount({origin:fakeOrigin(),lobby:{read:()=>lobby,subscribe:()=>()=>{}},loadQr:async()=>{throw new Error('chunk offline');},joinOrigin:'https://watduang.com'});
+await new Promise(r=>setImmediate(r));
+assert.equal(s.frame.getAttribute('data-screen'),'lobby');assert.ok(s.frame.textContent.includes('048213'));assert.ok(!s.frame.textContent.includes(lobby.eventId));
+const doc=makeDoc(),root=doc.createElement('div');doc.body.append(root);
+mountJoin(root,{location:{pathname:'/game/prize-draw/join/',search:'',hash:''},history:{replaceState:()=>{}},session:null});
+assert.equal(root.querySelectorAll('input').length,0);
+console.log('CONFIRMED QR load failure: lobby supplies PIN only; fresh join page has no event and offers no PIN input');

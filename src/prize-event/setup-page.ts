@@ -22,13 +22,50 @@
 // lets that step play, and this script refuses any other. A browser without WebGL2 keeps the picks and
 // shows the note in place of the line over the rows: the projector checks again on the night and falls
 // back to the plain reveal by itself. The probe is a bare getContext call, never three.
+//
+// QR mode (gh#308; design/Gh302Setup.dc.html frame setup-qr, direction A, picked 2026-11-11): step 2 takes
+// the board's mode toggle. In QR mode the open control opens the projector route in its own window and,
+// once, creates the remote event (qr-event.ts); the session, admin token included, stays in this page's own
+// localStorage and travels only in a header. The projector reads a lobby record without the token and
+// shows the join QR. The review list polls the server while this page is visible, one read at a time, and
+// every removal is a server write first. The start sends exactly the reviewed ids; the server freezes the
+// roster from them, and the stored event is built from exactly that frozen roster (createEvent), then the
+// lobby and the session are dropped and the projector walks the event. A start answer that is not a clean
+// roster stores nothing; a frozen roster outside the event range can never become this event, so the
+// remote event is purged and the session dropped, and the open control makes a new one. Names from the
+// server are attacker-owned: qr-event.ts drops those out of contract, and what survives reaches the DOM
+// through nameBox (writeName), never markup. An admin-mode start purges every open QR event, this tab's and
+// the one in the origin's storage: nobody can join it any more, so its names have no use.
+//
+// Ownership. Storage is shared by every tab of the origin, and the lobby record outranks the stored event on
+// the projector, so a lobby written after an event was stored hides that event. A tab writes a QR record
+// (session, lobby) only while it owns the session: it is this tab's live session, the origin's stored
+// session is the same remote event, and the event store still holds the generation the session was opened
+// over (AdminSession.gen). A session that fails any of them is over here and writes nothing more. A send's
+// answer that comes back after the session or the mode it was made for has ended belongs to nothing.
 
 import { ELIMINATION_ROUNDS, proposeSchedule } from '../prize-draw/schedule.ts';
 import { MAX_HEADS, MAX_PRIZES, MIN_HEADS, MIN_PRIZES, createEvent, cryptoRng, cutsInHalf, scheduleIssues, type EventState } from './event.ts';
 import { OLD_TAB_OPEN, REFUSED_BROWSER, openEventStore, type EventStore, type StoreEnv } from './store.ts';
 import { isCutGame, isFinalGame, type CutGame, type FinalGame, type GameChoices } from './game-contract.ts';
 import { parseRoster, type NameIssue } from './names.ts';
-import { writeName } from '../play/_prize-reveal/names-dom.ts';
+import { fitAll, nameBox, writeName } from '../play/_prize-reveal/names-dom.ts';
+import {
+  ADMIN_KEY,
+  LOBBY_KEY,
+  POLL_MS,
+  encodeLobby,
+  encodeSession,
+  frozenNames,
+  parseLobby,
+  parseSession,
+  qrApi,
+  type AdminSession,
+  type ApiEnv,
+  type CreatedEvent,
+  type Member,
+  type QrApi,
+} from './qr-event.ts';
 
 /** Owner-approved, no board string: shown when the browser refuses to store the event. */
 export const STORAGE_FAILED = 'บันทึกงานไม่ได้ เบราว์เซอร์นี้ไม่ให้เก็บข้อมูล';
@@ -76,6 +113,88 @@ export function hasWebGL2(doc: Pick<Document, 'createElement'>): boolean {
   }
 }
 
+/** Board copy for QR mode (design/Gh302Setup.dc.html setup-qr A, COPY SOURCES rows), verbatim. The joined
+ *  line is the board's string in its runs: the label, the count, then the unit and the gap. */
+export const QR_COPY = {
+  joined: 'เข้าร่วมแล้ว',
+  people: 'คน',
+  gap: (n: number): string => ` · ยังขาด ${n} คน`,
+  remove: 'ลบ',
+  more: (n: number): string => `เลื่อนดูอีก ${n} ชื่อ`,
+  startWith: (n: number): string => `เริ่มด้วย ${n} คน`,
+};
+
+/** Answers no board draws. Owner-approved copy 2026-11-14 (gh#308 comment); verbatim, never reworded. */
+export const QR_PENDING = {
+  // Start pressed in QR mode before the QR screen was opened.
+  noEvent: 'ยังไม่ได้เปิดหน้า QR กด เปิดหน้า QR บนจอใหญ่ ก่อน',
+  // The join server did not answer; the list keeps trying.
+  unavailable: 'ระบบไม่ว่าง กำลังลองใหม่ให้อัตโนมัติ',
+  // The QR event has expired or is unknown.
+  gone: 'งาน QR นี้หมดอายุแล้ว เปิดหน้า QR ใหม่อีกครั้ง',
+  // This browser no longer holds the key of the QR event.
+  admin: 'เบราว์เซอร์นี้ไม่ใช่เครื่องที่เปิดงาน QR นี้ เปิดหน้า QR ใหม่อีกครั้ง',
+  // Start refused: none of the reviewed names is still joined.
+  empty: 'ยังไม่มีชื่อที่เข้าร่วมอยู่ จึงเริ่มงานไม่ได้',
+  // The QR event has already started; names can no longer be removed.
+  started: 'งานเริ่มแล้ว ลบชื่อไม่ได้',
+  // The join server sent an answer this page cannot use.
+  bad: 'ระบบตอบกลับผิดพลาด ลองใหม่อีกครั้ง',
+};
+
+/** Names the review list shows before it scrolls: the board's 312px window holds 5 rows, in 3 columns at
+ *  640px and up (15 names), in 1 column below (5 names; design/Gh308Gaps.dc.html gap 2 B). The phone
+ *  boundary matches the page's 639px media rule. */
+const QR_VISIBLE_ROWS = { wide: 15, phone: 5 };
+const QR_PHONE_QUERY = '(max-width: 639px)';
+/** The same boundary for a window without matchMedia: its own width. */
+const QR_PHONE_BELOW = 640;
+/** The window as the review list's width reads it; any member may be missing. */
+type QrView = {
+  matchMedia?: (query: string) => {
+    matches: boolean;
+    addEventListener?: (type: 'change', fn: () => void) => void;
+    removeEventListener?: (type: 'change', fn: () => void) => void;
+  };
+  innerWidth?: number;
+  addEventListener?: (type: 'resize', fn: () => void) => void;
+  removeEventListener?: (type: 'resize', fn: () => void) => void;
+};
+const viewOf = (doc: Document): QrView | null => doc.defaultView as unknown as QrView | null;
+function qrVisibleRows(doc: Document): number {
+  const view = viewOf(doc);
+  if (!view) return QR_VISIBLE_ROWS.wide;
+  const phone =
+    typeof view.matchMedia === 'function'
+      ? view.matchMedia(QR_PHONE_QUERY).matches
+      : typeof view.innerWidth === 'number' && view.innerWidth < QR_PHONE_BELOW;
+  return phone ? QR_VISIBLE_ROWS.phone : QR_VISIBLE_ROWS.wide;
+}
+/** Calls `fn` whenever the phone boundary may have been crossed: the query's own change, or, without
+ *  matchMedia, every resize. Returns the undo; a window with neither is never watched. */
+function watchQrWidth(doc: Document, fn: () => void): () => void {
+  const view = viewOf(doc);
+  try {
+    if (view && typeof view.matchMedia === 'function') {
+      const query = view.matchMedia(QR_PHONE_QUERY);
+      if (typeof query.addEventListener !== 'function') return () => {};
+      query.addEventListener('change', fn);
+      return () => query.removeEventListener?.('change', fn);
+    }
+    if (view && typeof view.addEventListener === 'function') {
+      view.addEventListener('resize', fn);
+      return () => view.removeEventListener?.('resize', fn);
+    }
+  } catch {
+    // A window that refuses to be watched keeps the count of the last render.
+  }
+  return () => {};
+}
+/** The board's fit for a review-list name (setup-qr: 18px, floor 17). */
+const QR_FIT = { size: 18, floor: 17 };
+/** The window the projector opens in, so a second open reuses it. */
+const PROJECTOR_WINDOW = 'pd-projector';
+
 /** The game row groups in index.astro, the elimination rounds first, then the final. */
 const GAME_GROUPS = ['pd-game-r1', 'pd-game-r2', 'pd-game-r3', 'pd-game-r4', 'pd-game-final'];
 
@@ -92,7 +211,15 @@ type Win = StoreEnv & {
   location: { assign(url: string): void };
   confirm(message: string): boolean;
   addEventListener?(type: string, listener: (event: Event) => void): void;
+  /** QR mode's browser side; the real window has all of them. */
+  open?(url: string, target: string): unknown;
+  fetch?: ApiEnv['fetch'];
+  setTimeout?(fn: () => void, ms: number): unknown;
+  clearTimeout?(handle: never): void;
 };
+
+/** Storage as QR mode uses it: the session and the lobby record. */
+type Kv = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
 /** The parts of a cross-document view transition this script touches, as `pageswap` hands it over. */
 type PageSwap = {
@@ -192,6 +319,16 @@ export type SetupOptions = {
   games?: () => GameChoices;
   /** Can this browser draw the 3D games? Defaults to the hasWebGL2 probe on the page's document. */
   webgl2?: () => boolean;
+  /** QR mode's seams; each defaults to the page's own window. Tests pass doubles. */
+  qr?: {
+    api?: QrApi;
+    storage?: Kv | null;
+    open?: (url: string) => void;
+    now?: () => number;
+    setTimeout?: (fn: () => void, ms: number) => unknown;
+    clearTimeout?: (handle: unknown) => void;
+    hidden?: () => boolean;
+  };
 };
 
 export function mountSetup(doc: Document, win: Win, options: SetupOptions = {}): void {
@@ -221,12 +358,17 @@ export function mountSetup(doc: Document, win: Win, options: SetupOptions = {}):
   const cutLabels = Array.from({ length: ELIMINATION_ROUNDS }, (_, i) => [$(`pd-game-r${i + 1}-from`), $(`pd-game-r${i + 1}-to`)] as const);
 
   let prizes = MAX_PRIZES;
+  // QR mode (gh#308): the list on screen, and once the server has frozen it, the roster.
+  let mode: 'admin' | 'qr' = 'admin';
+  let reviewed: Member[] = [];
+  let frozen: Member[] | null = null;
   // An untouched empty list is not an error; after a start is tried, an empty list says why it failed.
   let tried = false;
   // The MC's own edits to the schedule survive a change in the roster; "ใช้ค่าที่ระบบเสนอ" drops them.
   let edited = false;
 
   const heads = (): number => {
+    if (mode === 'qr') return (frozen ?? reviewed).length;
     const r = parseRoster(namesBox.value);
     return r.names.length + r.refused.length + r.duplicates.length;
   };
@@ -238,7 +380,11 @@ export function mountSetup(doc: Document, win: Win, options: SetupOptions = {}):
     steps.forEach((s, i) => (s.value = proposal ? String(proposal[i + 1]) : ''));
   };
 
+  // Set by the QR block once it is wired: renders the review list and the start label.
+  let renderQr = (): void => {};
   const renderNames = (): void => {
+    renderQr();
+    if (mode === 'qr') return;
     const r = parseRoster(namesBox.value);
     const n = r.names.length + r.refused.length + r.duplicates.length;
     const outside = (n > 0 || tried) && (n < MIN_HEADS || n > MAX_HEADS);
@@ -400,14 +546,17 @@ export function mountSetup(doc: Document, win: Win, options: SetupOptions = {}):
 
   /** A revoked store: the MC's start replaces the stored event and seals the old key again (store.ts
    *  takeOver), only after the same confirm as any replacement. Cancel changes nothing. */
-  const takeOver = async (store: EventStore, event: EventState, asked: boolean): Promise<void> => {
+  const takeOver = async (store: EventStore, event: EventState, asked: boolean, stored: () => void): Promise<void> => {
     if (!asked && !win.confirm(CONFIRM_REPLACE)) return;
-    if (await store.takeOver(event)) open();
-    else storageFailed();
+    if (await store.takeOver(event)) {
+      stored();
+      open();
+    } else storageFailed();
   };
 
-  /** Store `event`, asking first when it would replace a saved one; open the projector once committed. */
-  const start = async (event: EventState): Promise<void> => {
+  /** Store `event`, asking first when it would replace a saved one; open the projector once committed.
+   *  `stored` runs once the write has committed, before the projector opens. */
+  const start = async (event: EventState, stored: () => void): Promise<void> => {
     const store = await opening;
     if (!store) {
       refusedBrowser();
@@ -417,10 +566,10 @@ export function mountSetup(doc: Document, win: Win, options: SetupOptions = {}):
     // a store that keeps moving ends in the failure message rather than a loop.
     let asked = false;
     for (let attempt = 0; attempt < 3; attempt++) {
-      if (store.status() === 'revoked') return takeOver(store, event, asked);
+      if (store.status() === 'revoked') return takeOver(store, event, asked, stored);
       const now = await store.load();
       if (!now) {
-        if (store.status() === 'revoked') return takeOver(store, event, asked);
+        if (store.status() === 'revoked') return takeOver(store, event, asked, stored);
         break;
       }
       if (now.state) {
@@ -429,20 +578,36 @@ export function mountSetup(doc: Document, win: Win, options: SetupOptions = {}):
       }
       const r = await store.put(now.raw, event);
       if (r.ok) {
+        stored();
         open();
         return;
       }
       if (r.reason === 'failed') {
-        if (store.status() === 'revoked') return takeOver(store, event, asked);
+        if (store.status() === 'revoked') return takeOver(store, event, asked, stored);
         break;
       }
     }
     storageFailed();
   };
 
+  // Set by the QR block: the QR-mode start, and what an admin-mode start does to an open QR event.
+  let startQr: (() => Promise<void>) | null = null;
+  let abandonQr = (): void => {};
+
   form.addEventListener('submit', (ev) => {
     ev.preventDefault();
     if (starting) return;
+    if (mode === 'qr' && startQr) {
+      starting = true;
+      void startQr().then(
+        () => (starting = false),
+        () => {
+          starting = false;
+          storageFailed();
+        },
+      );
+      return;
+    }
     tried = true;
     startMsg.replaceChildren();
     renderNames();
@@ -473,7 +638,7 @@ export function mountSetup(doc: Document, win: Win, options: SetupOptions = {}):
     // event is replaced (a new key), and every screen on it takes the new one up. The projector route opens
     // only once the write has committed.
     starting = true;
-    void start(event).then(
+    void start(event, () => abandonQr()).then(
       () => (starting = false),
       () => {
         starting = false;
@@ -481,6 +646,412 @@ export function mountSetup(doc: Document, win: Win, options: SetupOptions = {}):
       },
     );
   });
+
+  // ---- QR mode (gh#308). Wired only where the page renders the mode toggle.
+  const modeGroup = doc.getElementById('pd-mode');
+  if (modeGroup) {
+    const adminBlock = $('pd-mode-admin');
+    const qrBlock = $('pd-mode-qr');
+    const expectedBox = $<HTMLInputElement>('pd-qr-heads');
+    const openButton = $<HTMLButtonElement>('pd-qr-open');
+    const joinedLine = $('pd-qr-joined');
+    const fill = $('pd-qr-fill');
+    const list = $('pd-qr-list');
+    const more = $('pd-qr-more');
+    const qrMsg = $('pd-qr-msg');
+    const startButton = $('pd-start');
+    const startLabel = startButton.textContent ?? '';
+    const modeButtons = Array.from(modeGroup.querySelectorAll<HTMLButtonElement>('button'));
+
+    const q = options.qr ?? {};
+    const storage: Kv | null = q.storage !== undefined ? q.storage : ((win as { localStorage?: Kv | null }).localStorage ?? null);
+    const now = q.now ?? Date.now;
+    const later = q.setTimeout ?? ((fn: () => void, ms: number): unknown => win.setTimeout?.(fn, ms));
+    const cancel = q.clearTimeout ?? ((handle: unknown): void => win.clearTimeout?.(handle as never));
+    const api =
+      q.api ??
+      qrApi({
+        fetch: (url, init) => (win.fetch ? win.fetch(url, init) : Promise.reject(new Error('no fetch'))),
+        setTimeout: later,
+        clearTimeout: cancel,
+      });
+    const openScreen = q.open ?? ((url: string): void => void win.open?.(url, PROJECTOR_WINDOW));
+    const hidden = q.hidden ?? ((): boolean => (doc as Partial<Document>).visibilityState === 'hidden');
+
+    // A storage that throws is one that keeps nothing: the session lives in this tab only.
+    const kvGet = (key: string): string | null => {
+      try {
+        return storage ? storage.getItem(key) : null;
+      } catch {
+        return null;
+      }
+    };
+    const kvSet = (key: string, value: string): boolean => {
+      try {
+        if (!storage) return false;
+        storage.setItem(key, value);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+    const kvDel = (key: string): void => {
+      try {
+        storage?.removeItem(key);
+      } catch {
+        // Nothing kept, nothing to drop.
+      }
+    };
+
+    /** The origin's stored session: at `at` for a live one, at 0 to name an event whatever its expiry. */
+    const storedSession = (at = now()): AdminSession | null => parseSession(kvGet(ADMIN_KEY), at);
+    const sameEvent = (a: CreatedEvent | null, b: CreatedEvent): boolean => a !== null && a.eventId === b.eventId && a.adminToken === b.adminToken;
+
+    let session: AdminSession | null = storedSession();
+    if (!session) {
+      // Expired or unreadable: neither the key nor a lobby for it outlives it.
+      kvDel(ADMIN_KEY);
+      kvDel(LOBBY_KEY);
+    }
+    /** The server answered the list as started (a reload after the start): the next start repeats it. */
+    let remoteStarted = false;
+    let creating = false;
+    const removing = new Set<string>();
+    let timer: unknown = null;
+    /** The session a list read is out for: a read for an ended session never holds up the current one. */
+    let reading: AdminSession | null = null;
+    /** Moves on whenever a session ends here; a create sent before it belongs to nothing. */
+    let epoch = 0;
+    /** The latest lobby write: an earlier one still waiting on the store writes nothing. */
+    let lobbyWrite = 0;
+
+    const say = (el: HTMLElement, text: string | null): void => el.replaceChildren(...(text === null ? [] : [errorRow(doc, { text })]));
+    /** The key of the event the store holds now: null for none, undefined when the store cannot say. */
+    const generation = async (): Promise<string | null | undefined> => {
+      const store = await opening;
+      const snap = store ? await store.load() : null;
+      return snap ? (snap.state?.eventKey ?? null) : undefined;
+    };
+    /** `s` is still this tab's session and the origin's (the store generation is checked by each writer). */
+    const owns = (s: AdminSession): boolean => session === s && sameEvent(storedSession(), s);
+    /** Drops the records that still hold `s`: the session first, so a tab that then finds it gone writes no
+     *  lobby, and the lobby second, so a lobby written before that check is gone after this one. */
+    const release = (s: CreatedEvent): void => {
+      if (sameEvent(storedSession(0), s)) kvDel(ADMIN_KEY);
+      if (parseLobby(kvGet(LOBBY_KEY), 0)?.eventId === s.eventId) kvDel(LOBBY_KEY);
+    };
+    /** Writes `s` back with this page's removals, only while this tab still owns it. */
+    const saveSession = (s: AdminSession): void => {
+      const held = storedSession();
+      if (!held || !owns(s)) return;
+      s.removed = [...new Set([...held.removed, ...s.removed])];
+      if (!kvSet(ADMIN_KEY, encodeSession(s))) say(qrMsg, STORAGE_FAILED);
+    };
+    const writeLobby = (): void => {
+      const s = session;
+      if (!s || frozen !== null) return;
+      const text = encodeLobby(s, eventName.value.trim(), reviewed.length);
+      const mine = ++lobbyWrite;
+      void generation().then((gen) => {
+        if (mine !== lobbyWrite || session !== s || frozen !== null || gen === undefined) return;
+        if (gen !== s.gen || !owns(s)) return dropSession(null);
+        kvSet(LOBBY_KEY, text);
+        // Checked again once written: a tab ending the session drops the session record before the lobby,
+        // so either it drops this write or this check finds the session gone.
+        if (!owns(s) && kvGet(LOBBY_KEY) === text) kvDel(LOBBY_KEY);
+      });
+    };
+    const expected = (): number | null => {
+      const v = Number(expectedBox.value);
+      return expectedBox.value.trim() !== '' && Number.isInteger(v) && v > 0 ? v : null;
+    };
+
+    renderQr = (): void => {
+      startButton.textContent = mode === 'qr' ? QR_COPY.startWith(heads()) : startLabel;
+      if (mode !== 'qr') return;
+      const shown = frozen ?? reviewed;
+      const n = shown.length;
+      const want = expected();
+      const label = doc.createElement('span');
+      label.textContent = QR_COPY.joined;
+      const unit = doc.createElement('span');
+      unit.className = 'ju';
+      unit.textContent = QR_COPY.people + (want !== null && want > n ? QR_COPY.gap(want - n) : '');
+      joinedLine.replaceChildren(label, ` ${n}${want !== null ? ` / ${want}` : ''} `, unit);
+      fill.style.setProperty('--fill', `${want !== null ? Math.min(100, Math.round((n / want) * 100)) : 0}%`);
+      list.replaceChildren(
+        ...shown.map((m) => {
+          const row = doc.createElement('div');
+          row.className = 'jrow';
+          const del = doc.createElement('button');
+          del.type = 'button';
+          del.className = 'del';
+          del.textContent = QR_COPY.remove;
+          del.disabled = frozen !== null || remoteStarted || removing.has(m.id);
+          del.addEventListener('click', () => void removeName(m.id));
+          row.append(nameBox(doc, 'span', 'jn', m.name, QR_FIT), del);
+          return row;
+        }),
+      );
+      fitAll(list);
+      renderMore();
+    };
+    /** The line under the list: how many names lie past the rows the window shows at its width now. */
+    function renderMore(): void {
+      if (mode !== 'qr') return;
+      const n = (frozen ?? reviewed).length;
+      const visible = qrVisibleRows(doc);
+      more.textContent = n > visible ? QR_COPY.more(n - visible) : '';
+    }
+    /** Set while QR mode shows the list: lets go of the width watch. */
+    let unwatchWidth: (() => void) | null = null;
+
+    /** The list changed size: the untouched schedule follows it, like a typed roster. */
+    const listChanged = (): void => {
+      if (!edited) propose();
+      renderSchedule();
+      renderQr();
+      writeLobby();
+    };
+
+    function dropSession(why: string | null): void {
+      const s = session;
+      epoch++;
+      session = null;
+      reviewed = [];
+      frozen = null;
+      remoteStarted = false;
+      stopPolling();
+      if (s) release(s);
+      say(qrMsg, why);
+      listChanged();
+    }
+    /** Takes up a session another tab opened, as a reload would. */
+    const adopt = (s: AdminSession): void => {
+      session = s;
+      say(qrMsg, null);
+      writeLobby();
+      void poll();
+    };
+
+    // The poll: one read at a time, the next one POLL_MS after the last answer, only while QR mode shows a
+    // live list on a visible page.
+    const polling = (): boolean => mode === 'qr' && session !== null && frozen === null && !remoteStarted && !hidden();
+    function stopPolling(): void {
+      if (timer !== null) cancel(timer);
+      timer = null;
+    }
+    const pollLater = (): void => {
+      stopPolling();
+      if (polling()) {
+        timer = later(() => {
+          timer = null;
+          void poll();
+        }, POLL_MS);
+      }
+    };
+    const poll = async (): Promise<void> => {
+      if (!polling() || !session || reading === session) return;
+      const s = session;
+      reading = s;
+      const a = await api.names(s);
+      if (reading === s) reading = null;
+      // Asked for a session or a mode that has since ended: setMode('qr') polls again by itself.
+      if (session !== s || mode !== 'qr') return;
+      if (a.kind === 'names') {
+        const gone = new Set(s.removed);
+        reviewed = a.names.filter((m) => !gone.has(m.id));
+        remoteStarted = a.state === 'started';
+        say(qrMsg, null);
+        listChanged();
+      } else if (a.kind === 'gone' || a.kind === 'admin') dropSession(QR_PENDING[a.kind]);
+      else say(qrMsg, QR_PENDING[a.kind]);
+      pollLater();
+    };
+
+    async function removeName(id: string): Promise<void> {
+      if (!session || frozen !== null || removing.has(id)) return;
+      const s = session;
+      removing.add(id);
+      renderQr();
+      const a = await api.remove(s, id);
+      removing.delete(id);
+      if (session !== s) return;
+      if (a.kind === 'removed') {
+        s.removed = [...s.removed, id];
+        saveSession(s);
+        reviewed = reviewed.filter((m) => m.id !== id);
+        listChanged();
+        return;
+      }
+      if (a.kind === 'gone' || a.kind === 'admin') {
+        dropSession(QR_PENDING[a.kind]);
+        return;
+      }
+      if (a.kind === 'started') {
+        remoteStarted = true;
+        stopPolling();
+      }
+      say(qrMsg, QR_PENDING[a.kind]);
+      renderQr();
+    }
+
+    const setMode = (next: 'admin' | 'qr'): void => {
+      mode = next;
+      for (const b of modeButtons) b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === next));
+      adminBlock.hidden = next !== 'admin';
+      qrBlock.hidden = next !== 'qr';
+      startMsg.replaceChildren();
+      if (!edited) propose();
+      renderNames();
+      renderSchedule();
+      if (next === 'qr') {
+        unwatchWidth ??= watchQrWidth(doc, renderMore);
+        writeLobby();
+        void poll();
+      } else {
+        unwatchWidth?.();
+        unwatchWidth = null;
+        stopPolling();
+      }
+    };
+    for (const b of modeButtons) b.addEventListener('click', () => setMode(b.getAttribute('data-mode') === 'qr' ? 'qr' : 'admin'));
+
+    // Opened first, inside the click, so no popup blocker sees a window opened after a network wait; the
+    // projector shows its lobby once the record below lands.
+    openButton.addEventListener('click', () => {
+      openScreen(playTarget);
+      if (session || creating) return;
+      // Another tab's live event is this one's too: a second event would leave one of them unreachable.
+      const theirs = storedSession();
+      if (theirs) return adopt(theirs);
+      creating = true;
+      const at = epoch;
+      // The generation the event is opened over is read before the create is sent, and the answer is taken
+      // only while the store still holds it: an event stored meanwhile, in any tab, is never covered.
+      void (async () => {
+        const before = await generation();
+        const a = await api.create();
+        const gen = a.kind === 'created' && before !== undefined && (await generation()) === before ? before : undefined;
+        creating = false;
+        const live = at === epoch && mode === 'qr' && session === null;
+        if (a.kind !== 'created') {
+          if (live) say(qrMsg, QR_PENDING[a.kind]);
+          return;
+        }
+        const fresh: AdminSession = { ...a.event, removed: [], gen: gen ?? null };
+        // Claimed only while nobody holds a live session, and checked again once written.
+        const claimed = live && gen !== undefined && !storedSession() && kvSet(ADMIN_KEY, encodeSession(fresh)) && sameEvent(storedSession(), fresh);
+        if (!claimed) {
+          // Nobody can reach this event any more: best effort, the server's clock deletes it anyway.
+          void api.purge(fresh);
+          const held = storedSession();
+          if (!live) return;
+          if (held && !sameEvent(held, fresh)) return adopt(held);
+          release(fresh);
+          say(qrMsg, STORAGE_FAILED);
+          return;
+        }
+        adopt(fresh);
+      })();
+    });
+    expectedBox.addEventListener('input', () => renderQr());
+    eventName.addEventListener('input', () => writeLobby());
+    doc.addEventListener('visibilitychange', () => (hidden() ? stopPolling() : void poll()));
+
+    abandonQr = (): void => {
+      // A create still on its way belongs to nothing now.
+      epoch++;
+      const held = storedSession(0);
+      // Best effort: the server's own clock deletes it anyway (protocol doc, Clocks).
+      if (held && !(session && sameEvent(held, session))) {
+        void api.purge(held);
+        release(held);
+      }
+      if (session) {
+        void api.purge(session);
+        dropSession(null);
+      }
+    };
+
+    /** The QR-mode start: freeze the reviewed list on the server, then store the event built from exactly the
+     *  roster it answered. A head count outside the event range never reaches the server, since a frozen
+     *  roster cannot be undone. */
+    startQr = async (): Promise<void> => {
+      tried = true;
+      startMsg.replaceChildren();
+      const fail = (text: string): void => say(startMsg, text);
+      if (session && !owns(session)) dropSession(null);
+      if (!session) return fail(QR_PENDING.noEvent);
+      const inRange = (): boolean => heads() >= MIN_HEADS && heads() <= MAX_HEADS;
+      const scheduleFirst = (): void => {
+        fail(SCHEDULE_FIRST);
+        steps.find((x) => x.classList.contains('err'))?.focus();
+      };
+      if (!inRange()) return fail(HEAD_RANGE);
+      if (!renderSchedule()) return scheduleFirst();
+      const s = session;
+      if (frozen === null) {
+        stopPolling();
+        const a = await api.start(s, reviewed.map((m) => m.id));
+        if (session !== s) return;
+        if (a.kind !== 'roster') {
+          if (a.kind === 'gone' || a.kind === 'admin') dropSession(null);
+          else pollLater();
+          return fail(QR_PENDING[a.kind]);
+        }
+        if (frozenNames(a.roster, s.removed) === null) {
+          pollLater();
+          return fail(QR_PENDING.bad);
+        }
+        frozen = a.roster;
+        listChanged();
+        // The frozen roster is the event's people (ADR-0076 Identity) and cannot be undone: one outside the
+        // range can never become this event. It is ended, and the open control makes a new one.
+        if (!inRange()) {
+          void api.purge(s);
+          dropSession(null);
+          return fail(HEAD_RANGE);
+        }
+      }
+      const roster = frozen;
+      if (!renderSchedule()) return scheduleFirst();
+      let event: EventState;
+      try {
+        event = createEvent(
+          {
+            eventName: eventName.value,
+            names: roster.map((m) => m.name),
+            schedule: schedule(),
+            prizes: prizeInputs.slice(0, prizes).map((p) => p.value),
+            games: pickedGames(),
+            // ADR-0076 Identity: the server's join ids and the PIN, so a phone's own result is the projector's.
+            qr: { pin: s.pin, roster },
+          },
+          cryptoRng(),
+        );
+      } catch {
+        return fail(QR_PENDING.bad);
+      }
+      // An event stored since the session was opened (another tab's start of this one, or any other start)
+      // is not replaced from here.
+      const gen = await generation();
+      if (session !== s) return;
+      if (gen !== undefined && (gen !== s.gen || !owns(s))) {
+        dropSession(null);
+        return fail(QR_PENDING.noEvent);
+      }
+      await start(event, () => {
+        // The event is stored: the projector walks it, so the lobby goes; the key has nothing left to do.
+        epoch++;
+        session = null;
+        release(s);
+      });
+    };
+
+    if (session) setMode('qr');
+    else setMode('admin');
+  }
 
   propose();
   renderNames();

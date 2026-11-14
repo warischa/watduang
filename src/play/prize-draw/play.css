@@ -242,6 +242,65 @@ body {
   color: var(--ink-on-band-soft);
 }
 
+/* ---- The QR lobby (gh#308): design/Gh302Projector.dc.html proj-lobby, direction B (picked 2026-11-11), at
+   the frame's 1920x1080, scaled with it. The heading and hint left, the QR card centred, the PIN and the
+   joined count right. Literal sizes are the board's; colours are the tokens its VALUES row names, and the
+   glow is the one reveal.css names. The QR canvas holds one pixel per module (lobby-qr.ts) and is drawn at
+   the board's 536px square, without smoothing. */
+.pd-lobby {
+  position: absolute;
+  inset: 96px 0 0 0;
+  display: grid;
+  grid-template-columns: 1fr 600px 1fr;
+  align-items: center;
+  gap: 64px;
+  padding: 0 72px 40px;
+}
+.pd-lh {
+  margin: 0 0 20px;
+  font: 700 58px/1.2 var(--font-display);
+  text-align: right;
+  white-space: nowrap;
+}
+.pd-jh {
+  font: 400 32px/1.45 var(--font-sans);
+  color: var(--ink-on-band-soft);
+  text-align: right;
+}
+.pd-qrcard {
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  border-radius: 24px;
+  background: var(--surface-tile);
+  box-shadow: 0 0 60px var(--pd-glow);
+}
+/* No code on the canvas yet (stage.ts drawQr): an empty card would read as a QR that does not scan. Hidden,
+   its column kept, so the PIN does not move when the code arrives. */
+.pd-qrcard[data-pending] {
+  visibility: hidden;
+}
+.pd-qr {
+  display: block;
+  inline-size: 536px;
+  block-size: 536px;
+  image-rendering: pixelated;
+}
+.pd-pk {
+  font: 600 44px/1 var(--font-display);
+  color: var(--ink-on-band-soft);
+}
+.pd-pv {
+  font: 700 170px/1 var(--font-display);
+  color: var(--accent-gold);
+  letter-spacing: 12px;
+  text-shadow: 0 0 24px var(--pd-glow);
+}
+.pd-jc {
+  margin-top: 36px;
+  font: 700 56px/1.2 var(--font-display);
+}
+
 /* The storage notice, at real pixels like the MC bar: the board's veil and code-card look (proj-code). Its
    layer matches the viewport's and comes after it, so it covers the frame and the controls under the band;
    the MC's button in the band is held disabled while it is open (stage.ts). */

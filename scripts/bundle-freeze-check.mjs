@@ -113,6 +113,9 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 //   two more lifted/authored play bundles, minus nothing -- no engine was deleted this batch, because
 //   the stage modules stay until gh#149 removes the landing pages that still render them.
 const BASELINE_BASENAMES = [
+  // gh#308 -- the QR lobby's join-code chunk: lobby-qr.ts with lean-qr bundled into it, reached only by the
+  // projector's dynamic import while a QR lobby is on screen (ADR-0077). One new basename, no new page pair.
+  'lobby-qr.js',
   // gh#305 -- the three prize-draw 3D games (fireworks, cards, ladder) and the QR join page, fifteen new
   // basenames. three.module.js is the shared library chunk (the host's dynamic import, ADR-0068), and
   // preload-helper.js is the bundler's wrapper for that lazy import. reveal.js is the shared reveal host
@@ -522,7 +525,14 @@ const BASELINE_BASENAMES = [
 // at gh#213), the remainder being carry and small shifts that were not separated. So the library did not add
 // 511833 to the union; the net of it moving out of croc-bite is the small figure. The cost that matters is per
 // visitor, recorded in docs/verification/evidence/gh305-bundle-2026-11-13/ and ADR-0068's amendment.
-const BASELINE_TOTAL_BYTES = 1241557;
+// Re-pinned 2026-11-14 (gh#308 QR mode), 1241557 -> 1267555 (+25998, +2.1%, in band; re-stated on purpose per
+// the convention above), n=1 local `npm run build` of the integrated tree, read from this file's own pass line.
+// The set leg was red on one new basename, lobby-qr.js (7059 B raw, 3745 B gzip level 9, MEASURED from
+// dist/_astro). INFERRED, not isolated by a separate build: the other +18939 is QR mode growing chunks that
+// already existed (the projector entry with the lobby, setup-page.js with the QR review list and its
+// lifecycle, event.js with the PIN identity). Per visitor: the projector route's initial closure is now
+// 66928 B raw / 27984 B gzip; the QR chunk loads only on the QR lobby (ADR-0077).
+const BASELINE_TOTAL_BYTES = 1267555;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as

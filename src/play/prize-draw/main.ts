@@ -2,6 +2,7 @@
 // Everything testable lives in stage.ts; this file is the browser wiring only.
 import { mountStage } from './stage.ts';
 import { openEventStore } from '../../prize-event/store.ts';
+import { LOBBY_KEY, parseLobby } from '../../prize-event/qr-event.ts';
 
 const root = document.getElementById('app');
 const live = document.getElementById('pd-live');
@@ -20,6 +21,25 @@ if (root && live) {
     whenBoldLoaded: (cb) => void document.fonts?.load('700 20px Sarabun').then(cb, cb),
     // A newer version of the page took the database over: reload onto it (stage.ts StageDeps.reload).
     reload: () => window.location.reload(),
+    // QR mode (gh#308): the lobby the setup page writes to this origin's localStorage, followed through the
+    // storage event, which fires in every other tab of the origin. A storage that throws is no lobby.
+    lobby: {
+      read: () => {
+        try {
+          return parseLobby(window.localStorage.getItem(LOBBY_KEY), Date.now());
+        } catch {
+          return null;
+        }
+      },
+      subscribe: (onChange) => {
+        const listener = (event: StorageEvent): void => {
+          if (event.key === null || event.key === LOBBY_KEY) onChange();
+        };
+        window.addEventListener('storage', listener);
+        return () => window.removeEventListener('storage', listener);
+      },
+    },
+    joinOrigin: window.location.origin,
   });
   // Names were fitted with whatever face had loaded; fit again once the site's faces are in.
   document.fonts?.ready.then(() => stage.refit());

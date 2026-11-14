@@ -1,0 +1,401 @@
+#!/usr/bin/env node
+// gh#308 gaps canvas: writes design/Gh308Gaps.dc.html, then (step "render") measures every frame in headless
+// Chrome and writes one PNG per frame, measurements.json and a markdown table to stdout.
+// Saved as .txt so repo tooling never treats it as code. Run from a copy OUTSIDE the repo:
+//   cp make-gaps.mjs.txt /tmp/gh308-gaps/make-gaps.mjs
+//   node /tmp/gh308-gaps/make-gaps.mjs <repo root> write [measurements.json]   # captions take numbers from a prior run
+//   CDP_PORT=9335 SHOT_TMP=/tmp/gh308-gaps node /tmp/gh308-gaps/make-gaps.mjs <repo root> render
+// render exits 1 when: the control frame does NOT overflow at 320 (the instrument is broken); any option frame
+// overflows; a face is not loaded; a dotted circle (U+25CC) is in the rendered text; innerWidth is not the width set;
+// a caption number differs from the fresh measurement.
+
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const [root, step = 'write', prior] = process.argv.slice(2);
+if (!root) { console.error('usage: make-gaps.mjs <repo root> write|render [measurements.json]'); process.exit(2); }
+const CANVAS = path.join(root, 'design/Gh308Gaps.dc.html');
+const OUT = path.join(root, 'docs/verification/evidence/gh308-gaps-2026-11-14');
+const M = prior ? JSON.parse(readFileSync(prior, 'utf8')).frames : {};
+
+// ---- verbatim strings (design/Gh302Phone.dc.html A join-pin; design/Gh302Setup.dc.html A setup-qr) ----
+const T = {
+  event: 'ปาร์ตี้ปีใหม่ 2570',
+  pinH: 'ใส่ PIN ของงาน',
+  pinSub: '<span>ดู PIN บน<span style="white-space: nowrap;">จอใหญ่</span> ถ้าสแกน QR มา PIN จะใส่ให้แล้ว</span>',
+  next: 'ถัดไป',
+  stepH: 'รายชื่อคนในงาน',
+  joined: '<span><span style="white-space: nowrap;">เข้าร่วม</span>แล้ว</span> 196 / 200 <span class="ju">คน · ยังขาด 4 คน</span>',
+  hint: '<span>ตรวจรายชื่อก่อนเริ่ม ชื่อไหนไม่ใช่คนในงาน กดลบได้ 1 เครื่อง<span style="white-space: nowrap;">เข้าร่วม</span>ได้ 1 ชื่อ</span>',
+  del: 'ลบ',
+  more: (n) => `เลื่อนดูอีก ${n} ชื่อ`,
+  go: 'เริ่มด้วย 196 คน',
+};
+// The board's first 15 review rows, in its order (the three widest well-formed names first).
+const NAMES = ['WWWWWWWWWWWW', 'ฒฒฒฒฒฒฒฒฒฒฒฒ', 'ฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำฒำ', 'ออม ท.', 'พลอย ส.', 'บีม ก.', 'นุ่น ท.', 'โอ๊ต ท.',
+  'ปาล์ม ก.', 'บีม ท.', 'หมิว พ.', 'พลอย ท.', 'เต้ย ส.', 'ปู ว.', 'ฝน ก.'];
+const PIN = '482915'.split('');
+const JOINED = 196;
+
+// a caption number: the render step checks it against the fresh measurement
+const num = (key, unit = 'px') => {
+  const [fid, k] = key.split(':');
+  const v = M[fid]?.[k];
+  return `<span data-num="${key}">${v ?? '?'}</span>${v == null ? '' : unit}`;
+};
+
+// ---- frames ----
+const phone = (fid, w, pinsHtml) => `<div class="fw"><div class="wl">${w}</div><div class="ph dA" data-frame="${fid}-${w}" data-width="${w}" data-fold="${w === 320 ? 568 : 667}" style="width:${w}px; min-height:${w === 320 ? 568 : 667}px;"><div class="fold" style="top:${w === 320 ? 566 : 665}px;"></div><div class="top"><span>${T.event}</span></div><div class="bd"><h3>${T.pinH}</h3><p class="sub">${T.pinSub}</p>${pinsHtml}<div class="btn">${T.next}</div></div></div></div>`;
+
+const PINS = {
+  ref: `<div class="pins">${'4821'.split('').map((d) => `<span data-m="box" data-tap>${d}</span>`).join('')}</div>`,
+  ctl: `<div class="pins sq">${PIN.map((d) => `<span data-m="box" data-tap>${d}</span>`).join('')}</div>`,
+  A: `<div class="pins" data-m="row" data-tap>${PIN.map((d) => `<span data-m="box">${d}</span>`).join('')}</div>`,
+  B: `<div class="inp code" data-m="field" data-tap>${PIN.join('')}</div>`,
+  C: `<div class="pins g3" data-m="row" data-tap>${[PIN.slice(0, 3), PIN.slice(3)].map((g) => `<div class="grp" data-m="group">${g.map((d) => `<b data-m="box">${d}</b>`).join('')}</div>`).join('')}</div>`,
+};
+
+const row = (n) => `<div class="jrow" data-m="row"><span class="nm" data-m="name">${n}</span><span class="del" data-m="del" data-tap>${T.del}</span></div>`;
+const cell = (n) => `<div class="jcell" data-m="row"><span class="nm" data-m="name">${n}</span><span class="del" data-m="del" data-tap>${T.del}</span></div>`;
+const LISTS = {
+  A: { cls: 'c1', h: 952, item: row, shown: 15 },
+  B: { cls: 'c1', h: 312, item: row, shown: 5 },
+  C: { cls: 'c2', h: 312, item: cell, shown: null },
+};
+const setup = (opt, w) => {
+  const L = LISTS[opt];
+  const shown = L.shown ?? M[`list-${opt}-${w}`]?.visibleNames ?? 0;
+  return `<div class="fw"><div class="wl">${w}</div><div class="su" data-frame="list-${opt}-${w}" data-width="${w}" data-fold="${w === 320 ? 568 : 667}" style="width:${w}px;"><div class="fold" style="top:${w === 320 ? 566 : 665}px;"></div><div class="wrap"><section class="step"><h2 class="step-h"><span class="num">2</span>${T.stepH}</h2><div class="stub" style="height:56px;">mode toggle + head-count row (unchanged)</div><div class="joined">${T.joined}</div><div class="bar"><i style="width:98%"></i></div><p class="hint">${T.hint}</p><div class="jlist ${L.cls}" data-m="list" style="max-height:${L.h}px;">${NAMES.map(L.item).join('')}</div><div class="more">${T.more(JOINED - shown)}</div></section><div class="go" data-m="go">${T.go}</div></div></div></div>`;
+};
+
+const cand = (tags, caption, frames, wide = false) => `<div class="cand${wide ? ' wide' : ''}"><div class="tag">${tags} · ${caption}</div><div class="pair">${frames}</div></div>`;
+const both = (fn) => [320, 375].map(fn).join('');
+
+const html = `<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    /* Self-hosted faces, relative paths, the same files src/styles/fonts.css declares. The board is design
+       source and is never referenced at runtime. */
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 400; src: url('../public/fonts/sarabun-regular-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Sarabun'; font-style: normal; font-weight: 700; src: url('../public/fonts/sarabun-bold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 600; src: url('../public/fonts/mitr-semibold-subset.woff2') format('woff2'); }
+    @font-face { font-family: 'Mitr'; font-style: normal; font-weight: 700; src: url('../public/fonts/mitr-bold-subset.woff2') format('woff2'); }
+
+    /* gh#308 gaps: proposal canvas, ADR-0033. Generated by docs/verification/evidence/gh308-gaps-2026-11-14/make-gaps.mjs.txt;
+       edit the generator, not this file. Annotations are English and monospace. Every Thai string in a frame is verbatim
+       from a picked board (Gh302Phone A, Gh302Setup A). Every value comes from those boards or from the setup page's
+       own phone values unless tagged NEW VALUE beside it. */
+    body { margin: 0; font-family: system-ui, sans-serif; }
+    .brow { padding: 34px 34px; border-bottom: 3px dashed #14142b; }
+    .brow h2 { margin: 0 0 6px; font: 700 20px/1.3 ui-monospace, Menlo, monospace; }
+    .brow .why { margin: 0 0 16px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #3d3b5c; max-width: 1420px; }
+    .brow .why b { color: #14142b; }
+    .tbl { border-collapse: collapse; font: 12px/1.5 ui-monospace, Menlo, monospace; margin: 0 0 18px; max-width: 1450px; }
+    .tbl th, .tbl td { border: 1px solid #14142b; padding: 5px 9px; text-align: left; vertical-align: top; }
+    .tbl th { background: #14142b; color: #ffcc00; }
+    .cands { display: flex; flex-wrap: wrap; gap: 34px 40px; align-items: flex-start; }
+    .cand { display: flex; flex-direction: column; gap: 8px; width: 735px; }
+    .pair { display: flex; gap: 40px; align-items: flex-start; }
+    .cand.wide { width: 1100px; }
+    .cand.wide .pair { gap: 180px; } /* room for the control's overflow, drawn in its PNG */
+    .fw { display: flex; flex-direction: column; gap: 4px; }
+    .wl { font: 700 11px/1.4 ui-monospace, Menlo, monospace; color: #3d3b5c; }
+    .tag { font: 600 12px/1.45 ui-monospace, Menlo, monospace; color: #14142b; }
+    .tag .d { display: inline-block; background: #14142b; color: #ffcc00; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.6 ui-monospace, Menlo, monospace; }
+    .tag .ctl { display: inline-block; background: #ffffff; color: #14142b; border: 1.5px dashed #14142b; border-radius: 999px; padding: 0 8px; margin-right: 4px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; }
+    .nv { display: inline-block; background: #ff3d7f; color: #14142b; border: 1.5px solid #14142b; border-radius: 999px; padding: 0 7px; font: 700 11px/1.5 ui-monospace, Menlo, monospace; }
+    .pin { font: 12px/1.6 ui-monospace, Menlo, monospace; color: #14142b; background: #ffffff; border: 2px solid #14142b; border-radius: 8px; padding: 10px 14px; max-width: 1420px; margin: 0 0 14px; }
+    .pin.q { border-width: 4px; font-size: 13px; }
+    .pin ul { margin: 4px 0 0; padding-left: 18px; }
+    .stub { display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 12px; margin: 0 0 14px; font: 600 12px/1.4 ui-monospace, Menlo, monospace; color: #14142b;
+            background: repeating-linear-gradient(135deg, #e9e3cf 0 10px, #f5f1e3 10px 20px); }
+    .fold { position: absolute; left: 0; right: 0; border-top: 2px dashed #2b7bff; pointer-events: none; }
+
+    /* ---- phone frames, Gh302Phone A POSTER values (join-pin) ---- */
+    .ph { position: relative; box-sizing: border-box; font-family: 'Sarabun', system-ui, sans-serif; outline: 1px solid #14142b; } /* the outline is annotation: the frame edge */
+    .ph .bd { padding: 22px 16px 28px; }
+    .ph h3 { margin: 0 0 6px; font: 700 26px/1.3 'Mitr', sans-serif; }
+    .ph .sub { margin: 0 0 18px; font: 400 16px/1.55 'Sarabun', sans-serif; }
+    .ph .inp { box-sizing: border-box; height: 52px; padding: 0 14px; display: flex; align-items: center; font: 400 20px/1 'Sarabun', sans-serif; }
+    .ph .inp.code { height: 64px; justify-content: center; font: 700 34px/1 'Mitr', sans-serif; letter-spacing: 4px; }
+    .ph .pins { display: flex; gap: 10px; }
+    .ph .pins > span { box-sizing: border-box; flex: 1; height: 64px; display: grid; place-items: center; font: 700 32px/1 'Mitr', sans-serif; }
+    .ph .btn { box-sizing: border-box; margin-top: 18px; height: 52px; display: grid; place-items: center; font: 700 20px/1 'Mitr', sans-serif; }
+    .ph.dA { background: #fff6e0; color: #14142b; }
+    .ph.dA .top { min-height: 48px; box-sizing: border-box; background: #14142b; color: #ffffff; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 8px 16px; font: 600 16px/1.2 'Mitr', sans-serif; }
+    .ph.dA .sub { color: #3d3b5c; }
+    .ph.dA .inp, .ph.dA .pins > span { background: #ffffff; border: 2.5px solid #14142b; border-radius: 12px; }
+    .ph.dA .inp.code { font-size: 30px; letter-spacing: 2px; word-spacing: 0.1em; }
+    .ph.dA .btn { background: #ffcc00; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 5px 5px 0 #14142b; }
+    /* control: the board's box drawn six times at its rendered 64px width */
+    .ph .pins.sq > span { flex: none; width: 64px; }
+    /* option C: two groups of three cells; the group takes the PIN box values, cells split by the same border */
+    .ph .pins.g3 .grp { box-sizing: border-box; flex: 1; min-width: 0; display: flex; height: 64px; background: #ffffff; border: 2.5px solid #14142b; border-radius: 12px; overflow: hidden; }
+    .ph .pins.g3 .grp b { flex: 1; min-width: 0; display: grid; place-items: center; font: 700 32px/1 'Mitr', sans-serif; }
+    .ph .pins.g3 .grp b + b { border-left: 2.5px solid #14142b; }
+
+    /* ---- setup page frames, Gh302Setup A POSTER values with the page's own phone values (step padding, wrap) ---- */
+    .su { position: relative; box-sizing: border-box; background: #fff6e0; color: #14142b; font-family: 'Sarabun', sans-serif; outline: 1px solid #14142b; }
+    .su .wrap { padding: 16px 20px 28px; }
+    .su .step { background: #ffffff; border: 2.5px solid #14142b; border-radius: 20px; box-shadow: 5px 5px 0 #14142b; padding: 20px 16px; }
+    .su .step-h { display: flex; align-items: center; gap: 14px; margin: 0 0 14px; font: 600 24px/1.3 'Mitr', sans-serif; }
+    .su .num { box-sizing: border-box; flex: none; width: 40px; height: 40px; border-radius: 50%; background: #ffcc00; border: 2.5px solid #14142b; display: grid; place-items: center; font: 700 20px/1 'Mitr', sans-serif; }
+    .su .hint { margin: 0 0 12px; font: 400 16px/1.55 'Sarabun', sans-serif; color: #3d3b5c; }
+    .su .joined { display: flex; align-items: baseline; gap: 10px; font: 700 40px/1.1 'Mitr', sans-serif; }
+    .su .joined .ju { font: 400 18px/1.4 'Sarabun', sans-serif; color: #3d3b5c; }
+    .su .bar { height: 14px; border-radius: 999px; overflow: hidden; margin: 12px 0 16px; border: 2px solid #14142b; background: #ffffff; }
+    .su .bar i { display: block; height: 100%; background: #ffcc00; }
+    .su .jlist { display: grid; gap: 8px 12px; overflow-y: auto; }
+    .su .jlist.c1 { grid-template-columns: minmax(0, 1fr); }
+    .su .jlist.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .su .jrow { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 56px; padding: 0 5px 0 14px; font: 400 18px/1 'Sarabun', sans-serif; background: #ffffff; border: 2.5px solid #14142b; border-radius: 12px; }
+    .su .jrow .nm { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; }
+    .su .jcell { box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; padding: 8px; font: 400 18px/1 'Sarabun', sans-serif; background: #ffffff; border: 2.5px solid #14142b; border-radius: 12px; }
+    .su .jcell .nm { overflow: hidden; white-space: nowrap; }
+    .su .jcell .del { margin-top: auto; }
+    .su .nm[data-wrap] { white-space: normal; overflow-wrap: anywhere; line-height: 1.3; }
+    .su .del { box-sizing: border-box; flex: none; height: 44px; min-width: 56px; display: grid; place-items: center; font: 600 16px/1 'Mitr', sans-serif; background: #fff6e0; border: 2px solid #14142b; border-radius: 10px; }
+    .su .more { margin-top: 10px; font: 400 16px/1.4 'Sarabun', sans-serif; color: #3d3b5c; }
+    .su .go { margin-top: 40px; box-sizing: border-box; height: 64px; display: grid; place-items: center; background: #ffcc00; border: 2.5px solid #14142b; border-radius: 16px; box-shadow: 5px 5px 0 #14142b; font: 700 24px/1 'Mitr', sans-serif; }
+  </style>
+</helmet>
+<div style="width: 1600px; background: #ffffff; color: #14142b;">
+
+  <div style="padding: 30px 34px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">gh#308 · prize draw QR join · two layout gaps · proposal canvas · AWAITING THE OWNER'S PICKS</div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;">Order (ADR-0033): owner picks, canvas, code. Code takes its design values only from the option picked here. Two gaps the picked boards leave open for the QR join. Each option is drawn at 320 and 375; the blue dashed line is the fold (568 / 667). "AS BUILT" marks the option that draws what the code does today, so picking it ratifies the code. "CONTROL" frames are not options: they draw the board as it stands, to show the gap. Every Thai string in a frame is verbatim from Gh302Phone A or Gh302Setup A. Values: those two boards or the setup page's own phone values; a value from neither carries a <span class="nv">NEW VALUE</span> tag. Every number in a caption is measured from the rendered frame (README in docs/verification/evidence/gh308-gaps-2026-11-14/). Rules: ui-ux-pro-max 2.13.0, rules only (see NOTES), never its palette or fonts.</div>
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;"><div class="pin q"><b>DECISIONS FOR THE OWNER (one pick per gap; "rec" is a recommendation, not a pick):</b><ul>
+  <li><b>1. The phone PIN entry</b> (frames pin-*): the server's PIN has 6 digits; the board draws 4 boxes. A six cells on the board's own rule · B one 64px field, as built · C two groups of three cells. rec B.</li>
+  <li><b>2. The setup page's QR review list below 640px</b> (frames list-*): A one column, 15 rows in the window, as built · B one column, 5 rows in the window · C two columns, the remove button under the name. rec B.</li>
+</ul></div></div>
+  </div>
+
+  <!-- ================================================================== GAP 1 -->
+  <div class="brow">
+    <h2>GAP 1 · THE PHONE PIN ENTRY · Gh302Phone A join-pin, six digits</h2>
+    <p class="why">The board draws four PIN boxes (flex: 1, 64px tall, Mitr 700 32px, gap 10px), which render ${num('pin-ref-320:boxW')} x ${num('pin-ref-320:boxH')} at 320 (reference frame). The server's PIN is six digits. Drawn six times at 64px the row needs ${num('pin-ctl-320:rowNeed')} and the content box is ${num('pin-ctl-320:contentW')}. <b>Six separate tap targets cannot fit at 320:</b> 44px each plus the 8px touch spacing needs 6 x 44 + 5 x 8 = 304px. So in A and C the whole row is ONE tap target (one input; the cells only draw the digits), and only the row is judged against 44px. The shipped page already uses one field (B).</p>
+    <div class="cands">
+      ${cand('<span class="ctl">REFERENCE · the board as drawn</span>', `four boxes, Gh302Phone A join-pin unchanged: ${num('pin-ref-320:boxW')} x ${num('pin-ref-320:boxH')} each at 320`, both((w) => phone('pin-ref', w, PINS.ref)))}
+      ${cand('<span class="ctl">CONTROL · not an option</span>', `six boxes at the board's 64px width: the row needs ${num('pin-ctl-320:rowNeed')} in a ${num('pin-ctl-320:contentW')} content box and runs ${num('pin-ctl-320:pastFrame')} past the 320 screen edge (${num('pin-ctl-375:pastFrame')} past 375)`, both((w) => phone('pin-ctl', w, PINS.ctl)), true)}
+      ${cand('<span class="d">A</span>', `six cells on the board's rule unchanged (flex: 1, gap 10px): cells ${num('pin-A-320:boxW')} x ${num('pin-A-320:boxH')} at 320, ${num('pin-A-375:boxW')} at 375; the tap target is the row, ${num('pin-A-320:tapW')} x ${num('pin-A-320:tapH')}. No new value`, both((w) => phone('pin-A', w, PINS.A)))}
+      ${cand('<span class="d">B · AS BUILT</span><span class="d">rec</span>', `one 64px field, the board's code field (Mitr 700 30px, letter-spacing 2px): ${num('pin-B-320:tapW')} x ${num('pin-B-320:tapH')} at 320. Same field as the code entry, so one pattern for every number the phone types; no new value`, both((w) => phone('pin-B', w, PINS.B)))}
+      ${cand('<span class="d">C</span>', `two groups of three cells, the PIN box values on each group and its 2.5px border between cells: cells ${num('pin-C-320:boxW')} at 320, ${num('pin-C-375:boxW')} at 375; the row is the tap target, ${num('pin-C-320:tapW')} x ${num('pin-C-320:tapH')}. Border reused as a divider, no new value`, both((w) => phone('pin-C', w, PINS.C)))}
+    </div>
+  </div>
+
+  <!-- ================================================================== GAP 2 -->
+  <div class="brow">
+    <h2>GAP 2 · THE QR REVIEW LIST BELOW 640px · Gh302Setup A setup-qr</h2>
+    <p class="why">The board draws the review list at 1280 only: 3 columns, 15 rows in view, name 18px floor 17, a remove button per row. Below 640 the page today shows one column with a 952px window (15 rows), taller than a 568px or 667px screen, so a thumb scrolling the page lands in the list and scrolls it instead (scroll-behavior). Frames: the roster card from the heading down, with the start button under it; the first rows are the board's three widest well-formed names. The names fit by the board's rule (18px, then 17px, then two lines at 17px). <b>Seen in passing, not part of this gap:</b> the joined line (board values, 40px) stacks into a narrow column at 320 and 375 in every option; it does not overflow. Flagged for a later frame, not proposed here.</p>
+    <div class="cands">
+      ${cand('<span class="d">A · AS BUILT</span>', `one column, 952px window: ${num('list-A-320:visibleNames', '')} rows in view, the start button's top at ${num('list-A-320:goTop')} (320); name box ${num('list-A-320:nameW')} wide at 320`, both((w) => setup('A', w)))}
+      ${cand('<span class="d">B</span><span class="d">rec</span>', `one column, the board's own 312px window (its 5 rows): ${num('list-B-320:visibleNames', '')} rows in view, the window fits on one screen with page above and below it, start button at ${num('list-B-320:goTop')} (320); same row as A. No new value`, both((w) => setup('B', w)))}
+      ${cand('<span class="d">C</span>', `two columns (gap 12px), name over a full-width remove button, cell padding 8px (the list's gap reused), 312px window: ${num('list-C-320:visibleNames', '')} names fully in view at 320. <b>Breaks the board's NAME FIT rule</b> (at most 2 lines at the 17px floor): the widest name takes ${num('list-C-320:maxLines', '')} lines at 320, ${num('list-C-375:maxLines', '')} at 375, and a name cell is ${num('list-C-320:nameW')} wide at 320`, both((w) => setup('C', w)))}
+    </div>
+  </div>
+
+  <div class="brow">
+    <h2>VALUES · where every value in the frames comes from</h2>
+    <table class="tbl">
+      <tr><th>value</th><th>where</th><th>source</th></tr>
+      <tr><td>#fff6e0 · #ffffff · #14142b · #3d3b5c · #ffcc00</td><td>ground, field and box fill, ink and borders, secondary text, gold</td><td>Gh302Phone A / Gh302Setup A (tokens.css)</td></tr>
+      <tr><td>PIN box: 64px tall, 2.5px #14142b border, radius 12px, Mitr 700 32px, gap 10px</td><td>pin control, A, C (C: on the group)</td><td>Gh302Phone A join-pin</td></tr>
+      <tr><td>2.5px #14142b line between cells</td><td>pin C</td><td>the PIN box border, reused as a divider</td></tr>
+      <tr><td>code field: 64px tall, Mitr 700 30px, letter-spacing 2px</td><td>pin B</td><td>Gh302Phone A reveal-code; the shipped join page</td></tr>
+      <tr><td>button 52px, radius 16px, 5px shadow · top bar 48px</td><td>every phone frame</td><td>Gh302Phone A</td></tr>
+      <tr><td>review row 56px, padding 0 5px 0 14px, gap 8px, radius 12px · name 18px floor 17 · remove 44px x min 56px, radius 10px</td><td>list A, B; C keeps the name and remove values</td><td>Gh302Setup A setup-qr</td></tr>
+      <tr><td>list gap 8px 12px · window 312px</td><td>list B, C</td><td>Gh302Setup A setup-qr; the page's 1280 window (5 rows)</td></tr>
+      <tr><td>window 952px</td><td>list A</td><td>the setup page below 640 today (as built)</td></tr>
+      <tr><td>cell padding 8px</td><td>list C</td><td>the list's 8px gap, reused</td></tr>
+      <tr><td>page padding 20px · card padding 20px 16px · heading 24px</td><td>every list frame</td><td>the setup page's own phone values</td></tr>
+    </table>
+  </div>
+
+  <div class="brow">
+    <h2>NEW VALUES · values this canvas proposes that no token or picked board holds</h2>
+    <p class="why">None. Every option reuses a board value; C (pin) reuses the box border as a cell divider, C (list) reuses the list's 8px gap as cell padding, B (list) reuses the board's 312px window in one column.</p>
+  </div>
+
+  <div class="brow">
+    <h2>NOTES · ui-ux-pro-max 2.13.0 rules used (rules only, never its palette or fonts)</h2>
+    <p class="why"><b>touch-target-size</b> (min 44 x 44): every tap target is measured; in pin A and C the target is the row, not a cell. <b>touch-spacing</b> (min 8px between targets): why six separate boxes cannot fit at 320 (304px needed). <b>readable-font-size</b> (16px minimum on mobile): no text in a frame is under 16px; names keep the board's 17px floor. <b>horizontal-scroll</b> (content fits the viewport width): every box is measured inside its parent and inside the frame on both axes; the control is the one that fails. <b>scroll-behavior</b> (avoid nested scroll regions that interfere with the main scroll): the reason for list B. <b>truncation-strategy</b> (prefer wrapping over truncation): names wrap at the floor, never clip.</p>
+  </div>
+
+  <div class="brow">
+    <h2>COPY SOURCES · every Thai string on this canvas exists already, verbatim</h2>
+    <p class="why">Phone frames: design/Gh302Phone.dc.html A join-pin (event name, heading, hint, next). List frames: design/Gh302Setup.dc.html A setup-qr (step heading, joined line, hint, remove, more line, start button, the 15 names); the more line takes the same template with the count of names left. New copy needed: none.</p>
+  </div>
+</div>
+</x-dc>
+<script>
+  // Fits review-list names by the board's rule: 18px, then 17px, then two lines at 17px.
+  document.fonts.ready.then(() => {
+    for (const n of document.querySelectorAll('.su .nm')) {
+      for (const px of [18, 17]) { n.style.fontSize = px + 'px'; if (n.scrollWidth <= n.clientWidth) break; }
+      if (n.scrollWidth > n.clientWidth) n.dataset.wrap = '2';
+    }
+    document.documentElement.dataset.fitDone = '1';
+  });
+</script>
+</body>
+</html>
+`;
+
+if (step === 'write') {
+  writeFileSync(CANVAS, html);
+  console.log(`wrote ${CANVAS} (${html.length} chars); captions without a number: ${(html.match(/data-num="[^"]+">\?</g) ?? []).length}`);
+  process.exit(0);
+}
+
+// ================================================================== render
+const PORT = process.env.CDP_PORT || 9335;
+const SHOT_TMP = process.env.SHOT_TMP;
+if (!SHOT_TMP) { console.error('SHOT_TMP must name a scratch dir outside the repo'); process.exit(2); }
+const WIDTH = 1600;
+const FACES = ['Sarabun 400', 'Mitr 600', 'Mitr 700']; // the faces the frames use; Sarabun 700 is declared and unused
+
+const PROBE = `(async () => {
+  await document.fonts.ready;
+  for (let i = 0; i < 50 && !document.documentElement.dataset.fitDone; i++) await new Promise((r) => setTimeout(r, 50));
+  await new Promise((r) => setTimeout(r, 300));
+  const r1 = (x) => Math.round(x * 10) / 10;
+  const fonts = [...document.fonts].map((f) => ({ face: f.family.replace(/["']/g, '') + ' ' + f.weight, status: f.status }));
+  const lines = (c) => { const rg = document.createRange(); rg.selectNodeContents(c); const tops = [...rg.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top)).sort((a, b) => a - b);
+    let n = 0, last = -1e9; for (const t of tops) { if (t - last > 6) n++; last = t; } return n; };
+  const frames = {};
+  for (const e of document.querySelectorAll('[data-frame]')) {
+    const F = e.getBoundingClientRect();
+    const fid = e.dataset.frame;
+    const ms = [...e.querySelectorAll('[data-m]')];
+    // containment: each measured box inside its parent (a scrolling parent counts its scroll extent vertically) and
+    // inside the frame on both axes; the frame check on y applies to boxes a scroll window shows
+    let excess = 0, pastFrame = 0; const bad = [];
+    const scrolls = (x) => { const st = getComputedStyle(x); return st.overflowY === 'auto' || st.overflowY === 'scroll'; };
+    for (const c of ms) {
+      const r = c.getBoundingClientRect();
+      const p = c.parentElement; const pr = p.getBoundingClientRect();
+      const pBottom = scrolls(p) ? pr.top + p.scrollHeight : pr.bottom;
+      // a box a scroll window hides (it lies below the window's visible bottom) is judged on y inside the window's scroll extent only
+      let win = null; for (let a = c.parentElement; a && a !== e; a = a.parentElement) if (scrolls(a)) { win = a; break; }
+      const shown = !win || r.bottom <= win.getBoundingClientRect().bottom + 0.5;
+      const inParent = Math.max(0, r.right - pr.right, pr.left - r.left, r.bottom - pBottom, pr.top - r.top);
+      const inFrame = Math.max(0, r.right - F.right, F.left - r.left, shown ? r.bottom - F.bottom : 0, shown ? F.top - r.top : 0);
+      const out = Math.max(inParent, inFrame);
+      if (out > 0.5) bad.push(c.dataset.m + ':' + r1(out));
+      excess = Math.max(excess, out); pastFrame = Math.max(pastFrame, inFrame);
+    }
+    // every descendant against the frame's width: the horizontal-scroll check
+    const overX = [...e.querySelectorAll('*')].filter((c) => !c.closest('.fold, .stub')).filter((c) => { const r = c.getBoundingClientRect(); return r.width > 0 && (r.right > F.right + 0.5 || r.left < F.left - 0.5); }).length;
+    const taps = [...e.querySelectorAll('[data-tap]')].map((c) => c.getBoundingClientRect());
+    const shownTaps = taps.filter((t) => { const p = e.querySelector('.jlist'); if (!p) return true; const pr = p.getBoundingClientRect(); return t.bottom <= pr.bottom + 0.5; });
+    let tapGap = null;
+    for (let i = 0; i < shownTaps.length; i++) for (let j = i + 1; j < shownTaps.length; j++) {
+      const a = shownTaps[i], b = shownTaps[j];
+      const gx = Math.max(0, Math.max(a.left, b.left) - Math.min(a.right, b.right));
+      const gy = Math.max(0, Math.max(a.top, b.top) - Math.min(a.bottom, b.bottom));
+      const g = Math.max(gx, gy); tapGap = tapGap == null ? g : Math.min(tapGap, g);
+    }
+    const texts = [...e.querySelectorAll('*')].filter((c) => !c.closest('.fold, .stub') && [...c.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
+    const out = { w: r1(F.width), h: r1(F.height), innerText: e.innerText, excess: r1(excess), pastFrame: r1(pastFrame), bad: bad.slice(0, 8), nBad: bad.length, overX,
+      tapW: taps.length ? r1(Math.min(...taps.map((t) => t.width))) : null, tapH: taps.length ? r1(Math.min(...taps.map((t) => t.height))) : null,
+      tapGap: tapGap == null ? null : r1(tapGap), minFont: Math.min(...texts.map((c) => parseFloat(getComputedStyle(c).fontSize))) };
+    const boxes = [...e.querySelectorAll('[data-m="box"]')].map((c) => c.getBoundingClientRect());
+    if (boxes.length) {
+      out.boxes = boxes.length; out.boxW = r1(Math.min(...boxes.map((b) => b.width))); out.boxH = r1(Math.min(...boxes.map((b) => b.height)));
+      const row = e.querySelector('.pins'); const bd = e.querySelector('.bd'); const bs = getComputedStyle(bd);
+      out.contentW = r1(bd.clientWidth - parseFloat(bs.paddingLeft) - parseFloat(bs.paddingRight));
+      out.rowNeed = r1(boxes.reduce((a, b) => a + b.width, 0) + (boxes.length - 1) * parseFloat(getComputedStyle(row).columnGap || 0));
+    }
+    const list = e.querySelector('.jlist');
+    if (list) {
+      const L = list.getBoundingClientRect();
+      const names = [...e.querySelectorAll('[data-m="name"]')];
+      const rowsShown = [...e.querySelectorAll('[data-m="row"]')].filter((c) => c.getBoundingClientRect().bottom <= L.bottom + 0.5);
+      out.windowH = r1(L.height); out.visibleNames = rowsShown.length;
+      out.rowW = r1(e.querySelector('[data-m="row"]').getBoundingClientRect().width);
+      out.nameW = r1(Math.min(...names.map((n) => n.getBoundingClientRect().width)));
+      out.maxLines = Math.max(...names.map(lines));
+      out.nameFonts = [...new Set(names.map((n) => parseFloat(n.style.fontSize)))];
+      // one-line names are judged horizontally (their content area overhangs line-height 1 by design); a wrapped name also vertically
+      out.clipped = names.filter((n) => n.scrollWidth > n.clientWidth + 0.5 || (n.dataset.wrap && n.scrollHeight > n.clientHeight + 1)).map((n) => n.textContent.slice(0, 12));
+      out.goTop = r1(e.querySelector('.go').getBoundingClientRect().top - F.top);
+      out.listScrollW = list.scrollWidth - list.clientWidth;
+    }
+    frames[fid] = out;
+  }
+  return { innerWidth, scrollW: document.documentElement.scrollWidth, fonts, frames, body: document.body.innerText };
+})()`;
+
+const api = async (p, method = 'GET') => (await fetch(`http://127.0.0.1:${PORT}${p}`, { method })).json();
+const target = await api('/json/new?about:blank', 'PUT');
+const ws = new WebSocket(target.webSocketDebuggerUrl);
+let id = 0; const pending = new Map(); const errors = []; let loaded = null;
+const send = (method, params = {}) => new Promise((res) => { pending.set(++id, res); ws.send(JSON.stringify({ id, method, params })); });
+ws.addEventListener('message', (ev) => {
+  const m = JSON.parse(ev.data);
+  if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); return; }
+  if (m.method === 'Page.loadEventFired' && loaded) { loaded(); loaded = null; }
+  if (m.method === 'Runtime.exceptionThrown') errors.push(m.params.exceptionDetails?.exception?.description ?? m.params.exceptionDetails?.text);
+  if (m.method === 'Log.entryAdded' && m.params.entry.level === 'error') errors.push(`${m.params.entry.text} ${m.params.entry.url ?? ''}`.trim());
+});
+await new Promise((r) => ws.addEventListener('open', r));
+await send('Page.enable'); await send('Runtime.enable'); await send('Log.enable');
+// The protocol call that genuinely sets the viewport (browser-verification.md, trap 1); innerWidth is checked below.
+await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: 1000, deviceScaleFactor: 1, mobile: false });
+const lp = new Promise((r) => { loaded = r; });
+await send('Page.navigate', { url: pathToFileURL(CANVAS).href });
+await lp;
+const res = await send('Runtime.evaluate', { expression: PROBE, awaitPromise: true, returnByValue: true });
+const m = res.result?.result?.value;
+if (!m) { console.error('probe failed', JSON.stringify(res).slice(0, 600)); process.exit(1); }
+
+const problems = [];
+if (m.innerWidth !== WIDTH) problems.push(`innerWidth ${m.innerWidth} != ${WIDTH}`);
+for (const face of FACES) { const got = m.fonts.filter((f) => f.face === face); if (!got.length || got.some((f) => f.status !== 'loaded')) problems.push(`font ${face}: ${JSON.stringify(got)}`); }
+if (m.body.includes('◌')) problems.push('dotted circle U+25CC in the rendered text');
+const ctl = m.frames['pin-ctl-320'];
+if (!ctl || !(ctl.excess > 0.5) || !(ctl.overX > 0)) problems.push(`MUST-RED FAILED: the control at 320 does not overflow (excess ${ctl?.excess}, overX ${ctl?.overX}): the measurement is broken`);
+for (const [fid, f] of Object.entries(m.frames)) {
+  if (fid.startsWith('pin-ctl')) continue;
+  if (f.excess > 0.5 || f.overX) problems.push(`overflow in option ${fid}: excess ${f.excess}px, ${f.overX} boxes past the frame edge, ${f.bad.join(' ')}`);
+  if (f.clipped?.length) problems.push(`clipped name in ${fid}: ${f.clipped.join(' | ')}`);
+}
+// caption numbers against this measurement
+const canvasHtml = readFileSync(CANVAS, 'utf8');
+for (const [, key, shown] of canvasHtml.matchAll(/data-num="([^"]+)">([^<]*)</g)) {
+  const [fid, k] = key.split(':'); const v = m.frames[fid]?.[k];
+  if (String(v) !== shown) problems.push(`caption ${key} says ${shown}, measured ${v}`);
+}
+const inherited = /ERR_FILE_NOT_FOUND file:\/\/\S*\/design\/support\.js$/;
+const consoleErrors = errors.filter((e) => !inherited.test(e));
+if (consoleErrors.length) problems.push(`console: ${consoleErrors.join(' | ')}`);
+
+// one PNG per frame, at 2x, clipped to the frame
+mkdirSync(SHOT_TMP, { recursive: true });
+const shots = [];
+for (const fid of Object.keys(m.frames)) {
+  const box = await send('Runtime.evaluate', { returnByValue: true, expression: `(() => { const e = document.querySelector('[data-frame="${fid}"]'); const r = e.getBoundingClientRect(); return { x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height }; })()` });
+  const b = box.result.result.value;
+  const pad = fid.startsWith('pin-ctl') ? 150 : 0; // the control's overflow is drawn too (the wide pair leaves 180px clear)
+  const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: b.x, y: b.y, width: b.w + pad, height: b.h, scale: 2 } });
+  const out = path.join(OUT, `${fid}.png`);
+  writeFileSync(out, Buffer.from(shot.result.data, 'base64'));
+  shots.push(path.basename(out));
+}
+await fetch(`http://127.0.0.1:${PORT}/json/close/${target.id}`); ws.close();
+
+const frames = Object.fromEntries(Object.entries(m.frames).map(([k, v]) => { const { innerText, ...rest } = v; return [k, rest]; }));
+writeFileSync(path.join(OUT, 'measurements.json'), JSON.stringify({ date: '2026-11-14', innerWidth: m.innerWidth, fonts: m.fonts, consoleErrors, frames, shots }, null, 1) + '\n');
+const rows = Object.entries(frames).map(([k, f]) => `| ${k} | ${f.w} | ${f.excess} | ${f.pastFrame} | ${f.overX} | ${f.boxW ?? '-'} x ${f.boxH ?? '-'} | ${f.tapW} x ${f.tapH} | ${f.tapGap ?? '-'} | ${f.minFont} | ${f.visibleNames ?? '-'} | ${f.maxLines ?? '-'} | ${f.goTop ?? '-'} |`);
+console.log(['| frame | width | past parent or frame px | past frame px | boxes past frame edge | cell w x h | min tap w x h | min tap gap | min font | rows in view | name lines | start top |', '|---|---|---|---|---|---|---|---|---|---|---|---|', ...rows].join('\n'));
+console.log(problems.length ? `PROBLEMS (${problems.length}):\n- ${problems.join('\n- ')}` : 'problems: none');
+process.exit(problems.length ? 1 : 0);

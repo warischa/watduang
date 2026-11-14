@@ -1,0 +1,55 @@
+// node --test — gh#308: the projector's QR lobby. Before the first round of a QR-mode event the main screen
+// shows the join QR, the PIN and the joined count (design/Gh302Projector.dc.html, frame proj-lobby,
+// direction B, picked 2026-11-11). Pins:
+//   - the lobby is read from the record the setup page writes (qr-event.ts), and only while it is there;
+//     the stored event takes the screen back the moment it goes;
+//   - the QR module (lobby-qr.ts, the one importer of lean-qr) is loaded lazily, only for a lobby: an
+//     admin-mode screen never asks for it, and no static import from the route's entry reaches it;
+//   - what the QR encodes is the join link, id and PIN in the fragment, drawn at correction M on a canvas.
+// No decoder is installed in this repo, so there is no round-trip decode here: the payload string, the
+// module call and the drawn pixels against lean-qr's own matrix at the same options are what is asserted.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { correction, generate } from '<repo>/node_modules/lean-qr/index.mjs';
+import { fakeOrigin, mount, storedEvent } from '<repo>/src/play/prize-draw/stage-harness.mjs';
+import { QR_OPTIONS, QR_PAD, drawJoinQr } from '<repo>/src/play/prize-draw/lobby-qr.ts';
+import { encodeLobby, joinLink, parseLobby } from '<repo>/src/prize-event/qr-event.ts';
+
+const EV = 'AbCdEfGhIjKlMnOpQrStUv';
+const SESSION = { eventId: EV, pin: '048213', adminToken: 'T'.repeat(43), expiresAt: '2999-01-01T00:00:00.000Z' };
+const ORIGIN = 'https://watduang.com';
+
+/** A lobby source over one string, as main.ts builds it over localStorage; `set` notifies like a storage event. */
+function lobbySource(text = null) {
+  let raw = text;
+  const subs = [];
+  return {
+    read: () => parseLobby(raw, Date.now()),
+    subscribe: (fn) => (subs.push(fn), () => {}),
+    set(next) {
+      raw = next;
+      for (const fn of subs) fn();
+    },
+  };
+}
+
+/** A QR module double: records every draw; `loads` counts how often the module was asked for. */
+function qrDouble() {
+  const draws = [];
+  let loads = 0;
+  return {
+    draws,
+    loads: () => loads,
+    loadQr: async () => {
+      loads++;
+      return { drawJoinQr: (canvas, text) => draws.push({ canvas, text }) };
+    },
+  };
+}
+
+const flush = () => new Promise((r) => setImmediate(r));
+
+
+export { lobbySource, qrDouble, SESSION, ORIGIN, flush };

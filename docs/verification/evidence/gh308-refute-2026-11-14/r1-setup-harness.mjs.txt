@@ -1,0 +1,169 @@
+// node --test — gh#308: the setup page's QR mode on the prize fake DOM, over a fake join server reached
+// through a fake fetch (no network), the real client (qr-event.ts) and the real event store (fake-idb.mjs).
+// Pins the flow end to end on the page side: the open control opens the projector and creates one remote
+// event; the admin token stays in the page's own storage and in a header, never in a URL or the lobby
+// record; the review list polls on a bounded interval, stops while the page is hidden, and writes names
+// through the text sink only (ADR-0026: names out of contract never reach the DOM at all); a removed name
+// never reaches the start or the event; the start freezes the roster on the server and the stored event is
+// exactly that roster; every other start answer stores nothing.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { ACTIVE_TAGS, HOSTILE, makeDoc } from '<repo>/src/prize-event/fake-dom.mjs';
+import { fakeOrigin } from '<repo>/src/prize-event/fake-idb.mjs';
+import { decodeEvent } from '<repo>/src/prize-event/event.ts';
+import { DB } from '<repo>/src/prize-event/store.ts';
+import { mountSetup } from '<repo>/src/prize-event/setup-page.ts';
+import { ADMIN_HEADER, ADMIN_KEY, LOBBY_KEY, POLL_MS, parseLobby, qrApi } from '<repo>/src/prize-event/qr-event.ts';
+
+const PAGE = fs.readFileSync('<repo>/src/pages/game/prize-draw/index.astro', 'utf8');
+const EV = 'AbCdEfGhIjKlMnOpQrStUv';
+const TOKEN = 'k'.repeat(43);
+const PIN = '048213';
+const QR_IDS = ['pd-mode', 'pd-mode-admin', 'pd-mode-qr', 'pd-qr-heads', 'pd-qr-open', 'pd-qr-joined', 'pd-qr-fill', 'pd-qr-list', 'pd-qr-more', 'pd-qr-msg', 'pd-start'];
+
+const idOf = (i) => `m${String(i).padStart(3, '0')}`.padEnd(22, 'x');
+const member = (i, name = `P${i}`) => ({ id: idOf(i), name, joined: `2026-11-13T10:00:${String(i % 60).padStart(2, '0')}.000Z` });
+
+/** A join server double behind a fetch double: the admin routes of the protocol doc, in memory. `answer[op]`
+ *  overrides one route's answer; `down` makes every send fail. */
+function fakeServer(list = []) {
+  const srv = { list: [...list], state: 'open', roster: null, calls: [], answer: {}, down: false, created: 0 };
+  srv.fetch = async (url, init) => {
+    srv.calls.push({ url, method: init.method, headers: { ...init.headers }, body: init.body ? JSON.parse(init.body) : undefined });
+    if (srv.down) throw new Error('offline');
+    const reply = (status, body) => ({ status, json: async () => body });
+    const parts = url.replace(/^\/api\/draw\//, '').split('/');
+    const op = url === '/api/draw/events' ? 'create' : parts.at(-1);
+    if (srv.answer[op]) return reply(srv.answer[op].status, srv.answer[op].body);
+    if (op === 'create') {
+      srv.created++;
+      return reply(201, { eventId: EV, pin: PIN, adminToken: TOKEN, expiresAt: '2999-01-01T00:00:00.000Z' });
+    }
+    if (init.headers[ADMIN_HEADER] !== TOKEN) return reply(401, { error: 'admin' });
+    if (op === 'names') return reply(200, { state: srv.state, names: srv.list });
+    if (op === 'remove') {
+      if (srv.state !== 'open') return reply(409, { error: 'started' });
+      srv.list = srv.list.filter((m) => m.id !== parts[3]);
+      return reply(200, { removed: true });
+    }
+    if (op === 'start') {
+      if (srv.roster) return reply(200, { roster: srv.roster });
+      const ids = new Set(JSON.parse(init.body).ids);
+      const roster = srv.list.filter((m) => ids.has(m.id)).map(({ id, name }) => ({ id, name }));
+      if (!roster.length) return reply(409, { error: 'empty' });
+      srv.state = 'started';
+      srv.roster = roster;
+      return reply(200, { roster });
+    }
+    if (op === 'purge') return reply(200, { purged: true });
+    return reply(404, { error: 'no-route' });
+  };
+  return srv;
+}
+
+/** The setup page with its QR elements, as index.astro renders them, on one origin. */
+function page({ server = fakeServer(), origin = fakeOrigin(), seed } = {}) {
+  const doc = makeDoc();
+  const docListeners = {};
+  doc.addEventListener = (type, fn) => (docListeners[type] ??= []).push(fn);
+  let hidden = false;
+  const add = (tag, id, parent = doc.body) => {
+    const el = doc.createElement(tag);
+    if (id) el.id = id;
+    parent.append(el);
+    return el;
+  };
+  const form = add('form', 'pd-setup');
+  form.setAttribute('data-play', '/game/prize-draw/play/');
+  add('input', 'pd-event', form);
+  const mode = add('div', 'pd-mode', form);
+  for (const m of ['admin', 'qr']) add('button', null, mode).setAttribute('data-mode', m);
+  const adminBlock = add('div', 'pd-mode-admin', form);
+  add('textarea', 'pd-names', adminBlock);
+  for (const id of ['pd-count', 'pd-names-msg']) add('div', id, adminBlock);
+  const qrBlock = add('div', 'pd-mode-qr', form);
+  qrBlock.hidden = true;
+  add('input', 'pd-qr-heads', qrBlock);
+  add('button', 'pd-qr-open', qrBlock);
+  add('div', 'pd-qr-joined', qrBlock);
+  add('i', 'pd-qr-fill', add('div', null, qrBlock));
+  for (const id of ['pd-qr-list', 'pd-qr-more', 'pd-qr-msg']) add('div', id, qrBlock);
+  for (const id of ['pd-s0', 'pd-l0', 'pd-l1', 'pd-l2', 'pd-l3', 'pd-sched-msg', 'pd-prize-count', 'pd-start-msg']) add('div', id, form);
+  for (const id of ['pd-s1', 'pd-s2', 'pd-s3']) add('input', id, form);
+  for (const id of ['pd-sched-reset', 'pd-prize-minus', 'pd-prize-plus']) add('button', id, form);
+  for (let i = 1; i <= 5; i++) {
+    const row = add('div', null, form);
+    row.setAttribute('data-prize-row', String(i));
+    add('input', `pd-prize-${i}`, row);
+  }
+  add('p', 'pd-games-line', form);
+  add('div', 'pd-games-note', form);
+  for (let r = 1; r <= 4; r++) for (const end of ['from', 'to']) add('span', `pd-game-r${r}-${end}`, form);
+  for (const id of ['pd-game-r1', 'pd-game-r2', 'pd-game-r3', 'pd-game-r4', 'pd-game-final']) add('button', null, add('div', id, form)).setAttribute('data-game', '');
+  add('button', 'pd-start', form).textContent = 'เริ่มงาน';
+
+  const env = origin.tab('setup');
+  if (seed) for (const [k, v] of Object.entries(seed)) env.localStorage.setItem(k, v);
+  const timers = [];
+  const visits = [];
+  const opened = [];
+  const win = { ...env, location: { assign: (u) => visits.push(u) }, confirm: () => true, addEventListener: () => {} };
+  const later = (fn, ms) => {
+    const t = { fn, ms, live: true };
+    timers.push(t);
+    return t;
+  };
+  const cancel = (t) => t && (t.live = false);
+  mountSetup(doc, win, {
+    webgl2: () => true,
+    qr: {
+      api: qrApi({ fetch: server.fetch, setTimeout: later, clearTimeout: cancel }),
+      open: (u) => opened.push(u),
+      setTimeout: later,
+      clearTimeout: cancel,
+      hidden: () => hidden,
+    },
+  });
+  const $ = (id) => doc.getElementById(id);
+  const kv = () => Object.fromEntries(origin.localStorage);
+  /** Live poll timers (request timeouts ride on the same double: only POLL_MS ones are polls). */
+  const polls = () => timers.filter((t) => t.live && t.ms === POLL_MS);
+  /** Run every live poll timer once. */
+  const tick = async () => {
+    for (const t of polls()) {
+      t.live = false;
+      t.fn();
+    }
+    await origin.idle();
+    await new Promise((r) => setImmediate(r));
+  };
+  const setHidden = (h) => {
+    hidden = h;
+    for (const fn of docListeners.visibilitychange ?? []) fn({});
+  };
+  const rows = () => $('pd-qr-list').querySelectorAll('div.jrow');
+  const shownNames = () => rows().map((r) => r.querySelector('span.nm').textContent);
+  const removeButton = (name) => rows().find((r) => r.querySelector('span.nm').textContent === name).querySelector('button');
+  const qrMode = () => mode.querySelectorAll('button').find((b) => b.getAttribute('data-mode') === 'qr').click();
+  const stored = () => decodeEvent(origin.get(DB.name, DB.store, DB.key) ?? null);
+  const idle = async () => {
+    await origin.idle();
+    await new Promise((r) => setImmediate(r));
+    await origin.idle();
+  };
+  return { doc, $, server, origin, kv, polls, tick, setHidden, rows, shownNames, removeButton, qrMode, visits, opened, stored, idle, submit: () => form.dispatch('submit') };
+}
+
+/** QR mode, the QR screen opened, the first list read. */
+async function opened(names, opts = {}) {
+  const p = page({ server: fakeServer(names), ...opts });
+  p.qrMode();
+  p.$('pd-qr-open').click();
+  await p.idle();
+  return p;
+}
+
+
+export { page, opened, fakeServer, member, idOf };

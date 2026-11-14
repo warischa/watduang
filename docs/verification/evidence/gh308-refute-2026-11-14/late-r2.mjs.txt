@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import {page,opened,fakeServer,member} from './setup-harness-r2.mjs';
+import {fakeOrigin} from '<repo>/src/prize-event/fake-idb.mjs';
+import {ADMIN_KEY,LOBBY_KEY,parseLobby} from '<repo>/src/prize-event/qr-event.ts';
+const names=Array.from({length:12},(_,i)=>member(i+1));
+const flush=()=>new Promise(r=>setImmediate(r));
+{
+ const origin=fakeOrigin();const server=fakeServer(names);const real=server.fetch;let release;
+ server.fetch=(u,i)=>u==='/api/draw/events'?new Promise(r=>{release=()=>r(real(u,i));}):real(u,i);
+ const admin=page({origin,server});const qr=page({origin,server});
+ qr.qrMode();qr.$('pd-qr-open').click();await flush();assert.ok(release);
+ admin.$('pd-names').value=names.map(x=>x.name).join('\n');admin.$('pd-names').dispatch('input');admin.$('pd-event').value='Committed admin event';
+ admin.submit();await admin.idle();assert.ok(admin.stored());assert.equal(admin.kv()[LOBBY_KEY],undefined);
+ release();await qr.idle();
+ assert.ok(qr.kv()[LOBBY_KEY]);assert.equal(parseLobby(qr.kv()[LOBBY_KEY],Date.now()).joined,12);
+ assert.equal(JSON.parse(qr.kv()[ADMIN_KEY]).gen,admin.stored().eventKey);
+ console.log('CONFIRMED cross-tab late create hides committed admin event:',JSON.stringify({stored:qr.stored().setup.eventName,lobby:true,genCapturedAfterCommit:true,purged:server.calls.some(x=>x.url.endsWith('/purge'))}));
+}
+{
+ const origin=fakeOrigin();const server=fakeServer(names);const real=server.fetch;let release;let hold=false;
+ server.fetch=async(u,i)=>{
+  if(hold&&u.endsWith('/names')) { const answer=real(u,i);return new Promise(r=>{release=()=>r(answer);}); }
+  const res=await real(u,i);if(u!=='/api/draw/events')return res;
+  const body=await res.json();return {status:res.status,json:async()=>({...body,eventId:('E'+server.created).padEnd(22,'x')})};
+ };
+ const admin=page({origin,server});const qr=await opened(names,{origin,server});
+ const oldId=JSON.parse(qr.kv()[ADMIN_KEY]).eventId;
+ hold=true;await qr.tick();assert.ok(release);
+ admin.$('pd-names').value=names.map(x=>x.name).join('\n');admin.$('pd-names').dispatch('input');admin.submit();await admin.idle();
+ qr.$('pd-event').dispatch('input');await qr.idle();assert.equal(qr.kv()[ADMIN_KEY],undefined);
+ hold=false;qr.$('pd-qr-open').click();await qr.idle();assert.equal(server.created,2);assert.ok(qr.kv()[ADMIN_KEY]);
+ assert.notEqual(JSON.parse(qr.kv()[ADMIN_KEY]).eventId,oldId);
+ const before=server.calls.filter(c=>c.url.endsWith('/names')).length;
+ assert.equal(qr.polls().length,0);release();await qr.idle();
+ assert.equal(qr.polls().length,0);assert.equal(server.calls.filter(c=>c.url.endsWith('/names')).length,before);assert.equal(qr.shownNames().length,0);
+ console.log('CONFIRMED new session permanently unpolled after old read settles:',JSON.stringify({newEventCreated:server.created,newSession:!!qr.kv()[ADMIN_KEY],reviewed:qr.shownNames().length,polls:qr.polls().length}));
+}

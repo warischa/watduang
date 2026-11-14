@@ -1,0 +1,26 @@
+import http from 'node:http';
+import {chromium} from '<local-path>';
+const hits=new Map();
+const server=http.createServer((req,res)=>{
+ const key=req.url;const n=(hits.get(key)??0)+1;hits.set(key,n);
+ res.setHeader('Cache-Control','no-store');
+ if(key==='/'){res.setHeader('Content-Type','text/html');res.end('<title>module retry probe</title>');return;}
+ if(n===1&&key==='/http.mjs'){res.writeHead(503,{'Content-Type':'text/javascript'});res.end('unavailable');return;}
+ if(n===1&&key==='/network.mjs'){res.destroy();return;}
+ res.setHeader('Content-Type','text/javascript');res.end('export const ok = true;');
+});
+await new Promise(r=>server.listen(0,'127.0.0.1',r));
+let browser;
+try{
+ browser=await chromium.launch({headless:true,channel:'chrome'});const page=await browser.newPage();
+ await page.goto(`http://127.0.0.1:${server.address().port}/`);
+ const result=await page.evaluate(async()=>{
+  const out=[];
+  for(const url of ['/http.mjs','/network.mjs']){
+   const tries=[];for(let i=0;i<3;i++)try{tries.push({ok:(await import(url)).ok});}catch(e){tries.push({error:e.name});}
+   out.push({url,tries,fetchStatus:await fetch(url).then(r=>r.status)});
+  }
+  return out;
+ });
+ console.log(JSON.stringify({version:browser.version(),result,hits:Object.fromEntries(hits)}));
+}finally{await browser?.close();await new Promise(r=>server.close(r));}

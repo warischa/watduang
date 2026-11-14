@@ -37,6 +37,10 @@
 //      a reload comes back to the picks, another tab follows them, and a tab that is behind loses its pick and
 //      takes the stored one up. Only which lane the next name lands on is this screen's own. The draw press
 //      locks the stored picks.
+//   7. The QR lobby (gh#308). While the setup page's lobby record is there (qr-event.ts), the screen shows
+//      the join QR, the PIN and the joined count instead of any stored step, with no MC control; the start
+//      stores the new event and drops the record, and the screen walks that event. The QR module is loaded
+//      with import() and only for a lobby, so an admin-mode event never fetches lean-qr (ADR-0077).
 //
 // Where the controls sit (gh#314 1a B): the MC's button at the play band's right end, off the projected
 // frame; the notice's veil does not reach it there, so it is held disabled while the notice is open and
@@ -69,6 +73,7 @@ import { laneX, renderLanes } from './lanes.ts';
 import { fitAll, writeName } from '../_prize-reveal/names-dom.ts';
 import { startReveal, type HostOptions, type RevealHost } from '../_prize-reveal/game-host.ts';
 import type { CommittedOutcome, GameId } from '../_prize-reveal/game-contract.ts';
+import { joinLink, type Lobby } from '../../prize-event/qr-event.ts';
 
 export type StageDeps = {
   doc: Document;
@@ -95,7 +100,21 @@ export type StageDeps = {
   /** Starts a committed step's 3D reveal (game-host.ts startReveal, on the browser by default). Tests pass
    *  a recording stand-in, or the real host over a fake page. */
   startReveal?: (options: HostOptions<GameId>) => RevealHost;
+  /** The QR-mode lobby the setup page writes (qr-event.ts LOBBY_KEY), read on every render and followed on
+   *  every change. Absent: no lobby, ever. */
+  lobby?: LobbySource;
+  /** Loads the QR module; import() of lobby-qr.ts by default, called only while a lobby is on screen. */
+  loadQr?: () => Promise<QrModule>;
+  /** The origin the join link names (location.origin). */
+  joinOrigin?: string;
 };
+
+/** Where the lobby comes from: main.ts reads localStorage and follows its storage event. */
+export type LobbySource = { read(): Lobby | null; subscribe(onChange: () => void): () => void };
+type QrModule = { drawJoinQr(canvas: HTMLCanvasElement, text: string): void };
+
+/** The waits before each new ask for a QR module that failed to load, doubling: about a minute in all. */
+const QR_RETRY_MS = [1000, 2000, 4000, 8000, 16000, 32000];
 
 // Copy with no board source yet (listed for the owner in the gh#304 evidence README).
 const COPY = {
@@ -112,6 +131,11 @@ const COPY = {
   lanePick: 'ให้ผู้เข้ารอบชิงเลือกเส้น แตะเส้นแล้วแตะชื่อ',
   // An empty lane's label: its number, as the picked frame draws it (design/Gh305GamePick.dc.html i2-lanes).
   lane: (lane: number): string => String(lane),
+  // The QR lobby, board copy verbatim (design/Gh302Projector.dc.html, proj-lobby B, COPY APPROVED).
+  scan: 'สแกนเพื่อเข้าร่วม',
+  oneName: 'ใช้ชื่อเล่นหรือชื่อเรียก 1 เครื่อง 1 ชื่อ',
+  pin: 'PIN',
+  joined: (n: number): string => `เข้าร่วมแล้ว ${n} คน`,
 };
 
 /** The screens with a name field: under 640px they take the phone layout, names in two columns (gh#314
@@ -445,7 +469,95 @@ export function mountStage(deps: StageDeps): StageHandle {
     else render(before.at !== 'revealed');
   };
 
+  /** The lobby to show, if any: never over a screen that can hold no event (refused, revoked, reloading). */
+  const lobbyNow = (): Lobby | null => (ending === null ? (deps.lobby?.read() ?? null) : null);
+  /** The lobby on screen: which event it shows, and the texts a count update rewrites in place. */
+  let lobbyOn: { key: string; canvas: HTMLCanvasElement; ev: HTMLElement; count: HTMLElement } | null = null;
+  const loadQr = deps.loadQr ?? ((): Promise<QrModule> => import('./lobby-qr.ts'));
+  /** Set by the first render: a lobby change before it waits for the store, which renders it. */
+  let painted = false;
+
+  /**
+   * Draw the join QR on `canvas` once the QR module has loaded, then show its card. A load that fails (a
+   * dropped chunk) is asked for again after each wait in QR_RETRY_MS, while this canvas is still the lobby's;
+   * once they run out the card stays hidden. The PIN alone does not admit a phone (the join page needs the
+   * event id the QR carries), so an empty card is never shown as if it were a code; a reload starts again.
+   */
+  const drawQr = (canvas: HTMLCanvasElement, qrCard: HTMLElement, link: string, attempt = 0): void => {
+    void loadQr()
+      .then(
+        (qr) => {
+          if (lobbyOn?.canvas !== canvas) return;
+          qr.drawJoinQr(canvas, link);
+          qrCard.removeAttribute('data-pending');
+        },
+        () => {
+          const wait = QR_RETRY_MS[attempt];
+          if (lobbyOn?.canvas !== canvas || wait === undefined) return;
+          setTimeout(() => {
+            if (lobbyOn?.canvas === canvas) drawQr(canvas, qrCard, link, attempt + 1);
+          }, wait);
+        },
+      )
+      // A module that loaded but could not draw leaves the card hidden; asking again would fail the same way.
+      .catch(() => {});
+  };
+
+  /**
+   * The QR lobby (design/Gh302Projector.dc.html proj-lobby B): event name, the scan heading and its hint,
+   * the join QR, the PIN and the joined count. No control, so the MC bar empties. The QR module loads here
+   * and only here; it draws once per event, and a count update rewrites the texts and keeps the canvas.
+   * The QR card is hidden (its place kept) until the code is on it: drawQr.
+   */
+  const renderLobby = (lobby: Lobby): void => {
+    const key = `${lobby.eventId}:${lobby.pin}`;
+    if (lobbyOn && lobbyOn.key === key && frame.getAttribute('data-screen') === 'lobby') {
+      lobbyOn.ev.textContent = lobby.eventName;
+      lobbyOn.count.textContent = COPY.joined(lobby.joined);
+      return;
+    }
+    const el = (tag: string, className: string, text?: string): HTMLElement => {
+      const node = doc.createElement(tag);
+      node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    };
+    const top = el('div', 'pd-top');
+    const ev = el('span', 'pd-ev', lobby.eventName);
+    top.appendChild(ev);
+    const grid = el('div', 'pd-lobby');
+    const left = el('div', 'pd-lobby-l');
+    left.append(el('h2', 'pd-lh', COPY.scan), el('div', 'pd-jh', COPY.oneName));
+    const qrCard = el('div', 'pd-qrcard');
+    qrCard.setAttribute('data-pending', '');
+    const canvas = doc.createElement('canvas');
+    canvas.className = 'pd-qr';
+    canvas.setAttribute('aria-hidden', 'true');
+    qrCard.appendChild(canvas);
+    const right = el('div', 'pd-lobby-r');
+    const count = el('div', 'pd-jc', COPY.joined(lobby.joined));
+    right.append(el('div', 'pd-pk', COPY.pin), el('div', 'pd-pv', lobby.pin), count);
+    grid.append(left, qrCard, right);
+    frame.replaceChildren(top, grid);
+    frame.setAttribute('data-screen', 'lobby');
+    mc.replaceChildren();
+    picks.replaceChildren();
+    mounted = null;
+    lobbyOn = { key, canvas, ev, count };
+    live.textContent = `${COPY.scan} ${COPY.pin} ${lobby.pin}`;
+    markField();
+    show(viewport);
+    drawQr(canvas, qrCard, joinLink(deps.joinOrigin ?? doc.defaultView?.location.origin ?? '', lobby.eventId, lobby.pin));
+  };
+
   const render = (wave: boolean): void => {
+    painted = true;
+    const lobby = lobbyNow();
+    if (lobby) {
+      renderLobby(lobby);
+      return;
+    }
+    lobbyOn = null;
     if (!state) {
       // No event: none is stored, this browser cannot hold one (store.ts, refused browsers), an old tab holds
       // another one (revoked), or the page is reloading onto a newer version (blank, no copy).
@@ -582,7 +694,9 @@ export function mountStage(deps: StageDeps): StageHandle {
   close.addEventListener('click', () => {
     notice.hidden = true;
     // Closing the notice gives the MC's button back, rebuilt live: a reveal (ADR-0057), armed like any other.
-    if (state) paintControls(state);
+    // Only the screen now showing gets its controls: a lobby that arrived under the notice has none, and the
+    // event it replaced must not put its button over it.
+    if (state && !lobbyOn) paintControls(state);
     show(viewport);
   });
 
@@ -646,6 +760,15 @@ export function mountStage(deps: StageDeps): StageHandle {
       ending = 'refused';
       render(false);
     });
+  // The lobby record changed (the setup page created its QR event, a count moved, or the start stored the
+  // event and dropped the record): show what is there now. A change that neither shows nor ends a lobby is
+  // not this screen's.
+  deps.lobby?.subscribe(() => {
+    if (!painted || (!lobbyNow() && !lobbyOn)) return;
+    stopReveal();
+    render(false);
+  });
+
   return {
     current: () => state,
     refit: () => fitAll(frame),

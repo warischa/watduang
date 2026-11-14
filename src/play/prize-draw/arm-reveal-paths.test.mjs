@@ -33,7 +33,7 @@ test('show() is the only un-hide, and it arms the region it shows', () => {
 
 // receiver -> why it is shown. Every entry is a decision.
 const EXPECTED_SHOWS = new Map([
-  ['viewport', 'every render (cold, refused, round, reveal, final, result) rebuilds the frame and the MC bar inside the viewport and arms it, including a follower render (another tab moved the event: taken up on its commit notice or on this screen\'s own stale press) and the render a 3D reveal\'s first exit draws (gh#305); every ladder lane tap and name tap repaints the lane frame, the picks and the MC bar inside it and re-arms it; and the notice close path rebuilds the MC\'s button, held while the notice was open, and uncovers it again (ADR-0057)'],
+  ['viewport', 'every render (cold, refused, round, reveal, final, result, and the QR lobby of gh#308, which holds no control) rebuilds the frame and the MC bar inside the viewport and arms it, including a follower render (another tab moved the event: taken up on its commit notice or on this screen\'s own stale press) and the render a 3D reveal\'s first exit draws (gh#305); every ladder lane tap and name tap repaints the lane frame, the picks and the MC bar inside it and re-arms it; and the notice close path rebuilds the MC\'s button, held while the notice was open, and uncovers it again (ADR-0057)'],
   ['notice', 'the storage-failure notice, which carries its own close button'],
 ]);
 

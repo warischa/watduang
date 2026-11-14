@@ -1,0 +1,11 @@
+import {registerHooks} from 'node:module';
+const mutations={
+ lobby:['/src/play/prize-draw/lobby-qr.ts','export const QR_PAD = 4;','export const QR_PAD = 1;'],
+ qr:['/src/prize-event/qr-event.ts','removed: s.removed','removed: []'],
+ event:['/src/prize-event/store.ts','if (now.raw !== expected) {','if (now.raw !== expected && !/^[0-9]{6}$/.test(next.eventKey)) {'],
+ setup:['/src/prize-event/setup-page.ts','return fail(QR_PENDING[a.kind]);','return fail(QR_PENDING.bad);'],
+ sink:['/src/play/_prize-reveal/names-dom.ts','target.textContent = name;','target.innerHTML = name;'],
+};
+const m=mutations[process.env.PROBE_MUTATION]; let applied=false;
+registerHooks({load(url,context,nextLoad){const r=nextLoad(url,context);if(!url.endsWith(m[0]))return r;const source=String(r.source);if(!source.includes(m[1]))throw new Error('Mutation target missing');applied=true;return {...r,source:source.replace(m[1],m[2])};}});
+process.on('exit',()=>{if(!applied){process.stderr.write('Mutation was not applied\n');process.exitCode=2;}});

@@ -1,0 +1,65 @@
+import assert from 'node:assert/strict';
+import {page,opened,fakeServer,member,idOf} from './setup-harness.mjs';
+import {ADMIN_KEY, LOBBY_KEY} from '<repo>/src/prize-event/qr-event.ts';
+import {fakeOrigin, mount, storedEvent, stageDeps, tick} from '<repo>/src/play/prize-draw/stage-harness.mjs';
+import {mountStage} from '<repo>/src/play/prize-draw/stage.ts';
+import {makeDoc} from '<repo>/src/prize-event/fake-dom.mjs';
+import {createEvent,encodeEvent} from '<repo>/src/prize-event/event.ts';
+const flush=()=>new Promise(r=>setImmediate(r));
+const admin=p=>p.$('pd-mode').querySelectorAll('button').find(b=>b.getAttribute('data-mode')==='admin').click();
+{
+ const p=await opened(Array.from({length:9},(_,i)=>member(i+1)));
+ p.server.list=p.server.list.slice(0,8); p.submit(); await p.idle();
+ assert.equal(p.server.state,'started'); assert.equal(p.stored(),null); assert.equal(p.polls().length,0);
+ p.$('pd-qr-open').click(); await p.idle(); assert.equal(p.server.created,1); p.submit(); await p.idle(); assert.equal(p.stored(),null);
+ console.log('CONFIRMED minimum race: server froze 8; local event absent; no poll; open cannot recreate');
+}
+{
+ const p=await opened(Array.from({length:12},(_,i)=>member(i+1)));
+ let resolve; const old=p.server.fetch;
+ // qrApi captured the original fetch; use its override body getter to defer JSON via a mutable names array instead.
+ const srv=fakeServer(Array.from({length:12},(_,i)=>member(i+1))); const initial=srv.fetch; let held=false;
+ srv.fetch=async(u,init)=>{
+  if(held && u.endsWith('/names')) return new Promise(r=>{resolve=r;});
+  return initial(u,init);
+ };
+ const q=page({server:srv}); q.qrMode(); q.$('pd-qr-open').click(); await q.idle();
+ held=true; const pending=q.tick(); await flush(); assert.ok(resolve);
+ admin(q); q.$('pd-names').value=Array.from({length:20},(_,i)=>`N${i}`).join('\n'); q.$('pd-names').dispatch('input');
+ q.$('pd-s1').value='17'; q.$('pd-s1').dispatch('input');
+ resolve({status:200,json:async()=>({state:'open',names:srv.list})}); await pending; await q.idle();
+ console.log('Delayed poll after mode switch completes without a replacement timer');
+}
+{
+ const origin=fakeOrigin();
+ const a=await opened(Array.from({length:12},(_,i)=>member(i+1)),{origin});
+ const b=page({server:a.server,origin}); await b.idle();
+ a.submit(); await a.idle(); assert.equal(a.kv()[LOBBY_KEY],undefined);
+ await b.tick(); assert.ok(b.kv()[LOBBY_KEY]);
+ console.log('CONFIRMED stale setup tab resurrects lobby after start; local event PIN matches but projector is blocked');
+}
+{
+ const rng={float:()=>0.3,int:n=>Math.floor(n*0.3),hex:n=>Array.from({length:n*2},(_,i)=>(i%16).toString(16)).join('')};
+ let seq=0; rng.hex=n=>(seq++).toString(16).padStart(n*2,'0');
+ const event=createEvent({eventName:'Old',names:Array.from({length:20},(_,i)=>`P${i}`),schedule:[20,15,10,7,5],prizes:['TV']},rng);
+ let puts=0; const store={load:async()=>({raw:encodeEvent(event),state:event}),put:async()=>{puts++;return {ok:false,reason:'failed'};},subscribe:()=>()=>{},status:()=> 'open',onSuperseded:()=>{},takeOver:async()=>false};
+ const doc=makeDoc(),root=doc.createElement('div'),live=doc.createElement('p');doc.body.append(root,live);
+ let lobby=null; let notify; const frames=[];
+ const stage=mountStage({doc,root,live,rng,...stageDeps({}),store:Promise.resolve(store),reducedMotion:true,nextFrame:cb=>frames.push(cb),lobby:{read:()=>lobby,subscribe:fn=>{notify=fn;return()=>{};}},loadQr:async()=>({drawJoinQr:()=>{}}),joinOrigin:'https://example.com'});
+ await stage.ready; while(frames.length)frames.shift()(); tick(1000);
+ const notice=root.querySelector('.pd-notice'); notice.hidden=false;
+ lobby={eventId:'A'.repeat(22),pin:'048213',eventName:'New',joined:12,expiresAt:'2999-01-01T00:00:00Z'};notify();await flush();
+ assert.equal(root.querySelector('#pd-frame').getAttribute('data-screen'),'lobby');assert.equal(root.querySelector('.pd-mc').querySelectorAll('button').length,0);
+ notice.querySelector('button').dispatch('click'); while(frames.length)frames.shift()(); tick(1000);
+ assert.equal(root.querySelector('#pd-frame').getAttribute('data-screen'),'lobby');assert.equal(root.querySelector('.pd-mc').querySelectorAll('button').length,1);
+ console.log('CONFIRMED constructed open-notice state: closing notice over new lobby restores previous event MC control');
+}
+
+{
+ const srv=fakeServer([]);const original=srv.fetch;let resolve;
+ srv.fetch=async(u,init)=>u==='/api/draw/events'?new Promise(r=>{resolve=()=>original(u,init).then(r);}):original(u,init);
+ const p=page({server:srv});p.qrMode();p.$('pd-qr-open').click();admin(p);
+ p.$('pd-names').value=Array.from({length:9},(_,i)=>`N${i}`).join('\n');p.$('pd-names').dispatch('input');p.submit();await p.idle();assert.ok(p.stored());assert.equal(p.kv()[LOBBY_KEY],undefined);
+ await resolve();await p.idle();assert.ok(p.kv()[LOBBY_KEY]);assert.equal(p.polls().length,0);
+ console.log('CONFIRMED late create after admin start installs an empty lobby over the committed admin event');
+}

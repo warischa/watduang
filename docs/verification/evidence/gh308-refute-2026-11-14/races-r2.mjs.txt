@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import {page,opened,fakeServer,member} from './setup-harness-r2.mjs';
+import {fakeOrigin} from '<repo>/src/prize-event/fake-idb.mjs';
+import {ADMIN_KEY,LOBBY_KEY} from '<repo>/src/prize-event/qr-event.ts';
+const names=Array.from({length:20},(_,i)=>member(i+1));
+{
+ const origin=fakeOrigin();const a=await opened(names,{origin});let confirms=0;
+ const b=page({origin,server:a.server,confirm:()=>{confirms++;return true;}});await b.idle();
+ a.$('pd-event').value='Tab A';b.$('pd-event').value='Tab B';
+ a.submit();b.submit();await a.idle();await b.idle();
+ console.log('concurrent starts',JSON.stringify({name:b.stored()?.setup.eventName,confirms,visitsA:a.visits,visitsB:b.visits,writes:origin.log.map(x=>x.key)}));
+}
+{
+ const p=page({server:fakeServer(names)});let phone=false;
+ p.win.matchMedia=()=>({matches:phone});p.qrMode();p.$('pd-qr-open').click();await p.idle();
+ assert.equal(p.$('pd-qr-more').textContent,'เลื่อนดูอีก 5 ชื่อ');
+ phone=true;p.resize();assert.equal(p.$('pd-qr-more').textContent,'เลื่อนดูอีก 5 ชื่อ');
+ console.log('viewport before poll',JSON.stringify({actual:p.$('pd-qr-more').textContent,expected:'เลื่อนดูอีก 15 ชื่อ'}));
+ await p.tick();assert.equal(p.$('pd-qr-more').textContent,'เลื่อนดูอีก 15 ชื่อ');
+ p.server.state='started';await p.tick();assert.equal(p.polls().length,0);
+ phone=false;p.resize();assert.equal(p.$('pd-qr-more').textContent,'เลื่อนดูอีก 15 ชื่อ');
+ console.log('viewport after remote start',JSON.stringify({actual:p.$('pd-qr-more').textContent,expected:'เลื่อนดูอีก 5 ชื่อ',polls:p.polls().length}));
+ delete p.win.matchMedia;p.win.innerWidth=375;p.$('pd-qr-heads').dispatch('input');assert.equal(p.$('pd-qr-more').textContent,'เลื่อนดูอีก 5 ชื่อ');
+ console.log('no matchMedia narrow',JSON.stringify({actual:p.$('pd-qr-more').textContent,expected:'เลื่อนดูอีก 15 ชื่อ'}));
+}
+{
+ const srv=fakeServer(names);const real=srv.fetch;let resolve;let hold=false;
+ srv.fetch=(u,i)=>hold&&u.endsWith('/names')?new Promise(r=>{resolve=()=>r(real(u,i));}):real(u,i);
+ const p=await opened(names,{server:srv});hold=true;const pending=p.tick();await new Promise(r=>setImmediate(r));
+ p.setHidden(true);p.setHidden(false);await resolve();await pending;await p.idle();
+ assert.equal(p.polls().length,1);console.log('hidden/visible mid-poll recovers',p.polls().length);
+}

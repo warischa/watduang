@@ -1,0 +1,18 @@
+import {mock} from 'node:test';
+import assert from 'node:assert/strict';
+import {fakeOrigin,mount} from '<repo>/src/play/prize-draw/stage-harness.mjs';
+import {makeDoc} from '<repo>/src/prize-event/fake-dom.mjs';
+import {mountJoin} from '<repo>/src/prize-join/join-page.ts';
+const lobby={eventId:'A'.repeat(22),pin:'048213',eventName:'Party',joined:9,expiresAt:'2999-01-01T00:00:00Z'};
+mock.timers.enable({apis:['setTimeout']});let loads=0,draws=0;
+const s=await mount({origin:fakeOrigin(),lobby:{read:()=>lobby,subscribe:()=>()=>{}},loadQr:async()=>{if(++loads<=2)throw new Error('chunk offline');return{drawJoinQr:()=>draws++};},joinOrigin:'https://watduang.com'});
+await new Promise(r=>setImmediate(r));
+assert.equal(s.frame.getAttribute('data-screen'),'lobby');assert.ok(s.frame.textContent.includes('048213'));assert.ok(!s.frame.textContent.includes(lobby.eventId));
+assert.ok(s.frame.querySelector('.pd-qrcard').hasAttribute('data-pending'));
+mock.timers.tick(1000);await new Promise(r=>setImmediate(r));assert.equal(loads,2);
+mock.timers.tick(2000);await new Promise(r=>setImmediate(r));assert.equal(loads,3);assert.equal(draws,1);assert.ok(!s.frame.querySelector('.pd-qrcard').hasAttribute('data-pending'));
+mock.timers.reset();
+const doc=makeDoc(),root=doc.createElement('div');doc.body.append(root);
+mountJoin(root,{location:{pathname:'/game/prize-draw/join/',search:'',hash:''},history:{replaceState:()=>{}},session:null});
+assert.equal(root.querySelectorAll('input').length,0);
+console.log('R1-5 FIXED in loader double: hidden until successful retry; no PIN-only fallback by accepted policy');

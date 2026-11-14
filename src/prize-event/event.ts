@@ -4,6 +4,11 @@
 // reveal's picture, QR join (gh#308) replaces only where `people` come from, and the phone results
 // (gh#309) read the stored round codes.
 //
+// Identity (ADR-0076). An admin-mode event draws its own hex ids and hex key. A QR-mode event takes the join
+// server's frozen roster as it is, each person under their server join id, and the event's 6-digit PIN as
+// the key: a phone holds exactly those two, so its own result from the round codes is the projector's. The
+// decoder accepts each pair and nothing looser, never one shape mixed with the other.
+//
 // The state machine. One event is a fixed walk: rounds 1-4, then the final. Each step goes
 //   ready -> drawn -> revealed
 // and only `ready` may draw. A draw is committed to the store (store.ts) BEFORE anything of it is shown
@@ -33,6 +38,8 @@
 
 import { ELIMINATION_ROUNDS, FINAL_SIZE } from '../prize-draw/schedule.ts';
 import { canonicalIdentity, hostCutRound, parseCode, type ParsedCode } from '../prize-draw/round-code.ts';
+import { ID as SERVER_ID } from '../prize-join/join.ts';
+import { PIN as EVENT_PIN } from './qr-event.ts';
 import { hostDealRound, pairFor, phoneCard, satisfies } from '../prize-draw/cards.ts';
 import { isCleanName, nameKey, parseRoster, type NameIssue } from './names.ts';
 import {
@@ -62,6 +69,9 @@ export const MAX_PRIZES = 5;
  *  names its cross-tab channel after it; nothing writes it any more. One stored event per browser. */
 export const STORAGE_KEY = 'watduang:prize-draw:event';
 const VERSION = 2;
+/** An admin-mode event's own ids and key, as createEvent draws them (rng.hex(8)). */
+const LOCAL_ID = /^[0-9a-f]{16}$/;
+const LOCAL_KEY = /^[0-9a-f]{16,}$/;
 /** The gh#304 payload: no games. Still read (decodeEvent), never written. */
 const V1 = 1;
 
@@ -111,6 +121,12 @@ export type EventInput = {
   prizes: string[];
   /** The MC's game picks; absent means every step reveals in plain 2D (NO_GAMES). */
   games?: GameChoices;
+  /**
+   * QR mode (gh#308, ADR-0076 Identity): the roster the join server froze, each person under their server
+   * join id, and the event's PIN as the event key. A phone holds exactly those two, so its own result from
+   * the round codes is the projector's. `names` must be the roster's names, in its order.
+   */
+  qr?: { pin: string; roster: Person[] };
 };
 
 export type ScheduleIssue = { index: number; kind: 'locked' | 'not-integer' | 'not-less' };
@@ -121,7 +137,8 @@ export type SetupIssue =
   | { kind: 'name-duplicate'; name: string }
   | { kind: 'schedule'; issue: ScheduleIssue }
   | { kind: 'games' }
-  | { kind: 'cards-not-half'; round: number };
+  | { kind: 'cards-not-half'; round: number }
+  | { kind: 'qr' };
 
 // ---- validation
 
@@ -160,6 +177,7 @@ export function setupIssues(input: EventInput): SetupIssue[] {
   if (input.prizes.length < MIN_PRIZES || input.prizes.length > MAX_PRIZES) {
     issues.push({ kind: 'prize-count', count: input.prizes.length });
   }
+  if (input.qr !== undefined && !isServerRoster(input.qr, input.names)) issues.push({ kind: 'qr' });
   if (input.games !== undefined && !isGameChoices(input.games)) issues.push({ kind: 'games' });
   else if (input.games !== undefined) {
     input.games.rounds.forEach((g, i) => {
@@ -167,6 +185,22 @@ export function setupIssues(input: EventInput): SetupIssue[] {
     });
   }
   return issues;
+}
+
+/** A frozen QR roster as the join server issues one: the 6-digit PIN, unique server join ids, every name
+ *  exactly as the event's name rule stores it, and `names` its names in its order. */
+function isServerRoster(qr: unknown, names: readonly string[]): boolean {
+  if (!qr || typeof qr !== 'object') return false;
+  const { pin, roster } = qr as Record<string, unknown>;
+  if (!isStr(pin) || !EVENT_PIN.test(pin) || !isPlainArray(roster) || roster.length !== names.length) return false;
+  const ids = new Set<string>();
+  return roster.every((p, i) => {
+    if (!p || typeof p !== 'object') return false;
+    const { id, name } = p as Record<string, unknown>;
+    if (!isStr(id) || !SERVER_ID.test(id) || ids.has(id) || !isCleanName(name) || name !== names[i]) return false;
+    ids.add(id);
+    return true;
+  });
 }
 
 /**
@@ -200,17 +234,20 @@ export function createEvent(input: EventInput, rng: Rng): EventState {
   if (issues.length) throw new RangeError(`event cannot start: ${issues.map((i) => i.kind).join(', ')}`);
   const { names } = parseRoster(input.names.join('\n'));
   const ids = new Set<string>();
-  const people = names.map((name) => {
-    // Opaque, random and never derived from the name, like the id the QR join server issues (gh#300).
-    let id = rng.hex(8);
-    while (ids.has(id)) id = rng.hex(8);
-    ids.add(id);
-    return { id, name };
-  });
+  // QR mode takes the server's ids and PIN as they are; admin mode draws its own.
+  const people = input.qr
+    ? input.qr.roster.map((p) => ({ id: p.id, name: p.name }))
+    : names.map((name) => {
+        // Opaque, random and never derived from the name, like the id the QR join server issues (gh#300).
+        let id = rng.hex(8);
+        while (ids.has(id)) id = rng.hex(8);
+        ids.add(id);
+        return { id, name };
+      });
   const games = input.games ?? NO_GAMES;
   return {
     v: VERSION,
-    eventKey: rng.hex(8),
+    eventKey: input.qr ? input.qr.pin : rng.hex(8),
     setup: {
       eventName: oneLine(input.eventName),
       people,
@@ -494,7 +531,12 @@ function isStoredEvent(v: unknown, version: typeof V1 | typeof VERSION): boolean
   if (!v || typeof v !== 'object') return false;
   const s = v as Record<string, unknown>;
   const v2 = version === VERSION;
-  if (s.v !== version || !isStr(s.eventKey) || !/^[0-9a-f]{16,}$/.test(s.eventKey)) return false;
+  if (s.v !== version || !isStr(s.eventKey)) return false;
+  // Two shapes, never mixed: an admin-mode event's own hex key and ids, or (v2 only, since v1 predates QR
+  // mode) a QR-mode event's 6-digit PIN and server join ids (ADR-0076 Identity).
+  const qrMode = v2 && EVENT_PIN.test(s.eventKey);
+  if (!qrMode && !LOCAL_KEY.test(s.eventKey)) return false;
+  const idShape = qrMode ? SERVER_ID : LOCAL_ID;
   if (s.at !== 'ready' && s.at !== 'drawn' && s.at !== 'revealed') return false;
   const setup = s.setup as Record<string, unknown> | undefined;
   if (!setup || typeof setup !== 'object' || !isStr(setup.eventName)) return false;
@@ -510,7 +552,7 @@ function isStoredEvent(v: unknown, version: typeof V1 | typeof VERSION): boolean
   for (const p of people) {
     if (!p || typeof p !== 'object') return false;
     const { id, name } = p as Record<string, unknown>;
-    if (!isStr(id) || !/^[0-9a-f]{16}$/.test(id) || ids.has(id) || !isCleanName(name) || keys.has(nameKey(name))) return false;
+    if (!isStr(id) || !idShape.test(id) || ids.has(id) || !isCleanName(name) || keys.has(nameKey(name))) return false;
     try {
       canonicalIdentity(id);
     } catch {

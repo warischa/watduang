@@ -5,10 +5,10 @@
 //
 // Design source: direction A POSTER of design/Gh302Setup.dc.html, frames setup-admin and
 // setup-schedule-error (owner pick 2026-11-11, ADR-0033). Every Thai string below is the board's approved
-// copy, verbatim. Two things the board draws are not here yet, both on purpose: the roster-mode toggle
-// (its second option, QR join, is gh#308's, and a toggle offering a mode that does not work would be a
-// dead control), and the QR review list (gh#308). The board draws this page at 1280 only; its narrow
-// layout is this file's and is listed for the owner in the gh#304 evidence README.
+// copy, verbatim. The roster-mode toggle and the QR review list (gh#308) are the same board's frame
+// setup-qr, direction A; the review rows are built by the setup script. The board draws this page at 1280
+// only; its narrow layout is this file's and is listed for the owner in the gh#304 evidence README, and
+// the review list's narrow layout (one column) is listed on gh#308.
 //
 // The game rows in step 3 (gh#305) are design/Gh305GamePick.dc.html item 1a, option A, frames i1-pick
 // (owner pick 2026-11-13); its item 1b option A is the setup script's. The crumb trail, the phone schedule
@@ -64,10 +64,29 @@ const howToJsonLd = {
 
         <section class="step" aria-labelledby="pd-h2">
           <h2 class="step-h" id="pd-h2"><span class="num" aria-hidden="true">2</span>รายชื่อคนในงาน</h2>
-          <p class="hint" id="pd-names-hint">ใส่เฉพาะคนที่มาถึงงานแล้ว ใช้จอใหญ่จอเดียว ไม่ต้องใช้มือถือ</p>
-          <textarea id="pd-names" class="ta" spellcheck="false" autocomplete="off" aria-labelledby="pd-h2" aria-describedby="pd-names-hint pd-names-rule pd-count"></textarea>
-          <div class="count"><span id="pd-names-rule">ชื่อเล่นหรือชื่อจริงก็ได้ บรรทัดละ 1 ชื่อ</span><b id="pd-count">0 ชื่อ</b></div>
-          <div id="pd-names-msg" class="msgs" role="status"></div>
+          <div class="seg mode" role="group" id="pd-mode" aria-labelledby="pd-h2">
+            <button type="button" class="segb" data-mode="admin" aria-pressed="true">พิมพ์รายชื่อเอง</button>
+            <button type="button" class="segb" data-mode="qr" aria-pressed="false">ให้สแกน QR <span class="nw">เข้าร่วม</span></button>
+          </div>
+          <div id="pd-mode-admin">
+            <p class="hint" id="pd-names-hint">ใส่เฉพาะคนที่มาถึงงานแล้ว ใช้จอใหญ่จอเดียว ไม่ต้องใช้มือถือ</p>
+            <textarea id="pd-names" class="ta" spellcheck="false" autocomplete="off" aria-labelledby="pd-h2" aria-describedby="pd-names-hint pd-names-rule pd-count"></textarea>
+            <div class="count"><span id="pd-names-rule">ชื่อเล่นหรือชื่อจริงก็ได้ บรรทัดละ 1 ชื่อ</span><b id="pd-count">0 ชื่อ</b></div>
+            <div id="pd-names-msg" class="msgs" role="status"></div>
+          </div>
+          <div id="pd-mode-qr" hidden>
+            <div class="row2 qr-row">
+              <label class="hint" for="pd-qr-heads">จำนวนคนในงาน</label>
+              <input id="pd-qr-heads" class="field heads" type="number" inputmode="numeric" min="1" step="1" />
+              <button id="pd-qr-open" class="btn2" type="button">เปิดหน้า QR บน<span class="nw">จอใหญ่</span></button>
+            </div>
+            <div id="pd-qr-joined" class="joined"></div>
+            <div class="bar" aria-hidden="true"><i id="pd-qr-fill"></i></div>
+            <p class="hint">ตรวจรายชื่อก่อนเริ่ม ชื่อไหนไม่ใช่คนในงาน กดลบได้ 1 เครื่อง<span class="nw">เข้าร่วม</span>ได้ 1 ชื่อ</p>
+            <div id="pd-qr-list" class="jlist"></div>
+            <p id="pd-qr-more" class="more"></p>
+            <div id="pd-qr-msg" class="msgs" role="status"></div>
+          </div>
         </section>
 
         <section class="step" aria-labelledby="pd-h3">
@@ -384,6 +403,113 @@ const howToJsonLd = {
   .segb[hidden] {
     display: none;
   }
+  /* The roster-mode toggle (setup-qr A): the game rows' segmented buttons, 16px above what follows. */
+  .seg.mode {
+    margin-bottom: 16px;
+  }
+  .nw {
+    white-space: nowrap;
+  }
+  /* QR mode (setup-qr A): the head-count field, the joined line and its bar, the review list. Literal sizes
+     are the board's; colours are the tokens its VALUES row names. The list shows the board's 15 rows (5 of 3)
+     and scrolls past them. Rows, names and buttons are built by the setup script, so they are :global. */
+  .qr-row {
+    margin: 0 0 16px;
+  }
+  .qr-row .hint {
+    margin: 0;
+  }
+  .field.heads {
+    inline-size: 120px;
+  }
+  .joined {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font: 700 40px/1.1 var(--font-display);
+  }
+  .joined :global(.ju) {
+    font: 400 18px/1.4 var(--font-sans);
+    color: var(--color-muted);
+  }
+  .bar {
+    block-size: 14px;
+    margin: 12px 0 16px;
+    border: 2px solid var(--color-line-strong);
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--surface-tile);
+  }
+  .bar i {
+    display: block;
+    block-size: 100%;
+    inline-size: var(--fill, 0%);
+    background: var(--accent-gold);
+  }
+  .jlist {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px 12px;
+    max-block-size: 312px;
+    overflow-y: auto;
+  }
+  .jlist :global(.jrow) {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    block-size: 56px;
+    padding: 0 5px 0 14px;
+    border: 2.5px solid var(--color-line-strong);
+    border-radius: 12px;
+    background: var(--surface-tile);
+    font: 400 18px/1 var(--font-sans);
+  }
+  .jlist :global(.jn) {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  /* Past the board's floor (17px) a name wraps rather than clips (names-dom.ts fitName). */
+  .jlist :global(.jn.nm-wrap) {
+    white-space: normal;
+    line-height: 1.3;
+  }
+  .jlist :global(.jn.nm-wrap .nm) {
+    overflow-wrap: anywhere;
+  }
+  .jlist :global(.del) {
+    box-sizing: border-box;
+    flex: none;
+    block-size: 44px;
+    min-inline-size: 56px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--color-line-strong);
+    border-radius: 10px;
+    background: var(--color-ground-warm);
+    color: var(--color-line-strong);
+    font: 600 16px/1 var(--font-display);
+    cursor: pointer;
+  }
+  .jlist :global(.del:disabled) {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .jlist :global(.del:focus-visible) {
+    outline: 3px solid var(--accent-punch);
+    outline-offset: 2px;
+  }
+  .more {
+    margin: 10px 0 0;
+    font: 400 16px/1.4 var(--font-sans);
+    color: var(--color-muted);
+  }
+  .more:empty {
+    display: none;
+  }
   .stepper {
     display: flex;
     align-items: center;
@@ -559,6 +685,11 @@ const howToJsonLd = {
     .seg {
       flex-direction: column;
       gap: 8px;
+    }
+    /* The review list in one column inside the board's own 312px window, 5 rows in view
+       (design/Gh308Gaps.dc.html gap 2 B, owner pick 2026-11-14); the line under it counts from 5. */
+    .jlist {
+      grid-template-columns: 1fr;
     }
   }
 </style>
