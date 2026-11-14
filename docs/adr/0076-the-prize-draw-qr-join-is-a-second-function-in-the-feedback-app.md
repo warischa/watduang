@@ -1,6 +1,6 @@
 # ADR-0076 — the prize-draw QR join is a second function in the feedback Function App
 
-Date: 2026-11-11 (owner rulings the same day, after REFUTE rounds 1-3) · Status: proposed (built and tested locally; deploy is gh#310) ·
+Date: 2026-11-11 (owner rulings the same day, after REFUTE rounds 1-3) · Status: accepted (deployed 2026-11-14, gh#310) ·
 Extends: [ADR-0074](0074-the-feedback-endpoint-is-a-linked-function-outside-the-build.md) ·
 Relates: [ADR-0075](0075-a-third-category-company-party-games-holds-games-for-an-organiser-and-a-room.md), [ADR-0026](0026-a-set-we-do-not-own-is-guarded-at-authorship.md), gh#299, gh#300, gh#308
 
@@ -56,7 +56,7 @@ Owner rulings 2026-11-11, binding: names capped at 12 characters; one name per d
 
 In this order, each with its verify; storage first, so the code never meets a missing container:
 
-1. **Keep the live package for rollback.** Download it first; under run-from-package it is inferred to sit in `data/SitePackages/` (unverified). Rebuilding from the repo is no rollback: it can drift (ADR-0074).
+1. **Keep the live package for rollback.** Download it first; under run-from-package it sits in `data/SitePackages/` (confirmed 2026-11-14 via Kudu VFS, Azure AD token). Rebuilding from the repo is no rollback: it can drift (ADR-0074).
 2. Create container `prize-draw-join` on `stwatduangfeedback`, anonymous access off.
 3. Grant the app's identity Storage Blob Data Contributor scoped to that container. Verify: the role assignment list shows two scopes, `feedback` and `prize-draw-join`.
 4. Add the lifecycle rule: base blobs in `prize-draw-join/` more than 4 days after last modification. The policy is one document per account: write it with **both** rules. Verify: the policy shows `delete-feedback-after-6-months` unchanged plus the new rule.

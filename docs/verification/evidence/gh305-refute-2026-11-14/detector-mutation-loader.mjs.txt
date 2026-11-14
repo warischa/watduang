@@ -1,0 +1,11 @@
+import {registerHooks} from 'node:module';
+const repo='<local-path>';
+const which=process.env.GATE_MUTATION;
+const cases={
+ band:['scripts/play-top-band-probe.mjs',s=>s.replace('bar: barEls.indexOf(e)','bar: e.closest(BAR_SEL) ? 0 : -1')],
+ webgl:['scripts/webgl-pixels-probe.mjs',s=>s.replace("await send('Emulation.setDeviceMetricsOverride', viewportFor(route));","await send('Emulation.setDeviceMetricsOverride', PHONE_VIEWPORT);")],
+ fit:['scripts/play-screen-fit-probe.mjs',s=>s.replace(/(export default async function \w*\([^)]*\)\s*\{)/, '$1 throw new Error(\"adversary: browser acquisition is broken\");')],
+};
+const [rel,mutate]=cases[which];let loads=0;
+registerHooks({load(url,ctx,next){const out=next(url,ctx);if(decodeURIComponent(new URL(url).pathname)!==`${repo}/${rel}`)return out;const source=mutate(String(out.source));if(source===String(out.source))throw new Error(`mutation did not match ${which}`);loads++;return {...out,source};}});
+process.on('beforeExit',()=>console.log(`DETECTOR_MUTATION ${which}: moduleLoads=${loads}`));

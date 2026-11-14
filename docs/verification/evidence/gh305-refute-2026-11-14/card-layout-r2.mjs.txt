@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {registerHooks} from 'node:module';
+import {execFileSync} from 'node:child_process';
+import {reveal} from '<repo>/src/play/prize-cards/renderer/index.ts';
+import {dealInput,people} from '<repo>/src/play/prize-cards/renderer/fixtures.mjs';
+import {makeDoc} from '<repo>/src/prize-event/fake-dom.mjs';
+const repo='<local-path>';const rel='src/play/prize-cards/renderer/plan.ts';
+registerHooks({load(url,ctx,next){const out=next(url,ctx);if(!url.endsWith('/plan.ts?base=1'))return out;return {...out,source:execFileSync('git',['-C',repo,'show',`5e86156:${rel}`],{encoding:'utf8'})};}});
+const current=await import(`${repo}/${rel}`);const base=await import(`${repo}/${rel}?base=1`);
+for(let n=1;n<=102;n++){const a=current.fieldLayout(n,()=>{throw Error('must not measure');});const b=base.fieldLayout(n);for(const k of['cols','rows','s','cells'])assert.deepEqual(a[k],b[k],`n=${n} ${k}`);}
+for(const n of[2,50,100,102]){const doc=makeDoc();const create=doc.createElement.bind(doc);const ctx=new Proxy({font:'',measureText(t){return{width:[...t].length*Number(/(\d+(?:\.\d+)?)px/.exec(this.font)?.[1]??20)*.55};}},{get(t,k){return k in t?t[k]:()=>{};}});doc.createElement=tag=>{const el=create(tag);if(tag==='canvas')el.getContext=()=>ctx;return el;};const root=create('div');let scene;const renderer={domElement:doc.createElement('canvas'),render(s){scene=s;},setSize(){},setPixelRatio(){}};const abort=new AbortController();const handle=reveal.mount({root,renderer,signal:abort.signal,own:x=>x},{...dealInput(people(n),n/2),viewport:{width:1920,height:1080,dpr:1}},()=>{});let mesh;scene.traverse(o=>{if(o.geometry?.attributes?.aRect)mesh=o;});const r=mesh.geometry.attributes.aRect.array;const l=base.fieldLayout(n);for(let i=0;i<n;i++){const expected=[l.cells[i].cx,l.cells[i].cy,293*l.s,40*l.s];for(let j=0;j<4;j++)assert.ok(Math.abs(r[i*4+j]-expected[j])<1e-3,`n=${n} i=${i} j=${j}`);}handle.dispose();console.log(`renderer rects unchanged at n=${n}`);}
+console.log('RAN base 5e86156 plan: unchanged geometry for all 102 n values; real renderer agrees at 2,50,100,102.');

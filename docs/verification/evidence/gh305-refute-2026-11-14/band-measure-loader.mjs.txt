@@ -1,0 +1,16 @@
+import {registerHooks} from 'node:module';
+const repo='<local-path>';
+const helper=new URL('./band-dom.mjs',import.meta.url).href;
+registerHooks({load(url,ctx,next){const out=next(url,ctx);const file=decodeURIComponent(new URL(url).pathname);
+ if(file===`${repo}/scripts/play-top-band-probe.mjs`)return {...out,source:String(out.source)+'\nexport const adversaryMeasure = MEASURE;\n'};
+ if(file!==`${repo}/scripts/play-top-band-probe.test.mjs`)return out;
+ return {...out,source:String(out.source)+`
+ import {adversaryMeasure} from './play-top-band-probe.mjs';
+ import {readBand} from '${helper}';
+ test('adversary: fixed boxes clipped against overflow ancestor',()=>{
+   for(const [name,options] of [['valid',{}],['fixed-leak',{leak:true,mode:'below'}],['invisible-bar',{opacity:'0'}]]) {
+    const out=cleanRun();const r=rowsOf(out,DEMO,'D1')[0];const reading=readBand(adversaryMeasure,r,options);Object.assign(r,reading);
+    console.log('ADVERSARY_BAND',JSON.stringify({name,hitCount:reading.hitCount,anchoredAbove:reading.anchoredAbove,bars:reading.bars,errors:judge(out)}));
+   }
+ });
+ `};}});

@@ -1,0 +1,12 @@
+import { registerHooks } from 'node:module';
+const repo='<local-path>';
+const target=`${repo}/scripts/play-screen-fit-probe.test.mjs`;
+registerHooks({load(url,ctx,next){const out=next(url,ctx);if(decodeURIComponent(new URL(url).pathname)!==target)return out;return {...out,source:out.source+`
+ test('adversary: a granted phone row is CLIPPED rather than scrollable',()=>{
+   for(const key of DEMO_PHONE_PX.keys()) {
+     const sample={...pdScreen({overflowPx:3429,scrollPx:0}),clippedPx:3429};
+     const result=runMainOn(key,sample);
+     console.log('ADVERSARY_CLIPPED',JSON.stringify({key,sample,result}));
+   }
+ });
+`};}});

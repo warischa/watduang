@@ -1,0 +1,41 @@
+# Read-only review evidence
+
+All commands below RAN with cwd `<local-path> No repository file was changed. Mutations were applied in memory by the scratch import hook. Each mutation matched its target source.
+
+- host: original 87 passed; mutant 87 passed; zero failures in both.
+  - Original RAN: `node --test <repo>/src/play/_prize-reveal/game-host.test.mjs`
+  - Mutation RAN: `ADVERSARY_CASE=host node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/play/_prize-reveal/game-host.test.mjs`
+  - Mutation: Only exit for width changes when !doc.hidden; hidden-tab narrowing is ignored. Observed moduleLoads=1. A zero module-load count proves that the test never exercises that renderer.
+- demo: original 10 passed; mutant 10 passed; zero failures in both.
+  - Original RAN: `node --test <repo>/src/play/_prize-reveal/demo.test.mjs`
+  - Mutation RAN: `ADVERSARY_CASE=demo node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/play/_prize-reveal/demo.test.mjs`
+  - Mutation: Append .pr-viewport { display: none !important; } to demo.css. Observed fileReads=1. A zero module-load count proves that the test never exercises that renderer.
+- cards: original 15 passed; mutant 15 passed; zero failures in both.
+  - Original RAN: `node --test <repo>/src/play/prize-cards/renderer/plan.test.mjs`
+  - Mutation RAN: `ADVERSARY_CASE=cards node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/play/prize-cards/renderer/plan.test.mjs`
+  - Mutation: Change renderer fieldLayout(n, linesAt) to fieldLayout(n), dropping measured row growth. Observed moduleLoads=0. A zero module-load count proves that the test never exercises that renderer.
+- frames: original 9 passed; mutant 9 passed; zero failures in both.
+  - Original RAN: `node --test <repo>/src/play/prize-draw/frames.test.mjs`
+  - Mutation RAN: `ADVERSARY_CASE=frames node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/play/prize-draw/frames.test.mjs`
+  - Mutation: Change the breakpoint resize branch from fitFrameNames() to fitAll(frame), losing floor restoration. Observed moduleLoads=1. A zero module-load count proves that the test never exercises that renderer.
+- ladder: original 7 passed; mutant 7 passed; zero failures in both.
+  - Original RAN: `node --test <repo>/src/play/prize-ladder/renderer/plan.test.mjs`
+  - Mutation RAN: `ADVERSARY_CASE=ladder node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/play/prize-ladder/renderer/plan.test.mjs`
+  - Mutation: Replace renderer TRACK.lane uses with the previous literal #5e5c7b. Observed moduleLoads=0. A zero module-load count proves that the test never exercises that renderer.
+- setup: original 35 passed; mutant 35 passed; zero failures in both.
+  - Original RAN: `node --test <repo>/src/prize-event/setup-page.test.mjs`
+  - Mutation RAN: `ADVERSARY_CASE=setup node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/prize-event/setup-page.test.mjs`
+  - Mutation: Append a winning .segb:disabled { background: red !important; } rule inside the Astro style. Observed fileReads=1. A zero module-load count proves that the test never exercises that renderer.
+- join: original 28 passed; mutant 28 passed; zero failures in both.
+  - Original RAN: `node --test <repo>/src/prize-join/join-page.test.mjs`
+  - Mutation RAN: `ADVERSARY_CASE=join node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/prize-join/join-page.test.mjs`
+  - Mutation: Append a winning disabled-button opacity: 1 !important rule inside the Astro style. Observed fileReads=1. A zero module-load count proves that the test never exercises that renderer.
+
+CSS probe RAN: `node <judge-scratch>/breakpoint-probe.mjs`. It parses working-tree CSS and `git show HEAD:src/play/_prize-reveal/demo.css` with PostCSS. At 639.5px the working bar has no position declaration and the stagebox is absolute with inset: 0; HEAD keeps the absolute bar position and its bottom inset. At 639px and 640px the working bar has its intended static/fixed positioning. This is a declaration/cascade probe, not a browser hit-test.
+
+Renderer probe RAN: `node <judge-scratch>/renderer-probe.mjs`. The actual cards renderer mounted using its fixture deal and a synthetic canvas measurer. It emitted all 200 aRect instances with dense card dimensions. This does not validate actual Sarabun glyph bounds or real WebGL output.
+
+Browser probe attempted: `node code-probe.mjs` from scratch. Chrome aborted on launch under the sandbox; visual hit testing and font metrics were NOT RUN. FontTools was unavailable; no font packages were installed.
+
+Read budget: six repository slices, each 150 lines: cards renderer/index.ts:430; cards renderer/paint.ts:1; fireworks renderer/text-fit.ts:1; reveal/names-dom.ts:1; shell/PlayExit.astro:1; prize-event/names.ts:1. Full supplied a2.diff reviewed. No owner HTML frames were opened under this budget. No git diff, git commit, git push, repository edits, or delegation.
+

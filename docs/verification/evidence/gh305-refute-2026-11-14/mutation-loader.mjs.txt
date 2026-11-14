@@ -1,0 +1,37 @@
+import fs from 'node:fs';
+import { registerHooks, syncBuiltinESMExports } from 'node:module';
+const repo = '<local-path>';
+const cases = {
+  host: ['src/play/_prize-reveal/game-host.ts', s => s.replace("if (e.matches) exit('fallback', 'narrow');", "if (e.matches && !doc.hidden) exit('fallback', 'narrow');")],
+  demo: ['src/play/_prize-reveal/demo.css', s => s + '\n.pr-viewport { display: none !important; }\n'],
+  cards: ['src/play/prize-cards/renderer/index.ts', s => s.replace('fieldLayout(n, linesAt)', 'fieldLayout(n)')],
+  frames: ['src/play/prize-draw/stage.ts', s => s.replace('if (narrow !== null && now !== narrow) fitFrameNames();', 'if (narrow !== null && now !== narrow) fitAll(frame);')],
+  ladder: ['src/play/prize-ladder/renderer/index.ts', s => s.replace(/TRACK\.lane\b/g, "'#5e5c7b'")],
+  setup: ['src/pages/game/prize-draw/index.astro', s => s.replace('</style>', '.segb:disabled { background: red !important; }\n</style>')],
+  join: ['src/pages/game/prize-draw/join.astro', s => s.replace('</style>', '.pj :global(.pj-btn:disabled) { opacity: 1 !important; }\n</style>')],
+};
+const name = process.env.ADVERSARY_CASE;
+const [rel, mutate] = cases[name];
+const target = `${repo}/${rel}`;
+const original = fs.readFileSync(target, 'utf8');
+const mutant = mutate(original);
+if (original === mutant) throw new Error(`mutation did not match ${name}`);
+let loads = 0;
+let reads = 0;
+const read = fs.readFileSync;
+fs.readFileSync = function(file, options) {
+  const p = file instanceof URL ? decodeURIComponent(file.pathname) : String(file);
+  if (p === target) {
+    reads++;
+    return typeof options === 'string' || options?.encoding ? mutant : Buffer.from(mutant);
+  }
+  return read.apply(this, arguments);
+};
+syncBuiltinESMExports();
+registerHooks({load(url, context, next) {
+  const result = next(url, context);
+  if (decodeURIComponent(new URL(url).pathname) !== target) return result;
+  loads++;
+  return {...result, source: mutant};
+}});
+process.on('beforeExit', () => console.log(`MUTATION ${name}: matched=true moduleLoads=${loads} fileReads=${reads}`));

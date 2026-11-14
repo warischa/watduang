@@ -1,0 +1,7 @@
+import {registerHooks} from 'node:module';
+import {execFileSync} from 'node:child_process';
+const repo='<local-path>';
+const rel=process.env.BASE_REL;
+let loaded=0;
+registerHooks({load(url,ctx,next){const out=next(url,ctx);if(decodeURIComponent(new URL(url).pathname)!==`${repo}/${rel}`)return out;loaded++;return {...out,source:execFileSync('git',['-C',repo,'show',`5e86156:${rel}`],{encoding:'utf8'})};}});
+process.on('beforeExit',()=>console.log(`BASE RAN ${rel}: moduleLoads=${loaded}`));

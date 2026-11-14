@@ -1,0 +1,9 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+const repo='<local-path>';
+const require=createRequire(`${repo}/package.json`);const postcss=require('postcss');
+const css=postcss.parse(readFileSync(`${repo}/src/play/_prize-reveal/demo.css`,'utf8'));
+function matches(q,w){const m=/^(not all and )?\(min-width:\s*(\d+)px\)$/.exec(q);assert.ok(m,q);return m[1]?w<+m[2]:w>=+m[2];}
+const queries=[];css.walkAtRules('media',r=>queries.push(r.params));
+for(const w of[320,639,639.5,639.99,640,641,1920]){const count=queries.filter(q=>matches(q,w)).length;assert.equal(count,1);console.log({width:w,matchingRules:count});}

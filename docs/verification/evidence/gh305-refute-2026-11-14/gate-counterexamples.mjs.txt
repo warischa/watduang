@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {writeFileSync} from 'node:fs';
+const repo='<local-path>';const scratch=import.meta.dirname;
+const evidence=[];
+for(const kind of['fit','band'])for(const base of[false,true]){
+ const stem=kind==='fit'?'play-screen-fit':'play-top-band';
+ const loader=kind==='fit'?'detector-fixture-probe.mjs':'band-measure-loader.mjs';
+ const args=[...(base?['--import',`${scratch}/base-loader.mjs`]:[]),'--import',`${scratch}/${loader}`,'--test','--test-name-pattern=adversary:',`${repo}/scripts/${stem}-probe.test.mjs`];
+ const stdout=execFileSync('node',args,{cwd:repo,env:{...process.env,BASE_REL:`scripts/${stem}-probe.mjs`},encoding:'utf8'});
+ writeFileSync(`${scratch}/${kind}-counterexample-${base?'base':'current'}.log`,stdout);
+ const prefix=kind==='fit'?'# ADVERSARY_CLIPPED ':'# ADVERSARY_BAND ';
+ const rows=stdout.split('\n').filter(l=>l.startsWith(prefix)).map(l=>JSON.parse(l.slice(prefix.length).replaceAll('\\#','#')));
+ evidence.push({kind,base,command:`node ${args.join(' ')}`,rows});
+ if(kind==='fit'){assert.equal(rows.length,4);for(const row of rows)assert.equal(row.result.exitCode,base?1:null);}
+ else{const leak=rows.find(r=>r.name==='fixed-leak');assert.deepEqual(leak.errors,[]);assert.equal(leak.hitCount,0);}
+ console.log(`${base?'5e86156':'current'} ${kind}: ${rows.map(r=>`${r.key??r.name}=${kind==='fit'?r.result.exitCode===1?'REJECT':'ACCEPT':r.errors.length?'REJECT':'ACCEPT'}`).join(', ')}`);
+}
+writeFileSync(`${scratch}/gate-counterexamples.json`,JSON.stringify(evidence,null,2)+'\n');
+console.log('RAN: actual gate entrypoints on synthetic measurement records; actual band MEASURE on controlled DOM geometry, not Chrome.');

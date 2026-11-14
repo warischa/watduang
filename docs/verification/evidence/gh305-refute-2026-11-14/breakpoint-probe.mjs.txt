@@ -1,0 +1,35 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
+const repo='<local-path>';
+const require=createRequire(`${repo}/package.json`);
+const postcss=require('postcss');
+const rel='src/play/_prize-reveal/demo.css';
+const current=readFileSync(`${repo}/${rel}`,'utf8');
+const base=execFileSync('git',['-C',repo,'show',`HEAD:${rel}`],{encoding:'utf8'});
+function matches(query,width){
+  const m=/\((min|max)-width:\s*(\d+(?:\.\d+)?)px\)/.exec(query);
+  if(!m)throw new Error(`unhandled query ${query}`);
+  return m[1]==='min'?width>=Number(m[2]):width<=Number(m[2]);
+}
+function declarations(css,selector,width){
+  const out={};
+  postcss.parse(css).walkRules(rule=>{
+    if(!rule.selector.split(',').map(x=>x.trim()).includes(selector))return;
+    for(let p=rule.parent;p;p=p.parent)if(p.type==='atrule'&&p.name==='media'&&!matches(p.params,width))return;
+    rule.walkDecls(d=>out[d.prop]=d.value);
+  });
+  return out;
+}
+for(const width of [639,639.5,640]){
+  const now=declarations(current,'.pr-bar',width);
+  const before=declarations(base,'.pr-bar',width);
+  console.log(JSON.stringify({width,working:now,HEAD:before,stagebox:declarations(current,'.pr-stagebox',width)}));
+}
+assert.equal(declarations(base,'.pr-bar',639.5).position,'absolute');
+assert.equal(declarations(current,'.pr-bar',639.5).position,undefined);
+assert.equal(declarations(current,'.pr-stagebox',639.5).position,'absolute');
+assert.equal(declarations(current,'.pr-bar',639).position,'static');
+assert.equal(declarations(current,'.pr-bar',640).position,'fixed');
+console.log('CONFIRMED declared-style regression at 639.5px; visual hit testing NOT RUN.');

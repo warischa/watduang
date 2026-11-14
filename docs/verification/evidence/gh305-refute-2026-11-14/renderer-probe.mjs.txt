@@ -1,0 +1,23 @@
+import { reveal } from '<repo>/src/play/prize-cards/renderer/index.ts';
+import { dealInput, people } from '<repo>/src/play/prize-cards/renderer/fixtures.mjs';
+import { makeDoc } from '<repo>/src/prize-event/fake-dom.mjs';
+const doc = makeDoc();
+const create = doc.createElement.bind(doc);
+const ctx = new Proxy({ font:'', measureText(text) {const size=Number(/(\d+(?:\.\d+)?)px/.exec(this.font)?.[1] ?? 20);return {width:[...text].length*size*0.55};}}, { get(t,k){if(k in t)return t[k];return ()=>{};} });
+doc.createElement = tag => {const el=create(tag);if(tag==='canvas'){el.getContext=()=>ctx;}return el;};
+const root=create('div');
+let scene;
+const renderer = {domElement:doc.createElement('canvas'),render(s){scene=s;},setSize(){},setPixelRatio(){}};
+const input=dealInput(people(200),100);
+const viewport={width:1920,height:1080,dpr:1};
+console.log('host keys',Object.keys(input.host));
+try {
+  const handle=reveal.mount({root,renderer,signal:new AbortController().signal,own:x=>x}, {...input,viewport}, ()=>{});
+  const meshes=[];scene.traverse(o=>{if(o.material?.fragmentShader) meshes.push(o);});
+  console.log('shader meshes',meshes.map(m=>({name:m.name,attributes:Object.keys(m.geometry.attributes)})));
+  const cards=meshes.find(m=>m.geometry.attributes.aRect);
+  const shader=cards.material.fragmentShader;
+  console.log('shader fixed widths', {hasFixedDown:shader.includes('277.0'), hasVariableUp:shader.includes('vHalf.x * 2.0 -')});
+  console.log('card rects',Array.from(cards.geometry.attributes.aRect.array.slice(0,12)));
+  handle.dispose();
+} catch(e){console.log(e.stack);process.exitCode=1;}

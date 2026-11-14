@@ -1,0 +1,32 @@
+import { chromium } from '<local-path>';
+import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+const repo = '<local-path>';
+const current = readFileSync(`${repo}/src/play/_prize-reveal/demo.css`, 'utf8');
+const base = execFileSync('git', ['-C', repo, 'show', 'HEAD:src/play/_prize-reveal/demo.css'], { encoding: 'utf8' });
+const browser = await chromium.launch({ channel: 'chrome', headless: true });
+try {
+  const page = await browser.newPage({ viewport: { width: 1100, height: 1000 } });
+  for (const [version, css] of [['working', current], ['HEAD', base]]) {
+    for (const width of [639, 639.5, 640]) {
+      const stage = '<div class="pd-scaled"><div class="pd-frame">Frame</div></div>';
+      const html = `<style>:root{--play-band:56px}*{box-sizing:border-box}body{margin:0}.pd-scaled{position:absolute;inset:0}.pd-frame{width:100%;height:100%;background:#23214d}${css}</style><div class="pr-viewport">${version === 'working' ? `<div class="pr-stagebox">${stage}</div>` : stage}<div class="pr-3d"></div><div class="pr-bar"><p class="pr-badge">Demo</p><button class="pr-go">Reveal</button></div></div>`;
+      await page.setContent('<iframe style="border:0;height:800px"></iframe>');
+      const iframe = page.locator('iframe');
+      await iframe.evaluate((e, {width, html}) => {e.style.width = `${width}px`;e.srcdoc = html;}, {width, html});
+      const frame = await iframe.elementHandle().then(e => e.contentFrame());
+      await frame.waitForSelector('.pr-go');
+      console.log(JSON.stringify(await frame.evaluate(({version,width}) => {
+        const b=document.querySelector('.pr-go');const r=b.getBoundingClientRect();
+        const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+        return {version,width,wide:matchMedia('(min-width:640px)').matches,phone:matchMedia('(max-width:639px)').matches,position:getComputedStyle(document.querySelector('.pr-bar')).position,button:{x:r.x,y:r.y,w:r.width,h:r.height},hit:hit?.className,reachable:hit===b||b.contains(hit)};
+      }, {version,width})));
+    }
+  }
+  const font = readFileSync(`${repo}/public/fonts/sarabun-regular-subset.woff2`).toString('base64');
+  console.log(JSON.stringify(await page.evaluate(async font => {
+    const f=new FontFace('Sarabun',`url(data:font/woff2;base64,${font})`);await f.load();document.fonts.add(f);
+    const ctx=document.createElement('canvas').getContext('2d');ctx.font='400 16px Sarabun';ctx.textBaseline='middle';
+    return {fontMetrics:['ฒำ','กิ่','WWW','ฒำ'.repeat(12)].map(name=>{const m=ctx.measureText(name);return {name,width:m.width,ascent:m.actualBoundingBoxAscent,descent:m.actualBoundingBoxDescent}})};
+  },font)));
+} finally { await browser.close(); }

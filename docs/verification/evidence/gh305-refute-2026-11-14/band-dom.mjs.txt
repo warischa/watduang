@@ -1,0 +1,28 @@
+import vm from 'node:vm';
+export function readBand(source, sample, { leak = false, opacity = '1', mode = 'band' } = {}) {
+ const defaults={position:'static',top:'auto',bottom:'auto',left:'auto',right:'auto',display:'block',visibility:'visible',opacity:'1',transform:'none',translate:'none',rotate:'none',scale:'none',filter:'none',perspective:'none',contain:'none',overflowX:'visible',overflowY:'visible',clipPath:'none',zoom:'1',paddingTop:'0px',content:'none'};
+ class E {
+  constructor(tag,id,cls,rect,style={}){this.nodeType=1;this.tagName=tag.toUpperCase();this.id=id;this.classList=cls.split(' ').filter(Boolean);this.children=[];this.parentElement=null;this.hidden=false;this.disabled=false;this.textContent='';this.attrs={};this.style={};this.css={...defaults,...style};this.rect={...rect,width:rect.right-rect.left,height:rect.bottom-rect.top};this.clientWidth=this.rect.width;this.clientHeight=this.rect.height;}
+  append(...els){for(const el of els){el.parentElement=this;this.children.push(el);}}
+  getBoundingClientRect(){return this.rect;}
+  getAttribute(k){return this.attrs[k]??null;}
+  contains(e){return e===this||this.children.some(c=>c.contains(e));}
+  matches(s){return s==='*'||(s.startsWith('.')?this.classList.includes(s.slice(1)):s.startsWith('#')?this.id===s.slice(1):this.tagName.toLowerCase()===s);}
+  querySelectorAll(s){return this.children.flatMap(c=>[...(c.matches(s)?[c]:[]),...c.querySelectorAll(s)]);}
+  closest(s){for(let e=this;e;e=e.parentElement)if(e.matches(s))return e;return null;}
+ }
+ const rect=(l,t,r,b)=>({left:l,top:t,right:r,bottom:b});
+ const html=new E('html','','',rect(0,0,1280,800));const body=new E('body','','',rect(0,56,1280,800),{paddingTop:'56px'});html.append(body);
+ const band=new E('div','play-band','',rect(0,0,1280,56),{position:'fixed',top:'0px',backgroundColor:sample.band.ground});
+ const exit=new E('button','play-exit','',rect(sample.exit.l,sample.exit.t,sample.exit.r,sample.exit.b),{position:'fixed',top:'6px'});
+ const edit=new E('button','play-edit-players','',rect(sample.edit.l,sample.edit.t,sample.edit.r,sample.edit.b),{position:'fixed',top:'6px'});
+ const app=new E('div','app','',rect(0,56,1280,800));const vp=new E('div','','pr-viewport',rect(0,56,1280,800),{position:'fixed',top:'56px',overflowX:'hidden',overflowY:'hidden'});vp.attrs['data-bar']=mode;
+ const barBox=mode==='band'?rect(1000,2,1256,54):rect(0,400,1280,452);
+ const bar=new E('div','','pr-bar',barBox,{position:mode==='band'?'fixed':'static',top:mode==='band'?'2px':'auto',display:'flex',opacity});
+ const button=new E('button','','pr-go',mode==='band'?rect(1100,2,1256,54):rect(100,400,256,452));bar.append(button);vp.append(bar);app.append(vp);body.append(band,exit,edit,app);
+ if(leak)vp.append(new E('div','','route-leak',rect(100,2,200,54),{position:'fixed',bottom:'746px'}));
+ const all=()=>[html,body,...body.querySelectorAll('*')];
+ const document={documentElement:html,body,getElementById:id=>all().find(e=>e.id===id)??null,querySelectorAll:s=>all().filter(e=>e.matches(s)),createTreeWalker:()=>({nextNode:()=>null})};
+ const getComputedStyle=(e,pseudo)=>pseudo?{...defaults,content:'none'}:e.css;
+ return vm.runInNewContext(`(function(){${source}})()`,{document,innerWidth:1280,innerHeight:800,getComputedStyle,NodeFilter:{SHOW_TEXT:4}});
+}

@@ -1,0 +1,66 @@
+# Round 2 read-only review evidence
+
+Workspace HEAD confirmed: 5e86156a487f152302ffa433cca961844ad07301. No repository edits, git diff, git writes, browser control fallback, or sub-agents.
+
+## Confirmed gate regression
+
+RAN `node gate-counterexamples.mjs` from this scratch directory. It launches each single test file by absolute path, with cwd set to the repository. Current and base 5e86156 production modules are loaded in memory. The fit cases call the production `main()` through the existing test harness. The band cases execute the real MEASURE JavaScript on controlled DOM geometry, then the production judge. They do not render CSS. Raw outputs: fit-counterexample-{base,current}.log and band-counterexample-{base,current}.log; parsed inputs and outputs: gate-counterexamples.json.
+
+- Four newly exempted phone rows: round screen, overflowPx=3429, clippedPx=3429, scrollPx=0, sideways=0. Current accepts each; base rejects each. This represents inaccessible vertical clipping, not the owner-authorized scrolling. Fix: retain a clippedPx guard independent of the row scroll exemption.
+- Overflow-ancestor hole: a fixed unrelated box at y=2..54 under an overflow:hidden viewport starting at y=56, top:auto/bottom:746px. Both actual base and current readers report no hit or anchor; both judges accept. This is pre-existing. The bar union checks its descendants independently of the clip loop; no enlargement was shown by this case.
+
+## Focused unmodified tests
+
+Each exact command below RAN from inside the repository. All logs are in this scratch directory.
+
+- RAN `node --test <repo>/scripts/play-screen-fit-probe.test.mjs`: 86 tests, 86 pass, 0 fail.
+- RAN `node --test <repo>/scripts/play-top-band-probe.test.mjs`: 59 tests, 59 pass, 0 fail.
+- RAN `node --test <repo>/scripts/webgl-pixels-probe.test.mjs`: 48 tests, 48 pass, 0 fail.
+- RAN `node --test <repo>/src/play/_prize-reveal/demo.test.mjs`: 14 tests, 14 pass, 0 fail.
+- RAN `node --test <repo>/src/play/_prize-reveal/game-host.test.mjs`: 99 tests, 99 pass, 0 fail.
+- RAN `node --test <repo>/src/play/prize-cards/renderer/mount.test.mjs`: 7 tests, 7 pass, 0 fail.
+- RAN `node --test <repo>/src/play/prize-cards/renderer/plan.test.mjs`: 15 tests, 15 pass, 0 fail.
+- RAN `node --test <repo>/src/play/prize-draw/frames.test.mjs`: 11 tests, 11 pass, 0 fail.
+- RAN `node --test <repo>/src/play/prize-draw/wave.test.mjs`: 3 tests, 3 pass, 0 fail.
+- RAN `node --test <repo>/src/play/prize-ladder/renderer/mount.test.mjs`: 5 tests, 5 pass, 0 fail.
+- RAN `node --test <repo>/src/play/prize-ladder/renderer/plan.test.mjs`: 7 tests, 7 pass, 0 fail.
+- RAN `node --test <repo>/src/prize-event/setup-page.test.mjs`: 35 tests, 35 pass, 0 fail.
+- RAN `node --test <repo>/src/prize-join/join-page.test.mjs`: 28 tests, 28 pass, 0 fail.
+
+Total computed from the logs: 417 tests.
+
+## Round-1 probes and mutations
+
+- RAN `node breakpoint-probe.mjs`: its old assertion now fails because the fixed rule is static at 639.5px; it no longer reproduces its original defect. Its old media evaluator does not understand negation or the new selector. RAN `node breakpoint-r2-probe.mjs`: all seven widths, including 639.5 and 639.99, match exactly one actual parsed media query.
+- RAN `node code-probe.mjs`: local Chrome launch aborted (SIGABRT); no browser measurements were produced. Safe fallback was the supplied recorded Chrome evidence and controlled DOM execution.
+- RAN `node renderer-probe.mjs`: actual cards renderer mounts, emits variable card widths and measured grown rows.
+- RAN `node card-layout-r2.mjs`: actual base plan geometry equals current for every n=1..102; actual current renderer rects match at n=2,50,100,102.
+
+Exact mutation command template (each RAN with cwd repository):
+`ADVERSARY_CASE=<case> node --import <judge-scratch>/mutation-loader.mjs --test <absolute-test-file>`
+
+- RAN `ADVERSARY_CASE=host node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/play/_prize-reveal/game-host.test.mjs`: not ok 88 - fireworks (immediate): narrowed while hidden, the reveal is in 2D once visible -- never another 3D frame / not ok 90 - cards (immediate): narrowed while hidden, the reveal is in 2D once visible -- never another 3D frame / not ok 92 - ladder (immediate): narrowed while hidden, the reveal is in 2D once visible -- never another 3D frame / # MUTATION host: matched=true moduleLoads=1 fileReads=0 / # tests 99 / # pass 96 / # fail 3
+- RAN `ADVERSARY_CASE=demo node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/play/_prize-reveal/demo.test.mjs`: # MUTATION demo: matched=true moduleLoads=0 fileReads=1 / # tests 14 / # pass 14 / # fail 0
+- RAN `ADVERSARY_CASE=cards node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/play/prize-cards/renderer/mount.test.mjs`: not ok 7 - 200 names: a card whose name needs 3 or 4 lines gets a taller row, and every rect stays inside the field / # MUTATION cards: matched=true moduleLoads=1 fileReads=0 / # tests 7 / # pass 6 / # fail 1
+- RAN `ADVERSARY_CASE=frames node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/play/prize-draw/frames.test.mjs`: not ok 8 - PD-305-05: crossing 640px on the result re-fits at the new layout's floors: phone 24/21, projector 132/35, phone again / # MUTATION frames: matched=true moduleLoads=1 fileReads=1 / # tests 11 / # pass 10 / # fail 1
+- RAN `ADVERSARY_CASE=ladder node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/play/prize-ladder/renderer/mount.test.mjs`: not ok 5 - the 3D scene hands the rail colour to its lane and leader meshes: TRACK.lane, the 50% rail (PD-307-04) / # MUTATION ladder: matched=true moduleLoads=1 fileReads=0 / # tests 5 / # pass 4 / # fail 1
+- RAN `ADVERSARY_CASE=setup node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/prize-event/setup-page.test.mjs`: # MUTATION setup: matched=true moduleLoads=0 fileReads=1 / # tests 35 / # pass 35 / # fail 0
+- RAN `ADVERSARY_CASE=join node --import <judge-scratch>/mutation-loader.mjs --test <repo>/src/prize-join/join-page.test.mjs`: # MUTATION join: matched=true moduleLoads=0 fileReads=1 / # tests 28 / # pass 28 / # fail 0
+
+## Detector source mutations
+
+These are coverage probes, not observed production bugs in the unchanged current tree. Each mutation matched and loaded the real module in memory.
+
+- Change the actual collector bar index from barEls.indexOf(e) to e.closest(BAR_SEL) ? 0 : -1. RAN `GATE_MUTATION=band node --import <judge-scratch>/detector-mutation-loader.mjs --test <repo>/scripts/play-top-band-probe.test.mjs`: # DETECTOR_MUTATION band: moduleLoads=1 / # tests 59 / # pass 59 / # fail 0
+- Make the actual browser-acquisition default export throw immediately. RAN `GATE_MUTATION=fit node --import <judge-scratch>/detector-mutation-loader.mjs --test <repo>/scripts/play-screen-fit-probe.test.mjs`: # DETECTOR_MUTATION fit: moduleLoads=1 / # tests 86 / # pass 86 / # fail 0
+- Revert the actual Emulation.setDeviceMetricsOverride dispatch to PHONE_VIEWPORT for every route. RAN `GATE_MUTATION=webgl node --import <judge-scratch>/detector-mutation-loader.mjs --test <repo>/scripts/webgl-pixels-probe.test.mjs`: # DETECTOR_MUTATION webgl: moduleLoads=1 / # tests 48 / # pass 48 / # fail 0
+
+## Wave and supplied browser evidence
+
+RAN `BASE_REL=src/play/prize-draw/stage.ts node --import <judge-scratch>/base-loader.mjs --test <repo>/src/play/prize-draw/wave.test.mjs` from the repository: the two normal-motion tests fail at base, reduced-motion passes; current all three pass. The read render() sequence restores display synchronously before whenBoldLoaded or show(), and the field excludes the reveal control. This is not a focus/assistive-technology browser test.
+
+READ docs/verification/evidence/gh305-audit-measure-2026-11-14/README.md:1-95. Recorded browser evidence supports rows 7/8/10 and the disposition of the round-1 cascade finding; it is not a browser run by this reviewer. Schedule and wave base controls at lines 56-78; after-fix controls at 80-95.
+
+## Read budget
+
+Six bounded repository read/search outputs: evidence README 1-150 (file ends 95), top-band probe 198-347, cards renderer 430-579, stage 500-649, one 60-line rg result on screen-fit, screen-fit 2670-2819. Supplied scratch diff/probes read freely. Test/module execution necessarily loads repository sources but no extra source text was dumped.
