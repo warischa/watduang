@@ -51,6 +51,14 @@
     {
       "id": "page-13",
       "name": "gh#303 · prize draw games, the company-party category page and home row (approved 2026-11-11)"
+    },
+    {
+      "id": "page-14",
+      "name": "gh#315 / gh#316 · prize draw phase-2 elimination games (approved 2026-11-16)"
+    },
+    {
+      "id": "page-15",
+      "name": "gh#317 gh#318 · prize draw phase-2 finals · ซองของขวัญ / เปิดไพ่ชิงรางวัล (approved 2026-11-16)"
     }
   ],
   "artboards": [
@@ -566,6 +574,42 @@
       "y": 0,
       "w": 1520,
       "h": 6054
+    },
+    {
+      "file": "Gh315Zones.dc.html",
+      "title": "gh#315 colour zones stand-up 1920x1080 · APPROVED 2026-11-16: Z1 A FOUR BLOCKS, Z2 B NAMES SIT IN THEIR ZONES",
+      "page": "page-14",
+      "x": 0,
+      "y": 0,
+      "w": 1520,
+      "h": 28665
+    },
+    {
+      "file": "Gh316Marbles.dc.html",
+      "title": "gh#316 marble race 1920x1080 · APPROVED 2026-11-16: M1 A HEAT LANES, M2 A FREEZE AT THE CUT",
+      "page": "page-14",
+      "x": 1600,
+      "y": 0,
+      "w": 1520,
+      "h": 20100
+    },
+    {
+      "file": "Gh317Envelopes.dc.html",
+      "title": "gh#317 gift-envelope final 1920x1080 · APPROVED 2026-11-16: D1 A ROW, D2 A ONE AT A TIME",
+      "page": "page-15",
+      "x": 0,
+      "y": 0,
+      "w": 1520,
+      "h": 16320
+    },
+    {
+      "file": "Gh318Cards.dc.html",
+      "title": "gh#318 turn-a-card final 1920x1080 · APPROVED 2026-11-16: D1 A ROW, D2 A ONE AT A TIME",
+      "page": "page-15",
+      "x": 1600,
+      "y": 0,
+      "w": 1520,
+      "h": 16714
     }
   ],
   "annotations": [
