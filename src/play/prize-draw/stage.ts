@@ -480,8 +480,14 @@ export function mountStage(deps: StageDeps): StageHandle {
     else viewport.removeAttribute('data-result');
   };
 
-  /** Fit every name on the frame at the floors its layout asks for (layoutFloors). */
+  /** Fit every name on the frame at the floors its layout asks for (layoutFloors). A reveal field mid-wave is
+   *  unmarked (regular weight) while its names finally render marked (bold, reveal.css `.pd-marked .pd-chip.in`):
+   *  fitting it now would measure the regular width and leave a size the bold width overflows, clipping when the
+   *  mark returns. So the fit waits for the re-mark, which runs it. The field is unmarked only between the wave's
+   *  flushes and that re-mark (render), never otherwise, so a skipped fit is always covered by the re-mark. */
   const fitFrameNames = (): void => {
+    const field = frame.querySelector<HTMLElement>('.pd-field');
+    if (field && !field.classList.contains('pd-marked')) return;
     layoutFloors(frame);
     fitAll(frame);
   };
@@ -667,7 +673,12 @@ export function mountStage(deps: StageDeps): StageHandle {
         void field.offsetWidth;
         field.style.setProperty('display', '');
         void field.offsetWidth;
-        deps.nextFrame(() => field.classList.add('pd-marked'));
+        // The mark is the weight the names render in: fit once it is back, so a refit that asked during the
+        // unmarked start (fitFrameNames) lands here at bold, and the bold face's arrival is measured marked.
+        deps.nextFrame(() => {
+          field.classList.add('pd-marked');
+          fitFrameNames();
+        });
       }
     }
     if (view.kind === 'reveal') deps.whenBoldLoaded?.(fitFrameNames);
