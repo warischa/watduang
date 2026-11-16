@@ -49,9 +49,20 @@
 //
 // SCREENS THE WALK NEVER OPENS (a closed modal, a toast, a sticky header after a scroll) are covered
 // by their declared anchor instead of their box: every fixed or sticky route element, shown or not,
-// whose computed `top` (plus its own clip-path inset) is above the band's bottom is reported in
-// `anchoredAbove` and reds -- body padding cannot move such a box, so it WILL land in the band when it
-// shows. Not reported: a box inside a transformed/contained ancestor (that ancestor is its containing
+// whose declared pin -- the computed `top` when it is not auto, else the `bottom` inset resolved
+// against the viewport (viewport height minus bottom minus the box's height), plus its own clip-path
+// inset -- is above the band's bottom is reported in `anchoredAbove` and reds -- body padding cannot
+// move such a box, so it WILL land in the band when it shows. The bottom branch is what catches a
+// CLOSED bottom-pinned box: Chrome resolves a shown box's computed top to its used value even when
+// the declaration is auto, but a display:none box keeps the declared auto and reads no rect height,
+// so its DECLARED height stands in (px as is, percent of the viewport for fixed / of the containing
+// block for sticky); `auto` keeps the bottom-edge read, and an unresolvable height reads as reaching
+// the band, the conservative position for a box that may be tall enough to land in it when it shows.
+// BOTH insets resolve the same way, without layout and without mutating the DOM: px as is, a
+// percentage against the viewport (fixed) or containing block (sticky), and calc/var/env/min/max/clamp
+// -- which cannot be resolved without layout -- read as reaching the band rather than a parseFloat
+// guess (90% would read 90, calc would read NaN) that silently drops the anchor.
+// Not reported: a box inside a transformed/contained ancestor (that ancestor is its containing
 // block, and padding moves it), a sticky box inside its own scroller, and a box an !important
 // `display: none` pins shut (an inline display that does not take is that pin).
 //
@@ -190,12 +201,13 @@ export const playRoutes = () => {
 };
 
 // The in-page measurement. Returns the band, both controls and every content box that reaches the
-// band strip; the verdict is computed outside the page from these numbers.
+// band strip; the verdict is computed outside the page from these numbers. Exported so a test runs
+// the real collector -- the same string run(session) evaluates, never a re-typed copy.
 // WIDTH IS THE LAYOUT VIEWPORT, clientWidth, never innerWidth: a position:fixed full-width band spans
 // the layout viewport, which a classic scrollbar (CI's Linux Chrome, ~15px) narrows while innerWidth
 // still counts it; a Mac's overlay scrollbar takes nothing, so the two agree there and hide the gap.
 // Both are recorded per row.
-const MEASURE = `
+export const MEASURE = `
 const BAND = ${BAND_PX}, VW = innerWidth, CW = document.documentElement.clientWidth, VH = innerHeight, CHROME = ${JSON.stringify(CHROME_IDS)}, MC_SEL = ${JSON.stringify(MC_SEL)};
 const BAR_SEL = ${JSON.stringify(BAR_SEL)}, BAR_VIEWPORT_SEL = ${JSON.stringify(BAR_VIEWPORT_SEL)};
 // Every demo bar in the page, in document order: an anchored entry names its bar by index here.
@@ -225,6 +237,39 @@ const insetOf = (e, r) => { const cp = getComputedStyle(e).clipPath; const m = /
   if (!m) return [0, 0, 0, 0]; const v = m[1].split(' round ')[0].trim().split(/\\s+/);
   const px = (s, len) => s.endsWith('%') ? (parseFloat(s) / 100) * len : parseFloat(s) || 0;
   const [t, rr = t, b = t, l = rr] = v; return [px(t, r.height), px(rr, r.width), px(b, r.height), px(l, r.width)]; };
+// The reference height a vertical percentage resolves against: the viewport for a fixed box, the
+// containing block (nearest rendered block ancestor's content box) for sticky. null when it cannot
+// be resolved (a closed containing block).
+const pctBase = (s, e) => {
+  if (s.position === 'fixed') return VH;
+  for (let a = e.parentElement; a && a !== document.documentElement; a = a.parentElement) {
+    const ac = getComputedStyle(a);
+    if (ac.display === 'none') return null;
+    if (ac.display === 'inline') continue;
+    const ch = a.clientHeight - (parseFloat(ac.paddingTop) || 0) - (parseFloat(ac.paddingBottom) || 0);
+    return ch > 0 ? ch : null;
+  }
+  return null;
+};
+// Resolve a vertical inset or height to px WITHOUT layout and WITHOUT mutating the DOM: px as is; a
+// percentage against pctBase; null for anything else. calc, var, env, min/max/clamp and other keywords
+// cannot be resolved without layout, and the caller reads null as reaching the band (effectiveTop 0) --
+// the conservative position for a box that may land in it when it shows, rather than a parseFloat guess
+// (90% would read 90, calc would read NaN) that silently drops the anchor.
+const resolvePx = (v, s, e) => {
+  const t = String(v ?? '').trim();
+  if (/^-?\\d*\\.?\\d+px$/.test(t)) return parseFloat(t);
+  const m = /^(-?\\d*\\.?\\d+)%$/.exec(t);
+  if (m) { const base = pctBase(s, e); return base === null ? null : base * parseFloat(m[1]) / 100; }
+  return null;
+};
+// The declared height of a CLOSED bottom-pinned box (its rect reads 0): 'auto' returns 0, keeping the
+// bottom-edge read; otherwise the declared height resolved as an inset is, null when unresolvable.
+const closedHeight = (s, e) => {
+  const dh = String(s.height ?? 'auto').trim();
+  if (dh === 'auto') return 0;
+  return resolvePx(dh, s, e);
+};
 let checked = 0, skippedTiny = 0; const hits = [], anchoredAbove = [];
 for (const e of document.body.querySelectorAll('*')) {
   if (SKIP.has(e.tagName.toUpperCase()) || e.closest('defs')) continue;
@@ -232,18 +277,29 @@ for (const e of document.body.querySelectorAll('*')) {
   const s = getComputedStyle(e);
   // Hidden or not, a box pinned to the viewport above the band lands in it the moment it shows (a
   // closed modal, a toast): padding on <body> cannot move it, so its declared anchor is checked here.
-  if ((s.position === 'fixed' || s.position === 'sticky') && s.top !== 'auto') {
+  // Either inset declares that pin -- a bottom-pinned box is as viewport-anchored as a top-pinned one.
+  if ((s.position === 'fixed' || s.position === 'sticky') && (s.top !== 'auto' || s.bottom !== 'auto')) {
     let contained = false, scroller = false;
     for (let a = e.parentElement; a && a !== document.body; a = a.parentElement) { const c = getComputedStyle(a);
       if (c.transform !== 'none' || c.filter !== 'none' || c.perspective !== 'none' || /layout|paint|strict|content/.test(c.contain)) contained = true;
       if (s.position === 'sticky' && /auto|scroll|hidden|clip/.test(c.overflowY)) scroller = true; }
-    const top = parseFloat(s.top) + insetOf(e, e.getBoundingClientRect())[0];
+    // ONE partition key: the declared top when it is not auto, else the bottom inset resolved against
+    // the viewport. BOTH insets resolve like heights (resolvePx): px as is, percent of the viewport for
+    // fixed / of the containing block for sticky, and anything that needs layout (calc, var, env,
+    // min/max/clamp) reads as reaching the band. A closed box reads no rect height, so its DECLARED
+    // height stands in (closedHeight); 'auto' keeps the bottom-edge read.
+    const er = e.getBoundingClientRect();
+    let h = er.height, reach = false, pin = 0;
+    if (s.top === 'auto' && h === 0) { const dh = closedHeight(s, e); if (dh === null) reach = true; else h = dh; }
+    if (s.top !== 'auto') { const t = resolvePx(s.top, s, e); if (t === null) reach = true; else pin = t; }
+    else { const b = resolvePx(s.bottom, s, e); if (b === null) reach = true; else pin = VH - b - h; }
+    const top = reach ? 0 : pin + insetOf(e, er)[0];
     // A box an !important display:none pins shut (a route's retired test runner) can never show:
     // an inline display that does not take is that pin, read without knowing any selector.
     let pinnedShut = false;
     if (s.display === 'none') { const prev = e.style.display; e.style.display = 'block';
       pinnedShut = getComputedStyle(e).display === 'none'; e.style.display = prev; }
-    if (!contained && !scroller && !pinnedShut && top < BAND - ${TOL}) anchoredAbove.push({ sel: sel(e), position: s.position, top: s.top, effectiveTop: r2(top), display: s.display, mc: !!e.closest(MC_SEL), bar: barEls.indexOf(e) });
+    if (!contained && !scroller && !pinnedShut && top < BAND - ${TOL}) anchoredAbove.push({ sel: sel(e), position: s.position, top: s.top, bottom: s.bottom, effectiveTop: r2(top), display: s.display, mc: !!e.closest(MC_SEL), bar: barEls.indexOf(e) });
   }
   const r = e.getBoundingClientRect(); if (r.width <= 0 || r.height <= 0) continue;
   if (s.visibility !== 'visible') continue;
@@ -462,7 +518,7 @@ export function judge(out) {
       const barOf = (a) => (DEMO_ROUTES.includes(id) && a.bar >= 0 ? (r.bars || [])[a.bar] : undefined);
       const barExempt = (a) => barOf(a)?.mode === 'band';
       const anchored = (r.anchoredAbove || []).filter((a) => !(exempt && a.mc) && !barExempt(a));
-      if (anchored.length) failures.push(`${tag}: ${anchored.length} fixed/sticky route box(es) anchored above the band: ${anchored.slice(0, 4).map((a) => `${a.sel} (${a.position} top ${a.top}${a.display === 'none' ? ', hidden now' : ''})`).join('; ')}`);
+      if (anchored.length) failures.push(`${tag}: ${anchored.length} fixed/sticky route box(es) anchored above the band: ${anchored.slice(0, 4).map((a) => `${a.sel} (${a.position} ${a.top === 'auto' ? `bottom ${a.bottom}` : `top ${a.top}`}${a.display === 'none' ? ', hidden now' : ''})`).join('; ')}`);
       // The bar carve-out's own assertion, on every row that used the exemption: one bar, shown, measured exactly,
       // inside the band, clear of both band controls, on one row.
       const admitted = (r.anchoredAbove || []).filter(barExempt);

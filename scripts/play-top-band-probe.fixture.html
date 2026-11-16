@@ -1,0 +1,70 @@
+<!doctype html>
+<!-- Counter-example fixture for the top-band probe's anchor reader (REFUTE 2026-11-14, the
+     overflow-ancestor hole). Loaded in headless Chrome at 1280x800 and measured with the probe's
+     exported MEASURE; the node wiring tests in play-top-band-probe.test.mjs build the same geometry
+     on a fake page.
+     .bottom-pinned is fixed by its BOTTOM inset (top:auto, bottom:746px, height 52px), so at an
+     800px viewport it lies at y=2..54 -- inside the 56px band. Its hit is clipped away by the
+     overflow:hidden viewport starting at y=56 (the probe's conservative clip model), so only the
+     anchor reader can catch it. In real paint a fixed box escapes that clip: its containing block
+     is the viewport, and no ancestor here transforms, filters or contains it.
+     MEASURED in Chrome: a SHOWN fixed box's computed top resolves to its used value (2px) even
+     when declared auto, so the shown twin is caught by the top branch already. The hole that
+     survives in a real browser is .bottom-pinned-hidden: display:none generates no box, so its
+     computed top stays the declared auto and its rect is 0x0 -- a closed toast/modal pinned by
+     bottom, invisible to the anchor reader until the fix, and in the band the moment it shows.
+     .top-pinned is the positive control: the same box declared by top instead, which the anchor
+     reader catches before and after the fix. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>top-band bottom-pin fixture</title>
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { padding-top: 56px; background: #14142b; }
+  #play-band { position: fixed; top: 0; left: 0; width: 100%; height: 56px; background: rgb(20, 20, 43); }
+  #play-exit { position: fixed; top: 6px; left: 8px; width: 44px; height: 44px; }
+  #play-edit-players { position: fixed; top: 6px; left: 60px; width: 90px; height: 44px; }
+  .clip-viewport { position: absolute; top: 56px; left: 0; right: 0; bottom: 0; overflow: hidden; }
+  .bottom-pinned { position: fixed; top: auto; bottom: 746px; left: 10px; width: 100px; height: 52px; background: #c00; }
+  .bottom-pinned-hidden { position: fixed; top: auto; bottom: 746px; left: 10px; width: 100px; height: 52px; display: none; background: #c00; }
+  .top-pinned { position: fixed; top: 2px; left: 160px; width: 100px; height: 52px; background: #0c0; }
+  /* The tall CLOSED bottom-pinned box (REFUTE round 1 on the bottom-inset fix): bottom:0, height
+     600px, closed. At VH 568 it would show at top -32 (in the band), but its closed rect height is
+     0, so the bottom-edge read says 568 and misses it. The declared height stands in. The 110%
+     variant is always taller than the viewport; the 40px short box is the known-good that stays
+     well below the band. Read at 320x568 (mobile:false) so the viewport is really 568. */
+  .tall-closed { position: fixed; top: auto; bottom: 0; left: 10px; width: 100px; height: 600px; display: none; background: #c00; }
+  .tall-closed-pct { position: fixed; top: auto; bottom: 0; left: 120px; width: 100px; height: 110%; display: none; background: #c00; }
+  .short-closed { position: fixed; top: auto; bottom: 0; left: 230px; width: 100px; height: 40px; display: none; background: #0c0; }
+  /* Percent and calc INSETS on closed boxes (REFUTE round 2): parseFloat reads bottom:90% as 90 and
+     bottom:calc(100% - 56px) as NaN, so these show inside the band but produce no anchor. Chrome
+     simplifies top:calc(10px) to 10px before the read; a percentage-bearing calc stays calc. */
+  .bottom-90 { position: fixed; top: auto; bottom: 90%; left: 10px; width: 100px; height: 40px; display: none; background: #c00; }
+  .bottom-calc { position: fixed; top: auto; bottom: calc(100% - 56px); left: 120px; width: 100px; height: 40px; display: none; background: #c00; }
+  .top-1pct { position: fixed; top: 1%; bottom: auto; left: 230px; width: 100px; height: 40px; display: none; background: #c00; }
+  .top-calc { position: fixed; top: calc(10px); bottom: auto; left: 340px; width: 100px; height: 40px; display: none; background: #c00; }
+  .bottom-10 { position: fixed; top: auto; bottom: 10%; left: 450px; width: 100px; height: 40px; display: none; background: #0c0; }
+  .filler { height: 300px; background: #222; }
+</style>
+</head>
+<body>
+  <div id="play-band"></div>
+  <button id="play-exit">x</button>
+  <button id="play-edit-players" hidden>edit</button>
+  <div class="clip-viewport">
+    <div class="bottom-pinned">bottom pin</div>
+    <div class="bottom-pinned-hidden">closed bottom pin</div>
+    <div class="top-pinned">top pin</div>
+    <div class="tall-closed">tall closed</div>
+    <div class="tall-closed-pct">tall closed percent</div>
+    <div class="short-closed">short closed</div>
+    <div class="bottom-90">bottom 90 percent</div>
+    <div class="bottom-calc">bottom calc</div>
+    <div class="top-1pct">top 1 percent</div>
+    <div class="top-calc">top calc</div>
+    <div class="bottom-10">bottom 10 percent</div>
+    <div class="filler">content</div>
+  </div>
+</body>
+</html>
