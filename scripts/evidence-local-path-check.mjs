@@ -23,7 +23,8 @@
 // too), and the hyphen-encoded forms `-Users-` and `-var-folders-` (Claude's project-directory
 // encoding, which drops the slashes and dots and so survives a naive search for a leading `/`).
 // The allowed placeholders are `<repo>`, `~` and `<tmp>`; a placeholder-led token is masked whole
-// before matching, so `<repo>/tmp/x` is one allowed token, not a temp path. The account name itself
+// for the TEMP-DIR shapes only, so `<repo>/tmp/x` is one allowed token, while a home or hyphen-encoded
+// form inside it still matches unmasked. The account name itself
 // is deliberately NOT a shape here: the gate source and its selftest ship in the same public repo,
 // so writing the name into the detector would republish the very value being removed. A verify-time
 // search for the account name covers bare-name hits the shape list cannot express.
@@ -64,10 +65,14 @@ const SHAPES = [
   // tokens like `saveGroup/root.hidden` green (measured against the tracked set) while `cd /root`,
   // `HOME=/root` and `/var/root` all hit — a trailing-slash-only shape would miss every bare form.
   { name: '/root', re: /\/root(?=[/\s"'`]|$)[^\s"'`]*/g },
-  { name: '/private/tmp', re: /\/private\/tmp[^\s"'`]*/g },
-  { name: '/private/var/folders', re: /\/private\/var\/folders[^\s"'`]*/g },
-  { name: '/var/folders/', re: /\/var\/folders\/[^\s"'`]*/g },
-  { name: '/tmp/', re: /\/tmp\/[^\s"'`]*/g },
+  // useMask: ONLY these slash-form temp-dir shapes match the placeholder-masked line (P3). Every
+  // other shape — home dirs, Windows homes, and the hyphen-encoded -Users- / -var-folders- forms —
+  // matches the UNMASKED line, so a hyphen-encoded home inside `~/.claude/projects/-Users-...` or
+  // `<tmp>/claude-501/-Users-...` still reds instead of being masked away.
+  { name: '/private/tmp', re: /\/private\/tmp[^\s"'`]*/g, useMask: true },
+  { name: '/private/var/folders', re: /\/private\/var\/folders[^\s"'`]*/g, useMask: true },
+  { name: '/var/folders/', re: /\/var\/folders\/[^\s"'`]*/g, useMask: true },
+  { name: '/tmp/', re: /\/tmp\/[^\s"'`]*/g, useMask: true },
   // Either slash direction, mixed included: `C:/Users\example` is invisible to both the backslash
   // form and the `/Users/` substring, so the separators are a class, not a literal.
   { name: 'C:\\Users\\', re: /[A-Za-z]:[\\/]+Users[\\/][^\s"'`]*/gi },
@@ -75,39 +80,36 @@ const SHAPES = [
   { name: '-var-folders-', re: /-var-folders-[A-Za-z0-9._-]*/g },
 ];
 
-// P3: a placeholder-led token is allowed WHOLE, so `<repo>/tmp/x` and `~/tmp/x` must not red on
-// their temp-path suffix. Mask each such token to a distinct sentinel before matching; a real temp
-// path after whitespace, `=`, `:` or a quote is a separate token and still reds. Distinct sentinels
-// keep restore aligned even when a shape's tail consumes one.
+// P3: a placeholder-led token is allowed WHOLE for the TEMP-DIR shapes only, so `<repo>/tmp/x` and
+// `~/tmp/x` must not red on their temp-path suffix. Mask each such token to SAME-LENGTH spaces —
+// only the useMask shapes read this masked line; every other shape reads the unmasked line, so a
+// home or hyphen-encoded form inside the token still reds. Same-length masking keeps every hit
+// index in one coordinate system, so the overlap dedup below stays valid across masked/unmasked.
 const PLACEHOLDER_RE = /(?:<repo>|<tmp>|~)[^\s"'`]*/g;
 
-const SENTINEL = String.fromCharCode(1);
-
 function maskPlaceholders(line) {
-  const originals = [];
-  const masked = line.replace(PLACEHOLDER_RE, (m) => {
-    originals.push(m);
-    return SENTINEL + (originals.length - 1) + SENTINEL;
-  });
-  return { masked, originals };
+  return line.replace(PLACEHOLDER_RE, (m) => ' '.repeat(m.length));
 }
 
 /**
  * Every shaped token on one line, as `{ shape, index, match }`, longest first at each position.
- * Placeholder-led tokens are masked whole first (P3), so a shape cannot match their suffix.
+ * Only the temp-dir slash shapes (useMask) match the placeholder-masked line; every other shape
+ * matches the UNMASKED line, so a home/hyphen form inside a placeholder token still reds (P3).
  * The regexes are stateful (`g`), so each is reset before use; an empty match can never loop.
  *
  * OVERLAP IS DEDUPED, not double-reported: `/private/tmp/x` is one temp path, but it contains the
  * `/tmp/` token as a substring, and `/private/var/folders/...` contains `/var/folders/...`. The
  * more specific (longer, earlier) token wins, so one line yields one finding per real path.
+ * Masking is same-length, so masked and unmasked hits share one index space and dedup is valid.
  */
 export function findHits(line) {
-  const { masked } = maskPlaceholders(line);
+  const masked = maskPlaceholders(line);
   const raw = [];
   for (const shape of SHAPES) {
+    const target = shape.useMask ? masked : line;
     shape.re.lastIndex = 0;
     let match;
-    while ((match = shape.re.exec(masked)) !== null) {
+    while ((match = shape.re.exec(target)) !== null) {
       raw.push({ shape: shape.name, index: match.index, match: match[0] });
       if (match[0] === '') shape.re.lastIndex++;
     }
@@ -123,13 +125,16 @@ export function findHits(line) {
 }
 
 /** The line with every shaped token replaced by `<redacted>`, truncated for a one-line finding.
- * Placeholder-led tokens are masked during replacement and restored after, so an allowed token
- * survives intact in the sample. */
+ * Each found token's range is replaced in the UNMASKED line, last first; allowed placeholder tokens
+ * are not hits, so they survive intact. A temp hit never overlaps a masked region (its tail stops
+ * at whitespace), so every hit index/match is valid in the unmasked line. */
 export function redact(line) {
-  const { masked, originals } = maskPlaceholders(line);
-  let out = masked;
-  for (const shape of SHAPES) out = out.replace(shape.re, '<redacted>');
-  originals.forEach((orig, i) => { out = out.split(SENTINEL + i + SENTINEL).join(orig); });
+  const hits = findHits(line);
+  let out = line;
+  for (let i = hits.length - 1; i >= 0; i--) {
+    const h = hits[i];
+    out = out.slice(0, h.index) + '<redacted>' + out.slice(h.index + h.match.length);
+  }
   return out.trim().slice(0, 200);
 }
 
@@ -249,6 +254,11 @@ function selftest() {
       // P3: a real temp path adjacent to a placeholder on the same line must still red.
       { name: 'placeholder-adjacent.txt', shape: '/tmp/', buf: utf8('~/a /tmp/x\n') },
       { name: 'temp-after-colon.txt', shape: '/tmp/', buf: utf8('path:/tmp/x\n') },
+      // Post-ship probe: masking the WHOLE placeholder-led token also hid the hyphen-encoded HOME
+      // form inside it — exactly what Claude tooling writes. Home/hyphen shapes match the UNMASKED
+      // line, so both of these must red under -Users-.
+      { name: 'hyphen-home-in-tilde.txt', shape: '-Users-', buf: utf8('~/.claude/projects/-Users-example-c-proj/x\n') },
+      { name: 'hyphen-home-in-tmp.txt', shape: '-Users-', buf: utf8('<tmp>/claude-501/-Users-example-c-proj/x\n') },
     ];
     const greenFixtures = [
       { name: 'green-placeholders.txt', buf: utf8(['repo: <repo>/docs/x', 'home: ~/x', 'temp: <tmp>/x', 'prose: temporary files stay in TMPDIR'].join('\n') + '\n') },
@@ -305,6 +315,9 @@ function selftest() {
     assert.equal(findHits('out=/tmp/x').length, 1, 'a real temp path after = must still red');
     assert.equal(findHits('path:/tmp/x').length, 1, 'a real temp path after : must still red');
     assert.equal(findHits('"/tmp/x"').length, 1, 'a real temp path after a quote must still red');
+    // The mask is TEMP-DIR-only: a hyphen-encoded home inside a placeholder-led token still reds.
+    assert.deepEqual(findHits('~/.claude/projects/-Users-example-c-proj/x').map((h) => h.shape), ['-Users-'], 'a hyphen-encoded home inside a ~-led token must red under -Users-, not be masked away');
+    assert.deepEqual(findHits('<tmp>/claude-501/-Users-example-c-proj/x').map((h) => h.shape), ['-Users-'], 'a hyphen-encoded home inside a <tmp>-led token must red under -Users-, not be masked away');
 
     // Three-view controls: every encoding round-trips in its own view with its BOM stripped, the
     // view list is always three strings (nothing classified away), and each binary's raw bytes
