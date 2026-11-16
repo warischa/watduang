@@ -1,0 +1,3 @@
+::notice::zero-trigger       frame div#app-container cap    none  screen section#screen-menu.screen.active  [setup]  display flex  tracks 0 (none)  units 2 {div.hero-box [452-988] | div.menu-action-box [24-1416]} in 1 x-range(s)  span 0.989 of 1408px frame  side-by-side no
+FIT_SHARD_WALKED control 0/1 routes=zero-trigger
+OK control: all 3 route/viewport row(s) stayed on the fresh screen with both the seeding and the presses disabled — so the walk invariant CAN fail, and the screen signature is stable across the 6 press intervals the clean leg spends walking (a signature that drifted on its own would report "it left setup" about a walk that never moved).

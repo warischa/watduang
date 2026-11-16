@@ -1,0 +1,3 @@
+::notice::wire-snip-panic    frame div#app cap    none  screen div#screen-menu.screen.active  [setup]  display flex  tracks 0 (none)  units 2 {div.hero-container [377-1063] | div.menu-actions [377-1063]} in 1 x-range(s)  span 0.476 of 1440px frame  side-by-side no
+FIT_SHARD_WALKED control 0/1 routes=wire-snip-panic
+OK control: all 3 route/viewport row(s) stayed on the fresh screen with both the seeding and the presses disabled — so the walk invariant CAN fail, and the screen signature is stable across the 6 press intervals the clean leg spends walking (a signature that drifted on its own would report "it left setup" about a walk that never moved).

@@ -27,6 +27,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -798,6 +799,136 @@ test('a CLI run with no fixture still refuses to report success without measurin
   // And it must fail for the RIGHT reason — an acquisition failure, not the fixture refusal, which
   // would mean the guard had become unconditional.
   assert.doesNotMatch(`${run.stderr}${run.stdout}`, /refusing to run the gate with a measurement fixture set/, 'no knob was set, so the fixture refusal must not be what stopped it');
+});
+
+// REFUTE 2026-11-16 — THE PRODUCTION ACQUISITION BRANCH, which no run of main() above reaches. Every other
+// one supplies its rows through PROBE_OUT_JSON or an injected acquireMeasurements, and both return BEFORE
+// the branch a CI leg takes: the build guard, the driver child, the JSON file that child writes, the parse
+// of it. A mutation that threw in that branch, or swallowed a dead child into a pass, red nothing here.
+//
+// THE SEAM IS THE CHILD PROCESS, NOT THE CODE. main() is called with no acquire override, so its default
+// parameter binds this module's own acquireMeasurements symbol, and NODE_OPTIONS --require preloads a stub
+// that writes the measurement JSON to the child's stdout -- the very descriptor acquireMeasurements opened
+// -- then exits before scripts/driver.mjs loads. No browser and no served dist/ are needed, and nothing
+// between the spawn and the report is a copy. The stub calibrates itself: were the preload ignored, the real
+// driver would run, find no Chrome on its port, and the happy path below would exit 1 instead of reporting.
+//
+// fs.existsSync is stubbed for ONE path, dist/index.html, because the build job runs these unit tests BEFORE
+// its own Build step, where the guard would otherwise exit(1) the test process. Every other path delegates
+// to the real function, and the guard is driven with the stub off in the failure test below.
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const DIST_INDEX = path.join(REPO_ROOT, 'dist', 'index.html');
+
+function throughProductionAcquisition({ rows = [], raw = null, childExit = 0, childStderr = '', distPresent = true } = {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fit-wiring-'));
+  const capturePath = path.join(dir, 'capture.json');
+  const stub = path.join(dir, 'stub-driver.cjs');
+  fs.writeFileSync(stub, [
+    "const fs = require('node:fs');",
+    `fs.writeFileSync(${JSON.stringify(capturePath)}, JSON.stringify({ argv: process.argv, cwd: process.cwd(), cdp: process.env.CDP_PORT, base: process.env.BASE }));`,
+    `fs.writeSync(1, ${JSON.stringify(raw === null ? JSON.stringify({ rows }) : raw)});`,
+    `fs.writeSync(2, ${JSON.stringify(childStderr)});`,
+    `process.exit(${childExit});`,
+  ].join('\n'));
+
+  const saved = {
+    existsSync: fs.existsSync, exit: process.exit, error: console.error, warn: console.warn,
+    env: { NODE_OPTIONS: process.env.NODE_OPTIONS, PROBE_OUT_JSON: process.env.PROBE_OUT_JSON, PROBE_OUT_FIXTURE: process.env.PROBE_OUT_FIXTURE },
+  };
+  const errors = [];
+  const emitted = [];
+  const logged = [];
+  let exitCode = null;
+  let capture = null;
+  // Both fixture channels short-circuit the branch under test, so they are cleared for the run, then put back.
+  process.env.PROBE_OUT_JSON = '';
+  process.env.PROBE_OUT_FIXTURE = '';
+  process.env.NODE_OPTIONS = `${saved.env.NODE_OPTIONS ? `${saved.env.NODE_OPTIONS} ` : ''}--require ${JSON.stringify(stub)}`;
+  fs.existsSync = (p) => (path.resolve(String(p)) === DIST_INDEX ? distPresent : saved.existsSync(p));
+  console.error = (...a) => errors.push(a.join(' '));
+  console.warn = () => {};
+  process.exit = (code) => { exitCode = code; throw new Error(`PROCESS_EXIT_${code}`); };
+  try {
+    main({ emit: (l) => emitted.push(l), log: (l) => logged.push(l) });
+  } catch (err) {
+    // Only the exit stub's own throw is expected here. Anything else -- a throw from acquisition itself --
+    // propagates and reds the test, which is the mutation this exists to catch.
+    if (!err.message?.startsWith('PROCESS_EXIT_')) throw err;
+  } finally {
+    fs.existsSync = saved.existsSync;
+    process.exit = saved.exit;
+    console.error = saved.error;
+    console.warn = saved.warn;
+    for (const [k, v] of Object.entries(saved.env)) {
+      if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    }
+    capture = fs.existsSync(capturePath) ? JSON.parse(fs.readFileSync(capturePath, 'utf8')) : null;
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  return { exitCode, errors, emitted, logged, capture };
+}
+
+test('REFUTE 2026-11-16: main() with its default acquisition spawns the real driver on this module and reports exactly what the child collected', () => {
+  // One row carries a distinctive measured px, so the claim is about a VALUE that travelled the whole path
+  // and not only about row identity: a parse returning the wrong object, or a report built from anything
+  // other than the collected rows, loses it.
+  const fixture = makeFixture42({
+    'cursed-number 320x568': {
+      route: 'cursed-number', url: '/game/cursed-number/play/', vp: '320x568', error: null,
+      screens: [{ press: 0, overflowPx: 689, scrollPx: 689, clippedPx: 0, overflowXPx: 0, widthFillPct: 90.0, inkCount: 10 }],
+    },
+  });
+  const run = throughProductionAcquisition({ rows: fixture });
+  assert.equal(run.exitCode, null, `the production acquisition path must reach a verdict: ${run.errors.join(' | ')}`);
+
+  // The child really was the production invocation: this repo's driver, this probe module, from the repo root.
+  assert.ok(run.capture, 'the driver child never ran, so nothing here measured the acquisition path');
+  assert.deepEqual(run.capture.argv, [
+    process.execPath,
+    path.join(REPO_ROOT, 'scripts', 'driver.mjs'),
+    path.join(REPO_ROOT, 'scripts', 'play-screen-fit-probe.mjs'),
+  ], 'acquisition must hand the driver this probe module, not a copy of its walker');
+  assert.equal(run.capture.cwd, REPO_ROOT);
+  assert.ok(fs.existsSync(run.capture.argv[1]) && fs.existsSync(run.capture.argv[2]), 'both files the child was handed must exist');
+
+  // The server and browser the child is pointed at are the ones this leg configures. Both are read out of the
+  // production failure message, which names them, rather than restated here as a second copy of the defaults.
+  const dead = throughProductionAcquisition({ rows: [], childExit: 9, childStderr: 'stub driver refused' });
+  assert.equal(dead.exitCode, 1, 'a dead child must red');
+  const named = dead.errors.find((l) => l.includes('the browser leg did not run (exit 9)'));
+  assert.ok(named, dead.errors.join(' | '));
+  assert.equal(run.capture.base, /Serve dist\/ on (\S+) and/.exec(named)[1], 'the child must be pointed at the server this leg names');
+  assert.equal(run.capture.cdp, /--remote-debugging-port=(\d+)/.exec(named)[1], 'the child must be pointed at the browser port this leg names');
+
+  // The collected output, whole and in order: one summary per row under its own viewport, plus every screen.
+  const summaries = run.emitted.filter((l) => !l.startsWith('::notice::  screen '));
+  const seenPairs = summaries.map((l) => {
+    const m = /^::notice::(\S+)\s+(\d+x\d+)\s/.exec(l);
+    return m ? `${m[1]}|${m[2]}` : `UNPARSED ${l}`;
+  });
+  assert.deepEqual(seenPairs, fixture.map((r) => `${r.route}|${r.vp}`), 'every collected row must be reported once, in order, under its own viewport');
+  assert.equal(run.emitted.length, fixture.length + fixture.reduce((n, r) => n + r.screens.length, 0), 'the sink must receive every collected row and screen, and nothing else');
+  assert.ok(run.emitted.some((l) => l.startsWith('::notice::  screen ') && l.includes('689px')), 'the px the child wrote must reach the report');
+  assert.ok(run.logged.some((l) => l.startsWith('OK ')), 'the verdict line must be reached through real acquisition');
+  // The JSON file the child wrote is the parent's to clean up; a leftover means the read path changed.
+  assert.deepEqual(fs.readdirSync(os.tmpdir()).filter((f) => f === `play-screen-fit-probe-${process.pid}.json`), [], 'acquisition must remove the JSON file it read');
+});
+
+test('MUST-RED REFUTE 2026-11-16: a dead child, unparseable output or a missing build reds acquisition -- none of them may pass', () => {
+  const dead = throughProductionAcquisition({ rows: [], childExit: 3, childStderr: 'ECONNREFUSED' });
+  assert.equal(dead.exitCode, 1, 'a child that did not run must exit 1, never report a clean walk');
+  assert.ok(dead.errors.some((l) => l.includes('the browser leg did not run (exit 3)') && l.includes('ECONNREFUSED')), dead.errors.join(' | '));
+  const garbage = throughProductionAcquisition({ raw: 'this is not JSON' });
+  assert.equal(garbage.exitCode, 1, 'unparseable child output must exit 1 -- a catch that returned rows would grade nothing');
+  assert.ok(garbage.errors.some((l) => l.includes('produced no parseable JSON')), garbage.errors.join(' | '));
+  const nobuild = throughProductionAcquisition({ rows: [], distPresent: false });
+  assert.equal(nobuild.exitCode, 1, 'no build to measure must exit 1');
+  assert.ok(nobuild.errors.some((l) => l.includes('dist/index.html not found')), nobuild.errors.join(' | '));
+  assert.equal(nobuild.capture, null, 'the build guard must fire BEFORE any child is spawned');
+  for (const r of [dead, garbage, nobuild]) {
+    assert.deepEqual(r.emitted, [], 'a failed acquisition reports no measurement at all');
+    assert.ok(!r.logged.some((l) => l.startsWith('OK ')), 'a failed acquisition never reaches the OK verdict');
+  }
 });
 
 // gh#239 — the draw enumerator's ARITHMETIC, which is the whole growth detector and the one part of
@@ -1905,14 +2036,29 @@ test('MUST-RED 2026-11-14: the vertical grant on a demo phone row does not licen
 
 // REFUTE 2026-11-14: the 2026-11-13 and 2026-11-14 rulings let these rows SCROLL (content reachable), never
 // clip it away. A vertical exception on them must not absorb clipped content.
-const SCROLL_ONLY = ['prize-draw 320x568', ...DEMO_PHONE_PX.keys()];
+// Owner ruling 2026-11-16 (popup) extends the same grant to exactly four more rows and to no others. Each
+// was re-measured BEFORE it joined: n=3 narrowed scripts/ci-probes.sh runs per route (PROBE_SCOPE=routes:<id>,
+// the lane's own --headless --disable-gpu --no-sandbox Chrome) against the dist/ built at 1f57574, every
+// screen of the row at 0px clipped and 0px sideways, the three logs byte-identical within each route.
+// Evidence: docs/verification/evidence/scroll-only-2026-11-16/.
+const SCROLL_ONLY_2026_11_16 = ['freeze-tap 320x568', 'zero-trigger 320x568', 'wire-snip-panic 320x568', 'short-stick 320x568'];
+const SCROLL_ONLY = ['prize-draw 320x568', ...DEMO_PHONE_PX.keys(), ...SCROLL_ONLY_2026_11_16];
 
-test('the scroll-only rows are exactly the five scroll rulings, each a KNOWN_OVERFLOW row recorded at 0px clipped', () => {
+test('the scroll-only rows are exactly the nine scroll rulings, each a KNOWN_OVERFLOW row recorded at 0px clipped', () => {
   assert.ok(fit.SCROLL_ONLY_ROWS instanceof Set, 'the probe exports its scroll-only set');
   assert.deepEqual([...fit.SCROLL_ONLY_ROWS].sort(), [...SCROLL_ONLY].sort());
   for (const key of fit.SCROLL_ONLY_ROWS) {
     assert.ok(KNOWN_OVERFLOW.has(key), `${key}: a scroll-only row outside KNOWN_OVERFLOW guards nothing`);
     assert.match(KNOWN_OVERFLOW.get(key), /0px clipped, 0px sideways/, key);
+    // The class map has to declare the row too, or the gh#284 gate reds it for a missing declaration.
+    assert.ok(KNOWN_OVERFLOW_SCREEN.has(key), `${key}: a scroll-only row with no declared screen class`);
+  }
+  // The four the 2026-11-16 ruling admitted carry their measurement provenance, not the phrase alone: a row
+  // slipped into the set with no re-measurement behind it is the regression this pins.
+  for (const key of SCROLL_ONLY_2026_11_16) {
+    assert.match(KNOWN_OVERFLOW.get(key), /re-measured 2026-11-16 at 1f57574 \(n=3\): 0px clipped, 0px sideways/, key);
+    assert.ok(!FITS_ROWS.has(key), `${key}: a row in both sets reds as ambiguous`);
+    assert.ok(!KNOWN_OVERFLOW_X.has(key), `${key}: the grant is vertical only, so the horizontal map must not hold it`);
   }
 });
 

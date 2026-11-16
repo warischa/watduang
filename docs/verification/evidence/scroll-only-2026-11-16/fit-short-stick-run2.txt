@@ -1,0 +1,16 @@
+::notice::short-stick        frame main#app cap    none  screen section#ssPlayers.ss-players.ps  [first-game-screen press 1]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [579-861] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no  docs/verification/evidence/203/short-stick-1440x900-first-game-screen.png
+NARROWED by ROUTES_ONLY=short-stick — 1 of 18 play route(s). A narrowed run is iteration only, never the deploy verdict.
+::notice::short-stick        320x568   scrolls YES   156px  clipped     0px  sideways     0px  width-fill  89.4%  (worst of 3 screen(s): press 3, 17 ink)
+::notice::  screen [press 1]  overflow    54px  scrolls YES    54px  clipped     0px  sideways     0px  width-fill    90%  ink 20  class player
+::notice::  screen [press 2]  overflow   114px  scrolls YES   114px  clipped     0px  sideways     0px  width-fill    90%  ink 8  class round
+::notice::  screen [press 3]  overflow   156px  scrolls YES   156px  clipped     0px  sideways     0px  width-fill  89.4%  ink 17  class round
+::notice::short-stick        390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  90.8%  (worst of 3 screen(s): press 3, 16 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 8  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  90.8%  ink 16  class round
+::notice::short-stick        1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  (worst of 3 screen(s): press 1, 20 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  62.2%  ink 8  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  50.8%  ink 16  class round
+FIT_SHARD_WALKED clean 0/1 routes=short-stick
+OK 3 route/viewport row(s) left the fresh screen; 9 distinct play screen(s) measured across 1 route(s) x 3 viewport(s). 2 row(s) asserted to fit within 8px and 1 row(s) held as recorded exceptions in KNOWN_OVERFLOW (their px reported, never gated: growth or a 0px reading prints a warning; the screen class each ruling names IS gated, gh#284) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all 3 row(s) are asserted to clip no more than 8px horizontally except the 0 in KNOWN_OVERFLOW_X.

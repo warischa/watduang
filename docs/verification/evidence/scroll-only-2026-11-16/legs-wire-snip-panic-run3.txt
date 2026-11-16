@@ -1,0 +1,72 @@
+probe: strip-chip-visibility (strip-chip-visibility-probe.mjs)
+LEG_SUMMARY narrowed strip-chip-visibility checked=9 bad=0 minSlack=33.59px
+LEG_SECONDS narrowed strip-chip-visibility 70
+  PASS  strip-chip-visibility (70s)
+probe: strip-chip-visibility-control (strip-chip-visibility-probe.mjs)
+LEG_SUMMARY narrowed strip-chip-visibility-control checked=9 bad=8 minSlack=n/a
+LEG_SECONDS narrowed strip-chip-visibility-control 77
+  PASS  strip-chip-visibility-control (77s)
+probe: live-region-floor (standalone)
+LEG_SECONDS narrowed live-region-floor 5
+  PASS  live-region-floor (5s)
+probe: live-region-floor-control (standalone)
+LEG_SECONDS narrowed live-region-floor-control 5
+  PASS  live-region-floor-control (5s)
+probe: control-floor (standalone)
+LEG_SECONDS narrowed control-floor 80
+  PASS  control-floor (80s)
+probe: control-floor-control (standalone)
+LEG_SECONDS narrowed control-floor-control 100
+  PASS  control-floor-control (100s)
+probe: play-exit (standalone)
+LEG_SECONDS narrowed play-exit 8
+  PASS  play-exit (8s)
+::notice::play-exit GAPS wire-snip-panic: largest pointerup->pointerdown gap: handled 85.5ms, input 81.2ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 85.5, 83.9, 83.1, 83.1, 85.2; input gaps 80.7, 80.9, 81.1, 81.2, 81.1; dispatch lag 0, 1, 1, 1, 1ms)
+probe: play-exit-guard (standalone)
+LEG_SECONDS narrowed play-exit-guard 18
+  PASS  play-exit-guard (18s)
+probe: play-top-band (standalone)
+LEG_SECONDS narrowed play-top-band 13
+  PASS  play-top-band (13s)
+probe: canvas-ink (standalone)
+LEG_SECONDS narrowed canvas-ink 7
+  PASS  canvas-ink (7s)
+::notice::ROUTES_ONLY is set -- this is a NARROWED run over 1 of 10 derived route(s), iteration only and never the deploy verdict.
+::notice::IN_PAGE_CONTEXT webgl2=null webgl=null experimental-webgl=null 2d=live -- this lane's own read, not inferred from its Chrome flags
+probe: canvas-ink-control (standalone)
+LEG_SECONDS narrowed canvas-ink-control 7
+  PASS  canvas-ink-control (7s)
+::notice::ROUTES_ONLY is set -- this is a NARROWED run over 1 of 10 derived route(s), iteration only and never the deploy verdict.
+::notice::IN_PAGE_CONTEXT webgl2=null webgl=null experimental-webgl=null 2d=live -- this lane's own read, not inferred from its Chrome flags
+probe: no-webgl-first-screen (standalone)
+LEG_SECONDS narrowed no-webgl-first-screen 4
+  PASS  no-webgl-first-screen (4s)
+probe: player-screen-face (standalone)
+LEG_SECONDS narrowed player-screen-face 21
+  PASS  player-screen-face (21s)
+probe: play-top-band-control (standalone)
+LEG_SECONDS narrowed play-top-band-control 5
+  PASS  play-top-band-control (5s)
+probe: play-screen-fit (standalone)
+LEG_SECONDS narrowed play-screen-fit 30
+  PASS  play-screen-fit (30s)
+::notice::wire-snip-panic    frame div#app cap    none  screen section#wspPlayers.wsp-players.ps  [first-game-screen press 1]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [526-914] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no  docs/verification/evidence/203/wire-snip-panic-1440x900-first-game-screen.png
+::notice::wire-snip-panic    320x568   scrolls YES    67px  clipped     0px  sideways     0px  width-fill    90%  (worst of 4 screen(s): press 1, 20 ink)
+::notice::  screen [press 1]  overflow    67px  scrolls YES    67px  clipped     0px  sideways     0px  width-fill    90%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 14  class round
+::notice::  screen [press 3]  overflow    19px  scrolls YES    19px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::  screen [press 4]  overflow    19px  scrolls YES    19px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::wire-snip-panic    390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 4 screen(s): press 1, 20 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 14  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 26  class round
+::notice::wire-snip-panic    1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  (worst of 4 screen(s): press 1, 20 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  ink 20  class player
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 14  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 25  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 25  class round
+probe: play-screen-fit-control (standalone)
+LEG_SECONDS narrowed play-screen-fit-control 35
+  PASS  play-screen-fit-control (35s)
+::notice::wire-snip-panic    frame div#app cap    none  screen div#screen-menu.screen.active  [setup]  display flex  tracks 0 (none)  units 2 {div.hero-container [377-1063] | div.menu-actions [377-1063]} in 1 x-range(s)  span 0.476 of 1440px frame  side-by-side no

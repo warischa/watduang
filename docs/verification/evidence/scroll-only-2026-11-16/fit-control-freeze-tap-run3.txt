@@ -1,0 +1,3 @@
+::notice::freeze-tap         frame div#app cap    none  screen section#ftPlayers.ft-players.ps  [setup]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [591-849] | div.ps-count [615-825] | ul.ps-players [526-914] | p.ps-hint [605-835] | button.ps-sec [526-914] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no
+FIT_SHARD_WALKED control 0/1 routes=freeze-tap
+OK control: all 3 route/viewport row(s) stayed on the fresh screen with both the seeding and the presses disabled — so the walk invariant CAN fail, and the screen signature is stable across the 6 press intervals the clean leg spends walking (a signature that drifted on its own would report "it left setup" about a walk that never moved).
