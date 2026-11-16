@@ -732,6 +732,26 @@ export async function measureRoute(params) {
 
 // ---- the run ------------------------------------------------------------------------------------
 
+/** One route's turn, from the device metrics to its row: the viewport it is driven at and the reveal
+ *  driver it is handed are planned HERE, by the code main() runs, so a test can reach that choice with
+ *  a stub session and a stub measure instead of re-asserting the helpers beside them. `screenless` is
+ *  the caller's, because it comes from the manifest's categories rather than from this probe. */
+export async function runRoute({ game, base, declaration, screenless, session, armDelayMs, stubDraw = false, measure = measureRoute }) {
+  const route = game.id;
+  const url = new URL(game.playRoute, base).href;
+  const load = () => session.load(url);
+  // Real device metrics, not a resized window (why 390 for most routes, and why the prize routes differ: viewportFor).
+  await session.setViewport(viewportFor(route));
+  await session.clearStorage();
+  await load();
+  // A NEW reveal for the exercise's one retry: the same first visit, from the start.
+  const fresh = async () => { await session.clearStorage(); await load(); };
+  return measure({
+    route, url, declaration, evaluate: session.evaluate, tap: session.tap,
+    armDelayMs, stubDraw, screenless, driver: REVEAL_DRIVERS[route] ?? null, reload: load, fresh,
+  });
+}
+
 async function main() {
   const BASE = process.env.BASE ?? process.env.PROBE_BASE ?? 'http://localhost:4351';
   const PORT = process.env.CDP_PORT ?? '9333';
@@ -772,30 +792,24 @@ async function main() {
     return evaluateResult(res);
   };
 
-  const rows = [];
-  for (const g of games) {
-    const route = g.id;
-    const url = new URL(g.playRoute, BASE).href;
-    const screenless = screenlessPaths.has(g.playRoute);
-    const load = async () => {
+  const session = {
+    setViewport: (viewport) => send('Emulation.setDeviceMetricsOverride', viewport),
+    // A first visit: an earlier route's start saved a roster on this same origin.
+    // gh#305: and the prize-draw event an earlier route seeded.
+    clearStorage: () => send('Storage.clearDataForOrigin', { origin: new URL(BASE).origin, storageTypes: 'local_storage,indexeddb' }),
+    load: async (url) => {
       const p = new Promise((r) => { loadResolve = r; });
       await send('Page.navigate', { url });
       await p;
-    };
-    // Real device metrics, not a resized window (why 390 for most routes, and why the prize routes differ: viewportFor).
-    await send('Emulation.setDeviceMetricsOverride', viewportFor(route));
-    // A first visit: an earlier route's start saved a roster on this same origin.
-    // gh#305: and the prize-draw event an earlier route seeded.
-    await send('Storage.clearDataForOrigin', { origin: new URL(BASE).origin, storageTypes: 'local_storage,indexeddb' });
-    await load();
-    // A NEW reveal for the exercise's one retry: the same first visit, from the start.
-    const fresh = async () => {
-      await send('Storage.clearDataForOrigin', { origin: new URL(BASE).origin, storageTypes: 'local_storage,indexeddb' });
-      await load();
-    };
-    rows.push(await measureRoute({
-      route, url, declaration: declarations[route], evaluate, tap, armDelayMs: ARM_DELAY_MS, stubDraw,
-      screenless, driver: REVEAL_DRIVERS[route] ?? null, reload: load, fresh,
+    },
+    evaluate,
+    tap,
+  };
+  const rows = [];
+  for (const g of games) {
+    rows.push(await runRoute({
+      game: g, base: BASE, declaration: declarations[g.id], screenless: screenlessPaths.has(g.playRoute), session,
+      armDelayMs: ARM_DELAY_MS, stubDraw,
     }));
   }
 

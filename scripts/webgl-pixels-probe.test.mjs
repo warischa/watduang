@@ -9,7 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { classify, exitCodeFor, aggregate, resolveGLContext, judgeHold, RECORDER, measureRoute, REVEAL_DRIVERS, HOLD_EXERCISE, judgeHoldExercise, viewportFor, PHONE_VIEWPORT, WIDE_VIEWPORT } from './webgl-pixels-probe.mjs';
+import { classify, exitCodeFor, aggregate, resolveGLContext, judgeHold, RECORDER, measureRoute, REVEAL_DRIVERS, HOLD_EXERCISE, judgeHoldExercise, viewportFor, PHONE_VIEWPORT, WIDE_VIEWPORT, runRoute } from './webgl-pixels-probe.mjs';
 import * as hold from '../src/play/_render-hold.ts';
 import { loadDeclarations, renderPlayRoutes } from './render-suspension-check.mjs';
 import { screenlessPlayPaths } from './play-screen-fit-probe.mjs';
@@ -767,4 +767,88 @@ test('viewport: every prize reveal route is driven at a width where it draws 3D;
   const others = (await renderPlayRoutes()).map((g) => g.id).filter((id) => !REVEAL_DRIVERS[id]);
   assert.ok(others.length > 0);
   for (const id of others) assert.deepEqual(viewportFor(id), PHONE_VIEWPORT, `${id} left the phone buffer`);
+});
+
+// ---- the run's own dispatch and driver table, checked against the manifest -------------------------
+// main() plans every manifest play route through runRoute: the viewport it sends, the driver it hands to
+// measureRoute, and the screenless flag and declaration that decide MEASURED vs UNMEASURED are chosen
+// there. These tests drive that production entry with a stub session, so a change to the route's setup --
+// not just to its helpers -- is what reds them. Every expected value is computed from the source main()
+// itself reads: src/games/manifest.ts through renderPlayRoutes for the route set and url, the category
+// data through screenlessPlayPaths for the flag, src/play/_render-suspension.json through loadDeclarations
+// for the declaration. Never a hand-typed list, never Object.keys(REVEAL_DRIVERS) as its own oracle.
+const PROBE_BASE = 'http://localhost:4351';
+const prizeGames = async () => (await renderPlayRoutes()).filter((g) => g.category === 'company-party');
+const otherGames = async () => (await renderPlayRoutes()).filter((g) => g.category !== 'company-party');
+
+/** What main() derives for one route, from the sources it derives them from. */
+function expectedPlan(game) {
+  return {
+    url: new URL(game.playRoute, PROBE_BASE).href,
+    screenless: screenlessPlayPaths().has(game.playRoute),
+    suspends: loadDeclarations()[game.id]?.suspends,
+  };
+}
+
+/** runRoute over a stub session: records the setup main performs, and the params it would measure with. */
+async function plannedThroughRun(game) {
+  const expected = expectedPlan(game);
+  const calls = [];
+  const session = {
+    setViewport: async (viewport) => { calls.push(['viewport', viewport]); },
+    clearStorage: async () => { calls.push(['clear']); },
+    load: async (url) => { calls.push(['load', url]); },
+    evaluate: async () => ({ value: null }),
+    tap: async () => {},
+  };
+  let measured = null;
+  const row = await runRoute({
+    game, base: PROBE_BASE, declaration: loadDeclarations()[game.id], screenless: expected.screenless,
+    session, armDelayMs: 1,
+    measure: async (params) => { measured = params; return { route: game.id, verdict: 'PASS' }; },
+  });
+  return { calls, measured, row, expected };
+}
+
+/** The three fields that decide MEASURED vs UNMEASURED, each against the source main() reads. */
+function assertMeasuredFromSources(game, measured, expected) {
+  assert.equal(measured.url, expected.url, `${game.id} was measured at a url other than its manifest play route`);
+  assert.equal(measured.screenless, expected.screenless, `${game.id} was measured with screenless=${measured.screenless}, but main computes ${expected.screenless}`);
+  assert.equal(measured.declaration?.suspends, expected.suspends, `${game.id} was measured without the declaration its route id owns (${expected.suspends})`);
+}
+
+test('gh#305: the run drives every company-party prize route wide and every other play route at the phone buffer', async () => {
+  // A swap of the two arms, or a collapse of the dispatch to one value, reds one of the two loops below.
+  assert.notDeepEqual(WIDE_VIEWPORT, PHONE_VIEWPORT, 'the two viewports are identical, so the dispatch cannot be told apart');
+  const prize = await prizeGames();
+  const others = await otherGames();
+  assert.ok(prize.length > 0, 'the manifest names no company-party play route: the wide side would pass vacuously');
+  assert.ok(others.length > 0, 'the manifest names no non-prize play route: the phone side would pass vacuously');
+  // The declaration comparison below is only meaningful if every route has one to lose.
+  for (const game of [...prize, ...others]) {
+    assert.match(String(expectedPlan(game).suspends), /^(adapter|none)$/, `${game.id} has no suspends declaration, so a run that dropped it would still match`);
+  }
+  for (const game of prize) {
+    const { calls, measured, row, expected } = await plannedThroughRun(game);
+    assert.equal(expected.screenless, true, `${game.id} is a company-party play route: the screenless flag main computes must be true here`);
+    assert.deepEqual(calls[0], ['viewport', WIDE_VIEWPORT], `${game.id} is a prize reveal route but the run did not drive it wide`);
+    assert.equal(typeof measured.driver, 'function', `${game.id} reached its measurement with no reveal driver from the table`);
+    assert.equal(measured.driver, REVEAL_DRIVERS[game.id], `${game.id} was handed a driver other than its REVEAL_DRIVERS entry`);
+    assert.equal(measured.route, game.id);
+    assert.equal(row.route, game.id, 'runRoute did not return what measureRoute answered');
+    assertMeasuredFromSources(game, measured, expected);
+  }
+  for (const game of others) {
+    const { calls, measured, expected } = await plannedThroughRun(game);
+    assert.equal(expected.screenless, false, `${game.id} is a party play route: the screenless flag main computes must be false here`);
+    assert.deepEqual(calls[0], ['viewport', PHONE_VIEWPORT], `${game.id} is not a prize reveal route but the run left the phone buffer`);
+    assert.equal(measured.driver, null, `${game.id} is not a reveal route but the run handed it a driver`);
+    assertMeasuredFromSources(game, measured, expected);
+  }
+});
+
+test('gh#305: REVEAL_DRIVERS names exactly the manifest\'s company-party reveal routes', async () => {
+  const prize = (await prizeGames()).map((g) => g.id).sort();
+  assert.ok(prize.length > 0, 'the manifest names no company-party play route: this test would pass vacuously');
+  assert.deepEqual(Object.keys(REVEAL_DRIVERS).sort(), prize, 'a prize reveal route without a driver is never revealed, and a driver for any other route is stale');
 });
