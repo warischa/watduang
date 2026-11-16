@@ -1,7 +1,7 @@
 gh#181 box 2 — 320x568 width-fill measurement, cursed-number and zero-trigger
 Run: 2026-09-17, commit d1a7402, existing dist/ (not rebuilt).
 Tool: scripts/play-screen-fit-probe.mjs, ROUTES_ONLY=cursed-number,zero-trigger (debug run, not a gate).
-Ports: BASE=http://localhost:4611 (npx serve), CDP_PORT=9611 (Chrome --headless=new --user-data-dir=/tmp/cdp-prof-181box2).
+Ports: BASE=http://localhost:4611 (npx serve), CDP_PORT=9611 (Chrome --headless=new --user-data-dir=<tmp>/cdp-prof-181box2).
 
 cursed-number  320x568  scrolls YES 689px  clipped 0px  sideways 0px  width-fill 75.6%  (worst of 7 screens, press 1)
 zero-trigger   320x568  scrolls YES 131px  clipped 0px  sideways 0px  width-fill   87%  (worst of 3 screens, press 0)

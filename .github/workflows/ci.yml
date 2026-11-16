@@ -243,6 +243,15 @@ jobs:
           GITHUB_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: node scripts/added-lineno-citation-check.mjs --selftest && node scripts/added-lineno-citation-check.mjs
 
+      # The repo is PUBLIC: a probe that prints a home-directory or temp path writes that path into
+      # the evidence file committed with the measurement. Owner ruling 2026-11-16 scrubbed the
+      # current files and added this gate; git history is not rewritten. The scan reads every
+      # TRACKED file under docs/verification/evidence/ via git ls-files (no filesystem walk, so an
+      # untracked directory another agent is writing cannot enter it), skips binaries, and has no
+      # base ref — any hit is a violation. --selftest first, same reason as the gates around it.
+      - name: No local machine paths in tracked evidence
+        run: node scripts/evidence-local-path-check.mjs --selftest && node scripts/evidence-local-path-check.mjs
+
       # --selftest first, same reason as above: proves the comment/string split still works before
       # trusting a 0 count. "Write English. Ship Thai." (#36) — a Thai comment line, or a line where
       # a comment and a string both carry Thai (ambiguous, unresolved), fails the build; a skipped

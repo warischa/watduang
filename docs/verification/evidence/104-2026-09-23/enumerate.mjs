@@ -4,9 +4,10 @@
 // READ-ONLY: writes nothing, builds nothing, mutates nothing.
 //
 // 2026-09-23 refresh of the 2026-09-09 instrument, which lives outside the repo at
-// ~/.claude/projects/-Users-waris-c-claude-free-game/gh104-enumerate.mjs. This copy runs on the
+// ~/.claude/projects/<repo>/gh104-enumerate.mjs. This copy runs on the
 // tree after gh#97/gh#98 rebuilt the siamsi deck into SLIPS and gh#104 item 2 regenerated the OG
 // cards. Adapted only where the tree broke it - the 09-09 original and its report stay the record.
+// ROOT is resolved from this file's own location at runtime (no machine path is stored here).
 //
 //   node docs/verification/evidence/104-2026-09-23/enumerate.mjs
 //   node docs/verification/evidence/104-2026-09-23/enumerate.mjs --rows      # + one TSV line per examined string
@@ -19,8 +20,9 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = '/Users/waris.c/claude/free-game';
+const ROOT = fileURLToPath(new URL('../../../..', import.meta.url));
 const require = createRequire(path.join(ROOT, 'package.json'));
 const ts = require('typescript');
 const THAI = /[฀-๿]/;

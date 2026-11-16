@@ -2,7 +2,7 @@
 // own confirmLockBtn writes; the ordering readyBtn -> showScreen -> syncSelectionUI is asserted on the
 // source, not assumed. Exit 1 = confirm stranded after a turn>=2 ready; exit 2 = instrument broken.
 import assert from 'node:assert/strict';
-import { sliceBlock } from '/Users/waris.c/claude/free-game/src/play/_dom-stub.mjs';
+import { sliceBlock } from '<repo>/src/play/_dom-stub.mjs';
 import { freshPage, contact, mountMarkup, routeFile } from './harness.mjs';
 
 const CONFIRM_OFF = "document.getElementById('confirmLockBtn').disabled = true;";

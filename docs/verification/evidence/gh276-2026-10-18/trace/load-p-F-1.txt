@@ -10,5 +10,5 @@
  71.1 38836 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
  52.5 38826 bash -c while :; do :; done
  45.7 38827 bash -c while :; do :; done
- 34.7 38945 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
- 27.5 87274 /Users/waris.c/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud
+ 34.7 38945 ~/miniconda3/bin/python3 ~/miniconda3/bin/litellm --config /Us
+ 27.5 87274 ~/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud

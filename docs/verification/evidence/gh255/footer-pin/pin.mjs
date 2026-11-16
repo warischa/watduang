@@ -1,7 +1,10 @@
 // Footer-pin measurement walk. PHASE=before|after decides the screenshot folder.
+// OUT is resolved from this file's own location at runtime; no machine path is stored here.
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 const ORIGIN = 'http://127.0.0.1:4393';
 const PHASE = process.env.PHASE || 'before';
-const OUT = `/Users/waris.c/claude/free-game/docs/verification/evidence/gh255/footer-pin/${PHASE}`;
+const OUT = path.join(fileURLToPath(new URL('.', import.meta.url)), PHASE);
 const PAGES = ['/404.html', '/tools/', '/tool/wheel/', '/tool/draw/', '/tool/team/', '/tool/number/',
   '/', '/c/party/', '/c/fortune/', '/game/siamsi/', '/game/daily-fortune/', '/game/love-match/', '/game/timebomb/play/'];
 const PROBE = `

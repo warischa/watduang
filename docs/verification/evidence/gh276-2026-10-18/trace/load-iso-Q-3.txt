@@ -1,6 +1,6 @@
 == before 08:53:49
  8:53  up 56 mins, 1 user, load averages: 9.37 9.64 8.55
-100.0 72982 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+100.0 72982 ~/miniconda3/bin/python3 ~/miniconda3/bin/litellm --config /Us
  81.6 72693 /Applications/OneDrive.app/Contents/PlugIns/OneDrive File Provider.appex/Contents/MacOS/
  52.8 73084 bash -c while :; do :; done
  52.3 73083 bash -c while :; do :; done

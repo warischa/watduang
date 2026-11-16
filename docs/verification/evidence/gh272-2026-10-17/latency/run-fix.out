@@ -377,7 +377,7 @@ standin H#5: ok {}
   }
  }
 }
-/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/run.sh: line 14: 57294 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
-/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/run.sh: line 14: 57295 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
-/Users/waris.c/.claude/projects/-Users-waris-c-claude-free-game/gh272-2026-10-17/latency/run.sh: line 14: 55129 Terminated: 15          ( cd "$DIST/.." && npx serve dist -l $PORT > "$HERE/serve-$TAG.log" 2>&1 )
+~/.claude/projects/<repo>/gh272-2026-10-17/latency/run.sh: line 14: 57294 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+~/.claude/projects/<repo>/gh272-2026-10-17/latency/run.sh: line 14: 57295 Terminated: 15          taskpolicy -b bash -c 'while :; do :; done'
+~/.claude/projects/<repo>/gh272-2026-10-17/latency/run.sh: line 14: 55129 Terminated: 15          ( cd "$DIST/.." && npx serve dist -l $PORT > "$HERE/serve-$TAG.log" 2>&1 )
 teardown: 21 pids killed, leftovers=0; ports: 0 listening

@@ -11,4 +11,4 @@
  93.6 68466 bash -c while :; do :; done
  93.0 68465 bash -c while :; do :; done
  84.3 68463 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
- 28.0 68996 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 28.0 68996 ~/miniconda3/bin/python3 ~/miniconda3/bin/litellm --config /Us

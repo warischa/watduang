@@ -1,5 +1,8 @@
+// OUT is resolved from this file's own location at runtime; no machine path is stored here.
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 const ORIGIN = 'http://127.0.0.1:4393';
-const OUT = '/Users/waris.c/claude/free-game/docs/verification/evidence/gh255';
+const OUT = path.dirname(fileURLToPath(import.meta.url));
 const PAGES = [
   ['/', 'chrome'], ['/tools/', 'chrome'], ['/tool/wheel/', 'chrome'], ['/tool/draw/', 'chrome'],
   ['/tool/team/', 'chrome'], ['/tool/number/', 'chrome'], ['/404.html', 'chrome'],

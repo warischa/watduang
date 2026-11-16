@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Compose each gh303-art prompt: the Direction C reuse template (read from the registry, byte-identical),
 with the cover's own Subject: placed second, as gh#242 did. Writes prompts/<id>.txt and prompts/<id>.sent.txt
-(the latter = the full string handed to codex exec, style-reference prefix and save line included)."""
+(the latter = the full string handed to codex exec, style-reference prefix and save line included).
+REPO is resolved from this file's own location at runtime; no machine path is stored here."""
 import json, os, re
 
 S = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REG = '/Users/waris.c/claude/free-game/images/IMAGES.md'
-ANCHOR = '/Users/waris.c/claude/free-game/images/IMG_02_003.png'
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(S)))
+REG = f'{REPO}/images/IMAGES.md'
+ANCHOR = f'{REPO}/images/IMG_02_003.png'
 lines = open(REG, encoding='utf-8').read().split('\n')
 start = next(i for i, l in enumerate(lines) if l.startswith('**Direction C reuse template'))
 tpl = [l[4:] for l in lines[start:start + 20] if l.startswith('    ') and re.match(r'    (Scene|Style/medium|Composition/framing|Color palette|Constraints):', l)]

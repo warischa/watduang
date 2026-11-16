@@ -3,7 +3,7 @@
  57.2 54195 bash -c while :; do :; done
  56.7 54196 bash -c while :; do :; done
  44.2 54193 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
- 29.5 87441 node /Users/waris.c/.claude/plugins/cache/context-mode/context-mode/1.0.169/start.mjs
+ 29.5 87441 node ~/.claude/plugins/cache/context-mode/context-mode/1.0.169/start.mjs
  26.4   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
 == after 09:32:56
  9:32  up  1:35, 1 user, load averages: 18.47 12.04 11.16

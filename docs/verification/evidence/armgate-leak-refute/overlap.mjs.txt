@@ -1,7 +1,7 @@
 // Discriminates fix A (hold path) from fix B (deletion path): gate GA owns C; owner enables C; a
 // second gate GB on an inner stage marks C 200ms later. GA's timer fires while GB's window is open.
 // Prints whether C is live inside GB's window (a ghost hole). Exit 1 if live.
-import { FakeElement } from '/Users/waris.c/claude/free-game/src/games/_fake-dom.mjs';
+import { FakeElement } from '<repo>/src/games/_fake-dom.mjs';
 import { freshPage, contact } from './harness.mjs';
 const { doc, gate, clock } = await freshPage('head');
 const outer = new FakeElement('section', doc);

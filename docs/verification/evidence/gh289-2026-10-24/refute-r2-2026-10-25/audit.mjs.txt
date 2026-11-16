@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { webcrypto } from 'node:crypto';
 import { createRequire } from 'node:module';
-const repo = '/Users/waris.c/claude/free-game';
+const repo = '<repo>';
 const scratch = path.dirname(new URL(import.meta.url).pathname);
 const require = createRequire(repo + '/package.json');
 const esbuild = require('esbuild');

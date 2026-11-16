@@ -1,7 +1,7 @@
 {
  "capturedAt": "2026-10-20T02:17:43.170Z",
  "consoleProblems": [
-  "log.error: Failed to load resource: net::ERR_FILE_NOT_FOUND file:///Users/waris.c/claude/free-game/design/support.js"
+  "log.error: Failed to load resource: net::ERR_FILE_NOT_FOUND file://<repo>/design/support.js"
  ],
  "sheetH": 2721,
  "fontsLoaded": "Noto Sans Thai 400",

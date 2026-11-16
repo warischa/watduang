@@ -4,9 +4,9 @@
 //   ORDER=c: candidate C -- scanBtn.disabled=false runs BEFORE showScreen; tail keeps everything else.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { makePage } from '/Users/waris.c/claude/free-game/src/play/_player-screen/screen-harness.mjs';
-import { sliceBlock } from '/Users/waris.c/claude/free-game/src/play/_dom-stub.mjs';
-const repo = '/Users/waris.c/claude/free-game';
+import { makePage } from '<repo>/src/play/_player-screen/screen-harness.mjs';
+import { sliceBlock } from '<repo>/src/play/_dom-stub.mjs';
+const repo = '<repo>';
 const TURN = Number(process.env.TURN ?? 2), ORDER = process.env.ORDER ?? 'head', CASE = process.env.CASE ?? 'dead';
 const source = readFileSync(repo + '/src/play/wire-snip-panic/main.js', 'utf8').split('\n').filter(l => !l.trimStart().startsWith('//')).join('\n');
 const doc = makePage(readFileSync(repo + '/src/play/wire-snip-panic/markup.html', 'utf8'));

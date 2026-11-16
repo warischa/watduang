@@ -1,7 +1,7 @@
 Result: PASS
 Choose **B as an early render-suspension lifecycle, including A’s deferred first boot**. Keep roster writes serialized; A alone misses mid-round reopen and saves.
 
-- **READ — scope:** `/Users/waris.c/claude/free-game` HEAD predates `c7ac65d`; I also read that commit through `git show`. Its additional tests were read, not executed.
+- **READ — scope:** `<repo>` HEAD predates `c7ac65d`; I also read that commit through `git show`. Its additional tests were read, not executed.
 - **RAN — disk enumeration:** `rg -l -g '*.js' -g '*.ts' 'requestAnimationFrame|setAnimationLoop|getContext\(' src/play`.
 - **READ — WebGL:** croc-bite (`main.js::GameScene`), one-bomb (`main.js::loop`), pinocchio-luck (`main.js::frame`) all continue rendering while the player screen is open.
 - **READ — 2D:** short-stick’s `stick-canvas.ts` and timebomb’s `bomb-canvas.ts` are Canvas2D; their rAF chains remain scheduled while their boards are hidden.
@@ -16,7 +16,7 @@ Choose **B as an early render-suspension lifecycle, including A’s deferred fir
 - **Preserve:** UI/lifecycle before failed GL initialization, players before setup/board, and failure releases in `no-3d-round.test.mjs` and `setup-held-for-players.test.mjs`.
 - **Context loss:** preserve croc-bite’s `cutTo2D` and one-bomb’s `onContextLost`; closing the screen must never resurrect a lost renderer or reset the surviving round.
 - **Arming:** suspension is separate from input gating. Every close/cancel/confirm and handover reveal must retain ADR-0057/0059 arming; retain every route’s `arm-reveal-paths.test.mjs`.
-- **RAN — source/stub probe:** `/Users/waris.c/.nvm/versions/node/v22.22.1/bin/node --input-type=module` against sliced `c7ac65d` sources produced `grants:3, state:"closed", pending:"1"` before grants, then `"open"`; croc’s loop still produced `renders:2, queued:1` with the screen open.
+- **RAN — source/stub probe:** `~/.nvm/versions/node/v22.22.1/bin/node --input-type=module` against sliced `c7ac65d` sources produced `grants:3, state:"closed", pending:"1"` before grants, then `"open"`; croc’s loop still produced `renders:2, queued:1` with the screen open.
 - **RAN — baseline:** selected current-tree arm, fallback, context-loss, roster, and screen tests passed under Node 22. Node 25 exposed their pre-existing “no Web Locks” assumption.
 - **Measurement, not yet run:** compare baseline/candidate on the stated SwiftShader/slow-core/burner profile at 1440×900. Seed genuine legacy settings; measure navigation→interactive screen, mid-round edit→interactive screen, and save activation→durable commit/handover.
 - Record worst observed latency against an owner-approved numeric budget, lock request→callback times, long tasks/readbacks, and render calls during suspension. Repeat no-WebGL, partial-init failure, and context loss before/during suspension and after resume; verify cross-tab edits survive.

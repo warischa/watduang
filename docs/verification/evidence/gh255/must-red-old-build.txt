@@ -26,4 +26,4 @@
 [missing-topbar] tools/index.html · carries the top-bar marker 0 time(s), expected 1.
 [missing-footer] tools/index.html · carries the footer marker 0 time(s), expected 1.
 
-page-chrome-check: 27 breach(es) in /Users/waris.c/claude/free-game/dist. gh#247/gh#255: canvas D's top bar and footer render on every page; solo landings carry the footer only; play routes carry neither (ADR-0014).
+page-chrome-check: 27 breach(es) in <repo>/dist. gh#247/gh#255: canvas D's top bar and footer render on every page; solo landings carry the footer only; play routes carry neither (ADR-0014).

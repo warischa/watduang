@@ -93,7 +93,7 @@ out of scope here.
 1. `npm run build`.
 2. `npx serve dist -l 4592 &` — record the pid.
 3. `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu \
-   --no-sandbox --remote-debugging-port=9592 --user-data-dir=/tmp/<unique> about:blank &` — record
+   --no-sandbox --remote-debugging-port=9592 --user-data-dir=<tmp>/<unique> about:blank &` — record
    the pid.
 4. Run each leg from the Command block above, sequentially, never concurrently — they share the
    port and the browser tab lifecycle.

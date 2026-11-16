@@ -17,10 +17,10 @@ Reproduce with the probe's own usage line, adding `SHOT_DIR`:
 npm run build
 npx serve dist -l 4557 &
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu \
-  --no-sandbox --remote-debugging-port=9557 --user-data-dir=/tmp/strip-prof about:blank &
-BASE=http://localhost:4557 CDP_PORT=9557 SHOT_DIR=/tmp/strip-shots \
+  --no-sandbox --remote-debugging-port=9557 --user-data-dir=<tmp>/strip-prof about:blank &
+BASE=http://localhost:4557 CDP_PORT=9557 SHOT_DIR=<tmp>/strip-shots \
   node scripts/driver.mjs scripts/strip-chip-visibility-probe.mjs
-CONTROL=1 BASE=http://localhost:4557 CDP_PORT=9557 SHOT_DIR=/tmp/strip-shots \
+CONTROL=1 BASE=http://localhost:4557 CDP_PORT=9557 SHOT_DIR=<tmp>/strip-shots \
   node scripts/driver.mjs scripts/strip-chip-visibility-probe.mjs
 ```
 

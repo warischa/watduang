@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { makePage } from '/Users/waris.c/claude/free-game/src/play/_player-screen/screen-harness.mjs';
-import { sliceBlock } from '/Users/waris.c/claude/free-game/src/play/_dom-stub.mjs';
-import { CursedNumberGameModel } from '/Users/waris.c/claude/free-game/src/games/cursed-number.ts';
+import { makePage } from '<repo>/src/play/_player-screen/screen-harness.mjs';
+import { sliceBlock } from '<repo>/src/play/_dom-stub.mjs';
+import { CursedNumberGameModel } from '<repo>/src/games/cursed-number.ts';
 
-const repo = '/Users/waris.c/claude/free-game';
+const repo = '<repo>';
 const noop = () => {};
 let leg = 0;
 const sourceFor = (version, route) => {

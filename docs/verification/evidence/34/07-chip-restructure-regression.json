@@ -27,7 +27,7 @@
     "secondPickAfterReturnWorks": { "pairPresent": true }
   },
   "screenshotsTakenNotCommitted": [
-    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/mb-taken-chip-320.png"
+    "<tmp>/mb-taken-chip-320.png"
   ],
   "note": "Plain statement for the return: the taken chip DOES visibly dim -- confirmed by both computed style (color/background alpha drop to 0.3) and a screenshot showing 'เอ' visibly greyed next to solid 'บี'/'ซี'. The CSS `opacity` property itself is unchanged (a probe that checked only `opacity` would have wrongly reported no visible change), so the dimming rides entirely on the browser's default disabled-button rendering, not on anything this component's styles set.",
   "consoleErrors": []

@@ -8,11 +8,12 @@ Sheet 1, compare-style.png: one row per cover — a shipped party card, then tha
   2x card art slot box 502x320 (the 251x160 CSS px .game-card-art box).
 Sheet 2, compare-grounds.png: every candidate at 1x (251x160) on the two gh#303 K1 accent options,
   lilac #c9c2ff and night #23214d, croc-bite first as the reference.
-Labels are ASCII, drawn by montage below each tile with an explicit font file."""
+Labels are ASCII, drawn by montage below each tile with an explicit font file.
+ART is resolved from this file's own location at runtime; no machine path is stored here."""
 import os, subprocess, sys
 
 FONT = '/System/Library/Fonts/Supplemental/Arial Bold.ttf'
-ART = '/Users/waris.c/claude/free-game/public/art'
+ART = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'public', 'art'))
 ROWS = [
     ('croc-bite', 'event', ('IMG_04_001', 'IMG_04_002')),
     ('timebomb', 'fireworks', ('IMG_04_003', 'IMG_04_004')),

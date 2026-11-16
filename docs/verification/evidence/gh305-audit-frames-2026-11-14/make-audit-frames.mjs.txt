@@ -2,9 +2,9 @@
 // gh#305 audit frames canvas: writes design/Gh305AuditFrames.dc.html, then (step "render") measures every frame in
 // headless Chrome and writes one PNG per frame, measurements.json and a markdown table to stdout.
 // Saved as .txt so repo tooling never treats it as code. Run from a copy OUTSIDE the repo:
-//   cp make-audit-frames.mjs.txt /tmp/gh305-af/make-audit-frames.mjs
-//   node /tmp/gh305-af/make-audit-frames.mjs <repo root> write [measurements.json]   # captions take numbers from a prior run
-//   CDP_PORT=9347 SHOT_TMP=/tmp/gh305-af node /tmp/gh305-af/make-audit-frames.mjs <repo root> render
+//   cp make-audit-frames.mjs.txt <tmp>/gh305-af/make-audit-frames.mjs
+//   node <tmp>/gh305-af/make-audit-frames.mjs <repo root> write [measurements.json]   # captions take numbers from a prior run
+//   CDP_PORT=9347 SHOT_TMP=<tmp>/gh305-af node <tmp>/gh305-af/make-audit-frames.mjs <repo root> render
 // render exits 1 when: the control cards frame paints a name at 16px or more (the instrument is broken); a proposal
 // cards frame paints a name under 16px, puts a card outside the field or overlaps two cards; a phone frame has a box
 // outside its parent or the frame, or scrolls sideways in a real viewport of its width; the viewport must-red does not

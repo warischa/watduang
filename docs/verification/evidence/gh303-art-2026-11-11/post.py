@@ -3,14 +3,15 @@
 under public/ and images/ vs baseline, ls public/art | wc -l; (2) grade the raw render (gh241 grade.py),
 black point by the gh#242 ship_all rule, a scratch-only ship webp via gh241 make_ship.py, the partial-alpha
 tripwire, and flattened look images on the party ground, the two K1 candidate grounds and ink.
-Usage: post.py IMG_04_00N   Prints one JSON line."""
+Usage: post.py IMG_04_00N   Prints one JSON line.
+R is resolved from this file's own location at runtime; no machine path is stored here."""
 import json, os, subprocess, sys
 import numpy as np
 from PIL import Image
 from scipy.ndimage import binary_dilation
 
-R = '/Users/waris.c/claude/free-game'
 S = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+R = os.path.dirname(os.path.dirname(os.path.dirname(S)))
 EV = f'{R}/docs/verification/evidence/gh241'
 r = np.arange(-4, 5); DISK = (r[:, None] ** 2 + r[None, :] ** 2) <= 16
 GROUNDS = {'punch': '#ff3d7f', 'lilac': '#c9c2ff', 'night': '#23214d', 'ink': '#1a1a1a'}

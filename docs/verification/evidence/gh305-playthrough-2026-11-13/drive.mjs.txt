@@ -8,8 +8,8 @@ const CDP_PORT = process.env.CDP_PORT || '9611';
 if (CDP_PORT !== '9611') throw new Error('this run owns 9611 only');
 const BASE = 'http://localhost:4611';
 const scenario = process.argv[2];
-const OUT = process.argv[3] || '/Users/waris.c/claude/free-game/docs/verification/evidence/gh305-playthrough-2026-11-13';
-const DIST = '/Users/waris.c/claude/free-game/dist';
+const OUT = process.argv[3] || '<repo>/docs/verification/evidence/gh305-playthrough-2026-11-13';
+const DIST = '<repo>/dist';
 mkdirSync(OUT, { recursive: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

@@ -12,8 +12,8 @@ Counter-example: first transition frame delayed 4500ms; its 2000ms transition la
 base: reproduces — RAN cbb951b and 8934bce scripts in the timer/DOM harness; both reveal without settling. Native rendering reproduction was not run because the sandbox denied Chromium launch.
 Fix: make the fallback settle the disc before revealing.
 
-RAN: `node /Users/waris.c/claude/claude-skills-index/skills/orchestrate/runtime/judge.c0X0/audit.mjs`
-RAN: `node /Users/waris.c/claude/claude-skills-index/skills/orchestrate/runtime/judge.c0X0/wrong-page-audit.mjs`
-RAN inside `/Users/waris.c/claude/free-game`: `node --test /Users/waris.c/claude/free-game/scripts/ci-probes-verdict.test.mjs /Users/waris.c/claude/free-game/scripts/play-screen-fit-probe.test.mjs` — 92 passed.
+RAN: `node ~/claude/claude-skills-index/skills/orchestrate/runtime/judge.c0X0/audit.mjs`
+RAN: `node ~/claude/claude-skills-index/skills/orchestrate/runtime/judge.c0X0/wrong-page-audit.mjs`
+RAN inside `<repo>`: `node --test <repo>/scripts/ci-probes-verdict.test.mjs <repo>/scripts/play-screen-fit-probe.test.mjs` — 92 passed.
 Coverage: read wheel lifecycle, probe/verdict, fit tables/consumers and new test. Confirmed 176px parsing, round boundary 8/9 and warning boundary 184/185. No row-move defect found. Native stale-event/hidden-tab behavior remains unverified; workspace unchanged.
 would change if: timing validation rejects the counter-example and the fallback demonstrably settles before revealing.

@@ -1,5 +1,8 @@
 // Loads bangkok-drift, forces seed 2935300 (matches ticket's known road), drives setup->turn->drive
 // through real UI clicks, then freezes camera at pos=190m (matches ticket) and samples sprite pixels.
+// The default screenshot path is resolved at runtime from the OS temp root; no machine path is stored.
+import os from 'node:os';
+import path from 'node:path';
 const URL = process.env.FOG_URL;
 const POS = Number(process.env.FOG_POS || 205);
 
@@ -59,7 +62,7 @@ export default async function (session) {
 
   const farPx = await sample(far);
   const nearPx = await sample(near);
-  await session.screenshot(process.env.FOG_SHOT || '/tmp/fog.png');
+  await session.screenshot(process.env.FOG_SHOT || path.join(os.tmpdir(), 'fog.png'));
 
   const warn = [];
   if (farPx.a === 0) warn.push('far sample landed on a transparent pixel -- not the sprite');

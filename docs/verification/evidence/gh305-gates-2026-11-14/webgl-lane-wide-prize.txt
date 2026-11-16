@@ -1632,5 +1632,5 @@ webgl-pixels: 18 play route(s) (4 screenless, hold not exercised there) checked 
   LEG OK  stub-control: FAIL
 webgl-pixels clean leg: PASS
 webgl-pixels lane: 2/2 leg(s) matched their expected verdict
-webgl-pixels lane: output in /var/folders/js/9dbybzdx6n5bg24w7d04n63c0000gn/T/tmp.skzJInrjjl
+webgl-pixels lane: output in <tmp>/tmp.skzJInrjjl
 bash scripts/webgl-pixels-lane.sh  0.92s user 0.12s system 3% cpu 32.884 total

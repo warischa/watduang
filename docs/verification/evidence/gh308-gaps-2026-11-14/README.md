@@ -11,7 +11,7 @@ Not options: `pin-ref` draws the board's four boxes unchanged, and `pin-ctl` (th
 
 ## How it was made
 
-- `make-gaps.mjs.txt` generates the canvas and renders it. It carries a `.txt` suffix so repo tooling never treats it as code. It was run from a copy at `/tmp/gh308-gaps/make-gaps.mjs`.
+- `make-gaps.mjs.txt` generates the canvas and renders it. It carries a `.txt` suffix so repo tooling never treats it as code. It was run from a copy at `<tmp>/gh308-gaps/make-gaps.mjs`.
 - The browser was headless Chrome 157 (`--headless=new`) on its own CDP port, 9335, with a profile under `/tmp`. Teardown went by pid: pid 27214 was killed, and port 9335 was confirmed free.
 - The page loaded from `file://`, so the canvas's relative font paths resolve. The viewport was set to 1600 with `Emulation.setDeviceMetricsOverride`, and the probe read `innerWidth` back as 1600.
 - Each frame is a fixed-width box (320 or 375) with no media queries. Its layout does not depend on the page viewport, so the frame box stands in for the phone viewport.
@@ -19,9 +19,9 @@ Not options: `pin-ref` draws the board's four boxes unchanged, and `pin-ctl` (th
 
 ```
 node make-gaps.mjs <repo> write                    # captions show "?"
-CDP_PORT=9335 SHOT_TMP=/tmp/gh308-gaps node make-gaps.mjs <repo> render
+CDP_PORT=9335 SHOT_TMP=<tmp>/gh308-gaps node make-gaps.mjs <repo> render
 node make-gaps.mjs <repo> write measurements.json  # captions take the measured numbers
-CDP_PORT=9335 SHOT_TMP=/tmp/gh308-gaps node make-gaps.mjs <repo> render   # asserts every caption number equals a fresh measurement
+CDP_PORT=9335 SHOT_TMP=<tmp>/gh308-gaps node make-gaps.mjs <repo> render   # asserts every caption number equals a fresh measurement
 ```
 
 What `render` measures:

@@ -31,7 +31,7 @@ The freeze total is a union over pages (CDN bytes), not a visitor cost. Section 
 Command (script in this directory, output in `closure-output.txt`):
 
 ```
-cp docs/verification/evidence/gh305-bundle-2026-11-13/closure.mjs.txt /tmp/closure.mjs && node /tmp/closure.mjs dist game/prize-draw/play \
+cp docs/verification/evidence/gh305-bundle-2026-11-13/closure.mjs.txt <tmp>/closure.mjs && node <tmp>/closure.mjs dist game/prize-draw/play \
   game/prize-fireworks/play game/prize-cards/play game/prize-ladder/play game/croc-bite/play \
   game/prize-draw game/prize-draw/join
 ```
@@ -104,10 +104,10 @@ reading rule (`var(--pd-x, 0px)`, `var(--pd-scale, 1)`), so the same shape is us
 | lane button position | `var(--lane-x)` | `var(--lane-x, 160px)` (the term is `(lane-x − 160px)`, so the fallback adds 0) |
 
 Proof without a rebuild: the check's own logic on a copy of `dist/` with the built stylesheet patched the way the
-build would (`cp -R dist/. /tmp/gh305-dist-copy/`, then `sed` on `_astro/play.CkN8I8C_.css`):
+build would (`cp -R dist/. <tmp>/gh305-dist-copy/`, then `sed` on `_astro/play.CkN8I8C_.css`):
 
 ```
-env -u CI -u GITHUB_ACTIONS node scripts/dangling-css-var-check.mjs /tmp/gh305-dist-copy
+env -u CI -u GITHUB_ACTIONS node scripts/dangling-css-var-check.mjs <tmp>/gh305-dist-copy
 ```
 
 Unpatched copy: 3 dangling references (`--dot`, `--lane-x`, `--x` on `game/prize-draw/play/index.html`), exit 1.

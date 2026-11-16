@@ -9,7 +9,7 @@
 - `./node_modules/.bin/serve dist -l 4178`: FAIL before launch (binary absent).
 - `npx serve dist -l 4178`: FAIL before launch (`EPERM` opening the root-owned npm cache).
 - `python3 -m http.server 4178 --directory dist`: PASS; dedicated server started and later stopped by its own session.
-- Chrome command: `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader --no-sandbox --remote-debugging-port=9338 --user-data-dir=/Users/waris.c/claude/free-game/docs/verification/evidence/182-fold-recheck-2026-09-13/chrome-profile-9338 about:blank`.
+- Chrome command: `"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader --no-sandbox --remote-debugging-port=9338 --user-data-dir=<repo>/docs/verification/evidence/182-fold-recheck-2026-09-13/chrome-profile-9338 about:blank`.
 - Chrome result: FAIL before CDP opened (exit 1, no stderr); managed Chrome does not expose the dedicated CDP endpoint required by the committed probe.
 - Post-edit committed fold-probe result: NOT RUN; visible pixels, fold sign, and horizontal extents are therefore not claimed.
 

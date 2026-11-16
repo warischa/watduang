@@ -8,8 +8,8 @@ const CDP_PORT = process.env.CDP_PORT || '9644';
 if (CDP_PORT !== '9644') throw new Error('this run owns 9644 only');
 const BASE = 'http://localhost:4644';
 const scenario = process.argv[2];
-const OUT = '/Users/waris.c/claude/free-game/docs/verification/evidence/gh305-recheck-2026-11-13';
-const DIST = '/Users/waris.c/claude/free-game/dist';
+const OUT = '<repo>/docs/verification/evidence/gh305-recheck-2026-11-13';
+const DIST = '<repo>/dist';
 mkdirSync(join(OUT, 'shots'), { recursive: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

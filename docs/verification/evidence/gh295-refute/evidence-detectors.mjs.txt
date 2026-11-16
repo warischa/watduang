@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 
-const root = '/Users/waris.c/claude/free-game/docs/verification/evidence/';
+const root = '<repo>/docs/verification/evidence/';
 const paths = [
   'gh295-home-code/privacy-page-probe.mjs',
   'gh295-home-code/home-offsets-probe.mjs',

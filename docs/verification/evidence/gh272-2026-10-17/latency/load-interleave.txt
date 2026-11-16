@@ -8,9 +8,9 @@
 == midway 19:37:36
 19:37  up  3:20, 1 user, load averages: 11.90 9.90 6.75
  25.2 86209 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
-  7.2 90166 /Users/waris.c/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud
-  7.0  6690 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
-  5.4  6000 /Users/waris.c/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud
+  7.2 90166 ~/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud
+  7.0  6690 ~/miniconda3/bin/python3 ~/miniconda3/bin/litellm --config /Us
+  5.4  6000 ~/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud
   5.1   335 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framewo
 == after 19:42:39
 19:42  up  3:25, 1 user, load averages: 11.41 10.28 7.84

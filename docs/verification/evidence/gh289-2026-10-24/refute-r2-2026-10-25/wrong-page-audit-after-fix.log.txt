@@ -9,7 +9,7 @@ AssertionError [ERR_ASSERTION]: width 320 rate 1 spin 1: announced "A" 1005ms be
 
 1 !== 0
 
-    at file:///private/tmp/claude-501/-Users-waris-c-claude-free-game/03ad40b3-5d14-47af-bd32-a66e8845cb17/scratchpad/audit/wrong-page-audit.mjs:90:10 {
+    at file://<tmp>/audit/wrong-page-audit.mjs:90:10 {
   generatedMessage: false,
   code: 'ERR_ASSERTION',
   actual: 1,

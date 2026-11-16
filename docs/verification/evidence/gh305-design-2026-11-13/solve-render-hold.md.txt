@@ -17,7 +17,7 @@ Module-namespace mutation and imported-binding reassignment threw; modifying a s
 A no-op listener passed counting but continued advancing while held: registration count alone is insufficient.
 
 **Must-reds:** injected property calls; wrong/type-only hold imports; dead subscription; immediate unsubscribe; unrelated-instance listener; missing diagnostics/driver/context; and an active no-op listener that permits held draws.
-RAN from `/Users/waris.c/claude/free-game`: `node scripts/render-suspension-check.mjs --selftest` and `node scripts/render-suspension-check.mjs`; both passed.
+RAN from `<repo>`: `node scripts/render-suspension-check.mjs --selftest` and `node scripts/render-suspension-check.mjs`; both passed.
 RAN there: `node --test src/play/_prize-reveal/game-host.test.mjs src/play/_render-hold.test.mjs scripts/webgl-pixels-probe.test.mjs`; final run **89/89 passed**.
 Workspace unchanged by this review; sketches stayed in scratch. Browser verification was not run.
 would change if: production genuinely needs multiple hold implementations; then choose A’s narrowly frozen, identity-checked contract while retaining C.

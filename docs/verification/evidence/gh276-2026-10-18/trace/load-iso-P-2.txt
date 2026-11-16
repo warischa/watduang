@@ -11,4 +11,4 @@
  95.4 70777 bash -c while :; do :; done
  24.0 61441 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
   9.0 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De
-  8.5  2300 /Users/waris.c/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud
+  8.5  2300 ~/Library/Application Support/Claude/claude-code/2.1.299/4fa9694b7975/claud

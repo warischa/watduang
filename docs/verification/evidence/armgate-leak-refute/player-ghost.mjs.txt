@@ -2,8 +2,8 @@
 // 2026-11-07, GATE=<path>: HEAD gate e8fdab0~1 -> started 1 (ghost fires); fix-E gate e8fdab0 -> started 0.
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { makePage, installStorage, settle } from '/Users/waris.c/claude/free-game/src/play/_player-screen/screen-harness.mjs';
-const repo='/Users/waris.c/claude/free-game';
+import { makePage, installStorage, settle } from '<repo>/src/play/_player-screen/screen-harness.mjs';
+const repo='<repo>';
 const {build}=createRequire(repo+'/package.json')('esbuild');
 const doc=makePage('<div id="app"><section id="root" hidden></section></div>');
 installStorage();globalThis.document=doc;globalThis.window={addEventListener(){},removeEventListener(){}};

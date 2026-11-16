@@ -88,7 +88,7 @@ not ok 15 - the six cannon-flag and power-meter rows are owner-ruling rows recor
   ---
   duration_ms: 0.22725
   type: 'test'
-  location: '/Users/waris.c/claude/free-game/.claude/worktrees/agent-a12e8d61d0bd131c4/scripts/play-screen-fit-probe.test.mjs:377:1'
+  location: '<repo>/.claude/worktrees/agent-a12e8d61d0bd131c4/scripts/play-screen-fit-probe.test.mjs:377:1'
   failureType: 'testCodeFailure'
   error: 'cannon-flag 320x568 reads "not a defect 2026-09-04: 2px on press 1 - 2px cl..."'
   code: 'ERR_ASSERTION'
@@ -97,7 +97,7 @@ not ok 15 - the six cannon-flag and power-meter rows are owner-ruling rows recor
   actual: false
   operator: '=='
   stack: |-
-    TestContext.<anonymous> (file:///Users/waris.c/claude/free-game/.claude/worktrees/agent-a12e8d61d0bd131c4/scripts/play-screen-fit-probe.test.mjs:392:14)
+    TestContext.<anonymous> (file://<repo>/.claude/worktrees/agent-a12e8d61d0bd131c4/scripts/play-screen-fit-probe.test.mjs:392:14)
     Test.runInAsyncScope (node:async_hooks:214:14)
     Test.run (node:internal/test_runner/test:1047:25)
     Test.processPendingSubtests (node:internal/test_runner/test:744:18)

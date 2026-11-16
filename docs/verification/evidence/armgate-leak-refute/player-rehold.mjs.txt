@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { makePage, installStorage, settle } from '/Users/waris.c/claude/free-game/src/play/_player-screen/screen-harness.mjs';
-const repo='/Users/waris.c/claude/free-game';
+import { makePage, installStorage, settle } from '<repo>/src/play/_player-screen/screen-harness.mjs';
+const repo='<repo>';
 const {build}=createRequire(repo+'/package.json')('esbuild');
 const doc=makePage('<div id="app"><section id="root" hidden></section></div>');
 installStorage();globalThis.document=doc;globalThis.window={addEventListener(){},removeEventListener(){}};

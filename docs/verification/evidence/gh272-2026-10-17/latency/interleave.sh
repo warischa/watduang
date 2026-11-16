@@ -1,6 +1,7 @@
 #!/bin/bash
 # Interleaved base/fix stand-in P1 (+H on fix): B,F,B,F,... one fresh Chrome at a time.
 #   BASE_DIST=<dist> FIX_DIST=<dist> TAG=interleave K=7 ./interleave.sh   (ports: 4413/4414 http, 9413/9414 CDP)
+# The Chrome profile is created under the caller's temp root at runtime; no machine path is stored.
 BASE_DIST=${BASE_DIST:?}; FIX_DIST=${FIX_DIST:?}; TAG=${TAG:-interleave}; K=${K:-7}; BURN=${BURN:-2}
 HERE="$(cd "$(dirname "$0")" && pwd)"
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -20,7 +21,7 @@ load() { { echo "== $1 $(date +%T)"; uptime; ps -eo pcpu,pid,command | sort -rn 
 for pt in 4413 4414; do for i in $(seq 1 30); do curl -s -o /dev/null -w "%{http_code}" http://localhost:$pt/ | grep -q 200 && break; sleep 0.5; done; done
 one() { # $1=B|F
   local who=$1 hp cdp scen; if [ $who = B ]; then hp=4413; cdp=9413; scen=P1; else hp=4414; cdp=9414; scen=P1,H; fi
-  local prof; prof=$(mktemp -d /private/tmp/claude-501/lat-prof-XXXXXX)
+  local prof; prof=$(mktemp -d "${TMPDIR:-/tmp}/lat-prof-XXXXXX")
   taskpolicy -b "$CHROME" --headless=new --use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader --no-sandbox --no-first-run --no-default-browser-check --remote-debugging-port=$cdp --user-data-dir="$prof" >/dev/null 2>&1 & local cp=$!
   local bp=(); for i in $(seq 1 $BURN); do taskpolicy -b bash -c 'while :; do :; done' & bp+=($!); done
   PIDS+=($cp "${bp[@]}")

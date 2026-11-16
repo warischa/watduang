@@ -1,6 +1,6 @@
 == before 09:33:27
  9:33  up  1:35, 1 user, load averages: 14.76 11.73 11.07
- 99.4 55655 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 99.4 55655 ~/miniconda3/bin/python3 ~/miniconda3/bin/litellm --config /Us
  42.0 55415 bash -c while :; do :; done
  41.2 55416 bash -c while :; do :; done
  39.8 55425 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve

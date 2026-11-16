@@ -20,7 +20,7 @@ as-is; **no build was run**, per this task's own constraint (three sibling sessi
 
 Static server: `npx serve dist/ -l 4173` (port assigned for this task).
 Headless Chrome `153.0.8010.36`: `--headless --disable-gpu --no-sandbox --remote-debugging-port=9333
---user-data-dir=/tmp/cdp-prof-181c`. `--disable-gpu` is safe here — `timebomb`'s own
+--user-data-dir=<tmp>/cdp-prof-181c`. `--disable-gpu` is safe here — `timebomb`'s own
 `bomb-canvas.ts` states in its header comment that the route is Canvas 2D only, never WebGL
 (owner direction 2026-08-30), and `grep -l canvas src/play/dice-loser/*` finds no canvas/WebGL
 surface on `dice-loser` at all — neither route falls under the WebGL flag warning in

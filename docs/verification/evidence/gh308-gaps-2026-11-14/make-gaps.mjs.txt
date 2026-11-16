@@ -2,9 +2,9 @@
 // gh#308 gaps canvas: writes design/Gh308Gaps.dc.html, then (step "render") measures every frame in headless
 // Chrome and writes one PNG per frame, measurements.json and a markdown table to stdout.
 // Saved as .txt so repo tooling never treats it as code. Run from a copy OUTSIDE the repo:
-//   cp make-gaps.mjs.txt /tmp/gh308-gaps/make-gaps.mjs
-//   node /tmp/gh308-gaps/make-gaps.mjs <repo root> write [measurements.json]   # captions take numbers from a prior run
-//   CDP_PORT=9335 SHOT_TMP=/tmp/gh308-gaps node /tmp/gh308-gaps/make-gaps.mjs <repo root> render
+//   cp make-gaps.mjs.txt <tmp>/gh308-gaps/make-gaps.mjs
+//   node <tmp>/gh308-gaps/make-gaps.mjs <repo root> write [measurements.json]   # captions take numbers from a prior run
+//   CDP_PORT=9335 SHOT_TMP=<tmp>/gh308-gaps node <tmp>/gh308-gaps/make-gaps.mjs <repo root> render
 // render exits 1 when: the control frame does NOT overflow at 320 (the instrument is broken); any option frame
 // overflows; a face is not loaded; a dotted circle (U+25CC) is in the rendered text; innerWidth is not the width set;
 // a caption number differs from the fresh measurement.

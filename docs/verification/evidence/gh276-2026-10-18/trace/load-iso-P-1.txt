@@ -9,6 +9,6 @@
  8:50  up 52 mins, 1 user, load averages: 12.29 10.19 8.40
  91.0 69483 bash -c while :; do :; done
  90.3 69482 bash -c while :; do :; done
- 87.6 69658 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 87.6 69658 ~/miniconda3/bin/python3 ~/miniconda3/bin/litellm --config /Us
  86.9 61441 /System/Library/Frameworks/Virtualization.framework/Versions/A/XPCServices/com.apple.Vir
  51.8 69492 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve

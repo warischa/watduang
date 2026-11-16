@@ -241,8 +241,8 @@
     }
   ],
   "shots": [
-    "/Users/waris.c/claude/free-game/.claude/worktrees/wf_c992c386-dca-1/docs/verification/evidence/gh240//reduced-idle-first-turn.png",
-    "/Users/waris.c/claude/free-game/.claude/worktrees/wf_c992c386-dca-1/docs/verification/evidence/gh240//reduced-landed.png"
+    "<repo>/.claude/worktrees/wf_c992c386-dca-1/docs/verification/evidence/gh240//reduced-idle-first-turn.png",
+    "<repo>/.claude/worktrees/wf_c992c386-dca-1/docs/verification/evidence/gh240//reduced-landed.png"
   ],
   "consoleErrors": []
 }

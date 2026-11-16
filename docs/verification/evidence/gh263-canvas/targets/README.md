@@ -27,7 +27,7 @@ From the repo root. Start Chrome on port 9364 with its own profile, run the scri
 
 ```
 CH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-"$CH" --headless=new --remote-debugging-port=9364 --user-data-dir=/tmp/gh263-targets-profile --no-first-run about:blank &
+"$CH" --headless=new --remote-debugging-port=9364 --user-data-dir=<tmp>/gh263-targets-profile --no-first-run about:blank &
 CHROME_PID=$!
 sleep 2
 node docs/verification/evidence/gh263-canvas/targets/capture.mjs

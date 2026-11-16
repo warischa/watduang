@@ -7,7 +7,7 @@
  17.4 65962 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
 == after 08:46:09
  8:46  up 48 mins, 1 user, load averages: 6.25 7.87 7.20
- 98.8 66216 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 98.8 66216 ~/miniconda3/bin/python3 ~/miniconda3/bin/litellm --config /Us
  94.3 65941 bash -c while :; do :; done
  93.4 65942 bash -c while :; do :; done
  92.2 65939 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang

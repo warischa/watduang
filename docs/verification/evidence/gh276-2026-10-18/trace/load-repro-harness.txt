@@ -7,7 +7,7 @@
  23.6 41108 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
 == after 08:24:10
  8:24  up 26 mins, 1 user, load averages: 9.44 5.15 5.69
- 97.8 41454 /usr/bin/tar -xJf node-runtime.tar.xz -C /Users/waris.c/.cache/codex-runtimes/codex-runt
+ 97.8 41454 /usr/bin/tar -xJf node-runtime.tar.xz -C ~/.cache/codex-runtimes/codex-runt
  80.4 41428 /Applications/Microsoft Teams.app/Contents/Helpers/Microsoft Teams WebView.app/Contents/
  54.7 41066 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
  48.9 41058 bash -c while :; do :; done

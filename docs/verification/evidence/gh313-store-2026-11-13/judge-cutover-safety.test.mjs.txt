@@ -2,13 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as old from './head/src/play/prize-draw/stage-harness.mjs';
 import { STORAGE_KEY, encodeEvent } from './head/src/prize-event/event.ts';
-import { fakeOrigin, makeEvent, seeded, press } from '/Users/waris.c/claude/free-game/src/play/prize-draw/stage-harness.mjs';
-import { mountStage } from '/Users/waris.c/claude/free-game/src/play/prize-draw/stage.ts';
-import { makeDoc } from '/Users/waris.c/claude/free-game/src/prize-event/fake-dom.mjs';
+import { fakeOrigin, makeEvent, seeded, press } from '<repo>/src/play/prize-draw/stage-harness.mjs';
+import { mountStage } from '<repo>/src/play/prize-draw/stage.ts';
+import { makeDoc } from '<repo>/src/prize-event/fake-dom.mjs';
 
 const { openEventStore } = await import(process.env.CANDIDATE_A === '1'
   ? './candidate-a-store.ts'
-  : '/Users/waris.c/claude/free-game/src/prize-event/store.ts');
+  : '<repo>/src/prize-event/store.ts');
 
 test('a HEAD press after migration captures ready must never produce a second round code', async () => {
   const origin = fakeOrigin();

@@ -3,6 +3,7 @@
 #   DIST=<worktree>/dist PORT=4411 CDP=9411 TAG=base ./run.sh [standin|reference|both]
 # Optional: N=3 (runs per path), BURN=8 (burner count), W=1440 H=900, ROUTE=croc-bite, SCEN=P1,P2,C
 # Every pid started here is recorded and killed by pid on exit (never by name); leftovers are reported.
+# The Chrome profile is created under the caller's temp root at runtime; no machine path is stored.
 DIST=${DIST:?set DIST=<build dist dir>}
 PORT=${PORT:-4411}; CDP=${CDP:-9411}; TAG=${TAG:-base}; N=${N:-5}; BURN=${BURN:-2}
 WHICH=${1:-both}
@@ -28,7 +29,7 @@ for i in $(seq 1 30); do curl -s -o /dev/null -w "%{http_code}" http://localhost
 curl -s -o /dev/null -w "serve http=%{http_code}\n" http://localhost:$PORT/
 
 run_cond() { # $1 = standin|reference
-  local cond=$1 prof; prof=$(mktemp -d /private/tmp/claude-501/lat-prof-XXXXXX)
+  local cond=$1 prof; prof=$(mktemp -d "${TMPDIR:-/tmp}/lat-prof-XXXXXX")
   local bpids=()
   if [ "$cond" = standin ]; then
     # slow cores: background QoS (E-cores) for Chrome and every burner; burners saturate that cluster

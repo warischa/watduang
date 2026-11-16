@@ -15,9 +15,9 @@ was asked, so no run here is void.
 ```bash
 npm run build && npx serve dist/ -l 4321 &
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu --no-sandbox \
-  --remote-debugging-port=9222 --user-data-dir=/tmp/cdp-prof-87 &
+  --remote-debugging-port=9222 --user-data-dir=<tmp>/cdp-prof-87 &
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu --no-sandbox \
-  --force-prefers-reduced-motion --remote-debugging-port=9223 --user-data-dir=/tmp/cdp-prof-87-rm &
+  --force-prefers-reduced-motion --remote-debugging-port=9223 --user-data-dir=<tmp>/cdp-prof-87-rm &
 node scripts/driver.mjs scripts/home-direction-c-probe.mjs          # normal motion -> 01
 CDP_PORT=9223 node scripts/driver.mjs scripts/home-direction-c-probe.mjs  # reduced -> 02
 ```

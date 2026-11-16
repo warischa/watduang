@@ -6,7 +6,7 @@
 // marker while enabled. A name edit then makes start invalid (syncControls, no armSurface), and the
 // how-modal close re-arms #menuOverlay through a BARE gate (armWhatTheModalCovered).
 // Exit 1 = that bare gate hands back an owner-disabled start; exit 2 = instrument broken.
-import { FakeElement } from '/Users/waris.c/claude/free-game/src/games/_fake-dom.mjs';
+import { FakeElement } from '<repo>/src/games/_fake-dom.mjs';
 import { freshPage, contact } from './harness.mjs';
 
 async function run(mode, late) {

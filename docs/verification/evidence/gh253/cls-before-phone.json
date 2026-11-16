@@ -1,6 +1,6 @@
 {
   "label": "before-phone",
-  "dist": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/2df70e79-425e-4a5c-b5dd-ee209f65a36a/scratchpad/dist-before",
+  "dist": "<tmp>/dist-before",
   "fast": {},
   "throttled": {},
   "phone": {

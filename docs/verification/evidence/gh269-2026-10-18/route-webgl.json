@@ -4,7 +4,7 @@
  "flags": [
   "--headless=new",
   "--remote-debugging-port=9451",
-  "--user-data-dir=/private/tmp/claude-501/-Users-waris-c-claude-free-game/a738e8dc-4664-427f-971b-6f882c925cdf/scratchpad/gh269-KzzDDJ",
+  "--user-data-dir=<tmp>/gh269-KzzDDJ",
   "--no-first-run",
   "--no-default-browser-check",
   "--window-size=390,844",

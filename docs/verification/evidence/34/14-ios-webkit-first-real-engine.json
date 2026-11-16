@@ -24,7 +24,7 @@
       "afterXY": [174.8, 12.0],
       "moved": "YES",
       "sameFingerDifferentPerson": "YES",
-      "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/probe-frame-test.png"
+      "screenshot": "<tmp>/probe-frame-test.png"
     },
     "q2_navigatorLocks_realSite": {
       "isSecureContext": true,
@@ -34,7 +34,7 @@
       "requestResolvedTo": 42,
       "capabilityWorks": "YES",
       "note": "This means the shipped roster fix's LOCKED path runs on real iOS 26.5 Safari -- the unlocked fallback in withLock() (for navigator.locks absent, opaque origins, pre-15.4 Safari) is NOT the path this engine/version takes. The fallback's own comment names 'Safari before 15.4' as a case it exists for; that case was not reproduced here because this simulator runs iOS 26.5, far newer than 15.4.",
-      "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/locks-probe.png"
+      "screenshot": "<tmp>/locks-probe.png"
     },
     "q3_takenChipOpacity_loveMatch": {
       "chipsFound": 3,
@@ -45,7 +45,7 @@
       "ariaPressedSet": "YES",
       "disabledSet": "YES",
       "consoleErrors": [],
-      "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/driver-opacity3.png",
+      "screenshot": "<tmp>/driver-opacity3.png",
       "note": "Confirmed visually in the screenshot too: the tapped chip's Thai text renders visibly greyed/faded next to its two untapped siblings' full-black text -- not just a computed-style number."
     },
     "q4_chipRowStability320px_loveMatch": {
@@ -56,7 +56,7 @@
       "moved": "no",
       "sameFingerDifferentPerson": "no",
       "consoleErrors": [],
-      "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/driver-320-2.png",
+      "screenshot": "<tmp>/driver-320-2.png",
       "note": "Matches M-D-09's headless-Chrome finding (chipRowTopDelta===0) on the real engine too, now via the more sensitive per-chip detector rather than the container top."
     },
     "q5_realTouchLoveMatch": {
@@ -85,10 +85,10 @@
     }
   },
   "screenshotsTakenNotCommitted": [
-    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/probe-frame-test.png",
-    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/locks-probe.png",
-    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/driver-opacity3.png",
-    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/90585d81-312d-4b66-bf93-10f22e00c6bd/scratchpad/driver-320-2.png"
+    "<tmp>/probe-frame-test.png",
+    "<tmp>/locks-probe.png",
+    "<tmp>/driver-opacity3.png",
+    "<tmp>/driver-320-2.png"
   ],
   "note": "Engine: real WebKit, iPhone 17 Pro Simulator, iOS 26.5 (confirmed via `xcrun simctl list runtimes`), not headless Chrome. 320px was reached via an iframe (Technique 2), never a 320pt device -- no such simulator device exists on this host. All measurements were read from an in-page readout via a screenshot, because no inspector/CDP-equivalent exists on this path (no ios_webkit_debug_proxy). This dispatch had NO tap-capable tool (the brief's named iOS Simulator MCP tool was not actually available to this subagent, and no substitute -- idb/fbsimctl/appium/OS-level UI-scripted click -- exists either, the last ruled out by the Simulator process exposing 0 windows to Accessibility). Q3 and Q4's taps were therefore realized as a real `.click()` call on the real button in the real WebKit-rendered page, dispatched from a same-origin controller page (dist/driver-opacity.html, dist/driver-320.html -- both deleted after capture, never committed, never under src/), not a literal touch event -- this is declared as a methodological deviation from the brief's instruction to drive taps via the MCP tool, not silently substituted. It exercises the real click handler and real CSS/layout in the real engine, which is what the opacity and reflow claims are actually about; it does not exercise touch-specific timing (tap-to-click translation, touch-action). The headline finding is Q2: navigator.locks is present and functional on real iOS 26.5 Safari, so roster.ts's cross-tab lock fix runs its LOCKED path on this real target platform, not the untested fallback. A Q5 leg was added after this box's own dispatch, by the orchestrator, using a genuine tap on the same booted simulator (see observation.q5_realTouchLoveMatch) -- it confirms the no-reflow finding under real touch input rather than a synthetic click, and does not retract Q3/Q4's own declared click-not-touch limitation.",
   "consoleErrors": []

@@ -95,7 +95,7 @@ detector is repaired, and that same `panelRectHeight: 0` is the gap the site own
 npm run build
 npx serve dist/ -l 4321 &
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu --no-sandbox \
-  --remote-debugging-port=9222 --user-data-dir=/tmp/cdp-prof &
+  --remote-debugging-port=9222 --user-data-dir=<tmp>/cdp-prof &
 PROBE_BASE=http://localhost:4321 CDP_PORT=9222 \
   node scripts/driver.mjs docs/verification/evidence/61/collapse-double-tap-probe.mjs
 PROBE_BASE=http://localhost:4321 CDP_PORT=9222 \

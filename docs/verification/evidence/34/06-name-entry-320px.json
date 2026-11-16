@@ -41,8 +41,8 @@
     }
   },
   "screenshotsTakenNotCommitted": [
-    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/ma-pick-320.png",
-    "/private/tmp/claude-501/-Users-waris-c-claude-free-game/a0b50137-d6d4-4730-bb63-f1c12625cb20/scratchpad/ma-result-320.png"
+    "<tmp>/ma-pick-320.png",
+    "<tmp>/ma-result-320.png"
   ],
   "note": "Ran on love-match specifically because that is the game whose 320px evidence already lives in this directory (04-320px.json), and because M-B in this same session re-drives love-match's chip UI anyway. The claim under test (the name-entry path itself, at 320px) is generic to PlayerSetup.astro and not love-match-specific; this capture proves it via one game, not all six.",
   "consoleErrors": []

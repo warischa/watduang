@@ -6,8 +6,8 @@ It uses the real `routeDraw` / `handleDraw` from `services/feedback/src/join.mjs
 ## Run
 
 ```
-cp docs/verification/evidence/gh310-rehearsal-2026-11-14/rehearsal-server.mjs.txt /tmp/rehearsal-server.mjs
-node /tmp/rehearsal-server.mjs --repo <repo path>      # PORT=4795 by default, binds 0.0.0.0
+cp docs/verification/evidence/gh310-rehearsal-2026-11-14/rehearsal-server.mjs.txt <tmp>/rehearsal-server.mjs
+node <tmp>/rehearsal-server.mjs --repo <repo path>      # PORT=4795 by default, binds 0.0.0.0
 ```
 
 The Mac browser and Safari in the iOS Simulator both reach it at `http://localhost:4795`. Every `/api/draw/*` request is logged as `ISO-time METHOD path -> status`, so a reveal with no API line shows that no call was made.

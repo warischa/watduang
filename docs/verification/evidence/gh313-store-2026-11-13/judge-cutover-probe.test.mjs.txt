@@ -4,10 +4,10 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import * as old from './head/src/play/prize-draw/stage-harness.mjs';
 import { decodeEvent as oldDecode, encodeEvent, STORAGE_KEY, withEventLock } from './head/src/prize-event/event.ts';
-import { fakeOrigin, makeEvent, mount, press, seeded, storedRaw } from '/Users/waris.c/claude/free-game/src/play/prize-draw/stage-harness.mjs';
-import { openEventStore } from '/Users/waris.c/claude/free-game/src/prize-event/store.ts';
-import { mountStage } from '/Users/waris.c/claude/free-game/src/play/prize-draw/stage.ts';
-import { makeDoc } from '/Users/waris.c/claude/free-game/src/prize-event/fake-dom.mjs';
+import { fakeOrigin, makeEvent, mount, press, seeded, storedRaw } from '<repo>/src/play/prize-draw/stage-harness.mjs';
+import { openEventStore } from '<repo>/src/prize-event/store.ts';
+import { mountStage } from '<repo>/src/play/prize-draw/stage.ts';
+import { makeDoc } from '<repo>/src/prize-event/fake-dom.mjs';
 
 const MARKER = '{"v":0,"movedTo":"indexeddb"}';
 const tick = () => new Promise((resolve) => setImmediate(resolve));
@@ -132,7 +132,7 @@ test('unpatched migration reproduces the round-2 counter-example beside the real
 });
 
 // Scratch-only candidate A, made from the actual uncommitted store: retains both transaction bodies.
-const source = readFileSync('/Users/waris.c/claude/free-game/src/prize-event/store.ts', 'utf8');
+const source = readFileSync('<repo>/src/prize-event/store.ts', 'utf8');
 const split = source.indexOf('\n  let legacy: string | null = null;', source.indexOf('async function migrate('));
 assert.ok(split > 0);
 const candidate = source.slice(0, split)
@@ -140,7 +140,7 @@ const candidate = source.slice(0, split)
   + source.slice(split, source.lastIndexOf('\n}')).replace('env.localStorage?.removeItem(STORAGE_KEY);', `env.localStorage?.setItem(STORAGE_KEY, ${JSON.stringify(MARKER)});`)
   + '\n    });\n  } catch { aborted(); }\n}\n';
 const candidatePath = new URL('./candidate-a-store.ts', import.meta.url);
-writeFileSync(candidatePath, candidate.replace("from './event.ts'", "from '/Users/waris.c/claude/free-game/src/prize-event/event.ts'"));
+writeFileSync(candidatePath, candidate.replace("from './event.ts'", "from '<repo>/src/prize-event/event.ts'"));
 const { openEventStore: openA } = await import(pathToFileURL(candidatePath.pathname).href);
 
 test('scratch A makes the same capture/press interleaving safe for the migrated event', async () => {

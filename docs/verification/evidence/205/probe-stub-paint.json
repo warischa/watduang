@@ -36,7 +36,7 @@
     "screen": "screen-drive",
     "reducedMotion": false
   },
-  "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/50a2040d-bf3b-4b69-8add-a4128e81f98e/scratchpad/stubpaint.png",
+  "screenshot": "<tmp>/stubpaint.png",
   "floors": {
     "frames": 30,
     "coverage": 0.2,

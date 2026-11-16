@@ -2,10 +2,10 @@
 // One fresh gate module per leg: `document` must exist at import (lastInputStamp capture), and the
 // module-level WeakSet must not carry markers between legs, so each leg imports with a cache-buster.
 import { readFileSync } from 'node:fs';
-import { FakeElement, makeDocument } from '/Users/waris.c/claude/free-game/src/games/_fake-dom.mjs';
+import { FakeElement, makeDocument } from '<repo>/src/games/_fake-dom.mjs';
 
-export const REPO = '/Users/waris.c/claude/free-game';
-export const SCRATCH = '/private/tmp/claude-501/-Users-waris-c--claude-spares-spare-vIqMZg/58f69394-e721-448b-b28a-69b59aec3cc6/scratchpad/leak';
+export const REPO = '<repo>';
+export const SCRATCH = '<tmp>/leak';
 
 export const gatePath = (mode) => (mode === 'base' ? `${SCRATCH}/base/games/_arm-gate.ts` : (process.env.GATE ?? `${REPO}/src/games/_arm-gate.ts`));
 export const routeFile = (mode, route, file) => readFileSync(mode === 'base' ? `${SCRATCH}/base/${route}/${file}` : `${REPO}/src/play/${route}/${file}`, 'utf8');

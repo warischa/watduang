@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """For each render: black point = max alpha of haze outside the dilated solid mask (gh#241 rule),
-then make_ship.py, grade the shipped webp, write a coral/ink look sheet. Flags anything off-spec."""
+then make_ship.py, grade the shipped webp, write a coral/ink look sheet. Flags anything off-spec.
+REPO is resolved from this file's own location at runtime; no machine path is stored here."""
 import json, os, subprocess, sys
 import numpy as np
 from PIL import Image
 from scipy.ndimage import binary_dilation
 
-REPO = '/Users/waris.c/claude/free-game'
 S = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.abspath(os.path.join(S, '..', '..', '..', '..'))
 EV = f'{REPO}/docs/verification/evidence/gh241'
 r = np.arange(-4, 5); DISK = (r[:, None] ** 2 + r[None, :] ** 2) <= 16
 

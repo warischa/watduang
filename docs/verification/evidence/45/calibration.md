@@ -19,9 +19,9 @@ EXIT=0
 The step now asserts node's own pass count is non-zero:
 
 ```
-node --test 'src/**/*.test.mjs' 2>&1 | tee /tmp/unit-tests.txt
+node --test 'src/**/*.test.mjs' 2>&1 | tee <tmp>/unit-tests.txt
 [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
-grep -qE '^# pass [1-9]' /tmp/unit-tests.txt || { ...; exit 1; }
+grep -qE '^# pass [1-9]' <tmp>/unit-tests.txt || { ...; exit 1; }
 ```
 
 `PIPESTATUS`, not the bare exit status — after a pipe that status belongs to `tee` and is always 0
@@ -41,8 +41,8 @@ matching and the step goes **red**, not silently green. The failure direction is
 The only difference between the two trees:
 
 ```
--          node --test 'src/**/*.test.mjs' 2>&1 | tee /tmp/unit-tests.txt
-+          node --test 'src/**/*.nosuchtest.mjs' 2>&1 | tee /tmp/unit-tests.txt
+-          node --test 'src/**/*.test.mjs' 2>&1 | tee <tmp>/unit-tests.txt
++          node --test 'src/**/*.nosuchtest.mjs' 2>&1 | tee <tmp>/unit-tests.txt
 ```
 
 One file, one line. **The same broken tree was green before this fix** — that is the whole of gh#45,

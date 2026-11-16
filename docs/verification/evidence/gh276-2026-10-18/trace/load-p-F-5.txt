@@ -7,7 +7,7 @@
  37.7   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon
 == after 09:34:17
  9:34  up  1:36, 1 user, load averages: 10.47 10.94 10.81
- 98.9 56376 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 98.9 56376 ~/miniconda3/bin/python3 ~/miniconda3/bin/litellm --config /Us
  89.2 31427 /Applications/Docker.app/Contents/MacOS/Docker Desktop.app/Contents/Frameworks/Docker De
  88.7 56169 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Ve
  59.3 56154 bash -c while :; do :; done

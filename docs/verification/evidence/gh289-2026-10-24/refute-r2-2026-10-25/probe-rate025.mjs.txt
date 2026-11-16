@@ -31,7 +31,7 @@
 //   npm run build && npx serve dist/ -l 4321 &
 //   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
 //     --headless --disable-gpu --no-sandbox --remote-debugging-port=9222 \
-//     --user-data-dir=/tmp/wheel-ptr-prof &
+//     --user-data-dir=<tmp>/wheel-ptr-prof &
 //
 // Direct run: node scripts/wheel-pointer-name-probe.mjs
 // Via driver: node scripts/driver.mjs scripts/wheel-pointer-name-probe.mjs

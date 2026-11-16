@@ -14,7 +14,7 @@ base: not run — READ base tree; this helper is absent.
 
 RAN `node --test 'src/play/_player-screen/*.test.mjs' 'src/play/croc-bite/*.test.mjs' 'src/play/one-bomb/*.test.mjs' 'src/play/pinocchio-luck/*.test.mjs' scripts/player-screen-handover.test.mjs scripts/webgl-pixels-probe.test.mjs`: 312 passed.
 RAN `node scripts/render-suspension-check.mjs --selftest` and `node scripts/render-suspension-check.mjs`: both passed.
-RAN scratch [counterexamples.mjs](/Users/waris.c/claude/claude-skills-index/skills/orchestrate/runtime/judge.fD6i/counterexamples.mjs); workspace files were unchanged.
+RAN scratch [counterexamples.mjs](~/claude/claude-skills-index/skills/orchestrate/runtime/judge.fD6i/counterexamples.mjs); workspace files were unchanged.
 Coverage: browser pixel lane, real context loss/visibility composition, and the required ≤1s software-rendered latency were not run.
 
 would change if: these counter-examples are rejected while valid controls still pass.

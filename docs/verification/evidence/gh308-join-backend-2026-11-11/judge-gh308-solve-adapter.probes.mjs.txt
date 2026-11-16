@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const raw = await readFile('/Users/waris.c/claude/free-game/services/feedback/src/functions/join.mjs', 'utf8');
+const raw = await readFile('<repo>/services/feedback/src/functions/join.mjs', 'utf8');
 const before = 'if (absent(error) || (ifMatch && error?.statusCode === 412)) return false;';
 assert.ok(raw.includes(before));
 const source = raw.slice(raw.indexOf('const conditions ='), raw.indexOf('\napp.http('))

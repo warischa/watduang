@@ -24,7 +24,7 @@
     "worktreeAddedAt": "9510d21",
     "onlyProbeScriptModifiedInWorktree": true,
     "worktreeRemovedAfter": true,
-    "gitWorktreeListAfterRemoval": "only /Users/waris.c/claude/free-game  9510d21 [main]"
+    "gitWorktreeListAfterRemoval": "only <repo>  9510d21 [main]"
   },
   "exceptionsProven": [
     { "game": "daily-fortune", "control": "roster chips (ask screen)", "exemptControlActivatedImmediately": true, "gapMs": 60 },

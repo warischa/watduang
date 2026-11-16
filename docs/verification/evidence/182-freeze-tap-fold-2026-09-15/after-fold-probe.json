@@ -203,8 +203,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load1-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load1-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load1-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load1-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 349,
@@ -224,7 +224,7 @@
         "moved": 1648.5,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load1-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load1-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -427,8 +427,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load2-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load2-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load2-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load2-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 349,
@@ -448,7 +448,7 @@
         "moved": 1648.5,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load2-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load2-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -651,8 +651,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load3-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load3-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load3-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load3-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 349,
@@ -672,7 +672,7 @@
         "moved": 1648.5,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load3-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load3-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -875,8 +875,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load4-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load4-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load4-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load4-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 322,
@@ -896,7 +896,7 @@
         "moved": 1662,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load4-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load4-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -1099,8 +1099,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load5-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load5-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load5-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load5-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 322,
@@ -1120,7 +1120,7 @@
         "moved": 1662,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load5-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load5-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -1323,8 +1323,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load6-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load6-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load6-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load6-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 322,
@@ -1344,7 +1344,7 @@
         "moved": 1662,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load6-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load6-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -1547,8 +1547,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load7-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load7-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load7-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load7-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 322,
@@ -1568,7 +1568,7 @@
         "moved": 1662,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load7-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load7-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -1771,8 +1771,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load8-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load8-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load8-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load8-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 349,
@@ -1792,7 +1792,7 @@
         "moved": 1648.5,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load8-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load8-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -1995,8 +1995,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load9-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load9-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load9-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load9-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 322,
@@ -2016,7 +2016,7 @@
         "moved": 1662,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load9-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load9-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -2219,8 +2219,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load10-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load10-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load10-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load10-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 322,
@@ -2240,7 +2240,7 @@
         "moved": 1662,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load10-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load10-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -2443,8 +2443,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load11-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load11-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load11-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load11-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 322,
@@ -2464,7 +2464,7 @@
         "moved": 1662,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load11-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load11-fullpage-clip-released.png"
     },
     {
       "route": "freeze-tap",
@@ -2667,8 +2667,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load12-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load12-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/freeze-tap-320x568-load12-first-paint.png",
+      "shotScrolled": "<tmp>/after2/freeze-tap-320x568-load12-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 322,
@@ -2688,7 +2688,7 @@
         "moved": 1662,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/freeze-tap-320x568-load12-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/freeze-tap-320x568-load12-fullpage-clip-released.png"
     },
     {
       "route": "wire-snip-panic",
@@ -2881,8 +2881,8 @@
           }
         ]
       },
-      "shotFirstPaint": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/wire-snip-panic-320x568-load1-first-paint.png",
-      "shotScrolled": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/wire-snip-panic-320x568-load1-scrolled-to-control.png",
+      "shotFirstPaint": "<tmp>/after2/wire-snip-panic-320x568-load1-first-paint.png",
+      "shotScrolled": "<tmp>/after2/wire-snip-panic-320x568-load1-scrolled-to-control.png",
       "calibration": {
         "before": {
           "blockHeight": 240,
@@ -2902,7 +2902,7 @@
         "moved": 1760,
         "returned": true
       },
-      "shotFullPage": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/45446c98-8145-4913-84a6-0f01f42c26e3/scratchpad/after2/wire-snip-panic-320x568-load1-fullpage-clip-released.png"
+      "shotFullPage": "<tmp>/after2/wire-snip-panic-320x568-load1-fullpage-clip-released.png"
     }
   ]
 }

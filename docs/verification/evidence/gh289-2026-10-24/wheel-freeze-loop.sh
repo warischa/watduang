@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # gh#289 diagnostic. Run wheel-freeze.mjs N times with FREEZE ms of GPU-process SIGSTOP after each click.
 # One Chrome, own ports 4614/9614, own profile; kills only the pids it started.
+# REPO is resolved from this script's location at runtime; no machine path is stored here.
 set -u
 N=${N:-3}; FREEZE=${FREEZE:-0}
-REPO=/Users/waris.c/claude/free-game
+REPO=$(git -C "$(dirname "$0")" rev-parse --show-toplevel)
 SP=${SP:-$(mktemp -d)}  # where the per-run output and Chrome profile go
 OUT=$SP/wfreeze; mkdir -p "$OUT"
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

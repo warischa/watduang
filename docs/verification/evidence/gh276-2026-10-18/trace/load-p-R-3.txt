@@ -10,5 +10,5 @@
  89.5   814 /Applications/OneDrive.app/Contents/MacOS/OneDrive
  88.6 52956 bash -c while :; do :; done
  88.4 52955 bash -c while :; do :; done
- 68.5 53984 /Users/waris.c/miniconda3/bin/python3 /Users/waris.c/miniconda3/bin/litellm --config /Us
+ 68.5 53984 ~/miniconda3/bin/python3 ~/miniconda3/bin/litellm --config /Us
  35.8   394 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer -daemon

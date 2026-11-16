@@ -478,6 +478,6 @@
   }
  ],
  "consoleLines": [
-  "error: Failed to load resource: net::ERR_FILE_NOT_FOUND file:///Users/waris.c/claude/free-game/design/support.js"
+  "error: Failed to load resource: net::ERR_FILE_NOT_FOUND file://<repo>/design/support.js"
  ]
 }

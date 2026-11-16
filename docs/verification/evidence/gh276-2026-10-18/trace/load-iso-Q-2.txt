@@ -1,6 +1,6 @@
 == before 08:52:10
  8:52  up 54 mins, 1 user, load averages: 8.47 9.58 8.40
- 62.3 71290 /Users/waris.c/claude/AI-GW/.venv/bin/python /Users/waris.c/claude/AI-GW/.venv/bin/pytes
+ 62.3 71290 ~/claude/AI-GW/.venv/bin/python ~/claude/AI-GW/.venv/bin/pytes
  59.7 71225 /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --headless=new --use-gl=ang
  57.1 71228 bash -c while :; do :; done
  57.0 71227 bash -c while :; do :; done

@@ -4,7 +4,7 @@
 // gate (built after the enable). A late contact landing in the screen but OUTSIDE the banner re-holds
 // only the screen gate. Exit 1 = scan stranded; exit 2 = instrument broken.
 import assert from 'node:assert/strict';
-import { sliceBlock } from '/Users/waris.c/claude/free-game/src/play/_dom-stub.mjs';
+import { sliceBlock } from '<repo>/src/play/_dom-stub.mjs';
 import { freshPage, contact, mountMarkup, routeFile } from './harness.mjs';
 
 const SCAN_OFF = "document.getElementById('btn-trigger-scan').disabled = true;";

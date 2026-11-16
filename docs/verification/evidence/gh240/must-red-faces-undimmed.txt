@@ -6,7 +6,7 @@ not ok 1 - the first turn, a later turn and a tiebreak turn all open on dimmed i
   ---
   duration_ms: 3.449584
   type: 'test'
-  location: '/Users/waris.c/claude/free-game/.claude/worktrees/wf_c992c386-dca-1/src/play/dice-loser/idle-faces.test.mjs:225:1'
+  location: '<repo>/.claude/worktrees/wf_c992c386-dca-1/src/play/dice-loser/idle-faces.test.mjs:225:1'
   failureType: 'testCodeFailure'
   error: 'first turn: #dl-die-1 is not marked is-idle, so its idle face is not dimmed'
   code: 'ERR_ASSERTION'
@@ -15,8 +15,8 @@ not ok 1 - the first turn, a later turn and a tiebreak turn all open on dimmed i
   actual: false
   operator: '=='
   stack: |-
-    assertIdle (file:///Users/waris.c/claude/free-game/.claude/worktrees/wf_c992c386-dca-1/src/play/dice-loser/idle-faces.test.mjs:178:12)
-    TestContext.<anonymous> (file:///Users/waris.c/claude/free-game/.claude/worktrees/wf_c992c386-dca-1/src/play/dice-loser/idle-faces.test.mjs:233:3)
+    assertIdle (file://<repo>/.claude/worktrees/wf_c992c386-dca-1/src/play/dice-loser/idle-faces.test.mjs:178:12)
+    TestContext.<anonymous> (file://<repo>/.claude/worktrees/wf_c992c386-dca-1/src/play/dice-loser/idle-faces.test.mjs:233:3)
     Test.runInAsyncScope (node:async_hooks:214:14)
     Test.run (node:internal/test_runner/test:1047:25)
     Test.start (node:internal/test_runner/test:944:17)

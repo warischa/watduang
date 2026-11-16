@@ -3,9 +3,9 @@ import { execFileSync } from 'node:child_process';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { FakeElement, makeDocument } from '/Users/waris.c/claude/free-game/src/games/_fake-dom.mjs';
+import { FakeElement, makeDocument } from '<repo>/src/games/_fake-dom.mjs';
 
-const repo = '/Users/waris.c/claude/free-game';
+const repo = '<repo>';
 const require = createRequire(repo + '/package.json');
 const { build } = require('esbuild');
 const source = (mode, path) => mode === 'base'

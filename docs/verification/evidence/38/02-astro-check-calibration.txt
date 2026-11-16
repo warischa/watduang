@@ -74,7 +74,7 @@ No changes under src/. package.json / package-lock.json also unchanged — @astr
 and typescript were installed with `npm install --no-save` for this calibration only.
 
 === RUNTIME (measured, not guessed; `time`, worktree at
-/Users/waris.c/claude/free-game/.claude/worktrees/agent-a046947c90b384f65) ===
+<repo>/.claude/worktrees/agent-a046947c90b384f65) ===
 `npx astro check` (clean tree, deps already installed): 2.613s wall / 3.91s user
 `npm run build`: 0.937s wall / 1.59s user
 

@@ -24,7 +24,7 @@
     "present": true,
     "context": null
   },
-  "screenshot": "/private/tmp/claude-501/-Users-waris-c-claude-free-game/50a2040d-bf3b-4b69-8add-a4128e81f98e/scratchpad/nullctx.png",
+  "screenshot": "<tmp>/nullctx.png",
   "playable": {
     "screen": "screen-drive",
     "metresMoved": true,

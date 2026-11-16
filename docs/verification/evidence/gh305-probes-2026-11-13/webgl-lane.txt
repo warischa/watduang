@@ -1508,5 +1508,5 @@ webgl-pixels: 18 play route(s) (4 screenless, hold not exercised there) checked 
   LEG OK  stub-control: FAIL
 ::error::webgl-pixels clean leg: FAIL -- a live WebGL context drew nothing (ADR-0051)
 webgl-pixels lane: 1/2 leg(s) matched their expected verdict
-webgl-pixels lane: output in /private/tmp/claude-501/-Users-waris-c--claude-spares-spare-vybUwO/08d812ee-a925-4c23-8406-1dfd1ed98e52/scratchpad/webgl-out
+webgl-pixels lane: output in <tmp>/webgl-out
 exit 1
