@@ -56,10 +56,32 @@ B/C is the same landing in those layouts' panels).
 M1 and M2 mix freely. Marble colour is decoration (four canvas accents cycling) and carries no zone or fate
 meaning; fate is gold or dim, never colour alone (dim AND struck through AND the legend in words).
 
+## Changed after the pick (2026-11-16)
+
+The picks above came from the sheet rendered before this change; its PICKED rows are untouched. The freeze frame on
+that sheet counted 100 passed while freezing in a heat that cannot produce them, so the crossing order and the freeze
+heat were fixed:
+
+- **The crossing order is heat-major.** Heats run one after another in play order, so every survivor of heat 1 crosses
+  before any survivor of heat 2, and the drawn 100th survivor can only cross in the last heat that holds one.
+  `crossOrder` was the fixture's insertion order, which interleaved the heats, so a still derived from it froze in
+  heat 1 — counting 100 passed with heats 2 to 10 never run. It is now each heat's survivors in that heat's own drawn
+  order, heat by heat. The survivors are still the draw's (decision 7: the race stages a fixed result); a build whose
+  order is not heat-major fails.
+- **The freeze heat is the heat of `crossOrder`'s 100th entry** — the last heat holding a survivor, heat 10 of 10 with
+  this fixture, which is where the frame's own rule puts it. The motion total (all ten heats plus the freeze, 65s) and
+  the round-result sentence (the cut landed in the last heat) follow it again.
+- **M2-B A HEAT LANES is marked not coherent with heats.** Under sequential heats, "the first 100 across stay in"
+  would let heat order decide who crosses first, which breaks the draw's equal odds. The frame is drawn mid-race to
+  complete the option pair and its tag says so; M2-B was not picked. The pack-race photo frame (B) is not affected.
+
+Re-rendered and re-measured 2026-11-16: the sha and rendered-codepoint lines under Verify are this build's, and the
+slice table above still holds (every frame sits in the slice named there).
+
 ## Boards and render slices
 
 Renders are `<Board>-<n>.jpg` here, 1600px wide, JPEG q62, one clip per slice (at most 2000px, never cutting a
-frame). Board heights at 1600px: **Gh315Zones 28665**, **Gh316Marbles 20100**. 27 JPGs = 16 + 11, matching the
+frame). Board heights at 1600px: **Gh315Zones 28665**, **Gh316Marbles 20140**. 27 JPGs = 16 + 11, matching the
 tables below (frame offsets probed in the same browser at the same width).
 
 | Gh315Zones slice | Carries |
@@ -171,9 +193,9 @@ the boards.
 
 - `node make-boards.mjs` twice: identical sha256 both runs —
   Gh315Zones `3a8e6b0558552119d521a33a846bbf8d1dc2d9825e56e8f5b6b14f5afb16b6a2`,
-  Gh316Marbles `82b29431f84ba3d2dca6a0ba093dbea0f26dca68e25a2031ce1bc4fc0bfe7cde`.
+  Gh316Marbles `028b079db569d539ed329380f039102f419f844f4f205682d17aa6cac4ba1a20`.
 - Render: exit 0; Gh315Zones 0 problems, 17 frames, 16 slices; Gh316Marbles 0 problems, 11 frames, 11 slices;
-  27 JPGs on disk, exactly the slices the tables above list. Rendered Thai codepoints 18239 / 7348.
+  27 JPGs on disk, exactly the slices the tables above list. Rendered Thai codepoints 18239 / 7231.
 - `thai-scan.mjs` over both boards, every `.mjs` here and this README (12 files): exit 0, no foreign letter/mark,
   no invisible, no character reference, no barred word. Must-red, three plants in temp copies of a board, each
   exit 1 on its own line: a contiguous barred word (`barred words U+E2B U+E27 U+E22`), a numeric character

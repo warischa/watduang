@@ -28,19 +28,30 @@ const CSS = `
 // ---- the fixture's heats (layout A): 20 names a heat, 10 heats, the last 16 ----
 const HEATS = (() => { const h = []; for (let i = 0; i < EV.field1.length; i += 20) h.push(EV.field1.slice(i, i + 20)); return h; })();
 const heatSurv = HEATS.map((h) => h.filter((n) => EV.pass1.has(n)));
-const crossOrder = [...EV.pass1]; // the draw's survivor order is the crossing order (theatre staging a fixed result)
-// M2-A (picked 2026-11-16): time stops the instant the drawn 100th survivor crosses, and the still shows the heat
-// holding it. crossOrder's last entry IS that 100th (it is the last survivor to cross), so the frozen heat follows
-// the draw order, never the roster: the roster's last survivor is a different marble and freezes another heat.
+const heatOf = (n) => HEATS.findIndex((h) => h.includes(n));
+// The crossing order is the draw's, staged heat-major: heats run one after another, so every survivor of heat n
+// crosses before any survivor of heat n+1, each heat in its own drawn order. The draw still decides WHO survives
+// (decision 7: the race stages a fixed result, it never draws one); only the staging is the race's.
+const drawOrder = [...EV.pass1]; // the draw's survivor order (the fixture's insertion order)
+const drawIdx = new Map(drawOrder.map((n, i) => [n, i]));
+const crossOrder = HEATS.flatMap((h) => h.filter((n) => EV.pass1.has(n)).sort((a, b) => drawIdx.get(a) - drawIdx.get(b)));
+// Heat-major is load-bearing: the freeze heat and the photo counts are read off this order, so an order that lets a
+// later heat cross before an earlier one puts the cut in the wrong heat. It fails the build instead.
+if (crossOrder.length !== EV.pass1.size || crossOrder.some((n, i) => i > 0 && heatOf(crossOrder[i - 1]) > heatOf(n))) {
+  throw new Error('crossOrder is not the draw, heat-major: a heat crosses out of order');
+}
+// M2-A (picked 2026-11-16): time stops the instant the drawn 100th survivor crosses. Heats run in sequence, so that
+// marble is crossOrder's last entry, and the still freezes in the last heat holding a survivor.
 const drawCut = crossOrder[crossOrder.length - 1];
-const freezeHeat = HEATS.findIndex((h) => h.includes(drawCut));
+const freezeHeat = heatOf(drawCut);
 const acrossAtCut = crossOrder.length; // the 100th crossing puts every survivor across
 const PHOTO_N = 87; // the photo-finish still is drawn with this many across the line
-// M2-B is drawn mid-race, so the still is the draw order's first PHOTO_N crossings: exactly those marbles are across,
-// the heat on screen is the one holding the PHOTO_Nth, and every count is that order's — never a roster tally.
+// M2-B is NOT picked, and under heat lanes it is not a coherent option: with heats crossing in sequence, "the first
+// 100 across stay in" would let heat order decide who crosses first, breaking the draw's equal odds. The still is
+// drawn mid-race by the same staged order (the draw's first PHOTO_N crossings) and the board marks it incoherent.
 const photoAcross = crossOrder.slice(0, PHOTO_N);
 const crossedPhoto = new Set(photoAcross);
-const photoHeat = HEATS.findIndex((h) => h.includes(photoAcross[photoAcross.length - 1]));
+const photoHeat = heatOf(photoAcross[photoAcross.length - 1]);
 const photoK = photoAcross.filter((n) => HEATS[photoHeat].includes(n)).length; // that heat's survivors already across
 const photoCount = photoAcross.length; // the band: how many the draw has put across so far
 
@@ -161,11 +172,11 @@ export function buildMarbles() {
     <div class="cands col">${frames.map(([t, f]) => `<div class="cand">${t}${scaled(f)}</div>`).join('')}</div>
   </div>`;
   const rows = [];
-  const f2 = (kind, fn) => ['A', 'B'].map((o) => [tag(o, OPT1[o], ` · mb-${kind} · authored 1920x1080, shown at 75%`), frame(`mb-${kind}`, o, '', fn(o))]);
+  const f2 = (kind, fn, note = {}) => ['A', 'B'].map((o) => [tag(o, OPT1[o], ` · mb-${kind} · authored 1920x1080, shown at 75%${note[o] ? ` · ${note[o]}` : ''}`), frame(`mb-${kind}`, o, '', fn(o))]);
   rows.push(sec('M1 · IDLE · the field at the start line', `The event's ${EV.field1.length} joined names (gh#302 fixture: ${EV.invited} invited, ${EV.field1.length} joined, round 1 ${EV.field1.length} to ${EV.pass1.size}), three of them the NAME FIT worst cases. <b>A HEAT LANES</b>: the field runs in ${HEATS.length} heats of 20 (the last ${HEATS.at(-1).length}); each lane carries its name on a 340px plate, names 28px shrinking to an 18px floor — 20 names read big at a time, the whole field over the round. <b>B PACK + FULL ROSTER</b>: all ${EV.field1.length} names read at once in a 10-column grid (names 18px to a 14px floor) under a 280px race strip; the pack is spectacle, the grid is the readable truth. Marble colour is decoration (four canvas accents cycling); it carries no zone or fate meaning — fate is gold or dim. 3D intent: marbles are one InstancedMesh of glass spheres (a spec highlight, no transmission pass), the track a plane; layout B's grid is DOM over the canvas, so names stay crisp at any pixel ratio.`, f2('idle', (o) => (o === 'A' ? lanesFrame('idle') : packFrame('idle')))));
   rows.push(sec('M2-A · FREEZE AT THE CUT · the race stops when the drawn count crosses', `The race runs; the instant the ${EV.pass1.size}th survivor crosses the line, time freezes. Across the line: gold with the glow (the gh#302 passed state). Stopped short: dim, the marble colour at 40%. <b>A</b> freezes in heat ${freezeHeat + 1} of ${HEATS.length} (the heat holding the last survivor in the draw's order); its ${heatSurv[freezeHeat].length} survivors are across, the rest stopped mid-track. <b>B</b> freezes the whole pack: ${EV.pass1.size} across, ${EV.field1.length - EV.pass1.size} stopped, and the grid resolves with them. The freeze is theatre: the draw fixed the survivors before the race started (decision 7).`, f2('reveal', (o) => (o === 'A' ? lanesFrame('reveal') : packFrame('reveal')))));
-  rows.push(sec('M2-B · PHOTO FINISH · crossing order is the draw order', `No freeze: every marble runs to the line, and the first ${EV.pass1.size} across are the survivors — the crossing order IS the draw's uniform order, so the odds are the draw's, never the race's. Drawn mid-race with ${photoCount} across: <b>A</b> in heat ${photoHeat + 1} (the heat holding the ${photoCount}th crossing), ${photoK} of its survivors across, the band counting ${photoCount} of ${EV.pass1.size} overall; <b>B</b> with ${photoCount} marbles across and the grid lighting name by name. The marbles still rolling are not yet judged; once the ${EV.pass1.size}th crosses, the rest dim as they finish.`, f2('photo', (o) => (o === 'A' ? lanesFrame('photo') : packFrame('photo')))));
-  rows.push(sec('M1 · ROUND RESULT · who stayed in', `The end state: ${EV.pass1.size} passed, gold; ${EV.field1.length - EV.pass1.size} dim. <b>A</b> shows the freeze heat's lanes settled (the round ended at the cut) with the cumulative count; <b>B</b> shows the whole grid resolved, every name's fate readable at once. The lower band is the gh#302 picked result band.`, f2('result', (o) => (o === 'A' ? lanesFrame('result') : packFrame('result')))));
+  rows.push(sec('M2-B · PHOTO FINISH · crossing order is the draw order', `No freeze: every marble runs to the line, and the first ${EV.pass1.size} across are the survivors — the crossing order IS the draw's uniform order, so the odds are the draw's, never the race's. Drawn mid-race with ${photoCount} across: <b>A</b> in heat ${photoHeat + 1} (the heat holding the ${photoCount}th crossing), ${photoK} of its survivors across, the band counting ${photoCount} of ${EV.pass1.size} overall; <b>B</b> with ${photoCount} marbles across and the grid lighting name by name. The marbles still rolling are not yet judged; once the ${EV.pass1.size}th crosses, the rest dim as they finish. <b>A is NOT a coherent staging of M2-B under heat lanes:</b> with heats crossing in sequence, "the first ${EV.pass1.size} across stay in" would let heat order decide who crosses first, which breaks the draw's equal odds. The frame is drawn only to complete the option pair; M2-B was not picked.`, f2('photo', (o) => (o === 'A' ? lanesFrame('photo') : packFrame('photo')), { A: 'NOT COHERENT WITH HEAT LANES (M2-B unpicked)' })));
+  rows.push(sec('M1 · ROUND RESULT · who stayed in', `The end state: ${EV.pass1.size} passed, gold; ${EV.field1.length - EV.pass1.size} dim. <b>A</b> shows the freeze heat's lanes settled (the cut landed in the last heat, so the round ended there) with the cumulative count; <b>B</b> shows the whole grid resolved, every name's fate readable at once. The lower band is the gh#302 picked result band.`, f2('result', (o) => (o === 'A' ? lanesFrame('result') : packFrame('result')))));
   rows.push(sec('M1 · REDUCED MOTION · the 2D path (also what below 640px shows)', 'Reduce, not remove (ADR-0046, ADR-0051). No rolling, no streaks: the marbles are drawn at their final positions and the field resolves in one 200ms fade (gh#302 --motion-rm-fade); counts jump. Drawn at the end state, identical to the result still. Below 640px the shared reveal host serves this same 2D path; the plain field of the fallback frame is what a phone renders.', f2('rm', (o) => (o === 'A' ? lanesFrame('rm') : packFrame('rm')))));
   rows.push(sec('NEVER-BLANK FALLBACK (ADR-0051)', 'No WebGL context, a lost context that does not restore, or a renderer error: the page shows the plain 2D reveal the owner picked on gh#302 (B, proj-reveal) and the round still finishes. Identical for every option.', [[`<div class="tag"><span class="d">FALLBACK</span> · mb-fallback · gh#302 proj-reveal B, picked<span class="pc">COPY PROPOSED</span></div>`, frame('mb-fallback', 'F', '', plainReveal(GNAME()))]]));
 
@@ -185,7 +196,7 @@ export function buildMarbles() {
   rows.push(`
   <div class="brow">
     <h2>MOTION · beat by beat, with the time chosen for each beat</h2>
-    <p class="why">Timings are this board's proposal; the ui-ux-pro-max motion rules shaped them (RULES CHECKED). No query returned a marble-race timing, so the beat lengths themselves are not from the skill. Totals: A about ${(0.6 + 6 + 1.2 + 3).toFixed(1)}s a heat x ${HEATS.length} heats (M2-B) or one freeze (M2-A, about ${(0.6 + 6 + 1.2 + 3).toFixed(0)}s); B about ${(8 + 1.2 + 3).toFixed(1)}s. The MC conducts the room's cheering; nothing here rushes it.</p>
+    <p class="why">Timings are this board's proposal; the ui-ux-pro-max motion rules shaped them (RULES CHECKED). No query returned a marble-race timing, so the beat lengths themselves are not from the skill. Totals: A about ${(0.6 + 6 + 1.2 + 3).toFixed(1)}s a heat x ${HEATS.length} heats (M2-B) or one freeze (M2-A, about ${(0.6 + 6 * (freezeHeat + 1) + 1.2 + 3).toFixed(0)}s); B about ${(8 + 1.2 + 3).toFixed(1)}s. The MC conducts the room's cheering; nothing here rushes it.</p>
     <h3>A HEAT LANES</h3>${beatTable(beatsA)}<h3>B PACK + FULL ROSTER</h3>${beatTable(beatsB)}
   </div>`);
   rows.push(rulesRow('--domain ux "animation reveal duration easing stagger", "readability large display distance contrast font size", "reduced motion vestibular sensitivity", "color only indicator meaning accessibility", "flashing seizure blink" (returned nothing); --stack threejs "instanced mesh many objects performance", "webgl context lost fallback".', [
