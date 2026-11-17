@@ -444,7 +444,7 @@ function selftest() {
   // codex G real-aliased-component passes; codex G lookalike-component reds -- the path, not its tail.
   const renamed = page.replaceAll('PlayerScreen />', 'SharedSetup />').replace('import PlayerScreen from', 'import SharedSetup from');
   assert.deepEqual(auditRoute({ id: 'a', files: converted, page: renamed, pending: new Set() }).failures, [], 'a renamed default import of the shared component renders it');
-  for (const spec of ['/Users/someone/copy/_player-screen/PlayerScreen.astro', '../../play/_player-screen/PlayerScreen.astro']) {
+  for (const spec of ['/Users/example/copy/_player-screen/PlayerScreen.astro', '../../play/_player-screen/PlayerScreen.astro']) {
     const lookalike = page.replace("'../../../play/_player-screen/PlayerScreen.astro'", `'${spec}'`);
     assert.match(auditRoute({ id: 'a', files: converted, page: lookalike, pending: new Set() }).failures.join('\n'), /does not render <PlayerScreen \/>/, `a look-alike component path is not the shared screen: ${spec}`);
   }

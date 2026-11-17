@@ -1,33 +1,45 @@
 #!/usr/bin/env node
-// Gate: no TRACKED file under docs/verification/evidence/ may carry a local machine path or a
-// hyphen-encoded variant of one.
+// Gate: no TRACKED file may carry a home-directory path that names an account, and no tracked file
+// under docs/verification/evidence/ may carry any local machine path or a hyphen-encoded variant of
+// one. (The file keeps its evidence-scoped name because package.json and CI call it by that name.)
 //
 // WHY. The repo is PUBLIC. Evidence files are committed by hand from probe runs, so the paths a
 // probe prints (a home-directory checkout, a browser profile under the OS temp root, a scratchpad
 // directory) land in the published tree along with the measurement they belong to. The owner ruled
 // (2026-11-16): scrub the current files AND keep them scrubbed with this gate. Git history is not
-// rewritten.
+// rewritten. A second ruling the same day widened the identity half to the whole repo: an account
+// name in a home path leaks from a prompt log or a doc exactly as it does from evidence.
 //
-// THE SET, and why it is finite: every path `git ls-files` reports under docs/verification/evidence/.
-// Git owns the list, so an untracked directory being written by another agent, or a git worktree
-// under .claude/worktrees/, can never enter the scan — this gate does not walk the filesystem at
-// all. EVERY tracked file is scanned in three views — UTF-8 (lossy), UTF-16LE and UTF-16BE, each
-// with its BOM stripped where present — and a hit in any view is a finding. Nothing is classified
-// as binary and skipped: the excluded set is empty, so a sparse NUL cannot hide a path and a path
-// embedded in image metadata is visible in whichever view spells it.
+// THE SET, and why it is finite: every path `git ls-files` reports, partitioned by two keys.
+//   - Evidence (under docs/verification/evidence/) x every shape below, and NO name is admitted:
+//     the reserved placeholder name reds there too, because evidence spells a home as `~`.
+//   - Every other tracked file x the IDENTITY shapes only (home directories and their hyphen
+//     encodings), and only when the token's account segment is a real name. The reserved
+//     placeholder account name and an angle placeholder such as `<name>` are admitted, and a
+//     segment with no letter or digit carries no name. Temp-dir and root-home shapes are not
+//     policed there: a probe's temp constant or prose about an apex/root domain names nobody.
+// No file is exempt by path — the gate's own source included — so a real name added later to any
+// file reds; fixtures pass only by spelling the reserved name. Git owns the list, so an untracked
+// directory being written by another agent, or a git worktree under .claude/worktrees/, can never
+// enter the scan — this gate does not walk the filesystem at all. EVERY tracked file is scanned in
+// three views — UTF-8 (lossy), UTF-16LE and UTF-16BE, each with its BOM stripped where present —
+// and a hit in any view is a finding. Nothing is classified as binary and skipped: the excluded set
+// is empty, so a sparse NUL cannot hide a path and a path embedded in image metadata is visible in
+// whichever view spells it. A tracked file missing from the working tree throws: never a skip.
 //
 // THE SHAPES are the tokens this repo's producers actually emit, not every way a machine path can
-// be spelled: `/Users/<name>`, `/home/<name>`, `/root` (the Linux root home, bare or with a
-// trailing path — macOS's `/var/root` contains it), `/private/tmp`, `/private/var/folders`,
-// `/var/folders/`, `/tmp/`, a Windows `C:\Users\` in either slash direction (mixed separators
-// too), and the hyphen-encoded forms `-Users-` and `-var-folders-` (Claude's project-directory
-// encoding, which drops the slashes and dots and so survives a naive search for a leading `/`).
-// The allowed placeholders are `<repo>`, `~` and `<tmp>`; a placeholder-led token is masked whole
-// for the TEMP-DIR shapes only, so `<repo>/tmp/x` is one allowed token, while a home or hyphen-encoded
-// form inside it still matches unmasked. The account name itself
-// is deliberately NOT a shape here: the gate source and its selftest ship in the same public repo,
-// so writing the name into the detector would republish the very value being removed. A verify-time
-// search for the account name covers bare-name hits the shape list cannot express.
+// be spelled. Identity (repo-wide): `/Users/<name>`, `/home/<name>`, a Windows `C:\Users\` in either
+// slash direction (mixed separators too), and the hyphen-encoded `-Users-` and an ANCHORED `-home-`
+// (Claude's project-directory encoding, which drops the slashes and dots and so survives a naive
+// search for a leading `/`; anchored so a class name that merely contains the segment is not a
+// hit). Evidence only: `/root` (the Linux root home, bare or with a trailing path — macOS's
+// `/var/root` contains it), `/private/tmp`, `/private/var/folders`, `/var/folders/`, `/tmp/` and
+// the hyphen-encoded `-var-folders-`. The allowed placeholders are `<repo>`, `~` and `<tmp>`; a
+// placeholder-led token is masked whole for the TEMP-DIR shapes only, so `<repo>/tmp/x` is one
+// allowed token, while a home or hyphen-encoded form inside it still matches unmasked. The account
+// name itself is deliberately NOT a shape here: the gate source and its selftest ship in the same
+// public repo, so writing the name into the detector would republish the very value being removed.
+// A verify-time search for the account name covers bare-name hits the shape list cannot express.
 //
 // NO BASE REF. The gate reads the whole tracked set every run, so it cannot be satisfied by a
 // diff-scoped exemption and cannot rot into "only new lines are policed". The scrub left the
@@ -37,7 +49,7 @@
 // the line and the shape, and prints the line with the matched token replaced — never the value
 // itself.
 //
-//   node scripts/evidence-local-path-check.mjs            -> scan every tracked evidence file, three views
+//   node scripts/evidence-local-path-check.mjs            -> scan every tracked file, three views, scoped by path
 //   node scripts/evidence-local-path-check.mjs --selftest -> calibration on a throwaway fixture repo
 //
 // CEILING, disclosed: this is a shape list over text, not a proof that no machine path exists. A
@@ -58,9 +70,18 @@ const EVIDENCE_DIR = 'docs/verification/evidence';
 
 // Each entry matches the WHOLE encoded token, not just its prefix, so a redacted report cannot leak
 // the part that follows the shape (the account name sits inside a hyphen-encoded segment).
+//
+// `account` marks an IDENTITY shape — one whose token carries an account name — and returns that
+// name's segment from the matched token. Identity shapes are policed in every tracked file; the
+// rest (temp dirs, the root home) only under the evidence directory.
+const slashAccount = (prefix) => (m) => m.replace(prefix, '').replace(/^[\\/]+/, '').split(/[\\/]/)[0];
+const hyphenAccount = (prefix) => (m) => m.replace(prefix, '').split('-')[0];
 const SHAPES = [
-  { name: '/Users/<name>', re: /\/Users\/[^\s"'`]*/g },
-  { name: '/home/<name>', re: /\/home\/[A-Za-z][^\s"'`]*/g },
+  { name: '/Users/<name>', re: /\/Users\/[^\s"'`]*/g, account: slashAccount(/^\/Users\//) },
+  // Same account class as `/Users/`: requiring a leading ASCII letter missed every account that
+  // opens with a digit or a non-ASCII letter, in evidence as well as outside it. A bare `/home/`
+  // still carries no name and stays green outside evidence.
+  { name: '/home/<name>', re: /\/home\/[^\s"'`]*/g, account: slashAccount(/^\/home\//) },
   // The root home is the whole token `root`, bare or followed by `/`. The boundary keeps prose
   // tokens like `saveGroup/root.hidden` green (measured against the tracked set) while `cd /root`,
   // `HOME=/root` and `/var/root` all hit — a trailing-slash-only shape would miss every bare form.
@@ -75,10 +96,36 @@ const SHAPES = [
   { name: '/tmp/', re: /\/tmp\/[^\s"'`]*/g, useMask: true },
   // Either slash direction, mixed included: `C:/Users\example` is invisible to both the backslash
   // form and the `/Users/` substring, so the separators are a class, not a literal.
-  { name: 'C:\\Users\\', re: /[A-Za-z]:[\\/]+Users[\\/][^\s"'`]*/gi },
-  { name: '-Users-', re: /-Users-[A-Za-z0-9._-]*/g },
+  { name: 'C:\\Users\\', re: /[A-Za-z]:[\\/]+Users[\\/][^\s"'`]*/gi, account: slashAccount(/^[A-Za-z]:[\\/]+Users[\\/]+/i) },
+  // The account class is any script's letters, marks and digits, not ASCII alone: an ASCII-only
+  // class matched only the `-Users-` prefix of a Thai account, which read as "no name" outside
+  // evidence and as a truncated token inside it. \p{M} is load-bearing: a combining mark continues
+  // the account name, so admitting only letters stopped the token at the mark — `example` followed
+  // by a combining accent read as the reserved placeholder and the whole account escaped. KNOWN
+  // BLIND SPOT (deliberate): the hyphen encoding has no account/path boundary, so
+  // `-Users-example-alice` is indistinguishable from an account named `example-alice`,
+  // `example/alice` or `example.alice` — it reads as the reserved `example` and is admitted outside
+  // evidence. That case is out of this gate's reach, not green by measurement.
+  { name: '-Users-', re: /-Users-[\p{L}\p{M}\p{N}._-]*/gu, account: hyphenAccount(/^-Users-/) },
+  // ANCHORED: the segment must open a token (no name character, mark or hyphen before it), so a
+  // class name or custom property that merely contains it never matches and a mark that continues
+  // a preceding letter is not mistaken for a token boundary. Claude's encoding of a Linux home
+  // always opens the directory name with it.
+  { name: '-home-', re: /(?<![\p{L}\p{M}\p{N}._-])-home-[\p{L}\p{M}\p{N}._-]*/gu, account: hyphenAccount(/^-home-/) },
   { name: '-var-folders-', re: /-var-folders-[A-Za-z0-9._-]*/g },
 ];
+
+// The one reserved placeholder account name, plus the `<name>` angle-placeholder form. Fixtures and
+// prose outside evidence spell a home path with one of these; any other account segment that
+// contains a letter or digit in ANY script is treated as a real name. A segment with neither
+// (`-Users-` alone, `...`) carries no name. Evidence admits nothing: every identity token reds
+// there, reserved or not.
+const RESERVED_ACCOUNT = 'example';
+const ANGLE_PLACEHOLDER = /^<[A-Za-z0-9_-]+>$/;
+
+export function carriesAccountName(segment) {
+  return /[\p{L}\p{N}]/u.test(segment) && segment !== RESERVED_ACCOUNT && !ANGLE_PLACEHOLDER.test(segment);
+}
 
 // P3: a placeholder-led token is allowed WHOLE for the TEMP-DIR shapes only, so `<repo>/tmp/x` and
 // `~/tmp/x` must not red on their temp-path suffix. Mask each such token to SAME-LENGTH spaces —
@@ -101,16 +148,23 @@ function maskPlaceholders(line) {
  * `/tmp/` token as a substring, and `/private/var/folders/...` contains `/var/folders/...`. The
  * more specific (longer, earlier) token wins, so one line yields one finding per real path.
  * Masking is same-length, so masked and unmasked hits share one index space and dedup is valid.
+ *
+ * SCOPE. `evidence: true` (the default) keeps every shape, unconditionally. `evidence: false` keeps
+ * only identity tokens that carry a real account name — and drops the rest BEFORE the overlap
+ * dedup, so a temp-dir token wrapping a named hyphen-encoded home cannot swallow it.
  */
-export function findHits(line) {
+export function findHits(line, { evidence = true } = {}) {
   const masked = maskPlaceholders(line);
   const raw = [];
   for (const shape of SHAPES) {
+    if (!evidence && !shape.account) continue;
     const target = shape.useMask ? masked : line;
     shape.re.lastIndex = 0;
     let match;
     while ((match = shape.re.exec(target)) !== null) {
-      raw.push({ shape: shape.name, index: match.index, match: match[0] });
+      if (evidence || carriesAccountName(shape.account(match[0]))) {
+        raw.push({ shape: shape.name, index: match.index, match: match[0] });
+      }
       if (match[0] === '') shape.re.lastIndex++;
     }
   }
@@ -138,9 +192,9 @@ export function redact(line) {
   return out.trim().slice(0, 200);
 }
 
-/** Every tracked file under the evidence directory, per git's own index — never a filesystem walk. */
-export function listTrackedEvidence(cwd) {
-  const out = execFileSync('git', ['ls-files', '-z', '--', EVIDENCE_DIR], {
+/** Every tracked file in the repo, per git's own index — never a filesystem walk. */
+export function listTracked(cwd) {
+  const out = execFileSync('git', ['ls-files', '-z'], {
     cwd,
     encoding: 'buffer',
     maxBuffer: 64 * 1024 * 1024,
@@ -171,16 +225,23 @@ export function textViews(buf) {
   ];
 }
 
+/** True for a repo-relative path under the evidence directory, where every shape is policed. */
+export function isEvidence(file) {
+  return file.startsWith(`${EVIDENCE_DIR}/`);
+}
+
 /** Scan the listed files in all three views; a hit in ANY view is a finding. Identical findings
- * (same file, line, shape and matched token) are deduped across views. No file is skipped. */
+ * (same file, line, shape and matched token) are deduped across views. No file is skipped; the
+ * scope (every shape, or named identity shapes only) follows the file's path. */
 export function scanFiles(dir, files) {
   const hits = [];
   const seen = new Set();
   for (const file of files) {
     const buf = fs.readFileSync(path.join(dir, file));
+    const evidence = isEvidence(file);
     for (const text of textViews(buf)) {
       text.split('\n').forEach((line, i) => {
-        for (const hit of findHits(line)) {
+        for (const hit of findHits(line, { evidence })) {
           const key = `${file}|${i + 1}|${hit.shape}|${hit.match}`;
           if (seen.has(key)) continue;
           seen.add(key);
@@ -200,7 +261,11 @@ export function scanFiles(dir, files) {
 // empty, so those are must-RED, not must-skip. Each fixture names the shape it must report; hitting
 // under the WRONG shape is still a broken detector. Must-green: every allowed placeholder, in plain
 // UTF-8 and each UTF-16 encoding, plus placeholder-led tokens whose suffix looks like a temp path
-// (P3). Removing the red fixtures must clear the scan.
+// (P3). Outside evidence: one must-red per identity shape with a real name (the anchored hyphen
+// Linux home in UTF-8 and UTF-16LE, a named home nested in a temp token, near misses of the
+// reserved name, and a copy of this gate's own source path), and must-greens for a temp constant,
+// a class name containing the hyphen segment, and the reserved name in every identity shape.
+// Removing the red fixtures must clear the scan.
 // ---------------------------------------------------------------------------
 function selftest() {
   const dir = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'evidence-local-path-check-'));
@@ -221,7 +286,17 @@ function selftest() {
       return bom ? Buffer.concat([Buffer.from([0xfe, 0xff]), b]) : b;
     };
 
-    // Every value is a generic example, never this machine's account.
+    // Every value is a generic example, never this machine's account. RESERVED is the placeholder
+    // account name the repo-wide scope admits; NAME stands for any other (real) account.
+    const RESERVED = 'example';
+    const NAME = 'alice';
+    const DIGIT_NAME = '7alice'; // an account name that opens with a digit
+    const UNAME = 'สมชาย'; // a non-ASCII account name, as escapes only
+    // A combining mark CONTINUES the preceding letter: the acute accent below, and a Thai vowel
+    // sign sitting between two consonants (U+0E2A U+0E38 U+0E14).
+    const COMBINING_ACUTE = String.fromCodePoint(0x0301);
+    const THAI_MARK_NAME = String.fromCodePoint(0x0E2A, 0x0E38, 0x0E14);
+
     const redFixtures = [
       { name: 'home-mac.txt', shape: '/Users/<name>', buf: utf8('shot: /Users/example/copy/shot.png\n') },
       { name: 'home-linux.txt', shape: '/home/<name>', buf: utf8('cd /home/example/repo\n') },
@@ -259,6 +334,51 @@ function selftest() {
       // line, so both of these must red under -Users-.
       { name: 'hyphen-home-in-tilde.txt', shape: '-Users-', buf: utf8('~/.claude/projects/-Users-example-c-proj/x\n') },
       { name: 'hyphen-home-in-tmp.txt', shape: '-Users-', buf: utf8('<tmp>/claude-501/-Users-example-c-proj/x\n') },
+      // The anchored Linux hyphen-encoded home, in evidence: strict there, reserved name included.
+      { name: 'hyphen-linux-home.txt', shape: '-home-', buf: utf8('dir: ~/.claude/projects/-home-example-proj/x\n') },
+      // A Thai account is an account. The Linux-home shape demanded a leading ASCII letter, so this
+      // was invisible in evidence too, where every shape is policed and no account name is admitted.
+      { name: 'unicode-linux-home.txt', shape: '/home/<name>', buf: utf8('cd /home/' + UNAME + '/project\n') },
+
+      // REPO-WIDE identity shapes, outside evidence. NAME stands for a real account; every literal
+      // below is split at the shape so this source never spells a named home path itself, and the
+      // gate scanning its own file stays green while the planted copies red.
+      { dir: 'docs/notes', name: 'real-mac-home.md', shape: '/Users/<name>', buf: utf8('notes: /Users/' + NAME + '/proj/shot.png\n') },
+      { dir: 'docs/notes', name: 'real-linux-home.md', shape: '/home/<name>', buf: utf8('cd /home/' + NAME + '/repo\n') },
+      { dir: 'docs/notes', name: 'real-windows-home.md', shape: 'C:\\Users\\', buf: utf8('path: C:\\Users\\' + NAME + '\\shot.png\n') },
+      { dir: 'docs/notes', name: 'real-hyphen-users.md', shape: '-Users-', buf: utf8('dir: ~/.claude/projects/-Users-' + NAME + '-c-proj/x\n') },
+      { dir: 'docs/notes', name: 'real-hyphen-home.md', shape: '-home-', buf: utf8('dir: ~/.claude/projects/-home-' + NAME + '-proj/x\n') },
+      { dir: 'docs/notes', name: 'real-hyphen-home-utf16le.txt', shape: '-home-', buf: utf16le('dir: ~/.claude/projects/-home-' + NAME + '-proj/x\n') },
+      // A named home NESTED in a temp-dir token: the temp shape is evidence-only, so it must be
+      // dropped BEFORE the overlap dedup, or it swallows the identity token and the name escapes.
+      { dir: 'scripts', name: 'real-home-in-temp.mjs', shape: '-Users-', buf: utf8("const out = '/private/tmp/claude-501/-Users-" + NAME + "-c-proj/scratchpad/x';\n") },
+      // Near misses of the reserved name are real names: the admission is the exact word only.
+      { dir: 'docs/notes', name: 'near-reserved-slash.md', shape: '/Users/<name>', buf: utf8('p: /Users/' + RESERVED + 's/x\n') },
+      { dir: 'docs/notes', name: 'near-reserved-hyphen.md', shape: '-Users-', buf: utf8('d: -Users-' + RESERVED + 'x-proj\n') },
+      { dir: 'docs/notes', name: 'near-placeholder.md', shape: '/Users/<name>', buf: utf8('p: /Users/<name>' + 'x/y\n') },
+      // A name outside ASCII is still a name, and a doubled separator does not empty the segment.
+      { dir: 'docs/notes', name: 'non-ascii-mac-home.md', shape: '/Users/<name>', buf: utf8('p: /Users/' + UNAME + '/x\n') },
+      { dir: 'docs/notes', name: 'non-ascii-windows-home.md', shape: 'C:\\Users\\', buf: utf8('p: C:\\Users\\' + UNAME + '\\x\n') },
+      // An account name need not open with an ASCII letter. The Linux-home shape required one, and
+      // both hyphen-encoded matchers admitted only ASCII, so a digit-leading or Thai account in the
+      // plain and in the hyphen-encoded form passed every scope — the counterexamples this pins.
+      { dir: 'docs/notes', name: 'digit-linux-home.md', shape: '/home/<name>', buf: utf8('cd /home/' + DIGIT_NAME + '/repo\n') },
+      { dir: 'docs/notes', name: 'non-ascii-linux-home.md', shape: '/home/<name>', buf: utf8('cd /home/' + UNAME + '/repo\n') },
+      { dir: 'docs/notes', name: 'non-ascii-hyphen-users.md', shape: '-Users-', buf: utf8('dir: ~/.claude/projects/-Users-' + UNAME + '-proj/x\n') },
+      { dir: 'docs/notes', name: 'digit-hyphen-home.md', shape: '-home-', buf: utf8('dir: ~/.claude/projects/-home-' + DIGIT_NAME + '-proj/x\n') },
+      { dir: 'docs/notes', name: 'doubled-separator.md', shape: '/Users/<name>', buf: utf8('p: /Users//' + NAME + '/x\n') },
+      // A combining mark continues the account name. The hyphen class used to stop at it, so
+      // `example` + mark read as the reserved placeholder and the hyphen form escaped outside
+      // evidence; the slash forms already red, and stay red here.
+      { dir: 'docs/notes', name: 'combining-mac-home.md', shape: '/Users/<name>', buf: utf8('p: /Users/' + RESERVED + COMBINING_ACUTE + '/x\n') },
+      { dir: 'docs/notes', name: 'combining-linux-home.md', shape: '/home/<name>', buf: utf8('cd /home/' + RESERVED + COMBINING_ACUTE + '/repo\n') },
+      { dir: 'docs/notes', name: 'combining-hyphen-users.md', shape: '-Users-', buf: utf8('d: ~/.claude/projects/-Users-' + RESERVED + COMBINING_ACUTE + '-proj/x\n') },
+      { dir: 'docs/notes', name: 'combining-hyphen-home.md', shape: '-home-', buf: utf8('d: ~/.claude/projects/-home-' + RESERVED + COMBINING_ACUTE + '-proj/x\n') },
+      // A Thai account can carry a combining vowel mid-name; the whole token must match, or the
+      // redacted report prints the tail of the name.
+      { dir: 'docs/notes', name: 'thai-mark-hyphen-users.md', shape: '-Users-', buf: utf8('d: ~/.claude/projects/-Users-' + THAI_MARK_NAME + '-proj/x\n') },
+      // No file is exempt: a named home inside a copy of THIS gate's own source path still reds.
+      { dir: 'scripts', name: 'evidence-local-path-check.mjs', shape: '/Users/<name>', buf: utf8("const leaked = '/Users/" + NAME + "/x';\n") },
     ];
     const greenFixtures = [
       { name: 'green-placeholders.txt', buf: utf8(['repo: <repo>/docs/x', 'home: ~/x', 'temp: <tmp>/x', 'prose: temporary files stay in TMPDIR'].join('\n') + '\n') },
@@ -269,31 +389,58 @@ function selftest() {
       { name: 'utf8-bom-green.txt', buf: utf8bom('<repo>/x\n') },
       // P3: a placeholder-led token is masked WHOLE, so a temp-path suffix inside it is not a hit.
       { name: 'placeholder-tmp.txt', buf: utf8('<repo>/tmp/results.json\n~/tmp/results.json\n') },
+      // Outside evidence, temp-dir and root-home shapes are not policed: a probe's temp constant,
+      // a workflow scratch path and prose about an apex/root domain all stay green there.
+      { dir: 'scripts', name: 'probe-temp.mjs', buf: utf8(["const OUT = '/tmp/probe-shot.png';", "const P = '/private/tmp/x';", "const V = '/var/folders/ab/T/x';", "const H = '-var-folders-ab-';", '// the apex/root domain; cd /root', ''].join('\n')) },
+      // The anchored hyphen form never matches a word that merely contains the segment.
+      { dir: 'src/styles', name: 'home-classes.css', buf: utf8('.btn-home-menu { color: red; }\n:root { --home-bg: #000; }\n') },
+      { dir: 'src/styles', name: 'home-classes-utf16le.css', buf: utf16le('.btn-home-menu { color: red; }\n') },
+      // The reserved account name and the angle placeholder stay green in every identity shape
+      // outside evidence, as does a token that carries no name at all.
+      {
+        dir: 'docs/notes',
+        name: 'reserved-names.md',
+        buf: utf8(
+          [
+            'p: /Users/' + RESERVED + '/x',
+            'p: /Users/<name>/x',
+            'p: /home/' + RESERVED + '/repo',
+            'p: C:\\Users\\' + RESERVED + '\\x',
+            'p: C:/Users/<name>/x',
+            'd: -Users-' + RESERVED + '-c-proj',
+            'd: ~/.claude/projects/-home-' + RESERVED + '-proj/x',
+            'd: -Users-... and a bare -Users- and a bare /Users/ directory',
+            '',
+          ].join('\n'),
+        ),
+      },
     ];
+    const rel = (f) => `${f.dir ?? EVIDENCE_DIR}/${f.name}`;
     for (const f of [...redFixtures, ...greenFixtures]) {
-      fs.writeFileSync(path.join(evidenceDir, f.name), f.buf);
+      fs.mkdirSync(path.join(dir, path.dirname(rel(f))), { recursive: true });
+      fs.writeFileSync(path.join(dir, rel(f)), f.buf);
     }
 
     execFileSync('git', ['init', '-q'], { cwd: dir });
     execFileSync('git', ['add', '-A'], { cwd: dir });
 
-    const allNames = [...redFixtures, ...greenFixtures].map((f) => f.name).sort();
-    const tracked = listTrackedEvidence(dir);
+    const allPaths = [...redFixtures, ...greenFixtures].map(rel).sort();
+    const tracked = listTracked(dir);
     assert.deepEqual(
-      tracked.map((f) => path.basename(f)).sort(),
-      allNames,
+      [...tracked].sort(),
+      allPaths,
       'the fixture repo must track every planted file, per-item — a count alone cannot tell "all" from "the last N"',
     );
 
     const hits = scanFiles(dir, tracked);
-    const redNames = redFixtures.map((f) => f.name).sort();
-    const hitFiles = [...new Set(hits.map((h) => path.basename(h.file)))].sort();
-    assert.deepEqual(hitFiles, redNames, 'exactly the must-red fixtures must be flagged, and nothing else');
+    const redPaths = redFixtures.map(rel).sort();
+    const hitFiles = [...new Set(hits.map((h) => h.file))].sort();
+    assert.deepEqual(hitFiles, redPaths, 'exactly the must-red fixtures must be flagged, and nothing else');
     assert.equal(hits.length, redFixtures.length, `one hit per must-red fixture, got ${hits.length}`);
     for (const f of redFixtures) {
-      const fh = hits.filter((h) => path.basename(h.file) === f.name);
-      assert.equal(fh.length, 1, `${f.name}: exactly one hit, got ${fh.length}`);
-      assert.equal(fh[0].shape, f.shape, `${f.name}: must report shape ${f.shape}, got ${fh[0].shape}`);
+      const fh = hits.filter((h) => h.file === rel(f));
+      assert.equal(fh.length, 1, `${rel(f)}: exactly one hit, got ${fh.length}`);
+      assert.equal(fh[0].shape, f.shape, `${rel(f)}: must report shape ${f.shape}, got ${fh[0].shape}`);
     }
     const shapesSeen = new Set(hits.map((h) => h.shape));
     assert.equal(
@@ -302,7 +449,7 @@ function selftest() {
       `every rejected shape must be exercised by a fixture, saw ${[...shapesSeen].join(', ')}`,
     );
     assert.ok(
-      hits.every((h) => h.sample.includes('<redacted>') && !h.sample.includes('example')),
+      hits.every((h) => h.sample.includes('<redacted>') && !h.sample.includes(RESERVED) && !h.sample.includes(NAME) && !h.sample.includes(UNAME)),
       'every finding must print the line redacted, never the matched value',
     );
 
@@ -318,6 +465,25 @@ function selftest() {
     // The mask is TEMP-DIR-only: a hyphen-encoded home inside a placeholder-led token still reds.
     assert.deepEqual(findHits('~/.claude/projects/-Users-example-c-proj/x').map((h) => h.shape), ['-Users-'], 'a hyphen-encoded home inside a ~-led token must red under -Users-, not be masked away');
     assert.deepEqual(findHits('<tmp>/claude-501/-Users-example-c-proj/x').map((h) => h.shape), ['-Users-'], 'a hyphen-encoded home inside a <tmp>-led token must red under -Users-, not be masked away');
+    // The hyphen-encoded Linux home is anchored at a token boundary in every scope.
+    assert.deepEqual(findHits('.btn-home-menu'), [], 'a class name containing the segment is not a hyphen-encoded home');
+    assert.deepEqual(findHits('var(--home-bg)'), [], 'a custom property containing the segment is not a hyphen-encoded home');
+    // Outside evidence, only an identity shape carrying a real name is a hit.
+    assert.deepEqual(findHits('out=/tmp/x', { evidence: false }), [], 'a temp path outside evidence is not policed');
+    assert.deepEqual(findHits('/Users/' + RESERVED + '/x', { evidence: false }), [], 'the reserved name is green outside evidence');
+    assert.equal(findHits('/Users/' + RESERVED + '/x').length, 1, 'the reserved name still reds in evidence');
+    assert.deepEqual(findHits('/tmp/claude-501/-Users-' + NAME + '-c-x', { evidence: false }).map((h) => h.shape), ['-Users-'], 'a named home nested in a temp token reds outside evidence');
+    // A combining mark belongs to the account name, so the token continues past it: outside
+    // evidence each of these reds as ONE whole token, and the report redacts it whole — a match
+    // truncated at the mark would print the name's tail into a public CI log.
+    for (const token of [
+      '-Users-' + RESERVED + COMBINING_ACUTE + '-proj',
+      '-home-' + RESERVED + COMBINING_ACUTE + '-proj',
+      '-Users-' + THAI_MARK_NAME + '-proj',
+    ]) {
+      assert.deepEqual(findHits(token, { evidence: false }).map((h) => h.match), [token], `${JSON.stringify(token)}: a marked account name must red outside evidence as one whole token`);
+      assert.equal(redact(token), '<redacted>', `${JSON.stringify(token)}: the report must redact the whole marked token`);
+    }
 
     // Three-view controls: every encoding round-trips in its own view with its BOM stripped, the
     // view list is always three strings (nothing classified away), and each binary's raw bytes
@@ -335,14 +501,14 @@ function selftest() {
     console.log(`PASS calibration: ${hits.length}/${redFixtures.length} planted fixtures flagged with the right shape; placeholder-led tokens stayed green`);
 
     // Red -> green round trip: removing the must-red fixtures must clear the scan.
-    for (const f of redFixtures) fs.rmSync(path.join(evidenceDir, f.name));
+    for (const f of redFixtures) fs.rmSync(path.join(dir, rel(f)));
     execFileSync('git', ['add', '-A'], { cwd: dir });
-    const cleared = scanFiles(dir, listTrackedEvidence(dir));
+    const cleared = scanFiles(dir, listTracked(dir));
     assert.deepEqual(cleared, [], 'removing every must-red fixture must return the scan to zero hits');
 
     // A broken detector (a shape silently dropped) must be caught by the shape-coverage assertion
     // above, not by a vacuous green: prove the fixture set still contains every shape.
-    assert.equal(SHAPES.length, 10, 'the rejected-shape set must stay at ten entries; a dropped shape would pass every fixture');
+    assert.equal(SHAPES.length, 11, 'the rejected-shape set must stay at eleven entries; a dropped shape would pass every fixture');
     console.log('PASS calibration: removing the must-red fixtures clears the scan, and the shape set is complete');
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
@@ -353,11 +519,13 @@ function selftest() {
 async function main() {
   if (process.argv.includes('--selftest')) return selftest();
 
-  const tracked = listTrackedEvidence(repoRoot);
-  // A missing or empty list must be loud: "scanned nothing" is not "clean".
-  if (!tracked.length) {
+  const tracked = listTracked(repoRoot);
+  const evidenceCount = tracked.filter(isEvidence).length;
+  // A missing or empty list must be loud: "scanned nothing" is not "clean". The evidence directory
+  // is the strict scope, so an empty evidence subset is loud too.
+  if (!tracked.length || !evidenceCount) {
     console.error(
-      '::error::git ls-files returned no tracked files under docs/verification/evidence — the gate scanned nothing, which is not the same as clean',
+      `::error::git ls-files returned ${tracked.length} tracked file(s), ${evidenceCount} under ${EVIDENCE_DIR} — the gate scanned nothing in at least one scope, which is not the same as clean`,
     );
     process.exit(1);
   }
@@ -369,15 +537,18 @@ async function main() {
     }
     const files = new Set(hits.map((h) => h.file));
     console.error(
-      `\n${hits.length} local-path hit(s) across ${files.size} tracked evidence file(s). ` +
-        'Replace the repository root with <repo>, any other home path with ~, and a temp path with <tmp>.',
+      `\n${hits.length} local-path hit(s) across ${files.size} tracked file(s). ` +
+        'Replace the repository root with <repo>, any other home path with ~, and a temp path with <tmp>; ' +
+        `outside ${EVIDENCE_DIR}, a fixture or example spells the account as ${RESERVED_ACCOUNT} or <name>.`,
     );
     process.exit(1);
   }
 
   console.log(
-    `evidence-local-path-check: ${tracked.length} tracked evidence file(s) scanned in three views (UTF-8, UTF-16LE, UTF-16BE), 0 local-path hit(s). ` +
-      'Nothing is skipped; untracked evidence directories are not in git and therefore not scanned.',
+    `evidence-local-path-check: ${tracked.length} tracked file(s) scanned in three views (UTF-8, UTF-16LE, UTF-16BE), 0 local-path hit(s) — ` +
+      `home-directory shapes and their hyphen encodings carrying any account name but the reserved placeholders (${RESERVED_ACCOUNT}, <name>) in all ${tracked.length}; ` +
+      `every shape, temp-dir and root-home included and no name admitted, in the ${evidenceCount} under ${EVIDENCE_DIR}. ` +
+      'Nothing is skipped; untracked files are not in git and therefore not scanned.',
   );
 }
 
