@@ -25,6 +25,8 @@
     "The four company-party lists start EMPTY and UNMEASURED (gh#305): no browser ran when they were added,",
     "so the WebGL lane fails them by name on its first run, naming every extension each requests. Admitting",
     "those names here, from that run's record, is the reviewed edit that closes the gap -- never a guess.",
+    "The four phase-2 lists (gh#315-gh#318, 2026-11-17) took the same path: added empty, failed by name on the",
+    "lane's first run (the swiftshader clean leg), each naming the eight extensions now listed, admitted from that record.",
     "",
     "WEBGPU AND WORKERS. A WebGPU request on any route, or a Worker / SharedWorker on an adapter",
     "route, FAILS unless its entry sets \"webgpu\": true / \"workers\": true. None does: the recorder",
@@ -50,6 +52,10 @@
     "prize-draw": { "suspends": "adapter", "extensions": ["ext_color_buffer_float", "ext_color_buffer_half_float", "ext_texture_filter_anisotropic", "khr_parallel_shader_compile", "oes_texture_float_linear", "webgl_clip_cull_distance", "webgl_multisampled_render_to_texture", "webgl_render_shared_exponent"] },
     "prize-fireworks": { "suspends": "adapter", "extensions": ["ext_color_buffer_float", "ext_color_buffer_half_float", "ext_texture_filter_anisotropic", "khr_parallel_shader_compile", "oes_texture_float_linear", "webgl_clip_cull_distance", "webgl_multisampled_render_to_texture", "webgl_render_shared_exponent"] },
     "prize-cards": { "suspends": "adapter", "extensions": ["ext_color_buffer_float", "ext_color_buffer_half_float", "ext_texture_filter_anisotropic", "khr_parallel_shader_compile", "oes_texture_float_linear", "webgl_clip_cull_distance", "webgl_multisampled_render_to_texture", "webgl_render_shared_exponent"] },
-    "prize-ladder": { "suspends": "adapter", "extensions": ["ext_color_buffer_float", "ext_color_buffer_half_float", "ext_texture_filter_anisotropic", "khr_parallel_shader_compile", "oes_texture_float_linear", "webgl_clip_cull_distance", "webgl_multisampled_render_to_texture", "webgl_render_shared_exponent"] }
+    "prize-ladder": { "suspends": "adapter", "extensions": ["ext_color_buffer_float", "ext_color_buffer_half_float", "ext_texture_filter_anisotropic", "khr_parallel_shader_compile", "oes_texture_float_linear", "webgl_clip_cull_distance", "webgl_multisampled_render_to_texture", "webgl_render_shared_exponent"] },
+    "prize-zones": { "suspends": "adapter", "extensions": ["ext_color_buffer_float", "ext_color_buffer_half_float", "ext_texture_filter_anisotropic", "khr_parallel_shader_compile", "oes_texture_float_linear", "webgl_clip_cull_distance", "webgl_multisampled_render_to_texture", "webgl_render_shared_exponent"] },
+    "prize-marbles": { "suspends": "adapter", "extensions": ["ext_color_buffer_float", "ext_color_buffer_half_float", "ext_texture_filter_anisotropic", "khr_parallel_shader_compile", "oes_texture_float_linear", "webgl_clip_cull_distance", "webgl_multisampled_render_to_texture", "webgl_render_shared_exponent"] },
+    "prize-envelopes": { "suspends": "adapter", "extensions": ["ext_color_buffer_float", "ext_color_buffer_half_float", "ext_texture_filter_anisotropic", "khr_parallel_shader_compile", "oes_texture_float_linear", "webgl_clip_cull_distance", "webgl_multisampled_render_to_texture", "webgl_render_shared_exponent"] },
+    "prize-flipcards": { "suspends": "adapter", "extensions": ["ext_color_buffer_float", "ext_color_buffer_half_float", "ext_texture_filter_anisotropic", "khr_parallel_shader_compile", "oes_texture_float_linear", "webgl_clip_cull_distance", "webgl_multisampled_render_to_texture", "webgl_render_shared_exponent"] }
   }
 }

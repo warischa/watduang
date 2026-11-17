@@ -1,0 +1,69 @@
+// Projector route at 1920x1080, seeded as proj.mjs seeds it (40 names, 3 prizes, admin mode, no phone).
+// usage: node projector.mjs cut <zones|marbles>   |   node projector.mjs final <envelopes|flipcards>   |   node projector.mjs setup
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+import { setIn, pickGame, openSetup, setPrizes, startEvent, pickLane, mkNames, phaseNow, wd2 } from './ev.mjs';
+const [kind, game] = process.argv.slice(2);
+const mf = join(OUT, 'manifest.json'), tf = join(OUT, 'timings.json'), cf = join(OUT, 'console.json');
+const load = (f, d) => (existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : d);
+const add = (f, fn) => { const v = load(f, f === mf ? [] : {}); fn(v); writeFileSync(f, JSON.stringify(v, null, 1)); };
+const MID = { zones: ['cut:1', 300], marbles: ['cut:0', 3000], envelopes: ['prize:3', 1500], flipcards: ['prize:3', 1500] };
+async function seed(T, games) {
+  await openSetup(T, mkNames(40), { event: 'Audit' }); await setPrizes(T, 3);
+  const sched = [20, 10, 7]; for (let i = 0; i < 3; i++) await setIn(T, `pd-s${i + 1}`, sched[i]);
+  const res = {};
+  for (const [g, v] of [['pd-game-r1', games.r1 ?? null], ['pd-game-r2', null], ['pd-game-r3', null], ['pd-game-r4', null], ['pd-game-final', games.final ?? null]]) res[g] = await pickGame(T, g, v);
+  const arrived = await startEvent(T); return { arrived, res };
+}
+const rounds2D = async (T, n) => { for (let i = 0; i < n; i++) { await T.tapEl('.pd-mc button', 'เปิดผล', { settleMs: 450 }); await sleep(1300); await T.tapEl('.pd-mc button', 'รอบต่อไป'); await sleep(900); } };
+if (kind === 'setup') {
+  for (const [W, H] of [[320, 568], [1440, 900]]) {
+    const T = await openTab(); await T.view(W, H, false);
+    await T.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' });
+    await T.nav(`${BASE}/game/prize-draw/`); await T.view(W, H, false); await sleep(600);
+    await setIn(T, 'pd-names', mkNames(40).join('\n')); await setIn(T, 'pd-event', 'Audit'); await sleep(400);
+    const inner = await T.ev('return innerWidth');
+    const offered = await T.ev(`return Object.fromEntries(['pd-game-r1','pd-game-r2','pd-game-r3','pd-game-r4','pd-game-final'].map(g=>[g,[...document.querySelectorAll('#'+g+' button')].map(b=>(b.getAttribute('data-game')||'none')+(b.disabled?'(disabled)':''))]))`);
+    const full = async (name) => { const sh = await T.ev('return document.documentElement.scrollHeight'); const r = await T.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: 0, width: W, height: Math.min(sh, 5000), scale: 1 } }); writeFileSync(join(OUT, 'shots', name + '.png'), Buffer.from(r.result.data, 'base64')); return sh; };
+    const sh = await full(`setup-picker-${W}-default`);
+    const picked = [await pickGame(T, 'pd-game-r1', 'zones'), await pickGame(T, 'pd-game-r2', 'marbles'), await pickGame(T, 'pd-game-final', 'envelopes')]; await sleep(400);
+    await full(`setup-picker-${W}-picked`);
+    const row = (f, s, st) => ({ file: f + '.png', route: '/game/prize-draw/', width: W, height: `full page (scrollHeight ${sh}, capped 5000)`, state: s, innerWidthRead: inner, webgl2Live: 'n-a', reducedMotion: 'no' });
+    add(mf, (v) => v.push(row(`setup-picker-${W}-default`, 'setup, per-round game pickers, 40 names entered'), row(`setup-picker-${W}-picked`, 'setup, picked r1 zones / r2 marbles / final envelopes')));
+    add(cf, (v) => { v[`setup-${W}`] = { exceptions: T.S.exceptions.slice(), consoleErrors: T.S.console.filter((c) => c.type === 'error').map((c) => c.text), logErrors: T.S.log.filter((l) => l.level === 'error').map((l) => l.text), offered, picked }; });
+    console.log('setup', W, 'inner', inner, JSON.stringify(offered), picked.join(','));
+    await T.close();
+  }
+  process.exit(0);
+}
+const W = 1920, H = 1080; const T = await openTab(); const cut = kind === 'cut';
+const s = await seed(T, cut ? { r1: game } : { final: game }); console.log('seed', JSON.stringify(s));
+await T.view(W, H, false); await T.nav(`${BASE}/game/prize-draw/play/`); await T.view(W, H, false); await sleep(1000);
+const inner = await T.ev('return innerWidth');
+const tag = (st) => `projector-${game}-${W}-${st}`; const rows = [];
+const fire = (st, f, gl) => rows.push({ file: f + '.png', route: '/game/prize-draw/play/ (projector, ' + (cut ? 'round 1 = ' : 'final = ') + game + ')', width: W, height: H, state: st, innerWidthRead: inner, webgl2Live: gl, reducedMotion: 'no' });
+let picks = [];
+if (!cut) { await rounds2D(T, 4); await sleep(600); await T.shot(tag('pick-empty')); fire('pick screen, before picks', tag('pick-empty'), 'n-a'); for (let l = 0; l < 5; l++) picks.push(await pickLane(T, l)); await T.ev('window.scrollTo(0,0);return 1'); await sleep(500); await T.shot(tag('pick-done')); fire('pick screen, five picks placed', tag('pick-done'), 'n-a'); }
+else { await T.shot(tag('idle')); fire('idle (round screen before press)', tag('idle'), 'n-a'); }
+const label = await T.ev(`return document.querySelector('.pd-mc button')?.textContent.trim()`); console.log('mc label', label);
+const [mp, md] = MID[game]; const t0 = Date.now(); await T.tapEl('.pd-mc button', label, { settleMs: 450 });
+let sawC = false, midAt = null, midDone = false, resultMs = null, frz = null;
+while (Date.now() - t0 < 150000) {
+  const r = await T.ev(`const c=document.querySelector('.pd-3d canvas'); const b=document.querySelector('.pd-mc button'); return {c:!!c, b:b?b.textContent.trim():null}`);
+  const ms = Date.now() - t0; const ph = r.c ? await phaseNow(T) : '-'; if (r.c) sawC = true;
+  if (!r.c && sawC) { resultMs = ms; break; }
+  if (!r.c && !sawC && ms > 25000) break;
+  if (r.c && !midDone && ph === mp) { midAt = midAt ?? Date.now(); if (Date.now() - midAt >= md) { await T.shot(tag('mid')); fire(`mid (phase ${ph})`, tag('mid'), 'yes'); midDone = true; } }
+  if (r.c && game === 'marbles' && ph.startsWith('cut:')) { const b = (await T.send('Page.captureScreenshot', { format: 'png' })).result.data; if (await T.ev(`return !!document.querySelector('.pd-3d canvas')`)) frz = b; }
+  await sleep(40);
+}
+await sleep(1200); const gl = await wd2(T); const glr = gl.ctx.some((c) => c.ok && c.type === 'webgl2') ? 'yes' : 'no';
+await T.shot(tag('result')); fire('result (after the reveal)', tag('result'), glr);
+if (frz) { writeFileSync(join(OUT, 'shots', tag('freeze') + '.png'), Buffer.from(frz, 'base64')); fire('freeze (last 3D frame of final heat)', tag('freeze'), glr); }
+const screen = await T.ev(`return document.getElementById('pd-frame')?.getAttribute('data-screen')`);
+const claim = await T.ev(`return !!document.querySelector('.pd-claim')`);
+add(mf, (v) => v.push(...rows)); add(tf, (v) => { v[`projector-${game}-${W}`] = { msFirstPressToResult: resultMs, n: 1, sawCanvas: sawC }; });
+add(cf, (v) => { v[`projector-${game}-${W}`] = { exceptions: T.S.exceptions.slice(), consoleErrors: T.S.console.filter((c) => c.type === 'error').map((c) => c.text), logErrors: T.S.log.filter((l) => l.level === 'error').map((l) => l.text), renderer: [...new Set(gl.ctx.filter((c) => c.renderer).map((c) => c.renderer))], screenAfter: screen, claimLineInDom: claim, picks: picks.length }; });
+console.log(game, 'inner', inner, 'result', resultMs, 'mid', midDone, 'freeze', !!frz, 'gl', glr, 'screen', screen, 'claim', claim);
+process.exit(0);

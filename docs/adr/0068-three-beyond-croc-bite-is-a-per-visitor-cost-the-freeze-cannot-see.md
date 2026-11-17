@@ -1,6 +1,6 @@
 # ADR-0068 — `three` beyond เข้งับ: the real cost is per visitor, and the freeze gate cannot see it
 
-Date: 2026-09-26 (amended 2026-11-13, see the end) · Status: **rejected — owner ruling 2026-09-26, croc-bite only** · Would have amended
+Date: 2026-09-26 (amended 2026-11-13 and 2026-11-17, see the end) · Status: **rejected — owner ruling 2026-09-26, croc-bite only** · Would have amended
 [ADR-0060](0060-one-renderer-for-the-site-three-is-admitted-and-the-freeze-baseline-moves-once.md)'s
 "exactly this and nothing more" · Relates: [ADR-0051](0051-canvas-2d-is-the-default-and-a-play-route-never-blanks-the-page.md),
 ADR-0040, ADR-0057
@@ -181,3 +181,11 @@ blindness. The closure script is kept with the evidence so the next adopter can 
 
 Evidence: `docs/verification/evidence/gh305-bundle-2026-11-13/` (the commands, the script, every figure above).
 Not measured: a runtime network trace, the CDN's compression, and rendering.
+
+## Amendment — 2026-11-17: four more scoped admissions, the phase-2 prize-draw games
+
+Four more single-route admissions of `three`, in the 2026-11-13 shape (one shared host,
+lazily reached): `/game/prize-{zones,marbles,envelopes,flipcards}/play/`, also run on the projector.
+Authority: gh#299 decision 11 as read in the 2026-11-13 amendment, plus the owner-picked boards on gh#315–gh#318.
+`BASELINE_TOTAL_BYTES` 1,284,587 → 1,366,516. Per-route cost (n=1), attribution, the now-stale 2026-11-13 table and
+what was not measured: `docs/verification/evidence/gh315-318-bundle-2026-11-17/`.

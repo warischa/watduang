@@ -8,15 +8,15 @@
 import type { Card, RuleId } from '../prize-draw/cards.ts';
 import { ELIMINATION_ROUNDS, FINAL_SIZE } from '../prize-draw/schedule.ts';
 
-export type GameId = 'fireworks' | 'cards' | 'ladder';
+export type GameId = 'fireworks' | 'cards' | 'ladder' | 'zones' | 'marbles' | 'envelopes' | 'flipcards';
 export type Four<T> = readonly [T, T, T, T];
 export type Five<T> = readonly [T, T, T, T, T];
 export type Lane = 0 | 1 | 2 | 3 | 4;
 
 /** What an elimination round may play. null is the plain 2D reveal. */
-export type CutGame = 'fireworks' | 'cards' | null;
+export type CutGame = 'fireworks' | 'cards' | 'zones' | 'marbles' | null;
 /** What the final may play. null is the plain 2D result. */
-export type FinalGame = 'fireworks' | 'ladder' | null;
+export type FinalGame = 'fireworks' | 'ladder' | 'envelopes' | 'flipcards' | null;
 /** The MC's picks, frozen when the event starts: one per elimination round, then the final. */
 export type GameChoices = { rounds: Four<CutGame>; final: FinalGame };
 
@@ -27,18 +27,28 @@ export type CardsPrepared = { game: 'cards'; round: number; code: string; deal: 
 
 export type CutBase = { round: number; code: string; survivors: string[] };
 /** A committed elimination round. `rule` indexes `deal.pair`. Survivors are in roster order. */
-export type RoundRecord = CutBase & ({ game: null | 'fireworks' } | { game: 'cards'; deal: Deal; rule: 0 | 1 });
+export type RoundRecord = CutBase & ({ game: null | 'fireworks' | 'zones' | 'marbles' } | { game: 'cards'; deal: Deal; rule: 0 | 1 });
+
+/** The finals whose five finalists each pick one object (an envelope, a face-down card) before the draw. The
+ *  pick is theatre (gh#299 decision 7): the order is the plain uniform draw, and the object a finalist picked
+ *  opens to that finalist's own place. One shape serves both; only the object's look differs. */
+export type PickFinal = 'envelopes' | 'flipcards';
+export const PICK_FINALS: readonly PickFinal[] = ['envelopes', 'flipcards'];
+export const isPickFinal = (x: unknown): x is PickFinal => (PICK_FINALS as readonly unknown[]).includes(x);
 
 /** A committed final. `order` is first prize first. A ladder final also records how that order arose:
  *  `picks[lane]` is the finalist who chose start lane `lane`, `permutation[startLane] = exitLane`,
- *  `slotRanks[exitLane] = rank`, and ladderConsistent holds. Ranks at or past the prize count win nothing. */
+ *  `slotRanks[exitLane] = rank`, and ladderConsistent holds. A pick final records `picks[object]`, the finalist
+ *  on object `object` (0..4, left to right), which the order never reads. Ranks at or past the prize count win
+ *  nothing. */
 export type FinalRecord = { order: string[] } & (
   | { game: null | 'fireworks' }
   | { game: 'ladder'; picks: Five<string>; permutation: Five<Lane>; slotRanks: Five<Lane> }
+  | { game: PickFinal; picks: Five<string> }
 );
 
-export const CUT_GAMES: readonly Exclude<CutGame, null>[] = ['fireworks', 'cards'];
-export const FINAL_GAMES: readonly Exclude<FinalGame, null>[] = ['fireworks', 'ladder'];
+export const CUT_GAMES: readonly Exclude<CutGame, null>[] = ['fireworks', 'cards', 'zones', 'marbles'];
+export const FINAL_GAMES: readonly Exclude<FinalGame, null>[] = ['fireworks', 'ladder', 'envelopes', 'flipcards'];
 
 /** Every step plays the plain 2D reveal: the default for an event created without picks. */
 export const NO_GAMES: GameChoices = { rounds: [null, null, null, null], final: null };

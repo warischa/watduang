@@ -1,0 +1,86 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { createEvent, drawNext } from './src/prize-event/event.ts';
+import { proposeSchedule } from './src/prize-draw/schedule.ts';
+import { reveal } from './src/play/prize-zones/renderer/index.ts';
+import { gridBox, panelBox, planFor } from './src/play/prize-zones/renderer/plan.ts';
+
+// Process-local registration measures the shipped font, without installing a user font.
+const metrics = JSON.parse(execFileSync('osascript', ['-l', 'JavaScript', '-e', `
+ObjC.import('AppKit'); ObjC.import('CoreText');
+$.CTFontManagerRegisterFontsForURL($.NSURL.fileURLWithPath('./public/fonts/sarabun-bold-subset.ttf'),1,null);
+const attrs=$.NSMutableDictionary.alloc.init;
+attrs.setObjectForKey($.NSFont.fontWithNameSize('Sarabun-Bold',18),$.NSFontAttributeName);
+JSON.stringify(Object.fromEntries(['ฒำ','ณำ'].map(t=>[t,$(t).sizeWithAttributes(attrs).width])));
+`], { encoding: 'utf8' }));
+const segmenter = new Intl.Segmenter('th', { granularity: 'grapheme' });
+
+function rngFor(seed) {
+  const float = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+  return {
+    float, int: n => Math.floor(float() * n),
+    hex: n => Array.from({ length: n }, () => Math.floor(float() * 256).toString(16).padStart(2, '0')).join(''),
+  };
+}
+
+function fakeDoc() {
+  return {
+    createElement(tag) {
+      assert.equal(tag, 'canvas');
+      const ctx = {
+        font: '10px x',
+        measureText(text) {
+          const size = Number(/(\d+(?:\.\d+)?)px/.exec(this.font)?.[1] ?? 10);
+          const width = Array.from(segmenter.segment(text), s => metrics[s.segment] ?? 10).reduce((a,b) => a+b, 0);
+          return { width: width * size / 18 };
+        },
+        getTransform: () => ({ a: 1 }),
+      };
+      for (const key of ['setTransform','translate','save','restore','beginPath','moveTo','lineTo','arc','arcTo','closePath','fill','stroke','fillRect','clearRect','fillText']) ctx[key] = () => {};
+      const canvas = { width: 0, height: 0, getContext: () => ctx };
+      ctx.canvas = canvas;
+      return canvas;
+    },
+  };
+}
+
+test('counterexample: accepted 200-name event puts wrapped zones chips into headers, adjacent zones and the band', () => {
+  const names = Array.from({ length: 200 }, (_, i) => 'ฒำ'.repeat(4) + Array.from({ length: 8 }, (_, b) => (i >> b) & 1 ? 'ฒำ' : 'ณำ').join(''));
+  const rng = rngFor(73);
+  const ev = createEvent({
+    eventName: 'Party', names, schedule: proposeSchedule(200), prizes: ['TV'],
+    games: { rounds: ['zones','zones','zones','zones'], final: null },
+  }, rng);
+  assert.equal(ev.setup.people.length, 200);
+  const drawn = drawNext(ev, rng);
+  const rec = drawn.rounds[0];
+  const input = {
+    key: `${ev.eventKey}:round1:${rec.code}`, eventName: 'Party', people: ev.setup.people,
+    outcome: { kind: 'round', ...rec }, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false,
+  };
+  const plan = planFor(input);
+  let scene;
+  const handle = reveal.mount({
+    root: { ownerDocument: fakeDoc() }, signal: new AbortController().signal,
+    own: resource => resource, renderer: { render: s => { scene = s; } },
+  }, input, () => {});
+  const rects = scene.getObjectByName('chips').geometry.getAttribute('aRect').array;
+  const extents = plan.zones.map(z => {
+    const chips = plan.chips.filter(c => c.zone === z.index);
+    return {
+      zone: z.index, grid: gridBox(z.index), panel: panelBox(z.index),
+      minY: Math.min(...chips.map(c => rects[c.index * 4 + 1] - rects[c.index * 4 + 3] / 2)),
+      maxY: Math.max(...chips.map(c => rects[c.index * 4 + 1] + rects[c.index * 4 + 3] / 2)),
+    };
+  });
+  assert.equal(extents[0].minY, 59.5);
+  assert.equal(extents[0].maxY, 551.5);
+  assert.equal(extents[2].maxY, 946.5);
+  assert.ok(extents.every(z => z.minY < z.panel.y && z.maxY > z.panel.y + z.panel.h));
+  console.log(JSON.stringify({ accepted: names.length, metrics, extents }));
+  handle.dispose();
+});

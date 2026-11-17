@@ -16,11 +16,16 @@ test('no game anywhere is the default for an event that picked none', () => {
   assert.deepEqual(gc.NO_GAMES, { rounds: [null, null, null, null], final: null });
 });
 
-test('eligibility: elimination takes fireworks or cards; the final takes fireworks or ladder; null is always fine', () => {
-  for (const g of [null, 'fireworks', 'cards']) assert.equal(gc.isCutGame(g), true, String(g));
-  for (const g of ['ladder', 'nope', undefined, 1]) assert.equal(gc.isCutGame(g), false, String(g));
-  for (const g of [null, 'fireworks', 'ladder']) assert.equal(gc.isFinalGame(g), true, String(g));
-  for (const g of ['cards', 'nope', undefined]) assert.equal(gc.isFinalGame(g), false, String(g));
+test('eligibility: each game plays only its own kind of step; null is always fine', () => {
+  assert.deepEqual([...gc.CUT_GAMES], ['fireworks', 'cards', 'zones', 'marbles']);
+  assert.deepEqual([...gc.FINAL_GAMES], ['fireworks', 'ladder', 'envelopes', 'flipcards']);
+  for (const g of [null, ...gc.CUT_GAMES]) assert.equal(gc.isCutGame(g), true, String(g));
+  for (const g of ['ladder', 'envelopes', 'flipcards', 'nope', undefined, 1]) assert.equal(gc.isCutGame(g), false, String(g));
+  for (const g of [null, ...gc.FINAL_GAMES]) assert.equal(gc.isFinalGame(g), true, String(g));
+  for (const g of ['cards', 'zones', 'marbles', 'nope', undefined]) assert.equal(gc.isFinalGame(g), false, String(g));
+  assert.equal(gc.isGameChoices({ rounds: ['zones', 'marbles', 'fireworks', null], final: 'flipcards' }), true);
+  assert.equal(gc.isGameChoices({ rounds: [null, 'envelopes', null, null], final: null }), false, 'envelopes is no cut game');
+  assert.equal(gc.isGameChoices({ rounds: [null, null, null, null], final: 'marbles' }), false, 'marbles is no final game');
   assert.equal(gc.isGameChoices({ rounds: [null, 'cards', 'fireworks', null], final: 'ladder' }), true);
   assert.equal(gc.isGameChoices({ rounds: [null, 'ladder', null, null], final: null }), false, 'ladder is no cut game');
   assert.equal(gc.isGameChoices({ rounds: [null, null, null], final: null }), false, 'three rounds');
@@ -74,4 +79,11 @@ test('a round record for cards carries its deal and its rule; fireworks and null
   assert.equal(gc.recordGame({ ...base, game: 'fireworks' }), 'fireworks');
   const deal = { pair: ['black', 'face'], cards: [{ id: 'a', card: { suit: 'S', rank: 1 } }] };
   assert.equal(gc.recordGame({ ...base, game: 'cards', deal, rule: 0 }), 'cards');
+  for (const game of ['zones', 'marbles']) assert.equal(gc.recordGame({ ...base, game }), game, `${game} round records carry no extra member`);
+  // The two pick finals share one record member: the order, plus the object each finalist picked.
+  assert.deepEqual([...gc.PICK_FINALS], ['envelopes', 'flipcards']);
+  for (const g of ['envelopes', 'flipcards']) assert.equal(gc.isPickFinal(g), true, g);
+  for (const g of ['ladder', 'fireworks', 'cards', null, undefined]) assert.equal(gc.isPickFinal(g), false, String(g));
+  const picks = ['a', 'b', 'c', 'd', 'e'];
+  for (const game of ['envelopes', 'flipcards']) assert.equal(gc.recordGame({ order: picks, game, picks }), game, `${game} final records carry their object picks`);
 });

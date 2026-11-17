@@ -37,6 +37,11 @@ import prizeDraw from './prize-draw.ts';
 import prizeFireworks from './prize-fireworks.ts';
 import prizeCards from './prize-cards.ts';
 import prizeLadder from './prize-ladder.ts';
+// phase two of the same family: four more 3D games, each on its own page.
+import prizeZones from './prize-zones.ts';
+import prizeMarbles from './prize-marbles.ts';
+import prizeEnvelopes from './prize-envelopes.ts';
+import prizeFlipcards from './prize-flipcards.ts';
 // pick-loser is GONE, not delisted (gh#154, owner decision 2026-08-30: too simple to be interesting).
 // The module, its test and its OG image are deleted; /game/pick-loser 301s to /c/party/ in
 // public/staticwebapp.config.json. Its one reusable part, pickLoser(), already lives in
@@ -64,6 +69,10 @@ export const games: GameModule[] = [
   prizeFireworks,
   prizeCards,
   prizeLadder,
+  prizeZones,
+  prizeMarbles,
+  prizeEnvelopes,
+  prizeFlipcards,
 ];
 
 export const byId = (id: string): GameModule | undefined =>

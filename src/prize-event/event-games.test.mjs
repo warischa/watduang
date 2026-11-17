@@ -13,6 +13,7 @@ import {
   encodeEvent,
   liveIds,
   pickLane,
+  pickObject,
   position,
   prepareCards,
   revealDrawn,
@@ -105,6 +106,39 @@ test('every round and the final record the game they were played with', () => {
   s = drawNext(s, rng);
   assert.equal(s.final.game, 'fireworks');
   assert.deepEqual(decodeEvent(encodeEvent(s)), s);
+});
+
+test('a phase-2 game id draws like a no-game event: setup, draw, final order and decode match at every head count, a pick final once placed', () => {
+  const STUB_PICKS = { rounds: ['zones', 'marbles', 'zones', 'marbles'], final: 'envelopes' };
+  for (const n of [200, 52, 37]) {
+    for (const final of ['envelopes', 'flipcards']) {
+      const picks = { ...STUB_PICKS, final };
+      const play = (games) => {
+        const rng = seeded(n);
+        let ready = walkRounds(createEvent(input(n, games), rng), rng);
+        // A pick final opens holding five empty object picks and draws only once the MC has placed all five
+        // (gh#317 / gh#318); the placement reads no randomness.
+        if (games) {
+          assert.deepEqual(ready.prepared, { game: final, picks: [null, null, null, null, null] }, `${n} heads, ${final}: the final opened without its empty picks`);
+          liveIds(ready).forEach((id, object) => (ready = pickObject(ready, object, id)));
+        }
+        const s = drawNext(ready, rng);
+        return { s, tail: rng.hex(8) };
+      };
+      const plain = play(undefined);
+      const stub = play(picks);
+      const core = (st) => ({ rounds: st.rounds.map(({ round, code, survivors }) => ({ round, code, survivors })), order: st.final.order, at: st.at });
+      assert.deepEqual(core(stub.s), core(plain.s), `${n} heads, ${final}: a stub game changed the draw`);
+      assert.equal(stub.tail, plain.tail, `${n} heads, ${final}: a stub game consumed a different amount of randomness`);
+      assert.deepEqual(stub.s.rounds.map((r) => r.game), picks.rounds);
+      assert.equal(stub.s.final.game, final);
+      assert.deepEqual(stub.s.final.picks, liveIds(stub.s), `${n} heads, ${final}: the record does not hold the placement`);
+      assert.equal(stub.s.prepared, null, 'a drawn final kept its placement prepared');
+      assert.deepEqual(decodeEvent(encodeEvent(stub.s)), stub.s, `${n} heads, ${final}: the stored event does not read back as written`);
+    }
+  }
+  assert.deepEqual(setupIssues(input(50, { rounds: ['envelopes', null, null, null], final: null })).map((i) => i.kind), ['games']);
+  assert.deepEqual(setupIssues(input(50, { rounds: [null, null, null, null], final: 'zones' })).map((i) => i.kind), ['games']);
 });
 
 // ---- v1 -> v2

@@ -816,7 +816,8 @@ test('a renderer call inside a resize disposes: the module gets no resize after 
 // callers (the projector stage and the games' own pages). Every case iterates GAMES, never a hand list, so
 // a game added there is covered here, and one that skips the switch reds its own case.
 
-const GAME_IDS = Object.keys(GAMES);
+const GAME_IDS = Object.keys(GAMES).filter(isAvailable);
+const UNAVAILABLE_IDS = Object.keys(GAMES).filter((g) => !isAvailable(g));
 const NARROW_WIDTHS = [320, 639, 639.5];
 const WIDE_WIDTHS = [640, 1920];
 
@@ -851,9 +852,22 @@ test('the fake reads width queries as a browser does: a whole-pixel max-width mi
   assert.throws(() => widthMatches('(orientation: portrait)', 320), /cannot evaluate/);
 });
 
-test('the registry holds every game and each is available, so the cases below measure the width switch', () => {
-  assert.deepEqual(GAME_IDS.sort(), ['cards', 'fireworks', 'ladder']);
+test('the integrated games are every module in the registry, so the cases below measure the width switch', () => {
+  assert.deepEqual([...GAME_IDS].sort(), ['cards', 'envelopes', 'fireworks', 'flipcards', 'ladder', 'marbles', 'zones']);
   for (const game of GAME_IDS) assert.equal(isAvailable(game), true, `${game} is unavailable, so its cases prove nothing`);
+});
+
+test('any unavailable game is refused before it loads anything (none is unavailable today)', async () => {
+  assert.deepEqual([...UNAVAILABLE_IDS].sort(), []);
+  for (const game of UNAVAILABLE_IDS) {
+    for (const width of [320, 1920]) {
+      const run = await revealAt(game, width);
+      assertCleanExit(run, 'fallback', 'unavailable');
+      assert.deepEqual(run.reg.loads, [], `${game} was loaded at ${width}px while unavailable`);
+      assert.equal(run.page.rendererLoads, 0, `three was imported for unavailable ${game}`);
+      assert.deepEqual(run.page.contextRequests, [], `a WebGL context was asked for unavailable ${game}`);
+    }
+  }
 });
 
 for (const game of GAME_IDS) {

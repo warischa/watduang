@@ -24,6 +24,10 @@ export const GAME_NAME: Record<GameId, string> = {
   fireworks: 'พลุนับถอยหลัง',
   cards: 'ไพ่แจกทั้งห้อง',
   ladder: 'ทางแยกเลือกเส้น',
+  zones: 'โซนสีลุกยืน',
+  marbles: 'แข่งลูกแก้ว',
+  envelopes: 'ซองของขวัญ',
+  flipcards: 'เปิดไพ่ชิงรางวัล',
 };
 
 const FRAME_W = 1920;

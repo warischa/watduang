@@ -1,0 +1,222 @@
+{
+ "zones-320": {
+  "idle": {
+   "inner": 320,
+   "scrollers": [
+    {
+     "el": "DIV.pr-viewport",
+     "sh": 3941,
+     "ch": 512
+    }
+   ],
+   "doc": [
+    568,
+    568
+   ]
+  },
+  "result": {
+   "inner": 320,
+   "scrollers": [
+    {
+     "el": "DIV.pr-viewport",
+     "sh": 3941,
+     "ch": 512
+    }
+   ],
+   "doc": [
+    568,
+    568
+   ]
+  },
+  "exceptions": 0,
+  "consoleErrors": 0
+ },
+ "zones-390": {
+  "idle": {
+   "inner": 390,
+   "scrollers": [
+    {
+     "el": "DIV.pr-viewport",
+     "sh": 3941,
+     "ch": 788
+    }
+   ],
+   "doc": [
+    844,
+    844
+   ]
+  },
+  "result": {
+   "inner": 390,
+   "scrollers": [
+    {
+     "el": "DIV.pr-viewport",
+     "sh": 3941,
+     "ch": 788
+    }
+   ],
+   "doc": [
+    844,
+    844
+   ]
+  },
+  "exceptions": 0,
+  "consoleErrors": 0
+ },
+ "marbles-320": {
+  "idle": {
+   "inner": 320,
+   "scrollers": [
+    {
+     "el": "DIV.pr-viewport",
+     "sh": 3941,
+     "ch": 512
+    }
+   ],
+   "doc": [
+    568,
+    568
+   ]
+  },
+  "result": {
+   "inner": 320,
+   "scrollers": [
+    {
+     "el": "DIV.pr-viewport",
+     "sh": 3941,
+     "ch": 512
+    }
+   ],
+   "doc": [
+    568,
+    568
+   ]
+  },
+  "exceptions": 0,
+  "consoleErrors": 0
+ },
+ "marbles-390": {
+  "idle": {
+   "inner": 390,
+   "scrollers": [
+    {
+     "el": "DIV.pr-viewport",
+     "sh": 3941,
+     "ch": 788
+    }
+   ],
+   "doc": [
+    844,
+    844
+   ]
+  },
+  "result": {
+   "inner": 390,
+   "scrollers": [
+    {
+     "el": "DIV.pr-viewport",
+     "sh": 3941,
+     "ch": 788
+    }
+   ],
+   "doc": [
+    844,
+    844
+   ]
+  },
+  "exceptions": 0,
+  "consoleErrors": 0
+ },
+ "envelopes-320": {
+  "idle": {
+   "inner": 320,
+   "scrollers": [
+    {
+     "el": "DIV.pr-viewport",
+     "sh": 546,
+     "ch": 512
+    }
+   ],
+   "doc": [
+    568,
+    568
+   ]
+  },
+  "result": {
+   "inner": 320,
+   "scrollers": [],
+   "doc": [
+    568,
+    568
+   ]
+  },
+  "exceptions": 0,
+  "consoleErrors": 0
+ },
+ "envelopes-390": {
+  "idle": {
+   "inner": 390,
+   "scrollers": [],
+   "doc": [
+    844,
+    844
+   ]
+  },
+  "result": {
+   "inner": 390,
+   "scrollers": [],
+   "doc": [
+    844,
+    844
+   ]
+  },
+  "exceptions": 0,
+  "consoleErrors": 0
+ },
+ "flipcards-320": {
+  "idle": {
+   "inner": 320,
+   "scrollers": [
+    {
+     "el": "DIV.pr-viewport",
+     "sh": 546,
+     "ch": 512
+    }
+   ],
+   "doc": [
+    568,
+    568
+   ]
+  },
+  "result": {
+   "inner": 320,
+   "scrollers": [],
+   "doc": [
+    568,
+    568
+   ]
+  },
+  "exceptions": 0,
+  "consoleErrors": 0
+ },
+ "flipcards-390": {
+  "idle": {
+   "inner": 390,
+   "scrollers": [],
+   "doc": [
+    844,
+    844
+   ]
+  },
+  "result": {
+   "inner": 390,
+   "scrollers": [],
+   "doc": [
+    844,
+    844
+   ]
+  },
+  "exceptions": 0,
+  "consoleErrors": 0
+ }
+}

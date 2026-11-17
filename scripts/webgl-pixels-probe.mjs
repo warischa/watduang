@@ -611,6 +611,16 @@ export const REVEAL_DRIVERS = {
   // not list: driving to it reds the route on policy, not on the hold.
   'prize-cards': async ({ evaluate }) => pressed(await evaluate(clickWhenArmed('.pr-go'))),
   'prize-ladder': async ({ evaluate }) => pressed(await evaluate(clickWhenArmed('.pr-go'))),
+  // gh#315-gh#318, the phase-2 demo pages: one press, like ladder (zones and marbles play a round, envelopes and
+  // flipcards the final). The pick final runs about 37s (BEATS / STEP in the shared final-pick plan), past
+  // SPAN_CAP_MS, which does not bind it: that cap bounds a held span SEEN before the exercise, and a demo page
+  // mounts no player screen, so no hold is up when the span loop reads. Read on the lane's swiftshader clean leg
+  // 2026-11-17: each of the four rows records exactly one held>free pair (the exercise's own), no retry, PASS.
+  // A longer reveal only keeps the instance live for the exercise. No cap was changed for any route.
+  'prize-zones': async ({ evaluate }) => pressed(await evaluate(clickWhenArmed('.pr-go'))),
+  'prize-marbles': async ({ evaluate }) => pressed(await evaluate(clickWhenArmed('.pr-go'))),
+  'prize-envelopes': async ({ evaluate }) => pressed(await evaluate(clickWhenArmed('.pr-go'))),
+  'prize-flipcards': async ({ evaluate }) => pressed(await evaluate(clickWhenArmed('.pr-go'))),
   'prize-draw': async ({ evaluate, reload }) => {
     const { DB } = await import(new URL('../src/prize-event/store.ts', import.meta.url).href);
     const seeded = await evaluate(seedEventStore(DB, await fireworksEventRaw()));

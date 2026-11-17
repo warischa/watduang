@@ -32,7 +32,11 @@
 // drawNext draws the rule from that stored deal, so a refresh never redeals. A ladder final's slot layout is
 // on screen while the finalists pick lanes, so the step into that final draws it and stores it in `prepared`;
 // the final then locks the five lane picks and only then draws its permutation, which stays hidden until the
-// reveal. A stored v1 event is read by its own rules and
+// reveal. An envelopes or flipcards final (gh#317, gh#318) opens with five empty object picks in `prepared`,
+// drawing nothing; the MC places each finalist on an object, one stored write at a time (pickObject), and the
+// draw locks the five picks into the record. The picks are theatre: the order is the plain final's uniform
+// draw over the finalists, so the order, its final code and the randomness consumed never depend on them.
+// A stored v1 event is read by its own rules and
 // normalised to v2 (no games, nothing prepared); the store keeps the stored text, so the next
 // compare-and-set still compares against the original bytes.
 
@@ -46,6 +50,7 @@ import {
   NO_GAMES,
   isFiveLanes,
   isGameChoices,
+  isPickFinal,
   ladderConsistent,
   ladderOrder,
   type CardsPrepared,
@@ -54,6 +59,7 @@ import {
   type Five,
   type GameChoices,
   type Lane,
+  type PickFinal,
   type RoundRecord,
 } from './game-contract.ts';
 
@@ -101,15 +107,19 @@ export type Phase = 'ready' | 'drawn' | 'revealed';
  *  final opens and never changed after, and the lane picks so far (`picks[lane]` is the finalist on that start
  *  lane, or null), stored one assignment at a time so a reload or a second screen reads the same picks. */
 export type LadderPrepared = { game: 'ladder'; slotRanks: Five<Lane>; picks: Five<string | null> };
+/** An envelopes or flipcards final while the MC places the finalists: `picks[object]` is the finalist on object
+ *  `object` (0..4, left to right), or null, stored one assignment at a time like the ladder's lane picks. */
+export type PicksPrepared = { game: PickFinal; picks: Five<string | null> };
 export type EventState = {
   v: typeof VERSION;
   eventKey: string;
   setup: EventSetup;
   rounds: RoundRecord[];
   final: FinalRecord | null;
-  /** What a ready step stored before its draw: a card round's deal, while its rule is not drawn yet, or a
-   *  ladder final's slot layout, while the finalists pick. Null on every other step. */
-  prepared: CardsPrepared | LadderPrepared | null;
+  /** What a ready step stored before its draw: a card round's deal, while its rule is not drawn yet, a
+   *  ladder final's slot layout, while the finalists pick, or a pick final's placement so far. Null on every
+   *  other step. */
+  prepared: CardsPrepared | LadderPrepared | PicksPrepared | null;
   at: Phase;
 };
 export type Position = { kind: 'round'; round: number; at: Phase } | { kind: 'final'; at: Phase };
@@ -279,6 +289,7 @@ export function liveIds(state: EventState): string[] {
 
 const copyGames = (g: GameChoices): GameChoices => ({ rounds: [g.rounds[0], g.rounds[1], g.rounds[2], g.rounds[3]], final: g.final });
 const LANES: Five<Lane> = [0, 1, 2, 3, 4];
+const NO_PICKS: Five<string | null> = [null, null, null, null, null];
 
 /**
  * Deal the current card round and hand back the state holding the deal, still ready: the caller stores it
@@ -306,7 +317,8 @@ export function prepareCards(state: EventState, rng: Rng): EventState {
 /**
  * Draw the current step. Only a `ready` step draws; anything else throws. A card round draws only its rule,
  * from the stored deal (prepareCards first). A ladder final takes the five lane picks (`picks[lane]`, each
- * finalist once), locked before anything is drawn; every other step takes none.
+ * finalist once), locked before anything is drawn; a pick final takes its five object picks the same way. The
+ * picks are the stored ones unless the caller hands its own; every other step takes none.
  */
 export function drawNext(state: EventState, rng: Rng, picks?: readonly string[]): EventState {
   if (state.at !== 'ready') throw new Error(`only a ready step draws, this one is ${state.at}`);
@@ -314,8 +326,18 @@ export function drawNext(state: EventState, rng: Rng, picks?: readonly string[])
   const pos = position(state);
   if (pos.kind === 'final') {
     const game = state.setup.games.final;
+    if (isPickFinal(game)) {
+      const prepared = state.prepared;
+      if (prepared?.game !== game) throw new Error('a pick final draws only once its object picks are stored');
+      const chosen = picks ?? prepared.picks;
+      if (!sameMembers(chosen, live)) throw new RangeError('a pick final needs five object picks, each finalist once');
+      const locked = [...chosen] as unknown as Five<string>;
+      // The plain final's draw, over the finalists in roster order: the picks are recorded, never read.
+      const order = uniformPermutation(live, rng.int);
+      return { ...state, final: { order, game, picks: locked }, prepared: null, at: 'drawn' };
+    }
     if (game !== 'ladder') {
-      if (picks !== undefined) throw new RangeError('lane picks are for a ladder final only');
+      if (picks !== undefined) throw new RangeError('picks are for a ladder, envelopes or flipcards final only');
       return { ...state, final: { order: uniformPermutation(live, rng.int), game }, at: 'drawn' };
     }
     const prepared = state.prepared;
@@ -330,7 +352,7 @@ export function drawNext(state: EventState, rng: Rng, picks?: readonly string[])
     const order = ladderOrder(locked, permutation, slotRanks);
     return { ...state, final: { order, game, picks: locked, permutation, slotRanks }, prepared: null, at: 'drawn' };
   }
-  if (picks !== undefined) throw new RangeError('lane picks are for a ladder final only');
+  if (picks !== undefined) throw new RangeError('picks are for a ladder, envelopes or flipcards final only');
   const game = state.setup.games.rounds[pos.round - 1]!;
   let record: RoundRecord;
   if (game === 'cards') {
@@ -367,13 +389,17 @@ export function revealDrawn(state: EventState): EventState {
 /**
  * From a revealed round to the next step. The final is the last step and has nowhere to go. The step into a
  * ladder final also draws that final's slot layout from `rng` and stores it with the step, so the slots the
- * room sees while the finalists pick are the slots the draw uses; every other step draws nothing.
+ * room sees while the finalists pick are the slots the draw uses. The step into a pick final stores five
+ * empty object picks and draws nothing; every other step draws nothing.
  */
 export function advance(state: EventState, rng?: Rng): EventState {
   if (state.at !== 'revealed') throw new Error(`only a revealed step advances, this one is ${state.at}`);
   if (state.final) throw new Error('the final is the last step of an event');
   const next: EventState = { ...state, at: 'ready' };
-  if (position(next).kind !== 'final' || state.setup.games.final !== 'ladder') return next;
+  const final = state.setup.games.final;
+  if (position(next).kind !== 'final') return next;
+  if (isPickFinal(final)) return { ...next, prepared: { game: final, picks: NO_PICKS } };
+  if (final !== 'ladder') return next;
   if (!rng) throw new Error('the step into a ladder final draws its slot layout: it needs the random source');
   const slotRanks = uniformPermutation(LANES, rng.int) as unknown as Five<Lane>;
   return { ...next, prepared: { game: 'ladder', slotRanks, picks: [null, null, null, null, null] } };
@@ -392,6 +418,24 @@ export function pickLane(state: EventState, lane: number, id: string | null): Ev
   if (id !== null && !liveIds(state).includes(id)) throw new RangeError('only a finalist picks a lane');
   const picks = prepared.picks.map((at, i) => (i === lane ? id : at === id ? null : at)) as unknown as Five<string | null>;
   return { ...state, prepared: { game: 'ladder', slotRanks: prepared.slotRanks, picks } };
+}
+
+/**
+ * One object assignment on a ready envelopes or flipcards final: `id` onto object `object` (0..4, left to
+ * right), leaving any object it was on, or null to empty that object. Draws nothing; the caller stores the
+ * result (compare-and-set) before showing it, exactly as with pickLane. Throws on any other step, an object off
+ * the five, or a non-finalist.
+ */
+export function pickObject(state: EventState, object: number, id: string | null): EventState {
+  const prepared = state.prepared;
+  const pos = position(state);
+  if (pos.kind !== 'final' || pos.at !== 'ready' || !isPickFinal(prepared?.game) || prepared?.game !== state.setup.games.final) {
+    throw new Error('object picks are for a ready envelopes or flipcards final only');
+  }
+  if (!Number.isInteger(object) || object < 0 || object >= FINAL_SIZE) throw new RangeError(`no object ${object}`);
+  if (id !== null && !liveIds(state).includes(id)) throw new RangeError('only a finalist picks an object');
+  const picks = prepared.picks.map((at, i) => (i === object ? id : at === id ? null : at)) as unknown as Five<string | null>;
+  return { ...state, prepared: { game: prepared.game, picks } };
 }
 
 /**
@@ -466,9 +510,10 @@ const isPlainArray = (v: unknown): v is unknown[] => Array.isArray(v);
  * prepared, every round and the final played with no game. Every stored code, in either version, is in its
  * one stored form (storedCode). A v2 text is checked in full, games included:
  * each step's game is the one picked, cards only on a round that cuts in half, a card round's every card is re-derived from its code (gh#300
- * phoneCard) and both rules keep exactly the scheduled count, its survivors are the drawn rule's, and a
- * ladder final's picks are the finalists and its order follows its permutation and slot layout. Any other
- * version is no event; the store keeps its text untouched.
+ * phoneCard) and both rules keep exactly the scheduled count, its survivors are the drawn rule's, a
+ * ladder final's picks are the finalists and its order follows its permutation and slot layout, and a pick
+ * final's picks are the five finalists, each once. A ready ladder or pick final holds its picks so far: five
+ * slots, each empty or a different finalist. Any other version is no event; the store keeps its text untouched.
  */
 export function decodeEvent(raw: string | null): EventState | null {
   if (raw === null) return null;
@@ -607,6 +652,8 @@ function isStoredEvent(v: unknown, version: typeof V1 | typeof VERSION): boolean
         if (!isPlainArray(picks) || !sameMembers(picks, live) || !isFiveLanes(permutation) || !isFiveLanes(slotRanks)) return false;
         if (!ladderConsistent({ order: order as string[], picks: picks as string[], permutation, slotRanks })) return false;
       }
+      // A pick final's record holds all five object picks: the finalists, each once, none empty.
+      if (isPickFinal(f!.game) && (!isPlainArray(f!.picks) || !sameMembers(f!.picks, live))) return false;
     }
   } else if (s.at !== 'ready' && done === 0) {
     return false;
@@ -614,11 +661,14 @@ function isStoredEvent(v: unknown, version: typeof V1 | typeof VERSION): boolean
   if (v2) {
     const prepared = s.prepared as Record<string, unknown> | null | undefined;
     if (prepared === undefined) return false;
-    // A ready ladder final holds its slot layout (advance stores it), and nothing else holds one.
-    const ladderReady = s.at === 'ready' && s.final === null && done === ELIMINATION_ROUNDS && games.final === 'ladder';
-    if (ladderReady) {
-      if (!prepared || typeof prepared !== 'object' || prepared.game !== 'ladder' || !isFiveLanes(prepared.slotRanks)) return false;
-      // The picks so far: one entry per start lane, each empty or a finalist, no finalist twice.
+    // A ready ladder final holds its slot layout (advance stores it), a ready pick final its object picks, and
+    // nothing else holds either.
+    const placing = games.final === 'ladder' || isPickFinal(games.final);
+    const finalReady = s.at === 'ready' && s.final === null && done === ELIMINATION_ROUNDS && placing;
+    if (finalReady) {
+      if (!prepared || typeof prepared !== 'object' || prepared.game !== games.final) return false;
+      if (games.final === 'ladder' && !isFiveLanes(prepared.slotRanks)) return false;
+      // The picks so far: one entry per start lane or object, each empty or a finalist, no finalist twice.
       const picks = prepared.picks;
       if (!isPlainArray(picks) || picks.length !== FINAL_SIZE) return false;
       const finalists = new Set(live);

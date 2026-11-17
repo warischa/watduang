@@ -1,0 +1,77 @@
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
+import { reveal } from './src/play/prize-flipcards/renderer/index.ts';
+import { planFor, assertPlan } from './src/play/prize-flipcards/renderer/plan.ts';
+import { planFor as envelopesPlan } from './src/play/prize-envelopes/renderer/plan.ts';
+const repo = '<scratch>';
+const { Vector3, FrontSide } = createRequire(`${repo}/package.json`)('three');
+const ids = ['a', 'b', 'c', 'd', 'e'];
+const inputFor = (game = 'flipcards') => ({
+  key: 'probe', eventName: 'Party', people: ids.map(id => ({id, name: id})),
+  viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false,
+  outcome: { kind: 'final', game, order: [...ids], picks: [...ids], prizes: ['TV'] }
+});
+function fakeDoc() {
+  return { createElement(tag) {
+    assert.equal(tag, 'canvas');
+    const canvas = {width: 0, height: 0};
+    let ctx;
+    ctx = new Proxy({canvas, font: '10px sans-serif', texts: [],
+      getTransform: () => ({a: 1}), measureText: text => ({width: String(text).length * 10}),
+      fillText: text => ctx.texts.push(text), clearRect: () => {ctx.texts = [];}
+    }, {get: (obj, key) => key in obj ? obj[key] : () => {}});
+    canvas.getContext = () => ctx;
+    return canvas;
+  }};
+}
+let scene, camera;
+const handle = reveal.mount({ root: {ownerDocument: fakeDoc()}, signal: new AbortController().signal,
+  own: obj => obj, renderer: {render(s,c) { scene = s; camera = c; }}
+}, inputFor(), () => {});
+const cards = new Map();
+scene.traverse(obj => {if (/^(back|face):/.test(obj.name)) cards.set(obj.name,obj);});
+const facesRoom = mesh => {
+  mesh.updateWorldMatrix(true, false);
+  const normal = new Vector3(0, 0, 1).transformDirection(mesh.matrixWorld);
+  const centre = new Vector3().setFromMatrixPosition(mesh.matrixWorld);
+  return normal.dot(camera.position.clone().sub(centre)) > 0;
+};
+// One prize: no-prize objects open b,c,d,e in that order, then a.
+// Left-of-centre card b's face is selected at 1800ms but is still back-facing.
+handle.advance({type: 'tick', elapsedMs: 1801, deltaMs: 1});
+const back = cards.get('back:1'), face = cards.get('face:1');
+assert.equal(back.visible, false);
+assert.equal(face.visible, true);
+assert.equal(face.material.side, FrontSide);
+assert.equal(facesRoom(face), false);
+console.log('CONFIRMED card 1 at 1801ms: back hidden; selected FrontSide face points away and is culled.');
+const missing = [];
+for(let t = 1770; t < 1835; t++) {
+  handle.advance({type: 'tick', elapsedMs: t, deltaMs: 1});
+  if (![back,face].some(m => m.visible && facesRoom(m))) missing.push(t);
+}
+console.log(`Computed blank interval for card 1: ${missing[0]}..${missing.at(-1)}ms (${missing.length} sampled ms).`);
+for(const [game, make] of [['envelopes',envelopesPlan],['flipcards',planFor]]) {
+  const input = inputFor(game);
+  input.outcome.prizes = Array(1);
+  const plan = make(input);
+  const winner = plan.slots.find(s => s.prize === 0);
+  assert.equal(winner.line, undefined);
+  console.log(`ACCEPTED malformed ${game} record: one sparse prize yields first-prize slot with undefined prize name.`);
+}
+const input = inputFor();
+for (const mutation of ['line','label','timing','beats']) {
+  const plan = planFor(input);
+  if (mutation === 'line') plan.slots[0].line = 'Different prize';
+  if (mutation === 'label') plan.slots[0].label = 'Prize 5';
+  if (mutation === 'timing') plan.openings[0].faceAt = -1;
+  if (mutation === 'beats') plan.beats = [{at: 0, event: {type: 'complete'}}];
+  assert.doesNotThrow(() => assertPlan(plan,input));
+  console.log(`ACCEPTED mutated plan: ${mutation}`);
+}
+for (const path of ['src/play/prize-flipcards/renderer/index.ts', 'src/play/prize-flipcards/renderer/plan.ts','src/play/prize-envelopes/renderer/plan.ts']) {
+  const result = execFileSync('git', ['ls-tree', 'HEAD', '--', path], {cwd: repo, encoding: 'utf8'});
+  assert.equal(result, '');
+  console.log(`BASE new: ${path} absent from HEAD; no base implementation to run.`);
+}

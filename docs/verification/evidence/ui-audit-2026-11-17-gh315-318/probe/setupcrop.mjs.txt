@@ -1,0 +1,21 @@
+// Setup page: crop of the per-round game pickers' common container (the full-page captures are mostly empty page), default and picked.
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+import { setIn, pickGame, mkNames } from './ev.mjs';
+const mf = join(OUT, 'manifest.json'); const rows = [];
+for (const [W, H] of [[320, 568], [1440, 900]]) {
+  const T = await openTab(); await T.view(W, H, false);
+  await T.send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' });
+  await T.nav(`${BASE}/game/prize-draw/`); await T.view(W, H, false); await sleep(600);
+  await setIn(T, 'pd-names', mkNames(40).join('\n')); await setIn(T, 'pd-event', 'Audit'); await sleep(400);
+  const inner = await T.ev('return innerWidth');
+  const box = await T.ev(`let a=document.getElementById('pd-game-r1'); const last=document.getElementById('pd-game-final'); while(a && !a.contains(last)) a=a.parentElement; a.scrollIntoView({block:'start'}); window.scrollBy(0,0); const r=a.getBoundingClientRect(); return {x:0,y:r.top+scrollY,w:innerWidth,h:r.height, tag:a.tagName+'#'+a.id+'.'+String(a.className).split(' ')[0]};`);
+  const cap = async (name) => { const r = await T.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: Math.max(0, box.y - 8), width: W, height: box.h + 16, scale: 1 } }); writeFileSync(join(OUT, 'shots', name + '.png'), Buffer.from(r.result.data, 'base64')); };
+  const row = (n, s) => ({ file: n + '.png', route: '/game/prize-draw/', width: W, height: Math.round(box.h + 16), state: s, innerWidthRead: inner, webgl2Live: 'n-a', reducedMotion: 'no', note: `element crop of the pickers' container (${box.tag}), captureBeyondViewport; viewport ${W}x${H}` });
+  await cap(`setup-picker-${W}-games-default`); rows.push(row(`setup-picker-${W}-games-default`, 'setup, the five per-round game pickers (rounds 1-4 + final), nothing picked'));
+  await pickGame(T, 'pd-game-r1', 'zones'); await pickGame(T, 'pd-game-r2', 'marbles'); await pickGame(T, 'pd-game-final', 'envelopes'); await sleep(400);
+  await cap(`setup-picker-${W}-games-picked`); rows.push(row(`setup-picker-${W}-games-picked`, 'setup, pickers: round 1 zones, round 2 marbles, final envelopes'));
+  console.log(W, JSON.stringify(box)); await T.close();
+}
+const m = JSON.parse(readFileSync(mf, 'utf8')); m.push(...rows); writeFileSync(mf, JSON.stringify(m, null, 1)); process.exit(0);

@@ -1,0 +1,14 @@
+// (a) claim line / free-name text on each route's instant 2D result; (b) zones 1440: webglcontextlost time vs canvas removal; (c) phone scroll position at result
+import { openTab, BASE, sleep } from './lib.mjs';
+const out = {};
+for (const route of ['zones', 'marbles', 'envelopes', 'flipcards']) for (const [W, H, rm] of [[320, 568, false], [1440, 900, true]]) {
+  const T = await openTab({ reducedMotion: rm }); await T.view(W, H, false); await T.nav(`${BASE}/game/prize-${route}/play/`); await T.view(W, H, false);
+  if (rm) await T.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  await sleep(500); await T.tapEl('.pr-go', null, { settleMs: 450 }); await T.waitFor(`/ดูอีกครั้ง/.test(document.querySelector('.pr-bar')?.textContent||'')`, 5000); await sleep(600);
+  out[`${route}-${W}${rm ? '-rm' : ''}`] = await T.ev(`const t=document.body.innerText; return {claimEl:!!document.querySelector('.pd-claim'), claimText:/ชื่อต้องตรงกับบนจอ/.test(t), freeName:/ชื่ออื่น|ชื่ออิสระ|ใส่ชื่อ/.test(t), screen:document.querySelector('.pd-frame')?.getAttribute('data-screen'), scrollY:scrollY, goTop:Math.round(document.querySelector('.pr-go').getBoundingClientRect().top), goInView:(()=>{const r=document.querySelector('.pr-go').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})(), docH:document.documentElement.scrollHeight}`);
+  await T.close();
+}
+{ const T = await openTab(); await T.view(1440, 900, false); await T.nav(`${BASE}/game/prize-zones/play/`); await T.view(1440, 900, false); await sleep(500);
+  await T.tapEl('.pr-go', null, { settleMs: 450 }); await T.waitFor(`/ดูอีกครั้ง/.test(document.querySelector('.pr-bar')?.textContent||'')`, 20000); await sleep(800);
+  out.zonesLostVsCanvas = await T.ev(`return JSON.parse(JSON.stringify({lost:__wd.lost, canvas:__wd.canvas}))`); await T.close(); }
+console.log(JSON.stringify(out, null, 1)); process.exit(0);

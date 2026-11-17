@@ -1,0 +1,1 @@
+bundle-freeze-check: 41 HTML file(s) walked, 60 reachable chunk(s) (hash-stripped) match the pinned set exactly, 77 page-entry pair(s) across 41 page(s) that load an entry chunk match the pinned pair set exactly, 1366516 total bytes within +/-5% of baseline 1366516.

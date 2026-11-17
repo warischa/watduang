@@ -137,6 +137,64 @@ body {
   white-space: pre;
 }
 
+/* ---- The envelopes and flipcards finals' object picks: the frame (final-picks.ts), the boards' idle frames
+   design/Gh317Envelopes.dc.html A/env-idle and design/Gh318Cards.dc.html A/card-idle (owner picks D1 A ROW).
+   Each object's box and each plate's centre and top come from final-picks.ts as --x, --y, --w, --h and
+   --plate-y; the plate is the lane plate above (an empty or next plate keeps the ladder's i2-lanes look). */
+.pd-ohud {
+  position: absolute;
+  inset-inline: 56px;
+  inset-block-start: 116px;
+  text-align: center;
+}
+.pd-ohud .pd-lk {
+  margin-block-start: 6px;
+}
+.pd-obj {
+  position: absolute;
+  inset-inline-start: var(--x, 0px);
+  inset-block-start: var(--y, 0px);
+  inline-size: var(--w, 0px);
+  block-size: var(--h, 0px);
+}
+.pd-envart,
+.pd-cardback svg {
+  display: block;
+}
+.pd-env-body,
+.pd-env-seal {
+  fill: var(--pd-raised);
+  stroke: var(--accent-gold);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.pd-env-flap,
+.pd-env-bow,
+.pd-card-star {
+  fill: var(--accent-gold);
+}
+.pd-cardback {
+  box-sizing: border-box;
+  inline-size: 100%;
+  block-size: 100%;
+  padding: 16px;
+  border-radius: 6px;
+  background: repeating-linear-gradient(45deg, var(--pd-raised) 0 6px, #2e2b63 6px 7px); /* VALUES: the gh#303 picked card-back hatch (Gh318Cards card-idle) */
+  box-shadow: inset 0 0 0 2px var(--accent-gold);
+}
+.pd-plate.pd-oplate {
+  inset-block-start: var(--plate-y, 950px);
+  padding: 4px 14px;
+  justify-content: center;
+}
+.pd-low.pd-olow {
+  inset-block-end: 20px;
+  block-size: 190px;
+}
+.pd-olow .pd-flow {
+  font-size: 130px;
+}
+
 /* ---- The lane picks' controls: real pixels over the frame (the frame holds no control). fitFrame gives
    this layer the frame's scale and offset, so a lane's control covers its plate's box at any screen size,
    never under the 44px tap floor. The name row sits over the empty middle of the track: i2-lanes B draws
@@ -149,7 +207,7 @@ body {
 .pd-lane {
   position: absolute;
   inset-inline-start: calc(var(--pd-x, 0px) + (var(--lane-x, 160px) - 160px) * var(--pd-scale, 1));
-  inset-block-start: calc(var(--pd-y, 0px) + 950px * var(--pd-scale, 1));
+  inset-block-start: calc(var(--pd-y, 0px) + var(--lane-y, 950px) * var(--pd-scale, 1));
   inline-size: calc(320px * var(--pd-scale, 1));
   block-size: max(44px, calc(64px * var(--pd-scale, 1)));
   padding: 0;
@@ -171,7 +229,7 @@ body {
 .pd-names {
   position: absolute;
   inset-inline: 0;
-  inset-block-start: calc(var(--pd-y, 0px) + 532px * var(--pd-scale, 1));
+  inset-block-start: calc(var(--pd-y, 0px) + var(--names-y, 532px) * var(--pd-scale, 1));
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
@@ -419,6 +477,34 @@ body {
     --fit-size: 16;
   }
 
+  /* The zones round before its draw (gh#315, zones-idle.ts): its field is .pd-zfield, not .pd-field, so the
+     field rule above never reached it and the idle view kept the fixed projector frame on a phone (E1). The
+     same phone layout in the same spirit: the four panels stack one per row in flow, each zone's names in
+     i5-phone B's two columns at the field's row floor and gap, rows growing with a wrapped name so the
+     scrolling page never clips one. Sizes are the field's own; the panel gap keeps the zones board's 20px. */
+  .pd-viewport[data-field] .pd-zfield {
+    order: 5;
+    position: static;
+    align-self: stretch;
+    block-size: auto;
+    margin-block-start: 18px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 20px;
+  }
+  .pd-viewport[data-field] .pd-zgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(32px, auto);
+    gap: 4px 10px;
+    align-content: start;
+    /* The phone grid is its own two-column list, not the projector's grown/scaled one: drop the zoneGrid scale
+       and keep the wrapped chip at .nm-wrap's own line height, as the phone layout was built. */
+    transform: none;
+  }
+  .pd-viewport[data-field] .pd-zgrid .pd-chip.nm-wrap {
+    line-height: 1.05;
+  }
+
   /* The ladder final's lane picks (stage.ts marks them data-lanes). No frame draws them at phone width, so
      they take item 5 B's rule: a phone layout instead of the 1920 frame scaled. The night ground, the event,
      round dots, hud line and game name at i5-phone B's sizes; then the lane controls and the free finalists
@@ -535,6 +621,21 @@ body {
     white-space: normal;
     overflow-wrap: anywhere;
     text-align: center;
+  }
+  /* A pick final's object picks take the same phone layout (stage.ts marks them data-lanes too): the objects
+     and the low band go, because the controls ARE the objects here, and the game name and instruction stack
+     at the hud line's phone size. */
+  .pd-viewport[data-lanes] .pd-obj,
+  .pd-viewport[data-lanes] .pd-olow {
+    display: none;
+  }
+  .pd-viewport[data-lanes] .pd-ohud {
+    position: static;
+    text-align: start;
+  }
+  .pd-viewport[data-lanes] .pd-ohud .pd-lk {
+    margin-block-start: 14px;
+    font-size: 16px;
   }
 
   /* The final result (stage.ts marks it data-result): design/Gh305AuditFrames.dc.html frame 2, owner pick
@@ -670,4 +771,89 @@ body {
     font-size: 18px;
     letter-spacing: 1px;
   }
+}
+
+/* gh#315 -- a zones round before its draw (zones-idle.ts): design/Gh315Zones.dc.html frame A/zn-idle, owner pick
+   2026-11-16 (Z1 A FOUR BLOCKS). Four panels 2x2 in the field 100..870, each its zone colour at 14% over the night
+   midpoint with a 3px rim in the zone colour, a 24px radius; names Sarabun 700 in 4 columns of rows at least 22px
+   (NAME FIT 20px to an 18px floor); the lower band 170px tall, its count 130px. The zone colours are set per panel
+   from prize-zones plan.ts ZONES, the one home of the board's zone values. */
+.pd-zfield {
+  position: absolute;
+  inset-inline: 56px;
+  inset-block-start: 100px;
+  block-size: 770px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 375px;
+  gap: 20px;
+}
+.pd-zpanel {
+  position: relative;
+  box-sizing: border-box;
+  border-radius: 24px;
+  padding: 4px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background-color: var(--zone-tint);
+  box-shadow: inset 0 0 0 3px var(--zone);
+}
+.pd-zhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  block-size: 34px;
+}
+.pd-zname {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 600 30px/1 var(--font-display);
+  color: var(--ink-light);
+  white-space: nowrap;
+}
+.pd-zdot {
+  display: inline-block;
+  inline-size: 22px;
+  block-size: 22px;
+  border-radius: 50%;
+  background-color: var(--zone);
+}
+.pd-zbadge {
+  font: 600 30px/1 var(--font-display);
+  color: var(--ink-on-band-soft);
+  white-space: nowrap;
+}
+.pd-zgrid {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  display: grid;
+  /* The columns and the scale the reveal's zoneGrid chose for this zone (zones-idle.ts writes them; owner
+     ruling 2026-11-17). Four columns at scale 1 are the board's, so an ordinary zone is unchanged. The scale
+     shrinks both axes about the grid's centre, as zoneGrid's cells do, so no chip leaves its panel. */
+  grid-template-columns: repeat(var(--z-cols, 4), minmax(0, 1fr));
+  grid-auto-rows: minmax(22px, auto);
+  gap: 2px 8px;
+  align-content: center;
+  transform: scale(var(--z-scale, 1));
+  transform-origin: center center;
+}
+.pd-zgrid .pd-chip {
+  font-weight: 700;
+  padding: 0 6px;
+}
+/* A wrapped chip here is line-height 1, the reveal's own row model (plan.ts rowH = lines x floor), so the rows
+   auto-size to exactly the heights zoneGrid laid out and the scale contains them. The chip's base font is /1;
+   this only holds .nm-wrap's 1.05 off the zones grid. */
+.pd-zgrid .pd-chip.nm-wrap {
+  line-height: 1;
+}
+.pd-low.pd-zlow {
+  inset-block-end: 20px;
+  block-size: 170px;
+}
+.pd-zlow .pd-flow {
+  font-size: 130px;
 }

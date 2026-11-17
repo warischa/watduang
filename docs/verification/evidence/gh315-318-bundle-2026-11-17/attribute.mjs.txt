@@ -1,0 +1,55 @@
+// usage, from the repo root: cp <this file> <tmp>/attribute.mjs && node <tmp>/attribute.mjs <base-dist-dir> <new-dist-dir>
+// (the gate's helpers are imported from ./scripts/ under the CURRENT directory, so run it from the repo root)
+// Per-chunk attribution of the freeze total between two builds, with the gate's own reachableChunks/summarize.
+// A hashed file is labelled so the same chunk matches across builds: play entries by the page that loads them,
+// renderer chunks (index.HASH.js) by the registry key that loads them, every other chunk by its hash-stripped
+// basename (told apart by its direct importers when one basename covers several files). Prints each label's bytes in both builds and
+// the delta, then checks that the per-label deltas sum to the gate's own total delta.
+import fs from 'node:fs'; import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+const { reachableChunks, summarize, stripHash } = await import(pathToFileURL(path.resolve('scripts/bundle-freeze-check.mjs')).href);
+const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
+function measure(dist) {
+  const astro = path.join(dist, '_astro');
+  const html = walk(dist).filter((f) => f.endsWith('.html'));
+  const chunkTexts = new Map(fs.readdirSync(astro).filter((f) => f.endsWith('.js')).map((f) => [f, fs.readFileSync(path.join(astro, f), 'utf8')]));
+  const htmlTexts = html.map((f) => fs.readFileSync(f, 'utf8'));
+  const { reached, missing } = reachableChunks(htmlTexts, chunkTexts);
+  if (missing.size) throw new Error(`missing chunks in ${dist}: ${[...missing]}`);
+  const sizeOf = (n) => fs.statSync(path.join(astro, n)).size;
+  const total = summarize(reached, sizeOf).totalBytes;
+  const label = new Map();
+  // Play and page entries: the page(s) that load the file by <script src>.
+  html.forEach((f, i) => { for (const m of htmlTexts[i].matchAll(/<script[^>]+src="\/_astro\/([^"]+\.js)"/g)) {
+    const page = path.relative(dist, path.dirname(f)) || '.';
+    if (/^play\.astro_/.test(m[1])) label.set(m[1], `play entry of ${page}`);
+  } });
+  // Renderer chunks: the registry key that imports them.
+  for (const [f, t] of chunkTexts) for (const m of t.matchAll(/(?<![\w$])([a-z]+):\{[^}]*?import\(\s*"\.\/(index\.[^"]+\.js)"/g)) label.set(m[2], `renderer index.js (${m[1]})`);
+  // Any other basename that covers several files: told apart by its direct importers' labels, which do not
+  // depend on hashes (a hash-sorted ordinal would swap between builds).
+  const importers = new Map();
+  for (const [f, t] of chunkTexts) for (const m of t.matchAll(/(?:from\s*"\.\/([^"]+\.js)"|(?<![\w$.])import\s*"\.\/([^"]+\.js)")/g)) {
+    const to = m[1] || m[2]; if (!importers.has(to)) importers.set(to, new Set()); importers.get(to).add(f);
+  }
+  const count = new Map(); for (const n of reached) count.set(stripHash(n), (count.get(stripHash(n)) ?? 0) + 1);
+  const rows = new Map();
+  for (const n of [...reached].sort()) {
+    let l = label.get(n);
+    if (!l) {
+      const b = stripHash(n);
+      l = count.get(b) > 1 ? `${b} <- ${[...(importers.get(n) ?? [])].map((f) => label.get(f) ?? stripHash(f)).sort().join(', ')}` : b;
+    }
+    rows.set(l, (rows.get(l) ?? 0) + sizeOf(n));
+  }
+  return { total, rows };
+}
+const [a, b] = process.argv.slice(2).map((d) => measure(path.resolve(d)));
+const labels = [...new Set([...a.rows.keys(), ...b.rows.keys()])].sort();
+let sum = 0;
+for (const l of labels) {
+  const x = a.rows.get(l) ?? 0, y = b.rows.get(l) ?? 0; sum += y - x;
+  if (x !== y) console.log(`${String(y - x).padStart(8)}  ${String(x).padStart(8)} -> ${String(y).padStart(8)}  ${l}`);
+}
+console.log(`unchanged labels: ${labels.filter((l) => (a.rows.get(l) ?? 0) === (b.rows.get(l) ?? 0)).length} of ${labels.length}`);
+console.log(`gate total: base ${a.total}, new ${b.total}, delta ${b.total - a.total}; per-label deltas sum ${sum} (${sum === b.total - a.total ? 'MATCH' : 'MISMATCH'})`);

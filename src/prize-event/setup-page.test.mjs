@@ -14,6 +14,8 @@ import { DB, REFUSED_BROWSER } from './store.ts';
 import { nameIssue, parseRoster } from './names.ts';
 import { fakeOrigin } from './fake-idb.mjs';
 import { proposeSchedule } from '../prize-draw/schedule.ts';
+import { CUT_GAMES, FINAL_GAMES } from './game-contract.ts';
+import { eligible, isAvailable } from '../play/_prize-reveal/game-registry.ts';
 
 const PAGE = fs.readFileSync(path.join(import.meta.dirname, '../pages/game/prize-draw/index.astro'), 'utf8');
 
@@ -89,13 +91,18 @@ function page({ origin = fakeOrigin(), env = origin.tab('setup'), confirm = () =
   return { doc, $, type, submit, stored, visits, asked, origin, idle: () => origin.idle(), choose, pressed, buttons, fire };
 }
 
+/** What the page offers a step: the games the registry lets it play AND has integrated, exactly the filter
+ *  index.astro runs, so a stub game (available: false) is never a button. */
+const CUT_OFFER = CUT_GAMES.filter((g) => eligible(g, 'round') && isAvailable(g));
+const FINAL_OFFER = FINAL_GAMES.filter((g) => eligible(g, 'final') && isAvailable(g));
+
 /** The game rows: group id, the games the step offers (registry order), a game it may not play. */
 const GAME_ROWS = [
-  ['pd-game-r1', ['fireworks', 'cards'], 'ladder'],
-  ['pd-game-r2', ['fireworks', 'cards'], 'ladder'],
-  ['pd-game-r3', ['fireworks', 'cards'], 'ladder'],
-  ['pd-game-r4', ['fireworks', 'cards'], 'ladder'],
-  ['pd-game-final', ['fireworks', 'ladder'], 'cards'],
+  ['pd-game-r1', CUT_OFFER, 'ladder'],
+  ['pd-game-r2', CUT_OFFER, 'ladder'],
+  ['pd-game-r3', CUT_OFFER, 'ladder'],
+  ['pd-game-r4', CUT_OFFER, 'ladder'],
+  ['pd-game-final', FINAL_OFFER, 'cards'],
 ];
 
 const roster = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
@@ -432,6 +439,14 @@ test('the game picks the MC presses are the ones stored with the event, and each
   await p.idle();
   assert.deepEqual(decodeEvent(p.stored()).setup.games, { rounds: ['fireworks', null, null, 'fireworks'], final: 'ladder' });
   assert.equal(p.visits.length, 1);
+});
+
+test('the rows the picker is built from offer every integrated game and no unavailable stub', () => {
+  assert.deepEqual(CUT_OFFER, ['fireworks', 'cards', 'zones', 'marbles']);
+  assert.deepEqual(FINAL_OFFER, ['fireworks', 'ladder', 'envelopes', 'flipcards']);
+  for (const stub of []) {
+    assert.ok(!CUT_OFFER.includes(stub) && !FINAL_OFFER.includes(stub), `${stub} is offered while unavailable`);
+  }
 });
 
 test('a game a step may not play cannot be chosen there, even when its click fires', async () => {

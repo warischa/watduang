@@ -1,0 +1,27 @@
+{
+ "marbles-1440": {
+  "msFirstPressToResult": 77579,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "marbles-1920": {
+  "msFirstPressToResult": 77486,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "marbles-320": {
+  "msFirstPressToResult": 173,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "marbles-1440-rm": {
+  "msFirstPressToResult": 170,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "projector-marbles-1920": {
+  "msFirstPressToResult": 18736,
+  "n": 1,
+  "sawCanvas": true
+ }
+}

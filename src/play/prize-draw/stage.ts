@@ -36,7 +36,10 @@
 //      tap. Each assignment is a write like every other (event.ts pickLane, a compare-and-set on `seen`), so
 //      a reload comes back to the picks, another tab follows them, and a tab that is behind loses its pick and
 //      takes the stored one up. Only which lane the next name lands on is this screen's own. The draw press
-//      locks the stored picks.
+//      locks the stored picks. The envelopes and flipcards finals (gh#317, gh#318) place their finalists the
+//      same way, on five objects (owner ruling 2026-11-16: the ladder's placement, gh#305 pick B): the step
+//      into the final stores five empty object picks, each assignment is event.ts pickObject, stored like a
+//      lane pick, and final-picks.ts draws the frame. Their order never reads the picks.
 //   7. The QR lobby (gh#308). While the setup page's lobby record is there (qr-event.ts), the screen shows
 //      the join QR, the PIN and the joined count instead of any stored step, with no MC control; the start
 //      stores the new event and drops the record, and the screen walks that event. The QR module is loaded
@@ -62,6 +65,7 @@ import {
   encodeEvent,
   liveIds,
   pickLane,
+  pickObject,
   position,
   prepareCards,
   revealDrawn,
@@ -75,6 +79,9 @@ import { OLD_TAB_OPEN, REFUSED_BROWSER, type EventStore, type Loss, type PutResu
 import { screenView, type ScreenView } from '../../prize-event/view.ts';
 import { announce, fitFrame, renderScreen } from '../_prize-reveal/reveal.ts';
 import { laneX, renderLanes } from './lanes.ts';
+import { NAMES_Y, PLATE_Y, objectX, renderObjects } from './final-picks.ts';
+import { idleZones, renderZonesIdle } from './zones-idle.ts';
+import { isPickFinal } from '../../prize-event/game-contract.ts';
 import { fitAll, writeName } from '../_prize-reveal/names-dom.ts';
 import { startReveal, type HostOptions, type RevealHost } from '../_prize-reveal/game-host.ts';
 import type { CommittedOutcome, GameId } from '../_prize-reveal/game-contract.ts';
@@ -135,6 +142,7 @@ const COPY = {
   // Owner-approved (gh#305 item 2): the ladder final's hud line while the finalists pick lanes.
   lanePick: 'ให้ผู้เข้ารอบชิงเลือกเส้น แตะเส้นแล้วแตะชื่อ',
   // An empty lane's label: its number, as the picked frame draws it (design/Gh305GamePick.dc.html i2-lanes).
+  // An empty object on a pick final takes the same label: the ladder's placement, reused (owner ruling).
   lane: (lane: number): string => String(lane),
   // The QR lobby, board copy verbatim (design/Gh302Projector.dc.html, proj-lobby B, COPY APPROVED).
   scan: 'สแกนเพื่อเข้าร่วม',
@@ -144,9 +152,10 @@ const COPY = {
 };
 
 /** The screens with a name field: under 640px they take the phone layout, names in two columns (gh#314
- *  item 5 B). The lane picks and the result take their own phone layouts (markField); the cold screen keeps
- *  the scaled frame. */
-const FIELD_SCREENS = new Set(['round', 'reveal', 'final']);
+ *  item 5 B). The zones idle view joins them (gh#315): its field is .pd-zfield, not .pd-field, so the phone
+ *  rules stack its panels one per row (play.css). The lane picks and the result take their own phone layouts
+ *  (markField); the cold screen keeps the scaled frame. */
+const FIELD_SCREENS = new Set(['round', 'reveal', 'final', 'zones']);
 
 /**
  * A layout that sets its names at another size may also give them another floor, as `--fit-floor` in its
@@ -267,9 +276,21 @@ export function mountStage(deps: StageDeps): StageHandle {
     return pos.kind === 'final' && pos.at === 'ready' && s.setup.games.final === 'ladder' && slotsOf(s) !== null;
   };
 
-  /** The stored lane picks of a ready ladder final (`picks[lane]`, a finalist id or null); empty elsewhere. */
-  const picksOf = (s: EventState): readonly (string | null)[] =>
-    s.prepared?.game === 'ladder' ? s.prepared.picks : Array.from({ length: FINAL_SIZE }, () => null);
+  /** A ready envelopes or flipcards final with its object picks stored: its press locks them and draws. */
+  const placesObjects = (s: EventState): boolean => {
+    const pos = position(s);
+    const game = s.setup.games.final;
+    return pos.kind === 'final' && pos.at === 'ready' && isPickFinal(game) && s.prepared?.game === game;
+  };
+  /** A ready final whose finalists are placed before the draw: the ladder's lanes or a pick final's objects. */
+  const placing = (s: EventState): boolean => picksLanes(s) || placesObjects(s);
+
+  /** The stored picks of a ready ladder final (`picks[lane]`) or pick final (`picks[object]`), each a
+   *  finalist id or null; empty elsewhere. */
+  const picksOf = (s: EventState): readonly (string | null)[] => {
+    const prepared = s.prepared;
+    return prepared && prepared.game !== 'cards' ? prepared.picks : Array.from({ length: FINAL_SIZE }, () => null);
+  };
   /** The stored picks once all five lanes hold a different finalist, else null. */
   const lockedPicks = (s: EventState): string[] | null => {
     const at = picksOf(s);
@@ -284,9 +305,9 @@ export function mountStage(deps: StageDeps): StageHandle {
     const at = picksOf(s);
     const empty = at.indexOf(null);
     const first = empty === -1 ? null : empty;
-    if (!picksLanes(s) || nextOf !== s.eventKey) nextLane = first;
+    if (!placing(s) || nextOf !== s.eventKey) nextLane = first;
     else if (nextLane === null || at[nextLane] !== null) nextLane = first;
-    nextOf = picksLanes(s) ? s.eventKey : null;
+    nextOf = placing(s) ? s.eventKey : null;
   };
 
   const people = (s: EventState): Person[] => {
@@ -339,7 +360,7 @@ export function mountStage(deps: StageDeps): StageHandle {
     button.textContent = pos.at === 'revealed' ? COPY.next : dealsFirst(s) ? COPY.deal : COPY.reveal;
     // The ladder draw waits for five picks, and no press acts while the notice is open (the button sits
     // outside its veil); the arm gate keeps a control disabled by its caller disabled.
-    if (picksLanes(s)) button.disabled = lockedPicks(s) === null;
+    if (placing(s)) button.disabled = lockedPicks(s) === null;
     if (!notice.hidden) button.disabled = true;
     const builtFor = key(s);
     const token = seen;
@@ -368,10 +389,30 @@ export function mountStage(deps: StageDeps): StageHandle {
     return button;
   };
 
-  /** The lane-pick frame for the picks on screen (lanes.ts), slots from the stored layout. */
+  /** The placement frame for the picks on screen: a pick final's objects (final-picks.ts), or the ladder's
+   *  lanes (lanes.ts), slots from the stored layout. */
   const paintLaneFrame = (s: EventState): void => {
     const view = screenView(s);
     const finalists = people(s);
+    const plates = picksOf(s).map((id) => (id === null ? null : finalists.findIndex((p) => p.id === id)));
+    const game = s.setup.games.final;
+    if (isPickFinal(game)) {
+      renderObjects(
+        frame,
+        {
+          game,
+          eventName: s.setup.eventName,
+          dots: view.kind === 'final' ? view.dots : [],
+          prizeCount: s.setup.prizes.length,
+          names: finalists.map((p) => p.name),
+          plates,
+          next: nextLane,
+          objectLabel: COPY.lane,
+        },
+        doc,
+      );
+      return;
+    }
     renderLanes(
       frame,
       {
@@ -380,7 +421,7 @@ export function mountStage(deps: StageDeps): StageHandle {
         prizes: s.setup.prizes,
         slotRanks: slotsOf(s) ?? [],
         names: finalists.map((p) => p.name),
-        plates: picksOf(s).map((id) => (id === null ? null : finalists.findIndex((p) => p.id === id))),
+        plates,
         next: nextLane,
         laneLabel: COPY.lane,
         // Broken at its own space so the line ends left of rail 1 at 1920 (owner pick PD-307-03,
@@ -391,19 +432,31 @@ export function mountStage(deps: StageDeps): StageHandle {
     );
   };
 
+  /** A zones round before its draw (gh#315): the zones the room stands in, from the event key, the round and
+   *  the live field alone (zones-idle.ts). The MC's press commits the draw and the reveal lands in these zones. */
+  const paintZonesIdle = (s: EventState, view: ScreenView & { kind: 'round' }): void => {
+    const zones = idleZones(s.eventKey, view.round, people(s)).map((zone) => zone.map((p) => p.name));
+    renderZonesIdle(frame, { eventName: view.eventName, round: view.round, rounds: view.rounds, dots: view.dots, zones }, doc);
+  };
+
   /**
    * The ladder final's lane picks (design/Gh305GamePick.dc.html i2-lanes B): one control over each lane's
    * plate, then a row of the finalists not yet on a lane (names through the name sink). A tap on an empty
    * lane makes it the one the next name lands on (this screen only); a tap on a filled lane empties it, and a
    * tap on a name places it on the next lane, each as a stored write (request). Every tap repaints the frame
    * and the controls and re-arms the viewport (ADR-0057), a write once it is stored: controls move under the
-   * finger, and the fifth pick reveals a live draw button.
+   * finger, and the fifth pick reveals a live draw button. A pick final's objects take the same controls,
+   * each over its object's plate, and the same writes through pickObject.
    */
   const paintPicks = (s: EventState): void => {
-    if (!picksLanes(s)) {
+    if (!placing(s)) {
       picks.replaceChildren();
       return;
     }
+    const game = s.setup.games.final;
+    const objects = isPickFinal(game) ? game : null;
+    const place = (from: EventState, at: number, id: string | null): EventState =>
+      objects ? pickObject(from, at, id) : pickLane(from, at, id);
     const builtFor = key(s);
     const token = seen;
     const finalists = people(s);
@@ -421,7 +474,8 @@ export function mountStage(deps: StageDeps): StageHandle {
       b.type = 'button';
       // An empty lane is marked: the phone layout draws the control itself as the lane (play.css).
       b.className = id === null ? 'pd-lane empty' : 'pd-lane';
-      b.style.setProperty('--lane-x', `${laneX(lane)}px`);
+      b.style.setProperty('--lane-x', `${objects ? objectX(lane) : laneX(lane)}px`);
+      if (objects) b.style.setProperty('--lane-y', `${PLATE_Y[objects]}px`);
       b.setAttribute('aria-pressed', String(nextLane === lane));
       const label = doc.createElement('span');
       label.textContent = COPY.lane(lane + 1);
@@ -436,12 +490,13 @@ export function mountStage(deps: StageDeps): StageHandle {
         if (!live() || !state) return;
         nextLane = lane;
         if (id === null) repaint();
-        else request(token, builtFor, pickLane(state, lane, null));
+        else request(token, builtFor, place(state, lane, null));
       });
       return b;
     });
     const row = doc.createElement('div');
     row.className = 'pd-names';
+    if (objects) row.style.setProperty('--names-y', `${NAMES_Y[objects]}px`);
     for (const person of finalists) {
       if (lanes.includes(person.id)) continue;
       const b = doc.createElement('button');
@@ -452,14 +507,14 @@ export function mountStage(deps: StageDeps): StageHandle {
       b.appendChild(name);
       b.addEventListener('click', () => {
         if (!live() || !state || nextLane === null) return;
-        request(token, builtFor, pickLane(state, nextLane, person.id));
+        request(token, builtFor, place(state, nextLane, person.id));
       });
       row.appendChild(b);
     }
     picks.replaceChildren(...laneButtons, row);
   };
 
-  /** The controls for the step `s` is at: the lane picks (ladder final only) and the MC's button. */
+  /** The controls for the step `s` is at: the placement picks (ladder or pick final only) and the MC's button. */
   const paintControls = (s: EventState): void => {
     paintPicks(s);
     const button = control(s);
@@ -468,13 +523,13 @@ export function mountStage(deps: StageDeps): StageHandle {
     mounted = button ? seen : null;
   };
 
-  /** Mark whether the screen on the frame has a name field, is the ladder's lane picks, or is the final
-   *  result: each takes its own phone layout under 640px (play.css). */
+  /** Mark whether the screen on the frame has a name field, is a final's placement (the ladder's lanes or a
+   *  pick final's objects), or is the final result: each takes its own phone layout under 640px (play.css). */
   const markField = (): void => {
     const screen = frame.getAttribute('data-screen');
     if (screen !== null && FIELD_SCREENS.has(screen)) viewport.setAttribute('data-field', '');
     else viewport.removeAttribute('data-field');
-    if (screen === 'lanes') viewport.setAttribute('data-lanes', '');
+    if (screen === 'lanes' || screen === 'objects') viewport.setAttribute('data-lanes', '');
     else viewport.removeAttribute('data-lanes');
     if (screen === 'result') viewport.setAttribute('data-result', '');
     else viewport.removeAttribute('data-result');
@@ -651,7 +706,8 @@ export function mountStage(deps: StageDeps): StageHandle {
     }
     const view = shownView(state);
     syncLanes(state);
-    if (picksLanes(state)) paintLaneFrame(state);
+    if (placing(state)) paintLaneFrame(state);
+    else if (view.kind === 'round' && view.game === 'zones') paintZonesIdle(state, view);
     else renderScreen(frame, view, doc);
     paintControls(state);
     markField();
@@ -720,8 +776,9 @@ export function mountStage(deps: StageDeps): StageHandle {
       next = prepareCards(s, rng);
       await put(next);
     } else if (pos.at === 'ready') {
-      // A ladder final locks its stored picks here (drawNext reads them); without all five nothing is written.
-      if (picksLanes(s) && !lockedPicks(s)) return;
+      // A ladder or pick final locks its stored picks here (drawNext reads them); without all five nothing is
+      // written.
+      if (placing(s) && !lockedPicks(s)) return;
       const drawn = await drawAndSave(s, rng, (d) => put(revealDrawn(d)));
       next = drawn.ok ? revealDrawn(drawn.state) : s;
     } else if (pos.at === 'drawn') {

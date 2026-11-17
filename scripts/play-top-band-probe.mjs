@@ -16,7 +16,7 @@
 // Proven without a browser on the verdict: play-top-band-probe.test.mjs.
 //
 // A SECOND CARVE-OUT (owner ruling 2026-11-14, "carve-out for .pr-bar like .pd-mc"; the placement is the owner
-// pick gh#305 PD-305-02, the demo bar at the band's right end): on the three prize reveal demo routes only
+// pick gh#305 PD-305-02, the demo bar at the band's right end): on the prize reveal demo routes only
 // (DEMO_ROUTES), the demo bar (BAR_SEL) may be anchored fixed above the band, and ONLY while the viewport
 // that holds it (BAR_VIEWPORT_SEL) carries data-bar="band". The exemption is by route AND by the bar element
 // itself, not its descendants. Each exempted bar is then judged on that row: it shows a box, that box (root,
@@ -135,7 +135,11 @@ export const MC_ROUTE = 'prize-draw';
 export const MC_SEL = '.pd-mc';
 // THE SECOND CARVE-OUT (owner ruling 2026-11-14): the demo routes whose bar may stand in the band, the bar's
 // root, and the viewport whose data-bar attribute says where the page placed it. See the header.
-export const DEMO_ROUTES = ['prize-cards', 'prize-fireworks', 'prize-ladder'];
+// The ruling named the three gh#305-gh#307 pages. The four phase-2 demo pages (gh#315-gh#318: zones, marbles,
+// envelopes, flipcards) joined 2026-11-17 at their integration: each mounts the same shared demo, so the bar is
+// the same element in the same placement (PD-305-02). That extension of the 2026-11-14 ruling to the same
+// element was confirmed by the owner 2026-11-17 (popup); the test pins the set to exactly the pages that mount the shared demo.
+export const DEMO_ROUTES = ['prize-cards', 'prize-fireworks', 'prize-ladder', 'prize-zones', 'prize-marbles', 'prize-envelopes', 'prize-flipcards'];
 export const BAR_SEL = '.pr-bar';
 export const BAR_VIEWPORT_SEL = '.pr-viewport';
 

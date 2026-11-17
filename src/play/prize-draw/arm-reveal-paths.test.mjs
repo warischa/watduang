@@ -33,7 +33,7 @@ test('show() is the only un-hide, and it arms the region it shows', () => {
 
 // receiver -> why it is shown. Every entry is a decision.
 const EXPECTED_SHOWS = new Map([
-  ['viewport', 'every render (cold, refused, round, reveal, final, result, and the QR lobby of gh#308, which holds no control; and the close of a QR-mode code card, gh#309, which uncovers the frame and brings the step\'s own button back) rebuilds the frame and the MC bar inside the viewport and arms it, including a follower render (another tab moved the event: taken up on its commit notice or on this screen\'s own stale press) and the render a 3D reveal\'s first exit draws (gh#305); every ladder lane tap and name tap repaints the lane frame, the picks and the MC bar inside it and re-arms it; and the notice close path rebuilds the MC\'s button, held while the notice was open, and uncovers it again (ADR-0057)'],
+  ['viewport', 'every render (cold, refused, round, reveal, final, result, and the QR lobby of gh#308, which holds no control; and the close of a QR-mode code card, gh#309, which uncovers the frame and brings the step\'s own button back) rebuilds the frame and the MC bar inside the viewport and arms it, including a follower render (another tab moved the event: taken up on its commit notice or on this screen\'s own stale press) and the render a 3D reveal\'s first exit draws (gh#305); every ladder lane tap and name tap, and every envelopes or flipcards object tap and name tap (gh#317, gh#318, the ladder\'s placement reused), repaints the placement frame, the picks and the MC bar inside it and re-arms it; and the notice close path rebuilds the MC\'s button, held while the notice was open, and uncovers it again (ADR-0057)'],
   ['notice', 'the storage-failure notice, which carries its own close button'],
 ]);
 
@@ -269,6 +269,34 @@ test('a 3D reveal\'s exit brings the MC button back armed, and a card round\'s d
   }
 });
 
+test('zones rounds (gh#315): the pre-draw zones come up with the draw button armed, and the 3D exit and the step into the next zones round re-arm it', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    const origin = fakeOrigin();
+    storedEvent(origin, { n: 50, games: { rounds: ['zones', 'zones', null, null], final: null } });
+    const { hosts, start } = fakeHosts();
+    const s = await mount({ origin, rng: seeded(9), startReveal: start });
+    assert.equal(s.frame.getAttribute('data-screen'), 'zones');
+    armedThenLive(s.go(), 'round 1 zones, first screen');
+    s.go().click(); // draw
+    await origin.idle();
+    assert.equal(s.go(), null, 'no MC button while the zones reveal presents');
+    hosts[0].run();
+    hosts[0].settle();
+    armedThenLive(s.go(), 'round 1 reveal, after the zones exit');
+    s.go().click(); // next
+    await origin.idle();
+    assert.equal(s.frame.getAttribute('data-screen'), 'zones');
+    armedThenLive(s.go(), 'round 2 zones, after the step forward');
+    s.go().click(); // draw
+    await origin.idle();
+    hosts[1].exit('fallback');
+    armedThenLive(s.go(), 'round 2 reveal, after a fallback exit');
+  } finally {
+    mock.timers.reset();
+  }
+});
+
 test('card round, two presses in one spot (design/Gh305GamePick.dc.html i3 B): the deal press and then the rule press, which re-enables armed, so a double tap on the deal never draws the rule (ADR-0057)', async () => {
   mock.timers.enable({ apis: ['setTimeout'] });
   try {
@@ -352,3 +380,54 @@ test('ladder final: every lane tap and every name tap re-arms the picks, the fif
     mock.timers.reset();
   }
 });
+
+/** A stored envelopes or flipcards event at its final, ready, with five empty objects (its step stores them). */
+function pickFinal(origin, game) {
+  let ev = storedEvent(origin, { n: 50, games: { rounds: [null, null, null, null], final: game } });
+  const rng = seeded(4);
+  for (let r = 1; r <= 4; r++) ev = advance(revealDrawn(drawNext(ev, rng)), rng);
+  seedRaw(origin, encodeEvent(ev));
+  return ev;
+}
+
+for (const game of ['envelopes', 'flipcards']) {
+  test(`${game} final: every object tap, name tap and undo tap re-arms the picks, the fifth reveals the draw button armed, and the confirm path ends on the result`, async () => {
+    mock.timers.enable({ apis: ['setTimeout'] });
+    try {
+      const origin = fakeOrigin();
+      pickFinal(origin, game);
+      const { hosts, start } = fakeHosts();
+      const s = await mount({ origin, rng: seeded(5), startReveal: start });
+      mock.timers.tick(ARM_DELAY_MS);
+      assert.equal(s.go().disabled, true, 'the draw is live before any object is picked');
+      for (let object = 0; object < 5; object++) {
+        s.laneButtons()[object].click();
+        armedThenLive(s.nameButtons()[0], `the name row after the object ${object + 1} tap`);
+        s.nameButtons()[0].click();
+        await origin.idle(); // the pick is a stored write; the repaint follows its commit
+        if (object < 4) {
+          armedThenLive(s.nameButtons()[0], `the name row after pick ${object + 1}`);
+          assert.equal(s.go().disabled, true, `the draw went live after ${object + 1} picks`);
+        }
+      }
+      armedThenLive(s.go(), 'the draw, after the fifth pick');
+      // Undo: emptying object 2 brings its finalist back armed and sends the draw back to waiting.
+      s.laneButtons()[1].click();
+      await origin.idle();
+      armedThenLive(s.nameButtons()[0], 'the name row after the undo tap');
+      assert.equal(s.go().disabled, true, 'the draw stayed live with an object emptied');
+      s.nameButtons()[0].click();
+      await origin.idle();
+      armedThenLive(s.go(), 'the draw, after the picks are complete again');
+      s.go().click(); // confirm the picks and draw
+      await origin.idle();
+      assert.equal(hosts.length, 1);
+      assert.equal(s.laneButtons().length, 0, 'the object picks stay on screen while the final presents');
+      hosts[0].settle();
+      assert.equal(s.frame.getAttribute('data-screen'), 'result');
+      assert.equal(s.go(), null);
+    } finally {
+      mock.timers.reset();
+    }
+  });
+}

@@ -59,6 +59,13 @@ test('the ladder demo commits a consistent ladder, and every prize count from 1 
   assert.equal(demoRun('fireworks', 'final', 9).steps.at(-1).outcome.prizes.length, 5, 'a prize count past 5 must clamp');
 });
 
+test('a game with no demo mode refuses both modes, so no demo page can mount a game that is not integrated (none today)', () => {
+  for (const game of []) {
+    assert.deepEqual(DEMO_MODES[game], [], game);
+    for (const mode of ['round', 'final']) assert.throws(() => demoRun(game, mode), /no (round|final) demo/, `${game} ${mode}`);
+  }
+});
+
 test('the demo is fixed: a refresh replays the same outcome, and a mode a game cannot play is refused', () => {
   for (const [game, modes] of Object.entries(DEMO_MODES)) {
     for (const mode of modes) assert.deepEqual(demoRun(game, mode).steps.map((s) => [s.key, s.outcome]), demoRun(game, mode).steps.map((s) => [s.key, s.outcome]));

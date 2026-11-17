@@ -1,0 +1,90 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { planFor, assertPlan, beatsIn } from './src/play/prize-flipcards/renderer/plan.ts';
+import { planFor as envelopePlan } from './src/play/prize-envelopes/renderer/plan.ts';
+import { reveal as cards } from './src/play/prize-flipcards/renderer/index.ts';
+import { reveal as marbles } from './src/play/prize-marbles/renderer/index.ts';
+const { Vector3, FrontSide } = createRequire('./package.json')('three');
+const ids = ['a', 'b', 'c', 'd', 'e'];
+const inputFor = (game = 'flipcards') => ({
+  key: 'probe', eventName: 'Party', people: ids.map(id => ({id, name: id})),
+  viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false,
+  outcome: { kind: 'final', game, order: [...ids], picks: [...ids], prizes: ['TV'] }
+});
+function fakeDoc() {
+  return { createElement(tag) {
+    assert.equal(tag, 'canvas');
+    const canvas = {width: 0, height: 0};
+    let ctx;
+    ctx = new Proxy({canvas, font: '10px sans-serif', texts: [],
+      getTransform: () => ({a: 1}), measureText: text => ({width: String(text).length * 10}),
+      createLinearGradient: () => ({addColorStop() {}}),
+      fillText: text => ctx.texts.push(text), clearRect: () => {ctx.texts = [];}
+    }, {get: (obj, key) => key in obj ? obj[key] : () => {}});
+    canvas.getContext = () => ctx;
+    return canvas;
+  }};
+}
+function mount(module, input) {
+  let scene, camera;
+  const handle = module.mount({ root: {ownerDocument: fakeDoc()}, signal: new AbortController().signal,
+    own: obj => obj, renderer: {render(s,c) { scene = s; camera = c; }}
+  }, input, () => {});
+  return {handle, scene, camera};
+}
+function facing(mesh, camera) {
+  mesh.updateWorldMatrix(true, false);
+  const normal = new Vector3(0, 0, 1).transformDirection(mesh.matrixWorld);
+  const centre = new Vector3().setFromMatrixPosition(mesh.matrixWorld);
+  return normal.dot(camera.position.clone().sub(centre));
+}
+test('F1: null, sparse and numeric prize entries are refused by both planners', () => {
+  for (const [game, make] of [['envelopes', envelopePlan], ['flipcards', planFor]]) {
+    for (const prizes of [[null], Array(1), [7]]) {
+      const input = inputFor(game);
+      input.outcome.prizes = prizes;
+      assert.throws(() => make(input), /prize/);
+    }
+  }
+});
+test('F2: the original text, timing and immediate-completion mutants are now refused', () => {
+  const input = inputFor();
+  for (const mutate of [p => p.slots[0].line = 'Different prize', p => p.openings[0].faceAt = -1,
+    p => p.beats = [{at: 0, event: {type: 'complete'}}]]) {
+    const p = planFor(input);
+    mutate(p);
+    assert.throws(() => assertPlan(p, input));
+  }
+});
+test('F2 regression: assertPlan must refuse deletion of the completion beat', () => {
+  const input = inputFor();
+  const p = planFor(input);
+  delete p.beats[p.beats.length - 1];
+  assert.equal(beatsIn(p, -1, p.total).some(e => e.type === 'complete'), false);
+  assert.throws(() => assertPlan(p, input), /flipcards/);
+});
+test('F3: original card-1 interval 1800 to 1811ms keeps its camera-facing side visible', () => {
+  const {handle, scene, camera} = mount(cards, inputFor());
+  const byName = new Map();
+  scene.traverse(o => byName.set(o.name, o));
+  for (let t = 1800; t <= 1811; t++) {
+    handle.advance({type: 'tick', elapsedMs: t, deltaMs: 1});
+    const pair = [byName.get('back:1'), byName.get('face:1')];
+    assert.equal(pair.filter(m => m.visible).length, 1);
+    assert.ok(pair.some(m => m.visible && m.material.side === FrontSide && facing(m, camera) > 0));
+  }
+  handle.dispose();
+});
+test('PD-316-01: all eight meshes share the transparent queue in strict renderOrder', () => {
+  const input = inputFor('marbles');
+  input.people = Array.from({length: 20}, (_, i) => ({id: `p${i}`, name: `P${i}`}));
+  input.outcome = {kind: 'round', game: 'marbles', round: 1, code: 'C', survivors: ['p1', 'p5']};
+  const {handle, scene} = mount(marbles, input);
+  const meshes = [];
+  scene.traverse(o => { if (o.isMesh) meshes.push(o); });
+  assert.equal(meshes.length, 8);
+  assert.ok(meshes.every(o => o.material.transparent === true));
+  assert.deepEqual(meshes.map(o => o.renderOrder).sort((a,b) => a-b), [0, 5, 8, 9, 10, 20, 30, 31]);
+  handle.dispose();
+});

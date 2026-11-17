@@ -1,0 +1,9 @@
+registry chunk: reveal.js {"fireworks":"index.Bmu1VjIx.js","cards":"index.WtFQCQJb.js","ladder":"index.DWJQxe1z.js"}
+## game/prize-cards/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 10 chunks raw 54905 gzip 22050
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js copy.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 14 chunks: three.module.js index.js plan.js paint.js index.js index.js seed.js index.js plan.js index.js plan.js index.js paint.js index.js
+  full (initial+all dynamic): raw 700701 gzip 211025
+  three in initial: false
+  activated (cards): 14 chunks raw 590450 gzip 162517

@@ -1,0 +1,80 @@
+registry chunk: reveal.js {"fireworks":"index.Bmu1VjIx.js","cards":"index.WIxlOF-I.js","ladder":"index.DWJQxe1z.js","zones":"index.DgFFhogk.js","marbles":"index.BLO15H24.js","envelopes":"index.C_SM6e5a.js","flipcards":"index.WtFQCQJb.js"}
+## game/prize-zones/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 10 chunks raw 54905 gzip 22051
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js copy.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 14 chunks: three.module.js index.js plan.js paint.js index.js index.js seed.js index.js plan.js index.js plan.js index.js paint.js index.js
+  full (initial+all dynamic): raw 700701 gzip 211026
+  three in initial: false
+  activated (zones): 15 chunks raw 592845 gzip 163981
+## game/prize-marbles/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 10 chunks raw 54907 gzip 22052
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js copy.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 14 chunks: three.module.js index.js plan.js paint.js index.js index.js seed.js index.js plan.js index.js plan.js index.js paint.js index.js
+  full (initial+all dynamic): raw 700703 gzip 211027
+  three in initial: false
+  activated (marbles): 14 chunks raw 591713 gzip 163258
+## game/prize-envelopes/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 10 chunks raw 54909 gzip 22053
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js copy.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 14 chunks: three.module.js index.js plan.js paint.js index.js index.js seed.js index.js plan.js index.js plan.js index.js paint.js index.js
+  full (initial+all dynamic): raw 700705 gzip 211028
+  three in initial: false
+  activated (envelopes): 14 chunks raw 590496 gzip 162546
+## game/prize-flipcards/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 10 chunks raw 54909 gzip 22056
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js copy.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 14 chunks: three.module.js index.js plan.js paint.js index.js index.js seed.js index.js plan.js index.js plan.js index.js paint.js index.js
+  full (initial+all dynamic): raw 700705 gzip 211031
+  three in initial: false
+  activated (flipcards): 14 chunks raw 590454 gzip 162523
+## game/prize-fireworks/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 10 chunks raw 54909 gzip 22053
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js copy.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 14 chunks: three.module.js index.js plan.js paint.js index.js index.js seed.js index.js plan.js index.js plan.js index.js paint.js index.js
+  full (initial+all dynamic): raw 700705 gzip 211028
+  three in initial: false
+  activated (fireworks): 14 chunks raw 597323 gzip 164880
+## game/prize-cards/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 10 chunks raw 54905 gzip 22050
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js copy.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 14 chunks: three.module.js index.js plan.js paint.js index.js index.js seed.js index.js plan.js index.js plan.js index.js paint.js index.js
+  full (initial+all dynamic): raw 700701 gzip 211025
+  three in initial: false
+  activated (cards): 15 chunks raw 601496 gzip 167368
+## game/prize-ladder/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 10 chunks raw 54906 gzip 22050
+  initial chunks: play.astro_astro_type_script_index_0_lang.js names-dom.js copy.js _render-hold.js preload-helper.js reveal.js event.js _arm-gate.js demo.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 14 chunks: three.module.js index.js plan.js paint.js index.js index.js seed.js index.js plan.js index.js plan.js index.js paint.js index.js
+  full (initial+all dynamic): raw 700702 gzip 211025
+  three in initial: false
+  activated (ladder): 15 chunks raw 597963 gzip 166168
+## game/prize-draw/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 13 chunks raw 86639 gzip 35139
+  initial chunks: play.astro_astro_type_script_index_0_lang.js seed.js copy.js _render-hold.js plan.js event.js names-dom.js plan.js reveal.js preload-helper.js store.js _arm-gate.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 12 chunks: lobby-qr.js three.module.js index.js plan.js paint.js index.js index.js index.js index.js index.js paint.js index.js
+  full (initial+all dynamic): raw 725300 gzip 221017
+  three in initial: false
+  activated (fireworks+cards+ladder+zones+marbles+envelopes+flipcards): 24 chunks raw 718241 gzip 217271
+  activated, fireworks alone: 16 chunks raw 628727 gzip 177731
+  activated, cards alone: 17 chunks raw 632904 gzip 180222
+  activated, ladder alone: 16 chunks raw 620898 gzip 175009
+  activated, zones alone: 16 chunks raw 618857 gzip 174239
+  activated, marbles alone: 16 chunks raw 623119 gzip 176110
+  activated, envelopes alone: 17 chunks raw 622226 gzip 175632
+  activated, flipcards alone: 17 chunks raw 622184 gzip 175606
+## game/croc-bite/play
+  entries: PlayExit.astro_astro_type_script_index_0_lang.js, play.astro_astro_type_script_index_0_lang.js
+  initial: 11 chunks raw 607177 gzip 160670
+  initial chunks: play.astro_astro_type_script_index_0_lang.js _el.js name-list.js roster.js _arm-gate.js _render-hold.js croc-bite.js player-screen.js audio.js three.module.js PlayExit.astro_astro_type_script_index_0_lang.js
+  +lazy: 0 chunks: 
+  full (initial+all dynamic): raw 607177 gzip 160670
+  three in initial: true
+  activated (n/a): 11 chunks raw 607177 gzip 160670

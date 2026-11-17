@@ -1994,20 +1994,27 @@ const DEMO_PHONE_PX = new Map([
   ['prize-fireworks 390x844', 3217],
   ['prize-cards 320x568', 3429],
   ['prize-cards 390x844', 3153],
+  ['prize-zones 320x568', 3429],
+  ['prize-zones 390x844', 3153],
+  ['prize-marbles 320x568', 3429],
+  ['prize-marbles 390x844', 3153],
 ]);
+// Which owner ruling owns each demo phone row: the phase-1 four on 2026-11-14, the zones and marbles four on
+// 2026-11-17 (the same PD-305-03 layout, accepted again for the two phase-2 cut games).
+const DEMO_PHONE_RULED = new Map([...DEMO_PHONE_PX.keys()].map((key) => [key, /^prize-(zones|marbles) /.test(key) ? '2026-11-17' : '2026-11-14']));
 
-test('the four demo phone rows are recorded VERTICAL exceptions at their measured px, owned by the 2026-11-14 ruling', () => {
+test('the eight demo phone rows are recorded VERTICAL exceptions at their measured px, each owned by its ruling', () => {
   for (const [key, px] of DEMO_PHONE_PX) {
     const reason = KNOWN_OVERFLOW.get(key);
     assert.ok(reason, `${key} is not in KNOWN_OVERFLOW`);
-    assert.ok(reason.startsWith(`owner ruling 2026-11-14: ${px}px `), `${key} reads "${reason.slice(0, 60)}"`);
+    assert.ok(reason.startsWith(`owner ruling ${DEMO_PHONE_RULED.get(key)}: ${px}px `), `${key} reads "${reason.slice(0, 60)}"`);
     assert.match(reason, /0px clipped, 0px sideways/);
     assert.match(reason, /PD-305-03/);
     assert.ok(!FITS_ROWS.has(key), `${key}: a row in both sets reds as ambiguous`);
     assert.ok(!KNOWN_OVERFLOW_X.has(key), `${key}: the grant is vertical only`);
     assert.equal(KNOWN_OVERFLOW_SCREEN.get(key), 'round', key);
   }
-  for (const key of ['prize-fireworks 1440x900', 'prize-cards 1440x900', 'prize-ladder 320x568', 'prize-ladder 390x844', 'prize-ladder 1440x900']) {
+  for (const key of ['prize-fireworks 1440x900', 'prize-cards 1440x900', 'prize-ladder 320x568', 'prize-ladder 390x844', 'prize-ladder 1440x900', 'prize-zones 1440x900', 'prize-marbles 1440x900', 'prize-envelopes 320x568', 'prize-envelopes 390x844', 'prize-envelopes 1440x900', 'prize-flipcards 320x568', 'prize-flipcards 390x844', 'prize-flipcards 1440x900']) {
     assert.ok(FITS_ROWS.has(key), `${key} must stay pinned as fitting`);
   }
 });
@@ -2046,7 +2053,7 @@ const SCROLL_ONLY_2026_11_16 = ['freeze-tap 320x568', 'zero-trigger 320x568', 'w
 const SCROLL_ONLY_2026_11_16B = ['cursed-number 320x568', 'cursed-number 390x844', 'cursed-number 1440x900', 'how-close-is-near 320x568'];
 const SCROLL_ONLY = ['prize-draw 320x568', ...DEMO_PHONE_PX.keys(), ...SCROLL_ONLY_2026_11_16, ...SCROLL_ONLY_2026_11_16B];
 
-test('the scroll-only rows are exactly the thirteen scroll rulings, each a KNOWN_OVERFLOW row recorded at 0px clipped', () => {
+test('the scroll-only rows are exactly the seventeen scroll rulings, each a KNOWN_OVERFLOW row recorded at 0px clipped', () => {
   assert.ok(fit.SCROLL_ONLY_ROWS instanceof Set, 'the probe exports its scroll-only set');
   assert.deepEqual([...fit.SCROLL_ONLY_ROWS].sort(), [...SCROLL_ONLY].sort());
   for (const key of fit.SCROLL_ONLY_ROWS) {
@@ -2085,4 +2092,30 @@ test('MUST-RED REFUTE 2026-11-14: one clipped px on a non-worst screen of a scro
   const red = runMainOnRows(rows);
   assert.equal(red.exitCode, 1, red.errors.join(' | '));
   assert.ok(red.errors.some((l) => l.includes('CLIPS content away') && l.includes('prize-cards')), red.errors.join(' | '));
+});
+
+// gh#315-gh#318 integration 2026-11-17: the phase-2 demo pages' rows that fit. Each read 0px to scroll, 0px
+// clipped and 0px sideways on its one screen, on three runs (ROUTES_ONLY of the four routes, the lane's own
+// --headless --disable-gpu --no-sandbox Chrome): docs/verification/evidence/gh315-318-bundle-2026-11-17/.
+// The zones and marbles phone rows scroll and are classified by nobody here: no owner has ruled on them.
+const PHASE2_FITS = [
+  'prize-zones 1440x900', 'prize-marbles 1440x900',
+  'prize-envelopes 320x568', 'prize-envelopes 390x844', 'prize-envelopes 1440x900',
+  'prize-flipcards 320x568', 'prize-flipcards 390x844', 'prize-flipcards 1440x900',
+];
+
+test('gh#315-gh#318: the eight phase-2 rows that measured zero are pinned as fitting, and only in FITS_ROWS', () => {
+  for (const key of PHASE2_FITS) {
+    assert.ok(FITS_ROWS.has(key), `${key} must be pinned as fitting`);
+    assert.ok(!KNOWN_OVERFLOW.has(key), `${key}: a row in both sets reds as ambiguous`);
+    assert.ok(!KNOWN_OVERFLOW_X.has(key), `${key}: a fitting row carries no horizontal grant`);
+  }
+});
+
+test('MUST-RED gh#315-gh#318: a vertical overflow on any pinned phase-2 row reds by name', () => {
+  for (const key of PHASE2_FITS) {
+    const red = runMainOn(key, pdScreen({ overflowPx: 3429, scrollPx: 3429 }));
+    assert.equal(red.exitCode, 1, `${key}: a pinned row that scrolls must red`);
+    assert.ok(red.errors.some((l) => l.includes('no longer fits VERTICALLY') && l.includes(key.split(' ')[0]) && l.includes(key.split(' ')[1])), `${key}: red for the wrong reason: ${red.errors.join(' | ')}`);
+  }
 });

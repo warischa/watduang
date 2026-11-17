@@ -30,7 +30,7 @@ import {
   type Person,
   type Rng,
 } from '../../prize-event/event.ts';
-import type { CutGame, FinalGame, GameChoices } from '../../prize-event/game-contract.ts';
+import { isPickFinal, type CutGame, type FinalGame, type GameChoices } from '../../prize-event/game-contract.ts';
 import { ELIMINATION_ROUNDS, proposeSchedule } from '../../prize-draw/schedule.ts';
 import { screenView } from '../../prize-event/view.ts';
 import type { CommittedOutcome, GameId } from './game-contract.ts';
@@ -48,6 +48,10 @@ export const DEMO_MODES: Record<GameId, readonly DemoMode[]> = {
   fireworks: ['round', 'final'],
   cards: ['round'],
   ladder: ['final'],
+  zones: ['round'],
+  marbles: ['round'],
+  envelopes: ['final'],
+  flipcards: ['final'],
 };
 
 /** 200 also keeps the cards demo legal: its proposed schedule cuts round 1 from 200 to exactly 100, and cards
@@ -148,7 +152,7 @@ export function demoRun(game: GameId, mode: DemoMode, prizeCount = DEMO_PRIZES):
   // The step into a ladder final draws its slot layout from the same source (event.ts advance).
   for (let round = 0; round < ELIMINATION_ROUNDS; round++) s = advance(revealDrawn(drawNext(s, rng)), rng);
   const start = s;
-  const picks = game === 'ladder' ? liveIds(s) : undefined;
+  const picks = game === 'ladder' || isPickFinal(game) ? liveIds(s) : undefined;
   const drawn = revealDrawn(drawNext(s, rng, picks));
   push(drawn, { kind: 'final', prizes: drawn.setup.prizes, ...drawn.final! });
   return { start, steps };

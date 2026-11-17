@@ -1,0 +1,40 @@
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { chromium } from '<scratch>';
+import { fakeOrigin,mount,storedEvent } from './src/play/prize-draw/stage-harness.mjs';
+import { fitFrame } from './src/play/_prize-reveal/reveal.ts';
+const repo='<scratch>';
+const escape=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
+function serialize(node) {
+ if(node.nodeType===3) return escape(node.textContent);
+ const attrs=new Map(node.attrs);
+ const style=[...node.style.props];
+ for(const [k,v] of Object.entries(node.style)) if(k!=='props' && typeof v==='string') style.push([k.replace(/[A-Z]/g,c=>`-${c.toLowerCase()}`),v]);
+ if(style.length) attrs.set('style',style.map(([k,v])=>`${k}:${v}`).join(';'));
+ if(node.hidden) attrs.set('hidden','');
+ return `<${node.tagName.toLowerCase()} ${[...attrs].map(([k,v])=>`${k}="${escape(v)}"`).join(' ')}>${node.childNodes.map(serialize).join('')}</${node.tagName.toLowerCase()}>`;
+}
+const shared=`${repo}/src/play/_prize-reveal`;
+const styles=[...readdirSync(shared).filter(n=>n.endsWith('.css')).map(n=>`${shared}/${n}`),`${repo}/src/play/prize-draw/play.css`];
+const css=styles.map(p=>readFileSync(p,'utf8')).join('\n');
+const browser=await chromium.launch({headless:true,channel:'chrome'});
+try {
+ const page=await browser.newPage({viewport:{width:320,height:700}});
+ for(const game of ['zones','marbles']) {
+  const origin=fakeOrigin();
+  storedEvent(origin,{n:50,games:{rounds:[game,null,null,null],final:null}});
+  const s=await mount({origin});
+  const viewport=s.root.querySelector('.pd-viewport');
+  viewport.getBoundingClientRect=()=>({width:320,height:700,x:0,y:0,top:0,left:0,right:320,bottom:700});
+  viewport.clientWidth=320; viewport.clientHeight=700;
+  const scaled=s.root.querySelector('.pd-scaled');
+  fitFrame(viewport,scaled);
+  await page.setContent(`<html><head><style>${css}</style></head><body>${serialize(s.root)}</body></html>`);
+  const metrics=await page.evaluate(()=>{
+   const chip=document.querySelector('.pd-chip');
+   const cs=getComputedStyle(chip);
+   const scaled=document.querySelector('.pd-scaled');
+   return {screen:document.querySelector('.pd-frame').dataset.screen,field:document.querySelector('.pd-viewport').hasAttribute('data-field'),fontSize:cs.fontSize,rect:chip.getBoundingClientRect().toJSON(),transform:getComputedStyle(scaled).transform,scaleInline:scaled.getAttribute('style'),innerWidth};
+  });
+  console.log(JSON.stringify({game,styles:styles.map(p=>p.slice(repo.length)),...metrics}));
+ }
+} finally {await browser.close();}

@@ -1,0 +1,9 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { eventKeyOf } from './src/play/prize-zones/renderer/plan.ts';
+for (const key of ['048213:round1:000123','demo:048213:round1:000123']) {
+ test(`accept ${key}`,()=>assert.equal(eventKeyOf(key,1),'048213'));
+}
+for (const key of ['unrecognised:048213:round1:000123','a:b:048213:round1:000123']) {
+ test(`refuse ${key}`,()=>assert.throws(()=>eventKeyOf(key,1)));
+}

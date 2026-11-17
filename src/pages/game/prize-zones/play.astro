@@ -1,0 +1,31 @@
+---
+// gh#315 -- the zones game's own page: full screen, no ads, a fixed demo of the game played in memory through
+// src/play/prize-zones/ (the play surface, ADR-0055) and the shared reveal host in src/play/_prize-reveal/. It
+// reads and stores no event: the real event runs on the prize-draw projector.
+//
+// Page chrome only here: the shared exit control and the clipped crawl link (PlayExit.astro) sit outside
+// src/play/**, which is where ADR-0014 puts every navigation target. No PlayerScreen: the company-party
+// category carries no party-group roster (ADR-0075).
+//
+// No ad slot, on purpose and under test: scripts/landing-claims-check.mjs (its ads claim) reads the built
+// page and reds an ad slot on any play route.
+import Base from '../../../layouts/Base.astro';
+import PlayExit from '../../../shell/PlayExit.astro';
+import markup from '../../../play/prize-zones/markup.html?raw';
+import '../../../play/_prize-reveal/reveal.css';
+import '../../../play/_prize-reveal/demo.css';
+import { byId } from '../../../games/manifest';
+
+const game = byId('prize-zones');
+if (!game) throw new Error('prize-zones is not registered in the manifest');
+---
+
+<Base title={game.seo.title} description={game.seo.description} ogImage={`/og/${game.og}`} chrome>
+  <PlayExit />
+  <Fragment set:html={markup} />
+</Base>
+
+<script>
+  // Bundled, never inline (ADR-0005).
+  import '../../../play/prize-zones/main.ts';
+</script>

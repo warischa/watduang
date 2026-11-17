@@ -1,0 +1,308 @@
+{
+ "prize-marbles-1440-mid.png": {
+  "audit": {
+   "scale": 0.75,
+   "frameOrigin": [
+    0.0,
+    73.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 0,
+    "blueLit": 0,
+    "blueDim": 0,
+    "glow": 0,
+    "gold": 0,
+    "light": 0
+   },
+   "laneBandPinkBlue": 0,
+   "lanesWithMarblePx": 0,
+   "finishGold": 1088,
+   "platesRaisedOrGold": 108299,
+   "bandGoldOrLight": 14619
+  },
+  "before": {
+   "scale": 0.75,
+   "frameOrigin": [
+    0.0,
+    73.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 0,
+    "blueLit": 0,
+    "blueDim": 0,
+    "glow": 0,
+    "gold": 0,
+    "light": 0
+   },
+   "laneBandPinkBlue": 0,
+   "lanesWithMarblePx": 0,
+   "finishGold": 1088,
+   "platesRaisedOrGold": 108299,
+   "bandGoldOrLight": 14619
+  },
+  "after": {
+   "scale": 0.75,
+   "frameOrigin": [
+    0.0,
+    73.0
+   ],
+   "laneBand": {
+    "pinkLit": 1369,
+    "pinkDim": 570,
+    "blueLit": 1386,
+    "blueDim": 684,
+    "glow": 0,
+    "gold": 0,
+    "light": 3038
+   },
+   "laneBandPinkBlue": 4009,
+   "lanesWithMarblePx": 20,
+   "finishGold": 1088,
+   "platesRaisedOrGold": 108299,
+   "bandGoldOrLight": 14619
+  }
+ },
+ "prize-marbles-1440-freeze.png": {
+  "audit": {
+   "scale": 0.75,
+   "frameOrigin": [
+    0.0,
+    73.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 0,
+    "blueLit": 0,
+    "blueDim": 0,
+    "glow": 0,
+    "gold": 0,
+    "light": 0
+   },
+   "laneBandPinkBlue": 0,
+   "lanesWithMarblePx": 0,
+   "finishGold": 1088,
+   "platesRaisedOrGold": 51424,
+   "bandGoldOrLight": 18490
+  },
+  "before": {
+   "scale": 0.75,
+   "frameOrigin": [
+    0.0,
+    73.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 0,
+    "blueLit": 0,
+    "blueDim": 0,
+    "glow": 0,
+    "gold": 0,
+    "light": 0
+   },
+   "laneBandPinkBlue": 0,
+   "lanesWithMarblePx": 0,
+   "finishGold": 1088,
+   "platesRaisedOrGold": 51424,
+   "bandGoldOrLight": 18490
+  },
+  "after": {
+   "scale": 0.75,
+   "frameOrigin": [
+    0.0,
+    73.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 1106,
+    "blueLit": 0,
+    "blueDim": 1134,
+    "glow": 1356,
+    "gold": 1429,
+    "light": 144
+   },
+   "laneBandPinkBlue": 2240,
+   "lanesWithMarblePx": 17,
+   "finishGold": 1080,
+   "platesRaisedOrGold": 51424,
+   "bandGoldOrLight": 18490
+  }
+ },
+ "prize-marbles-1920-mid.png": {
+  "audit": {
+   "scale": 0.9481,
+   "frameOrigin": [
+    49.8,
+    56.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 0,
+    "blueLit": 0,
+    "blueDim": 0,
+    "glow": 0,
+    "gold": 0,
+    "light": 0
+   },
+   "laneBandPinkBlue": 0,
+   "lanesWithMarblePx": 0,
+   "finishGold": 2748,
+   "platesRaisedOrGold": 172762,
+   "bandGoldOrLight": 23176
+  },
+  "after": {
+   "scale": 0.9481,
+   "frameOrigin": [
+    49.8,
+    56.0
+   ],
+   "laneBand": {
+    "pinkLit": 2228,
+    "pinkDim": 882,
+    "blueLit": 2240,
+    "blueDim": 1019,
+    "glow": 0,
+    "gold": 0,
+    "light": 4869
+   },
+   "laneBandPinkBlue": 6369,
+   "lanesWithMarblePx": 20,
+   "finishGold": 2748,
+   "platesRaisedOrGold": 172762,
+   "bandGoldOrLight": 23176
+  }
+ },
+ "prize-marbles-1920-freeze.png": {
+  "audit": {
+   "scale": 0.9481,
+   "frameOrigin": [
+    49.8,
+    56.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 0,
+    "blueLit": 0,
+    "blueDim": 0,
+    "glow": 0,
+    "gold": 0,
+    "light": 0
+   },
+   "laneBandPinkBlue": 0,
+   "lanesWithMarblePx": 0,
+   "finishGold": 2748,
+   "platesRaisedOrGold": 83163,
+   "bandGoldOrLight": 29485
+  },
+  "after": {
+   "scale": 0.9481,
+   "frameOrigin": [
+    49.8,
+    56.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 1757,
+    "blueLit": 0,
+    "blueDim": 1824,
+    "glow": 2303,
+    "gold": 2352,
+    "light": 238
+   },
+   "laneBandPinkBlue": 3581,
+   "lanesWithMarblePx": 20,
+   "finishGold": 2690,
+   "platesRaisedOrGold": 83163,
+   "bandGoldOrLight": 29485
+  }
+ },
+ "projector-marbles-1920-mid.png": {
+  "audit": {
+   "scale": 0.9481,
+   "frameOrigin": [
+    49.8,
+    56.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 0,
+    "blueLit": 0,
+    "blueDim": 0,
+    "glow": 0,
+    "gold": 0,
+    "light": 0
+   },
+   "laneBandPinkBlue": 0,
+   "lanesWithMarblePx": 0,
+   "finishGold": 2748,
+   "platesRaisedOrGold": 157869,
+   "bandGoldOrLight": 22962
+  },
+  "after": {
+   "scale": 0.9481,
+   "frameOrigin": [
+    49.8,
+    56.0
+   ],
+   "laneBand": {
+    "pinkLit": 2198,
+    "pinkDim": 896,
+    "blueLit": 2214,
+    "blueDim": 1030,
+    "glow": 0,
+    "gold": 0,
+    "light": 4867
+   },
+   "laneBandPinkBlue": 6338,
+   "lanesWithMarblePx": 20,
+   "finishGold": 2748,
+   "platesRaisedOrGold": 157869,
+   "bandGoldOrLight": 20408
+  }
+ },
+ "projector-marbles-1920-freeze.png": {
+  "audit": {
+   "scale": 0.9481,
+   "frameOrigin": [
+    49.8,
+    56.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 0,
+    "blueLit": 0,
+    "blueDim": 0,
+    "glow": 0,
+    "gold": 0,
+    "light": 0
+   },
+   "laneBandPinkBlue": 0,
+   "lanesWithMarblePx": 0,
+   "finishGold": 2748,
+   "platesRaisedOrGold": 86067,
+   "bandGoldOrLight": 24181
+  },
+  "after": {
+   "scale": 0.9481,
+   "frameOrigin": [
+    49.8,
+    56.0
+   ],
+   "laneBand": {
+    "pinkLit": 0,
+    "pinkDim": 930,
+    "blueLit": 0,
+    "blueDim": 918,
+    "glow": 2409,
+    "gold": 2359,
+    "light": 356
+   },
+   "laneBandPinkBlue": 1848,
+   "lanesWithMarblePx": 20,
+   "finishGold": 2715,
+   "platesRaisedOrGold": 78049,
+   "bandGoldOrLight": 24181
+  }
+ }
+}

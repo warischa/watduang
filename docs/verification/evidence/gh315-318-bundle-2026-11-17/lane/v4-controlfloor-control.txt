@@ -1,0 +1,4 @@
+RED as expected: floorless mutant -> claim 1 (a floor resolves), .game-btn only — 6/6 control(s)
+RED as expected: floorless mutant -> claim 3 (rect >= 44px), every control — 246/246 control(s)
+RED as expected: squashed mutant  -> claim 2 (rect >= resolved floor), .game-btn only — 6/6 control(s)
+OK control: every claim red on every control it applies to, across 25 game page(s) / 246 control(s) at 320px (mutants applied inline with the important flag and reverted in the same evaluate; no file changed). This total is NOT comparable with the normal run's: the mutant settle holds ~520ms per screen and these games advance on their own clock, so screen 2 lands later in the round.

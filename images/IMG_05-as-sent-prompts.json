@@ -1,0 +1,281 @@
+{
+ "_about": "Extracted from each Codex session log (~/.codex/sessions/2026/11/<day>/rollout-*.jsonl): every image_gen call Codex made for one render of IMG_05_001 to IMG_05_008, in order, with the prompt Codex itself wrote for the tool (Codex rewrites the prompt it is given, so these are NOT the registry text). picked = the call whose output sha256 equals the file Codex saved to the requested path, which is the file copied byte-identical to images/. references_at_image_tool = what that call passed as referenced_image_paths: the style anchor images/IMG_02_003.png, the previous call's output, or none. Renders that were discarded and re-rendered (IMG_05_004, IMG_05_007 twice, IMG_05_008) are not listed here; the registry notes name why. This file lives under images/ because the gh303-art evidence directory is outside the brief for the 2026-11-16 render; the extractor is the gh303-art one with the session glob widened and references_at_image_tool added, and it lives in the session scratch directory, not in the repo. Local paths are replaced by placeholders.",
+ "renders": [
+  {
+   "id": "IMG_05_001",
+   "codex_session": "01a1e3e6-d613-7fa0-aee8-5f8cffcacb96",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "d36cf428cb0fcc8f9719a5fe1955f1dbe9cb72255e49463f948c33f124524428",
+   "calls": [
+    {
+     "generation_id": "exec-22e55e79-ba5e-469f-918e-26b86dbda9e0",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "38bf39bd37bd7d7f1bcf0e140ed496a81b950236010978aca4bb967c01dff5b1",
+     "prompt_as_sent_to_image_gen": "Input images: image 1 (images/IMG_02_003.png) is a STYLE REFERENCE only - match its rendering style, lighting and material finish; do not copy its subject.\n\nScene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.\n\nSubject: a chubby toy mosaic of four big rounded square tiles in a two-by-two block, seen from a high front three-quarter view, each tile a thick soft-cornered slab in one flat colour with a small gap between tiles, and on each tile a tight cluster of three or four small upright capsule-shaped toy pegs of the same colour family standing like a seated or standing crowd marker, the pegs plain rounded capsules with a round domed top, no faces and no limbs. Subject colours: the four tiles festive red (#e63946), warm gold (#f5b301), mint teal (#2ec4b6) and leaf green (#7bc74d), each with soft lighter highlights of its own colour, the pegs in a slightly lighter tint of their tile and cream white (#fff8e8) tips. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no people, no faces, no hands, no limbs, no eyes, no letters, no numbers, no arrows, no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no money, no ground, no other props. No large lilac, navy or sky-blue area.\n\nStyle/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.\n\nComposition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.\n\nColor palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.\n\nConstraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection. Save the final PNG to: <scratch>/renders/IMG_05_001/IMG_05_001.png",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "style anchor images/IMG_02_003.png"
+     ],
+     "picked": false
+    },
+    {
+     "generation_id": "exec-bc08924b-d3fa-47a8-853d-9c7c34c5d4c3",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "d36cf428cb0fcc8f9719a5fe1955f1dbe9cb72255e49463f948c33f124524428",
+     "prompt_as_sent_to_image_gen": "Edit the supplied image. Preserve the illustration itself: exactly four chubby rounded square toy tiles in a 2x2 arrangement, red, gold, mint teal, and leaf green, with the same clusters of three or four plain upright rounded capsule pegs with cream domed tips, the same high front three-quarter view, and the same smooth lightly clear-coated satin toy rendering with upper-left studio light. Preserve all shapes, colors, proportions, and details.\n\nCorrect ONLY the alpha matte and framing. Every part of each solid toy tile and peg must be FULLY OPAQUE (alpha 255). Only the crisp antialiased silhouette edges may have partial alpha. Every background pixel must be fully transparent (alpha 0); remove all stray nearly transparent pixels around the object, including the canvas edges. Use a square 1:1 PNG canvas. Center the entire subject with generous even transparent margins on all four sides. No cropping.\n\nNo new objects, no faces, no limbs, no text, no numbers, no logo, no ground, no floor, no cast shadow, no contact shadow beneath the subject, no reflection, no backdrop, no glow, no haze, no checkerboard. Genuine transparent PNG background.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "previous call output"
+     ],
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_05_002",
+   "codex_session": "01a1e3eb-ae91-71c1-8cde-d916d9d969fa",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "e25a159022036f7f6f8b5bb21a11eaab7a084382a4532e4ba20450d4dbabd24b",
+   "calls": [
+    {
+     "generation_id": "exec-e3f63f51-964f-481d-91cf-828843469882",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "1e56bc244984877fc47e59d827ba26e9768761ed4049ec007bd2c54273dc0423",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: square 1:1 transparent PNG game-card illustration for the game grid of a Thai party-game website.\nInput image 1 is a STYLE REFERENCE ONLY: match the soft rounded premium 3D toy rendering, lighting, shading and lightly clear-coated vinyl material finish. Do NOT copy its crocodile subject, anatomy, face, eyes, mouth, limbs or silhouette.\n\nCreate one isolated chubby toy stadium block, made of EXACTLY FOUR wedge-shaped terraced seating sections set side by side in ONE gentle curve, seen from a HIGH FRONT THREE-QUARTER VIEW. It must read at a glance as a miniature stadium grandstand. The four sections are neighboring colour zones of the same cohesive subject; no full stadium ring, no playing field. Each section is a stepped rounded slab with EXACTLY THREE clearly separated tiers, with a row of small rounded toy seats on each tier. Rounded chunky seat backs and rounded seat cushions, all solid plastic, no people. All three tiers must be visible and readable. Each section's slab, steps and every seat use that section's own single colour, with only lighter or darker shading of the same colour. From left to right: festive red (#e63946), warm gold (#f5b301), mint teal (#2ec4b6), leaf green (#7bc74d). These four clear colour zones should be legible even at thumbnail size.\n\nAt the top rear of EACH section, one small chunky cream-white standing flag-post / pennant pole (#fff8e8), with a simple rounded cream-white mount integrated into the section, carrying exactly one plain, solid opaque triangular pennant of that same section colour. EXACTLY FOUR flag-posts, one red pennant over red, one gold over gold, one mint teal over mint teal, one leaf green over leaf green. No text or design on pennants. Keep flags separate and visible above their sections. Everything belongs to this one compact stadium grandstand toy.\n\nStyle/medium: SOFT 3D TOY RENDER, rounded vinyl or clay toy, smooth satin and lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion only in the toy's own creases, small soft specular highlights, premium designer toy / modern 3D mobile-game mascot finish. A soft studio key light from upper left with soft neutral fill. Saturated material colours softly lit, no whole-image colour grade, no coloured environment rim light. Not photorealistic, no realistic surface texture, no ink outlines, not flat vector, not a sticker. Every part is solid and opaque with crisp clean edges. No glow, haze, mist, motion blur or translucency.\n\nComposition/framing: ONE cohesive subject centered on a square 1:1 canvas with even clear margins on all four sides. Whole subject and all four pennants entirely inside frame, nothing cropped. High front three-quarter camera angle shows the stepped tiers and seats. Large enough for a small game-card thumbnail. Keep subject visually balanced, chubby, friendly and compact.\n\nBackground/output: fully TRANSPARENT background, true PNG ALPHA CHANNEL, completely empty outside the toy silhouette. NO background of any kind, no scenery, no solid backdrop, no gradient, no checkerboard baked into image. NO drop shadow, NO cast shadow or contact shadow beneath the subject, NO floor, NO ground plane, NO reflection. Ambient occlusion is allowed only on the subject itself.\n\nSTRICT EXCLUSIONS: nothing else in frame. No people, no human figures, no spectators, no faces, no eyes, no hands, no limbs, no characters, no animals. No text, letters, numbers, logos, brand marks, watermarks. No bottle, can, champagne, wine, alcohol, drinking glass, cup, drink of any kind, toasting, money or other props. No large lilac, navy or sky-blue areas. Coral (#f89880) must never be a large area because this illustration will sit on a coral card.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "style anchor images/IMG_02_003.png"
+     ],
+     "picked": false
+    },
+    {
+     "generation_id": "exec-5275f1b3-82b8-4629-9364-a1a9465ffee4",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "e25a159022036f7f6f8b5bb21a11eaab7a084382a4532e4ba20450d4dbabd24b",
+     "prompt_as_sent_to_image_gen": "Refine this stadium image with TWO technical corrections only: (1) scale the entire stadium toy INCLUDING ALL FOUR FLAGS down to fit comfortably inside the square canvas, centered, with substantial clean transparent margin at left and right (at least 10% of canvas width). Keep top/bottom visually centered; no part touches the frame, no stray pixels outside silhouette. (2) Make all material surfaces FULLY OPAQUE, alpha=255 throughout the interior of the subject. Only a narrow crisp antialiased edge may have intermediate alpha. Outside the toy must be pure transparency, alpha=0, with no residual haze, no shadow.\n\nPreserve the same high front three-quarter view and the exact design: one curved stadium grandstand toy of FOUR wedge-shaped rounded blocks, red #e63946, gold #f5b301, mint teal #2ec4b6, leaf green #7bc74d, left to right. EXACTLY THREE terraced rows of small rounded toy seats per section, all seats and slabs matching their section colour. EXACTLY FOUR chunky cream-white #fff8e8 flag-posts, each on top of its own section carrying a plain solid triangular pennant matching that section colour. Preserve the chubby rounded proportions, smooth satin clear-coated vinyl finish, upper-left soft studio key light, soft neutral fill, small specular highlights, soft volumetric shading and ambient occlusion only within the toy's creases. Crisp edges. No other creative changes.\n\nSquare 1:1 PNG with a TRUE ALPHA CHANNEL. Isolated single object. NO background, NO floor, NO ground, NO contact or cast shadow beneath the subject, NO reflection, NO checkerboard, NO glow, haze, mist, motion blur. Every part solid and opaque. NO people, eyes, faces, hands, limbs, animals, spectators, letters, numbers, text, logos, brand marks, watermarks, drinks, bottles, cans, cups, glasses, wine, champagne, alcohol, money, field, or other props. No large lilac, navy, sky-blue or coral area.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "previous call output"
+     ],
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_05_003",
+   "codex_session": "01a1e3eb-ae91-7a13-a1a9-4246d3cd58aa",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "027ddb5594b47eb694f4a64d5bd79e53e211a4d9b64e43bb6ac38199f27dc7bd",
+   "calls": [
+    {
+     "generation_id": "exec-e0c50883-f5b3-4efa-875d-02c9510c60ad",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "ecb704131e16616f3e138cb0a1e2399393bb95e387fe2c889b9a03f7725147c0",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept\nAsset type: a square 1:1 game-card illustration for the game grid of a Thai party-game website, instantly readable as a small thumbnail.\nInput image 1: STYLE REFERENCE ONLY. Match its polished soft 3D toy rendering, rounded forms, upper-left studio lighting and lightly clear-coated materials. Do not copy the crocodile, any character, facial features or subject from the reference.\nScene/backdrop: fully transparent empty background, actual PNG alpha. No backdrop or ground.\nSubject: one isolated assembled marble-racing toy consisting of exactly THREE chubby marbles, exactly THREE parallel grooved toy lanes, and ONE plain thick warm-gold finish bar spanning all three lanes at the downhill lower end.\nGeometry and camera: front three-quarter view. The three thick rounded cream tracks run parallel diagonally from upper left (high starting end) to lower right (low finishing end), clearly descending. Each track has its own rounded recessed channel and pale gold raised edges. Each of the THREE balls sits in its own lane. Stagger the balls longitudinally: one marble is clearly ahead near the finish, one is midway, and one farther uphill. Keep the marbles similar in size, round and prominent. The finish bar is a simple solid thick rounded gold crosspiece across the three lane ends, perpendicular to travel. No markings or patterns.\nPalette: red marble #e63946 with a smooth cream swirl, mint-teal marble #2ec4b6 with a smooth cream swirl, warm-gold marble #f5b301 with a smooth cream swirl. Cream tracks #fff8e8 with pale gold #ffd966 edges. Finish bar warm gold #f5b301 with pale gold highlights.\nMaterials: every part solid and opaque, crisp edges. Each ball has a glossy glass-like clear-coated toy finish, a smooth colour-and-cream swirl visually inside its opaque material, and one small soft specular highlight. The balls are NOT transparent, translucent, clear or bubbles. Rounded vinyl/clay toy character to all forms, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the toy's creases only. No realistic surface texture.\nLighting: soft studio key light upper left, soft fill, gentle small highlights. Saturated material colours softly lit with no overall colour grade and no coloured environmental rim light.\nComposition: centre the entire assembled subject with even clear margin on all four sides, whole subject inside frame, nothing cropped. Large readable toy forms and simple silhouette.\nHard exclusions: absolutely no background of any kind, no scenery, no solid backdrop, no gradient backdrop, no checkerboard, no chequered flag, no pattern on finish bar, no cast shadow or contact shadow beneath the subject, no floor, no ground, no reflection, no glow, no haze, no mist, no motion blur. No other props. No people, human figures, faces, eyes, hands, limbs, animals or crocodile. No bottles, cans, drinking glasses, cups, drinks, champagne, wine, alcohol or toasting. No money. No text, letters, numbers, logos, brand marks or watermark. No large lilac, navy, sky-blue or coral area. Not photorealistic, no ink outline, not flat vector, not a sticker. True transparent PNG alpha is mandatory.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "style anchor images/IMG_02_003.png"
+     ],
+     "picked": false
+    },
+    {
+     "generation_id": "exec-761e3d48-e86f-494e-ba63-7271208aed45",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "027ddb5594b47eb694f4a64d5bd79e53e211a4d9b64e43bb6ac38199f27dc7bd",
+     "prompt_as_sent_to_image_gen": "Use case: precise-object-edit.\nCorrect the marble-racing toy in the input image. Preserve its polished soft 3D toy style, its red, teal and gold opaque cream-swirl marbles, cream and pale-gold track palette, plain thick gold finish bar, upper-left studio lighting, transparent background and absence of extra props or text.\nRequired geometric correction: it currently has only TWO grooved channels and the teal ball sits on the divider. Rebuild the track as exactly THREE clearly visible, distinct, parallel recessed channels, one for EACH marble. There must be FOUR continuous parallel raised pale-gold rails total: left outer rail, first inner divider, second inner divider, right outer rail. Between these four rails are three cream-white rounded groove floors. Each channel has the same width and each ball fits entirely within its own channel, centered in the groove, without sitting on or bridging a rail.\nPlace the gold ball in the left channel uphill, the teal ball in the middle channel midway down, the red ball in the right channel clearly leading near the gold finish bar. Make the overall track wider as needed to visibly accommodate THREE lanes. Show all three channel floors clearly above and below their respective marbles. Three lanes run from upper-left higher start to lower-right lower finish, front three-quarter view. One plain rounded gold finish bar spans ALL THREE channels at the same downhill end. No markings on the bar.\nCentre the whole complete object within a square image with even clear padding around all four sides; keep all parts inside the frame.\nAll marbles are solid opaque glossy glass-look balls, NOT translucent, not clear, not bubbles, each with smooth cream swirl and a small soft highlight. All parts have crisp edges and smooth lightly clear-coated toy surfaces. No realistic texture, no outline, no sticker border.\nFully transparent background and true PNG alpha. No floor, ground, reflection, shadow beneath the toy, no backdrop, no checkerboard, no glow, haze, motion blur, text, letters, numbers, logos, watermark, people, hands, faces, eyes, limbs, animals, bottles, cups, glasses, cans, alcohol, drinks, money, flags or other props. No large lilac, navy, sky-blue or coral area.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "previous call output"
+     ],
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_05_004",
+   "codex_session": "01a1e3f2-51e6-7352-805f-ee2054227a7c",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 3,
+   "master_sha256": "07526ab9d4da5b9a94d032785a7cce38db5df96906cd58b36688269de2c9ac52",
+   "calls": [
+    {
+     "generation_id": "exec-d9d62710-1ca6-4e64-805b-f1fc73459dca",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "07526ab9d4da5b9a94d032785a7cce38db5df96906cd58b36688269de2c9ac52",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: isolated square game-card illustration for the game grid of a Thai party-game website.\n\nINPUT IMAGE ROLE: Image 1 is a STYLE REFERENCE ONLY. Match its soft 3D toy rendering, studio lighting, rounded forms, material polish and finish. Do not copy the crocodile, creature anatomy, eyes, mouth, green palette, silhouette or any part of its subject. Create the entirely new subject below.\n\nSUBJECT: One compact, chubby toy marble race track seen from a high front three-quarter view. EXACTLY FOUR short, straight, parallel cream lanes run away from the viewer side by side. Make all four lanes clearly readable, with low thick softly rounded dividers and a small solid cream tray base. No curves or spirals. In the lanes are SIX festive toy marbles, staggered at different positions, one marble clearly ahead toward the finish. At the FAR END of the lanes, a PLAIN SOLID WARM GOLD finish arch spans ALL FOUR lanes. Its shape is a simple thick rounded semicircular half-ring on two short round posts. The open arch has no banner, hanging part, ornament, flag, board or text.\n\nMARBLES: Each is a solid, OPAQUE, glossy glass-look toy sphere. Give each a smooth contrasting colour swirl that reads as an internal swirled design within an opaque ball, and ONE small soft specular highlight. Do not make any ball clear, transparent or translucent. Use festive red (#e63946), mint teal (#2ec4b6), warm gold (#f5b301) and cream white (#fff8e8), with contrasting swirls from those same colours. Keep the balls round and solid.\n\nMATERIAL COLOURS: lanes cream white (#fff8e8) with soft form shading. Arch warm gold (#f5b301), pale gold highlights (#ffd966). All objects solid and opaque with crisp clean edges. Saturated material colours, softly lit, without an overall colour grade or coloured environment rim light. No large lilac, navy, sky-blue, or coral areas.\n\nSTYLE / MEDIUM: SOFT 3D TOY RENDER, rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces. Soft volumetric form shading and gentle ambient occlusion only within subject creases. Soft studio key light from upper left and gentle fill. Small soft highlights, like the premium modern mobile-game toy finish in the style reference. No realistic surface texture. Not photorealistic. No ink outlines. Not flat vector. Not a sticker.\n\nCOMPOSITION: One complete unified subject centered on a square 1:1 canvas. Whole track, every marble and entire gold arch fully inside the frame. Even generous transparent margins on all four sides, about 10 percent. Compact friendly chunky silhouette. Readable as a small thumbnail.\n\nBACKGROUND: TRUE FULLY TRANSPARENT ALPHA. Absolutely no scenery, solid backdrop, gradient, checkerboard pattern, floor, ground, reflection, cast shadow, contact shadow beneath the subject, glow, mist, haze or motion blur. Preserve holes through the arch as genuinely transparent where no track or marble is behind them.\n\nSTRICT EXCLUSIONS: Nothing else in frame. No checkerboard, chequered flag, banner, people, faces, hands, limbs, eyes, letters, numbers, bottles, cans, champagne, wine, drinking glass, cups, drinks of any kind, alcohol, toasting, money, additional props, logos, brand marks, watermarks or text. The only objects are the four-lane cream toy track, six solid opaque swirl marbles, and the simple gold half-ring finish arch.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "style anchor images/IMG_02_003.png"
+     ],
+     "picked": true
+    },
+    {
+     "generation_id": "exec-43a831ee-404b-4b6a-b71c-80f283b74453",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "d9c89452ae0b0dc8cc77fa7b547b6fbd19a68e64f78a15f2d4ea71446492d508",
+     "prompt_as_sent_to_image_gen": "Edit this marble-race toy illustration. Keep the subject design, soft 3D vinyl rendering, exact four cream straight lanes, all six opaque colourful swirl marbles, gold half-ring arch on two short round posts at the far finish end, high front three-quarter camera, colours and soft upper-left studio lighting. Do not add or remove any subject parts.\n\nONLY refine the isolated transparent cutout: remove every stray pixel, speck, fringe, halo, detached fleck, residual backdrop and shadow outside the actual toy silhouette. Make all solid subject interiors fully opaque (alpha 255), including the cream toy track, every marble, and the gold arch. No translucency, no transparent glass, no glow. All empty background and the empty opening inside the arch must be completely transparent (alpha 0), with only a narrow clean antialiased boundary on the crisp object edges. No floor or shadow beneath the subject.\n\nCenter the whole complete illustration on a square transparent canvas with approximately equal 10 percent clear padding on every side. Everything fully inside frame, uncropped, readable at thumbnail size. No new props, checkerboard, text, numerals, letters, logos, flags, banner, people or drinkware. Preserve the plain warm gold finish arch and six solid opaque swirl marbles exactly. Output a PNG with a true transparent alpha channel.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "previous call output"
+     ],
+     "picked": false
+    },
+    {
+     "generation_id": "exec-4fb32f5d-3782-4f74-8891-9f54656474f4",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "c212632fbf2819ed633158bab6f35eb2558112fa4e89a800aa407236a9ba5a40",
+     "prompt_as_sent_to_image_gen": "Create a NEW square 1:1 isolated game-card illustration of a chubby toy marble race track on a completely transparent background.\n\nA compact cream-white (#fff8e8) track viewed from a high front three-quarter angle: EXACTLY FOUR short straight lanes side by side, running away from the viewer, separated by three low thick rounded cream dividers. At the far end a PLAIN thick rounded warm-gold (#f5b301) semicircular half-ring arch stands on two short round cylindrical posts and spans all four lanes as the finish line. No banner or decoration on the arch. SIX solid glossy toy marbles sit at staggered positions in the lanes, with one ahead toward the arch. All six marbles are completely opaque smooth balls with contrasting curved internal-looking colour swirls. Ball colours festive red #e63946, mint teal #2ec4b6, warm gold #f5b301, and cream white #fff8e8; swirl colours use the same palette. One small soft specular highlight on each ball. No transparent or clear glass.\n\nSOFT 3D TOY RENDER, premium designer vinyl or clay toy, chunky rounded friendly geometry, smooth satin lightly clear-coated material, soft volumetric shading and subtle ambient occlusion in creases. Soft studio key light upper left, soft fill. Arch highlights pale gold #ffd966. Saturated material colours softly lit, no colour grade or coloured rim light, no realistic textures, no ink outline, no flat vector or sticker look.\n\nClean polished cutout with solid fully opaque subject interiors and crisp clean antialiased edges. Entire toy centered, all parts fully visible with even generous empty margin on all four sides, approximately 12 percent. Keep the track SHORT and compact so the complete silhouette is easily readable as a small thumbnail.\n\nAll background pixels MUST be fully transparent: alpha 0. Solid subject interiors MUST have alpha 255. Empty opening of arch transparent. NO stray pixels, speckles, detached flecks, fringe, halo, glow, dust, mist, haze or motion blur. Absolutely NO shadow beneath the subject, contact shadow beneath the subject, ground, floor, reflection, backdrop, solid background, gradient background or checkerboard pattern.\n\nNothing else: NO chequered flag, banner, text, letters, numbers, logos, brand marks, watermark, people, faces, hands, eyes, limbs, bottles, cans, champagne, wine, glassware, cups, drinks, alcohol, money or extra props. No large lilac, navy, sky-blue or coral areas. ONLY the complete cream four-lane toy race track, six colourful solid opaque swirl marbles, and plain warm-gold half-ring finish gate.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "none"
+     ],
+     "picked": false
+    }
+   ]
+  },
+  {
+   "id": "IMG_05_005",
+   "codex_session": "01a1e3eb-ae91-7dd0-a964-54ca94f9e33a",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "c9a499e2f10da39465aaf57845da53e4f4f42888bb45024cd2ff361accd88c85",
+   "calls": [
+    {
+     "generation_id": "exec-a60e09bf-e322-49c1-bdff-248439ef00a6",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "83a0635e34262d0a3928011a6b4438d466c77532aeb32b00e014261ec372a86a",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept. Create one square 1:1 transparent PNG game-card illustration for the grid of a Thai party-game website.\nREFERENCE: Image 1 is STYLE REFERENCE ONLY. Match its soft 3D toy rendering, smooth lightly clear-coated vinyl/clay material finish, rounded volumes, soft upper-left studio key light and fill, gentle ambient occlusion in creases, and small soft glossy highlights. Do not copy its animal subject, colors, face, eyes, mouth, teeth, limbs, tail, or silhouette.\nSUBJECT: EXACTLY FIVE chubby toy red gift envelopes standing upright side by side in one even horizontal row, slightly leaning against each other with a little height stagger so the row feels happy. All five are clearly countable and individually visible, with no envelope hidden behind another. Each is a thick soft-cornered rounded rectangular pouch seen from the front, closed and flat-fronted, with a closed rounded envelope flap, a small round warm-gold seal button at the flap point, and a thin warm-gold border band following the front edge. Their closed flaps have warm-gold edges. The envelopes contain nothing visible. A few (two) envelopes have a small simple cream-white ribbon tie around their middle. No decorations beyond the gold border bands, gold flap edges, circular seals, and those simple cream ribbon ties. All surfaces fully solid and opaque with crisp clean silhouettes and only edge antialiasing.\nCOLORS: festive-red envelopes #e63946, soft lighter red highlights #ff6b6b. Border bands, circular seal buttons and flap edges warm gold #f5b301, pale gold highlights #ffd966. Ribbon ties cream white #fff8e8. Saturated but softly lit, no global color cast or environment-colored rim light. Coral #f89880 never a large area. No large lilac, navy or sky-blue area.\nSTYLE: SOFT 3D TOY RENDER, rounded premium designer toys / modern 3D mobile-game assets. Smooth satin lightly clear-coated finish, soft volumetric shading, gentle ambient occlusion only within subject creases and between adjacent envelopes. No photorealism, no realistic surface texture, no ink outline, no flat vector, no sticker outline or sticker backing.\nCOMPOSITION: One isolated five-envelope group, centered both vertically and horizontally in a square canvas, generous and visually even transparent margins on all four sides; entire group fully inside frame, no crops. Readable at small thumbnail size. Front-facing with just enough depth to show their thick rounded toy edges. Five in one single row, never stacked or arranged as a fan.\nBACKGROUND: ABSOLUTELY NO background of any kind; true alpha transparency, no solid backdrop, scenery, gradient, checkerboard pixels, ground, floor, reflection, cast shadow, contact shadow, drop shadow or shadow beneath subject. No glow, mist, haze, motion blur or translucent subject parts.\nEXCLUDE: characters or glyphs of any script, text, letters, numbers, stars, patterns, logos, brand marks, watermarks, paper money, banknotes, coins, any money visible, people, faces, hands, limbs, eyes, bottles, cans, champagne, wine, alcohol, drinking glasses, cups, any drinks, toasting, or any extra props. Render only the five closed red envelopes with the specified gold trims and cream ribbon ties.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "style anchor images/IMG_02_003.png"
+     ],
+     "picked": false
+    },
+    {
+     "generation_id": "exec-e7dc9b59-3c27-417b-a445-aae7e48edc53",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "c9a499e2f10da39465aaf57845da53e4f4f42888bb45024cd2ff361accd88c85",
+     "prompt_as_sent_to_image_gen": "Use case: precise-object-edit. Correct only the canvas and alpha of this five-envelope game-card image. FINAL PNG MUST HAVE A PERFECTLY SQUARE 1:1 PIXEL CANVAS, preferably exactly 1024 x 1024 pixels. Never crop the square canvas to content; retain transparent padding. Center the existing five-envelope row as a single group horizontally and vertically with no subject parts clipped and generous transparent margins. Preserve EXACTLY FIVE closed chubby festive-red toy envelopes in one horizontal even row, slightly leaning together with small height stagger, all front-facing and individually countable, warm-gold thin border bands and closed rounded flap edges and round seal buttons, and exactly two simple cream-white ribbon ties as in the input. Preserve the soft glossy satin 3D toy material, soft upper-left studio light, saturated softly lit red and warm gold palette, crisp clean edges, shape and details. Subject materials must be COMPLETELY OPAQUE with alpha 255 on every interior subject pixel; alpha 0 for the entire empty background; partial alpha ONLY on the few antialiased outer edge pixels. No isolated stray pixels. No background, no checkerboard pixels, no shadows beneath the row, no floor, no reflections, no haze or glow. No extra objects, no currency, coins, drinks, characters, text, glyphs, letters, numbers, logo, face, eyes, hands or limbs. The only requested correction is a truly square transparent canvas with solid opaque subject interiors and clean background alpha.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "previous call output"
+     ],
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_05_006",
+   "codex_session": "01a1e3eb-ae91-74f0-bf30-d19de67b1cdf",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "ad6607e9881b7e84dc01368d0947e671f35d66b0a2a64b0639d81b435cbe9c3a",
+   "calls": [
+    {
+     "generation_id": "exec-7ce2f8b6-0532-4724-94e1-77448b031c73",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "5e20eea6cbf48d096c486a3eed6997e492bf20997cf729018d22c5afd01144ab",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept\nAsset type: square game-card illustration for the game grid of a Thai party-game website.\n\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft dimensional toy rendering, light direction, rounded modeling, smooth lightly clear-coated material finish, rich subject-local colors and small soft highlights. DO NOT copy the crocodile or any other part of its subject, anatomy, colors or composition.\n\nPrimary request: Exactly FIVE chubby toy gift envelopes forming ONE cohesive isolated subject, in ONE evenly spaced horizontal row, upright and CLOSED. Every envelope is a thick, soft-cornered, padded pouch shape with an unmistakable closed envelope flap. Slight playful fan-like leaning progresses across the row from left to right, while all five fronts remain readable. The central third envelope is lifted slightly higher than its neighbors. All five are similar size, fully visible, modestly separated or barely touching; no stacked layers and no second row.\n\nLeft to right, envelope body colors and exactly one plain gold front ornament each:\n1. FESTIVE RED envelope, a simple solid round gold seal on its front.\n2. CREAM WHITE envelope, a small solid softly rounded gold diamond on its front.\n3. FESTIVE RED envelope, a solid plump gold ribbon bow on its front.\n4. CREAM WHITE envelope, a small solid gold flower with exactly FIVE ROUND PETALS on its front.\n5. FESTIVE RED envelope, a simple solid rounded gold knot on its front.\n\nThe color order MUST be RED-CREAM-RED-CREAM-RED. Gold trim around the envelope edges and flap is thick, rounded and simple. Front ornaments are plain solid gold sculptural pieces, without inscriptions or internal decoration. These ornaments are not characters, symbols of writing, logos or coins; they are attached to each envelope.\n\nPalette: red bodies festive red #e63946 with soft lighter highlights #ff6b6b. Cream bodies cream white #fff8e8 with soft warm shading. All trim, seals and ornaments warm gold #f5b301 with pale gold highlights #ffd966. Saturated but softly lit. Preserve these distinct body colors without an overall color grade. No colored environmental rim light. Coral #f89880 must never be a large area because the game card behind this transparent illustration will be coral. No large lilac, navy or sky-blue area.\n\nStyle/medium: SOFT 3D TOY RENDER. Thick, rounded vinyl or clay toy forms, smooth satin lightly clear-coated surfaces, soft volumetric shading and gentle ambient occlusion only in the subject's creases. Soft studio key light from upper left and a soft neutral fill. Small soft specular highlights on glossy parts, like a premium designer toy or modern 3D mobile-game mascot. Every part is solid and opaque with crisp clean silhouette edges. No realistic surface texture, no ink outline, not flat vector, not a sticker, not photorealistic.\n\nComposition: square 1:1 canvas. Center the complete five-envelope group with even, generous transparent outer margins. Whole subject fits in frame, nothing cropped. Clear silhouette and distinct five ornaments readable as a small thumbnail. Camera is near frontal with slight 3D depth, showing the softly rounded thickness.\n\nBackground/output: TRUE FULLY TRANSPARENT BACKGROUND and true PNG alpha channel. There is absolutely no backdrop, scenery, solid background, gradient background or checkerboard pattern. Absolutely no floor, ground, cast shadow, contact shadow beneath the subject, drop shadow, reflection, glow, haze, soft mist or motion blur. Internal self-shading and crease occlusion are allowed on the opaque envelopes themselves.\n\nStrict exclusions: Nothing else in frame. NO characters or glyphs of ANY script, NO text, letters, numbers, logos, brand marks or watermarks. NO stars. NO paper money, banknotes, coins or visible money of any kind. NO people, animals, faces, hands, limbs or eyes. NO bottles, cans, champagne, wine, glasses, cups, drinks, alcohol or toasting. NO extra props. EXACTLY five closed envelopes and their attached gold trim and ornaments, with all other pixels transparent.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "style anchor images/IMG_02_003.png"
+     ],
+     "picked": false
+    },
+    {
+     "generation_id": "exec-1960e2fd-83ae-4dfd-ac3d-faf1a4c7ce16",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "ad6607e9881b7e84dc01368d0947e671f35d66b0a2a64b0639d81b435cbe9c3a",
+     "prompt_as_sent_to_image_gen": "Edit this image only to correct the background and framing. Preserve exactly the same five 3D toy envelopes, colors, closed flaps, gold edge trim and five gold front ornaments, in the same left-to-right order: red with round seal, cream with rounded diamond, red with bow, cream with five round petal flower, red with round knot. The middle red bow envelope is raised slightly. Preserve the soft designer vinyl toy modeling and lighting.\n\nCRITICAL FIX: REMOVE ALL of the yellow/gold halo, bloom, light fog, colored haze and every other background pixel around the subject. The only visible pixels may belong to the five solid opaque envelopes and their attached gold trim/ornaments. There is NO illumination or glow leaking into surrounding empty space. Make the subject completely opaque and edges crisp with normal fine antialiasing. Outside the actual envelope silhouettes, EVERY pixel must have alpha 0. Genuine transparent PNG alpha background. Do not render black, white, gray, checkerboard or any other background. No shadow underneath, no ground, no floor, no reflection, no extra props.\n\nCRITICAL FRAMING FIX: output a SQUARE 1:1 canvas. Zoom out and center the intact five-envelope row within this square, with generous and balanced transparent space on all four sides. Whole subject must be visible without cropping. Do not alter the shape or relative arrangement of envelopes to fill the square. No text, no logos, no numbers, no people, no faces, no stars, no coins, no money, no drinks.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "previous call output"
+     ],
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_05_007",
+   "codex_session": "01a1e3f8-5e53-7f41-901c-01f723ffb070",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "96e48ca4e107c24cfe5398713eebf50ee2612e02da23db870fd719334739208f",
+   "calls": [
+    {
+     "generation_id": "exec-1096f47d-4cc0-4dfc-b9c5-4fafd2558a91",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "0466547c7056c0786121f46ae3be043c0dc5e0e4908fae16e797c413cf376fa6",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: a square game-card illustration for the game grid of a Thai party-game website.\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft 3D toy rendering, lighting, and material finish. Do not depict or copy its crocodile, anatomy, expression, or subject.\n\nCreate exactly ONE isolated arrangement: a straight row of exactly FIVE chubby toy playing-card-shaped slabs, all standing upright side by side, close together but separated by small clear gaps, with no overlap. The row recedes a little in perspective, viewed from a high front three-quarter camera. All five have thick cream-white edges, softly rounded corners, and lean slightly backward.\nThe left-to-right sequence is: mint-teal back, mint-teal back, cream face with ONE gold star, mint-teal back, mint-teal back. There must be exactly two card backs on each side of the middle card.\nThe FOUR face-down cards show ONLY a plain mint teal (#2ec4b6) back with a thin warm gold (#f5b301) inset border and absolutely no other marking. Their cream-white (#fff8e8) slab thickness is visible.\nThe THIRD / middle card is caught mid-turn around its vertical axis, approximately one third of a turn from its original back-facing position, showing its cream-white (#fff8e8) face at a clear oblique angle. Its face contains ONE single large, simple five-point warm gold (#f5b301) star in the centre, easily recognizable at thumbnail size. Its face is otherwise blank. The turning pose is visibly different from the four backs, but its star remains broad and readable, not edge-on. No arrows or motion trails.\n\nStyle: SOFT 3D TOY RENDER, rounded premium vinyl or clay toy, smooth satin lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion only within the object's creases and bevels. Soft studio key from upper left with soft fill and small soft specular highlights. Use the reference's appealing premium mobile-game-toy finish. No realistic surface texture, no ink outline, no flat vector, no sticker edge.\nSubject materials are fully solid and opaque, with crisp clean cutout edges. Saturated material colours softly lit, no overall colour grading, no coloured environmental rim light. No large lilac, navy, sky-blue, or coral area.\n\nComposition: square 1:1 canvas, centred complete arrangement with balanced generous clear margins on all four sides. Whole subject fully inside frame, nothing cropped. Designed to remain readable as a small thumbnail.\n\nBackground: ACTUAL FULL TRANSPARENCY, true PNG alpha channel. Empty pixels around and between the five cards must be transparent. Absolutely no scene, solid backdrop, gradient backdrop, checkerboard illustration, floor, ground, reflection, drop shadow, cast shadow, or contact shadow underneath the cards. Do not create any shadow plane.\nAvoid everything beyond the five card slabs and their specified markings: no extra cards, no star or pattern on any card back, no suits, pips, rank letters, numbers, text, letters, logos, brand marks, watermark, felt, chips, tokens, coins, money, dice, people, faces, hands, limbs, eyes, animals, bottles, cans, champagne, wine, glasses, cups, drinks, alcohol, toasting, or other props. No glow, soft mist, haze, motion blur, or translucent materials.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "style anchor images/IMG_02_003.png"
+     ],
+     "picked": false
+    },
+    {
+     "generation_id": "exec-778246cb-a7d4-487c-ba44-66a0cd865431",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "96e48ca4e107c24cfe5398713eebf50ee2612e02da23db870fd719334739208f",
+     "prompt_as_sent_to_image_gen": "Refine this generated five-card toy illustration. Preserve the exact five-card arrangement, the shape, colours, soft 3D vinyl materials, upper-left lighting, four plain teal backs with thin gold borders, and the single gold star on the cream face of the turning centre card.\nMake only these corrections:\n1. Clean the alpha cutout meticulously. Remove ALL stray islands, pale fringe, speckling and ghost pixels outside the five actual card silhouettes. All pixels beyond the clean antialiased silhouettes must have alpha exactly zero. Each card's material must be fully opaque with alpha 255, with antialiasing only at its immediate outline, never transparent interiors. Transparent gaps between cards, no floor or cast/contact/drop shadow.\n2. Pull the camera back slightly so the complete five-card row occupies about 80 percent of the square canvas width, with at least 10 percent clear transparent margin on the left and right, and centre the group vertically and horizontally. Nothing cropped.\nDo not add any object, pattern, star on the backs, text, numbers, motion trails, backdrop, haze or glow. Exactly five upright thick cream-edged rounded card slabs in one straight slightly receding row; four mint teal #2ec4b6 backs with thin warm gold #f5b301 borders, one turning blank cream #fff8e8 face with exactly one large gold star. Keep the centre card oblique in mid-turn, star readable. Square PNG with actual transparent background.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "previous call output"
+     ],
+     "picked": true
+    }
+   ]
+  },
+  {
+   "id": "IMG_05_008",
+   "codex_session": "01a1e3f2-51e6-7b72-a3f8-c85016d660e9",
+   "codex_cli_version": "0.167.0",
+   "image_gen_calls": 2,
+   "master_sha256": "2f9d7b3433bacfd6e308db3096386ae6ec2ccd1c49e85fd5b6afbae84af78198",
+   "calls": [
+    {
+     "generation_id": "exec-9184cbb3-49e4-49ed-8d69-24e7c84c41d3",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "6888a7d98a6af31e9953a018d6aa11fd5a428f968131a87bf5bb98ddd87b1b1c",
+     "prompt_as_sent_to_image_gen": "Use case: stylized-concept.\nAsset type: square transparent PNG game-card illustration for the game grid of a Thai party-game website.\n\nInput image 1 is a STYLE REFERENCE ONLY. Match its soft 3D toy rendering, lighting and smooth lightly clear-coated material finish. Do not copy the crocodile or any anatomical or subject elements.\n\nPrimary request: ONE isolated subject made of EXACTLY FIVE chubby blank toy cards in a single row, leaning against each other like toppling dominoes. Each card is a thick, soft-cornered rounded rectangular slab. Show the row in front three-quarter view. The first FOUR cards show only their plain warm-gold backs, each with a single thin mint-teal inset border and NO other marking. The FIFTH and final card at the end of the row is flipped over onto its blank cream-white face, clearly tilted toward the viewer, bearing exactly ONE warm-gold five-point star in its centre. Make that star immediately readable. Arrange the five cards with enough visible separation/offset that all five slabs can be distinguished. The flipped card remains a visibly card-shaped thick rounded slab, matching the other cards.\n\nPalette: backs warm gold #f5b301, thin mint teal borders #2ec4b6, all card edges cream white #fff8e8, fifth face cream white #fff8e8, single central star warm gold #f5b301. Solid opaque material throughout, crisp clean edges; antialiasing only at silhouette boundaries.\n\nStyle/medium: SOFT 3D TOY RENDER, premium rounded vinyl or clay designer toy, smooth satin lightly clear-coated surfaces, soft volumetric shading and gentle ambient occlusion only in subject creases and overlaps. Soft studio key from upper left plus soft fill, small soft specular highlights. Saturated material colours softly lit. NOT photorealistic, no realistic surface texture, no ink outlines, not flat vector, not a sticker.\n\nComposition/framing: square 1:1. One centred cohesive five-card subject with even generous margins on all four sides. Whole subject entirely inside frame, nothing cropped. Strong simple silhouette readable as a small thumbnail.\n\nBackground: FULLY TRANSPARENT real alpha channel. Absolutely no background, scenery, solid backdrop, gradient, checkerboard, floor, ground, reflection, cast shadow, contact shadow beneath the subject, or drop shadow. No glow, mist, haze, motion blur, overall colour grade, or coloured environmental rim light.\n\nConstraints: EXACTLY FIVE cards total, FOUR plain gold backs with thin teal borders, ONE cream face with ONE centred gold star. No star on any back. No back pattern beyond the thin border. No other symbols, suits, pips, rank letters, numbers, felt, chips, tokens, coins, money, dice, people, faces, hands, limbs, eyes, letters, bottle, champagne, wine, glass, cup, drink, alcohol, cans, toasting, other props, logos, brand marks, watermarks, or text. No large lilac, navy, sky-blue, or coral area. Nothing else in frame.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "style anchor images/IMG_02_003.png"
+     ],
+     "picked": false
+    },
+    {
+     "generation_id": "exec-83173344-2a43-40ea-bf61-7fa56798a40f",
+     "status": "completed",
+     "transparentBackground_result": true,
+     "sha256": "2f9d7b3433bacfd6e308db3096386ae6ec2ccd1c49e85fd5b6afbae84af78198",
+     "prompt_as_sent_to_image_gen": "Edit the provided five-card toy illustration. Keep exactly the same five-card subject, shapes, arrangement, camera, gold/cream/mint palette, single central gold star on the final cream face, and soft 3D clear-coated toy style. Four backs remain plain gold with only a thin mint border; no additional markings.\n\nCorrect ONLY the opacity/cutout quality: all card surfaces and their interior pixels must be solid fully opaque, alpha 255. Outside the five-card silhouette must be completely transparent, alpha 0. Use crisp clean antialiased contour edges, with partial alpha restricted only to the outermost edge pixels. Remove all faint stray alpha speckles, white fringe, colour fringe, haze and residual pixels outside the subject, including near the top and sides. Do not add any drop shadow, cast shadow, contact shadow, floor, reflection, backdrop or checkerboard. Keep the full subject inside a square frame, with balanced clear margins. Deliver a real RGBA PNG with a fully transparent background. No other objects, symbols, text, letters or numbers.",
+     "transparent_background_arg": true,
+     "references_at_image_tool": [
+      "previous call output"
+     ],
+     "picked": true
+    }
+   ]
+  }
+ ]
+}

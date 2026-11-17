@@ -1,0 +1,52 @@
+// Phase-2 prize-draw demo pages: shots + manifest + timings. usage: node shoot.mjs <route> [widths csv] [rm]
+// route = zones | marbles | envelopes | flipcards. Reuses lib.mjs / ev.mjs (raw CDP, setDeviceMetricsOverride, in-page getContext wrapper).
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+import { phaseNow, wd2 } from './ev.mjs';
+const route = process.argv[2];
+const widths = (process.argv[3] || '320,390,1440,1920').split(',').map(Number);
+const withRm = process.argv[4] === 'rm';
+const HEIGHT = { 320: 568, 390: 844, 1440: 900, 1920: 1080 };
+const MID = { zones: ['cut:1', 300], envelopes: ['prize:3', 1500], flipcards: ['prize:3', 1500], marbles: ['cut:4', 2500] };
+const LAST = { marbles: 'cut:9' };
+const mf = join(OUT, 'manifest.json'), tf = join(OUT, 'timings.json'), cf = join(OUT, 'console.json');
+const load = (f, d) => (existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : d);
+const add = (f, fn) => { const v = load(f, f === mf ? [] : {}); fn(v); writeFileSync(f, JSON.stringify(v, null, 1)); };
+async function leg(W, rm) {
+  const H = HEIGHT[W]; const T = await openTab({ reducedMotion: rm });
+  await T.view(W, H, false); await T.nav(`${BASE}/game/prize-${route}/play/`); await T.view(W, H, false);
+  if (rm) await T.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  await sleep(800);
+  const inner = await T.ev('return innerWidth'); const rmRead = await T.ev(`return matchMedia('(prefers-reduced-motion: reduce)').matches`);
+  const tag = (s) => `prize-${route}-${W}${rm ? '-rm' : ''}-${s}`;
+  const rows = []; const fire = async (state, file, glState) => rows.push({ file: file + '.png', route: `/game/prize-${route}/play/`, width: W, height: H, state, innerWidthRead: inner, webgl2Live: glState, reducedMotion: rmRead ? 'yes' : 'no', rect: globalThis.rectNow ?? null });
+  await T.shot(tag('idle')); await fire('idle', tag('idle'), 'n-a');
+  const tPress = Date.now(); await T.tapEl('.pr-go', null, { settleMs: 450 }); const t0 = Date.now();
+  let midDone = false, midAt = null, sawCanvas = false, resultMs = null, freezeBuf = null, freezePhase = null, midGl = 'n-a';
+  const [midPhase, midDelay] = MID[route]; const lastPhase = LAST[route];
+  const shotBuf = async () => (await T.send('Page.captureScreenshot', { format: 'png' })).result.data;
+  while (Date.now() - t0 < 150000) {
+    const r = await T.ev(`const c=document.querySelector('.pr-3d canvas'); return {c:!!c, b:[...document.querySelectorAll('.pr-bar button')].map(b=>b.textContent.trim()).join('|'), scr:document.querySelector('.pd-frame')?.getAttribute('data-screen')}`);
+    const ms = Date.now() - t0; const ph = r.c ? await phaseNow(T) : '-';
+    if (r.c) sawCanvas = true;
+    if (!r.c && /ดูอีกครั้ง/.test(r.b) && (sawCanvas || ms > 150)) { resultMs = ms; break; }
+    if (r.c && !rm && !midDone && ph === midPhase) { midAt = midAt ?? Date.now(); if (Date.now() - midAt >= midDelay) { globalThis.rectNow = await T.ev(`const r=document.querySelector('.pr-3d canvas').getBoundingClientRect(); return {x:r.left,y:r.top,w:r.width,h:r.height}`); await T.shot(tag('mid')); const w = await wd2(T); midGl = w.ctx.some((c) => c.ok && c.type === 'webgl2') ? 'yes' : 'no'; await fire(`mid (phase ${ph} +${Date.now() - midAt}ms)`, tag('mid'), midGl); midDone = true; } }
+    if (r.c && !rm && lastPhase && ph === lastPhase) { const b = await shotBuf(); const again = await T.ev(`return !!document.querySelector('.pr-3d canvas')`); if (again) { freezeBuf = b; freezePhase = ph; } }
+    await sleep(40);
+  }
+  await sleep(900);
+  const gl = await wd2(T); const glLive = gl.ctx.some((c) => c.ok && c.type === 'webgl2') ? 'yes' : (W >= 640 ? 'no' : 'n-a');
+  const renderer = [...new Set(gl.ctx.filter((c) => c.renderer).map((c) => c.renderer))];
+  await T.shot(tag('result')); await fire('result', tag('result'), W >= 640 && !rm ? glLive : (sawCanvas ? glLive : 'n-a'));
+  if (freezeBuf) { writeFileSync(join(OUT, 'shots', tag('freeze') + '.png'), Buffer.from(freezeBuf, 'base64')); await fire(`freeze (last 3D frame of phase ${freezePhase}, canvas still up)`, tag('freeze'), glLive); }
+  if (!rm && W >= 640) rows.filter((x) => x.state === 'idle').forEach((x) => { x.webgl2Live = glLive; });
+  const cons = { exceptions: T.S.exceptions.slice(), consoleErrors: T.S.console.filter((c) => c.type === 'error').map((c) => c.text), logErrors: T.S.log.filter((l) => l.level === 'error').map((l) => `${l.source}: ${l.text} ${l.url}`), glContextsLost: gl.lost.length, renderer, glContextsCreated: gl.ctx.filter((c) => c.ok).length, sawCanvas };
+  add(mf, (v) => v.push(...rows));
+  add(tf, (v) => { v[`${route}-${W}${rm ? '-rm' : ''}`] = { msFirstPressToResult: resultMs, n: 1, note: resultMs === null ? 'result not seen in 150s' : undefined, sawCanvas }; });
+  add(cf, (v) => { v[`${route}-${W}${rm ? '-rm' : ''}`] = cons; });
+  console.log(route, W, rm ? 'rm' : '', 'inner', inner, 'result', resultMs, 'mid', midDone, 'freeze', !!freezeBuf, 'gl', glLive, 'errs', cons.exceptions.length + cons.consoleErrors.length + cons.logErrors.length);
+  await T.close();
+}
+if (withRm) await leg(1440, true); else for (const W of widths) await leg(W, false);
+process.exit(0);

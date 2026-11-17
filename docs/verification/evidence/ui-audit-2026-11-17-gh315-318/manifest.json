@@ -1,0 +1,832 @@
+[
+ {
+  "file": "prize-zones-320-idle.png",
+  "route": "/game/prize-zones/play/",
+  "width": 320,
+  "height": 568,
+  "state": "idle",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-320-result.png",
+  "route": "/game/prize-zones/play/",
+  "width": 320,
+  "height": 568,
+  "state": "result",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-390-idle.png",
+  "route": "/game/prize-zones/play/",
+  "width": 390,
+  "height": 844,
+  "state": "idle",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-390-result.png",
+  "route": "/game/prize-zones/play/",
+  "width": 390,
+  "height": 844,
+  "state": "result",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-1440-idle.png",
+  "route": "/game/prize-zones/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "idle",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-1440-mid.png",
+  "route": "/game/prize-zones/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "mid (phase cut:1 +456ms)",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-1440-result.png",
+  "route": "/game/prize-zones/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "result",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-1920-idle.png",
+  "route": "/game/prize-zones/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "idle",
+  "innerWidthRead": 1920,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-1920-mid.png",
+  "route": "/game/prize-zones/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "mid (phase cut:1 +489ms)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-1920-result.png",
+  "route": "/game/prize-zones/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "result",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-1440-rm-idle.png",
+  "route": "/game/prize-zones/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "idle",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "yes",
+  "note": "reduced motion: no 3D context created, the result paints at once"
+ },
+ {
+  "file": "prize-zones-1440-rm-result.png",
+  "route": "/game/prize-zones/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "result",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "yes",
+  "note": "reduced motion: no 3D context created, the result paints at once"
+ },
+ {
+  "file": "prize-envelopes-320-idle.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 320,
+  "height": 568,
+  "state": "idle",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-320-result.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 320,
+  "height": 568,
+  "state": "result",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-390-idle.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 390,
+  "height": 844,
+  "state": "idle",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-390-result.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 390,
+  "height": 844,
+  "state": "result",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-1440-idle.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "idle",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-1440-mid.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "mid (phase prize:3 +1600ms)",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-1440-result.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "result",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-1920-idle.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "idle",
+  "innerWidthRead": 1920,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-1920-mid.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "mid (phase prize:3 +1599ms)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-1920-result.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "result",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-1440-rm-idle.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "idle",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "yes",
+  "note": "reduced motion: no 3D context created, the result paints at once"
+ },
+ {
+  "file": "prize-envelopes-1440-rm-result.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "result",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "yes",
+  "note": "reduced motion: no 3D context created, the result paints at once"
+ },
+ {
+  "file": "prize-flipcards-320-idle.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 320,
+  "height": 568,
+  "state": "idle",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-320-result.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 320,
+  "height": 568,
+  "state": "result",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-390-idle.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 390,
+  "height": 844,
+  "state": "idle",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-390-result.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 390,
+  "height": 844,
+  "state": "result",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-1440-idle.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "idle",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-1440-mid.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "mid (phase prize:3 +1590ms)",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-1440-result.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "result",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-1920-idle.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "idle",
+  "innerWidthRead": 1920,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-1920-mid.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "mid (phase prize:3 +1626ms)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-1920-result.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "result",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-1440-rm-idle.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "idle",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "yes",
+  "note": "reduced motion: no 3D context created, the result paints at once"
+ },
+ {
+  "file": "prize-flipcards-1440-rm-result.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "result",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "yes",
+  "note": "reduced motion: no 3D context created, the result paints at once"
+ },
+ {
+  "file": "prize-marbles-320-idle.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 320,
+  "height": 568,
+  "state": "idle",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-320-result.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 320,
+  "height": 568,
+  "state": "result",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-390-idle.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 390,
+  "height": 844,
+  "state": "idle",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-390-result.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 390,
+  "height": 844,
+  "state": "result",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-1440-idle.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "idle",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-1440-mid.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "mid (phase cut:4 +2614ms)",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-1440-result.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "result",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-1440-freeze.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "freeze (last 3D frame of phase cut:9, canvas still up)",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-1920-idle.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "idle",
+  "innerWidthRead": 1920,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-1920-mid.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "mid (phase cut:4 +2623ms)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-1920-result.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "result",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-1920-freeze.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1920,
+  "height": 1080,
+  "state": "freeze (last 3D frame of phase cut:9, canvas still up)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-1440-rm-idle.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "idle",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "yes",
+  "note": "reduced motion: no 3D context created, the result paints at once"
+ },
+ {
+  "file": "prize-marbles-1440-rm-result.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "result",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "yes",
+  "note": "reduced motion: no 3D context created, the result paints at once"
+ },
+ {
+  "file": "setup-picker-320-default.png",
+  "route": "/game/prize-draw/",
+  "width": 320,
+  "height": 568,
+  "state": "setup, per-round game pickers, 40 names entered",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no",
+  "fullPageHeight": 5707,
+  "note": "full-page capture (captureBeyondViewport, cap 5000); viewport height is the height field"
+ },
+ {
+  "file": "setup-picker-320-picked.png",
+  "route": "/game/prize-draw/",
+  "width": 320,
+  "height": 568,
+  "state": "setup, picked r1 zones / r2 marbles / final envelopes",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no",
+  "fullPageHeight": 5707,
+  "note": "full-page capture (captureBeyondViewport, cap 5000); viewport height is the height field"
+ },
+ {
+  "file": "setup-picker-1440-default.png",
+  "route": "/game/prize-draw/",
+  "width": 1440,
+  "height": 900,
+  "state": "setup, per-round game pickers, 40 names entered",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no",
+  "fullPageHeight": 3315,
+  "note": "full-page capture (captureBeyondViewport, cap 5000); viewport height is the height field"
+ },
+ {
+  "file": "setup-picker-1440-picked.png",
+  "route": "/game/prize-draw/",
+  "width": 1440,
+  "height": 900,
+  "state": "setup, picked r1 zones / r2 marbles / final envelopes",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no",
+  "fullPageHeight": 3315,
+  "note": "full-page capture (captureBeyondViewport, cap 5000); viewport height is the height field"
+ },
+ {
+  "file": "projector-zones-1920-idle.png",
+  "route": "/game/prize-draw/play/ (projector, round 1 = zones)",
+  "width": 1920,
+  "height": 1080,
+  "state": "idle (round screen before press)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-zones-1920-mid.png",
+  "route": "/game/prize-draw/play/ (projector, round 1 = zones)",
+  "width": 1920,
+  "height": 1080,
+  "state": "mid (phase cut:1)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-zones-1920-result.png",
+  "route": "/game/prize-draw/play/ (projector, round 1 = zones)",
+  "width": 1920,
+  "height": 1080,
+  "state": "result (after the reveal)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-envelopes-1920-pick-empty.png",
+  "route": "/game/prize-draw/play/ (projector, final = envelopes)",
+  "width": 1920,
+  "height": 1080,
+  "state": "pick screen, before picks",
+  "innerWidthRead": 1920,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-envelopes-1920-pick-done.png",
+  "route": "/game/prize-draw/play/ (projector, final = envelopes)",
+  "width": 1920,
+  "height": 1080,
+  "state": "pick screen, five picks placed",
+  "innerWidthRead": 1920,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-envelopes-1920-mid.png",
+  "route": "/game/prize-draw/play/ (projector, final = envelopes)",
+  "width": 1920,
+  "height": 1080,
+  "state": "mid (phase prize:3)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-envelopes-1920-result.png",
+  "route": "/game/prize-draw/play/ (projector, final = envelopes)",
+  "width": 1920,
+  "height": 1080,
+  "state": "result (after the reveal)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-flipcards-1920-pick-empty.png",
+  "route": "/game/prize-draw/play/ (projector, final = flipcards)",
+  "width": 1920,
+  "height": 1080,
+  "state": "pick screen, before picks",
+  "innerWidthRead": 1920,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-flipcards-1920-pick-done.png",
+  "route": "/game/prize-draw/play/ (projector, final = flipcards)",
+  "width": 1920,
+  "height": 1080,
+  "state": "pick screen, five picks placed",
+  "innerWidthRead": 1920,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-flipcards-1920-mid.png",
+  "route": "/game/prize-draw/play/ (projector, final = flipcards)",
+  "width": 1920,
+  "height": 1080,
+  "state": "mid (phase prize:3)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-flipcards-1920-result.png",
+  "route": "/game/prize-draw/play/ (projector, final = flipcards)",
+  "width": 1920,
+  "height": 1080,
+  "state": "result (after the reveal)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-marbles-1920-idle.png",
+  "route": "/game/prize-draw/play/ (projector, round 1 = marbles)",
+  "width": 1920,
+  "height": 1080,
+  "state": "idle (round screen before press)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-marbles-1920-mid.png",
+  "route": "/game/prize-draw/play/ (projector, round 1 = marbles)",
+  "width": 1920,
+  "height": 1080,
+  "state": "mid (phase cut:0)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-marbles-1920-result.png",
+  "route": "/game/prize-draw/play/ (projector, round 1 = marbles)",
+  "width": 1920,
+  "height": 1080,
+  "state": "result (after the reveal)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "projector-marbles-1920-freeze.png",
+  "route": "/game/prize-draw/play/ (projector, round 1 = marbles)",
+  "width": 1920,
+  "height": 1080,
+  "state": "freeze (last 3D frame of final heat)",
+  "innerWidthRead": 1920,
+  "webgl2Live": "yes",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-320-result-top.png",
+  "route": "/game/prize-zones/play/",
+  "width": 320,
+  "height": 568,
+  "state": "result, every scroller reset to top (companion to -result, which is scrolled to the go button)",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-zones-390-result-top.png",
+  "route": "/game/prize-zones/play/",
+  "width": 390,
+  "height": 844,
+  "state": "result, every scroller reset to top (companion to -result, which is scrolled to the go button)",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-320-result-top.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 320,
+  "height": 568,
+  "state": "result, every scroller reset to top (companion to -result, which is scrolled to the go button)",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-marbles-390-result-top.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 390,
+  "height": 844,
+  "state": "result, every scroller reset to top (companion to -result, which is scrolled to the go button)",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-320-result-top.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 320,
+  "height": 568,
+  "state": "result, every scroller reset to top (companion to -result, which is scrolled to the go button)",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-envelopes-390-result-top.png",
+  "route": "/game/prize-envelopes/play/",
+  "width": 390,
+  "height": 844,
+  "state": "result, every scroller reset to top (companion to -result, which is scrolled to the go button)",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-320-result-top.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 320,
+  "height": 568,
+  "state": "result, every scroller reset to top (companion to -result, which is scrolled to the go button)",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "prize-flipcards-390-result-top.png",
+  "route": "/game/prize-flipcards/play/",
+  "width": 390,
+  "height": 844,
+  "state": "result, every scroller reset to top (companion to -result, which is scrolled to the go button)",
+  "innerWidthRead": 390,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no"
+ },
+ {
+  "file": "setup-picker-320-games-default.png",
+  "route": "/game/prize-draw/",
+  "width": 320,
+  "height": 1892,
+  "state": "setup, the five per-round game pickers (rounds 1-4 + final), nothing picked",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no",
+  "note": "element crop of the pickers' container (DIV#.games), captureBeyondViewport; viewport 320x568"
+ },
+ {
+  "file": "setup-picker-320-games-picked.png",
+  "route": "/game/prize-draw/",
+  "width": 320,
+  "height": 1892,
+  "state": "setup, pickers: round 1 zones, round 2 marbles, final envelopes",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no",
+  "note": "element crop of the pickers' container (DIV#.games), captureBeyondViewport; viewport 320x568"
+ },
+ {
+  "file": "setup-picker-1440-games-default.png",
+  "route": "/game/prize-draw/",
+  "width": 1440,
+  "height": 395,
+  "state": "setup, the five per-round game pickers (rounds 1-4 + final), nothing picked",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no",
+  "note": "element crop of the pickers' container (DIV#.games), captureBeyondViewport; viewport 1440x900"
+ },
+ {
+  "file": "setup-picker-1440-games-picked.png",
+  "route": "/game/prize-draw/",
+  "width": 1440,
+  "height": 395,
+  "state": "setup, pickers: round 1 zones, round 2 marbles, final envelopes",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no",
+  "note": "element crop of the pickers' container (DIV#.games), captureBeyondViewport; viewport 1440x900"
+ }
+]

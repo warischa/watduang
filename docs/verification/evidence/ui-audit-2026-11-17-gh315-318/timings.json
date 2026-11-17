@@ -1,0 +1,122 @@
+{
+ "zones-320": {
+  "msFirstPressToResult": 167,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "zones-390": {
+  "msFirstPressToResult": 168,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "zones-1440": {
+  "msFirstPressToResult": 8285,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "zones-1920": {
+  "msFirstPressToResult": 8259,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "zones-1440-rm": {
+  "msFirstPressToResult": 167,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "envelopes-320": {
+  "msFirstPressToResult": 168,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "envelopes-390": {
+  "msFirstPressToResult": 168,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "envelopes-1440": {
+  "msFirstPressToResult": 36760,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "envelopes-1920": {
+  "msFirstPressToResult": 36754,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "envelopes-1440-rm": {
+  "msFirstPressToResult": 168,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "flipcards-320": {
+  "msFirstPressToResult": 167,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "flipcards-390": {
+  "msFirstPressToResult": 167,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "flipcards-1440": {
+  "msFirstPressToResult": 36752,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "flipcards-1920": {
+  "msFirstPressToResult": 36756,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "flipcards-1440-rm": {
+  "msFirstPressToResult": 167,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "marbles-320": {
+  "msFirstPressToResult": 168,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "marbles-390": {
+  "msFirstPressToResult": 168,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "marbles-1440": {
+  "msFirstPressToResult": 77596,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "marbles-1920": {
+  "msFirstPressToResult": 77516,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "marbles-1440-rm": {
+  "msFirstPressToResult": 165,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "projector-zones-1920": {
+  "msFirstPressToResult": 8763,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "projector-marbles-1920": {
+  "msFirstPressToResult": 18797,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "projector-envelopes-1920": {
+  "msFirstPressToResult": 37270,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "projector-flipcards-1920": {
+  "msFirstPressToResult": 37269,
+  "n": 1,
+  "sawCanvas": true
+ }
+}

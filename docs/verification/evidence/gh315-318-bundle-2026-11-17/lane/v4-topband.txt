@@ -1,0 +1,1 @@
+OK 12 screen(s) across 4 route(s): both controls inside the 56px band, no route content intersects it (edit control read forced on: prize-envelopes, prize-flipcards, prize-marbles, prize-zones)

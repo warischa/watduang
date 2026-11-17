@@ -1,0 +1,23 @@
+// Phone legs (<640, 2D): a top-of-page companion for the result and the scrollers' extents. tapEl scrolls the go button to centre, so the plain result shot is the bottom of a scrolling field.
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { openTab, BASE, OUT, sleep } from './lib.mjs';
+const mf = join(OUT, 'manifest.json'); const cf = join(OUT, 'console.json');
+const load = (f, d) => (existsSync(f) ? JSON.parse(readFileSync(f, 'utf8')) : d);
+const rows = []; const info = {};
+for (const route of ['zones', 'marbles', 'envelopes', 'flipcards']) for (const [W, H] of [[320, 568], [390, 844]]) {
+  const T = await openTab(); await T.view(W, H, false); await T.nav(`${BASE}/game/prize-${route}/play/`); await T.view(W, H, false); await sleep(600);
+  const scr = `const out=[]; for(const e of document.querySelectorAll('*')){ const c=getComputedStyle(e); if((c.overflowY==='auto'||c.overflowY==='scroll')&&e.scrollHeight>e.clientHeight+2) out.push({el:e.tagName+'.'+String(e.className).split(' ')[0], sh:e.scrollHeight, ch:e.clientHeight}); } return {inner:innerWidth, scrollers:out, doc:[document.documentElement.scrollHeight, innerHeight]};`;
+  const idleInfo = await T.ev(scr);
+  await T.tapEl('.pr-go', null, { settleMs: 450 }); await T.waitFor(`/ดูอีกครั้ง/.test(document.querySelector('.pr-bar')?.textContent||'')`, 5000); await sleep(600);
+  const resInfo = await T.ev(scr);
+  await T.ev(`for(const e of document.querySelectorAll('*')) if(e.scrollTop) e.scrollTop=0; window.scrollTo(0,0); return 1`); await sleep(300);
+  const name = `prize-${route}-${W}-result-top`; await T.shot(name);
+  rows.push({ file: name + '.png', route: `/game/prize-${route}/play/`, width: W, height: H, state: 'result, every scroller reset to top (companion to -result, which is scrolled to the go button)', innerWidthRead: idleInfo.inner, webgl2Live: 'n-a', reducedMotion: 'no' });
+  info[`${route}-${W}`] = { idle: idleInfo, result: resInfo, exceptions: T.S.exceptions.length, consoleErrors: T.S.console.filter((c) => c.type === 'error').length };
+  await T.close();
+}
+const m = load(mf, []); m.push(...rows); writeFileSync(mf, JSON.stringify(m, null, 1));
+writeFileSync(join(OUT, 'phone-scrollers.json'), JSON.stringify(info, null, 1));
+console.log(JSON.stringify(Object.fromEntries(Object.entries(info).map(([k, v]) => [k, [v.idle.inner, v.idle.scrollers.map((s) => s.sh + '/' + s.ch).join(','), v.result.scrollers.map((s) => s.sh + '/' + s.ch).join(',')]]))));
+process.exit(0);

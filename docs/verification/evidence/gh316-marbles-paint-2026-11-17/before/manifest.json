@@ -1,0 +1,105 @@
+[
+ {
+  "file": "prize-marbles-1440-idle.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "idle",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no",
+  "rect": null
+ },
+ {
+  "file": "prize-marbles-1440-mid.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "mid (phase cut:4 +2613ms)",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no",
+  "rect": {
+   "x": 0,
+   "y": 56,
+   "w": 1440,
+   "h": 844
+  }
+ },
+ {
+  "file": "prize-marbles-1440-result.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "result",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no",
+  "rect": {
+   "x": 0,
+   "y": 56,
+   "w": 1440,
+   "h": 844
+  }
+ },
+ {
+  "file": "prize-marbles-1440-freeze.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "freeze (last 3D frame of phase cut:9, canvas still up)",
+  "innerWidthRead": 1440,
+  "webgl2Live": "yes",
+  "reducedMotion": "no",
+  "rect": {
+   "x": 0,
+   "y": 56,
+   "w": 1440,
+   "h": 844
+  }
+ },
+ {
+  "file": "prize-marbles-320-idle.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 320,
+  "height": 568,
+  "state": "idle",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no",
+  "rect": null
+ },
+ {
+  "file": "prize-marbles-320-result.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 320,
+  "height": 568,
+  "state": "result",
+  "innerWidthRead": 320,
+  "webgl2Live": "n-a",
+  "reducedMotion": "no",
+  "rect": null
+ },
+ {
+  "file": "prize-marbles-1440-rm-idle.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "idle",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "yes",
+  "rect": null
+ },
+ {
+  "file": "prize-marbles-1440-rm-result.png",
+  "route": "/game/prize-marbles/play/",
+  "width": 1440,
+  "height": 900,
+  "state": "result",
+  "innerWidthRead": 1440,
+  "webgl2Live": "n-a",
+  "reducedMotion": "yes",
+  "rect": null
+ }
+]

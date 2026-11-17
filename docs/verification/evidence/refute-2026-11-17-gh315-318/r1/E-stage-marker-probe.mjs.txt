@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {fakeOrigin,mount,storedEvent} from './src/play/prize-draw/stage-harness.mjs';
+for(const game of ['zones','marbles',null]) {
+ const origin = fakeOrigin();
+ storedEvent(origin,{n:50,games:{rounds:[game,null,null,null],final:null}});
+ const s = await mount({origin});
+ const viewport=s.root.querySelector('.pd-viewport');
+ const field=viewport?.getAttribute('data-field');
+ console.log(JSON.stringify({game,screen:s.frame.getAttribute('data-screen'),field,chips:s.frame.querySelectorAll('.pd-chip').length}));
+ if (process.env.EXPECT_PHONE_FIELD === '1') assert.notEqual(field,null,'a round name field must enter the phone layout');
+ if(game==='zones') console.log(JSON.stringify({nodeKeys:Object.keys(viewport),styleKeys:Object.keys(viewport.style),rootKeys:Object.keys(s.root)}));
+}

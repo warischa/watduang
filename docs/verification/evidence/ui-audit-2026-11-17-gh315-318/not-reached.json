@@ -1,0 +1,8 @@
+[
+ {"state":"mid-reveal and marbles freeze at 320 and 390 (all four routes)","why":"under 640px the press paints the 2D result at once (first poll 165-170 ms, no canvas, no 3D context); there is no animated reveal to catch. The timings at those widths are an instant 2D paint, not a reveal duration."},
+ {"state":"mid-reveal under reduced motion at 1440","why":"not asked (idle and result only); the press also paints the result at once, 0 GL contexts created."},
+ {"state":"result claim line (pd-claim)","why":"absent on every result: demo pages and the admin-mode projector never set view.claim (QR mode only, needs phone joins this run cannot drive). Read per route on the 2D result at 320 and 1440 rm, and on the four projector legs: pd-claim false."},
+ {"state":"free-name row on the two finals","why":"no such row on the demo result, nor on the projector pick screen (it shows only the five finalist name chips under the objects). Text search of the result found no free-name copy."},
+ {"state":"projector marbles with the demo's 10 heats","why":"projector seeded as the earlier proj.mjs seeds it (40 names, round 1 cuts 40 to 20) so marbles runs 2 heats (18.8 s); mid is taken at heat 1 (cut:0 +3 s), freeze is the last 3D frame before the canvas leaves."},
+ {"state":"projector with a phone join (QR mode)","why":"needs a phone; the admin-mode event used here has no QR screen."}
+]

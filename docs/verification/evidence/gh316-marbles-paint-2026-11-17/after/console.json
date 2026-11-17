@@ -1,0 +1,53 @@
+{
+ "marbles-1440": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 1,
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "glContextsCreated": 1,
+  "sawCanvas": true
+ },
+ "marbles-1920": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 1,
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "glContextsCreated": 1,
+  "sawCanvas": true
+ },
+ "marbles-320": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "marbles-1440-rm": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "projector-marbles-1920": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "screenAfter": "reveal",
+  "claimLineInDom": false,
+  "picks": 0
+ }
+}

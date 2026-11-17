@@ -7,6 +7,8 @@ import assert from 'node:assert/strict';
 import * as probe from './play-top-band-probe.mjs';
 import { BAND_PX, BAND_GROUND, MC_ROUTE, judge } from './play-top-band-probe.mjs';
 import { screenlessPlayPaths } from './play-screen-fit-probe.mjs';
+import { renderPlayRoutes } from './render-suspension-check.mjs';
+import { readFileSync } from 'node:fs';
 
 const OTHER = 'timebomb';
 // A prize reveal demo page: its bar may stand in the band (owner ruling 2026-11-14). No round-start control,
@@ -333,8 +335,16 @@ for (const [what, at, patch] of [
 const barTag = (state) => `${DEMO} ${state} ${state.startsWith('D') ? '1280x800' : '320x568'}`;
 const redOn = (f, state, re) => f.some((m) => m.startsWith(barTag(state)) && re.test(m));
 
-test('the demo routes the bar carve-out names are manifest play routes, and the prize-draw projector is not one', () => {
-  assert.ok(Array.isArray(probe.DEMO_ROUTES) && probe.DEMO_ROUTES.length === 3, 'the probe exports its demo route set');
+test('the demo routes the bar carve-out names are manifest play routes, and the prize-draw projector is not one', async () => {
+  assert.ok(Array.isArray(probe.DEMO_ROUTES), 'the probe exports its demo route set');
+  // Exactly the company-party play routes whose entry mounts the shared demo (the one place .pr-bar is built):
+  // a demo route left out reds the band on its own bar, and a route in the set that builds no bar is a stale exemption.
+  const demoPages = (await renderPlayRoutes())
+    .filter((g) => g.category === 'company-party' && g.id !== MC_ROUTE)
+    .filter((g) => /\bmountDemo\b/.test(readFileSync(new URL(`../src/play/${g.id}/main.ts`, import.meta.url), 'utf8')))
+    .map((g) => g.id).sort();
+  assert.ok(demoPages.length > 0, 'the manifest names no demo page: this test would pass vacuously');
+  assert.deepEqual([...probe.DEMO_ROUTES].sort(), demoPages);
   for (const id of probe.DEMO_ROUTES) assert.ok(screenlessPlayPaths().has(`/game/${id}/play/`), `${id} is not a play route the walk reaches`);
   assert.ok(!probe.DEMO_ROUTES.includes(MC_ROUTE));
   assert.equal(probe.BAR_SEL, '.pr-bar');

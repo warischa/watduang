@@ -1,0 +1,17 @@
+{
+ "marbles-1440": {
+  "msFirstPressToResult": 77631,
+  "n": 1,
+  "sawCanvas": true
+ },
+ "marbles-320": {
+  "msFirstPressToResult": 173,
+  "n": 1,
+  "sawCanvas": false
+ },
+ "marbles-1440-rm": {
+  "msFirstPressToResult": 173,
+  "n": 1,
+  "sawCanvas": false
+ }
+}

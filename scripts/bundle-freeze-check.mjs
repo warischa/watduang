@@ -113,6 +113,14 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 //   two more lifted/authored play bundles, minus nothing -- no engine was deleted this batch, because
 //   the stage modules stay until gh#149 removes the landing pages that still render them.
 const BASELINE_BASENAMES = [
+  // gh#315-gh#318 -- the four phase-2 prize-draw games (zones, marbles, envelopes, flipcards): four new basenames,
+  // each game's module chunk (src/games/<id>.ts), reached like every module through the _id_ page's lazy glob, not
+  // by its play route. Each renderer entry folds into the existing index.js basename, and the zones plan and the
+  // shared pick-final plan into the existing plan.js one, so they add bytes and no basename.
+  'prize-envelopes.js',
+  'prize-flipcards.js',
+  'prize-marbles.js',
+  'prize-zones.js',
   // gh#308 -- the QR lobby's join-code chunk: lobby-qr.ts with lean-qr bundled into it, reached only by the
   // projector's dynamic import while a QR lobby is on screen (ADR-0077). One new basename, no new page pair.
   'lobby-qr.js',
@@ -541,7 +549,19 @@ const BASELINE_BASENAMES = [
 // red on one new basename, copy.js (1047 B, the cards copy now shared with the join page). INFERRED, not
 // isolated per change: the rest is the phone result flow (src/prize-join/reveal.ts and the join page), the
 // projector's code card, and the audit-pick layout code.
-const BASELINE_TOTAL_BYTES = 1284587;
+// Re-pinned 2026-11-17 (gh#315-gh#318, the four phase-2 prize-draw games), 1284587 -> 1366516 (+81929, +6.4%),
+// n=1 local `npm run build` of the integrated tree, read from this file's own pass line. All three legs were red:
+// four new basenames, eight new page-entry pairs, the total outside the band. SPLIT by a second build of HEAD
+// 0e15742 (a git-archive copy, same node_modules), which measures 1287416: +2829 is carry already in HEAD, in band.
+// The other +79100, MEASURED per chunk from the two builds (labels matched by importer, not by hash; the per-chunk
+// deltas sum to the total exactly): +67850 is new code -- the four renderer entries (zones 10733, marbles 14995,
+// envelopes 12172, flipcards 12130), the four game-module chunks (8236), the four play entries (2258), the zones
+// plan (5396, also imported by the projector entry) and the shared pick-final plan (1930, envelopes and
+// flipcards). +11250 is growth of chunks that already existed: projector entry +5532, three.module +3042, event
+// +1125, reveal +890, the _id_ page script +566, demo +95. Their causes are INFERRED, not isolated by a build:
+// the batch's own edits to those modules, the registry's four new entries, more of the library reached by the new
+// renderers. Per-visitor cost: ADR-0068's 2026-11-17 amendment and docs/verification/evidence/gh315-318-bundle-2026-11-17/.
+const BASELINE_TOTAL_BYTES = 1366516;
 const BAND = 0.05; // +/-5%
 
 // gh#168 — the pair leg's pinned set: every dist page that loads an entry chunk, as
@@ -560,6 +580,15 @@ const BAND = 0.05; // +/-5%
 // RE-BASELINE, like the other two constants, is the intended signal and a deliberate edit: a new
 // game adds its own pairs here.
 const BASELINE_PAGE_ENTRIES = [
+  // gh#315-gh#318 -- the four phase-2 prize-draw game play routes: the shared exit and each route's own play script.
+  'game/prize-envelopes/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/prize-envelopes/play/index.html play.astro_astro_type_script_index_0_lang.js',
+  'game/prize-flipcards/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/prize-flipcards/play/index.html play.astro_astro_type_script_index_0_lang.js',
+  'game/prize-marbles/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/prize-marbles/play/index.html play.astro_astro_type_script_index_0_lang.js',
+  'game/prize-zones/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',
+  'game/prize-zones/play/index.html play.astro_astro_type_script_index_0_lang.js',
   // gh#305 -- the three prize-draw game play routes (the shared exit and each route's own play script) and
   // the QR join page (its own script only; it renders no PageChrome or exit).
   'game/prize-cards/play/index.html PlayExit.astro_astro_type_script_index_0_lang.js',

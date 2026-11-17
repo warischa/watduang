@@ -34,6 +34,26 @@ export const GAMES: { [G in GameId]: Entry<G> } = {
     available: true,
     load: () => import('../prize-ladder/renderer/index.ts').then((m) => m.reveal),
   },
+  zones: {
+    steps: ['round'],
+    available: true,
+    load: () => import('../prize-zones/renderer/index.ts').then((m) => m.reveal),
+  },
+  marbles: {
+    steps: ['round'],
+    available: true,
+    load: () => import('../prize-marbles/renderer/index.ts').then((m) => m.reveal),
+  },
+  envelopes: {
+    steps: ['final'],
+    available: true,
+    load: () => import('../prize-envelopes/renderer/index.ts').then((m) => m.reveal),
+  },
+  flipcards: {
+    steps: ['final'],
+    available: true,
+    load: () => import('../prize-flipcards/renderer/index.ts').then((m) => m.reveal),
+  },
 };
 
 function isGameId(x: unknown): x is GameId {

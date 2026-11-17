@@ -2506,3 +2506,236 @@ The comparison sheets, the timings, the grading and the proof that nothing enter
   notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls (fresh generation, edit of call 1); the master is call 2, matched by sha256 (as-sent-prompts.json). Raw: srgba, 57.33% fully transparent, 29014 haze px outside the dilated solid mask; black point 3. Scratch-only ship webp 280x320, 19016 bytes, decoded haze 0, corners 0/0/0/0 (never entered public/). Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a): funnel-topped track forking into three lanes, red ball, three gift boxes; the funnel mouth is an odd bowl shape. Drink/bottle/glass-free yes, casino-free yes, text-free yes, style match 3/5. NOT style-anchored at the image tool: call 1 passed no referenced_image_paths (text only; the anchor reached the Codex session via -i), call 2 edited that output. Re-render queued after the Codex usage window resets. Drink check borderline: the funnel mouth reads bowl-like, though not as a drinking vessel. Pending the owner's pick."
 
 ```
+
+
+# Game-card art candidates — the phase-2 prize-draw games, direction C (gh#315 zones, gh#316 marbles, gh#317 envelopes, gh#318 flipcards)
+
+Owner ruling 2026-11-16: generate candidates with Codex for the four phase-2 prize-draw games, two each (a and b), for the owner to pick one per game. These are the covers of `prize-zones`, `prize-marbles`, `prize-envelopes` and `prize-flipcards`. **Owner pick 2026-11-16 (popup): `IMG_05_001` (zones), `IMG_05_003` (marbles), `IMG_05_006` (envelopes) and `IMG_05_008` (flipcards) are `approved`; the other four stay `pending`, unpicked.** The four picks are wired as `public/art/prize-zones`, `prize-marbles`, `prize-envelopes` and `prize-flipcards` (`.webp` and `-2x.webp`), byte-identical to the scratch ship webps graded below. The company-party category needs `cardArt` and its 2x file per game (gh#242). Nothing else entered `public/`. The scripts that made the ship webps and the contact sheets, and the four picks, are in `docs/verification/evidence/cover-art-2026-11-16-gh315-318/`.
+
+Same recipe as `IMG_04_001` to `IMG_04_008` above: bare `codex exec` from a scratch directory outside the repo with `-i images/IMG_02_003.png` and the style-reference prefix, the Direction C reuse template with the cover's own `Subject:` placed second (the five direction paragraphs hash equal to `IMG_03_001`'s), codex-cli 0.167.0. Every as-sent prompt, its references and its output hash is in `images/IMG_05-as-sent-prompts.json`. The master is the raw saved file, matched by sha256. Ship webps (1x by `docs/verification/evidence/gh241/make_ship.py` at the black point in each entry, 2x by gh#250's level remap and trim, then a resize to fit 1004x640 and `cwebp -q <q> -alpha_q 100 -m 6 -sharp_yuv`, q from 88 down to the 61,440 B cap) were first made in a scratch directory; the four picked pairs were then copied unchanged into `public/art/`, and the four unpicked pairs were never tracked.
+
+**Wide subjects.** The two envelope covers, `IMG_05_007` and `IMG_05_008` are width-limited: their 1x is 502 px wide (the 502x320 slot box) and shorter than 320 px, so their 2x is 1004 px wide rather than 640 px high, because a 640 px height would upscale the trimmed master. The three flat strips (`IMG_05_005`, `IMG_05_006`, `IMG_05_007`) sit small in a card box; that is the main cost of those candidates.
+
+**Positive control for the ship recipe, run first.** `IMG_04_005` at black point 3 through the same scratch scripts gave a 1x webp and a 2x webp byte-identical to `public/art/prize-cards.webp` and `public/art/prize-cards-2x.webp` (830x640, 60,492 B); at black point 0 both hashes differ.
+
+```yaml
+- id: IMG_05_001
+  deliverable: "05"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), prize-zones - candidate a - wired 2026-11-16 as /art/prize-zones.webp and /art/prize-zones-2x.webp via the prize-zones module cardArt and cardArt2x fields (gh#315)"
+  direction: "C - soft 3D toy"
+  purpose: "prize-zones (โซนสีลุกยืน) cover, candidate a, in direction C (owner ruling 2026-11-16: generate candidates with Codex)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby toy mosaic of four big rounded square tiles in a two-by-two block, seen from a high front three-quarter view, each tile a thick soft-cornered slab in one flat colour with a small gap between tiles, and on each tile a tight cluster of three or four small upright capsule-shaped toy pegs of the same colour family standing like a seated or standing crowd marker, the pegs plain rounded capsules with a round domed top, no faces and no limbs. Subject colours: the four tiles festive red (#e63946), warm gold (#f5b301), mint teal (#2ec4b6) and leaf green (#7bc74d), each with soft lighter highlights of its own colour, the pegs in a slightly lighter tint of their tile and cream white (#fff8e8) tips. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no people, no faces, no hands, no limbs, no eyes, no letters, no numbers, no arrows, no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no money, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "approved"
+  output_path: "images/IMG_05_001.png"
+  sha256_master: "d36cf428cb0fcc8f9719a5fe1955f1dbe9cb72255e49463f948c33f124524428"
+  ship_derivative: "public/art/prize-zones.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls; the master is call 2, matched by sha256 (IMG_05-as-sent-prompts.json); references at the image tool, call 1: style anchor images/IMG_02_003.png; call 2: previous call output. Raw: srgba, 42.81% fully transparent, 4577 haze px outside the dilated solid mask, partial alpha (0.05-0.95) 0.379% of pixels, corners 0/0/0/0; black point 2. Scratch-only ship webps (never entered public/): 1x 334x320, 19,656 bytes, decoded haze 0, corners 0/0/0/0, 22.26% transparent; 2x 669x640, 48,516 bytes at q88, haze 0, corners 0/0/0/0, 22.60% transparent, both srgba. Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a, opened and looked at): a two-by-two block of four thick rounded tiles (red, gold, teal, green), each carrying a cluster of three or four plain capsule pegs with cream domed tops as crowd markers. Pegs are faceless capsules, not figures. No fringe or halo on any of the four grounds, no painted checkerboard. Bottle/can/glass-free yes, casino-free yes (no suits, pips, ranks, felt, chips, coins, money), money-free yes, text-free yes (no letters, numerals or glyphs; the only mark on any card is one gold star), no person, hand or face, style match 5/5. Owner pick 2026-11-16 (popup): approved. Wired 2026-11-16 at black point as above by gh241/make_ship.py (public/art/prize-zones.webp, 334x320, 19,656 bytes, sha256 prefix b746cb82bda2423e) and the 2x recipe (public/art/prize-zones-2x.webp, 669x640, 48,516 bytes at q88, sha256 prefix f0199ed211d23514); each is byte-identical to the scratch ship webp graded above, and was re-graded in public/art by gh241/grade.py: srgba, haze outside 0, corners 0/0/0/0, 22.26% / 22.60% fully transparent (1x / 2x)."
+
+- id: IMG_05_002
+  deliverable: "05"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), prize-zones - candidate b, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "prize-zones (โซนสีลุกยืน) cover, candidate b, in direction C (owner ruling 2026-11-16: generate candidates with Codex)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby toy stadium block of four wedge-shaped terraced seating sections set side by side in a gentle curve, seen from a high front three-quarter view, each section a stepped rounded slab of three rows of small rounded toy seats, every section in its own single colour so the four colour zones read at a glance, with a small chunky cream white standing flag-post on top of each section carrying a plain solid colour pennant of that section's colour. Subject colours: the four sections festive red (#e63946), warm gold (#f5b301), mint teal (#2ec4b6) and leaf green (#7bc74d), each with soft lighter highlights of its own colour, posts and pennant poles cream white (#fff8e8). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no people, no faces, no hands, no limbs, no eyes, no spectators, no letters, no numbers, no logos on the pennants, no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no money, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_05_002.png"
+  sha256_master: "e25a159022036f7f6f8b5bb21a11eaab7a084382a4532e4ba20450d4dbabd24b"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls; the master is call 2, matched by sha256 (IMG_05-as-sent-prompts.json); references at the image tool, call 1: style anchor images/IMG_02_003.png; call 2: previous call output. Raw: srgba, 72.79% fully transparent, 6999 haze px outside the dilated solid mask, partial alpha (0.05-0.95) 0.461% of pixels, corners 0/0/0/0; black point 3. Scratch-only ship webps (never entered public/): 1x 454x320, 34,632 bytes, decoded haze 0, corners 0/0/0/0, 30.74% transparent; 2x 908x640, 61,308 bytes at q72, haze 0, corners 0/0/0/0, 30.90% transparent, both srgba. Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a, opened and looked at): a curved terraced stand of four colour sections (red, gold, teal, green), three rows of rounded seats each, a cream flag post with a plain solid pennant on every section. Seats are small at 1x; the four colour zones still read at once. No spectators. No fringe or halo on any of the four grounds, no painted checkerboard. Bottle/can/glass-free yes, casino-free yes (no suits, pips, ranks, felt, chips, coins, money), money-free yes, text-free yes (no letters, numerals or glyphs; the only mark on any card is one gold star), no person, hand or face, style match 4/5. Pending the owner's pick."
+
+- id: IMG_05_003
+  deliverable: "05"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), prize-marbles - candidate a - wired 2026-11-16 as /art/prize-marbles.webp and /art/prize-marbles-2x.webp via the prize-marbles module cardArt and cardArt2x fields (gh#316)"
+  direction: "C - soft 3D toy"
+  purpose: "prize-marbles (แข่งลูกแก้ว) cover, candidate a, in direction C (owner ruling 2026-11-16: generate candidates with Codex)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: three chubby toy glass marbles racing side by side down three parallel grooved toy lanes, the lanes sloping from the upper left down toward the lower right as thick rounded cream tracks with a rounded channel each, seen from a front three-quarter view, one marble clearly ahead of the others, and a plain thick warm gold finish bar spanning all three lanes at their lower end. Each marble is a solid, opaque, glossy glass-look ball with a smooth colour swirl inside and one soft specular highlight, not see-through, not clear, not a bubble. Subject colours: marbles festive red (#e63946) with cream swirl, mint teal (#2ec4b6) with cream swirl, warm gold (#f5b301) with cream swirl, lanes cream white (#fff8e8) with pale gold (#ffd966) edges, finish bar warm gold (#f5b301) with pale gold highlights. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no checkerboard, no chequered flag, no pattern on the finish bar, no people, no faces, no hands, no limbs, no eyes, no letters, no numbers, no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no money, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "approved"
+  output_path: "images/IMG_05_003.png"
+  sha256_master: "027ddb5594b47eb694f4a64d5bd79e53e211a4d9b64e43bb6ac38199f27dc7bd"
+  ship_derivative: "public/art/prize-marbles.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls; the master is call 2, matched by sha256 (IMG_05-as-sent-prompts.json); references at the image tool, call 1: style anchor images/IMG_02_003.png; call 2: previous call output. Raw: srgba, 53.04% fully transparent, 9316 haze px outside the dilated solid mask, partial alpha (0.05-0.95) 0.352% of pixels, corners 0/0/0/0; black point 2. Scratch-only ship webps (never entered public/): 1x 369x320, 16,662 bytes, decoded haze 0, corners 0/0/0/0, 39.23% transparent; 2x 738x640, 41,478 bytes at q88, haze 0, corners 0/0/0/0, 39.50% transparent, both srgba. Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a, opened and looked at): three glossy swirl marbles (gold, teal, red) in three cream grooved lanes sloping to a gold finish bar. Marbles are opaque swirl balls, not see-through. Finish bar is plain gold, no chequer. No fringe or halo on any of the four grounds, no painted checkerboard. Bottle/can/glass-free yes, casino-free yes (no suits, pips, ranks, felt, chips, coins, money), money-free yes, text-free yes (no letters, numerals or glyphs; the only mark on any card is one gold star), no person, hand or face, style match 5/5. Owner pick 2026-11-16 (popup): approved. Wired 2026-11-16 at black point as above by gh241/make_ship.py (public/art/prize-marbles.webp, 369x320, 16,662 bytes, sha256 prefix 7debb4e01f77e95b) and the 2x recipe (public/art/prize-marbles-2x.webp, 738x640, 41,478 bytes at q88, sha256 prefix 9799f0737a63babb); each is byte-identical to the scratch ship webp graded above, and was re-graded in public/art by gh241/grade.py: srgba, haze outside 0, corners 0/0/0/0, 39.23% / 39.50% fully transparent (1x / 2x)."
+
+- id: IMG_05_004
+  deliverable: "05"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), prize-marbles - candidate b, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "prize-marbles (แข่งลูกแก้ว) cover, candidate b, in direction C (owner ruling 2026-11-16: generate candidates with Codex)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby toy marble race track seen from a high front three-quarter view: four short straight cream lanes running away from the viewer side by side, five or six solid glossy toy marbles rolling in them with one marble in front, and at the far end of the lanes a plain solid warm gold arch gate spanning all four lanes as the finish line, the arch a thick rounded half-ring on two short round posts. Each marble is a solid, opaque, glossy glass-look ball with a smooth colour swirl inside and one soft specular highlight, not see-through, not clear. Subject colours: marbles festive red (#e63946), mint teal (#2ec4b6), warm gold (#f5b301) and cream white (#fff8e8), each with a contrasting swirl, lanes cream white (#fff8e8) with soft shading, the arch warm gold (#f5b301) with pale gold highlights (#ffd966). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no checkerboard, no chequered flag, no banner on the arch, no people, no faces, no hands, no limbs, no eyes, no letters, no numbers, no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no money, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_05_004.png"
+  sha256_master: "07526ab9d4da5b9a94d032785a7cce38db5df96906cd58b36688269de2c9ac52"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 3 image_gen calls; the master is call 1, matched by sha256 (IMG_05-as-sent-prompts.json); references at the image tool, call 1: style anchor images/IMG_02_003.png; call 2: previous call output; call 3: none. Rendered twice. Attempt 1 (raw sha256 prefix d4a099b9, discarded) ended on a text-only third image_gen call, so it was NOT style-anchored at the image tool; attempt 2 is the master here, and its master call is the anchored first call. Raw: srgba, 53.56% fully transparent, 9216 haze px outside the dilated solid mask, partial alpha (0.05-0.95) 0.502% of pixels, corners 0/0/0/0; black point 3. Scratch-only ship webps (never entered public/): 1x 273x320, 17,334 bytes, decoded haze 0, corners 0/0/0/0, 35.01% transparent; 2x 546x640, 41,418 bytes at q88, haze 0, corners 0/0/0/0, 35.50% transparent, both srgba. Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a, opened and looked at): five swirl marbles on a cream four-lane tray with a gold arch gate as the finish line. Marbles are small at 1x; the arch carries the read. The tray is a wide flat slab, not bowl-like. No fringe or halo on any of the four grounds, no painted checkerboard. Bottle/can/glass-free yes, casino-free yes (no suits, pips, ranks, felt, chips, coins, money), money-free yes, text-free yes (no letters, numerals or glyphs; the only mark on any card is one gold star), no person, hand or face, style match 4/5. Pending the owner's pick."
+
+- id: IMG_05_005
+  deliverable: "05"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), prize-envelopes - candidate a, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "prize-envelopes (ซองของขวัญ) cover, candidate a, in direction C (owner ruling 2026-11-16: generate candidates with Codex)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: five chubby toy red gift envelopes standing upright side by side in one even row, slightly leaning against each other and staggered a little in height so the row reads as a happy line, each a thick soft-cornered rounded rectangular pouch seen from the front with a closed rounded flap and a small round warm gold seal button at the flap point and a thin warm gold border band along the front edge. The envelopes are all closed and flat-fronted, and contain nothing visible. Subject colours: the envelopes festive red (#e63946) with soft lighter highlights (#ff6b6b), the border bands, seals and flap edges warm gold (#f5b301) with pale gold highlights (#ffd966), a few of the five with a small cream white (#fff8e8) ribbon tie around the middle. Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no characters or glyphs of any script, no star, no pattern beyond the border band and the seal, no letters, no numbers, no paper money, no banknotes, no coins, no money of any kind visible, no people, no faces, no hands, no limbs, no eyes, no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_05_005.png"
+  sha256_master: "c9a499e2f10da39465aaf57845da53e4f4f42888bb45024cd2ff361accd88c85"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls; the master is call 2, matched by sha256 (IMG_05-as-sent-prompts.json); references at the image tool, call 1: style anchor images/IMG_02_003.png; call 2: previous call output. Raw: srgba, 75.45% fully transparent, 2404 haze px outside the dilated solid mask, partial alpha (0.05-0.95) 0.303% of pixels, corners 0/0/0/0; black point 3. Scratch-only ship webps (never entered public/): 1x 502x188, 25,420 bytes, decoded haze 0, corners 0/0/0/0, 16.90% transparent; 2x 1004x376, 59,996 bytes at q86, haze 0, corners 0/0/0/0, 17.04% transparent, both srgba. Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a, opened and looked at): five closed red envelopes in one row with gold border bands and round gold seal buttons, two of them tied with a cream ribbon bow. A wide flat strip: it fills the 502 px slot width but only 188 px of its height, so it sits small in a 320 px tall card box. Nothing visible inside any envelope. No fringe or halo on any of the four grounds, no painted checkerboard. Bottle/can/glass-free yes, casino-free yes (no suits, pips, ranks, felt, chips, coins, money), money-free yes, text-free yes (no letters, numerals or glyphs; the only mark on any card is one gold star), no person, hand or face, style match 4/5. Pending the owner's pick."
+
+- id: IMG_05_006
+  deliverable: "05"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), prize-envelopes - candidate b - wired 2026-11-16 as /art/prize-envelopes.webp and /art/prize-envelopes-2x.webp via the prize-envelopes module cardArt and cardArt2x fields (gh#317)"
+  direction: "C - soft 3D toy"
+  purpose: "prize-envelopes (ซองของขวัญ) cover, candidate b, in direction C (owner ruling 2026-11-16: generate candidates with Codex)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: five chubby toy gift envelopes in one even row, each upright and closed with a thick soft-cornered pouch shape, the row leaning slightly like a fan from left to right, the middle envelope lifted a little higher than the rest, each envelope with a different plain solid gold ornament on its front: a round seal, a small rounded diamond, a ribbon bow, a small flower of five round petals and a round knot. The envelopes alternate festive red and cream white with gold trim, so the row reads red-cream-red-cream-red. Subject colours: red envelopes festive red (#e63946) with soft lighter highlights (#ff6b6b), cream envelopes cream white (#fff8e8) with soft warm shading, all trim, seals and ornaments warm gold (#f5b301) with pale gold highlights (#ffd966). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: no characters or glyphs of any script, no star, no letters, no numbers, no paper money, no banknotes, no coins, no money of any kind visible, no people, no faces, no hands, no limbs, no eyes, no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "approved"
+  output_path: "images/IMG_05_006.png"
+  sha256_master: "ad6607e9881b7e84dc01368d0947e671f35d66b0a2a64b0639d81b435cbe9c3a"
+  ship_derivative: "public/art/prize-envelopes.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls; the master is call 2, matched by sha256 (IMG_05-as-sent-prompts.json); references at the image tool, call 1: style anchor images/IMG_02_003.png; call 2: previous call output. Raw: srgba, 78.27% fully transparent, 3054 haze px outside the dilated solid mask, partial alpha (0.05-0.95) 0.304% of pixels, corners 0/0/0/0; black point 3. Scratch-only ship webps (never entered public/): 1x 502x172, 24,392 bytes, decoded haze 0, corners 0/0/0/0, 24.29% transparent; 2x 1004x343, 60,892 bytes at q87, haze 0, corners 0/0/0/0, 24.36% transparent, both srgba. Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a, opened and looked at): five closed envelopes in a gentle fan, alternating red and cream, each with a different plain gold ornament (round seal, diamond, bow, five-petal flower, knot). Wide flat strip like candidate a (502x172). Ornaments are plain gold shapes, no glyph of any script, no star. No fringe or halo on any of the four grounds, no painted checkerboard. Bottle/can/glass-free yes, casino-free yes (no suits, pips, ranks, felt, chips, coins, money), money-free yes, text-free yes (no letters, numerals or glyphs; the only mark on any card is one gold star), no person, hand or face, style match 4/5. Owner pick 2026-11-16 (popup): approved. Wired 2026-11-16 at black point as above by gh241/make_ship.py (public/art/prize-envelopes.webp, 502x172, 24,392 bytes, sha256 prefix 805164dd80cca11a) and the 2x recipe (public/art/prize-envelopes-2x.webp, 1004x343, 60,892 bytes at q87, sha256 prefix 5aaf10658e693b3f); each is byte-identical to the scratch ship webp graded above, and was re-graded in public/art by gh241/grade.py: srgba, haze outside 0, corners 0/0/0/0, 24.29% / 24.36% fully transparent (1x / 2x)."
+
+- id: IMG_05_007
+  deliverable: "05"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), prize-flipcards - candidate a, not wired"
+  direction: "C - soft 3D toy"
+  purpose: "prize-flipcards (เปิดไพ่ชิงรางวัล) cover, candidate a, in direction C (owner ruling 2026-11-16: generate candidates with Codex)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a straight row of five chubby toy playing-card-shaped slabs standing upright side by side facing the viewer, seen from a high front three-quarter view so the row recedes a little in perspective, the cards close together but not overlapping and each tilted slightly back, four of them face-down showing only their plain backs and the middle one caught mid-turn, rotated about a third of the way around its vertical axis, so the viewer sees its blank cream face with one single warm gold star in its centre clearly, large and readable at thumbnail size. Each card is a thick rounded slab with soft rounded corners. Subject colours: card backs mint teal (#2ec4b6) with a thin warm gold border (#f5b301) and no other marking, the turning card's face cream white (#fff8e8) with one warm gold star (#f5b301), card edges cream white (#fff8e8). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: the backs carry no star and no pattern beyond the border, no suits, no pips, no rank letters, no numbers, no felt, no chips, no tokens, no coins, no money, no dice, no people, no faces, no hands, no limbs, no eyes, no letters, no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "pending"
+  output_path: "images/IMG_05_007.png"
+  sha256_master: "96e48ca4e107c24cfe5398713eebf50ee2612e02da23db870fd719334739208f"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls; the master is call 2, matched by sha256 (IMG_05-as-sent-prompts.json); references at the image tool, call 1: style anchor images/IMG_02_003.png; call 2: previous call output. Rendered three times. Attempt 1 (raw sha256 prefix df3bb40e, anchored, black point 4, discarded) was an edge-on turning card whose star was squeezed small. Attempt 2 (raw sha256 prefix efd88da6, better read, black point 6, discarded) had no style reference at the image tool in either call. Attempt 3 is the master here: anchored, and its Subject text differs from attempts 1 and 2 (high front three-quarter view, the turning card a third of the way round so the star faces the viewer). Black point 6 is one above the gh#242 ship_all soft-element flag of 5; the level remap clears the haze to 0 either way. Raw: srgba, 77.87% fully transparent, 10696 haze px outside the dilated solid mask, partial alpha (0.05-0.95) 0.572% of pixels, corners 0/0/0/0; black point 6. Scratch-only ship webps (never entered public/): 1x 502x177, 22,952 bytes, decoded haze 0, corners 0/0/0/0, 18.23% transparent; 2x 1004x354, 58,200 bytes at q88, haze 0, corners 0/0/0/0, 18.69% transparent, both srgba. Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a, opened and looked at): a straight row of five teal-backed cards with thin gold borders, the middle one turning to a cream face with one gold star. The thinnest silhouette of the eight (502x177 at 1x): small at card scale, and the row reads a little like tiles. Backs carry no star. No fringe or halo on any of the four grounds, no painted checkerboard. Bottle/can/glass-free yes, casino-free yes (no suits, pips, ranks, felt, chips, coins, money), money-free yes, text-free yes (no letters, numerals or glyphs; the only mark on any card is one gold star), no person, hand or face, style match 3/5. Pending the owner's pick."
+
+- id: IMG_05_008
+  deliverable: "05"
+  profile: "asset"
+  api_call:
+    model: "Codex built-in image_gen tool (reports no model id; Images 2.6 inferred, not observed; codex-cli 0.167.0, transparent_background: true)"
+    size: "auto"
+  style_ref: "images/IMG_02_003.png"
+  location: "company-party category card (proposed), prize-flipcards - candidate b - wired 2026-11-16 as /art/prize-flipcards.webp and /art/prize-flipcards-2x.webp via the prize-flipcards module cardArt and cardArt2x fields (gh#318)"
+  direction: "C - soft 3D toy"
+  purpose: "prize-flipcards (เปิดไพ่ชิงรางวัล) cover, candidate b, in direction C (owner ruling 2026-11-16: generate candidates with Codex)."
+  prompt: |
+    Scene: a game-card illustration for the game grid of a Thai party-game website — one isolated subject that names the game at a glance, isolated on a fully transparent background.
+
+    Subject: a chubby toy row of five blank cards leaning against each other like toppling dominoes, each a thick soft-cornered rounded slab seen from a front three-quarter view, the first four face-down showing plain backs, and the last card in the row flipped over onto its blank cream face, which carries one single warm gold star in its centre and is clearly tilted toward the viewer so the star is readable. Subject colours: card backs warm gold (#f5b301) with a thin mint teal border (#2ec4b6) and no other marking, the flipped card's face cream white (#fff8e8) with one warm gold star (#f5b301), card edges cream white (#fff8e8). Every part is solid and opaque, with crisp edges: no glow, no soft mist, no haze, no motion blur. Nothing else in frame: the backs carry no star and no pattern beyond the border, no suits, no pips, no rank letters, no numbers, no felt, no chips, no tokens, no coins, no money, no dice, no people, no faces, no hands, no limbs, no eyes, no letters, no bottle, no champagne, no wine, no glass, no cup, no drink of any kind, no toasting, no ground, no other props. No large lilac, navy or sky-blue area.
+
+    Style/medium: SOFT 3D TOY RENDER — a rounded vinyl or clay toy with smooth satin, lightly clear-coated surfaces, soft volumetric shading, gentle ambient occlusion in the creases, a soft studio key light from the upper left with a soft fill, small soft specular highlights on the subject's glossy parts, like a premium designer toy or a modern 3D mobile-game mascot. NOT photorealistic, NO realistic surface texture, NO ink outline, NOT flat vector, NOT a sticker.
+
+    Composition/framing: one subject, centred with even margin on all four sides, square 1:1 aspect, the whole subject inside the frame with nothing cropped, readable as a small thumbnail.
+
+    Color palette: the subject's own material colours named in Subject, saturated but softly lit; no colour grade over the whole image and no coloured rim light from an environment; coral (#f89880) never as a large area, because the card the art sits on is coral.
+
+    Constraints: NO background of any kind — no scenery, no solid backdrop, no gradient, no checkerboard pattern, no drop shadow. The PNG must have a true alpha channel. NO bottles, NO cans, NO drinking glasses, NO alcohol of any kind, NO human figures, NO hands, NO faces of people, NO logos, NO brand marks, NO watermarks, NO text, NO letters, NO numbers. NO cast shadow or contact shadow beneath the subject, NO floor, NO reflection.
+  status: "approved"
+  output_path: "images/IMG_05_008.png"
+  sha256_master: "2f9d7b3433bacfd6e308db3096386ae6ec2ccd1c49e85fd5b6afbae84af78198"
+  ship_derivative: "public/art/prize-flipcards.webp"
+  notes: "Bare codex exec with -i images/IMG_02_003.png, codex-cli 0.167.0. 2 image_gen calls; the master is call 2, matched by sha256 (IMG_05-as-sent-prompts.json); references at the image tool, call 1: style anchor images/IMG_02_003.png; call 2: previous call output. Rendered twice. Attempt 1 (raw sha256 prefix fccf9c27, discarded) was NOT style-anchored: call 1 passed no referenced_image_paths. Attempt 2 is the master here, anchored. Raw: srgba, 62.69% fully transparent, 4222 haze px outside the dilated solid mask, partial alpha (0.05-0.95) 0.361% of pixels, corners 0/0/0/0; black point 2. Scratch-only ship webps (never entered public/): 1x 502x291, 25,826 bytes, decoded haze 0, corners 0/0/0/0, 24.15% transparent; 2x 1004x581, 60,712 bytes at q86, haze 0, corners 0/0/0/0, 24.17% transparent, both srgba. Look check (whole subject flattened on #ff3d7f, #c9c2ff, #23214d, #1a1a1a, opened and looked at): four gold-backed cards with teal borders leaning like dominoes, the fifth flipped onto a cream face with one large gold star. The strongest silhouette of the pair; the star reads at thumbnail size. No fringe or halo on any of the four grounds, no painted checkerboard. Bottle/can/glass-free yes, casino-free yes (no suits, pips, ranks, felt, chips, coins, money), money-free yes, text-free yes (no letters, numerals or glyphs; the only mark on any card is one gold star), no person, hand or face, style match 5/5. Owner pick 2026-11-16 (popup): approved. Wired 2026-11-16 at black point as above by gh241/make_ship.py (public/art/prize-flipcards.webp, 502x291, 25,826 bytes, sha256 prefix 0c326ac7a8cc5c05) and the 2x recipe (public/art/prize-flipcards-2x.webp, 1004x581, 60,712 bytes at q86, sha256 prefix c09dc680190bc935); each is byte-identical to the scratch ship webp graded above, and was re-graded in public/art by gh241/grade.py: srgba, haze outside 0, corners 0/0/0/0, 24.15% / 24.17% fully transparent (1x / 2x)."
+```

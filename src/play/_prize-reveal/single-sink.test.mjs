@@ -18,6 +18,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { makeDoc } from '../../prize-event/fake-dom.mjs';
 import { createEvent, encodeEvent } from '../../prize-event/event.ts';
+import { CUT_GAMES, FINAL_GAMES } from '../../prize-event/game-contract.ts';
+import { eligible, isAvailable } from './game-registry.ts';
 import { mountSetup } from '../../prize-event/setup-page.ts';
 import { proposeSchedule } from '../../prize-draw/schedule.ts';
 import { fakeOrigin, mount, seedRaw, seeded } from '../prize-draw/stage-harness.mjs';
@@ -112,8 +114,10 @@ test('setup page: refused and taken names are shown, and only through names-dom.
   // first, then the games that step may play), and each elimination round's range labels.
   add('p', 'pd-games-line', form);
   add('div', 'pd-games-note', form);
-  for (const [id, offered] of [['pd-game-r1', ['fireworks', 'cards']], ['pd-game-r2', ['fireworks', 'cards']],
-    ['pd-game-r3', ['fireworks', 'cards']], ['pd-game-r4', ['fireworks', 'cards']], ['pd-game-final', ['fireworks', 'ladder']]]) {
+  const cutOffer = CUT_GAMES.filter((g) => eligible(g, 'round') && isAvailable(g));
+  const finalOffer = FINAL_GAMES.filter((g) => eligible(g, 'final') && isAvailable(g));
+  for (const [id, offered] of [['pd-game-r1', cutOffer], ['pd-game-r2', cutOffer],
+    ['pd-game-r3', cutOffer], ['pd-game-r4', cutOffer], ['pd-game-final', finalOffer]]) {
     const group = add('div', id, form);
     for (const game of ['', ...offered]) {
       const b = doc.createElement('button');

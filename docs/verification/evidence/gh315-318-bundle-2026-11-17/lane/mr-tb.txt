@@ -1,0 +1,2 @@
+::error::prize-zones D1 1280x800: 1 fixed/sticky route box(es) anchored above the band: div#app > div.pr-viewport > div.pr-bar (fixed top 2px)
+FAIL 1 failure(s) across 1/1 route(s): prize-zones

@@ -1,0 +1,336 @@
+{
+ "zones-320": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "zones-390": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "zones-1440": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 1,
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "glContextsCreated": 1,
+  "sawCanvas": true
+ },
+ "zones-1920": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 1,
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "glContextsCreated": 1,
+  "sawCanvas": true
+ },
+ "zones-1440-rm": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "envelopes-320": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "envelopes-390": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "envelopes-1440": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 1,
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "glContextsCreated": 1,
+  "sawCanvas": true
+ },
+ "envelopes-1920": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 1,
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "glContextsCreated": 1,
+  "sawCanvas": true
+ },
+ "envelopes-1440-rm": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "flipcards-320": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "flipcards-390": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "flipcards-1440": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 1,
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "glContextsCreated": 1,
+  "sawCanvas": true
+ },
+ "flipcards-1920": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 1,
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "glContextsCreated": 1,
+  "sawCanvas": true
+ },
+ "flipcards-1440-rm": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "marbles-320": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "marbles-390": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "marbles-1440": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 1,
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "glContextsCreated": 1,
+  "sawCanvas": true
+ },
+ "marbles-1920": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 1,
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "glContextsCreated": 1,
+  "sawCanvas": true
+ },
+ "marbles-1440-rm": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "glContextsLost": 0,
+  "renderer": [],
+  "glContextsCreated": 0,
+  "sawCanvas": false
+ },
+ "setup-320": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "offered": {
+   "pd-game-r1": [
+    "none",
+    "fireworks",
+    "cards",
+    "zones",
+    "marbles"
+   ],
+   "pd-game-r2": [
+    "none",
+    "fireworks",
+    "cards",
+    "zones",
+    "marbles"
+   ],
+   "pd-game-r3": [
+    "none",
+    "fireworks",
+    "cards(disabled)",
+    "zones",
+    "marbles"
+   ],
+   "pd-game-r4": [
+    "none",
+    "fireworks",
+    "cards(disabled)",
+    "zones",
+    "marbles"
+   ],
+   "pd-game-final": [
+    "none",
+    "fireworks",
+    "ladder",
+    "envelopes",
+    "flipcards"
+   ]
+  },
+  "picked": [
+   "ok",
+   "ok",
+   "ok"
+  ]
+ },
+ "setup-1440": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "offered": {
+   "pd-game-r1": [
+    "none",
+    "fireworks",
+    "cards",
+    "zones",
+    "marbles"
+   ],
+   "pd-game-r2": [
+    "none",
+    "fireworks",
+    "cards",
+    "zones",
+    "marbles"
+   ],
+   "pd-game-r3": [
+    "none",
+    "fireworks",
+    "cards(disabled)",
+    "zones",
+    "marbles"
+   ],
+   "pd-game-r4": [
+    "none",
+    "fireworks",
+    "cards(disabled)",
+    "zones",
+    "marbles"
+   ],
+   "pd-game-final": [
+    "none",
+    "fireworks",
+    "ladder",
+    "envelopes",
+    "flipcards"
+   ]
+  },
+  "picked": [
+   "ok",
+   "ok",
+   "ok"
+  ]
+ },
+ "projector-zones-1920": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "screenAfter": "reveal",
+  "claimLineInDom": false,
+  "picks": 0
+ },
+ "projector-marbles-1920": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "screenAfter": "reveal",
+  "claimLineInDom": false,
+  "picks": 0
+ },
+ "projector-envelopes-1920": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "screenAfter": "result",
+  "claimLineInDom": false,
+  "picks": 5
+ },
+ "projector-flipcards-1920": {
+  "exceptions": [],
+  "consoleErrors": [],
+  "logErrors": [],
+  "renderer": [
+   "ANGLE (Apple, ANGLE Metal Renderer: Apple M4 Pro, Unspecified Version)"
+  ],
+  "screenAfter": "result",
+  "claimLineInDom": false,
+  "picks": 5
+ }
+}

@@ -82,8 +82,9 @@ test('5 B: under 640px the projector is a phone layout: the frame unscaled, the 
   assert.match(phone, /\.pd-viewport\[data-field\] \.pd-chip\s*\{[^}]*--fit-size:\s*16;/, 'names at the phone size, through the fit rule');
   assert.match(phone, /\.pd-viewport\[data-field\] \.pd-scaled\s*\{[^}]*transform:\s*none/);
   assert.match(phone, /\.pd-viewport\[data-field\]\s*\{[^}]*overflow-y:\s*auto/);
-  // Only the screens with a name field take it; the lanes, the result and the cold screen keep the frame.
-  assert.match(STAGE, /const FIELD_SCREENS = new Set\(\['round', 'reveal', 'final'\]\)/);
+  // Only the screens with a name field take it; the lanes, the result and the cold screen keep the frame. A zones
+  // round before its draw is a name field too (gh#315, REFUTE 2026-11-17: it had no phone layout without this).
+  assert.match(STAGE, /const FIELD_SCREENS = new Set\(\['round', 'reveal', 'final', 'zones'\]\)/);
 });
 
 test('5 B: the fit rule starts a name at the size its stylesheet asks for (--fit-size), else at its surface size', () => {

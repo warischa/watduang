@@ -62,6 +62,13 @@ const EXEMPT_ROUTES = new Map([
   ['prize-fireworks', 'company-party game demo page: a fixed synthetic room, no roster and no per-seat setup row (gh#305)'],
   ['prize-cards', 'company-party game demo page: a fixed synthetic room, no roster and no per-seat setup row (gh#306)'],
   ['prize-ladder', 'company-party game demo page: a fixed synthetic room, no roster and no per-seat setup row (gh#307)'],
+  // gh#315-gh#318: the phase-2 games' own pages play the same fixed demo; the shared pick final (envelopes and
+  // flipcards) is a module directory, not a route, and renders finalists' names only. Same end condition.
+  ['prize-zones', 'company-party game demo page: a fixed synthetic room, no roster and no per-seat setup row (gh#315)'],
+  ['prize-marbles', 'company-party game demo page: a fixed synthetic room, no roster and no per-seat setup row (gh#316)'],
+  ['prize-envelopes', 'company-party game demo page: a fixed synthetic room, no roster and no per-seat setup row (gh#317)'],
+  ['prize-flipcards', 'company-party game demo page: a fixed synthetic room, no roster and no per-seat setup row (gh#318)'],
+  ['_prize-final-pick', 'shared pick final of the company-party event (gh#317, gh#318): renders names, never a per-seat setup row'],
 ]);
 
 /** Does this route source build a per-seat setup roster row of its own?
