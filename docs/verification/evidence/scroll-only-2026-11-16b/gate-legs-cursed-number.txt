@@ -1,0 +1,75 @@
+ci-probes: NARROWED to cursed-number -- iteration only, never the deploy verdict. narrowed: play-exit play-exit-guard play-top-band play-top-band-control canvas-ink canvas-ink-control no-webgl-first-screen player-screen-face play-screen-fit play-screen-fit-control · full: live-region-floor live-region-floor-control control-floor control-floor-control
+probe: live-region-floor (standalone)
+LEG_SECONDS narrowed live-region-floor 5
+  PASS  live-region-floor (5s)
+probe: live-region-floor-control (standalone)
+LEG_SECONDS narrowed live-region-floor-control 5
+  PASS  live-region-floor-control (5s)
+probe: control-floor (standalone)
+LEG_SECONDS narrowed control-floor 79
+  PASS  control-floor (79s)
+probe: control-floor-control (standalone)
+LEG_SECONDS narrowed control-floor-control 100
+  PASS  control-floor-control (100s)
+probe: play-exit (standalone)
+LEG_SECONDS narrowed play-exit 7
+  PASS  play-exit (7s)
+::notice::play-exit GAPS cursed-number: largest pointerup->pointerdown gap: handled 85.7ms, input 81.6ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 85.7, 83.5, 83.1, 83.2, 82.6; input gaps 80.5, 81.5, 81.6, 81.2, 81.3; dispatch lag 1, 1, 1, 1, 0ms)
+probe: play-exit-guard (standalone)
+LEG_SECONDS narrowed play-exit-guard 18
+  PASS  play-exit-guard (18s)
+probe: play-top-band (standalone)
+LEG_SECONDS narrowed play-top-band 12
+  PASS  play-top-band (12s)
+probe: canvas-ink (standalone)
+LEG_SECONDS narrowed canvas-ink 11
+  PASS  canvas-ink (11s)
+::notice::ROUTES_ONLY is set -- this is a NARROWED run over 1 of 10 derived route(s), iteration only and never the deploy verdict.
+::notice::IN_PAGE_CONTEXT webgl2=null webgl=null experimental-webgl=null 2d=live -- this lane's own read, not inferred from its Chrome flags
+probe: canvas-ink-control (standalone)
+LEG_SECONDS narrowed canvas-ink-control 11
+  PASS  canvas-ink-control (11s)
+::notice::ROUTES_ONLY is set -- this is a NARROWED run over 1 of 10 derived route(s), iteration only and never the deploy verdict.
+::notice::IN_PAGE_CONTEXT webgl2=null webgl=null experimental-webgl=null 2d=live -- this lane's own read, not inferred from its Chrome flags
+probe: no-webgl-first-screen (standalone)
+LEG_SECONDS narrowed no-webgl-first-screen 4
+  PASS  no-webgl-first-screen (4s)
+probe: player-screen-face (standalone)
+LEG_SECONDS narrowed player-screen-face 21
+  PASS  player-screen-face (21s)
+probe: play-top-band-control (standalone)
+LEG_SECONDS narrowed play-top-band-control 5
+  PASS  play-top-band-control (5s)
+probe: play-screen-fit (standalone)
+LEG_SECONDS narrowed play-screen-fit 35
+  PASS  play-screen-fit (35s)
+::notice::cursed-number      frame div#app.app-wrapper cap    none  screen section#cnPlayers.cn-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [518-922] | p.ps-limit [677-763] | ul.ps-players [510-930] | button.ps-add [510-930] | p.ps-hint [605-835] | button.ps-go [510-930]} in 1 x-range(s)  span 0.292 of 1440px frame  side-by-side no  docs/verification/evidence/203/cursed-number-1440x900-first-game-screen.png
+::notice::cursed-number      320x568   scrolls YES   661px  clipped     0px  sideways     0px  width-fill  75.6%  (worst of 7 screen(s): press 3, 32 ink)
+::notice::  screen [press 0]  overflow   140px  scrolls YES   140px  clipped     0px  sideways     0px  width-fill  83.8%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  70.6%  ink 5  class round
+::notice::  screen [press 2]  overflow   210px  scrolls YES   210px  clipped     0px  sideways     0px  width-fill  70.6%  ink 15  class round
+::notice::  screen [press 3]  overflow   661px  scrolls YES   661px  clipped     0px  sideways     0px  width-fill  75.6%  ink 32  class round
+::notice::  screen [press 4]  overflow   353px  scrolls YES   353px  clipped     0px  sideways     0px  width-fill  83.8%  ink 22  class round
+::notice::  screen [press 5]  overflow   210px  scrolls YES   210px  clipped     0px  sideways     0px  width-fill  70.6%  ink 15  class round
+::notice::  screen [press 6]  overflow   661px  scrolls YES   661px  clipped     0px  sideways     0px  width-fill  75.6%  ink 32  class round
+::notice::cursed-number      390x844   scrolls YES   289px  clipped     0px  sideways     0px  width-fill  77.9%  (worst of 7 screen(s): press 3, 32 ink)
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.7%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  75.9%  ink 5  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  76.7%  ink 15  class round
+::notice::  screen [press 3]  overflow   289px  scrolls YES   289px  clipped     0px  sideways     0px  width-fill  77.9%  ink 32  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.7%  ink 22  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  77.1%  ink 15  class round
+::notice::  screen [press 6]  overflow   237px  scrolls YES   237px  clipped     0px  sideways     0px  width-fill  77.9%  ink 32  class round
+::notice::cursed-number      1440x900  scrolls YES    35px  clipped     0px  sideways     0px  width-fill  53.1%  (worst of 7 screen(s): press 3, 32 ink)
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  29.2%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.9%  ink 5  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.9%  ink 15  class round
+::notice::  screen [press 3]  overflow    35px  scrolls YES    35px  clipped     0px  sideways     0px  width-fill  53.1%  ink 32  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  97.8%  ink 22  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.9%  ink 15  class round
+::notice::  screen [press 6]  overflow    35px  scrolls YES    35px  clipped     0px  sideways     0px  width-fill  53.1%  ink 32  class round
+probe: play-screen-fit-control (standalone)
+LEG_SECONDS narrowed play-screen-fit-control 35
+  PASS  play-screen-fit-control (35s)
+::notice::cursed-number      frame div#app.app-wrapper cap    none  screen section#cnPlayers.cn-players.ps  [setup]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [518-922] | div.ps-count [615-825] | ul.ps-players [510-930] | p.ps-hint [605-835] | button.ps-sec [510-930] | button.ps-go [510-930]} in 1 x-range(s)  span 0.292 of 1440px frame  side-by-side no
+ci-probes: narrowed to cursed-number: 14 leg(s) passed -- iteration only, never the deploy verdict

@@ -1,0 +1,28 @@
+::notice::cursed-number      frame div#app.app-wrapper cap    none  screen section#cnPlayers.cn-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [518-922] | p.ps-limit [677-763] | ul.ps-players [510-930] | button.ps-add [510-930] | p.ps-hint [605-835] | button.ps-go [510-930]} in 1 x-range(s)  span 0.292 of 1440px frame  side-by-side no  docs/verification/evidence/203/cursed-number-1440x900-first-game-screen.png
+NARROWED by ROUTES_ONLY=cursed-number — 1 of 18 play route(s). A narrowed run is iteration only, never the deploy verdict.
+::notice::cursed-number      320x568   scrolls YES   661px  clipped     0px  sideways     0px  width-fill  75.6%  (worst of 7 screen(s): press 3, 32 ink)
+::notice::  screen [press 0]  overflow   140px  scrolls YES   140px  clipped     0px  sideways     0px  width-fill  83.8%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  70.6%  ink 5  class round
+::notice::  screen [press 2]  overflow   210px  scrolls YES   210px  clipped     0px  sideways     0px  width-fill  70.6%  ink 15  class round
+::notice::  screen [press 3]  overflow   661px  scrolls YES   661px  clipped     0px  sideways     0px  width-fill  75.6%  ink 32  class round
+::notice::  screen [press 4]  overflow   353px  scrolls YES   353px  clipped     0px  sideways     0px  width-fill  83.8%  ink 22  class round
+::notice::  screen [press 5]  overflow   210px  scrolls YES   210px  clipped     0px  sideways     0px  width-fill  70.6%  ink 15  class round
+::notice::  screen [press 6]  overflow   661px  scrolls YES   661px  clipped     0px  sideways     0px  width-fill  75.6%  ink 32  class round
+::notice::cursed-number      390x844   scrolls YES   289px  clipped     0px  sideways     0px  width-fill  77.9%  (worst of 7 screen(s): press 3, 32 ink)
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.7%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  75.9%  ink 5  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  77.1%  ink 15  class round
+::notice::  screen [press 3]  overflow   289px  scrolls YES   289px  clipped     0px  sideways     0px  width-fill  77.9%  ink 32  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.7%  ink 22  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  77.2%  ink 15  class round
+::notice::  screen [press 6]  overflow   237px  scrolls YES   237px  clipped     0px  sideways     0px  width-fill  77.9%  ink 32  class round
+::notice::cursed-number      1440x900  scrolls YES    35px  clipped     0px  sideways     0px  width-fill  53.1%  (worst of 7 screen(s): press 3, 32 ink)
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  29.2%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.9%  ink 5  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.9%  ink 15  class round
+::notice::  screen [press 3]  overflow    35px  scrolls YES    35px  clipped     0px  sideways     0px  width-fill  53.1%  ink 32  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  97.8%  ink 22  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.9%  ink 15  class round
+::notice::  screen [press 6]  overflow    35px  scrolls YES    35px  clipped     0px  sideways     0px  width-fill  53.1%  ink 32  class round
+FIT_SHARD_WALKED clean 0/1 routes=cursed-number
+OK 3 route/viewport row(s) left the fresh screen; 21 distinct play screen(s) measured across 1 route(s) x 3 viewport(s). 0 row(s) asserted to fit within 8px and 3 row(s) held as recorded exceptions in KNOWN_OVERFLOW (their px reported, never gated: growth or a 0px reading prints a warning; the screen class each ruling names IS gated, gh#284) — every produced row is in exactly one of the two sets. SIDEWAYS (gh#202) is a separate gate on its own set: all 3 row(s) are asserted to clip no more than 8px horizontally except the 0 in KNOWN_OVERFLOW_X.

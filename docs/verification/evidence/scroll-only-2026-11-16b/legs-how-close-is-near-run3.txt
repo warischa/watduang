@@ -1,0 +1,72 @@
+ci-probes: NARROWED to how-close-is-near -- iteration only, never the deploy verdict. narrowed: play-exit play-exit-guard play-top-band play-top-band-control canvas-ink canvas-ink-control no-webgl-first-screen player-screen-face play-screen-fit play-screen-fit-control · full: live-region-floor live-region-floor-control control-floor control-floor-control
+probe: live-region-floor (standalone)
+LEG_SECONDS narrowed live-region-floor 5
+  PASS  live-region-floor (5s)
+probe: live-region-floor-control (standalone)
+LEG_SECONDS narrowed live-region-floor-control 5
+  PASS  live-region-floor-control (5s)
+probe: control-floor (standalone)
+LEG_SECONDS narrowed control-floor 80
+  PASS  control-floor (80s)
+probe: control-floor-control (standalone)
+LEG_SECONDS narrowed control-floor-control 100
+  PASS  control-floor-control (100s)
+probe: play-exit (standalone)
+LEG_SECONDS narrowed play-exit 7
+  PASS  play-exit (7s)
+::notice::play-exit GAPS how-close-is-near: largest pointerup->pointerdown gap: handled 95.8ms, input 81.9ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 95.8, 66.1, 83.1, 83.4, 83.2; input gaps 80.5, 81.4, 81.9, 81.1, 81.4; dispatch lag 0, 1, 1, 1, 1ms)
+probe: play-exit-guard (standalone)
+LEG_SECONDS narrowed play-exit-guard 18
+  PASS  play-exit-guard (18s)
+probe: play-top-band (standalone)
+LEG_SECONDS narrowed play-top-band 12
+  PASS  play-top-band (12s)
+probe: canvas-ink (standalone)
+LEG_SECONDS narrowed canvas-ink 11
+  PASS  canvas-ink (11s)
+::notice::ROUTES_ONLY is set -- this is a NARROWED run over 1 of 10 derived route(s), iteration only and never the deploy verdict.
+::notice::IN_PAGE_CONTEXT webgl2=null webgl=null experimental-webgl=null 2d=live -- this lane's own read, not inferred from its Chrome flags
+probe: canvas-ink-control (standalone)
+LEG_SECONDS narrowed canvas-ink-control 11
+  PASS  canvas-ink-control (11s)
+::notice::ROUTES_ONLY is set -- this is a NARROWED run over 1 of 10 derived route(s), iteration only and never the deploy verdict.
+::notice::IN_PAGE_CONTEXT webgl2=null webgl=null experimental-webgl=null 2d=live -- this lane's own read, not inferred from its Chrome flags
+probe: no-webgl-first-screen (standalone)
+LEG_SECONDS narrowed no-webgl-first-screen 4
+  PASS  no-webgl-first-screen (4s)
+probe: player-screen-face (standalone)
+LEG_SECONDS narrowed player-screen-face 21
+  PASS  player-screen-face (21s)
+probe: play-top-band-control (standalone)
+LEG_SECONDS narrowed play-top-band-control 5
+  PASS  play-top-band-control (5s)
+probe: play-screen-fit (standalone)
+LEG_SECONDS narrowed play-screen-fit 35
+  PASS  play-screen-fit (35s)
+::notice::how-close-is-near  frame div#appRoot cap    none  screen section#hcPlayers.hc-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [513-927] | p.ps-limit [677-763] | ul.ps-players [510-930] | button.ps-add [510-930] | p.ps-hint [605-835] | button.ps-go [510-930]} in 1 x-range(s)  span 0.292 of 1440px frame  side-by-side no  docs/verification/evidence/203/how-close-is-near-1440x900-first-game-screen.png
+::notice::how-close-is-near  320x568   scrolls YES    60px  clipped     0px  sideways     0px  width-fill  93.8%  (worst of 6 screen(s): press 0, 20 ink)
+::notice::  screen [press 0]  overflow    60px  scrolls YES    60px  clipped     0px  sideways     0px  width-fill  93.8%  ink 20  class player
+::notice::  screen [press 1]  overflow     3px  scrolls YES     3px  clipped     0px  sideways     0px  width-fill  84.4%  ink 10  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  84.4%  ink 3  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  89.1%  ink 7  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  89.1%  ink 18  class round
+::notice::  screen [press 5]  overflow    18px  scrolls YES    18px  clipped     0px  sideways     0px  width-fill  89.1%  ink 19  class round
+::notice::how-close-is-near  390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill    81%  (worst of 6 screen(s): press 1, 10 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    81%  ink 10  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    81%  ink 3  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.4%  ink 7  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.4%  ink 18  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.4%  ink 19  class round
+::notice::how-close-is-near  1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill  29.2%  (worst of 6 screen(s): press 0, 20 ink) [pinned fits]
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  29.2%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.9%  ink 10  class round
+::notice::  screen [press 2]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  94.9%  ink 3  class round
+::notice::  screen [press 3]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  96.3%  ink 7  class round
+::notice::  screen [press 4]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  71.1%  ink 18  class round
+::notice::  screen [press 5]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill    72%  ink 19  class round
+probe: play-screen-fit-control (standalone)
+LEG_SECONDS narrowed play-screen-fit-control 35
+  PASS  play-screen-fit-control (35s)
+::notice::how-close-is-near  frame div#appRoot cap    none  screen section#hcPlayers.hc-players.ps  [setup]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [513-927] | div.ps-count [615-825] | ul.ps-players [510-930] | p.ps-hint [605-835] | button.ps-sec [510-930] | button.ps-go [510-930]} in 1 x-range(s)  span 0.292 of 1440px frame  side-by-side no
+ci-probes: narrowed to how-close-is-near: 14 leg(s) passed -- iteration only, never the deploy verdict

@@ -2042,9 +2042,11 @@ test('MUST-RED 2026-11-14: the vertical grant on a demo phone row does not licen
 // screen of the row at 0px clipped and 0px sideways, the three logs byte-identical within each route.
 // Evidence: docs/verification/evidence/scroll-only-2026-11-16/.
 const SCROLL_ONLY_2026_11_16 = ['freeze-tap 320x568', 'zero-trigger 320x568', 'wire-snip-panic 320x568', 'short-stick 320x568'];
-const SCROLL_ONLY = ['prize-draw 320x568', ...DEMO_PHONE_PX.keys(), ...SCROLL_ONLY_2026_11_16];
+// Second 2026-11-16 batch: the four rows of the eight that read 0px clipped and 0px sideways on every screen.
+const SCROLL_ONLY_2026_11_16B = ['cursed-number 320x568', 'cursed-number 390x844', 'cursed-number 1440x900', 'how-close-is-near 320x568'];
+const SCROLL_ONLY = ['prize-draw 320x568', ...DEMO_PHONE_PX.keys(), ...SCROLL_ONLY_2026_11_16, ...SCROLL_ONLY_2026_11_16B];
 
-test('the scroll-only rows are exactly the nine scroll rulings, each a KNOWN_OVERFLOW row recorded at 0px clipped', () => {
+test('the scroll-only rows are exactly the thirteen scroll rulings, each a KNOWN_OVERFLOW row recorded at 0px clipped', () => {
   assert.ok(fit.SCROLL_ONLY_ROWS instanceof Set, 'the probe exports its scroll-only set');
   assert.deepEqual([...fit.SCROLL_ONLY_ROWS].sort(), [...SCROLL_ONLY].sort());
   for (const key of fit.SCROLL_ONLY_ROWS) {
@@ -2057,6 +2059,12 @@ test('the scroll-only rows are exactly the nine scroll rulings, each a KNOWN_OVE
   // slipped into the set with no re-measurement behind it is the regression this pins.
   for (const key of SCROLL_ONLY_2026_11_16) {
     assert.match(KNOWN_OVERFLOW.get(key), /re-measured 2026-11-16 at 1f57574 \(n=3\): 0px clipped, 0px sideways/, key);
+    assert.ok(!FITS_ROWS.has(key), `${key}: a row in both sets reds as ambiguous`);
+    assert.ok(!KNOWN_OVERFLOW_X.has(key), `${key}: the grant is vertical only, so the horizontal map must not hold it`);
+  }
+  // The second batch carries its own provenance: a different build than the first batch's.
+  for (const key of SCROLL_ONLY_2026_11_16B) {
+    assert.match(KNOWN_OVERFLOW.get(key), /re-measured 2026-11-16 at 4daa92b \(n=3\): 0px clipped, 0px sideways/, key);
     assert.ok(!FITS_ROWS.has(key), `${key}: a row in both sets reds as ambiguous`);
     assert.ok(!KNOWN_OVERFLOW_X.has(key), `${key}: the grant is vertical only, so the horizontal map must not hold it`);
   }

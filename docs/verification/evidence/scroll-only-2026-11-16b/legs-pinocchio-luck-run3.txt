@@ -1,0 +1,57 @@
+ci-probes: NARROWED to pinocchio-luck -- iteration only, never the deploy verdict. narrowed: play-exit play-exit-guard play-top-band play-top-band-control no-webgl-first-screen player-screen-face play-screen-fit play-screen-fit-control · full: live-region-floor live-region-floor-control control-floor control-floor-control
+probe: live-region-floor (standalone)
+LEG_SECONDS narrowed live-region-floor 5
+  PASS  live-region-floor (5s)
+probe: live-region-floor-control (standalone)
+LEG_SECONDS narrowed live-region-floor-control 5
+  PASS  live-region-floor-control (5s)
+probe: control-floor (standalone)
+LEG_SECONDS narrowed control-floor 79
+  PASS  control-floor (79s)
+probe: control-floor-control (standalone)
+LEG_SECONDS narrowed control-floor-control 100
+  PASS  control-floor-control (100s)
+probe: play-exit (standalone)
+LEG_SECONDS narrowed play-exit 7
+  PASS  play-exit (7s)
+::notice::play-exit GAPS pinocchio-luck: largest pointerup->pointerdown gap: handled 88.3ms, input 81.5ms vs ARM_DELAY_MS 400 (over it: 0 handled, 0 input; handled gaps 88.3, 83, 83.2, 83.7, 83.2; input gaps 81.5, 81.1, 81.1, 81.2, 81.1; dispatch lag 1, 0, 0, 1, 1ms)
+probe: play-exit-guard (standalone)
+LEG_SECONDS narrowed play-exit-guard 18
+  PASS  play-exit-guard (18s)
+probe: play-top-band (standalone)
+LEG_SECONDS narrowed play-top-band 11
+  PASS  play-top-band (11s)
+probe: no-webgl-first-screen (standalone)
+LEG_SECONDS narrowed no-webgl-first-screen 4
+  PASS  no-webgl-first-screen (4s)
+probe: player-screen-face (standalone)
+LEG_SECONDS narrowed player-screen-face 21
+  PASS  player-screen-face (21s)
+probe: play-top-band-control (standalone)
+LEG_SECONDS narrowed play-top-band-control 5
+  PASS  play-top-band-control (5s)
+probe: play-screen-fit (standalone)
+LEG_SECONDS narrowed play-screen-fit 28
+  PASS  play-screen-fit (28s)
+::notice::pinocchio-luck     frame main#app.no-webgl cap    none  screen main#app.no-webgl  [first-game-screen press 0]  display grid  tracks 1 (1440px)  units 2 {div.webgl-error [350-1090] | section#plPlayers.panel.ps [510-930]} in 1 x-range(s)  span 0.514 of 1440px frame  side-by-side no  docs/verification/evidence/203/pinocchio-luck-1440x900-first-game-screen.png
+::warning::/game/pinocchio-luck/play/ at 390x844 measured 40px SIDEWAYS against a recorded 10px (widest offender section#stageFrame) at press 3. Same machine as the recording? Then the sideways clip GREW past what was excused — fix it or re-record with the reason. Different machine? Fonts, not layout: leave the number alone.
+::notice::pinocchio-luck     320x568   scrolls YES   270px  clipped     0px  sideways    20px by section#stageFrame  width-fill  83.1%  (worst of 4 screen(s): press 0, 21 ink) [sideways excepted]
+::notice::  screen [press 0]  overflow   270px  scrolls YES   270px  clipped     0px  sideways     0px  width-fill  83.1%  ink 21  class player
+::notice::  screen [press 1]  overflow    63px  scrolls YES    63px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 7  class round
+::notice::  screen [press 2]  overflow   163px  scrolls YES   163px  clipped     4px by div.css-mouth  sideways     0px  width-fill  95.6%  ink 14  class round
+::notice::  screen [press 3]  overflow    49px  scrolls YES    49px  clipped     4px by div.css-mouth  sideways    20px by section#stageFrame  width-fill  97.8%  ink 7  class round
+::notice::pinocchio-luck     390x844   scrolls YES   170px  clipped     0px  sideways    40px by section#stageFrame  width-fill  86.2%  (worst of 4 screen(s): press 0, 21 ink) [sideways excepted]
+::notice::  screen [press 0]  overflow   170px  scrolls YES   170px  clipped     0px  sideways     0px  width-fill  86.2%  ink 21  class player
+::notice::  screen [press 1]  overflow     4px  scrolls no      0px  clipped     4px by div.css-mouth  sideways     0px  width-fill  96.4%  ink 7  class round
+::notice::  screen [press 2]  overflow    70px  scrolls YES    70px  clipped     4px by div.css-mouth  sideways     0px  width-fill  96.4%  ink 14  class round
+::notice::  screen [press 3]  overflow     4px  scrolls no      0px  clipped     4px by div.css-mouth  sideways    40px by section#stageFrame  width-fill  98.2%  ink 7  class round
+::notice::pinocchio-luck     1440x900  scrolls YES   174px  clipped     0px  sideways     0px  width-fill  51.4%  (worst of 4 screen(s): press 0, 21 ink)
+::notice::  screen [press 0]  overflow   174px  scrolls YES   174px  clipped     0px  sideways     0px  width-fill  51.4%  ink 21  class player
+::notice::  screen [press 1]  overflow    34px  scrolls YES    34px  clipped     4px by div.css-mouth  sideways     0px  width-fill  54.2%  ink 7  class round
+::notice::  screen [press 2]  overflow     4px  scrolls no      0px  clipped     4px by div.css-mouth  sideways     0px  width-fill  54.2%  ink 14  class round
+::notice::  screen [press 3]  overflow    73px  scrolls YES    73px  clipped     4px by div.css-mouth  sideways     0px  width-fill  77.1%  ink 8  class round
+probe: play-screen-fit-control (standalone)
+LEG_SECONDS narrowed play-screen-fit-control 35
+  PASS  play-screen-fit-control (35s)
+::notice::pinocchio-luck     frame main#app.no-webgl cap    none  screen main#app.no-webgl  [setup]  display grid  tracks 1 (1440px)  units 2 {div.webgl-error [350-1090] | section#plPlayers.panel.ps [510-930]} in 1 x-range(s)  span 0.514 of 1440px frame  side-by-side no
+ci-probes: narrowed to pinocchio-luck: 12 leg(s) passed -- iteration only, never the deploy verdict

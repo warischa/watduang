@@ -1,0 +1,3 @@
+::notice::cursed-number      frame div#app.app-wrapper cap    none  screen section#cnPlayers.cn-players.ps  [setup]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [518-922] | div.ps-count [615-825] | ul.ps-players [510-930] | p.ps-hint [605-835] | button.ps-sec [510-930] | button.ps-go [510-930]} in 1 x-range(s)  span 0.292 of 1440px frame  side-by-side no
+FIT_SHARD_WALKED control 0/1 routes=cursed-number
+OK control: all 3 route/viewport row(s) stayed on the fresh screen with both the seeding and the presses disabled — so the walk invariant CAN fail, and the screen signature is stable across the 6 press intervals the clean leg spends walking (a signature that drifted on its own would report "it left setup" about a walk that never moved).
