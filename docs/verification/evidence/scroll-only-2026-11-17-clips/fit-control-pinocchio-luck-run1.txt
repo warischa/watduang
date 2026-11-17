@@ -1,0 +1,3 @@
+::notice::pinocchio-luck     frame main#app.no-webgl cap    none  screen main#app.no-webgl  [setup]  display grid  tracks 1 (1440px)  units 2 {div.webgl-error [350-1090] | section#plPlayers.panel.ps [510-930]} in 1 x-range(s)  span 0.514 of 1440px frame  side-by-side no
+FIT_SHARD_WALKED control 0/1 routes=pinocchio-luck
+OK control: all 3 route/viewport row(s) stayed on the fresh screen with both the seeding and the presses disabled — so the walk invariant CAN fail, and the screen signature is stable across the 6 press intervals the clean leg spends walking (a signature that drifted on its own would report "it left setup" about a walk that never moved).

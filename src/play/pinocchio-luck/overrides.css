@@ -167,3 +167,14 @@
 #app {
   min-height: calc(100svh - var(--play-band));
 }
+
+/* The fallback puppet's tongue, trimmed to what shows. style.css draws it as a 20x12 ellipse hanging 4px
+   below the mouth, and the mouth's overflow:hidden cuts the bottom third off, so the mouth box held 4px
+   of tongue nobody could see. The same visible shape as a box that ends at the mouth's edge: the top 8px
+   of that ellipse, i.e. its top two corners with the ellipse's own 10px x 6px radii and a square bottom
+   that the mouth's rounded clip trims exactly as before. Nothing hangs past the mouth any more. */
+.css-puppet .css-mouth:after {
+  bottom: 0;
+  height: 8px;
+  border-radius: 10px 10px 0 0 / 6px 6px 0 0;
+}

@@ -1,0 +1,15 @@
+::notice::cannon-flag        frame div#app-container cap    none  screen section#cf-players.cf-players.ps  [first-game-screen press 0]  display flex  tracks 0 (none)  units 6 {p.ps-tagline [582-858] | p.ps-limit [677-763] | ul.ps-players [526-914] | button.ps-add [526-914] | p.ps-hint [605-835] | button.ps-go [526-914]} in 1 x-range(s)  span 0.269 of 1440px frame  side-by-side no  docs/verification/evidence/203/cannon-flag-1440x900-first-game-screen.png
+NARROWED by ROUTES_ONLY=cannon-flag — 1 of 22 play route(s). A narrowed run is iteration only, never the deploy verdict.
+::error::/game/cannon-flag/play/ at 320x568 CLIPS content away VERTICALLY: 2px clipped (0px to scroll) on a play screen (press 2). This row is in KNOWN_OVERFLOW under a ruling that lets the page SCROLL, which keeps content reachable; clipped content is not reachable, so SCROLL_ONLY_ROWS gates it at 0px. Fix the layout -- the scroll grant does not cover it.
+::notice::cannon-flag        320x568   scrolls YES    20px  clipped     0px  sideways     0px  width-fill    90%  (worst of 3 screen(s): press 0, 20 ink)
+::notice::  screen [press 0]  overflow    20px  scrolls YES    20px  clipped     0px  sideways     0px  width-fill    90%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  86.9%  ink 8  class round
+::notice::  screen [press 2]  overflow     2px  scrolls no      0px  clipped     2px by div.power-gauge-container [furthest below: div#power-gauge-text.power-lcd-text 135,487,50,16 (+1px)]  sideways     0px  width-fill   100%  ink 23  class round
+::notice::cannon-flag        390x844   scrolls no      0px  clipped     2px  sideways     0px  width-fill   100%  (worst of 3 screen(s): press 2, 23 ink)
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  89.2%  ink 8  class round
+::notice::  screen [press 2]  overflow     2px  scrolls no      0px  clipped     2px by div.power-gauge-container [furthest below: div#power-gauge-text.power-lcd-text 170,763,50,16 (+1px)]  sideways     0px  width-fill   100%  ink 23  class round
+::notice::cannon-flag        1440x900  scrolls no      0px  clipped     2px  sideways     0px  width-fill   100%  (worst of 3 screen(s): press 2, 23 ink)
+::notice::  screen [press 0]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  26.9%  ink 20  class player
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  63.5%  ink 8  class round
+::notice::  screen [press 2]  overflow     2px  scrolls no      0px  clipped     2px by div.power-gauge-container [furthest below: div#power-gauge-text.power-lcd-text 695,815,50,16 (+1px)]  sideways     0px  width-fill   100%  ink 23  class round

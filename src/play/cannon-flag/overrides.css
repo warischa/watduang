@@ -166,3 +166,17 @@
 .brand-title {
   margin-inline-start: 60px;
 }
+
+/* Power-gauge label line box. `.power-gauge-container` is 14px tall with a 1px border, so its padding box
+   is 12px, and the label inside it is centred with top/left 50% and a -50% translate. At
+   `line-height: normal` the label's line box took the Thai fallback face's metrics, 16px, so the centred
+   box hung 2px past the gauge's bottom edge and the gauge's own overflow:hidden held 2px of empty line
+   box below the text -- a clip of nothing, but a box that does not fit. A 12px box fits exactly: 10px of
+   line height plus 2px of top padding, which puts the baseline on the same device pixel the 16px line box
+   gave it, so the glyphs paint where they did. A 12px line height alone would centre the text 1px higher
+   and push the Thai upper vowel further into the top edge. What is left past the bottom edge is the
+   monospace face's descent area under the baseline, about 1px, with no ink in it. */
+.power-lcd-text {
+  line-height: 10px;
+  padding-top: 2px;
+}
