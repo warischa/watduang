@@ -14,6 +14,7 @@
 
 import type { GameEvent, RevealInput } from '../../_prize-reveal/game-contract.ts';
 import { ELIMINATION_ROUNDS } from '../../../prize-draw/schedule.ts';
+import { COLOR } from '../../prize-fireworks/renderer/paint.ts';
 import { randomFor } from '../../prize-fireworks/renderer/seed.ts';
 import { COPY } from './copy.ts';
 
@@ -25,11 +26,12 @@ export const FRAME_H = 1080;
 /** Four zones: layout A FOUR BLOCKS. */
 export const ZONE_COUNT = 4;
 /** Zone colours in panel order (the board's ZKEYS4), and the panel grounds: each colour at 14% pre-composited
- *  over the night midpoint #1c1b3c, as the board computes them. */
+ *  over the night midpoint #1c1b3c, as the board computes them. The accents come from the
+ *  one accent copy the prize renderers share (gh#128: a file never pastes part of the accent trio). */
 export const ZONES = [
-  { key: 'punch', color: '#ff3d7f', tint: '#3c2045' },
-  { key: 'sky', color: '#2b7bff', tint: '#1e2857' },
-  { key: 'lilac', color: '#c9c2ff', tint: '#343257' },
+  { key: 'punch', color: COLOR.punch, tint: '#3c2045' },
+  { key: 'sky', color: COLOR.sky, tint: '#1e2857' },
+  { key: 'lilac', color: COLOR.lilac, tint: '#343257' },
   { key: 'white', color: '#ffffff', tint: '#3c3b57' },
 ] as const;
 

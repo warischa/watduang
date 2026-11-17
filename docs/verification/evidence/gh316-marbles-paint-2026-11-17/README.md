@@ -1,6 +1,6 @@
 # gh#316 marbles: the race paints again (PD-316-01), 2026-11-17
 
-Finding: `../ui-audit-2026-11-17-gh315-318/gh316.md` § PD-316-01. In the 3D reveal no marble, glow or
+Finding: `../ui-audit-2026-11-17-gh315-318/gh316.md` § "PD-316-01 · critical · the race itself never paints · 1440 and 1920, both routes". In the 3D reveal no marble, glow or
 streak painted at any width, on the demo page or the projector route.
 
 ## Root cause (proven)

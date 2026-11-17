@@ -161,7 +161,7 @@ test('a short heat after a full one draws nothing in its empty lanes, and marble
   const tint = marbles.geometry.getAttribute('aTint');
   const near = (i, [r, g, b], what) =>
     assert.ok(Math.abs(tint.getX(i) - r) < 1e-3 && Math.abs(tint.getY(i) - g) < 1e-3 && Math.abs(tint.getZ(i) - b) < 1e-3, `${what}: (${tint.getX(i)}, ${tint.getY(i)}, ${tint.getZ(i)})`);
-  near(5, [1, 0xcc / 255, 0], 'an across marble is not the board gold #ffcc00');
+  near(5, [1, 0xcc / 255, 0], 'an across marble is not the board gold (--accent-gold)');
   near(0, [0x72 / 255, 0x24 / 255, 0x4d / 255], 'a stopped lane-1 marble is not the board dim #72244d');
 });
 

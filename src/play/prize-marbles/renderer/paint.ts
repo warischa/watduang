@@ -26,11 +26,12 @@ export const TRACK_COLOR = {
 } as const;
 
 /** The four marble bodies, cycling by lane: decoration only, no fate meaning. Each with its rolling streak
- *  (35% over the track) and its stopped, dim body (40% over the track), as the board lists them. */
+ *  (35% over the track) and its stopped, dim body (40% over the track), as the board lists them. The
+ *  accents come from the shared accent copy (gh#128: a file never pastes part of the accent trio). */
 export const MARBLE_COLOR = [
-  { body: '#ff3d7f', streak: '#662248', out: '#72244d' },
-  { body: '#2b7bff', streak: '#1c3875', out: '#1d3d80' },
-  { body: '#c9c2ff', streak: '#535175', out: '#5c5a80' },
+  { body: COLOR.punch, streak: '#662248', out: '#72244d' },
+  { body: COLOR.sky, streak: '#1c3875', out: '#1d3d80' },
+  { body: COLOR.lilac, streak: '#535175', out: '#5c5a80' },
   { body: '#ffffff', streak: '#666675', out: '#727280' },
 ] as const;
 

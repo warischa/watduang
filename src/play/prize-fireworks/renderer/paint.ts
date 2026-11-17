@@ -19,6 +19,8 @@ export const COLOR = {
   gold: '#ffcc00',
   punch: '#ff3d7f',
   sky: '#2b7bff',
+  /** --accent-lilac, for the phase-2 renderers that import this palette (zones, marbles). */
+  lilac: '#c9c2ff',
   out: '#9a97c0',
   onGold: '#14142b',
   glow: 'rgba(255,204,0,0.45)',
