@@ -1,0 +1,245 @@
+{
+  "base": "http://localhost:4344",
+  "runsWanted": 1,
+  "attempts": 1,
+  "voidRuns": 0,
+  "runs": [
+    {
+      "void": false,
+      "pre": {
+        "path": "/game/prize-draw/play/",
+        "field": true,
+        "chips": 30,
+        "innerWidth": 1920,
+        "innerHeight": 1080,
+        "reduced": false,
+        "bundle": [
+          "play.astro_astro_type_script_index_0_lang.CF04VCCJ.js"
+        ]
+      },
+      "font": {
+        "checkBefore": true,
+        "checkAfter": true,
+        "faces": [
+          {
+            "weight": "400",
+            "status": "loaded"
+          },
+          {
+            "weight": "700",
+            "status": "loaded"
+          }
+        ]
+      },
+      "platform": [
+        {
+          "familyName": "Sarabun",
+          "postScriptName": "Sarabun-Bold",
+          "isCustomFont": true,
+          "glyphCount": 16
+        }
+      ],
+      "chipsPassed": 20,
+      "bandPassed": 9,
+      "maxScrollOver": 0,
+      "fitViolations": 0,
+      "maxSpillPx": -5,
+      "band": [
+        {
+          "name": "ลศฟไษ๊ปมญขีะญ้ก็",
+          "band": true,
+          "fontSize": "19px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 150,
+          "runRectWidth": 142.4,
+          "fitDemand": 153,
+          "spill": -6,
+          "fitOk": true
+        },
+        {
+          "name": "แทซัฟปีาซษึศญืฮ่ล",
+          "band": true,
+          "fontSize": "19px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 151,
+          "runRectWidth": 142.7,
+          "fitDemand": 154.02,
+          "spill": -5,
+          "fitOk": true
+        },
+        {
+          "name": "ษิปีญึ้ฟยลิผ๋แป่ฝึคา",
+          "band": true,
+          "fontSize": "19px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 150,
+          "runRectWidth": 141.94,
+          "fitDemand": 153,
+          "spill": -6,
+          "fitOk": true
+        },
+        {
+          "name": "ตษัะล็นพ๋หฮฟข้ฟั้ซ",
+          "band": true,
+          "fontSize": "19px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 150,
+          "runRectWidth": 142.13,
+          "fitDemand": 153,
+          "spill": -6,
+          "fitOk": true
+        },
+        {
+          "name": "ยฝืาบึญญื่ลึ๊ขัแปฉืฝ",
+          "band": true,
+          "fontSize": "19px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 149,
+          "runRectWidth": 141.51,
+          "fitDemand": 151.98,
+          "spill": -7,
+          "fitOk": true
+        },
+        {
+          "name": "ผฟึญึาธโลฟญนึผ็๋ตื",
+          "band": true,
+          "fontSize": "19px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 149,
+          "runRectWidth": 141.51,
+          "fitDemand": 151.98,
+          "spill": -7,
+          "fitOk": true
+        },
+        {
+          "name": "ไญ็๋ษะฝแญออพมิธิ",
+          "band": true,
+          "fontSize": "19px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 149,
+          "runRectWidth": 141.11,
+          "fitDemand": 151.98,
+          "spill": -7,
+          "fitOk": true
+        },
+        {
+          "name": "ดศ็๊ญตตพัยะษห๋ทึถ็",
+          "band": true,
+          "fontSize": "19px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 149,
+          "runRectWidth": 141.53,
+          "fitDemand": 151.98,
+          "spill": -7,
+          "fitOk": true
+        },
+        {
+          "name": "ฉืน็ลึ่ะฟน๋ญช๋ผผปศึ",
+          "band": true,
+          "fontSize": "19px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 150,
+          "runRectWidth": 141.81,
+          "fitDemand": 153,
+          "spill": -6,
+          "fitOk": true
+        }
+      ],
+      "log": [
+        {
+          "t": 0,
+          "why": "start",
+          "marked": true,
+          "display": "",
+          "sizes": [
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px"
+          ]
+        },
+        {
+          "t": 23,
+          "why": "mut",
+          "marked": false,
+          "display": "",
+          "sizes": [
+            "19px",
+            "19px",
+            "19px",
+            "19px",
+            "20px",
+            "19px",
+            "19px",
+            "19px",
+            "19px",
+            "20px",
+            "19px"
+          ]
+        },
+        {
+          "t": 36,
+          "why": "mut",
+          "marked": true,
+          "display": "",
+          "sizes": [
+            "19px",
+            "19px",
+            "19px",
+            "19px",
+            "20px",
+            "19px",
+            "19px",
+            "19px",
+            "19px",
+            "20px",
+            "19px"
+          ]
+        }
+      ]
+    }
+  ]
+}

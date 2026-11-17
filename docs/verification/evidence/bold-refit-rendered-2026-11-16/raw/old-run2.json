@@ -1,0 +1,219 @@
+{
+  "base": "http://localhost:4344",
+  "runsWanted": 1,
+  "attempts": 1,
+  "voidRuns": 0,
+  "runs": [
+    {
+      "void": false,
+      "pre": {
+        "path": "/game/prize-draw/play/",
+        "field": true,
+        "chips": 30,
+        "innerWidth": 1920,
+        "innerHeight": 1080,
+        "reduced": false,
+        "bundle": [
+          "play.astro_astro_type_script_index_0_lang.1isUHiTV.js"
+        ]
+      },
+      "font": {
+        "checkBefore": true,
+        "checkAfter": true,
+        "faces": [
+          {
+            "weight": "400",
+            "status": "loaded"
+          },
+          {
+            "weight": "700",
+            "status": "loaded"
+          }
+        ]
+      },
+      "platform": [
+        {
+          "familyName": "Sarabun",
+          "postScriptName": "Sarabun-Bold",
+          "isCustomFont": true,
+          "glyphCount": 18
+        }
+      ],
+      "chipsPassed": 20,
+      "bandPassed": 6,
+      "maxScrollOver": 1,
+      "fitViolations": 6,
+      "maxSpillPx": 2,
+      "band": [
+        {
+          "name": "ตษัะล็นพ๋หฮฟข้ฟั้ซ",
+          "band": true,
+          "fontSize": "20px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 173,
+          "room": 156,
+          "runOffsetWidth": 158,
+          "runRectWidth": 149.6,
+          "fitDemand": 161.16,
+          "spill": 2,
+          "fitOk": false
+        },
+        {
+          "name": "ทฟหืในวญ็ตษนิาญ",
+          "band": true,
+          "fontSize": "20px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 173,
+          "room": 156,
+          "runOffsetWidth": 158,
+          "runRectWidth": 149.36,
+          "fitDemand": 161.16,
+          "spill": 2,
+          "fitOk": false
+        },
+        {
+          "name": "ยฝืาบึญญื่ลึ๊ขัแปฉืฝ",
+          "band": true,
+          "fontSize": "20px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 157,
+          "runRectWidth": 148.96,
+          "fitDemand": 160.14,
+          "spill": 1,
+          "fitOk": false
+        },
+        {
+          "name": "ผฟึญึาธโลฟญนึผ็๋ตื",
+          "band": true,
+          "fontSize": "20px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 157,
+          "runRectWidth": 148.96,
+          "fitDemand": 160.14,
+          "spill": 1,
+          "fitOk": false
+        },
+        {
+          "name": "ดศ็๊ญตตพัยะษห๋ทึถ็",
+          "band": true,
+          "fontSize": "20px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 172,
+          "room": 156,
+          "runOffsetWidth": 157,
+          "runRectWidth": 148.98,
+          "fitDemand": 160.14,
+          "spill": 1,
+          "fitOk": false
+        },
+        {
+          "name": "ฉืน็ลึ่ะฟน๋ญช๋ผผปศึ",
+          "band": true,
+          "fontSize": "20px",
+          "weight": "700",
+          "wrapped": false,
+          "clientWidth": 172,
+          "scrollWidth": 173,
+          "room": 156,
+          "runOffsetWidth": 157,
+          "runRectWidth": 149.26,
+          "fitDemand": 160.14,
+          "spill": 1,
+          "fitOk": false
+        }
+      ],
+      "log": [
+        {
+          "t": 0,
+          "why": "start",
+          "marked": true,
+          "display": "",
+          "sizes": [
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px"
+          ]
+        },
+        {
+          "t": 14,
+          "why": "mut",
+          "marked": false,
+          "display": "",
+          "sizes": [
+            "20px",
+            "20px",
+            "20px",
+            "19px",
+            "19px",
+            "19px",
+            "19px",
+            "20px",
+            "19px",
+            "20px",
+            "19px"
+          ]
+        },
+        {
+          "t": 14,
+          "why": "mut",
+          "marked": false,
+          "display": "",
+          "sizes": [
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px"
+          ]
+        },
+        {
+          "t": 27,
+          "why": "mut",
+          "marked": true,
+          "display": "",
+          "sizes": [
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px",
+            "20px"
+          ]
+        }
+      ]
+    }
+  ]
+}
