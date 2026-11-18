@@ -1,12 +1,16 @@
-# gh#315 / gh#316: phase-2 elimination game boards (2026-11-16), AWAITING OWNER
+# gh#315 / gh#316: phase-2 elimination game boards (2026-11-16), DRAWN TO THE OWNER'S PICKS 2026-11-18
 
-Two proposal boards in `design/`: `Gh315Zones.dc.html` (โซนสีลุกยืน, the colour-zone stand-up round) and
+Two boards in `design/`: `Gh315Zones.dc.html` (โซนสีลุกยืน, the colour-zone stand-up round) and
 `Gh316Marbles.dc.html` (แข่งลูกแก้ว, the marble race). Both use gh#302's picked B NIGHT STAGE and gh#303's picked
 values, offer options A/B/C per genuinely open decision, and draw idle, reveal, round result, reduced motion (the
 2D path, also what below 640px shows) and the never-blank fallback (ADR-0051) at 1920x1080, shown at 75%.
-**No pick exists yet.** The owner's pick is recorded on gh#315 / gh#316 before any game code (ADR-0033: a design
-value not in the canvas is drift); the "Picked" column below stays empty until then. Every Thai string in a frame
-is PROPOSED COPY unless the board's COPY SOURCES row marks it verbatim.
+**Picked 2026-11-16** (Z1 A FOUR BLOCKS, Z2 B NAMES SIT IN THEIR ZONES, Z3 approved; M1 A HEAT LANES, M2 A FREEZE
+AT THE CUT, M3 approved; owner popups recorded on gh#315 / gh#316). The 2026-11-17 audit's owner-pick findings
+were picked 2026-11-18 and are stamped here under gh#319 (canvas first, then code, ADR-0033): each board's header
+is the Gh305AuditFrames picks banner with the picks quoted verbatim from the ticket's last pick comment; the
+ratified values land in MOTION / VALUES / NOTES / COPY SOURCES and, for the marbles heat counter, in the counter
+itself (the denominator is the heats that run). Every Thai string in a frame is approved copy (Z3 / M3) or
+verbatim from a picked board or the ticket (COPY SOURCES).
 
 Every count on both boards is the gh#303 event fixture (`lib.mjs` EV, imported read-only): 200 invited, 196 joined,
 round 1 cuts 196 to 100, round 2 100 to 50, then 20, then 5 finalists. The three NAME FIT worst cases (12 x W,
@@ -20,7 +24,7 @@ where they can be; a lib is copied here only where it must change, and the chang
 | File | How | Change from the gh#303 source |
 |---|---|---|
 | `thai-scan.mjs` | imported in place, never copied | none (generic raw-file scan) |
-| `lib.mjs` | copied | the fixture, colour maths, SVG helpers, NAME FIT rule and annotation chrome are RE-EXPORTED from gh#303's lib unchanged; redefined here: the copy registry's source strings, COPY SOURCES (proposed, not approved), the frame tag (COPY PROPOSED, no PICKED stamp), RULES CHECKED (2.5.0, queried 2026-11-16), boardDoc's generator comment; added `fadedOver()` (a fade over an arbitrary base) and the zone palette constants |
+| `lib.mjs` | copied | the fixture, colour maths, SVG helpers, NAME FIT rule and annotation chrome are RE-EXPORTED from gh#303's lib unchanged; redefined here: the copy registry's source strings, COPY SOURCES, the frame tag, RULES CHECKED (2.5.0, queried 2026-11-16), boardDoc's generator comment; post-pick (2026-11-18, gh#319) the chrome stamps COPY APPROVED (Z3 / M3, 2026-11-16) and boardDoc writes the Gh305AuditFrames picks banner (picksBanner) with the 2026-11-18 picks quoted verbatim; added `fadedOver()` (a fade over an arbitrary base) and the zone palette constants |
 | `stage.mjs` | copied VERBATIM (sha256 identical: `dab6beb6…0ebb89`) | none in the bytes; its `./lib.mjs` import now resolves to THIS directory's lib copy, so one copy registry serves the whole board |
 | `grammar.mjs` | copied | ONE value change: `data-dir` admits `C` as well as `A,B,F` (three layout options); plus a fork header comment |
 | `render-boards.mjs` | copied | CDP port defaults to 9555; EVERY option frame and the shared F frame is checked (no pick exists), each against its OWN dir's role table; no `data-pick` requirement (a `data-status` and a role table per dir are required instead); the frame matrix comes from the generators; the grammar report cap raised 8 to 40 (a plant tripping one computed check on every frame must not bury another check's line) |
@@ -191,11 +195,16 @@ the boards.
 
 ## Verify (measured this session)
 
-- `node make-boards.mjs` twice: identical sha256 both runs —
-  Gh315Zones `3a8e6b0558552119d521a33a846bbf8d1dc2d9825e56e8f5b6b14f5afb16b6a2`,
-  Gh316Marbles `028b079db569d539ed329380f039102f419f844f4f205682d17aa6cac4ba1a20`.
+- `node make-boards.mjs` twice: identical sha256 both runs (re-measured 2026-11-18 after the pick stamps;
+  `git status --porcelain` unchanged across the second run) —
+  Gh315Zones `cfd875615b67dc77c239da6b05117251cd09351c3ff00276a345fd77bd00496e`,
+  Gh316Marbles `556ee40fb63f23d7602e54c6fe77839f7fb01b2b86e5b381f5062f47064fe8f0`.
 - Render: exit 0; Gh315Zones 0 problems, 17 frames, 16 slices; Gh316Marbles 0 problems, 11 frames, 11 slices;
-  27 JPGs on disk, exactly the slices the tables above list. Rendered Thai codepoints 18239 / 7231.
+  27 JPGs on disk, exactly the slices the tables above list. Page heights 29331 / 21127 at 1600px (measured
+  2026-11-18; the picks banner grew the header). The 2026-11-18 re-render ran on CDP port 9333 with its own
+  `--user-data-dir`, per the gh#319 brief; the 2026-11-16 run used 9555. The stamp slices were opened (zones
+  MOTION/VALUES and COPY/NOTES, marbles MOTION/VALUES and COPY/NOTES, both banners): the ratified values render
+  as written, Thai as words.
 - `thai-scan.mjs` over both boards, every `.mjs` here and this README (12 files): exit 0, no foreign letter/mark,
   no invisible, no character reference, no barred word. Must-red, three plants in temp copies of a board, each
   exit 1 on its own line: a contiguous barred word (`barred words U+E2B U+E27 U+E22`), a numeric character
@@ -241,12 +250,9 @@ the boards.
 - Whether a room actually stands and sits on the MC's beat, or cheers a 6-8s race (rehearsal questions, gh#310's manner).
 - The seeded marble speed curves and the zone wave timings are proposals to profile, not measurements.
 
-## Wanted in `design/canvas.json` (reserved to the orchestrator; not written here)
+## `design/canvas.json` entries (orchestrator-owned; not written here)
 
-A new page entry and two artboard entries, in the file's existing shape:
-
-```
-pages:      { "id": "page-14", "name": "gh#315 / gh#316 · prize draw phase-2 elimination games (awaiting owner)" }
-artboards:  { "file": "Gh315Zones.dc.html",   "title": "gh#315 colour zones stand-up 1920x1080 · AWAITING OWNER: Z1 layout, Z2 cut landing", "page": "page-14", "x": 0,    "y": 0, "w": 1520, "h": 28665 }
-            { "file": "Gh316Marbles.dc.html", "title": "gh#316 marble race 1920x1080 · AWAITING OWNER: M1 track, M2 cut moment",              "page": "page-14", "x": 1600, "y": 0, "w": 1520, "h": 20100 }
-```
+The page-14 entries exist with APPROVED 2026-11-16 titles (Z1 A FOUR BLOCKS, Z2 B NAMES SIT IN THEIR ZONES;
+M1 A HEAT LANES, M2 A FREEZE AT THE CUT). Their heights predate the 2026-11-18 stamps and are stale: the boards
+now measure 29331 (Gh315Zones) and 21127 (Gh316Marbles) at 1600px wide. The orchestrator re-measures and updates
+the artboard boxes; this directory only reports the numbers.

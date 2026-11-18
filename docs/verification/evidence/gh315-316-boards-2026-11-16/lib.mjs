@@ -1,10 +1,11 @@
 // gh#315 / gh#316 board helpers. Forked from gh303-boards-2026-11-11/lib.mjs at commit 1f57574 (read-only source).
 // The event fixture, the colour maths, the SVG helpers, the name-fit rule and the annotation chrome are IMPORTED
-// from that directory unchanged, so every count on these boards is the gh#303 fixture's own. What is redefined here
-// is only what a PROPOSAL board must say differently from an APPROVED one: the copy registry's source strings, the
-// COPY SOURCES row (proposed, not approved), the frame tag (COPY PROPOSED, no PICKED stamp), the RULES CHECKED row
-// (ui-ux-pro-max 2.5.0, queried 2026-11-16) and boardDoc's generator comment. One registry serves the whole board:
-// stage.mjs is copied verbatim into this directory so its './lib.mjs' import resolves HERE, not to gh#303's registry.
+// from that directory unchanged, so every count on these boards is the gh#303 fixture's own. What is redefined here:
+// the copy registry's source strings, the COPY SOURCES row, the frame tag, the RULES CHECKED row (ui-ux-pro-max
+// 2.5.0, queried 2026-11-16) and boardDoc's generator comment. Post-pick (2026-11-18, gh#319): the frame copy is
+// APPROVED (Z3 / M3, 2026-11-16), the header is the Gh305AuditFrames picks banner (picksBanner), and the audit
+// picks are stamped in MOTION / VALUES / NOTES / COPY SOURCES. One registry serves the whole board: stage.mjs is
+// copied verbatim into this directory so its './lib.mjs' import resolves HERE, not to gh#303's registry.
 
 export {
   esc, rng, shuffle, ROSTER, ME, CAP_NAME, WIDE_LATIN, WIDE_THAI, WIDE_AM,
@@ -17,12 +18,15 @@ export {
 import { esc, faded, CAP_NAME, FONTS, ANNOT_CSS, FIT_SCRIPT, header } from '../gh303-boards-2026-11-11/lib.mjs';
 
 // ---- copy registry (reset per board) ----
+// Post-pick: the frame copy was approved 2026-11-16 (Z3 / M3, owner popups recorded on gh#315 / gh#316);
+// the 2026-11-18 audit picks are quoted verbatim in each board's header banner (gh#319, canvas first).
 export const SRC = {
-  new: 'PROPOSED on this board (gh#315 / gh#316) · awaiting the owner',
+  new: 'APPROVED 2026-11-16 (owner popup: Z3 / M3) · new on this board',
   g302: 'gh#302 board copy · approved by the owner 2026-11-11 (the gh#302 pick), verbatim',
   g303: 'gh#303 picked board copy · approved by the owner 2026-11-11, verbatim',
   sample: 'sample data · not copy (stands in for what an MC or a player types)',
   ticket: 'gh#299 body / gh#315 / gh#316 · owner wording, verbatim (the game names)',
+  pick315: 'gh#315 owner pick 2026-11-18 (PD-315-08) · approved as the pattern at zero, verbatim',
 };
 export const reg = { REG: new Map(), NAMES: new Set() };
 export const resetCopy = () => { reg.REG = new Map(); reg.NAMES = new Set(); };
@@ -34,8 +38,8 @@ export const th = (text, role, src = 'new') => {
 };
 export const nm = (text) => { reg.NAMES.add(text); return esc(text); };
 
-// No PICKED stamp exists on a proposal board: the owner has not answered yet.
-export const tag = (opt, label, text) => `<div class="tag"><span class="d">${opt} · ${label}</span>${text}<span class="pc">COPY PROPOSED</span></div>`;
+// Post-pick: the frame copy is approved (Z3 / M3, 2026-11-16); the header banner records the picks.
+export const tag = (opt, label, text) => `<div class="tag"><span class="d">${opt} · ${label}</span>${text}<span class="pc">COPY APPROVED</span></div>`;
 
 export function copyRow() {
   const rows = [...reg.REG.entries()].map(([text, { role, src }]) => `<tr><td>${esc(role)}</td><td class="thc">${esc(text)}</td><td>${esc(SRC[src])}</td></tr>`).join('');
@@ -44,7 +48,7 @@ export function copyRow() {
   return `
   <div class="brow">
     <h2>COPY SOURCES · every Thai string on this board, and where it comes from</h2>
-    <p class="why">Strings in a frame: ${reg.REG.size} distinct${names.length ? `, plus ${names.length} distinct sample names` : ''}. New strings are <b>PROPOSED COPY, awaiting the owner</b> (the pick is recorded on gh#315 / gh#316 before any code). None of the words gh#299 bars appears (the board's Thai scan checks it, raw and rendered).</p>
+    <p class="why">Strings in a frame: ${reg.REG.size} distinct${names.length ? `, plus ${names.length} distinct sample names` : ''}. New strings were proposed copy and are <b>APPROVED 2026-11-16</b> (owner popups Z3 / M3, recorded on gh#315 / gh#316); the 2026-11-18 audit picks are quoted in the header banner. None of the words gh#299 bars appears (the board's Thai scan checks it, raw and rendered).</p>
     <table class="tbl"><tr><th>role</th><th>string</th><th>source</th></tr>${rows}${sample}</table>
   </div>`;
 }
@@ -58,7 +62,25 @@ export function rulesRow(queries, items) {
   </div>`;
 }
 
-export function boardDoc(title, comment, headLines, frameCss, rows, { width = 1520, extraHelmet = '', status = 'AWAITING OWNER', pick = '' } = {}) {
+// The order line, post-pick: gh303's ORDER_LINE still says PROPOSED COPY, which these boards no longer are.
+export const ORDER_LINE_PICKED = 'Order (ADR-0033): owner picks, canvas, code. Code takes its design values only from the option picked here and the values ratified as built. Every Thai string inside a frame is approved copy (the 2026-11-16 Z3 / M3 approval) or verbatim from a picked board or the ticket (COPY SOURCES); the wording follows gh#299 (Constraints: Gambling wording). Tags, the hatched stubs and these rows are annotation, not design.';
+
+// The post-pick banner, the format design/Gh305AuditFrames.dc.html set: dark banner, title with the pick date
+// and the no-separate-sign-off ruling, the OWNER RULINGS line for this canvas, the context lines, then the
+// PICKS DRAWN list quoted verbatim from the ticket's pick comment. `picks` are the comment's own lines.
+export function picksBanner(title, rulings, picks, headLines) {
+  return `
+  <div style="padding: 30px 34px; background: #14142b; color: #ffcc00;">
+    <div style="font: 700 26px/1.3 ui-monospace, Menlo, monospace;">${title} · DRAWN TO THE OWNER'S PICKS 2026-11-18 — NO SEPARATE SIGN-OFF (owner ruling)</div>
+    <div style="font: 700 20px/1.4 ui-monospace, Menlo, monospace;">OWNER RULINGS 2026-11-18 on this canvas: ${rulings}</div>
+    ${headLines.map((l) => `<div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;">${l}</div>`).join('\n    ')}
+    <div style="margin-top: 8px; font: 13px/1.55 ui-monospace, Menlo, monospace; color: #fff6e0;"><div class="pin q"><b>PICKS DRAWN (quoted from the ticket comments):</b><ul>
+${picks.map((p) => `  <li>${esc(p)}</li>`).join('\n')}
+</ul></div></div>
+  </div>`;
+}
+
+export function boardDoc(title, comment, headLines, frameCss, rows, { width = 1520, extraHelmet = '', status = 'AWAITING OWNER', pick = '', rulings = '', picks = [] } = {}) {
   return `<!doctype html>
 <html lang="th">
 <head>
@@ -73,14 +95,15 @@ export function boardDoc(title, comment, headLines, frameCss, rows, { width = 15
        The board is design source and is never referenced at runtime. */${FONTS}
 
     /* ${comment} Generated by docs/verification/evidence/gh315-316-boards-2026-11-16/make-boards.mjs;
-       edit the generator, not this file. Annotations are English and monospace. Every Thai string in a frame is PROPOSED COPY
-       unless COPY SOURCES says verbatim. Frame values are literals (VALUES row: token, gh#302/gh#303 pick, or PROPOSAL). */${ANNOT_CSS}
+       edit the generator, not this file. Annotations are English and monospace. Every Thai string in a frame is approved
+       copy (COPY SOURCES: the 2026-11-16 Z3 / M3 approval, a picked board verbatim, or the ticket's own wording).
+       Frame values are literals (VALUES row: token, gh#302/gh#303 pick, PROPOSAL, or RATIFIED as built 2026-11-18). */${ANNOT_CSS}
 ${frameCss}${extraHelmet}
   </style>
 </helmet>
 
 <div data-pick="${pick}" data-status="${status}" style="width: ${width}px; background: #ffffff; color: #14142b;">
-${header(title, headLines, status)}
+${picksBanner(title, rulings, picks, headLines)}
 ${rows.join('\n')}
 </div>
 </x-dc>

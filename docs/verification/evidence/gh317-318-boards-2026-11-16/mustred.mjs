@@ -56,6 +56,11 @@ const plants = [
   ['card-label-gold', 'Gh318Cards', (s) => s.replace('</style>', '.pj .pcard.up.prize .fk { color: #ffcc00 !important; }</style>'), /role: prize label on a face\) renders color:#ffcc00/],
   ['card-clip-1px', 'Gh318Cards', (s) => s.replace('</style>', '.pj .pcard { height: 1px !important; overflow: hidden !important; }</style>'), /outside its parent or a clipping ancestor/],
   ['card-count', 'Gh318Cards', (s) => s.replace('data-expect="5/0"', 'data-expect="5/1"'), /field count in A\/card-idle: holds 5 with 0 passed, says 5\/1/],
+  // The 2026-11-18 pick frames (gh#319): the phone/tablet floor branch, the row-vs-plate clearance, the prize-line cap.
+  ['phone-floor', 'Gh317Envelopes', (s) => s.replace('</style>', '.pr .msg { font-size: 12px !important; }</style>'), /text under 16px in F\/env-phone-320/],
+  ['pill-floor', 'Gh318Cards', (s) => s.replace('</style>', '.tw .np { font-size: 12px !important; }</style>'), /text under 16px in F\/card-row-640/],
+  ['row-clearance', 'Gh317Envelopes', (s) => s.replace('</style>', '.tw .prow { margin-top: 0px !important; }</style>'), /name boxes overlap in F\/env-row-640/],
+  ['cap-three-lines', 'Gh317Envelopes', (s) => s.replaceAll('data-min="20" data-max="30"', 'data-min="30" data-max="30"'), /name breaks the NAME FIT rule .* in F\/env-cap/],
 ];
 for (const [name, board, f, want] of plants) {
   const dir = `${P}/gh317-mr/${name}-${board}`; rmSync(dir, { recursive: true, force: true }); mkdirSync(`${dir}/design`, { recursive: true });

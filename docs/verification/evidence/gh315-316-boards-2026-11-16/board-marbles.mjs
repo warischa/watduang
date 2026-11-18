@@ -1,7 +1,7 @@
 // gh#316 board: the marble-race elimination game. Every count is the gh#303 fixture (EV): 200 invited, 196 joined,
 // round 1 cuts 196 to 100. The race only stages the draw (decision 7): crossing order is the draw's order, never a
 // new chance. Frames are 2D stills of the 3D intent (three, ADR-0060), authored 1920x1080, shown at 75%.
-import { th, nm, fit, EV, rng, fadedOver, ZC, resetCopy, boardDoc, tag, ORDER_LINE, valuesTable, contrastTable, beatTable, copyRow, notesRow, rulesRow, nameFitRow } from './lib.mjs';
+import { th, nm, fit, EV, rng, fadedOver, ZC, resetCopy, boardDoc, tag, ORDER_LINE_PICKED, valuesTable, contrastTable, beatTable, copyRow, notesRow, rulesRow, nameFitRow } from './lib.mjs';
 import { rolesRow } from './roles.mjs';
 import { STAGE_CSS, STAGE_VALUES, STAGE_PAIRS, scaled, frame, top, plainReveal } from './stage.mjs';
 
@@ -84,7 +84,10 @@ const lowLive = (n, label, line) => low(`<div class="lk">${label}</div><div clas
 const lowEnd = () => low(`<div class="lk">${th('ผ่านรอบที่ 1', 'reveal: passed heading', 'g302')}</div><div class="gname">${GNAME()}</div>`,
   `<div class="flow"><span class="to">${EV.pass1.size}</span><small>${PEOPLE()}</small></div>`,
   `<div class="legend"><div><span class="chip in">${th('ผ่าน', 'legend: passed', 'g302')}</span></div><div><span class="chip out">${th('ไม่ผ่าน', 'legend: did not pass', 'g302')}</span></div></div>`);
-const heatLabel = (h) => th(`ชุดที่ ${h + 1} จาก ${HEATS.length}`, 'marbles: heat counter');
+// PD-316-09 (c) (owner pick 2026-11-18): the denominator counts only the heats that run. M2-A ends at the freeze
+// heat (the last heat holding a survivor); trailing heats with no survivor never load, so the counter never promises
+// one. M2-B runs every heat. The fixture's freeze is heat 10 of 10, so the drawn counter reads the same either way.
+const heatLabel = (h, total) => th(`ชุดที่ ${h + 1} จาก ${total}`, 'marbles: heat counter');
 const FREEZE_LINE = () => th('ครบ 100 คน ลูกแก้วที่ข้ามเส้นชัย อยู่ต่อ', 'marbles freeze: the rule, said on screen');
 const PHOTO_LINE = () => th('ข้ามเส้นก่อน 100 ลูกแรก อยู่ต่อ', 'marbles photo: the rule, said on screen');
 
@@ -120,8 +123,8 @@ function lanesFrame(kind) {
   const expect = ` data-expect="${names.length}/${names.filter((n) => stateOf(n) === 'in').length}"`;
   const art = laneLines(LANE_Y0, LANE_DY, names.length, 72, 1848, 32) + finish(LANE_Y0, 730) + marbleLayer(ms);
   const band = kind === 'idle' ? lowIdle()
-    : kind === 'photo' ? lowLive(photoCount, heatLabel(heat), PHOTO_LINE())
-    : kind === 'reveal' ? lowLive(acrossAtCut, heatLabel(heat), FREEZE_LINE())
+    : kind === 'photo' ? lowLive(photoCount, heatLabel(heat, HEATS.length), PHOTO_LINE())
+    : kind === 'reveal' ? lowLive(acrossAtCut, heatLabel(heat, freezeHeat + 1), FREEZE_LINE())
     : lowEnd();
   return `${top(1)}<div class="track"></div>${svgLayer(art)}<div class="lanes"${expect}>${plates}</div>${finLabel(106)}${band}`;
 }
@@ -178,13 +181,14 @@ export function buildMarbles() {
   rows.push(sec('M2-B · PHOTO FINISH · crossing order is the draw order', `No freeze: every marble runs to the line, and the first ${EV.pass1.size} across are the survivors — the crossing order IS the draw's uniform order, so the odds are the draw's, never the race's. Drawn mid-race with ${photoCount} across: <b>A</b> in heat ${photoHeat + 1} (the heat holding the ${photoCount}th crossing), ${photoK} of its survivors across, the band counting ${photoCount} of ${EV.pass1.size} overall; <b>B</b> with ${photoCount} marbles across and the grid lighting name by name. The marbles still rolling are not yet judged; once the ${EV.pass1.size}th crosses, the rest dim as they finish. <b>A is NOT a coherent staging of M2-B under heat lanes:</b> with heats crossing in sequence, "the first ${EV.pass1.size} across stay in" would let heat order decide who crosses first, which breaks the draw's equal odds. The frame is drawn only to complete the option pair; M2-B was not picked.`, f2('photo', (o) => (o === 'A' ? lanesFrame('photo') : packFrame('photo')), { A: 'NOT COHERENT WITH HEAT LANES (M2-B unpicked)' })));
   rows.push(sec('M1 · ROUND RESULT · who stayed in', `The end state: ${EV.pass1.size} passed, gold; ${EV.field1.length - EV.pass1.size} dim. <b>A</b> shows the freeze heat's lanes settled (the cut landed in the last heat, so the round ended there) with the cumulative count; <b>B</b> shows the whole grid resolved, every name's fate readable at once. The lower band is the gh#302 picked result band.`, f2('result', (o) => (o === 'A' ? lanesFrame('result') : packFrame('result')))));
   rows.push(sec('M1 · REDUCED MOTION · the 2D path (also what below 640px shows)', 'Reduce, not remove (ADR-0046, ADR-0051). No rolling, no streaks: the marbles are drawn at their final positions and the field resolves in one 200ms fade (gh#302 --motion-rm-fade); counts jump. Drawn at the end state, identical to the result still. Below 640px the shared reveal host serves this same 2D path; the plain field of the fallback frame is what a phone renders.', f2('rm', (o) => (o === 'A' ? lanesFrame('rm') : packFrame('rm')))));
-  rows.push(sec('NEVER-BLANK FALLBACK (ADR-0051)', 'No WebGL context, a lost context that does not restore, or a renderer error: the page shows the plain 2D reveal the owner picked on gh#302 (B, proj-reveal) and the round still finishes. Identical for every option.', [[`<div class="tag"><span class="d">FALLBACK</span> · mb-fallback · gh#302 proj-reveal B, picked<span class="pc">COPY PROPOSED</span></div>`, frame('mb-fallback', 'F', '', plainReveal(GNAME()))]]));
+  rows.push(sec('NEVER-BLANK FALLBACK (ADR-0051)', 'No WebGL context, a lost context that does not restore, or a renderer error: the page shows the plain 2D reveal the owner picked on gh#302 (B, proj-reveal) and the round still finishes. Identical for every option.', [[`<div class="tag"><span class="d">FALLBACK</span> · mb-fallback · gh#302 proj-reveal B, picked<span class="pc">COPY APPROVED</span></div>`, frame('mb-fallback', 'F', '', plainReveal(GNAME()))]]));
 
   const beatsA = [
     ['idle', 'until the MC presses start', 'marbles hold at the start line, a 1px spec shimmer on a 3s phase; plates still', 'still marbles, no shimmer'],
     ['heat launch', '600ms', 'the heat\'s 20 marbles ease-out from the gate (ease-in on the first 100ms, then ease-out)', 'marbles appear at their final positions, no launch'],
-    ['the race', '6000ms a heat', 'marbles roll left to right, seeded speed curves that cross and re-cross (the draw\'s order fixed before launch); streaks at 35% behind each; the band count rolls as survivors cross', 'no rolling: the heat resolves in one 200ms fade'],
-    ['the cut', '1200ms hold', 'M2-A: time freezes the instant the last survivor crosses, a gold pulse once on the finish line (400ms, no flash); M2-B: the first 100 across light gold, the rest dim as they finish (0.02s stagger)', 'the end state fades in 200ms, counts jump'],
+    ['the race', '6000ms a heat', 'marbles roll left to right, seeded speed curves that cross and re-cross (the draw\'s order fixed before launch); crossings spread over the back 40% of the race (from 0.6) with a per-heat jitter, the last crossing exactly at the heat\'s end (RATIFIED as built, PD-316-07, owner pick 2026-11-18); streaks at 35% behind each; the band count rolls as survivors cross', 'no rolling: the heat resolves in one 200ms fade'],
+    ['coast', '400ms', 'across-marbles roll past the line to their resting places (T.coast, the pulse length reused; RATIFIED as built, PD-316-05, owner pick 2026-11-18)', 'the resting places are drawn, no roll'],
+    ['the cut', '1200ms hold', 'M2-A: time freezes the instant the last survivor crosses, a gold pulse once on the finish line (400ms, a 48px-wide quad at 0.35 x sin, no flash; RATIFIED as built, PD-316-06, owner pick 2026-11-18); M2-B: the first 100 across light gold, the rest dim as they finish (0.02s stagger)', 'the end state fades in 200ms, counts jump'],
     ['settle', '3000ms', 'streaks fade to 0; across-marbles keep the glow; the next heat loads (M2-B) or the round ends (M2-A)', 'none'],
   ];
   const beatsB = [
@@ -196,7 +200,7 @@ export function buildMarbles() {
   rows.push(`
   <div class="brow">
     <h2>MOTION · beat by beat, with the time chosen for each beat</h2>
-    <p class="why">Timings are this board's proposal; the ui-ux-pro-max motion rules shaped them (RULES CHECKED). No query returned a marble-race timing, so the beat lengths themselves are not from the skill. Totals: A about ${(0.6 + 6 + 1.2 + 3).toFixed(1)}s a heat x ${HEATS.length} heats (M2-B) or one freeze (M2-A, about ${(0.6 + 6 * (freezeHeat + 1) + 1.2 + 3).toFixed(0)}s); B about ${(8 + 1.2 + 3).toFixed(1)}s. The MC conducts the room's cheering; nothing here rushes it.</p>
+    <p class="why">Timings are this board's proposal; the ui-ux-pro-max motion rules shaped them (RULES CHECKED). No query returned a marble-race timing, so the beat lengths themselves are not from the skill. The coast, the pulse strength and the crossing spread are RATIFIED as built (owner picks 2026-11-18: PD-316-05, PD-316-06, PD-316-07). Totals: A about ${(0.6 + 6 + 0.4 + 1.2 + 3).toFixed(1)}s a heat x ${HEATS.length} heats (M2-B) or one freeze (M2-A, about ${(0.6 + 6 * (freezeHeat + 1) + 1.2 + 3).toFixed(0)}s); B about ${(8 + 1.2 + 3).toFixed(1)}s. The built round's own 77.4s was accepted as built by the owner ruling of 2026-11-17 (the rest between heats and the launch are not beats this sheet draws). The MC conducts the room's cheering; nothing here rushes it.</p>
     <h3>A HEAT LANES</h3>${beatTable(beatsA)}<h3>B PACK + FULL ROSTER</h3>${beatTable(beatsB)}
   </div>`);
   rows.push(rulesRow('--domain ux "animation reveal duration easing stagger", "readability large display distance contrast font size", "reduced motion vestibular sensitivity", "color only indicator meaning accessibility", "flashing seizure blink" (returned nothing); --stack threejs "instanced mesh many objects performance", "webgl context lost fallback".', [
@@ -215,7 +219,7 @@ export function buildMarbles() {
   <div class="brow">
     <h2>VALUES · every frame value, token, gh#302/gh#303 pick, or PROPOSAL</h2>
     <p class="why"><b>Departures from the gh#302 picked values (B), each a PROPOSAL for the game frames only; the fallback frame carries the gh#302 picked values unchanged:</b> the lower band is 170px tall (from gh#303's 190px). Layout A: a 770px ink track (#14142b, the gh#302 night ground's top stop; 24px radius, the winner-card radius), 20 lanes of 36.5px, name plates 340x32px with names 28px to an 18px floor, marbles 26px across, the finish line 4px gold with a 24px glow at 35%. Every fade on the track is pre-composited over #14142b (fadedOver), not over the frame's ground midpoint. Layout B: a 280px race strip over a 10-column grid of 21px rows (names 18px to a 14px floor, from the gh#302 fallback's 32px rows and 20px), marbles 14px across. <b>Fonts:</b> Mitr 600 (labels) and Sarabun 700 (names), the self-hosted files. <b>New on this board, PROPOSAL:</b> the marble drawing (body, spec highlight, streak, glow), the track and finish line, the heat wording. No new colour: every value below is in the canvas. Gold is the passed state (the gh#302 pick); marble identity colours are the four non-gold accents, decoration only.</p>
-    <div class="cands"><div class="cand">${valuesTable([...STAGE_VALUES, ['#ffcc00', 'finish line, across-marbles, the cut pulse', 'tokens.css --accent-gold; gh#302 B picked'], ...MB.map((k) => [ZC[k], `marble body (${k}), decoration only`, 'tokens.css / the gh#302-gh#303 picks (see the zone board VALUES for each source)']), [tFaded('#ffcc00', 0.35), 'finish glow, marble glow (35% over #14142b, the track, pre-composited)', 'PROPOSAL: --accent-gold, fadedOver() as gh#303'], [tFaded('#d9d6f0', 0.25), 'lane separators (25% over the track, pre-composited)', 'PROPOSAL: --ink-on-band-soft, the gh#303 ladder mechanism'], ...MB.map((k) => [tFaded(ZC[k], 0.4), `a stopped marble (${k}, 40% over the track, pre-composited)`, 'PROPOSAL: the dim state on a marble']), ...MB.map((k) => [tFaded(ZC[k], 0.35), `a rolling streak (${k}, 35% over the track, pre-composited)`, 'PROPOSAL'])])}</div><div class="cand">${contrastTable([...STAGE_PAIRS, ['#ffffff', '#23214d', 'plate names on the night pill'], ['#ffcc00', '#14142b', 'the finish label on the track'], ['#d9d6f0', '#14142b', 'track labels on the track']])}</div></div>
+    <div class="cands"><div class="cand">${valuesTable([...STAGE_VALUES, ['#ffcc00', 'finish line, across-marbles, the cut pulse', 'tokens.css --accent-gold; gh#302 B picked'], ...MB.map((k) => [ZC[k], `marble body (${k}), decoration only`, 'tokens.css / the gh#302-gh#303 picks (see the zone board VALUES for each source)']), [tFaded('#ffcc00', 0.35), 'finish glow, marble glow (35% over #14142b, the track, pre-composited)', 'PROPOSAL: --accent-gold, fadedOver() as gh#303'], [tFaded('#d9d6f0', 0.25), 'lane separators (25% over the track, pre-composited)', 'RATIFIED as built 2026-11-18 (PD-316-03 (a), owner pick): kept at 25% — context once the marbles paint again (PD-316-01, fixed); --ink-on-band-soft, the gh#303 ladder mechanism'], ['48px-wide quad at 0.35 x sin over 400ms (peak: the 35% gold above)', 'the cut pulse on the finish line', 'RATIFIED as built 2026-11-18 (PD-316-06, owner pick); the finish line keeps its 4px gold + 24px glow'], ...MB.map((k) => [tFaded(ZC[k], 0.4), `a stopped marble (${k}, 40% over the track, pre-composited)`, 'PROPOSAL: the dim state on a marble']), ...MB.map((k) => [tFaded(ZC[k], 0.35), `a rolling streak (${k}, 35% over the track, pre-composited)`, 'PROPOSAL'])])}</div><div class="cand">${contrastTable([...STAGE_PAIRS, ['#ffffff', '#23214d', 'plate names on the night pill'], ['#ffcc00', '#14142b', 'the finish label on the track'], ['#d9d6f0', '#14142b', 'track labels on the track']])}</div></div>
   </div>`);
   rows.push(nameFitRow([
     ['A lane plates (20 a heat)', 'Sarabun 700', '28px', '18px', '340px plate less 24px padding (316px)', 'W x12 and U+0E12 x12: 18px, one line; U+0E12 U+0E33 x12: 18px, one line (the wide plate takes it)'],
@@ -228,12 +232,30 @@ export function buildMarbles() {
     '<b>Rests on gh#299:</b> decision 3 (the room cheers the race), 7 (equal odds: the crossing order is the draw\'s order, fixed before launch; the race stages it, never draws it), 11 (3D on the main screen, never-blank fallback), 12 (the phase-2 library). <b>On gh#302 (picked 2026-11-11):</b> direction B, its copy, the 12-cluster name limit and NAME FIT. <b>On gh#303 (picked 2026-11-11):</b> the gold passed / dim struck out states, the pre-composited fade mechanism, the 190px band this board proposes at 170px.',
     '<b>The 200-name tradeoff (M1):</b> A reads 20 names big (28px) heat by heat — every name reads over the round, never all at once; B reads all 196 at once, smaller (18px to a 14px floor). The ticket asks that 200 names read on a projector; both answer it, differently. The owner picks.',
     '<b>Not drawn:</b> the round-code frame (gh#302\'s, QR mode); rounds 2 to 4 (fewer names: A\'s heats shrink, B\'s grid keeps its floors); the phone verdict screen (gh#309\'s); the 3D camera and the glass material itself (frames are 2D stills of the 3D intent).',
+    '<b>Ratified as built (owner picks 2026-11-18, gh#316):</b> PD-316-08 heats are cut in roster order (the next 20 names, never shuffled; only the pace inside a heat is seeded, and it is never stored); PD-316-09 (c) trailing heats with no survivor are skipped, and the heat counter\'s denominator is the heats that run, so the counter never promises a heat that will not load (the fixture freezes in heat 10 of 10, so the drawn counter is unchanged); PD-316-04 (a) the shared centred field stays where it still shows (the 40-name projector field, the gh#302 fallback behaviour).',
     '<b>Not covered:</b> a real projector, a real room, frame rate on the venue laptop with 196 instanced marbles; the seeded speed curves are a proposal to profile, not a measurement.',
   ]));
-  const OWNER = `<div class="pin q"><b>DECISIONS FOR THE OWNER (open; the pick is recorded on gh#316 before any code, ADR-0033):</b><ul>
-  <li><b>M1. Track and how 200 names read</b>: A HEAT LANES (10 heats of 20, names 28px on plates, 20 read big at a time; mb-idle A) · B PACK + FULL ROSTER (all 196 names in a grid at once, 18px to a 14px floor, the pack race above; mb-idle B).</li>
-  <li><b>M2. The cut moment</b>: A FREEZE AT THE CUT (time stops when the drawn count crosses; mb-reveal A/B) · B PHOTO FINISH (crossing order is the draw order, the first 100 across stay in; mb-photo A/B). Either works on either track: say so to mix.</li>
-  <li><b>M3. Proposed copy</b>: approve, or mark strings to change (COPY SOURCES row).</li>
+  const OWNER = `<div class="pin q"><b>DECISIONS PICKED 2026-11-16 (owner popups, recorded on gh#316):</b><ul>
+  <li><b>M1. Track and how 200 names read: A HEAT LANES</b> — 10 heats of 20 (the last 16), names 28px on plates, 20 read big at a time.</li>
+  <li><b>M2. The cut moment: A FREEZE AT THE CUT</b> — time stops the instant the drawn count crosses.</li>
+  <li><b>M3. Proposed copy:</b> approved as it stands.</li>
+  <li>The 2026-11-18 audit picks are quoted verbatim in the header banner; the stamps land in MOTION (PD-316-05, PD-316-06, PD-316-07), VALUES (PD-316-03, PD-316-06), NOTES (PD-316-04, PD-316-08, PD-316-09) and the heat counter itself (PD-316-09 (c): the denominator is the heats that run). Frames drawn to a pick go to code without a separate sign-off (owner ruling); the code picks are built under gh#319.</li>
 </ul></div>`;
-  return boardDoc('gh#316 · prize draw · marble race', 'gh#316: proposal board, ADR-0033.', [ORDER_LINE, 'Visual language: the gh#302 pick (B NIGHT STAGE on the projector, 2026-11-11) and the gh#303 picks. Each open decision is drawn in options A/B; idle, reveal (both cut moments), round result, reduced motion (the 2D path, also what below 640px shows) and the never-blank fallback are drawn for each. Frames are 2D stills of a 3D scene (three, ADR-0060); the 3D intent is written under each frame.', OWNER], STAGE_CSS + CSS, rows, { status: 'AWAITING OWNER (gh#316)', pick: '' });
+  return boardDoc('gh#316 · prize draw · marble race', 'gh#316: board drawn to the owner\'s picks, ADR-0033.', [ORDER_LINE_PICKED, 'The board decisions were picked 2026-11-16 (M1 A, M2 A, M3 approved); the 2026-11-18 audit picks below are quoted verbatim from the last pick comment on gh#316. Visual language: the gh#302 pick (B NIGHT STAGE on the projector, 2026-11-11) and the gh#303 picks. Each decision is drawn in options A/B; idle, reveal (both cut moments), round result, reduced motion (the 2D path, also what below 640px shows) and the never-blank fallback are drawn for each. Frames are 2D stills of a 3D scene (three, ADR-0060); the 3D intent is written under each frame.', OWNER], STAGE_CSS + CSS, rows, { status: 'DRAWN TO THE OWNER\'S PICKS 2026-11-18', pick: '', rulings: MARBLES_RULINGS, picks: PICKS_316 });
 }
+
+// The 2026-11-18 rulings that change this canvas (the audit picks, gh#316's last pick comment; gh#319 builds them).
+const MARBLES_RULINGS = 'PD-316-03 — separators stay at 25% (VALUES) · PD-316-05 — the 400ms coast stamped on MOTION · PD-316-06 — the cut pulse 0.35 / 48px stamped (MOTION, VALUES) · PD-316-07 — the crossing spread stamped on MOTION (back 40% of the race, per-heat jitter, last crossing at the heat\'s end) · PD-316-08 — heats cut in roster order ratified (NOTES) · PD-316-09 — the heat counter\'s denominator is the heats that run (the counter itself, NOTES) · PD-316-04 — the shared centred field accepted where it still shows (NOTES)';
+
+// Verbatim from the "Owner picks recorded (decision popups, 2026-11-18)" comment on gh#316.
+const PICKS_316 = [
+  'PD-316-02 → (a) "Draw mb-idle A as the stage\'s idle for this game (20 plates at the gate, the hint line), keeping the shared field for the other games"',
+  'PD-316-03 → (a) "Keep 25%: the separators are context once the marbles paint again (PD-316-01)"',
+  'PD-316-04 → (a) "Accept the shared centred field (it is the gh#302 fallback behaviour)"',
+  'PD-316-05 → "accept the 400 ms coast" — ratified as built',
+  'PD-316-06 → "accept 0.35 / 48px" — ratified as built',
+  'PD-316-07 → "accept the spread as staging" — ratified as built',
+  'PD-316-08 → "ratify as built (accept)" — ratified as built',
+  'PD-316-09 → (c) "Keep the skip but change the denominator to the heats that run, so the counter never promises a heat that will not load (`[copy: owner]`)"',
+  'PD-316-10 → "approve as written"',
+];

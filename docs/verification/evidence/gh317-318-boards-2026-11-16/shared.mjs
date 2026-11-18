@@ -96,7 +96,7 @@ export const SHARED_CSS = `
     .pj .slot { position: absolute; box-sizing: border-box; text-align: center; z-index: 3; }
     .pj .slot .sk { font: 600 30px/1.25 'Mitr', sans-serif; white-space: nowrap; color: #ffcc00; }
     .pj .slot.none .sk { color: #9a97c0; }
-    .pj .slot .sp { margin-top: 4px; font: 400 30px/1.3 'Sarabun', sans-serif; color: #d9d6f0; }
+    .pj .slot .sp { margin-top: 4px; font: 400 30px/1.3 'Sarabun', sans-serif; color: #d9d6f0; white-space: nowrap; overflow-x: clip; overflow-y: visible; }
     .pj .slot .sw { display: block; margin-top: 6px; font: 700 36px/1.2 'Sarabun', sans-serif; white-space: nowrap; overflow-x: clip; overflow-y: visible; color: #ffffff; }
     .pj .slot.none .sw { color: #9a97c0; }`;
 
@@ -105,6 +105,97 @@ export const SHARED_FIT = [
   ['name plates', 'Sarabun 700', '40px', '24px', '320px plate less 28px padding', 'W x12: 27px; U+0E12 x12: 24px; U+0E12 U+0E33 x12: 24px, two lines (the plate grows)'],
   ['result: prize 1 (gh#302 frame)', 'Mitr 700', '132px', '96px', 'frame width less 112px', 'U+0E12 U+0E33 x12: 103px, one line'],
   ['result cards (gh#302 frame)', 'Mitr 700', '52px', '32px', 'a quarter of the row less 56px', 'W x12: 35px; U+0E12 x12: 32px'],
+];
+
+// ---- F1: the demo result on a phone (PD-317-01 a / PD-318-02 a, owner picks 2026-11-18) ----
+// Gh305AuditFrames frame 2 (PD-305-05: winner on top, prize cards in ONE column at i5-phone B sizes) reproduced
+// inside the demo page chrome: the play band, the result column, then the demo bar BELOW the frame (demo.css's
+// base placement, which under 640px is the only placement). Every size is frame 2's or demo.css's own; the pick's
+// "two-column list at 16px names" wording yields to frame 2, which the owner picked as the same layout (gh#319).
+// Real pixels, no transform: the render judges .pr frames at the 16px mobile minimum (the gh305 audit probe's own
+// phone branch), not the projector's 30px distance floor. Drawn with five prizes, as frame 2; with fewer, the
+// trailing cards take the L2 no-prize copy (the env-few / card-few frames).
+export const PHONE_W = [320, 390];
+export const DEMO_PRIZES = 3; // the demo's default prize count (demo.ts DEMO_PRIZES), drawn in the pressed paint
+export function phoneResult() {
+  const cards = FINALISTS.slice(1).map((name, i) => {
+    const k = i + 2;
+    return `<div class="wcard"><div class="pz">${th(`รางวัลที่ ${k}`, 'prize label', 'g302')} · ${th(PRIZES[k - 1], 'prize name (typed by the MC)', 'sample')}</div><div class="wn ${fit(21, 22)}">${nm(name)}</div></div>`;
+  }).join('');
+  const counts = [1, 2, 3, 4, 5].map((n) => `<span class="pr-chip tap${n === DEMO_PRIZES ? ' on' : ''}">${n}</span>`).join('');
+  return `<div class="band stub" style="height:56px;">play band</div><div class="body"><p class="ev">${th(EVENT, 'event name (typed by the MC)', 'sample')}</p><h2>${th('ผู้ได้รับรางวัล', 'result: heading', 'g302')}</h2><div class="pz">${th('รางวัลที่ 1', 'prize label', 'g302')} · ${th(PRIZES[0], 'prize name (typed by the MC)', 'sample')}</div><div class="wn ${fit(24, 50)}">${nm(FINALISTS[0])}</div><div class="wcards">${cards}</div><p class="msg">${th('ผู้ได้รางวัล เปิดหน้าผลในมือถือให้ทีมงานดู ชื่อต้องตรงกับบนจอนี้', 'result: claim line', 'g302')}</p></div><div class="pr-bar"><p class="pr-badge">${th('ตัวอย่าง ไม่ใช่งานจริง', 'demo bar: the badge', 'demo')}</p><div class="pr-group">${counts}</div><span class="pr-go tap">${th('ดูอีกครั้ง', 'demo bar: replay', 'demo')}</span></div>`;
+}
+export const PHONE_CSS = `
+    /* ---- F1: the demo result on a phone. Gh305AuditFrames frame 2 (PD-305-05, i5-phone B sizes) + the demo bar
+       (demo.css, real pixels below the frame under 640px). No outline (the grammar admits none): the 1px edge is
+       a box-shadow. The band is a stub: annotation, not design. ---- */
+    .pr { position: relative; box-sizing: border-box; background: linear-gradient(180deg, #14142b 0%, #23214d 100%); color: #ffffff; font-family: 'Sarabun', sans-serif; box-shadow: 0 0 0 1px #14142b; }
+    .pr .body { padding: 16px; }
+    .pr .ev { margin: 0; font: 600 22px/1.2 'Mitr', sans-serif; color: #d9d6f0; }
+    .pr h2 { margin: 12px 0 0; font: 600 22px/1.2 'Mitr', sans-serif; color: #ffffff; }
+    .pr .pz { margin-top: 18px; font: 600 18px/1.25 'Mitr', sans-serif; color: #d9d6f0; }
+    .pr .wn { font: 700 50px/1.1 'Mitr', sans-serif; color: #ffcc00; text-shadow: 0 0 24px rgba(255,204,0,0.45); }
+    .pr .fit { white-space: nowrap; overflow-x: clip; overflow-y: visible; }
+    .pr .wcards { margin-top: 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .pr .wcard { background: #23214d; border-radius: 24px; padding: 16px; }
+    .pr .wcard .pz { margin: 0; font: 600 16px/1.3 'Mitr', sans-serif; color: #d9d6f0; }
+    .pr .wcard .wn { font: 700 22px/1.15 'Mitr', sans-serif; color: #ffffff; text-shadow: none; }
+    .pr .msg { margin: 22px 0 0; font: 400 16px/1.55 'Sarabun', sans-serif; color: #d9d6f0; }
+    .pr .pr-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px; }
+    .pr .pr-badge { flex-basis: 100%; margin: 0; font: 600 18px/1.35 'Mitr', sans-serif; color: #d9d6f0; }
+    .pr .pr-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pr .pr-go, .pr .pr-chip { display: inline-flex; align-items: center; justify-content: center; min-block-size: 52px; min-width: 52px; padding: 0 24px; border-radius: 999px; font: 600 22px/1.35 'Mitr', sans-serif; }
+    .pr .pr-go { padding: 0 32px; background: #ffcc00; color: #14142b; }
+    .pr .pr-chip { background: transparent; color: #ffffff; box-shadow: inset 0 0 0 2px #d9d6f0; }
+    .pr .pr-chip.on { background: #ffffff; color: #14142b; }`;
+export const PHONE_ROLES = [
+  ['phone ground and edge', '.pr', ['background-image:linear-gradient(#14142b 0%, #23214d 100%)', 'box-shadow:#14142b 0px 0px 0px 1px'], 'the night ground (gh#302 B PICKED); the 1px edge is annotation'],
+  ['phone secondary labels', '.pr :is(.ev, .pz, .msg, .pr-badge), .pr :is(.ev, .pz, .msg, .pr-badge) *', ['color:#d9d6f0'], 'tokens.css --ink-on-band-soft'],
+  ['phone heading', '.pr h2', ['color:#ffffff'], 'tokens.css --ink-light'],
+  ['phone winner', '.pr .body > .wn', ['color:#ffcc00', 'text-shadow:rgba(255,204,0,0.45) 0px 0px 24px'], 'tokens.css --accent-gold; the gh#302 glow (the i5-phone B count)'],
+  ['phone prize card', '.pr .wcard', ['background-color:#23214d', 'radius:24px'], 'gh#302 PICKED winner card'],
+  ['phone card name', '.pr .wcard .wn', ['color:#ffffff'], 'tokens.css --ink-light'],
+  ['demo go button', '.pr .pr-go', ['background-color:#ffcc00', 'color:#14142b', 'radius:999px'], 'the demo bar (demo.css): --accent-gold, --color-line-strong'],
+  ['demo count chip', '.pr .pr-chip:not(.on)', ['color:#ffffff', 'box-shadow:#d9d6f0 0px 0px 0px 2px inset', 'radius:999px'], 'the demo bar (demo.css): --ink-light, the --ink-on-band-soft ring'],
+  ['demo count chip pressed', '.pr .pr-chip.on', ['background-color:#ffffff', 'color:#14142b', 'box-shadow:#d9d6f0 0px 0px 0px 2px inset', 'radius:999px'], 'the demo bar pressed paint (demo.css aria-pressed)'],
+];
+
+// ---- F3: the free-name row below the frame-scale threshold (PD-317-03 a; PD-317-11 b / PD-318-04 b follow) ----
+// Today the row sits at NAMES_Y in frame px while the plate controls are real pixels (top PLATE_Y x s, height
+// max(44, 64 x s)): they overlap when PLATE_Y x s + 44 > NAMES_Y x s — s < 0.44 for the envelopes (660/760,
+// viewport 640-845px, the audit's arithmetic), s < 0.55 for the cards (720/800, viewport < 1056px). Below the
+// threshold the row takes real pixels: its top is the plate control's bottom + 8px, and the low band yields
+// (its top = the row's bottom + 8px), so the stage box grows while the width scale s = width/1920 is unchanged.
+// The threshold is per game: (44 + 8) / (NAMES_Y - PLATE_Y) — 0.52 for the envelopes (width 998px), 0.65 for the
+// cards (width 1248px) — the smallest scale at which NAMES_Y itself clears the 44px control by the 8px
+// touch-spacing minimum; each game's overlap band sits inside its threshold. The plate controls and the band are
+// stubs at their exact real-pixel boxes (the scaled frame's type is below any board floor at these scales; it is
+// annotation here, not design); the row is drawn for real, the built .pd-name pill. The render judges .tw frames
+// at the 16px mobile minimum.
+export const ROW_GAP = 8; // the touch-spacing minimum the audit cites (plate -> pill >= 8px)
+export const PLATE_Y = { envelopes: 660, flipcards: 720 }; // the built plate tops (final-picks.ts PLATE_Y)
+export const NAMES_Y = { envelopes: 760, flipcards: 800 }; // the built row tops above the threshold (final-picks.ts NAMES_Y)
+export const ROW_THRESHOLD = { envelopes: (44 + ROW_GAP) / (NAMES_Y.envelopes - PLATE_Y.envelopes), flipcards: (44 + ROW_GAP) / (NAMES_Y.flipcards - PLATE_Y.flipcards) };
+export const ROW_WIDTHS = [640, 720, 845];
+export function rowFrame(game, w) {
+  const s = w / 1920;
+  const plateTop = PLATE_Y[game] * s;
+  const ctlH = Math.max(44, 64 * s); // the built .pd-lane height floor
+  const bandH = 190 * s;
+  const plates = XS.map((x, i) => `<div class="plate stub" style="left:${(x * s - 160 * s).toFixed(2)}px; top:${plateTop.toFixed(2)}px; width:${(320 * s).toFixed(2)}px; height:${ctlH.toFixed(2)}px;">plate ${i + 1}${i === 0 ? ' · next' : ' · empty'}</div>`).join('');
+  const pills = FINALISTS.map((n) => `<span class="np tap">${nm(n)}</span>`).join('');
+  return `<div class="stub" style="height:${plateTop.toFixed(2)}px;">the scaled frame above the plates: top bar, game name, instruction, the five objects (plate top ${PLATE_Y[game]} x s = ${plateTop.toFixed(1)}px at s = ${s.toFixed(4)})</div>${plates}<div class="prow" style="margin-top:${(ctlH + ROW_GAP).toFixed(2)}px;">${pills}</div><div class="stub" style="margin-top:${ROW_GAP}px; height:${bandH.toFixed(2)}px;">the low band, 190 x s = ${bandH.toFixed(1)}px tall, its top at the row's bottom + ${ROW_GAP}px</div><div style="height:${(20 * s).toFixed(2)}px;"></div>`;
+}
+export const TW_CSS = `
+    /* ---- F3: the free-name row below the scale threshold, at real pixels. The plate controls and the low band
+       are stubs at their exact boxes; the row is the built .pd-name pill (i2-lanes VALUES). ---- */
+    .tw { position: relative; box-sizing: border-box; background: linear-gradient(180deg, #14142b 0%, #23214d 100%); color: #ffffff; font-family: 'Sarabun', sans-serif; box-shadow: 0 0 0 1px #14142b; }
+    .tw .plate { position: absolute; box-sizing: border-box; }
+    .tw .prow { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; }
+    .tw .np { box-sizing: border-box; min-block-size: 52px; padding: 0 32px; display: inline-flex; align-items: center; border: 3px solid #ffcc00; border-radius: 999px; background: #23214d; color: #ffffff; font: 700 22px/1.35 'Sarabun', sans-serif; white-space: nowrap; }`;
+export const TW_ROLES = [
+  ['tablet placement ground', '.tw', ['background-image:linear-gradient(#14142b 0%, #23214d 100%)', 'box-shadow:#14142b 0px 0px 0px 1px'], 'the frame night ground (gh#302 B PICKED); the 1px edge is annotation'],
+  ['free-name pill', '.tw .np', ['background-color:#23214d', 'border-width:3px', 'border-color:#ffcc00', 'radius:999px', 'color:#ffffff'], 'the built .pd-name (i2-lanes VALUES): raised night, gold ring, white Sarabun 700 22px'],
 ];
 
 // The shared rules row (ui-ux-pro-max 2.5.0, queried 2026-11-16; rules taken, never its palette or fonts).

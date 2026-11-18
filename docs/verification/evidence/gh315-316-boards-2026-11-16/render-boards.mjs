@@ -330,8 +330,11 @@ async function run(file) {
     frames: m.frames.map(({ id, dir, minFont, minTap, fitted, wrapped }) => ({ id, dir, minFont, minTap, fitted: [...new Set(fitted)], wrapped: [...new Set(wrapped)] })) };
 }
 
+const boards = process.argv.slice(2);
+// A run that names no board checks nothing; an empty report is not a pass (REFUTE gh#319 r1).
+if (boards.length === 0) { console.error('render-boards: name at least one board file'); process.exit(2); }
 const reports = [];
-for (const f of process.argv.slice(2)) reports.push(await run(f));
+for (const f of boards) reports.push(await run(f));
 console.log(JSON.stringify(reports, null, 1));
 const bad = reports.some((r) => r.problems.length);
 for (const r of reports) console.error(`${r.problems.length ? 'FAIL' : 'ok'} ${r.board}: ${r.problems.length} problems, ${r.frames.length} frames, ${r.slices.length} slices, inherited ${r.inherited.length}`);

@@ -1,7 +1,7 @@
 // gh#315 board: the colour-zone stand-up elimination game. Every count is the gh#303 fixture (EV): 200 invited,
 // 196 joined, round 1 cuts 196 to 100. Frames are 2D stills of the 3D intent (three, ADR-0060), authored 1920x1080,
 // shown at 75%. Values: the gh#302 B NIGHT STAGE pick, the gh#303 picks, tokens.css; new combinations are PROPOSAL.
-import { th, nm, fit, EV, rng, shuffle, WIDE_AM, ZC, ZONE_COLORS, tint, resetCopy, boardDoc, tag, ORDER_LINE, valuesTable, contrastTable, beatTable, copyRow, notesRow, rulesRow, nameFitRow } from './lib.mjs';
+import { th, nm, fit, EV, rng, shuffle, WIDE_AM, ZC, ZONE_COLORS, tint, resetCopy, boardDoc, tag, ORDER_LINE_PICKED, valuesTable, contrastTable, beatTable, copyRow, notesRow, rulesRow, nameFitRow } from './lib.mjs';
 import { rolesRow } from './roles.mjs';
 import { STAGE_CSS, STAGE_VALUES, STAGE_PAIRS, scaled, frame, top, plainReveal } from './stage.mjs';
 
@@ -85,7 +85,8 @@ function badge(mode, n) {
   if (mode === 'idle') return `<span class="zbadge">${th('ยืนขึ้น', 'zone badge: stand up')}</span>`;
   if (mode === 'sit') return `<span class="zbadge">${sitIcon()}${th('นั่งลง', 'zone badge: sit down')}</span>`;
   if (mode === 'stay') return `<span class="zbadge">${th('ยืนต่อ', 'zone badge: stay standing')}</span>`;
-  return `<span class="zbadge">${n > 0 ? `${th('นั่ง', 'zone badge: seated count')} ${n}` : th('ยืนครบ', 'zone badge: all standing')}</span>`;
+  // PD-315-08 (owner pick 2026-11-18): "นั่ง 0" is the approved pattern at zero (the built badgeAt's zero case).
+  return `<span class="zbadge">${n > 0 ? `${th('นั่ง', 'zone badge: seated count')} ${n}` : th('นั่ง 0', 'zone badge: seated count at zero', 'pick315')}</span>`;
 }
 
 // One zone panel (layouts A and B). resolved: the verdict landed. whole: Z2-A mode; sits: this zone is an out zone.
@@ -195,11 +196,11 @@ export function buildZones() {
   ]));
   rows.push(sec('Z1 · ROUND RESULT · who stands, who sat', `The end state on each layout: ${EV.pass1.size} passed, gold and bold with the glow; ${EV.field1.length - EV.pass1.size} dim and struck through. Zone badges count the seated. The lower band is the gh#302 picked result band.`, f3('result', result)));
   rows.push(sec('Z1 · REDUCED MOTION · the 2D path (also what below 640px shows)', 'Reduce, not remove (ADR-0046, ADR-0051). No lower-and-tilt, no wave: each zone resolves in one 200ms fade (gh#302 --motion-rm-fade), badges and counts jump to their end values. Drawn at the end state, identical to the result still. Below 640px the shared reveal host serves this same 2D path; the plain field of the fallback frame is what a phone renders.', f3('rm', result)));
-  rows.push(sec('NEVER-BLANK FALLBACK (ADR-0051)', 'No WebGL context, a lost context that does not restore, or a renderer error: the page shows the plain 2D reveal the owner picked on gh#302 (B, proj-reveal) and the round still finishes. Identical for every option.', [[`<div class="tag"><span class="d">FALLBACK</span> · zn-fallback · gh#302 proj-reveal B, picked<span class="pc">COPY PROPOSED</span></div>`, frame('zn-fallback', 'F', '', plainReveal(GNAME()))]]));
+  rows.push(sec('NEVER-BLANK FALLBACK (ADR-0051)', 'No WebGL context, a lost context that does not restore, or a renderer error: the page shows the plain 2D reveal the owner picked on gh#302 (B, proj-reveal) and the round still finishes. Identical for every option.', [[`<div class="tag"><span class="d">FALLBACK</span> · zn-fallback · gh#302 proj-reveal B, picked<span class="pc">COPY APPROVED</span></div>`, frame('zn-fallback', 'F', '', plainReveal(GNAME()))]]));
 
   const beatsB = [
     ['idle', 'until the MC presses start', 'panels hold still; a 1px breathing glow on each zone rim, 3s phase (one emissive value per zone, no flicker)', 'still panels, no glow pulse'],
-    ['zone wave 1..Z', 'Z x 1100ms: verdict 400ms ease-out, settle 700ms', 'each resolved zone: out chips lower 6px and tilt 8 degrees as they dim, 0.02s stagger per name; in chips light gold with the glow; the badge count rolls', 'the whole zone resolves in one 200ms fade; counts jump'],
+    ['zone wave 1..Z', 'Z x 1100ms: verdict 400ms ease-out, settle 700ms', 'each resolved zone: out chips lower 6px and tilt 8 degrees as they dim, stagger min(20ms, 700ms/(n-1)) per name — 20ms to 36 names a zone, squeezed to 14.29ms at 50 so the wave ends inside the 1100ms slot (RATIFIED as built, PD-315-06 (a), owner pick 2026-11-18); in chips light gold with the glow; the badge count rolls', 'the whole zone resolves in one 200ms fade; counts jump'],
     ['count', '800ms', `the band counter rolls ${EV.field1.length} to ${EV.pass1.size} linear (constant-rate progress)`, `counter jumps to ${EV.pass1.size}`],
     ['settle', '3000ms', 'seated chips hold their lowered pose; passed chips keep glowing', 'none'],
   ];
@@ -232,7 +233,7 @@ export function buildZones() {
   <div class="brow">
     <h2>VALUES · every frame value, token, gh#302/gh#303 pick, or PROPOSAL</h2>
     <p class="why"><b>Departures from the gh#302 picked values (B), each a PROPOSAL for the game frames only; the fallback frame carries the gh#302 picked values unchanged:</b> the lower band is 170px tall (from gh#303's 190px) to give the zones the room; the field runs 100..870 (770px). Layout A panels: 24px radius (the gh#302 winner-card radius), a 3px zone rim, ground the zone colour at 14% pre-composited over the night midpoint #1c1b3c, names in 4 columns of 22px rows (20px, 18px floor). Layout B: six columns, names 18px in 21px rows. Layout C: the gh#303 picked field (8 columns, 27px rows) with a 14px zone dot, names to a 16px floor. Gold is reserved for the passed state (the gh#302 pick), so no zone colour is gold. <b>Fonts:</b> Mitr 600 (labels, badges) and Sarabun 700 (names), the self-hosted files. <b>New on this board, PROPOSAL:</b> the seated figure (a drawn head-and-legs mark), the zone badge wording, the panel tint and rim combination. No new colour: every value below is in the canvas.</p>
-    <div class="cands"><div class="cand">${valuesTable([...STAGE_VALUES, ...zoneValues, ...ZKEYS6.map((k) => [tint(k), `zone ${k} panel ground (14% over #1c1b3c, pre-composited)`, 'PROPOSAL: ' + ZC[k] + ' from the canvas, faded() as gh#303'])])}</div><div class="cand">${contrastTable([...STAGE_PAIRS, ['#ffffff', tint('punch'), 'zone header on the punch tint'], ['#ffffff', tint('sky'), 'zone header on the sky tint'], ['#ffffff', tint('lilac'), 'zone header on the lilac tint'], ['#ffffff', tint('white'), 'zone header on the white tint'], ['#ffffff', tint('soft'), 'zone header on the soft tint (B)'], ['#ffffff', tint('cream'), 'zone header on the cream tint (B)']])}</div></div>
+    <div class="cands"><div class="cand">${valuesTable([...STAGE_VALUES, ['37.8493° vertical FOV = 2 x atan(12/35), the 35 mm-equivalent', 'the camera (VFOV_DEG, shared with the fireworks and cards reveals)', 'RATIFIED as built 2026-11-18 (PD-315-07, owner pick): the shared 35 mm-equivalent FOV'], ...zoneValues, ...ZKEYS6.map((k) => [tint(k), `zone ${k} panel ground (14% over #1c1b3c, pre-composited)`, 'PROPOSAL: ' + ZC[k] + ' from the canvas, faded() as gh#303'])])}</div><div class="cand">${contrastTable([...STAGE_PAIRS, ['#ffffff', tint('punch'), 'zone header on the punch tint'], ['#ffffff', tint('sky'), 'zone header on the sky tint'], ['#ffffff', tint('lilac'), 'zone header on the lilac tint'], ['#ffffff', tint('white'), 'zone header on the white tint'], ['#ffffff', tint('soft'), 'zone header on the soft tint (B)'], ['#ffffff', tint('cream'), 'zone header on the cream tint (B)']])}</div></div>
   </div>`);
   rows.push(nameFitRow([
     ['A blocks (49 names a zone)', 'Sarabun 700', '20px', '18px', '1 of 4 columns in an 894px panel, 6px chip side padding', 'W x12 and U+0E12 x12: 18px, one line; U+0E12 U+0E33 x12: 18px, two lines (its row grows)'],
@@ -245,13 +246,32 @@ export function buildZones() {
   rows.push(notesRow([
     '<b>Rests on gh#299:</b> decision 3 (the room plays standing), 7 (equal odds: the zone grouping is theatre drawn around the fixed cut, never a choice that changes odds), 11 (3D on the main screen, never-blank fallback), 12 (the phase-2 library). <b>On gh#302 (picked 2026-11-11):</b> direction B for the projector, its copy, the 12-grapheme-cluster name limit and its NAME FIT rule. <b>On gh#303 (picked 2026-11-11):</b> the 8-column 27px-row field layout C tags, the gold passed / dim struck out states, the 190px band this board proposes at 170px.',
     '<b>Z2-A disclosure:</b> whole zones sit only if zone sizes are drawn to the cut, which makes a player\'s fate readable at assignment. The owner accepts or rejects that tradeoff here; gh#300 R2 accepted the same shape for cards. Z2-B never leaks: zones are random theatre.',
-    '<b>Not drawn:</b> the round-code frame (gh#302\'s, shown before the reveal in QR mode); rounds 2 to 4 (same frames, fewer names: a smaller field gets larger chips, never smaller than these floors); the phone verdict screen (gh#309\'s, from the round code alone); the 3D camera move itself (frames are 2D stills of the 3D intent).',
+    '<b>Not drawn:</b> the round-code frame (gh#302\'s, shown before the reveal in QR mode); rounds 2 to 4 (same frames, fewer names: chips keep the same sizes at every head count — constant chip size RATIFIED as built, PD-315-04 (b), owner pick 2026-11-18; the earlier note promising larger chips at smaller fields is corrected, the spatial map stays identical across rounds); the phone verdict screen (gh#309\'s, from the round code alone); the 3D camera move itself (frames are 2D stills of the 3D intent).',
+    '<b>Ratified as built (owner picks 2026-11-18, gh#315):</b> PD-315-11 (a) the setup picker at 320 stacks five full-width 52px buttons with 8px gaps (one row at 1440) — the wrap chip-collection-reflow asks for, nothing crowds or shrinks; PD-315-03 (a) the shared centred field stays where it still shows (the 40-name cut-round result, the gh#302 fallback behaviour); PD-315-08 "นั่ง 0" is the approved seated badge at zero (COPY SOURCES).',
     '<b>Not covered:</b> a real projector, a real room, frame rate on the venue laptop; whether a room actually stands and sits on the MC\'s beat (a rehearsal question, gh#310\'s manner).',
   ]));
-  const OWNER = `<div class="pin q"><b>DECISIONS FOR THE OWNER (open; the pick is recorded on gh#315 before any code, ADR-0033):</b><ul>
-  <li><b>Z1. Zone layout</b>: A FOUR BLOCKS (2x2 panels, four zones, names to an 18px floor; zn-idle A) · B SIX COLUMNS (six colour columns, smaller groups, names 18px; zn-idle B) · C TAGGED FIELD (the picked field unchanged, zones as dots, names to a 16px floor; zn-idle C). The layouts can be mixed with either Z2 option: say so.</li>
-  <li><b>Z2. How the cut lands</b>: A WHOLE ZONES SIT (zone sizes drawn to the cut, whole zones sit as one, fate readable at assignment — disclosed; zn-whole, zn-wholeend) · B NAMES SIT IN THEIR ZONES (random zones, the verdict per name, suspense kept; zn-reveal, zn-result on every layout).</li>
-  <li><b>Z3. Proposed copy</b>: approve, or mark strings to change (COPY SOURCES row).</li>
+  const OWNER = `<div class="pin q"><b>DECISIONS PICKED 2026-11-16 (owner popups, recorded on gh#315):</b><ul>
+  <li><b>Z1. Zone layout: A FOUR BLOCKS</b> — 2x2 tinted panels, four zones of 49 at the 196-name round, names 20px to an 18px floor.</li>
+  <li><b>Z2. How the cut lands: B NAMES SIT IN THEIR ZONES</b> — random zones; the verdict lands per name in a zone-by-zone wave; badges count who sat.</li>
+  <li><b>Z3. Proposed copy:</b> approved as it stands.</li>
+  <li>The 2026-11-18 audit picks are quoted verbatim in the header banner; the stamps land in MOTION (PD-315-06), VALUES (PD-315-07), COPY SOURCES (PD-315-08) and NOTES (PD-315-03, PD-315-04, PD-315-11). Frames drawn to a pick go to code without a separate sign-off (owner ruling); the code picks are built under gh#319.</li>
 </ul></div>`;
-  return boardDoc('gh#315 · prize draw · colour zones stand-up', 'gh#315: proposal board, ADR-0033.', [ORDER_LINE, 'Visual language: the gh#302 pick (B NIGHT STAGE on the projector, 2026-11-11) and the gh#303 picks. Each open decision is drawn in options A/B/C; idle, reveal, round result, reduced motion (the 2D path, also what below 640px shows) and the never-blank fallback are drawn for each. Frames are 2D stills of a 3D scene (three, ADR-0060); the 3D intent is written under each frame.', OWNER], STAGE_CSS + CSS, rows, { status: 'AWAITING OWNER (gh#315)', pick: '' });
+  return boardDoc('gh#315 · prize draw · colour zones stand-up', 'gh#315: board drawn to the owner\'s picks, ADR-0033.', [ORDER_LINE_PICKED, 'The board decisions were picked 2026-11-16 (Z1 A, Z2 B, Z3 approved); the 2026-11-18 audit picks below are quoted verbatim from the last pick comment on gh#315. Visual language: the gh#302 pick (B NIGHT STAGE on the projector, 2026-11-11) and the gh#303 picks. Each decision is drawn in options A/B/C; idle, reveal, round result, reduced motion (the 2D path, also what below 640px shows) and the never-blank fallback are drawn for each. Frames are 2D stills of a 3D scene (three, ADR-0060); the 3D intent is written under each frame.', OWNER], STAGE_CSS + CSS, rows, { status: 'DRAWN TO THE OWNER\'S PICKS 2026-11-18', pick: '', rulings: ZONES_RULINGS, picks: PICKS_315 });
 }
+
+// The 2026-11-18 rulings that change this canvas (the audit picks, gh#315's last pick comment; gh#319 builds them).
+const ZONES_RULINGS = 'PD-315-04 — constant chip size ratified, the NOTES promise corrected · PD-315-06 — the stagger squeeze stamped on MOTION, min(20ms, 700ms/(n-1)), 14.29ms at 50 names · PD-315-07 — the shared 35 mm-equivalent FOV stamped on VALUES (37.8493° vertical) · PD-315-08 — "นั่ง 0" approved as the seated badge at zero (COPY SOURCES) · PD-315-11 — the setup picker\'s five-option stack at 320 ratified (NOTES) · PD-315-03 — the shared centred field accepted where it still shows (NOTES)';
+
+// Verbatim from the "Owner picks recorded (decision popups, 2026-11-18)" comment on gh#315.
+const PICKS_315 = [
+  'PD-315-01 → (a) "Draw zn-idle A as the demo\'s idle (the projector\'s `renderZonesIdle` already builds exactly this frame)"',
+  'PD-315-02 → (a) "Settle on the zones picture (keep the panels and final badges as the result frame)"',
+  'PD-315-03 → (a) "Accept the shared centred field (the gh#302 fallback behaviour)"',
+  'PD-315-04 → (b) "ratify constant chip size and correct the note" — ratified as built',
+  'PD-315-06 → (a) "accept the squeeze (it is what keeps the zones sequential)" — ratified as built',
+  'PD-315-07 → "accept the shared 35 mm-equivalent FOV" — ratified as built',
+  'PD-315-08 → "approve "นั่ง 0" as the pattern at zero"',
+  'PD-315-09 → (b) "`aria-hidden` the canvas while the live region carries the round (the lobby canvas\'s own treatment)"',
+  'PD-315-10 → "approve as written"',
+  'PD-315-11 → (a) "accept the stack (it is the wrap `chip-collection-reflow` asks for)" — ratified as built',
+];

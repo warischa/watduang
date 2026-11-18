@@ -1,11 +1,13 @@
 // VALUES as ROLES for the two phase-2 final boards (the gh#302 / gh#303 mechanism). COPIED from gh#303's
 // roles.mjs and changed: the STAGE chrome rows below are VERBATIM from gh#303 (the gh#302 B picked projector
 // chrome); the per-board rows are new for this board's elements (name plate, envelope art, prize-slot name,
-// card back/face, ground shadow). Pre-pick: ONE table per board, data-values-dir="AB", so EVERY option's frames
-// are held to the roles (any option may be picked). render-boards.mjs (this dir) reads all [data-values-dir]
-// tables while data-pick is empty. Ownership is EXCLUSIVE: each property an element renders is listed by exactly
+// card back/face, ground shadow); PHONE_ROLES / TW_ROLES (shared.mjs) own the 2026-11-18 pick frames (the demo
+// phone result, the free-name row below the scale threshold) on BOTH boards. ONE table per board,
+// data-values-dir="AB": every option's frames are held to the roles (data-pick stays empty, so the render keeps
+// checking A, B and F alike). Ownership is EXCLUSIVE: each property an element renders is listed by exactly
 // one matching row. A faded paint is its pre-composited solid (lib.mjs faded(); the grammar admits no opacity).
 import { esc, faded } from '../gh303-boards-2026-11-11/lib.mjs';
+import { PHONE_ROLES, TW_ROLES } from './shared.mjs';
 
 const T = 'tokens.css';
 const INK = '#14142b', GOLD = '#ffcc00', CREAM = '#fff6e0', WHITE = '#ffffff', MUTED = '#3d3b5c', PINK = '#ff3d7f', SKY = '#2b7bff';
@@ -57,14 +59,14 @@ const SLOT_NAME = [
 
 export const ROLES = {
   Gh317Envelopes: { pick: 'AB', rows: [
-    ...STAGE, ...PLATE, ...SHADOW, ...SLOT_NAME,
+    ...STAGE, ...PLATE, ...SHADOW, ...SLOT_NAME, ...PHONE_ROLES, ...TW_ROLES,
     ['envelope body', '.pj svg.envart path.body', [`fill:${NIGHT}`, `stroke:${GOLD}`], `${NIGHT} (gh#302 PICKED surface), ${T} --accent-gold edge`],
     ['envelope flap', '.pj svg.envart path.flap', [`fill:${GOLD}`], `${T} --accent-gold (the gift flap)`],
     ['envelope seal', '.pj svg.envart circle.seal', [`fill:${NIGHT}`, `stroke:${GOLD}`], `${NIGHT} (gh#302 PICKED), ${T} --accent-gold edge`],
     ['envelope bow', '.pj svg.envart circle.bow', [`fill:${GOLD}`], `${T} --accent-gold`],
   ] },
   Gh318Cards: { pick: 'AB', rows: [
-    ...STAGE, ...PLATE, ...SHADOW,
+    ...STAGE, ...PLATE, ...SHADOW, ...PHONE_ROLES, ...TW_ROLES,
     ['card shape', '.pj .pcard', ['radius:6px'], `${PK} (gh#303 card radius)`],
     ['card back', '.pj .pcard.down', ['background-image:repeating-linear-gradient(45deg, #23214d 0px, #23214d 6px, #2e2b63 6px, #2e2b63 7px)', `box-shadow:${GOLD} 0px 0px 0px 2px inset`], `${NIGHT}, ${HATCH} (gh#303 PICKED back), gold edge`],
     ['card back mark', '.pj .pcard.down svg polygon', [`fill:${GOLD}`], `${T} --accent-gold; a drawn star, never a suit (no casino styling)`],

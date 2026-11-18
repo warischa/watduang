@@ -8,6 +8,11 @@
 //     table on the board (one table, data-values-dir="AB"). gh#303's render required a pick; this one does not.
 //   - clip / containment / overlap selectors extended for the new elements (.pcard, .fk, .fp, .sk, .sp, .slot);
 //     the field-count matcher also reads .open / .up / .prize (an opened envelope / a turned card / a prize slot).
+//   - 2026-11-18 (gh#319, the pick frames): EXPECT carries the new F frames (the phone result, the prize-line cap,
+//     the free-name row at 640/720/845). The real-pixel phone/tablet frames (.pr / .tw roots) are judged at the
+//     16px mobile minimum (PHONE_FLOOR) — the gh305 audit probe's own phone branch (readable-font-size), not the
+//     projector's 30px distance floor, which binds every .pj frame unchanged. The overlap / containment / clip
+//     selectors also read .np (the free-name pill), so the row-vs-plate clearance is a judged invariant.
 // Everything else (the probe, the NAME FIT rule, the rendered-size floor, exclusive role ownership, the closed
 // grammar, the rendered-text scan, the per-clip capture) is gh#303's, unchanged.
 // Attaches to a headless Chrome on CDP_PORT, opens each board from file:// at 1600px, waits for fonts and the fit
@@ -31,19 +36,26 @@ const SLICE = 2000;
 const ENV = ['env-idle', 'env-rv-one', 'env-rv-all', 'env-result'];
 const CRD = ['card-idle', 'card-rv-one', 'card-rv-all', 'card-result'];
 const EXPECT = {
-  Gh317Envelopes: { A: ENV, B: ENV, F: ['env-few', 'env-rm', 'env-fallback'] },
-  Gh318Cards: { A: CRD, B: CRD, F: ['card-few', 'card-rm', 'card-fallback'] },
+  Gh317Envelopes: { A: ENV, B: ENV, F: ['env-few', 'env-rm', 'env-fallback', 'env-phone-320', 'env-phone-390', 'env-cap', 'env-row-640', 'env-row-720', 'env-row-845'] },
+  Gh318Cards: { A: CRD, B: CRD, F: ['card-few', 'card-rm', 'card-fallback', 'card-phone-320', 'card-phone-390', 'card-row-640', 'card-row-720', 'card-row-845'] },
 };
 // Smallest non-name text inside a checked frame, in px at the rendered size: 30px on the projector (names are
 // judged by their own NAME FIT floor instead).
 const FLOOR = { Gh317Envelopes: 30, Gh318Cards: 30 };
+// The real-pixel phone/tablet frames (.pr / .tw roots: the demo phone result, the free-name row below the scale
+// threshold) are judged at the 16px mobile minimum — the gh305 audit probe's own phone branch, the
+// readable-font-size rule. Their type is the picked i5-phone B / built control sizes; the projector's 30px
+// distance floor does not bind a phone surface, and still binds every .pj frame.
+const PHONE_FLOOR = { Gh317Envelopes: 16, Gh318Cards: 16 };
+const isRealPx = (e) => e.classList.contains('pr') || e.classList.contains('tw');
 // Held as escapes so this file does not carry the barred words (the raw Thai scan would fail on them).
 const BARRED = ['\u0e2b\u0e27\u0e22', '\u0e25\u0e2d\u0e15\u0e40\u0e15\u0e2d\u0e23\u0e35\u0e48', '\u0e40\u0e2a\u0e35\u0e48\u0e22\u0e07\u0e42\u0e0a\u0e04',
   '\u0e44\u0e1e\u0e48\u0e1b\u0e4a\u0e2d\u0e01', '\u0e41\u0e17\u0e07', '\u0e40\u0e14\u0e34\u0e21\u0e1e\u0e31\u0e19', '\u0e44\u0e2e\u0e42\u0e25'];
 
 const api = async (p, method = 'GET') => (await fetch(`http://127.0.0.1:${PORT}${p}`, { method })).json();
 
-const PROBE = (floor) => `(async () => {
+const PROBE = (floor, phoneFloor) => `(async () => {
+  const isRealPx = ${isRealPx.toString()};
   await Promise.allSettled([...document.fonts].map((f) => f.load()));
   await document.fonts.ready;
   await Promise.all([...document.images].map((i) => i.complete ? null : new Promise((r) => { i.addEventListener('load', r); i.addEventListener('error', r); })));
@@ -137,22 +149,23 @@ const PROBE = (floor) => `(async () => {
     const over = [...e.querySelectorAll('*')].filter((c) => { if (c.closest('svg') && c.tagName.toLowerCase() !== 'svg') return false; const cr = c.getBoundingClientRect(); return cr.width > 0 && (cr.right > r.right + 0.5 || cr.left < r.left - 0.5); }).map((c) => c.className.baseVal ?? c.className).slice(0, 5);
     const tw = (c) => { const g = document.createRange(); g.selectNodeContents(c); const rs = [...g.getClientRects()].filter((x) => x.width > 0); return rs.length ? Math.max(...rs.map((x) => x.right)) - Math.min(...rs.map((x) => x.left)) : 0; };
     const cw = (c) => { const cs = getComputedStyle(c); return (c.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) * (c.getBoundingClientRect().width / c.offsetWidth); };
-    const clipped = [...e.querySelectorAll('.chip, .fit, .plate, .digits, .card, .wn, .slot, .pcard, .sk, .sp, .fk, .fp')].filter((c) => c.offsetWidth > 0 && tw(c) > cw(c) + 0.5).map((c) => c.textContent.trim());
+    const clipped = [...e.querySelectorAll('.chip, .fit, .plate, .digits, .card, .wn, .slot, .pcard, .sk, .sp, .fk, .fp, .np')].filter((c) => c.offsetWidth > 0 && tw(c) > cw(c) + 0.5).map((c) => c.textContent.trim());
     const lineCount = (c) => { const g = document.createRange(); g.selectNodeContents(c); const half = parseFloat(getComputedStyle(c).fontSize) * scale / 2; const tops = [...g.getClientRects()].filter((x) => x.width > 0).map((x) => x.top).sort((p, q) => p - q); let n = 0, last = -1e9; for (const t of tops) { if (t - last > half) n++; last = t; } return n; };
     const atFloor = (c) => parseFloat(getComputedStyle(c).fontSize) <= parseFloat(c.dataset.min) + 0.01;
     const noSlack = [...e.querySelectorAll('.fit')].filter((c) => c.offsetWidth > 0 && ((lineCount(c) === 1 && tw(c) * 1.02 > cw(c) + 0.25) || (lineCount(c) === 2 && !atFloor(c)) || lineCount(c) > 2)).map((c) => c.textContent.trim());
     const baseWrapped = [...e.querySelectorAll('.fit')].filter((c) => c.offsetWidth > 0 && lineCount(c) > 1 && !c.textContent.includes('\\u0e33')).map((c) => c.textContent.trim());
     const wrapped = [...e.querySelectorAll('.fit')].filter((c) => c.offsetWidth > 0 && lineCount(c) === 2).map((c) => c.textContent.trim());
-    const boxes = [...e.querySelectorAll('.plate, .slot, .wcard, .pcard')].map((c) => ({ t: c.textContent.trim().slice(0, 24), r: c.getBoundingClientRect() }));
+    const boxes = [...e.querySelectorAll('.plate, .slot, .wcard, .pcard, .np')].map((c) => ({ t: c.textContent.trim().slice(0, 24), r: c.getBoundingClientRect() }));
     const overlaps = [];
     for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) { const a = boxes[i].r, b = boxes[j].r;
       if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.5 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.5) overlaps.push(boxes[i].t + ' / ' + boxes[j].t); }
     const fieldOver = [...e.querySelectorAll('.grid')].filter((g) => g.scrollHeight > g.clientHeight + 0.5).length;
     const underMin = [...e.querySelectorAll('.fit')].filter((c) => rendered(c, e) < parseFloat(c.dataset.min) - 0.01).map((c) => c.textContent);
     const texts = [...e.querySelectorAll('*')].filter((c) => [...c.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && !c.closest('.stub'));
-    const small = !checked(e) ? [] : texts.filter((c) => !c.closest('.fit') && rendered(c, e) < ${floor} - 0.01).map((c) => c.textContent.trim() + ' @' + rendered(c, e).toFixed(1) + 'px rendered (' + getComputedStyle(c).fontSize + ' x ' + effScale(c, e).toFixed(2) + ')');
+    const fl = isRealPx(e) ? ${phoneFloor} : ${floor};
+    const small = !checked(e) ? [] : texts.filter((c) => !c.closest('.fit') && rendered(c, e) < fl - 0.01).map((c) => c.textContent.trim() + ' @' + rendered(c, e).toFixed(1) + 'px rendered (' + getComputedStyle(c).fontSize + ' x ' + effScale(c, e).toFixed(2) + ')');
     const outside = [];
-    for (const c of e.querySelectorAll('.fit, .digits, .chip, .card, .plate, .lplate, .slot, .pcard, .sk, .sp, .fk, .fp')) {
+    for (const c of e.querySelectorAll('.fit, .digits, .chip, .card, .plate, .lplate, .slot, .pcard, .sk, .sp, .fk, .fp, .np')) {
       if (!c.offsetWidth && !c.offsetHeight) continue;
       const cr = c.getBoundingClientRect();
       for (let a = c.parentElement; a; a = a.parentElement) {
@@ -192,7 +205,7 @@ const PROBE = (floor) => `(async () => {
     const minFont = texts.length ? Math.min(...texts.map((c) => rendered(c, e))) : null;
     const fitted = [...e.querySelectorAll('.fit')].filter((c) => parseFloat(getComputedStyle(c).fontSize) < parseFloat(c.dataset.max)).map((c) => c.textContent + ' @' + getComputedStyle(c).fontSize);
     const taps = [...e.querySelectorAll('.tap')].map((c) => { const cr = c.getBoundingClientRect(); return { t: c.textContent.trim(), px: Math.min(cr.width, cr.height) / scale }; });
-    return { id: e.dataset.frame, dir: e.dataset.dir, w: e.offsetWidth, h: e.offsetHeight,
+    return { id: e.dataset.frame, dir: e.dataset.dir, w: e.offsetWidth, h: e.offsetHeight, floor: fl,
       overflowY: e.scrollHeight > e.clientHeight + 0.5, overflowX: e.scrollWidth > e.clientWidth + 0.5, over, overlaps, clipped, outside, roleProblems, counts, noSlack, baseWrapped, wrapped, fieldOver, underMin, small, minFont, fitted,
       smallTaps: taps.filter((x) => x.px < 44 - 0.01).map((x) => x.t + ' ' + x.px.toFixed(1)), minTap: taps.length ? Math.min(...taps.map((x) => x.px)) : null,
       top: Math.round(r.top + scrollY), bottom: Math.round(r.bottom + scrollY) };
@@ -241,7 +254,7 @@ async function run(file) {
   const lp = new Promise((r) => { loaded = r; });
   await send('Page.navigate', { url: pathToFileURL(abs).href });
   await lp;
-  const res = await send('Runtime.evaluate', { expression: PROBE(FLOOR[board] ?? 16), awaitPromise: true, returnByValue: true });
+  const res = await send('Runtime.evaluate', { expression: PROBE(FLOOR[board] ?? 16, PHONE_FLOOR[board] ?? 16), awaitPromise: true, returnByValue: true });
   const m = res.result?.result?.value;
   if (!m) throw new Error(`probe failed on ${board}: ${JSON.stringify(res.result?.exceptionDetails ?? res).slice(0, 400)}`);
 
@@ -266,7 +279,7 @@ async function run(file) {
     for (const rp of f.roleProblems.slice(0, 6)) problems.push(`values in ${k}: ${rp}`);
     if (f.counts.length) problems.push(`field count in ${k}: ${f.counts.join(' | ')}`);
     if (f.underMin.length) problems.push(`fit below its floor in ${k}: ${f.underMin.join(' | ')}`);
-    if (f.small.length) problems.push(`text under ${FLOOR[board] ?? 16}px in ${k}: ${[...new Set(f.small)].slice(0, 5).join(' | ')}`);
+    if (f.small.length) problems.push(`text under ${f.floor}px in ${k}: ${[...new Set(f.small)].slice(0, 5).join(' | ')}`);
     if (f.smallTaps.length) problems.push(`tap under 44px in ${k}: ${f.smallTaps.join(' | ')}`);
   }
   if (!m.nRoles) problems.push('board carries no VALUES role table');
@@ -314,8 +327,11 @@ async function run(file) {
     frames: m.frames.map(({ id, dir, minFont, minTap, fitted, wrapped }) => ({ id, dir, minFont, minTap, fitted: [...new Set(fitted)], wrapped: [...new Set(wrapped)] })) };
 }
 
+const boards = process.argv.slice(2);
+// A run that names no board checks nothing; an empty report is not a pass (REFUTE gh#319 r1).
+if (boards.length === 0) { console.error('render-boards: name at least one board file'); process.exit(2); }
 const reports = [];
-for (const f of process.argv.slice(2)) reports.push(await run(f));
+for (const f of boards) reports.push(await run(f));
 console.log(JSON.stringify(reports, null, 1));
 const bad = reports.some((r) => r.problems.length);
 for (const r of reports) console.error(`${r.problems.length ? 'FAIL' : 'ok'} ${r.board}: ${r.problems.length} problems, ${r.frames.length} frames, ${r.slices.length} slices, inherited ${r.inherited.length}`);

@@ -1,10 +1,13 @@
-# gh#317 / gh#318: the two phase-2 prize-draw FINAL boards (2026-11-16), AWAITING OWNER
+# gh#317 / gh#318: the two phase-2 prize-draw FINAL boards (2026-11-16), DRAWN TO THE OWNER'S PICKS 2026-11-18
 
-Two proposal boards in `design/`: `Gh317Envelopes.dc.html` (ซองของขวัญ, the gift-envelope final) and
-`Gh318Cards.dc.html` (เปิดไพ่ชิงรางวัล, the turn-a-card final). Both AWAIT the owner pick; nothing here is
-approved yet. The owner's pick must be recorded on gh#317 / gh#318 before any game code is written (ADR-0033:
-a design value not in the canvas is drift). Every Thai string in a frame is PROPOSED COPY unless the board's
-COPY SOURCES row marks it verbatim (gh#302 / gh#303 picked, or the ticket's own wording).
+Two boards in `design/`: `Gh317Envelopes.dc.html` (ซองของขวัญ, the gift-envelope final) and
+`Gh318Cards.dc.html` (เปิดไพ่ชิงรางวัล, the turn-a-card final). The board decisions were picked 2026-11-16
+(D1 A ROW, D2 A ONE AT A TIME, E1 / C1 copy approved; owner popups recorded on gh#317 / gh#318). The
+2026-11-17 audit's owner-pick findings were picked 2026-11-18 (recorded on the same tickets); this directory
+stamps the ratified values and draws the pick frames under gh#319 (canvas first, then code, ADR-0033). Each
+board's header is the Gh305AuditFrames picks banner: the rulings on this canvas, then the picks quoted verbatim
+from the ticket's last pick comment. Every Thai string in a frame is approved copy (E1 / C1) or verbatim from a
+picked board, the ticket, or the shipped demo copy (COPY SOURCES).
 
 ## The shared mechanic, designed once
 
@@ -22,8 +25,10 @@ The two games SHARE ONE MECHANIC (gh#299 decision 12; the owner keeps both). It 
   the 2D path the shared host already draws for a final (`src/play/_prize-reveal/reveal.ts`, view kind `final`):
   the gh#302 picked result frame, revealed last slot to prize 1 by 200ms fades. The ADR-0051 never-blank fallback
   (WebGL unavailable) draws the SAME frame. Both are drawn from `plainResult` and tagged for their trigger.
-  Below 640px that view takes the phone layout (gh#314 two-column result); the phone's own join/card/claim
-  screens are gh#302 / gh#309's boards, not re-proposed here.
+  Below 640px the DEMO result takes the phone layout drawn in the PHONE RESULT rows (Gh305AuditFrames frame 2,
+  PD-305-05: winner on top, prize cards in one column at i5-phone B sizes, inside the demo bar chrome; owner
+  picks PD-317-01 a / PD-318-02 a, 2026-11-18 — frame 2 wins over the pick's "two-column" wording); the phone's
+  own join/card/claim screens are gh#302 / gh#309's boards, not re-proposed here.
 - **The event fixture:** every count comes from gh#303's `lib.mjs` `EV` / `FINALISTS` / `PRIZES` (200 invited,
   196 joined, rounds 196->100->50->20->5; the five finalists carry the three NAME FIT worst cases). The
   generator refuses an impossible event (`assertEvent`, run at import and must-red'd).
@@ -77,18 +82,25 @@ Source commit: `1f575748a6c39b07a92d3a429fe8e8f8da2a60d3` (`git rev-parse HEAD` 
 
 | Board (slices) | Frame: slice |
 |---|---|
-| `Gh317Envelopes` (9) | idle A 1, B 2; rv-one A 2, B 3; rv-all A 3, B 4; result A 4, B 5; few 5; rm (2D path) 6; fallback 6; tables 7-9 |
-| `Gh318Cards` (9) | idle A 1, B 2; rv-one A 2, B 3; rv-all A 3, B 4; result A 4, B 5; few 5; rm (2D path) 6; fallback 6; tables 7-9 |
+| `Gh317Envelopes` (12) | banner + idle A 1; idle B + rv-one A 2; rv-all A + rv-one B 3; rv-all B + result A 4; result B + few 5; rm (2D path) + fallback 6; phone-320 + phone-390 + cap 7; row-640 + row-720 + row-845 8; tables 9-12 |
+| `Gh318Cards` (13) | banner 1; idle A + B 2; rv-one A + rv-all A 3; rv-one B + rv-all B 4; result A + B 5; few + rm (2D path) 6; fallback 7; phone-320 + phone-390 + row-640 + row-720 8; row-845 9; tables 10-13 |
 
-Renders are `<Board>-<n>.jpg` here, page heights 16320 / 16714 at 1600px wide. Frames are authored 1920x1080 and
-shown at 75% (1440x810). 11 frames per board: idle A/B, rv-one A/B, rv-all A/B, result A/B, few F, rm F,
-fallback F. The rm and fallback frames are the same gh#302 picked result view (they converge; see above).
+Renders are `<Board>-<n>.jpg` here, page heights 21624 / 21879 at 1600px wide (measured 2026-11-18). Projector
+frames are authored 1920x1080 and shown at 75% (1440x810); the env-cap detail is authored 900x460 at 75%; the
+phone and row frames are real pixels at their named widths. 17 frames on Gh317Envelopes (11 + phone-320/390,
+cap, row-640/720/845), 16 on Gh318Cards (11 + phone-320/390, row-640/720/845). The rm and fallback frames are the
+same gh#302 picked result view (they converge; see above). The pick frames (2026-11-18, gh#319): the phone
+result reproduces Gh305AuditFrames frame 2 inside the demo chrome; env-cap draws the prize line at its two-line
+cap (30px to the slot's 20px floor, the long name = the approved samples joined); the row frames draw the
+free-name row in the plate-to-band gap at real pixels below the per-game scale threshold (0.52 envelopes /
+0.65 cards = (44+8)/(NAMES_Y-PLATE_Y)), plate controls and band as stubs at their exact boxes.
 
 ## How the renders were made
 
 Headless Chrome on CDP port **9666** (profile under `<tmp>`, torn down by the pid this run started) loaded each
 board from `file://` at 1600px; after `document.fonts.ready` and the name-fit script each slice was captured on
-its own clip (<=2000px, never cutting a frame) as JPEG q62. The slices were viewed: the envelope idle arc and
+its own clip (<=2000px, never cutting a frame) as JPEG q62. The 2026-11-18 re-render (gh#319) used CDP port
+**9333** with its own `--user-data-dir`, per that run's brief; same flags otherwise. The slices were viewed: the envelope idle arc and
 row, the flap-lift reveal (no-prize open, prize closed) and all-open, the envelope result, the card star backs
 and white prize faces / night no-prize faces on both layouts, and the shared 2D result. Thai renders without
 dotted circles; the NAME FIT worst cases (12 x W, 12 x U+0E12, 12 x U+0E12 U+0E33) draw on the plates and slots.
@@ -104,17 +116,28 @@ Edit the generator (`make-boards.mjs`, `shared.mjs`, `chrome.mjs`, `roles.mjs`, 
 
 ## Verification (this run)
 
-- **Determinism:** `node make-boards.mjs` twice -> identical sha256:
-  `Gh317Envelopes.dc.html d3f548575ea4f97d47666453005f0d5d00034b6147f4358a071daf73687819e6`,
-  `Gh318Cards.dc.html 07485b7210544b9b8a5c78cce630346c3edf4fd0f6b7b6b2bddda2775ba63d4f`.
-- **Render:** 0 problems on each board, 11 frames, 9 slices each (18 JPGs, matching the slice table). The render
-  went RED first (42 problems on Gh317Envelopes, 20 on Gh318Cards: missing slot-text colour CSS, the star SVG
-  spanning the card's padding box, and the class-less nowrap spans `th('ไม่มีรางวัล')` produces needing a
-  descendant role selector); fixed, then green.
+- **Determinism:** `node make-boards.mjs` twice -> identical sha256 (re-measured 2026-11-18 after the pick
+  stamps and frames; `git status --porcelain` unchanged across the second run):
+  `Gh317Envelopes.dc.html 03f850b3ed7b13ed8441ef8b00c8a83137cc83e90077a3725efb859ba0c7bf97`,
+  `Gh318Cards.dc.html ab2810d5666fff12481387c20db5534d705635e436e0e9a96bf99fe702aed1b6`.
+- **Render:** 0 problems on each board; 17 frames / 12 slices (Gh317Envelopes), 16 frames / 13 slices
+  (Gh318Cards), 25 JPGs on disk matching the slice table. The 2026-11-16 render went RED first (42 problems on
+  Gh317Envelopes, 20 on Gh318Cards: missing slot-text colour CSS, the star SVG spanning the card's padding box,
+  and the class-less nowrap spans `th('ไม่มีรางวัล')` produces needing a descendant role selector); fixed, then
+  green. The 2026-11-18 pick frames exposed a false green: the first render passed while the plate stubs lacked
+  `position: absolute` under the `.tw` root (they stacked in flow, so the row could not overlap them) and the
+  row-clearance must-red plant stayed GREEN — a plant that never reds proves nothing. Fixed in TW_CSS; the
+  plant then reds on its own line (`name boxes overlap in F/env-row-640`) and the unplanted frames clear the
+  plates by 8px at all three widths (measured: plate bottom 264, row top 272 at 640). The new slices were
+  opened: Thai renders as words, nothing overlaps, the capped prize line takes two lines at 20px, the phone
+  result's winner wraps at its 24px floor.
 - **Thai scan:** clean (exit 0) on both boards, every `.mjs` here and this README; must-red: a banned word planted
   in a temp copy exits non-zero.
-- **Must-red:** 24 plants + 2 controls, 0 unexpected, exit 0 (both controls green; every plant red on its own
-  check's line). Table below.
+- **Must-red:** 28 plants + 2 controls, 0 unexpected, exit 0 (both controls green; every plant red on its own
+  check's line; re-run 2026-11-18). The four new plants: phone-floor (`.pr .msg` 12px: `text under 16px in
+  F/env-phone-320`), pill-floor (`.tw .np` 12px: `text under 16px in F/card-row-640`), row-clearance (`.prow`
+  margin 0: `name boxes overlap in F/env-row-640`), cap-three-lines (the cap's fit floor raised to 30: `name
+  breaks the NAME FIT rule ... in F/env-cap`). Table below.
 - **No absolute paths:** `node scripts/evidence-local-path-check.mjs` (run from the repository root, with these files tracked) reports 0 hits for the two boards and this directory.
 
 ## Must-red
@@ -128,7 +151,8 @@ Edit the generator (`make-boards.mjs`, `shared.mjs`, `chrome.mjs`, `roles.mjs`, 
 | Event guard (source) | 1 invited: `196 joined but only 1 invited`; an outsider in round 2: `round 2 participants are not exactly the round 1 survivors` |
 | Clip, NAME FIT, fit floor | plate 120px + nowrap: `clipped in A/env-idle`; slot name 10px: `fit below its floor in A/env-result`; plate wrap above floor: `name breaks the NAME FIT rule` |
 | Fonts, console, matrix, overflow | broken Sarabun 700: `font Sarabun 700 error`; a `throw`: `console: exception Error: planted`; renamed frame: `frame F/env-few found 0 times`; a 1700px block: `page scrolls sideways` |
-| Text floor at rendered size | `.lk` 24px: `@24.0px rendered`; `.gname` 50px at `scale(0.5)`: `25.0px rendered (50px x 0.50)` |
+| Text floor at rendered size | `.lk` 24px: `@24.0px rendered`; `.gname` 50px at `scale(0.5)`: `25.0px rendered (50px x 0.50)`; the real-pixel `.pr` / `.tw` frames are judged at the 16px mobile minimum (the gh305 audit probe's phone branch), every `.pj` frame at 30px: `.pr .msg` 12px: `text under 16px in F/env-phone-320`; `.tw .np` 12px: `text under 16px in F/card-row-640` |
+| The pick frames (2026-11-18) | row margin 0: `name boxes overlap in F/env-row-640` (the row-vs-plate clearance is a judged invariant, `.np` in the overlap/containment selectors); the cap's floor raised to 30px: `name breaks the NAME FIT rule ... in F/env-cap` |
 | Field counts | `5/3` on rv-one: `field count in A/env-rv-one`; `5/1` on card idle: `field count in A/card-idle` |
 | Values by role, exclusive | `#00ff00` game name: `(role: gold figures)`; card face `#23214d`: `(role: card face with a prize)`; gold label on white: `(role: prize label on a face)` |
 | Grammar | a `<use>`: `element <use> is outside the grammar`; `fill-opacity: 0.5`: `computes fill-opacity 0.5`; `::before` content: `carries content`; a `<template>`: `<template> element(s)` |
@@ -147,12 +171,9 @@ distance); rules taken, never its palette or fonts.
 - How the MC places the picks (a setup-page control, gh#302's board).
 - Type by role beyond paint: roles own paint; type is held by the floors and the grammar's value shapes.
 
-## Wanted `design/canvas.json` entries (reserved to the orchestrator; not written here)
+## `design/canvas.json` entries (orchestrator-owned; not written here)
 
-A new page plus two artboards, in the file's existing shape (page-13's rows are the model):
-
-```
-{ "id": "page-15", "name": "gh#317 gh#318 · prize draw phase-2 finals · ซองของขวัญ / เปิดไพ่ชิงรางวัล (awaiting owner)" }
-{ "file": "Gh317Envelopes.dc.html", "title": "gh#317 gift-envelope final 1920x1080 · AWAITING OWNER: D1 layout, D2 order, E1 copy", "page": "page-15", "x": 0,    "y": 0, "w": 1520, "h": 16320 }
-{ "file": "Gh318Cards.dc.html",     "title": "gh#318 turn-a-card final 1920x1080 · AWAITING OWNER: D1 layout, D2 order, C1 copy",   "page": "page-15", "x": 1600, "y": 0, "w": 1520, "h": 16714 }
-```
+The page-15 entries exist with APPROVED 2026-11-16 titles (D1 A ROW, D2 A ONE AT A TIME). Their heights predate
+the 2026-11-18 pick frames and are stale: the boards now measure 21624 (Gh317Envelopes) and 21879 (Gh318Cards)
+at 1600px wide; page-14's Gh315Zones / Gh316Marbles measure 29331 / 21127 after the stamps. The orchestrator
+re-measures and updates the artboard boxes; this directory only reports the numbers.
