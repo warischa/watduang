@@ -10,22 +10,32 @@
 // rewritten. A second ruling the same day widened the identity half to the whole repo: an account
 // name in a home path leaks from a prompt log or a doc exactly as it does from evidence.
 //
-// THE SET, and why it is finite: every path `git ls-files` reports, partitioned by two keys.
-//   - Evidence (under docs/verification/evidence/) x every shape below, and NO name is admitted:
-//     the reserved placeholder name reds there too, because evidence spells a home as `~`.
-//   - Every other tracked file x the IDENTITY shapes only (home directories and their hyphen
-//     encodings), and only when the token's account segment is a real name. The reserved
-//     placeholder account name and an angle placeholder such as `<name>` are admitted, and a
-//     segment with no letter or digit carries no name. Temp-dir and root-home shapes are not
-//     policed there: a probe's temp constant or prose about an apex/root domain names nobody.
+// THE SET, and why it is finite: git owns the list, in two parts.
+//   1. Every path `git ls-files` reports (tracked), partitioned by two keys:
+//      - Evidence (under docs/verification/evidence/) x every shape below, and NO name is admitted:
+//        the reserved placeholder name reds there too, because evidence spells a home as `~`.
+//      - Every other tracked file x the IDENTITY shapes only (home directories and their hyphen
+//        encodings), and only when the token's account segment is a real name. The reserved
+//        placeholder account name and an angle placeholder such as `<name>` are admitted, and a
+//        segment with no letter or digit carries no name. Temp-dir and root-home shapes are not
+//        policed there: a probe's temp constant or prose about an apex/root domain names nobody.
+//   2. Every UNTRACKED, not-gitignored path `git ls-files --others --exclude-standard` reports
+//      under docs/verification/evidence/ only. Fresh evidence exists locally before `git add`, and
+//      on 2026-11-17 a local path in such a file passed this gate locally, then redded sixteen
+//      times once the commit made it tracked. An untracked evidence file gets the evidence rules —
+//      every shape, no name admitted — exactly as a tracked one does.
+// Untracked files OUTSIDE the evidence directory are deliberately outside the scan: that is where
+// in-flight agent output lives (`.scratch/` is not gitignored), and grading it would red on working
+// notes the agents are still writing. The untracked half honours .gitignore and is bracketed to the
+// evidence directory, so a git worktree under .claude/worktrees/ can never enter the scan — this
+// gate does not walk the filesystem at all. A fresh checkout has no untracked files, so a CI run
+// sees the set it always did; the untracked half bites in local runs.
 // No file is exempt by path — the gate's own source included — so a real name added later to any
-// file reds; fixtures pass only by spelling the reserved name. Git owns the list, so an untracked
-// directory being written by another agent, or a git worktree under .claude/worktrees/, can never
-// enter the scan — this gate does not walk the filesystem at all. EVERY tracked file is scanned in
+// file reds; fixtures pass only by spelling the reserved name. EVERY file in the set is scanned in
 // three views — UTF-8 (lossy), UTF-16LE and UTF-16BE, each with its BOM stripped where present —
 // and a hit in any view is a finding. Nothing is classified as binary and skipped: the excluded set
 // is empty, so a sparse NUL cannot hide a path and a path embedded in image metadata is visible in
-// whichever view spells it. A tracked file missing from the working tree throws: never a skip.
+// whichever view spells it. A file in the set missing from the working tree throws: never a skip.
 //
 // THE SHAPES are the tokens this repo's producers actually emit, not every way a machine path can
 // be spelled. Identity (repo-wide): `/Users/<name>`, `/home/<name>`, a Windows `C:\Users\` in either
@@ -49,7 +59,7 @@
 // the line and the shape, and prints the line with the matched token replaced — never the value
 // itself.
 //
-//   node scripts/evidence-local-path-check.mjs            -> scan every tracked file, three views, scoped by path
+//   node scripts/evidence-local-path-check.mjs            -> scan every tracked file plus every untracked evidence file, three views, scoped by path
 //   node scripts/evidence-local-path-check.mjs --selftest -> calibration on a throwaway fixture repo
 //
 // CEILING, disclosed: this is a shape list over text, not a proof that no machine path exists. A
@@ -192,14 +202,57 @@ export function redact(line) {
   return out.trim().slice(0, 200);
 }
 
-/** Every tracked file in the repo, per git's own index — never a filesystem walk. */
+/**
+ * Every UNTRACKED, not-gitignored file under the evidence directory, per git — never a filesystem
+ * walk. Git still owns the list; this is the second half of it.
+ *
+ * WHY: a fresh evidence file exists on disk before `git add`, and a local path in it must red at
+ * that moment, not only once the commit makes it tracked. On 2026-11-17 such a file passed this
+ * gate locally and then redded sixteen times after it was committed.
+ *
+ * Bracketed to the evidence directory ON PURPOSE. An untracked file elsewhere is in-flight agent
+ * output (`.scratch/` is not gitignored), which this gate does not grade. `--exclude-standard`
+ * honours .gitignore, so a gitignored path — including a worktree under `.claude/worktrees/` —
+ * can never enter the scan. A fresh checkout has no untracked files, so CI sees the same set it
+ * always did; this half bites in local runs.
+ */
+/**
+ * Split `git ... -z` output into RAW path BYTES, one Buffer per path. Never decode here: a name
+ * that is not valid UTF-8 decodes to U+FFFD, and re-encoding that names a DIFFERENT file — the gate
+ * would read a clean sibling and exit 0 while the indexed blob carries a home path. Decode only for
+ * display.
+ */
+function splitNul(buf) {
+  const parts = [];
+  let start = 0;
+  for (let i = 0; i < buf.length; i++) {
+    if (buf[i] === 0) {
+      if (i > start) parts.push(buf.subarray(start, i));
+      start = i + 1;
+    }
+  }
+  if (start < buf.length) parts.push(buf.subarray(start));
+  return parts;
+}
+
+export function listUntrackedEvidence(cwd) {
+  const out = execFileSync('git', ['ls-files', '--others', '--exclude-standard', '-z', '--', EVIDENCE_DIR], {
+    cwd,
+    encoding: 'buffer',
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  return splitNul(out);
+}
+
+/** Every tracked file in the repo, per git's own index — never a filesystem walk. Paths are raw
+ * bytes (see splitNul); a non-UTF-8 name must never be re-encoded into a different file. */
 export function listTracked(cwd) {
   const out = execFileSync('git', ['ls-files', '-z'], {
     cwd,
     encoding: 'buffer',
     maxBuffer: 64 * 1024 * 1024,
   });
-  return out.toString('utf8').split('\0').filter(Boolean);
+  return splitNul(out);
 }
 
 /**
@@ -225,32 +278,69 @@ export function textViews(buf) {
   ];
 }
 
-/** True for a repo-relative path under the evidence directory, where every shape is policed. */
+const EVIDENCE_DIR_BYTES = Buffer.from(`${EVIDENCE_DIR}/`, 'utf8');
+
+/** True for a repo-relative path under the evidence directory, where every shape is policed.
+ * Accepts the raw path Buffer or its display string; a Buffer is compared as bytes. */
 export function isEvidence(file) {
-  return file.startsWith(`${EVIDENCE_DIR}/`);
+  const bytes = Buffer.isBuffer(file) ? file : Buffer.from(file, 'utf8');
+  return bytes.length >= EVIDENCE_DIR_BYTES.length && bytes.subarray(0, EVIDENCE_DIR_BYTES.length).equals(EVIDENCE_DIR_BYTES);
+}
+
+/** A repo-relative path (raw Buffer or string) as an fs path under `dir`. A Buffer is concatenated
+ * as bytes, never decoded, so the file opened is exactly the one git indexed. */
+function fullPath(dir, file) {
+  if (!Buffer.isBuffer(file)) return path.join(dir, file);
+  return Buffer.concat([Buffer.from(dir + path.sep, 'utf8'), file]);
 }
 
 /** Scan the listed files in all three views; a hit in ANY view is a finding. Identical findings
  * (same file, line, shape and matched token) are deduped across views. No file is skipped; the
- * scope (every shape, or named identity shapes only) follows the file's path. */
+ * scope (every shape, or named identity shapes only) follows the file's path. Paths are raw bytes:
+ * a Buffer path reaches fs unchanged, so a non-UTF-8 name is the file git indexed and never a lossy
+ * re-encoding of it; decode only for display.
+ *
+ * A symlink is scanned as its target string — the blob git commits — never the bytes it points at.
+ * An entry `lstat` says is a DIRECTORY carries no file content here (a gitlink stores a commit id,
+ * and an untracked embedded repo is listed as its directory), so its PATH string is scanned instead
+ * and the entry is counted in `pathOnly`; the scan never aborts on it.
+ *
+ * Returns `{ hits, pathOnly }`. */
 export function scanFiles(dir, files) {
   const hits = [];
   const seen = new Set();
+  let pathOnly = 0;
   for (const file of files) {
-    const buf = fs.readFileSync(path.join(dir, file));
+    const full = fullPath(dir, file);
+    const display = Buffer.isBuffer(file) ? file.toString('utf8') : file;
+    // Internal identity is the raw bytes; a lossy display string cannot tell two non-UTF-8 names apart.
+    const identity = Buffer.isBuffer(file) ? file.toString('latin1') : file;
+    const st = fs.lstatSync(full);
+    let buf;
+    if (st.isSymbolicLink()) {
+      // Read the link text, exactly what git stores, and never follow it: following would scan a
+      // clean target and miss a home path in the committed blob, and a dangling link would throw.
+      buf = fs.readlinkSync(full, { encoding: 'buffer' });
+    } else if (st.isDirectory()) {
+      // No file content to read; the path bytes themselves are what gets scanned.
+      pathOnly++;
+      buf = Buffer.isBuffer(file) ? file : Buffer.from(file, 'utf8');
+    } else {
+      buf = fs.readFileSync(full);
+    }
     const evidence = isEvidence(file);
     for (const text of textViews(buf)) {
       text.split('\n').forEach((line, i) => {
         for (const hit of findHits(line, { evidence })) {
-          const key = `${file}|${i + 1}|${hit.shape}|${hit.match}`;
+          const key = `${identity}|${i + 1}|${hit.shape}|${hit.match}`;
           if (seen.has(key)) continue;
           seen.add(key);
-          hits.push({ file, line: i + 1, shape: hit.shape, sample: redact(line) });
+          hits.push({ file: display, line: i + 1, shape: hit.shape, sample: redact(line) });
         }
       });
     }
   }
-  return hits;
+  return { hits, pathOnly };
 }
 
 // ---------------------------------------------------------------------------
@@ -379,9 +469,17 @@ function selftest() {
       { dir: 'docs/notes', name: 'thai-mark-hyphen-users.md', shape: '-Users-', buf: utf8('d: ~/.claude/projects/-Users-' + THAI_MARK_NAME + '-proj/x\n') },
       // No file is exempt: a named home inside a copy of THIS gate's own source path still reds.
       { dir: 'scripts', name: 'evidence-local-path-check.mjs', shape: '/Users/<name>', buf: utf8("const leaked = '/Users/" + NAME + "/x';\n") },
-    ];
+      // A SYMLINK IS ITS TARGET STRING. Git commits the link text, never the bytes it points at, so
+      // following the link reads the CLEAN target created below and exits 0 on a home path sitting
+      // in the committed blob. The link text is the whole finding.
+      { name: 'symlink-home.txt', shape: '/Users/<name>', link: '../../../Users/' + NAME + '/clean.txt' },
+      ];
     const greenFixtures = [
       { name: 'green-placeholders.txt', buf: utf8(['repo: <repo>/docs/x', 'home: ~/x', 'temp: <tmp>/x', 'prose: temporary files stay in TMPDIR'].join('\n') + '\n') },
+      // The sibling whose name holds the LITERAL U+FFFD (bytes EF BF BD) with clean bytes: a lossy
+      // decode collapses the raw-name fixture onto THIS name, which is exactly why the lookup must
+      // not decode. Its green is the bug's cover story, not a fixture that could never red.
+      { name: 'raw-name-\ufffd.txt', buf: utf8('clean bytes, nothing to report\n') },
       // A UTF-16 file carrying ONLY an allowed placeholder must decode and stay green — the
       // encoding fix must not invent hits.
       { name: 'utf16le-green.txt', buf: utf16le('<repo>/x\n') },
@@ -392,6 +490,9 @@ function selftest() {
       // Outside evidence, temp-dir and root-home shapes are not policed: a probe's temp constant,
       // a workflow scratch path and prose about an apex/root domain all stay green there.
       { dir: 'scripts', name: 'probe-temp.mjs', buf: utf8(["const OUT = '/tmp/probe-shot.png';", "const P = '/private/tmp/x';", "const V = '/var/folders/ab/T/x';", "const H = '-var-folders-ab-';", '// the apex/root domain; cd /root', ''].join('\n')) },
+      // A symlink whose target is a clean relative path stays green: the link TEXT is the content,
+      // and it carries no home, temp or root-home shape.
+      { dir: 'docs/notes', name: 'symlink-clean.md', link: '../../docs/verification/evidence/green-placeholders.txt' },
       // The anchored hyphen form never matches a word that merely contains the segment.
       { dir: 'src/styles', name: 'home-classes.css', buf: utf8('.btn-home-menu { color: red; }\n:root { --home-bg: #000; }\n') },
       { dir: 'src/styles', name: 'home-classes-utf16le.css', buf: utf16le('.btn-home-menu { color: red; }\n') },
@@ -415,24 +516,95 @@ function selftest() {
         ),
       },
     ];
-    const rel = (f) => `${f.dir ?? EVIDENCE_DIR}/${f.name}`;
+    // A filename with a RAW 0xff byte. Decoding `git ls-files -z` as UTF-8 turns it into U+FFFD, and
+    // re-encoding that names the clean sibling below — the gate would read THAT file, exit 0, and
+    // never see the home path in the indexed blob. Paths stay raw bytes end to end; only display is
+    // decoded. A byte-preserving filesystem (CI's ext4) takes the name, so the fixture is a full
+    // must-red there. APFS refuses a non-UTF-8 name at the syscall (EILSEQ), so on such a machine the
+    // entry lives in the INDEX only and the fixture pins the invariant that machine can still prove:
+    // the path comes back BYTE-EXACT, so it can never silently open the clean sibling.
+    const RAW_NAME = Buffer.concat([Buffer.from(`${EVIDENCE_DIR}/raw-name-`), Buffer.from([0xff]), Buffer.from('.txt')]);
+    const RAW_HOME = utf8('shot: /Users/' + NAME + '/shot.png\n');
+    const RAW_SIBLING = `${EVIDENCE_DIR}/raw-name-\ufffd.txt`;
+    let rawNameOnDisk = true;
+    try {
+      fs.writeFileSync(Buffer.concat([Buffer.from(dir + path.sep, 'utf8'), RAW_NAME]), RAW_HOME);
+    } catch (e) {
+      if (e.code !== 'EILSEQ') throw e;
+      rawNameOnDisk = false;
+    }
+    if (rawNameOnDisk) redFixtures.push({ relBytes: RAW_NAME, shape: '/Users/<name>', buf: RAW_HOME });
+
+    // `rel` is the DISPLAY path (lossy for a non-UTF-8 name, which is all a report needs); `relBytes`
+    // is the raw path git and fs must see. Two fixtures can share a display name while being two
+    // different files — that collision is the bug the raw-name fixture pins.
+    const rel = (f) => (f.relBytes ? f.relBytes.toString('utf8') : `${f.dir ?? EVIDENCE_DIR}/${f.name}`);
+    const fixturePath = (f) =>
+      f.relBytes ? Buffer.concat([Buffer.from(dir + path.sep, 'utf8'), f.relBytes]) : path.join(dir, rel(f));
     for (const f of [...redFixtures, ...greenFixtures]) {
       fs.mkdirSync(path.join(dir, path.dirname(rel(f))), { recursive: true });
-      fs.writeFileSync(path.join(dir, rel(f)), f.buf);
+      // A `link` fixture is a symlink; its CONTENT is the target string, which is what git commits.
+      if (f.link) fs.symlinkSync(f.link, fixturePath(f));
+      else fs.writeFileSync(fixturePath(f), f.buf);
     }
 
     execFileSync('git', ['init', '-q'], { cwd: dir });
     execFileSync('git', ['add', '-A'], { cwd: dir });
 
-    const allPaths = [...redFixtures, ...greenFixtures].map(rel).sort();
+    // The clean target the tracked symlink fixture points at: clean bytes under a home-shaped path, so
+    // FOLLOWING the link finds nothing and a follow-based scan exits 0 on the counter-example. Written
+    // after `git add` so it stays out of the tracked fixture set this assertion pins.
+    fs.mkdirSync(path.join(dir, 'Users', NAME), { recursive: true });
+    fs.writeFileSync(path.join(dir, 'Users', NAME, 'clean.txt'), 'nothing to see here\n');
+
+    // A tracked GITLINK: `git ls-files` lists it, and the working tree holds a DIRECTORY where a file
+    // would be — a gitlink stores a commit id and no content. Reading it aborts with EISDIR, so the
+    // scan must count it by path and never read it.
+    const GITLINK_PATH = 'docs/notes/gitlink-target';
+    fs.mkdirSync(path.join(dir, GITLINK_PATH), { recursive: true });
+    execFileSync('git', ['update-index', '--add', '--cacheinfo', `160000,${'1'.repeat(40)},${GITLINK_PATH}`], { cwd: dir });
+
+    // Where the OS forbids the raw name on disk, put the same entry in the INDEX with a real blob:
+    // the path and its content are exactly what a committed evidence file would carry.
+    if (!rawNameOnDisk) {
+      const blob = execFileSync('git', ['hash-object', '-w', '--stdin'], { cwd: dir, input: RAW_HOME }).toString().trim();
+      execFileSync('git', ['update-index', '-z', '--index-info'], {
+        cwd: dir,
+        input: Buffer.concat([Buffer.from(`100644 ${blob} 0\t`), RAW_NAME, Buffer.from([0])]),
+      });
+    }
+
+    const asBuf = (p) => (Buffer.isBuffer(p) ? p : Buffer.from(p, 'utf8'));
+    const sortedBytes = (arr) => arr.map(asBuf).sort(Buffer.compare);
+    const fixturePaths = [...redFixtures, ...greenFixtures]
+      .map((f) => f.relBytes ?? rel(f))
+      .concat(GITLINK_PATH, ...(rawNameOnDisk ? [] : [RAW_NAME]));
     const tracked = listTracked(dir);
     assert.deepEqual(
-      [...tracked].sort(),
-      allPaths,
-      'the fixture repo must track every planted file, per-item — a count alone cannot tell "all" from "the last N"',
+      sortedBytes(tracked),
+      sortedBytes(fixturePaths),
+      'the fixture repo must track every planted file, per-item, BY BYTES — a count alone cannot tell "all" from "the last N", and a display string cannot tell the two raw-name files apart',
     );
 
-    const hits = scanFiles(dir, tracked);
+    // Where the OS refused the raw name there is no working-tree file to read, so that entry stays out
+    // of the scan set — the gate's contract is to throw on a missing file, and the byte-exactness is
+    // pinned below. On a byte-preserving filesystem the fixture is an ordinary must-red and IS scanned.
+    const scannable = rawNameOnDisk ? tracked : tracked.filter((p) => !(Buffer.isBuffer(p) && p.equals(RAW_NAME)));
+    const { hits, pathOnly } = scanFiles(dir, scannable);
+    assert.equal(pathOnly, 1, 'the tracked gitlink must be counted as a path-only entry, not read as a file');
+
+    // The raw-name fixture's platform-adaptive half: git hands the path back BYTE-EXACT (never as
+    // U+FFFD), the lossy decode is the CLEAN sibling, and a byte-exact path can never silently open
+    // that sibling — so the exit-0-on-the-home-path failure is impossible with the fix in place.
+    if (!rawNameOnDisk) {
+      assert.ok(
+        tracked.some((p) => Buffer.isBuffer(p) && p.equals(RAW_NAME)),
+        'the indexed raw-byte name must come back BYTE-EXACT from git, never as U+FFFD',
+      );
+      assert.equal(RAW_NAME.toString('utf8'), RAW_SIBLING, 'the lossy decode of the raw name IS the sibling name — that collision is the bug');
+      assert.deepEqual(scanFiles(dir, [RAW_SIBLING]).hits, [], 'the sibling is clean, so a lossy decode exits 0 on the home path');
+      assert.throws(() => scanFiles(dir, [RAW_NAME]), (e) => e.code === 'ENOENT', 'a byte-exact path targets the indexed file, never the clean sibling');
+    }
     const redPaths = redFixtures.map(rel).sort();
     const hitFiles = [...new Set(hits.map((h) => h.file))].sort();
     assert.deepEqual(hitFiles, redPaths, 'exactly the must-red fixtures must be flagged, and nothing else');
@@ -501,54 +673,170 @@ function selftest() {
     console.log(`PASS calibration: ${hits.length}/${redFixtures.length} planted fixtures flagged with the right shape; placeholder-led tokens stayed green`);
 
     // Red -> green round trip: removing the must-red fixtures must clear the scan.
-    for (const f of redFixtures) fs.rmSync(path.join(dir, rel(f)));
+    for (const f of redFixtures) fs.rmSync(fixturePath(f));
     execFileSync('git', ['add', '-A'], { cwd: dir });
-    const cleared = scanFiles(dir, listTracked(dir));
+    const { hits: cleared } = scanFiles(dir, listTracked(dir));
     assert.deepEqual(cleared, [], 'removing every must-red fixture must return the scan to zero hits');
 
     // A broken detector (a shape silently dropped) must be caught by the shape-coverage assertion
     // above, not by a vacuous green: prove the fixture set still contains every shape.
     assert.equal(SHAPES.length, 11, 'the rejected-shape set must stay at eleven entries; a dropped shape would pass every fixture');
     console.log('PASS calibration: removing the must-red fixtures clears the scan, and the shape set is complete');
+
+    // THE UNTRACKED HALF (2026-11-17): an evidence file exists on disk before `git add`, and a local
+    // path in it passed this gate locally, then redded sixteen times once the commit made it
+    // tracked. Git still owns the list — the untracked half is `git ls-files --others
+    // --exclude-standard`, bracketed to the evidence directory. Three fixtures pin the boundary:
+    //   (a) untracked, not ignored, under evidence     -> must RED under the evidence rules
+    //   (b) untracked, outside the evidence directory  -> outside the set, never scanned
+    //   (c) untracked, under evidence, but gitignored  -> outside the set, never scanned
+    // (b) and (c) each prove their content IS a shaped hit before asserting exclusion, so each green
+    // is the SET's doing and not a fixture that could never have redded.
+    const UNTRACKED_HOME = 'untracked-home.txt';
+    const UNTRACKED_LINK = 'untracked-link.txt';
+    const UNTRACKED_DANGLING = 'untracked-dangling.txt';
+    const OUTSIDE_HOME = 'docs/notes/untracked-outside-home.md';
+    const IGNORED_HOME = 'ignored-home.txt';
+    const leakedHome = utf8('shot: /Users/' + NAME + '/shot.png\n');
+    fs.writeFileSync(path.join(dir, EVIDENCE_DIR, UNTRACKED_HOME), leakedHome);
+    fs.writeFileSync(path.join(dir, OUTSIDE_HOME), leakedHome);
+    fs.writeFileSync(path.join(dir, EVIDENCE_DIR, IGNORED_HOME), leakedHome);
+    fs.symlinkSync('../../../Users/' + NAME + '/clean.txt', path.join(dir, EVIDENCE_DIR, UNTRACKED_LINK));
+    // A dangling link is still scanned: the target string is the content, so a missing target must
+    // not throw the gate out of the scan.
+    fs.symlinkSync('../missing/Users/' + NAME + '/clean.txt', path.join(dir, EVIDENCE_DIR, UNTRACKED_DANGLING));
+    fs.writeFileSync(path.join(dir, '.gitignore'), `${EVIDENCE_DIR}/${IGNORED_HOME}\n`);
+
+    // An untracked EMBEDDED REPO under evidence: git lists it as a DIRECTORY entry with a trailing
+    // slash, and reading it as a file aborts the whole gate with EISDIR. Its path is scanned instead
+    // and the entry counted, never read.
+    const EMBEDDED_REPO = 'embedded-repo';
+    fs.mkdirSync(path.join(dir, EVIDENCE_DIR, EMBEDDED_REPO), { recursive: true });
+    execFileSync('git', ['init', '-q'], { cwd: path.join(dir, EVIDENCE_DIR, EMBEDDED_REPO) });
+
+    const untracked = listUntrackedEvidence(dir);
+    // Paths stay raw bytes; decode only so this assertion can read like the listing.
+    const untrackedDisplay = untracked.map((p) => p.toString('utf8'));
+    // (a) the set admits exactly the untracked, not-ignored evidence entries — a plain file, a
+    // symlink to clean bytes, a dangling symlink, and the embedded-repo directory — and scanning them
+    // reds on the three files, each symlink under its TARGET STRING, while the directory is counted
+    // by path and never read.
+    assert.deepEqual(
+      untrackedDisplay,
+      [
+        `${EVIDENCE_DIR}/${EMBEDDED_REPO}/`,
+        `${EVIDENCE_DIR}/${UNTRACKED_DANGLING}`,
+        `${EVIDENCE_DIR}/${UNTRACKED_HOME}`,
+        `${EVIDENCE_DIR}/${UNTRACKED_LINK}`,
+      ],
+      '(a) the untracked half must admit exactly the untracked, not-ignored evidence entries',
+    );
+    const untrackedScan = scanFiles(dir, untracked);
+    assert.deepEqual(
+      untrackedScan.hits.map((h) => [h.file, h.shape]),
+      [
+        [`${EVIDENCE_DIR}/${UNTRACKED_DANGLING}`, '/Users/<name>'],
+        [`${EVIDENCE_DIR}/${UNTRACKED_HOME}`, '/Users/<name>'],
+        [`${EVIDENCE_DIR}/${UNTRACKED_LINK}`, '/Users/<name>'],
+      ],
+      '(a) an untracked evidence file or symlink, dangling or not, carrying a home path must red under the evidence rules',
+    );
+    assert.equal(untrackedScan.pathOnly, 1, 'the untracked embedded repo must be counted by path, not read as a file');
+    // (b) an untracked file outside the evidence directory stays out — its content is a hit, so the
+    // green is the set excluding it.
+    assert.ok(!untrackedDisplay.includes(OUTSIDE_HOME), '(b) an untracked file outside the evidence directory must not enter the untracked half');
+    assert.equal(
+      findHits(leakedHome.toString('utf8'), { evidence: false }).length,
+      1,
+      '(b) the outside-evidence fixture must carry a real-named identity hit, or its green proves nothing',
+    );
+    // (c) a gitignored file under the evidence directory stays out, for the same reason.
+    assert.ok(
+      !untrackedDisplay.includes(`${EVIDENCE_DIR}/${IGNORED_HOME}`),
+      '(c) a gitignored file under the evidence directory must not enter the untracked half',
+    );
+    assert.equal(
+      scanFiles(dir, [`${EVIDENCE_DIR}/${IGNORED_HOME}`]).hits.length,
+      1,
+      '(c) the ignored fixture must red when scanned, or its green proves nothing',
+    );
+
+    // THE CLI PATH, end to end: run the same function `main` runs, with the same argument it builds
+    // (the repo root), and assert the verdict and the named file the CLI would report. Assertions
+    // over the helpers alone stay green if the CLI's own path drops a half of the set.
+    const cli = runScan(dir);
+    assert.equal(cli.exitCode, 1, 'the CLI path must exit non-zero on an untracked evidence file carrying a home path');
+    assert.equal(cli.pathOnly, 2, 'the CLI path must count both directory entries by path (tracked gitlink + untracked embedded repo), never read them');
+    assert.deepEqual(
+      [...new Set(cli.hits.map((h) => h.file))].sort(),
+      [`${EVIDENCE_DIR}/${UNTRACKED_DANGLING}`, `${EVIDENCE_DIR}/${UNTRACKED_HOME}`, `${EVIDENCE_DIR}/${UNTRACKED_LINK}`],
+      'the CLI path must name exactly the untracked evidence fixtures it reds on',
+    );
+
+    // The same round trip the tracked half proves, now over the CLI's own set: removing the
+    // untracked must-red fixtures must return it to exit 0.
+    fs.rmSync(path.join(dir, EVIDENCE_DIR, UNTRACKED_HOME));
+    fs.rmSync(path.join(dir, EVIDENCE_DIR, UNTRACKED_LINK));
+    fs.rmSync(path.join(dir, EVIDENCE_DIR, UNTRACKED_DANGLING));
+    assert.equal(runScan(dir).exitCode, 0, 'removing the untracked must-red fixtures must return the CLI path to exit 0');
+    assert.deepEqual(
+      scanFiles(dir, [...listTracked(dir), ...listUntrackedEvidence(dir)]).hits,
+      [],
+      'removing the untracked must-red fixtures must return the combined scan to zero hits',
+    );
+    console.log('PASS calibration: untracked evidence reds through the CLI path, untracked files outside evidence and gitignored files stay unscanned');
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 }
 
 // ---------------------------------------------------------------------------
+/**
+ * THE SCAN the CLI runs: the exact file set `main` builds, the hit list it reports, and the exit
+ * code it derives. Split out so the selftest can drive the CLI's own path against a fixture repo —
+ * helper-level assertions alone stay green when this path drops a half of the set.
+ */
+export function runScan(root) {
+  const tracked = listTracked(root);
+  const untrackedEvidence = listUntrackedEvidence(root);
+  const evidenceCount = tracked.filter(isEvidence).length;
+  // A missing or empty list must be loud: "scanned nothing" is not "clean". The evidence directory
+  // is the strict scope, so an empty evidence subset is loud too. Zero UNTRACKED evidence files is
+  // the normal state (and always a fresh checkout's), so it stays quiet.
+  const empty = !tracked.length || !evidenceCount;
+  const { hits, pathOnly } = scanFiles(root, [...tracked, ...untrackedEvidence]);
+  return { tracked, untrackedEvidence, evidenceCount, empty, hits, pathOnly, exitCode: empty || hits.length > 0 ? 1 : 0 };
+}
+
 async function main() {
   if (process.argv.includes('--selftest')) return selftest();
 
-  const tracked = listTracked(repoRoot);
-  const evidenceCount = tracked.filter(isEvidence).length;
-  // A missing or empty list must be loud: "scanned nothing" is not "clean". The evidence directory
-  // is the strict scope, so an empty evidence subset is loud too.
-  if (!tracked.length || !evidenceCount) {
+  const { tracked, untrackedEvidence, evidenceCount, empty, hits, pathOnly, exitCode } = runScan(repoRoot);
+  if (empty) {
     console.error(
-      `::error::git ls-files returned ${tracked.length} tracked file(s), ${evidenceCount} under ${EVIDENCE_DIR} — the gate scanned nothing in at least one scope, which is not the same as clean`,
+      `::error::git ls-files returned ${tracked.length} tracked file(s) (${evidenceCount} under ${EVIDENCE_DIR}) and ${untrackedEvidence.length} untracked evidence file(s) — the gate scanned nothing in at least one scope, which is not the same as clean`,
     );
-    process.exit(1);
+    process.exit(exitCode);
   }
 
-  const hits = scanFiles(repoRoot, tracked);
   if (hits.length) {
     for (const hit of hits) {
       console.error(`::error file=${hit.file}::[evidence-local-path] line ${hit.line}: ${hit.shape} — ${hit.sample}`);
     }
     const files = new Set(hits.map((h) => h.file));
     console.error(
-      `\n${hits.length} local-path hit(s) across ${files.size} tracked file(s). ` +
+      `\n${hits.length} local-path hit(s) across ${files.size} file(s). ` +
         'Replace the repository root with <repo>, any other home path with ~, and a temp path with <tmp>; ' +
         `outside ${EVIDENCE_DIR}, a fixture or example spells the account as ${RESERVED_ACCOUNT} or <name>.`,
     );
-    process.exit(1);
+    process.exit(exitCode);
   }
 
   console.log(
-    `evidence-local-path-check: ${tracked.length} tracked file(s) scanned in three views (UTF-8, UTF-16LE, UTF-16BE), 0 local-path hit(s) — ` +
+    `evidence-local-path-check: ${tracked.length} tracked + ${untrackedEvidence.length} untracked evidence file(s) scanned in three views (UTF-8, UTF-16LE, UTF-16BE), ${pathOnly} directory entry(ies) scanned by PATH only (gitlink / embedded repo, no file content), 0 local-path hit(s) — ` +
       `home-directory shapes and their hyphen encodings carrying any account name but the reserved placeholders (${RESERVED_ACCOUNT}, <name>) in all ${tracked.length}; ` +
-      `every shape, temp-dir and root-home included and no name admitted, in the ${evidenceCount} under ${EVIDENCE_DIR}. ` +
-      'Nothing is skipped; untracked files are not in git and therefore not scanned.',
+      `every shape, temp-dir and root-home included and no name admitted, in the ${evidenceCount + untrackedEvidence.length} under ${EVIDENCE_DIR} (${evidenceCount} tracked, ${untrackedEvidence.length} untracked). ` +
+      `Git owns the list: untracked files outside ${EVIDENCE_DIR} are deliberately not scanned, and a gitignored file is never scanned.`,
   );
 }
 

@@ -245,10 +245,12 @@ jobs:
 
       # The repo is PUBLIC: a probe that prints a home-directory or temp path writes that path into
       # the evidence file committed with the measurement. Owner ruling 2026-11-16 scrubbed the
-      # current files and added this gate; git history is not rewritten. The scan reads every
-      # TRACKED file under docs/verification/evidence/ via git ls-files (no filesystem walk, so an
-      # untracked directory another agent is writing cannot enter it), skips binaries, and has no
-      # base ref — any hit is a violation. --selftest first, same reason as the gates around it.
+      # current files and added this gate; git history is not rewritten. Git owns the file list (no
+      # filesystem walk): every tracked file, plus every untracked, not-gitignored file under
+      # docs/verification/evidence/ via git ls-files --others --exclude-standard, so fresh evidence
+      # reds locally before it is added. Untracked files elsewhere are out of scope by design. No
+      # file is classified binary and skipped, and there is no base ref — any hit is a violation.
+      # --selftest first, same reason as the gates around it.
       - name: No local machine paths in tracked evidence
         run: node scripts/evidence-local-path-check.mjs --selftest && node scripts/evidence-local-path-check.mjs
 
