@@ -75,7 +75,7 @@ function roundFor(names) {
   const ev = createEvent({ eventName: 'Party', names, schedule: proposeSchedule(names.length), prizes: ['TV'], games: { rounds: ['zones', 'zones', 'zones', 'zones'], final: null } }, rng);
   assert.equal(ev.setup.people.length, names.length, 'createEvent did not accept the whole roster');
   const rec = drawNext(ev, rng).rounds[0];
-  return { key: `${ev.eventKey}:round1:${rec.code}`, eventName: 'Party', people: ev.setup.people, outcome: { kind: 'round', ...rec }, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false };
+  return { key: `${ev.eventKey}:round1:${rec.code}`, eventName: 'Party', people: ev.setup.people, outcome: { kind: 'round', ...rec }, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false, claim: false };
 }
 
 /** Mount the real module and read every chip box the GPU is handed, in frame px. */

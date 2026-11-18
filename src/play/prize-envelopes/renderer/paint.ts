@@ -10,7 +10,7 @@
 // parsed from them.
 
 import { COLOR, measurer, surface, type Paintable } from '../../prize-fireworks/renderer/paint.ts';
-import { fitName, wrapLines } from '../../prize-fireworks/renderer/text-fit.ts';
+import { fitName, graphemes, wrapLines, type Fit, type Measure } from '../../prize-fireworks/renderer/text-fit.ts';
 import { COPY } from './copy.ts';
 import { BAND, ENV, FRAME_W, HUD, PLATE, SLOT, type EnvelopeSlot } from './plan.ts';
 
@@ -103,15 +103,50 @@ export function paintSeal(p: Paintable): void {
 
 // ---- the prize slot ------------------------------------------------------------------------------------------
 
+/** The MC's prize line in a slot (the board's cap, PD-317-02 a): Sarabun 400 at 30px, shrinking to the slot's
+ *  own 20px floor, then at most two lines, and no drawn line wider than the slot. */
+const PRIZE_LINE = { size: 30, floor: 20, cap: 2 } as const;
+
+const ELLIPSIS = '…';
+
+/** Cut a line to the slot at `size`: whole grapheme clusters are kept while the line plus the ellipsis fits.
+ *  A cluster that alone is wider than the slot (a long ZWJ emoji run is one cluster) cannot be split, so it is
+ *  dropped and the line ends in the ellipsis; when nothing fits, the line is the ellipsis alone. */
+function cutLine(line: string, measure: Measure, size: number): string {
+  const clusters = graphemes(line);
+  while (clusters.length && measure(clusters.join('') + ELLIPSIS, size) > SLOT.w) clusters.pop();
+  return clusters.join('').replace(/\s+$/, '') + ELLIPSIS;
+}
+
+/** The lines of a fit, each drawn no wider than the slot. The prize name is MC-typed with no length limit, so
+ *  nothing here can throw: a throw would reach the font-load promise or a resize and take a running reveal down. */
+function capped(lines: string[], measure: Measure, size: number): string[] {
+  return lines.map((line) => (measure(line, size) <= SLOT.w ? line : cutLine(line, measure, size)));
+}
+
+/** Fit the MC's prize line to the slot at the board's cap: at most two lines, none wider than the slot, and past
+ *  the second the line is cut to whole clusters and ends in an ellipsis. */
+function prizeLine(text: string, measure: Measure): Fit {
+  const fit = fitName(text, measure, PRIZE_LINE.size, PRIZE_LINE.floor, SLOT.w);
+  const size = fit.size;
+  if (fit.lines.length <= PRIZE_LINE.cap) return { size, lines: capped(fit.lines, measure, size) };
+  const first = fit.lines[0]!;
+  const rest = text.startsWith(first) ? text.slice(first.length) : fit.lines.slice(1).join(' ');
+  const head = wrapLines(rest.trimStart(), measure, size, SLOT.w)[0] ?? '';
+  return { size, lines: [capped([first], measure, size)[0]!, cutLine(head, measure, size)] };
+}
+
 /** The slot over an open body: its label (Mitr 600 30px; gold, or dim when it wins nothing), the prize name or
- *  the thank-you line (Sarabun 400 30px, soft), and the picker's name (Sarabun 700 36px, floor 20px, two lines
- *  at the floor; white, or dim when it wins nothing). No surface of its own: the body is the surface. */
+ *  the thank-you line (Sarabun 400 30px shrinking to the slot's 20px floor, at most two lines, cut to an
+ *  ellipsis past the cap; soft), and the
+ *  picker's name (Sarabun 700 36px, floor 20px, two lines at the floor; white, or dim when it wins nothing).
+ *  No surface of its own: the body is the surface. */
 export function paintSlot(doc: Document, slot: EnvelopeSlot, name: string, scale: number): Painted {
   const ctx0 = probe(doc);
-  const sp = slot.line ? wrapLines(slot.line, measurer(ctx0, 400, SARABUN), 30, SLOT.w) : [];
+  const sp = slot.line ? prizeLine(slot.line, measurer(ctx0, 400, SARABUN)) : null;
   const fit = fitName(name, measurer(ctx0, 700, SARABUN), 36, 20, SLOT.w);
   const skH = 30 * 1.25;
-  const spH = sp.length ? 4 + sp.length * 30 * 1.3 : 0;
+  const spH = sp ? 4 + sp.lines.length * sp.size * 1.3 : 0;
   const lh = fit.size * 1.2;
   const swH = 6 + fit.lines.length * lh;
   const height = skH + spH + swH;
@@ -120,7 +155,7 @@ export function paintSlot(doc: Document, slot: EnvelopeSlot, name: string, scale
   const won = slot.prize !== null;
   const cx = SLOT.w / 2;
   drawLines(ctx, [slot.label], cx, skH / 2, skH, { weight: 600, size: 30, family: MITR, color: won ? COLOR.gold : COLOR.out, align: 'center' });
-  if (sp.length) drawLines(ctx, sp, cx, skH + 4 + (spH - 4) / 2, 30 * 1.3, { weight: 400, size: 30, family: SARABUN, color: COLOR.soft, align: 'center' });
+  if (sp) drawLines(ctx, sp.lines, cx, skH + 4 + (spH - 4) / 2, sp.size * 1.3, { weight: 400, size: sp.size, family: SARABUN, color: COLOR.soft, align: 'center' });
   drawLines(ctx, fit.lines, cx, skH + spH + 6 + (swH - 6) / 2, lh, {
     weight: 700,
     size: fit.size,

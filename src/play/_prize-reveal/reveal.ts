@@ -164,9 +164,14 @@ function codeCard(doc: Doc, code: ShownCode): HTMLElement[] {
   return [el(doc, 'div', 'pd-veil'), box];
 }
 
+/** The result's prize-line words (proj-result B): "รางวัลที่ N · prize", or "รางวัลที่ N" with no prize. The one
+ *  home of the format, shared by the result frame and the stage's per-beat live line (gh#319 PD-318-10 a). */
+export const prizeLine = (place: number, prize: string | null): string =>
+  prize ? `รางวัลที่ ${place} · ${prize}` : `รางวัลที่ ${place}`;
+
 function winnerText(doc: Doc, w: Winner, className: string): HTMLElement {
   const pz = el(doc, 'div', className);
-  pz.textContent = w.prize ? `รางวัลที่ ${w.place} · ${w.prize}` : `รางวัลที่ ${w.place}`;
+  pz.textContent = prizeLine(w.place, w.prize);
   return pz;
 }
 

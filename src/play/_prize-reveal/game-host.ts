@@ -5,7 +5,24 @@
 //   loading | running | held -> fallback        (sticky for this outcome)
 //   idle -> fallback                            (no game, unavailable game, reduced motion or a phone-width
 //                                                viewport at entry)
+//   settled -> settled                          (a hold game's picture is released; the state does not move)
 //   any -> disposed
+//
+// A game whose registry entry says `settle: 'hold'` (gh#319) settles with its picture still up: the loop
+// stops and the committed 2D frame is drawn behind the canvas, while the renderer, the canvas, its context
+// and the resize observer live on. That picture is not a state of its own -- the reveal is settled and
+// `done` has resolved -- so the triggers that would have fallen back mid-run (reduced motion turning on,
+// the viewport narrowing past the boundary, a lost context, a throw on the settling frame's own draw)
+// release the scene and leave the state settled: the 2D frame is already drawn, and is never drawn twice.
+// dispose() releases it too, exactly once. Every release tells the caller through onRelease, AFTER the
+// canvas is detached, so the caller clears its held mark and draws its frame back against a viewport that
+// no longer has the picture -- the viewport is marked held if and only if this canvas is attached. A held
+// picture never runs again -- not on a render hold lifting, not on the page becoming visible. A resize while
+// held releases it through that same release path: no module call after settle, because replacement textures
+// registered through own() then are disposed before the draw and missed by teardown, and the committed 2D
+// result is already drawn behind it. A settle with no picture attached (a finish during loading, before the
+// canvas mounted) has nothing to keep and hands back like any other settle. The `held` STATE above is the
+// render hold's pause, not this picture: a settled reveal is never paused or resumed.
 //
 // Reduced motion at entry, a viewport narrower than the phone boundary at entry, a null game or an
 // unavailable one go straight to the 2D view, before three or the game is imported: a phone shows the 2D
@@ -15,17 +32,19 @@
 // reveal afterwards -- not a restored context, not motion turned back on, not a viewport widened again.
 // Slow frames never fall back.
 //
-// Every exit, whichever way: abort the module's signal, cancel the frame, drop every listener and
-// observer, dispose the module's handle, everything it registered through `own`, and the renderer;
-// release the raw WebGL context (held from acquisition, renderer or not) and detach its canvas and the 3D
-// layer; then draw the committed 2D view exactly once (ADR-0051: the projector never blanks). The 2D
-// view is the caller's callback, so the stage keeps its own name sinks, fitting and live region.
+// Every exit, whichever way: cancel the frame, then draw the committed 2D view exactly once (ADR-0051: the
+// projector never blanks). The 2D view is the caller's callback, so the stage keeps its own name sinks,
+// fitting and live region. The release -- abort the module's signal, drop every listener and observer,
+// dispose the module's handle, everything it registered through `own`, and the renderer; release the raw
+// WebGL context (held from acquisition, renderer or not) and detach its canvas and the 3D layer -- runs
+// before that draw on every exit but a hold game's settle, which keeps the scene and releases it later.
+// Either way it runs exactly once.
 //
 // The host owns the one canvas, the one renderer and the animation loop. Held time (the shared render
 // hold, gh#272) and hidden time are excluded from the elapsed time a module sees.
 
 import type { GameEvent, GameId, RevealHandle, RevealInput, RevealModule, Viewport } from './game-contract.ts';
-import { isAvailable, loaderFor } from './game-registry.ts';
+import { isAvailable, loaderFor, settleFor } from './game-registry.ts';
 import { activeFrameSampler, type FrameSampler } from './frame-time.ts';
 import { isRenderHeld, onRenderHold, RENDER_HOLD_INSTANCE_ATTR } from '../_render-hold.ts';
 
@@ -94,6 +113,10 @@ export type HostOptions<G extends GameId> = {
   /** The module's beats and its completion, for the stage's announcements and controls. */
   onEvent?(event: GameEvent): void;
   onState?(state: HostState, reason?: FallbackReason): void;
+  /** A held picture was released (throw, context loss, reduced motion, narrowing, dispose): the canvas is
+   *  already detached and the state stays settled. The caller clears its held mark and draws its frame back.
+   *  Called once per release, never for a handback settle (there was no picture to release). */
+  onRelease?(): void;
   registry?: HostRegistry;
 };
 
@@ -102,7 +125,7 @@ export type RevealHost = {
   readonly reason: FallbackReason | null;
   /** 'next' is forwarded to the module; 'finish' is forwarded and then settles at once. */
   command(command: 'next' | 'finish'): void;
-  /** Ends the reveal (drawing the 2D view if no exit has yet). Idempotent. */
+  /** Ends the reveal (drawing the 2D view if no exit has yet) and releases a held picture. Idempotent. */
   dispose(): void;
   /** Resolves with the first exit state, once the 2D view is drawn. */
   readonly done: Promise<HostState>;
@@ -148,8 +171,11 @@ export function browserEnv(): HostEnv {
 let hostInstances = 0;
 
 export function startReveal<G extends GameId>(options: HostOptions<G>, env: HostEnv = browserEnv()): RevealHost {
-  const { container, game, input, render2D, onEvent, onState } = options;
+  const { container, game, input, render2D, onEvent, onState, onRelease } = options;
   const registry: HostRegistry = options.registry ?? { isAvailable, loaderFor };
+  // Read here, never handed in: the settle pick is the registry's per-game fact, so no caller can give a
+  // game a picture it was not picked to keep (gh#319).
+  const settleMode = game === null ? 'handback' : settleFor(game);
   const sampler = env.frameSampler ?? null;
   const doc = env.document;
   const instance = `prize-reveal:${++hostInstances}`;
@@ -159,11 +185,17 @@ export function startReveal<G extends GameId>(options: HostOptions<G>, env: Host
   // advances the machine, schedules a frame or builds anything. While a module is mounting the host does
   // not yet hold its handle, so an exit asked for then is deferred to the moment mount returns, and a
   // dispose among the requests always wins. An exit asked for inside an exit (from render2D or the exit's
-  // own onState) is queued behind it, so listeners hear the first exit, then the dispose.
+  // own onState) is queued behind it, so listeners hear the first exit, then the dispose. A hold game's
+  // settle sets the latch too -- the picture left on screen is not a running reveal -- and a dispose queued
+  // behind that settle releases the picture as it follows it.
   let state: HostState = 'idle';
   let reason: FallbackReason | null = null;
   let exited = false;
   let exiting = false;
+  /** A hold game's settled picture is still on screen: the reveal is over, the scene is not released. */
+  let holding = false;
+  /** The release ran. Structural, so no path -- a dispose after a release, a deferred exit -- runs it twice. */
+  let torn = false;
   let disposeQueued = false;
   let mounting = false;
   let deferred: ['settled' | 'fallback' | 'disposed', FallbackReason | null] | null = null;
@@ -248,6 +280,8 @@ export function startReveal<G extends GameId>(options: HostOptions<G>, env: Host
   }
 
   function teardown(): void {
+    if (torn) return;
+    torn = true;
     abort.abort();
     if (rafId) env.cancelAnimationFrame(rafId);
     rafId = 0;
@@ -269,11 +303,29 @@ export function startReveal<G extends GameId>(options: HostOptions<G>, env: Host
     layer = null;
   }
 
+  /** Releases a hold game's settled picture: the whole release, once. The 2D frame is already on screen,
+   *  so nothing is drawn again and the reveal stays settled. The caller hears of it AFTER the canvas is
+   *  detached, so its held mark is cleared against a viewport that no longer has the picture (gh#319). */
+  function releaseHeld(): void {
+    if (!holding) return;
+    holding = false;
+    teardown();
+    guard(() => onRelease?.());
+  }
+
   function exit(kind: 'settled' | 'fallback' | 'disposed', why: FallbackReason | null = null): void {
     if (exited) {
-      if (kind !== 'disposed') return;
+      if (kind !== 'disposed') {
+        // A trigger that would have fallen back mid-run reaches a settled reveal only while its picture is
+        // up: release the scene, keep the state and the one 2D frame already drawn.
+        if (kind === 'fallback') releaseHeld();
+        return;
+      }
       if (exiting) disposeQueued = true;
-      else if (state !== 'disposed') enter('disposed');
+      else {
+        releaseHeld();
+        if (state !== 'disposed') enter('disposed');
+      }
       return;
     }
     if (mounting) {
@@ -284,12 +336,28 @@ export function startReveal<G extends GameId>(options: HostOptions<G>, env: Host
     exiting = true;
     reason = why;
     state = kind;
-    teardown();
+    if (kind === 'settled' && settleMode === 'hold' && layer !== null) {
+      // The picture stays up over the 2D frame: stop the loop, release nothing yet. The cancel is a
+      // call-out like any other -- a dispose inside it is queued below and releases the scene there.
+      // A settle with no layer attached (a finish during loading, before the canvas ever mounted) has no
+      // picture to keep: it hands back like any other settle, releasing the context it acquired (gh#319).
+      holding = true;
+      const id = rafId;
+      rafId = 0;
+      if (id) env.cancelAnimationFrame(id);
+    } else {
+      teardown();
+    }
     guard(() => render2D(input.outcome));
     guard(() => onState?.(kind, why ?? undefined));
     exiting = false;
     resolveDone(kind);
-    if (disposeQueued) enter('disposed');
+    if (disposeQueued) {
+      releaseHeld();
+      // onRelease may itself dispose: that dispose enters 'disposed' first, so this one must not notify the
+      // state again -- every state notification fires at most once per state (gh#319).
+      if (state !== 'disposed') enter('disposed');
+    }
   }
 
   function frame(t: number): void {
@@ -352,7 +420,14 @@ export function startReveal<G extends GameId>(options: HostOptions<G>, env: Host
   }
 
   function resize(): void {
-    if (exited || !renderer || !handle) return;
+    if (!renderer || !handle) return;
+    if (exited) {
+      // A resize while held RELEASES the picture, never re-renders it: no module call after settle, because
+      // replacement textures registered through own() then are disposed before the draw and missed by
+      // teardown. The committed 2D result is already drawn behind it, so the release shows that (gh#319).
+      if (holding) releaseHeld();
+      return;
+    }
     const vp = viewport();
     try {
       if (exited) return;
@@ -393,6 +468,8 @@ export function startReveal<G extends GameId>(options: HostOptions<G>, env: Host
     cv.style.display = 'block';
     cv.style.width = '100%';
     cv.style.height = '100%';
+    // The picture is decoration: the live region carries the round (PD-315-09 b), as the lobby's canvas does.
+    cv.setAttribute('aria-hidden', 'true');
     box.appendChild(cv);
     layer = box;
     container.appendChild(box);

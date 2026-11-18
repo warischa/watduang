@@ -15,6 +15,8 @@ import { fakeOrigin, mount, seedRaw, seeded, storedEvent } from './stage-harness
 import { advance, drawNext, encodeEvent, liveIds, revealDrawn } from '../../prize-event/event.ts';
 
 const CSS = fs.readFileSync(path.join(import.meta.dirname, 'play.css'), 'utf8');
+// The base name-control rule is shared with the demo page (gh#319), so it lives in reveal.css, not play.css.
+const REVEAL_CSS = fs.readFileSync(path.join(import.meta.dirname, '../_prize-reveal/reveal.css'), 'utf8');
 
 /** The body of the phone @media block. */
 function phone() {
@@ -64,7 +66,7 @@ test('phone lanes: lanes and names are a two-column list in flow, every control 
   assert.ok(px(lane, 'min-block-size') >= 44, 'a lane control under the tap floor');
   // The name control keeps the base rule's 52px floor; the phone rule may only change its type and padding.
   assert.doesNotMatch(name, /min-block-size|block-size/);
-  assert.match(CSS, /\.pd-name \{[^}]*min-block-size:\s*52px/);
+  assert.match(REVEAL_CSS, /\.pd-name \{[^}]*min-block-size:\s*52px/);
   // A name wraps inside its cell instead of pushing the page sideways.
   assert.match(name, /white-space:\s*normal/);
   assert.match(rule(L('.pd-lane > span')), /position:\s*static/);

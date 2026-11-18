@@ -8,7 +8,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Vector3 } from 'three';
 import { reveal } from './index.ts';
-import { ENV, OPEN_ANGLE, STEP, T, XS } from './plan.ts';
+import { COPY, ENV, OPEN_ANGLE, STEP, T, XS, claimOpacity, planFor } from './plan.ts';
 
 const CLUSTERS = new Intl.Segmenter('th', { granularity: 'grapheme' });
 
@@ -91,6 +91,21 @@ function mountFor(input) {
   return { handle, events, owned, renders, doc, abort };
 }
 
+/** The hold host's seam (gh#319): complete settles but does NOT abort -- the picture stays up, the signal
+ *  lives, and a later resize still reaches the module. The handback seam above aborts on complete. */
+function mountHeldFor(input) {
+  const doc = fakeDoc();
+  const owned = new Set();
+  const renders = [];
+  const abort = new AbortController();
+  const renderer = { render(scene, camera) { renders.push({ scene, camera }); } };
+  const context = { root: { ownerDocument: doc }, renderer, signal: abort.signal, own: (r) => (owned.add(r), r) };
+  const events = [];
+  const full = { viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false, ...input };
+  const handle = reveal.mount(context, full, (e) => events.push(e));
+  return { handle, events, owned, renders, doc, abort };
+}
+
 function run(m, until, step = 100, each = () => {}) {
   for (let t = 0; t <= until; t += step) {
     m.handle.advance({ type: 'tick', elapsedMs: t, deltaMs: step });
@@ -127,12 +142,13 @@ const PEOPLE = ['p0', 'p1', 'p2', 'p3', 'p4'].map((id, i) => ({ id, name: `ช�
 const ORDER = ['p3', 'p1', 'p4', 'p0', 'p2'];
 const NO_PRIZE = 'ไม่มีรางวัล';
 
-function inputFor(picks, n, order = ORDER, people = PEOPLE) {
+function inputFor(picks, n, order = ORDER, people = PEOPLE, claim = true) {
   return {
     key: `e|final|${picks.join('')}`,
     eventName: 'ปาร์ตี้ปีใหม่ 2570',
     people,
     outcome: { kind: 'final', game: 'envelopes', prizes: PRIZES.slice(0, n), order, picks },
+    claim,
   };
 }
 
@@ -319,4 +335,144 @@ test('a record it could only draw by inventing is refused at mount, before anyth
   const none = inputFor(['p0', 'p1', 'p2', 'p3', 'p4'], 3);
   delete none.outcome.picks;
   assert.throws(() => mountFor(none), /picks/);
+});
+
+/** Every named part of the scene, by mesh name: the scene object is the same one each render draws. */
+function namedParts(m) {
+  const out = new Map();
+  m.renders[0].scene.traverse((obj) => {
+    if (obj.name) out.set(obj.name, obj);
+  });
+  return out;
+}
+
+test('the claim is QR mode\'s: claim false builds no claim surface; claim true paints it; the rest of the picture is identical', () => {
+  const picks = ['p2', 'p0', 'p4', 'p1', 'p3'];
+  const plan = planFor(inputFor(picks, 3));
+  const off = mountFor(inputFor(picks, 3, ORDER, PEOPLE, false));
+  const on = mountFor(inputFor(picks, 3));
+  const offParts = namedParts(off);
+  const onParts = namedParts(on);
+  assert.equal(offParts.has('claim'), false, 'claim false built a claim surface');
+  const claim = onParts.get('claim');
+  assert.ok(claim, 'claim true built no claim surface');
+  assert.ok(claim.material.uniforms.uMap.value, 'the claim surface holds no paint');
+  assert.ok(claim.material.uniforms.uMap.value.image.ctx.texts.includes(COPY.claim), 'the claim surface does not carry the claim line');
+  // A resize rebuilds every text: the claim stays unbuilt and unpainted through it.
+  for (const m of [off, on]) {
+    m.handle.advance({ type: 'resize', viewport: { cssWidth: 390, cssHeight: 844, dpr: 3 } });
+    m.handle.advance({ type: 'resize', viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 } });
+  }
+  assert.equal(namedParts(off).has('claim'), false, 'a resize built the claim surface with claim false');
+  // The whole timeline side by side: the same beats, and every other part on the same opacity and visibility.
+  for (let t = 0; t <= END; t += 100) {
+    off.handle.advance({ type: 'tick', elapsedMs: t, deltaMs: 100 });
+    on.handle.advance({ type: 'tick', elapsedMs: t, deltaMs: 100 });
+    for (const name of ['top', 'hud', 'band', 'figure']) {
+      const a = offParts.get(name);
+      const b = onParts.get(name);
+      assert.equal(a.material.uniforms.uOpacity.value, b.material.uniforms.uOpacity.value, `${name} opacity diverged at ${t}ms`);
+      assert.equal(a.visible, b.visible, `${name} visibility diverged at ${t}ms`);
+    }
+    for (let i = 0; i < 5; i++) {
+      assert.equal(offParts.get(`slot:${i}`).visible, onParts.get(`slot:${i}`).visible, `slot ${i} visibility diverged at ${t}ms`);
+    }
+    // The seam aborts on complete, so the tick at total draws nothing: every earlier tick is on the plan's clock.
+    if (t < plan.total) {
+      assert.equal(claim.material.uniforms.uOpacity.value, claimOpacity(plan, t), `the claim fade left the plan's clock at ${t}ms`);
+      assert.equal(claim.visible, t > plan.resultAt, `the claim shows at the wrong time at ${t}ms`);
+    }
+  }
+  assert.deepEqual(tags(off.events), tags(on.events), 'claim false changed the beats');
+  assert.ok(!off.doc.log.includes(COPY.claim), 'the claim line was painted with claim false');
+  assert.ok(on.doc.log.includes(COPY.claim), 'the claim line was never painted with claim true');
+  assert.ok(claim.visible && claim.material.uniforms.uOpacity.value > 0, 'the claim never showed at the result');
+});
+
+// ---- the held picture's lifecycle edges (gh#319 cross-lineage review) ----
+
+test('finish before the first tick draws the committed result: every slot open, not the opening sealed row', () => {
+  const m = mountHeldFor(inputFor(['p0', 'p1', 'p2', 'p3', 'p4'], 5));
+  const before = m.renders.length;
+  m.handle.advance({ type: 'finish' });
+  assert.ok(m.renders.length > before, 'finish held the opening picture without drawing the result frame');
+  for (const s of slotsOf(m.renders.at(-1).scene).values()) assert.equal(s.visible, true, 'a slot is closed on the held result');
+  assert.deepEqual(tags(m.events), ['complete'], 'finish did not complete exactly once');
+});
+
+test('finish before the fonts load redraws the held result once the faces arrive', async () => {
+  const doc = fakeDoc();
+  let resolveFonts;
+  const ready = new Promise((r) => { resolveFonts = r; });
+  doc.fonts = { check: () => false, load: () => ready };
+  const renders = [];
+  const abort = new AbortController();
+  const owned = new Set();
+  const renderer = { render: (scene, camera) => renders.push({ scene, camera }) };
+  const context = { root: { ownerDocument: doc }, renderer, signal: abort.signal, own: (r) => (owned.add(r), r) };
+  const events = [];
+  const handle = reveal.mount(context, { ...inputFor(['p0', 'p1', 'p2', 'p3', 'p4'], 5), viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false }, (e) => events.push(e));
+  handle.advance({ type: 'finish' });
+  const atFinish = renders.length;
+  resolveFonts();
+  await new Promise((r) => setTimeout(r, 0));
+  assert.ok(renders.length > atFinish, 'the font rebuild submitted no frame: the held picture keeps fallback glyphs');
+  for (const s of slotsOf(renders.at(-1).scene).values()) assert.equal(s.visible, true, 'the redrawn held result lost its open slots');
+});
+
+/** A mount whose board faces never check true and whose load resolves on demand, over the hold seam. */
+function mountFontsFor(input) {
+  const doc = fakeDoc();
+  let resolveFonts;
+  const ready = new Promise((r) => { resolveFonts = r; });
+  doc.fonts = { check: () => false, load: () => ready };
+  const renders = [];
+  const abort = new AbortController();
+  const owned = new Set();
+  const renderer = { render: (scene, camera) => renders.push({ scene, camera }) };
+  const context = { root: { ownerDocument: doc }, renderer, signal: abort.signal, own: (r) => (owned.add(r), r) };
+  const handle = reveal.mount(context, { ...input, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false }, () => {});
+  return { handle, renders, abort, resolveFonts };
+}
+const flush = () => new Promise((r) => setTimeout(r, 0));
+
+test('a font redraw during a render hold submits no frame and draws once when the hold lifts', async () => {
+  globalThis.document ??= { documentElement: { setAttribute() {}, getAttribute() { return null; } } };
+  const hold = await import('../../_render-hold.ts');
+  const m = mountFontsFor(inputFor(['p0', 'p1', 'p2', 'p3', 'p4'], 5));
+  m.handle.advance({ type: 'finish' });
+  const release = hold.acquireRenderHold();
+  try {
+    const atFinish = m.renders.length;
+    m.resolveFonts();
+    await flush();
+    assert.equal(m.renders.length, atFinish, 'a font redraw submitted a frame during the render hold');
+    release();
+    assert.equal(m.renders.length, atFinish + 1, 'the font redraw did not draw once when the hold lifted');
+  } finally {
+    release();
+  }
+  const m2 = mountFontsFor(inputFor(['p0', 'p1', 'p2', 'p3', 'p4'], 5));
+  m2.handle.advance({ type: 'finish' });
+  const release2 = hold.acquireRenderHold();
+  try {
+    const atFinish = m2.renders.length;
+    m2.resolveFonts();
+    await flush();
+    m2.abort.abort(); // the host released the picture while the hold was up
+    release2();
+    assert.equal(m2.renders.length, atFinish, 'a font redraw drew after the picture was released');
+  } finally {
+    release2();
+  }
+});
+
+test('the font redraw rebuilds the hud\'s text', async () => {
+  const m = mountFontsFor(inputFor(['p0', 'p1', 'p2', 'p3', 'p4'], 5));
+  m.handle.advance({ type: 'finish' });
+  const hud = m.renders[0].scene.getObjectByName('hud');
+  const beforeImage = hud.material.uniforms.uMap.value.image;
+  m.resolveFonts();
+  await flush();
+  assert.notEqual(hud.material.uniforms.uMap.value.image, beforeImage, 'the font redraw left the hud on fallback glyphs');
 });

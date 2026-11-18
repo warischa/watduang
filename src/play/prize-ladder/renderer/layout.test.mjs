@@ -60,6 +60,7 @@ function mountAt(cssWidth, cssHeight, n = 3) {
       people: PEOPLE,
       viewport: { cssWidth, cssHeight, dpr: 1 },
       reducedMotion: false,
+      claim: false,
       outcome: { kind: 'final', game: 'ladder', prizes: PRIZES.slice(0, n), picks, permutation: perm, slotRanks, order: ladderOrder(picks, perm, slotRanks) },
     },
     () => {},

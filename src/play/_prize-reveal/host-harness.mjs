@@ -344,7 +344,7 @@ export function baseOptions(page, extra = {}) {
   const options = {
     container: page.container,
     game: 'fireworks',
-    input: { key: 'k', eventName: 'E', outcome: OUTCOME, people: [{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }] },
+    input: { key: 'k', eventName: 'E', outcome: OUTCOME, people: [{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }], claim: false },
     render2D: (outcome) => calls.render2D.push(outcome),
     onEvent: (e) => calls.events.push(e),
     onState: (s, reason) => calls.states.push(reason ? `${s}:${reason}` : s),

@@ -36,7 +36,8 @@ function storedZonesEvent(origin, n) {
 /** Past a settled reveal to the next step: QR mode first shows the round's code card, whose close is the MC's
  *  one control; then the step forward. */
 async function stepOn(s, origin) {
-  if (s.frame.querySelector('.pd-codebox')) {
+  // A held zones round lifts its code card into .pd-over (gh#319), so look across the root, not just the frame.
+  if (s.root.querySelector('.pd-codebox')) {
     press(s);
     await origin.idle();
   }
@@ -171,10 +172,12 @@ function clusterMeasure() {
   return (text, size) => graphemes(text).reduce((a, g) => a + (adv[g] ?? 0), 0) * (size / NAME_FIT.floor);
 }
 
-const PLAY_CSS = fs.readFileSync(path.join(import.meta.dirname, 'play.css'), 'utf8');
-/** The base (projector) .pd-zgrid rule body: the selector at line start, not the phone compound selector. */
+// The zones idle frame is shared with the demo page (gh#319), so its base rules live in reveal.css; the
+// projector's phone zones overrides stay in play.css.
+const REVEAL_CSS = fs.readFileSync(path.join(import.meta.dirname, '../_prize-reveal/reveal.css'), 'utf8');
+/** The base .pd-zgrid rule body: the selector at line start, not the phone compound selector. */
 function zgridRule() {
-  const m = PLAY_CSS.match(/^\.pd-zgrid\s*\{([^}]*)\}/m);
+  const m = REVEAL_CSS.match(/^\.pd-zgrid\s*\{([^}]*)\}/m);
   assert.ok(m, 'no base .pd-zgrid rule');
   return m[1];
 }

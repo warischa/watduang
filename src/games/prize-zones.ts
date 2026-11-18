@@ -4,10 +4,10 @@
 // play-route game it has no /game/<id>/ landing of the shell's, so mount() is empty.
 //
 // Copy: `names.th` is the game name the projector board prints (the shared GAME_NAME in
-// src/play/_prize-reveal/reveal.ts, the gh#299 owner wording). PLACEHOLDER, awaiting the owner: every other
-// field here (English name, keywords, tagline, seo) is assembled only from the picked board's approved strings
-// (design/Gh315Zones.dc.html, COPY SOURCES) and the fireworks page's approved event wording; no board carries
-// these fields, so none of them is approved for this page yet.
+// src/play/_prize-reveal/reveal.ts, the gh#299 owner wording). Every other field here (English name, keywords,
+// tagline, seo) was assembled from the picked board's approved strings (design/Gh315Zones.dc.html, COPY
+// SOURCES) and the fireworks page's approved event wording, and the owner approved them as written on
+// 2026-11-18 (PD-315-10, gh#315).
 // `players` is the head-count range the event this game plays in enforces (MIN_HEADS..MAX_HEADS), never a
 // 2-10 claim.
 import type { GameModule } from './types.ts';

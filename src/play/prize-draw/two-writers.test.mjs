@@ -518,7 +518,8 @@ test('`seen` is assigned only in save() and adopt(), each of which renders or is
   for (const m of saves) assert.match(m[1], /^(render|showCommitted)\(/, 'a save() is not followed by a render');
   const shown = source.slice(...body('showCommitted'));
   assert.match(shown, /\bpresent\(/);
-  assert.match(shown, /else render\(/, 'showCommitted() has a branch that neither presents nor renders');
+  // The no-reveal branch disposes a held picture (gh#319) and then renders; it must still render.
+  assert.match(shown, /else \{[\s\S]*?render\(/, 'showCommitted() has a branch that neither presents nor renders');
   const presented = source.slice(...body('present'));
   assert.match(presented, /render2D: \(\) => \{[\s\S]*?render\(/, "present()'s host exit does not render");
 });

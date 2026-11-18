@@ -113,6 +113,14 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 //   two more lifted/authored play bundles, minus nothing -- no engine was deleted this batch, because
 //   the stage modules stay until gh#149 removes the landing pages that still render them.
 const BASELINE_BASENAMES = [
+  // gh#319 -- the owner's audit picks: the demo page now imports the projector's idle modules (zones-idle,
+  // final-picks, marbles-idle) and both pages hold a settled reveal through the host, which regroups the shared
+  // reveal modules. game-host.js is the shared reveal-host chunk (it replaces reveal.js, same role, now named
+  // after game-host.ts); the cards copy (was copy.js) and the renderers' seed helper (was seed.js) fold into the
+  // shared chunks instead of standing alone -- checked in the 2026-11-18 build: the cards copy's strings sit in
+  // game-host.js. One basename added, three removed; total bytes stayed inside the +/-5% band, so
+  // BASELINE_TOTAL_BYTES is unchanged.
+  'game-host.js',
   // gh#315-gh#318 -- the four phase-2 prize-draw games (zones, marbles, envelopes, flipcards): four new basenames,
   // each game's module chunk (src/games/<id>.ts), reached like every module through the _id_ page's lazy glob, not
   // by its play route. Each renderer entry folds into the existing index.js basename, and the zones plan and the
@@ -124,10 +132,8 @@ const BASELINE_BASENAMES = [
   // gh#308 -- the QR lobby's join-code chunk: lobby-qr.ts with lean-qr bundled into it, reached only by the
   // projector's dynamic import while a QR lobby is on screen (ADR-0077). One new basename, no new page pair.
   'lobby-qr.js',
-  // gh#309 -- the cards game's approved copy (src/play/prize-cards/renderer/copy.ts), now also read by the
-  // phone join page (the rule buttons) and the projector's code card (each card round's drawn rule), so the
-  // bundler splits it into its own shared chunk (1047 B measured 2026-11-14). One new basename.
-  'copy.js',
+  // gh#309 added copy.js (the cards game's approved copy as its own shared chunk); gh#319 folded it back into
+  // the shared reveal-host chunk (see the gh#319 note above).
   // gh#305 -- the three prize-draw 3D games (fireworks, cards, ladder) and the QR join page, fifteen new
   // basenames. three.module.js is the shared library chunk (the host's dynamic import, ADR-0068), and
   // preload-helper.js is the bundler's wrapper for that lazy import. reveal.js is the shared reveal host
@@ -146,8 +152,6 @@ const BASELINE_BASENAMES = [
   'prize-cards.js',
   'prize-fireworks.js',
   'prize-ladder.js',
-  'reveal.js',
-  'seed.js',
   'setup-page.js',
   'store.js',
   'three.module.js',

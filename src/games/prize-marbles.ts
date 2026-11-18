@@ -4,8 +4,9 @@
 // nothing. Like every play-route game it has no /game/<id>/ landing of the shell's, so mount() is empty.
 //
 // Copy: `names.th` is the game name the projector board prints (the shared GAME_NAME in
-// src/play/_prize-reveal/reveal.ts). The keywords, tagline and seo fields are PROPOSED copy awaiting the
-// owner's approval: no board carries them, and the picked board's own strings are reused where they fit.
+// src/play/_prize-reveal/reveal.ts). No board carries the keywords, tagline and seo fields; they reuse the
+// picked board's own strings where they fit, and the owner approved them as written on 2026-11-18
+// (PD-316-10, gh#316).
 // `players` is the head-count range the event this game plays in enforces (MIN_HEADS..MAX_HEADS), never a
 // 2-10 claim.
 import type { GameModule } from './types.ts';

@@ -31,10 +31,13 @@ body {
 }
 
 /* The 3D reveal's layer (gh#305): over the frame, under the MC's controls; the host fills it only while a
-   committed step presents. It takes no input: the controls above it do. */
+   committed step presents. It takes no input: the controls above it do. Its z-index sits under the code card
+   and the claim line (reveal.css), which stay readable over a held picture (gh#319); every other 2D element
+   of the frame stays behind it. */
 .pd-3d {
   position: absolute;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -77,24 +80,9 @@ body {
   color: var(--ink-on-band-soft);
   white-space: nowrap;
 }
-.pd-plate {
-  position: absolute;
-  inset-block-start: 950px;
-  inset-inline-start: var(--x, 0px);
-  margin-inline-start: -160px;
-  box-sizing: border-box;
-  inline-size: 320px;
-  min-block-size: 64px;
-  padding: 4px 14px 4px 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: 999px;
-  background: var(--pd-raised);
-  color: var(--ink-light);
-  font: 700 40px/1.15 var(--font-sans);
-}
-/* An empty lane: dashed in the dim text colour; the lane the next name lands on: the slot's gold ring. */
+/* The plate's base look lives in reveal.css (shared with the demo page, gh#319); only the ladder's own
+   variants stay here. An empty lane: dashed in the dim text colour; the lane the next name lands on: the
+   slot's gold ring. */
 .pd-plate.empty {
   background: transparent;
   border: 3px dashed var(--pd-dim);
@@ -114,18 +102,6 @@ body {
 .pd-dot.dashed {
   box-shadow: inset 0 0 0 4px var(--pd-raised);
 }
-.pd-plate-name {
-  flex: 1 1 auto;
-  min-inline-size: 0;
-  text-align: center;
-  line-height: 1.15;
-  overflow-x: clip;
-  overflow-y: visible;
-}
-/* Not on the wrapped box: the fit rule's last resort (.nm-wrap, reveal.css) must win there. */
-.pd-plate-name:not(.nm-wrap) {
-  white-space: nowrap;
-}
 .pd-hud2 {
   position: absolute;
   inset-inline-start: 56px;
@@ -137,64 +113,6 @@ body {
   white-space: pre;
 }
 
-/* ---- The envelopes and flipcards finals' object picks: the frame (final-picks.ts), the boards' idle frames
-   design/Gh317Envelopes.dc.html A/env-idle and design/Gh318Cards.dc.html A/card-idle (owner picks D1 A ROW).
-   Each object's box and each plate's centre and top come from final-picks.ts as --x, --y, --w, --h and
-   --plate-y; the plate is the lane plate above (an empty or next plate keeps the ladder's i2-lanes look). */
-.pd-ohud {
-  position: absolute;
-  inset-inline: 56px;
-  inset-block-start: 116px;
-  text-align: center;
-}
-.pd-ohud .pd-lk {
-  margin-block-start: 6px;
-}
-.pd-obj {
-  position: absolute;
-  inset-inline-start: var(--x, 0px);
-  inset-block-start: var(--y, 0px);
-  inline-size: var(--w, 0px);
-  block-size: var(--h, 0px);
-}
-.pd-envart,
-.pd-cardback svg {
-  display: block;
-}
-.pd-env-body,
-.pd-env-seal {
-  fill: var(--pd-raised);
-  stroke: var(--accent-gold);
-  stroke-width: 3px;
-  stroke-linejoin: round;
-}
-.pd-env-flap,
-.pd-env-bow,
-.pd-card-star {
-  fill: var(--accent-gold);
-}
-.pd-cardback {
-  box-sizing: border-box;
-  inline-size: 100%;
-  block-size: 100%;
-  padding: 16px;
-  border-radius: 6px;
-  background: repeating-linear-gradient(45deg, var(--pd-raised) 0 6px, #2e2b63 6px 7px); /* VALUES: the gh#303 picked card-back hatch (Gh318Cards card-idle) */
-  box-shadow: inset 0 0 0 2px var(--accent-gold);
-}
-.pd-plate.pd-oplate {
-  inset-block-start: var(--plate-y, 950px);
-  padding: 4px 14px;
-  justify-content: center;
-}
-.pd-low.pd-olow {
-  inset-block-end: 20px;
-  block-size: 190px;
-}
-.pd-olow .pd-flow {
-  font-size: 130px;
-}
-
 /* ---- The lane picks' controls: real pixels over the frame (the frame holds no control). fitFrame gives
    this layer the frame's scale and offset, so a lane's control covers its plate's box at any screen size,
    never under the 44px tap floor. The name row sits over the empty middle of the track: i2-lanes B draws
@@ -202,6 +120,9 @@ body {
 .pd-picks {
   position: absolute;
   inset: 0;
+  /* Above the 3D layer (z-index 1): the controls stay over a held picture, as they were over the canvas by
+     DOM order before the layer took a z-index (gh#319). */
+  z-index: 2;
   pointer-events: none;
 }
 .pd-lane {
@@ -226,38 +147,9 @@ body {
   clip-path: inset(50%);
   white-space: nowrap;
 }
-.pd-names {
-  position: absolute;
-  inset-inline: 0;
-  inset-block-start: calc(var(--pd-y, 0px) + var(--names-y, 532px) * var(--pd-scale, 1));
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-/* A finalist's name as a control: the plate's night surface and white Sarabun 700 at the MC button's height
-   and size, ringed gold so it reads as pressable (i2-lanes, VALUES row). */
-.pd-name {
-  box-sizing: border-box;
-  min-block-size: 52px;
-  padding: 0 32px;
-  display: inline-flex;
-  align-items: center;
-  border: 3px solid var(--accent-gold);
-  border-radius: 999px;
-  background: #23214d; /* VALUES: raised night surface (picked 2026-11-11) */
-  color: var(--ink-light);
-  font: 700 22px/1.35 var(--font-sans);
-  white-space: nowrap;
-  cursor: pointer;
-  pointer-events: auto;
-}
 .pd-name:disabled,
 .pd-lane:disabled {
   cursor: default;
-}
-.pd-name:disabled {
-  opacity: 0.55;
 }
 
 /* The MC's control, OUTSIDE the scaled frame: real pixels, so its tap size never shrinks with the screen.
@@ -267,6 +159,8 @@ body {
   position: fixed;
   inset-block-start: 2px;
   inset-inline-end: 24px;
+  /* Above the 3D layer (z-index 1): the MC's button stays visible and pressable over a held picture (gh#319). */
+  z-index: 2;
 }
 
 .pd-go {
@@ -638,89 +532,10 @@ body {
     font-size: 16px;
   }
 
-  /* The final result (stage.ts marks it data-result): design/Gh305AuditFrames.dc.html frame 2, owner pick
-     PD-305-05, at i5-phone B's sizes (Gh314Frames) mapped role to role from proj-result B. The frame is not
-     scaled: one column under the band on the frame's night ground, the winner on top, then the prize cards
-     one per row, and the page scrolls. No MC button shows here, so the body ends at its 16px padding. The
-     names keep the fit rule at this layout's own sizes and floors (stage.ts layoutFloors); no rule here pins
-     their white-space, so the rule's last resort (.nm-wrap) still wraps them. */
-  .pd-viewport[data-result] {
-    overflow-y: auto;
-  }
-  .pd-viewport[data-result] .pd-scaled {
-    position: static;
-    inline-size: auto;
-    block-size: auto;
-    transform: none;
-  }
-  .pd-viewport[data-result] .pd-frame {
-    position: static;
-    padding: 16px;
-  }
-  .pd-viewport[data-result] .pd-top {
-    display: block;
-    block-size: auto;
-    padding: 0;
-  }
-  .pd-viewport[data-result] .pd-ev {
-    display: block;
-    font-size: 22px;
-  }
-  .pd-viewport[data-result] .pd-spot {
-    position: static;
-    text-align: start;
-  }
-  .pd-viewport[data-result] .pd-spot h2 {
-    margin: 12px 0 0;
-    font-size: 22px;
-  }
-  .pd-viewport[data-result] .pd-spot .pd-pz {
-    margin-block-start: 18px;
-    font-size: 18px;
-  }
-  .pd-viewport[data-result] .pd-spot .pd-wn {
-    --fit-size: 50;
-    --fit-floor: 24;
-    margin-block-start: 0;
-    font-size: 50px;
-    line-height: 1.1;
-    text-align: start;
-    text-shadow: 0 0 24px var(--pd-glow);
-  }
-  .pd-viewport[data-result] .pd-wcards {
-    position: static;
-    margin-block-start: 18px;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
-  }
-  .pd-viewport[data-result] .pd-wcard {
-    padding: 16px;
-  }
-  .pd-viewport[data-result] .pd-wcard .pd-pz {
-    font-size: 16px;
-  }
-  .pd-viewport[data-result] .pd-wcard .pd-wn {
-    --fit-size: 22;
-    --fit-floor: 21;
-    margin-block-start: 0;
-    font-size: 22px;
-    line-height: 1.15;
-    text-align: start;
-  }
-  /* QR mode (gh#309) in the phone layouts: the result's claim line follows the winner cards, and the code
-     card and its veil hold the screen while the page scrolls under them. Values: design/Gh305AuditFrames.dc.html
-     frame 4 at 320 (the largest code sizes measured to fit the card at 320). */
-  /* The final's code kept on the result (canvas frame 6 at 320): under the event name, frame 4's 320 sizes. */
-  .pd-viewport[data-result] .pd-fcode {
-    margin-block-start: 6px;
-    gap: 8px;
-  }
-  .pd-viewport[data-result] .pd-claim {
-    position: static;
-    margin-block-start: 18px;
-    text-align: start;
-    font-size: 18px;
-  }
+  /* QR mode (gh#309) in the phone layouts: the code card and its veil hold the screen while the page scrolls
+     under them. Values: design/Gh305AuditFrames.dc.html frame 4 at 320 (the largest code sizes measured to fit
+     the card at 320). The result's own phone layout (the winner list, its code and claim line) is shared with
+     the demo page in reveal.css. */
   .pd-viewport:is([data-field], [data-result]) .pd-veil {
     position: fixed;
     inset: var(--play-band) 0 0 0;
@@ -773,89 +588,25 @@ body {
   }
 }
 
-/* gh#315 -- a zones round before its draw (zones-idle.ts): design/Gh315Zones.dc.html frame A/zn-idle, owner pick
-   2026-11-16 (Z1 A FOUR BLOCKS). Four panels 2x2 in the field 100..870, each its zone colour at 14% over the night
-   midpoint with a 3px rim in the zone colour, a 24px radius; names Sarabun 700 in 4 columns of rows at least 22px
-   (NAME FIT 20px to an 18px floor); the lower band 170px tall, its count 130px. The zone colours are set per panel
-   from prize-zones plan.ts ZONES, the one home of the board's zone values. */
-.pd-zfield {
-  position: absolute;
-  inset-inline: 56px;
-  inset-block-start: 100px;
-  block-size: 770px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: 375px;
-  gap: 20px;
-}
-.pd-zpanel {
-  position: relative;
-  box-sizing: border-box;
-  border-radius: 24px;
-  padding: 4px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  /* --zone and --zone-tint are set per panel by zones-idle.ts; the fallback never paints (no panel exists
-     before the script builds it), it only keeps the page free of a reference with no definition. */
-  background-color: var(--zone-tint, transparent);
-  box-shadow: inset 0 0 0 3px var(--zone, transparent);
-}
-.pd-zhead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  block-size: 34px;
-}
-.pd-zname {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font: 600 30px/1 var(--font-display);
-  color: var(--ink-light);
-  white-space: nowrap;
-}
-.pd-zdot {
-  display: inline-block;
-  inline-size: 22px;
-  block-size: 22px;
-  border-radius: 50%;
-  background-color: var(--zone, transparent);
-}
-.pd-zbadge {
-  font: 600 30px/1 var(--font-display);
-  color: var(--ink-on-band-soft);
-  white-space: nowrap;
-}
-.pd-zgrid {
-  flex: 1 1 auto;
-  min-block-size: 0;
-  display: grid;
-  /* The columns and the scale the reveal's zoneGrid chose for this zone (zones-idle.ts writes them; owner
-     ruling 2026-11-17). Four columns at scale 1 are the board's, so an ordinary zone is unchanged. The scale
-     shrinks both axes about the grid's centre, as zoneGrid's cells do, so no chip leaves its panel. */
-  grid-template-columns: repeat(var(--z-cols, 4), minmax(0, 1fr));
-  grid-auto-rows: minmax(22px, auto);
-  gap: 2px 8px;
-  align-content: center;
-  transform: scale(var(--z-scale, 1));
-  transform-origin: center center;
-}
-.pd-zgrid .pd-chip {
-  font-weight: 700;
-  padding: 0 6px;
-}
-/* A wrapped chip here is line-height 1, the reveal's own row model (plan.ts rowH = lines x floor), so the rows
-   auto-size to exactly the heights zoneGrid laid out and the scale contains them. The chip's base font is /1;
-   this only holds .nm-wrap's 1.05 off the zones grid. */
-.pd-zgrid .pd-chip.nm-wrap {
-  line-height: 1;
-}
-.pd-low.pd-zlow {
-  inset-block-end: 20px;
-  block-size: 170px;
-}
-.pd-zlow .pd-flow {
-  font-size: 130px;
+/* The free-name row below the board's scale threshold (gh#319 PD-317-03 a, PD-317-11 b, PD-318-04 b; the
+   env-row-640/720/845 and card-row frames). stage.ts marks the row data-real and sets --names-y to the row's
+   REAL-pixel top (final-picks.ts freeRowTop), so the row leaves the scaled frame: its top is the frame offset
+   plus that real value, never multiplied by the scale again. The low band yields to it and the stage box grows
+   (fitRowBand sets --pd-band-top and --pd-box-h in frame px from the row's laid-out height). At 640px and up
+   only: under the phone break the placement takes the data-lanes phone layout above, which wins by specificity. */
+@media (min-width: 640px) {
+  .pd-names[data-real] {
+    inset-block-start: calc(var(--pd-y, 0px) + var(--names-y, 0px));
+  }
+  .pd-viewport[data-row-real] .pd-frame {
+    block-size: var(--pd-box-h, 1080px);
+    overflow: visible;
+  }
+  .pd-viewport[data-row-real] .pd-olow {
+    inset-block-start: var(--pd-band-top, 870px);
+    inset-block-end: auto;
+  }
+  .pd-viewport[data-row-real] {
+    overflow-y: auto;
+  }
 }

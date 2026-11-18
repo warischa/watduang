@@ -5,8 +5,8 @@
 //
 // Copy: `names.th` is the game name the flipcards board prints (the shared GAME_NAME in
 // src/play/_prize-reveal/reveal.ts). No board carries any other field here: `names.en`, the tagline, the
-// keywords and the seo fields are PROPOSED, modelled on the envelopes game's fields, and await the owner's
-// approval before they ship.
+// keywords and the seo fields are modelled on the envelopes game's fields, and the owner approved them as
+// written on 2026-11-18 (PD-318-14, gh#318).
 // `players` is the head-count range the event this game plays in enforces (MIN_HEADS..MAX_HEADS), never a
 // 2-10 claim.
 import type { GameModule } from './types.ts';

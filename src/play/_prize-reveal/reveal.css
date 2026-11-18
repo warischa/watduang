@@ -4,11 +4,18 @@
    fitFrame. Colours are tokens where the board's VALUES row names one; the three values the board picked
    with no token (the raised night surface, the dimmed name, the gold glow) are named once here. */
 
-.pd-scaled {
+/* The frame's picked values, declared for the held-picture overlay too: a node lifted out of the scaled
+   frame into .pd-over (gh#319) must keep its surface, veil and glow, or the card paints transparent over
+   the picture. One home, both boxes. */
+.pd-scaled,
+.pd-over {
   --pd-raised: #23214d; /* VALUES: raised surface, bottom of the night gradient (picked 2026-11-11) */
   --pd-dim: #9a97c0; /* VALUES: a name that did not pass (picked 2026-11-11) */
   --pd-glow: rgba(255, 204, 0, 0.45); /* VALUES: the gold glow (picked 2026-11-11) */
   --pd-veil: rgba(20, 20, 43, 0.78); /* VALUES: the veil over the field (picked 2026-11-11) */
+}
+
+.pd-scaled {
   position: absolute;
   inset-block-start: 0;
   inset-inline-start: 0;
@@ -16,6 +23,63 @@
   block-size: 1080px;
   transform-origin: 0 0;
   transform: translate(var(--pd-x, 0px), var(--pd-y, 0px)) scale(var(--pd-scale, 1));
+}
+
+/* The held-picture overlay (gh#319): the same 1920x1080 box and transform as .pd-scaled, so a node lifted
+   into it keeps its frame coordinates, size and copy, but at a z-index ABOVE the 3D layer (play.css .pd-3d,
+   demo.css .pr-3d) -- the scaled frame's own transform is a stacking context that would trap a z-index under
+   the canvas. stage.ts and demo.ts lift the veil and the code card here only while a hold game's picture is
+   up; empty otherwise. The claim line is not lifted: the hold finals' renderers paint their own claim into
+   the picture, so a DOM copy over it would double the line. The layer takes no input itself; each lifted
+   node is hit-testable (elementFromPoint reads it, never the canvas behind). Shared: both pages import this sheet. */
+.pd-over {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 1920px;
+  block-size: 1080px;
+  transform-origin: 0 0;
+  transform: translate(var(--pd-x, 0px), var(--pd-y, 0px)) scale(var(--pd-scale, 1));
+  z-index: 2;
+  pointer-events: none;
+}
+.pd-over > * {
+  pointer-events: auto;
+}
+/* The persistent final code (PD-309-11), lifted out of the hidden frame once its card is closed (gh#319):
+   no renderer paints this small code, so it rides the overlay like the card. It keeps the top bar's right-end
+   place -- the bar's own 96px height, 56px end padding and centred alignment (.pd-top) -- instead of the
+   overlay's top-left corner a static lift would land it in. Only lifted when no code card is up: over the
+   open card the veil already covers it, and the card shows the same code large. */
+.pd-over .pd-fcode {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  block-size: 96px;
+  align-items: center;
+  /* Opaque backing over the held picture's own top-right chrome (gh#319): the hold renderers paint their
+     round label + progress dots in this same band (prize-fireworks paintTop, cy 48, group right edge 1864,
+     dot glow ~18px beyond), so a transparent lifted code double-prints over them. The backing reuses the
+     frame's top-bar ground (--color-line-strong, the night gradient's 0% stop) -- no new colour. Padding
+     sizes it: right 56 keeps the glyphs at the bar's own 56px end while the box runs to the frame edge
+     (1920) to swallow the dot glow; left 40 reaches past the painted label's left edge (~1436 frame px);
+     the existing 96px bar height already spans the painted band (y ~19..77). Scoped here only: with no
+     .pd-fcode lifted (demo, admin, card open) the rule matches nothing. */
+  background: var(--color-line-strong);
+  padding: 0 56px 0 40px;
+}
+
+/* While a hold game's picture is up (gh#319): the committed 2D frame must not paint through the canvas's
+   transparent regions -- the held screen is the picture plus the overlay, nothing else. Hidden from SIGHT
+   only: opacity, not visibility or display, so the frame keeps its DOM, its layout (the fit rule measures the
+   same boxes, the release render draws it back in one pass) AND its place in the accessibility tree -- the
+   canvas is aria-hidden, so visibility:hidden would lose the prize titles and the claim line to a screen
+   reader. pointer-events:none keeps the invisible frame from taking taps the overlay's controls should get;
+   the live region sits outside the frame and keeps announcing. The mark is set and cleared by stage.ts /
+   demo.ts syncHeld, on every settle and every release path. */
+:is(.pd-viewport, .pr-viewport)[data-held] .pd-scaled {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .pd-frame {
@@ -229,6 +293,9 @@
   position: absolute;
   inset-inline: 0;
   inset-block-end: 56px;
+  /* Above the frame's own field (gh#319): over a held picture this copy hides with the frame and the
+     renderer's own claim in the picture is the one copy (stage.ts syncHeld). */
+  z-index: 2;
   text-align: center;
   font: 400 34px/1.4 var(--font-sans);
   color: var(--ink-on-band-soft);
@@ -260,6 +327,8 @@
   border-radius: 24px;
   background: var(--pd-raised);
   box-shadow: 0 0 60px var(--pd-glow);
+  /* Over a held 3D picture (gh#319): the centred code card stays readable above the 3D layer (play.css .pd-3d). */
+  z-index: 2;
   text-align: center;
 }
 .pd-ck {
@@ -335,5 +404,405 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+/* gh#316 -- the marbles round before its draw (marbles-idle.ts): design/Gh316Marbles.dc.html frame
+   mb-idle A HEAT LANES, owner pick PD-316-02 a, authored 1920x1080. A 770px ink track (the gh#302 night
+   ground's top stop, 24px winner-card radius) of 20 lanes 36.5px apart; name plates 340x32px, Sarabun 700
+   28px to an 18px floor on the 316px plate less its padding; marbles 26px across waiting at the gate, the
+   finish line 4px gold with a 24px glow. The lower band is 170px tall, its count 130px (the gh#303 departure
+   the zones idle also takes). Geometry is the board's frame px; the separator and finish-glow solids and
+   each marble's accent are set inline by marbles-idle.ts from the reveal's TRACK_COLOR and the token
+   palette, so the fallbacks below never paint -- they only keep the page free of a reference with no
+   definition, exactly as the zones idle's --zone does. */
+.pd-mfield {
+  position: absolute;
+  inset: 0;
+}
+.pd-mtrack {
+  position: absolute;
+  inset-inline-start: 56px;
+  inset-block-start: 100px;
+  inline-size: 1808px;
+  block-size: 770px;
+  border-radius: 24px;
+  background: var(--color-line-strong);
+}
+/* Lane separators: 2px rules spanning the plate column to the board's lane end (1848), top set per lane. */
+.pd-mlane {
+  position: absolute;
+  inset-inline-start: 72px;
+  inline-size: 1776px;
+  block-size: 2px;
+  background: var(--pd-m-sep, transparent);
+}
+.pd-mfglow {
+  position: absolute;
+  inset-inline-start: 1728px;
+  inset-block-start: 140px;
+  inline-size: 24px;
+  block-size: 730px;
+  background: var(--pd-m-glow, transparent);
+}
+.pd-mfinish {
+  position: absolute;
+  inset-inline-start: 1738px;
+  inset-block-start: 140px;
+  inline-size: 4px;
+  block-size: 730px;
+  background: var(--accent-gold);
+}
+.pd-mtlabel {
+  position: absolute;
+  inset-inline-start: 1620px;
+  inset-block-start: 106px;
+  font: 600 30px/1 var(--font-display);
+  color: var(--accent-gold);
+  white-space: nowrap;
+}
+/* A marble at the gate: 26px across (2 x MARBLE_R), its accent inline as --mb. The spec highlight is the
+   board's 3.9px radius set 3.9px up-left of centre, i.e. 5.2px into the 26px body. */
+.pd-mmarble {
+  position: absolute;
+  inline-size: 26px;
+  block-size: 26px;
+  border-radius: 50%;
+  background: var(--mb, var(--ink-light));
+}
+.pd-mhl {
+  position: absolute;
+  inset-inline-start: 5.2px;
+  inset-block-start: 5.2px;
+  inline-size: 7.8px;
+  block-size: 7.8px;
+  border-radius: 50%;
+  background: var(--ink-light);
+}
+/* The plate column: 20 rows of 32px with the board's 4.5px gap (36.5px lane pitch less the plate). */
+.pd-mlanes {
+  position: absolute;
+  inset-inline-start: 72px;
+  inset-block-start: 140px;
+  inline-size: 340px;
+  block-size: 730px;
+  display: grid;
+  grid-auto-rows: 32px;
+  row-gap: 4.5px;
+}
+.pd-mplate {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--pd-raised);
+  color: var(--ink-light);
+  font: 700 28px/1 var(--font-sans);
+  white-space: nowrap;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+.pd-low.pd-mlow {
+  inset-block-end: 20px;
+  block-size: 170px;
+}
+.pd-mlow .pd-flow {
+  font-size: 130px;
+}
+
+/* ---- The envelopes and flipcards finals' object picks: the frame (final-picks.ts), the boards' idle frames
+   design/Gh317Envelopes.dc.html A/env-idle and design/Gh318Cards.dc.html A/card-idle (owner picks D1 A ROW).
+   Each object's box and each plate's centre and top come from final-picks.ts as --x, --y, --w, --h and
+   --plate-y; the plate is the lane plate (the base rules below; an empty or next plate keeps the ladder's
+   i2-lanes look, play.css). Shared with the demo page (gh#319), which imports this sheet, not the projector's play.css. */
+/* The lane plate's base look, moved here from play.css and demo.css's verbatim copy (gh#319): one home for
+   both pages. The projector's empty/next variants and the phone overrides stay in play.css, above this
+   sheet's import order or by specificity, exactly as before the move. */
+.pd-plate {
+  position: absolute;
+  inset-block-start: 950px;
+  inset-inline-start: var(--x, 0px);
+  margin-inline-start: -160px;
+  box-sizing: border-box;
+  inline-size: 320px;
+  min-block-size: 64px;
+  padding: 4px 14px 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  background: var(--pd-raised);
+  color: var(--ink-light);
+  font: 700 40px/1.15 var(--font-sans);
+}
+.pd-plate-name {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  text-align: center;
+  line-height: 1.15;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+/* Not on the wrapped box: the fit rule's last resort (.nm-wrap, above) must win there. */
+.pd-plate-name:not(.nm-wrap) {
+  white-space: nowrap;
+}
+.pd-ohud {
+  position: absolute;
+  inset-inline: 56px;
+  inset-block-start: 116px;
+  text-align: center;
+}
+.pd-ohud .pd-lk {
+  margin-block-start: 6px;
+}
+.pd-obj {
+  position: absolute;
+  inset-inline-start: var(--x, 0px);
+  inset-block-start: var(--y, 0px);
+  inline-size: var(--w, 0px);
+  block-size: var(--h, 0px);
+}
+.pd-envart,
+.pd-cardback svg {
+  display: block;
+}
+.pd-env-body,
+.pd-env-seal {
+  fill: var(--pd-raised);
+  stroke: var(--accent-gold);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.pd-env-flap,
+.pd-env-bow,
+.pd-card-star {
+  fill: var(--accent-gold);
+}
+.pd-cardback {
+  box-sizing: border-box;
+  inline-size: 100%;
+  block-size: 100%;
+  padding: 16px;
+  border-radius: 6px;
+  background: repeating-linear-gradient(45deg, var(--pd-raised) 0 6px, #2e2b63 6px 7px); /* VALUES: the gh#303 picked card-back hatch (Gh318Cards card-idle) */
+  box-shadow: inset 0 0 0 2px var(--accent-gold);
+}
+.pd-plate.pd-oplate {
+  inset-block-start: var(--plate-y, 950px);
+  padding: 4px 14px;
+  justify-content: center;
+}
+.pd-low.pd-olow {
+  inset-block-end: 20px;
+  block-size: 190px;
+}
+.pd-olow .pd-flow {
+  font-size: 130px;
+}
+/* The free finalists' name row and its pills (the placement controls, stage.ts paintPicks). The frame-px row
+   top rides --names-y; below the board's scale threshold the projector marks the row data-real and sets a
+   real-pixel top (play.css). The phone placement layout (play.css data-lanes) overrides these in flow. */
+.pd-names {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(var(--pd-y, 0px) + var(--names-y, 532px) * var(--pd-scale, 1));
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+/* A finalist's name as a control: the plate's night surface and white Sarabun 700 at the MC button's height
+   and size, ringed gold so it reads as pressable (i2-lanes, VALUES row). */
+.pd-name {
+  box-sizing: border-box;
+  min-block-size: 52px;
+  padding: 0 32px;
+  display: inline-flex;
+  align-items: center;
+  border: 3px solid var(--accent-gold);
+  border-radius: 999px;
+  background: #23214d; /* VALUES: raised night surface (picked 2026-11-11) */
+  color: var(--ink-light);
+  font: 700 22px/1.35 var(--font-sans);
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.pd-name:disabled {
+  opacity: 0.55;
+}
+
+/* gh#315 -- a zones round before its draw (zones-idle.ts): design/Gh315Zones.dc.html frame A/zn-idle, owner pick
+   2026-11-16 (Z1 A FOUR BLOCKS). Four panels 2x2 in the field 100..870, each its zone colour at 14% over the night
+   midpoint with a 3px rim in the zone colour, a 24px radius; names Sarabun 700 in 4 columns of rows at least 22px
+   (NAME FIT 20px to an 18px floor); the lower band 170px tall, its count 130px. The zone colours are set per panel
+   from prize-zones plan.ts ZONES, the one home of the board's zone values. Shared with the demo page (gh#319). */
+.pd-zfield {
+  position: absolute;
+  inset-inline: 56px;
+  inset-block-start: 100px;
+  block-size: 770px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 375px;
+  gap: 20px;
+}
+.pd-zpanel {
+  position: relative;
+  box-sizing: border-box;
+  border-radius: 24px;
+  padding: 4px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* --zone and --zone-tint are set per panel by zones-idle.ts; the fallback never paints (no panel exists
+     before the script builds it), it only keeps the page free of a reference with no definition. */
+  background-color: var(--zone-tint, transparent);
+  box-shadow: inset 0 0 0 3px var(--zone, transparent);
+}
+.pd-zhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  block-size: 34px;
+}
+.pd-zname {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 600 30px/1 var(--font-display);
+  color: var(--ink-light);
+  white-space: nowrap;
+}
+.pd-zdot {
+  display: inline-block;
+  inline-size: 22px;
+  block-size: 22px;
+  border-radius: 50%;
+  background-color: var(--zone, transparent);
+}
+.pd-zbadge {
+  font: 600 30px/1 var(--font-display);
+  color: var(--ink-on-band-soft);
+  white-space: nowrap;
+}
+.pd-zgrid {
+  flex: 1 1 auto;
+  min-block-size: 0;
+  display: grid;
+  /* The columns and the scale the reveal's zoneGrid chose for this zone (zones-idle.ts writes them; owner
+     ruling 2026-11-17). Four columns at scale 1 are the board's, so an ordinary zone is unchanged. The scale
+     shrinks both axes about the grid's centre, as zoneGrid's cells do, so no chip leaves its panel. */
+  grid-template-columns: repeat(var(--z-cols, 4), minmax(0, 1fr));
+  grid-auto-rows: minmax(22px, auto);
+  gap: 2px 8px;
+  align-content: center;
+  transform: scale(var(--z-scale, 1));
+  transform-origin: center center;
+}
+.pd-zgrid .pd-chip {
+  font-weight: 700;
+  padding: 0 6px;
+}
+/* A wrapped chip here is line-height 1, the reveal's own row model (plan.ts rowH = lines x floor), so the rows
+   auto-size to exactly the heights zoneGrid laid out and the scale contains them. The chip's base font is /1;
+   this only holds .nm-wrap's 1.05 off the zones grid. */
+.pd-zgrid .pd-chip.nm-wrap {
+  line-height: 1;
+}
+.pd-low.pd-zlow {
+  inset-block-end: 20px;
+  block-size: 170px;
+}
+.pd-zlow .pd-flow {
+  font-size: 130px;
+}
+
+/* The final result under 640px (stage.ts marks it data-result): design/Gh305AuditFrames.dc.html frame 2, owner
+   pick PD-305-05, at i5-phone B's sizes (Gh314Frames) mapped role to role from proj-result B. The frame is not
+   scaled: one column under the band on the frame's night ground, the winner on top, then the prize cards one per
+   row, and the page scrolls. No MC button shows here, so the body ends at its 16px padding. The names keep the
+   fit rule at this layout's own sizes and floors (stage.ts layoutFloors); no rule here pins their white-space, so
+   the rule's last resort (.nm-wrap) still wraps them. Shared with the demo page (gh#319 PD-318-02 a, PD-317-01 a):
+   the parent takes either viewport, the projector's .pd-viewport or the demo's .pr-viewport. */
+@media (max-width: 639px) {
+  :is(.pd-viewport, .pr-viewport)[data-result] {
+    overflow-y: auto;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-scaled {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    transform: none;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-frame {
+    position: static;
+    padding: 16px;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-top {
+    display: block;
+    block-size: auto;
+    padding: 0;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-ev {
+    display: block;
+    font-size: 22px;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-spot {
+    position: static;
+    text-align: start;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-spot h2 {
+    margin: 12px 0 0;
+    font-size: 22px;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-spot .pd-pz {
+    margin-block-start: 18px;
+    font-size: 18px;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-spot .pd-wn {
+    --fit-size: 50;
+    --fit-floor: 24;
+    margin-block-start: 0;
+    font-size: 50px;
+    line-height: 1.1;
+    text-align: start;
+    text-shadow: 0 0 24px var(--pd-glow);
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-wcards {
+    position: static;
+    margin-block-start: 18px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-wcard {
+    padding: 16px;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-wcard .pd-pz {
+    font-size: 16px;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-wcard .pd-wn {
+    --fit-size: 22;
+    --fit-floor: 21;
+    margin-block-start: 0;
+    font-size: 22px;
+    line-height: 1.15;
+    text-align: start;
+  }
+  /* The final's code kept on the result (canvas frame 6 at 320): under the event name, frame 4's 320 sizes. */
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-fcode {
+    margin-block-start: 6px;
+    gap: 8px;
+  }
+  :is(.pd-viewport, .pr-viewport)[data-result] .pd-claim {
+    position: static;
+    margin-block-start: 18px;
+    text-align: start;
+    font-size: 18px;
   }
 }

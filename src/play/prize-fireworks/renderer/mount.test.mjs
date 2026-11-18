@@ -66,7 +66,7 @@ function mountFor(input) {
   };
   const context = { root: { ownerDocument: doc }, renderer, signal: abort.signal, own: (r) => (owned.add(r), r) };
   const events = [];
-  const full = { ...input, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false };
+  const full = { claim: false, ...input, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false };
   const handle = reveal.mount(context, full, (e) => {
     events.push(e);
     if (e.type === 'complete') abort.abort();

@@ -45,16 +45,24 @@ body {
   margin: 0;
 }
 
-/* The 3D layer: over the frame, under the bar; the host fills it only while a step plays. */
+/* The 3D layer: over the frame, under the bar; the host fills it only while a step plays -- and a hold game
+   keeps it filled after the settle (gh#319). Its z-index sits under the bar's, the projector's own arrangement
+   (play.css .pd-3d under .pd-mc), so the controls stay visible and pressable over a held picture. */
 .pr-3d {
   position: absolute;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
 }
 
-/* The bar, OUTSIDE the scaled frame: real pixels, so a tap size never shrinks with the screen. */
+/* The bar, OUTSIDE the scaled frame: real pixels, so a tap size never shrinks with the screen. Relative, not
+   static, so it can take a z-index over the 3D layer (gh#319): in the below placement a static bar paints
+   under the positioned layer, and a held picture would cover it. Relative keeps its place in the flow; the
+   bar is no transform's child, so its own z-index reaches the layer (the .pd-scaled stacking-context trap
+   cannot bind it). The band placement's fixed bar paints over the layer by DOM order already. */
 .pr-bar {
-  position: static;
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -152,7 +160,8 @@ body {
    phone layout instead of the scaled frame, above the bar the base placement puts below it: the round state
    stacks on top (event, round and dots, the cut, the game), then the names in two columns at the frame's own
    sizes. The board's 96px under the last row cleared a fixed button; here the bar is in the flow, so the frame
-   ends where the bar begins. The result keeps the scaled frame, at exactly the page's width. */
+   ends where the bar begins. The final result takes the shared phone result layout (reveal.css, data-result):
+   the winner on top, the prize cards in one column, the bar below them (gh#319 PD-317-01 a, PD-318-02 a). */
 @media not all and (min-width: 640px) {
   .pr-viewport[data-field] .pr-stagebox {
     aspect-ratio: auto;
@@ -228,5 +237,39 @@ body {
   }
   .pr-viewport[data-field] .pd-chip {
     --fit-size: 16;
+  }
+
+  /* The zones idle's field is .pd-zfield, not .pd-field, so the field rule above never reaches it: the same
+     phone stack the projector gives it (play.css), the panels one per row, each zone's names in i5-phone B's
+     two columns at the field's row floor and gap, rows growing with a wrapped name. The panel gap keeps the
+     zones board's 20px; the grid drops the zoneGrid scale, its own two-column list instead. */
+  .pr-viewport[data-field] .pd-zfield {
+    order: 5;
+    position: static;
+    align-self: stretch;
+    block-size: auto;
+    margin-block-start: 18px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 20px;
+  }
+  .pr-viewport[data-field] .pd-zgrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(32px, auto);
+    gap: 4px 10px;
+    align-content: start;
+    transform: none;
+  }
+  .pr-viewport[data-field] .pd-zgrid .pd-chip.nm-wrap {
+    line-height: 1.05;
+  }
+
+  /* The phone result (the env-phone-320/390 and card-phone-320/390 frames, design/Gh317Envelopes.dc.html and
+     design/Gh318Cards.dc.html): the shared rules (reveal.css, data-result) unscale the frame and stack the
+     winner and the one-column prize cards; the demo's box yields its 16:9 ratio so the column flows at its
+     own height and the bar follows it. The bar's values are the base ones the frames draw: the badge 18px,
+     the count chips 52px with the selected count pressed, the replay pill 52px at 22px. */
+  .pr-viewport[data-result] .pr-stagebox {
+    aspect-ratio: auto;
   }
 }

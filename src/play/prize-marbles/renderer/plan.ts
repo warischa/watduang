@@ -349,7 +349,9 @@ export type Band = { left: string; figure: number; right: { kind: 'text'; text: 
 export function bandAt(plan: Plan, t: number): Band {
   if (t < plan.resultAt) {
     return {
-      left: COPY.heatCounter(heatAt(plan, t) + 1, plan.heats.length),
+      // The denominator is the heats that run: a trailing heat after the freeze never loads, so promising
+      // the whole chunking would count a heat the round never shows.
+      left: COPY.heatCounter(heatAt(plan, t) + 1, plan.heats.filter((h) => h.runs).length),
       figure: acrossAt(plan, t),
       right: { kind: 'text', text: COPY.freezeLine(plan.kept) },
     };

@@ -39,6 +39,7 @@ export function dealInput(ps, keep, opts = {}) {
     eventName: 'งานเลี้ยง',
     people: ps,
     outcome: { kind: 'deal', game: 'cards', round: d.round, code: d.code, deal: d.deal },
+    claim: false,
     host: d.host,
   };
 }
@@ -53,6 +54,7 @@ export function roundInput(ps, keep, rule, opts = {}) {
     eventName: 'งานเลี้ยง',
     people: ps,
     outcome: { kind: 'round', game: 'cards', round: d.round, code: d.code, deal: d.deal, rule, survivors },
+    claim: false,
     host: d.host,
   };
 }

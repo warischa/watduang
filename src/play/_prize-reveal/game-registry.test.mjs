@@ -66,6 +66,14 @@ test('a stub, if one is ever listed, resolves a module with mount and refuses at
   }
 });
 
+test('settle: the held-picture picks are per game in the registry (gh#319)', () => {
+  const held = ['envelopes', 'flipcards', 'zones'];
+  for (const id of Object.keys(reg.GAMES)) {
+    assert.equal(reg.settleFor(id), held.includes(id) ? 'hold' : 'handback', id);
+  }
+  assert.deepEqual(Object.keys(reg.GAMES).filter((g) => reg.settleFor(g) === 'hold').sort(), held);
+});
+
 test('exactly the ids listed as stubs are marked unavailable in the registry source', () => {
   const src = fs.readFileSync(new URL('./game-registry.ts', import.meta.url), 'utf8');
   const off = [...src.matchAll(/^ {2}(\w+): \{\n(?: {4}.*\n)*? {4}available: false,/gm)].map((m) => m[1]);

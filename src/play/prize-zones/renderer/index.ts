@@ -27,6 +27,7 @@ import {
   ShaderMaterial,
 } from 'three';
 import type { GameCommand, GameContext, GameEvent, RevealHandle, RevealInput, RevealModule, Viewport } from '../../_prize-reveal/game-contract.ts';
+import { isRenderHeld, onRenderHold } from '../../_render-hold.ts';
 import { FIGURE_H, FIGURE_W, paintBand, paintFigure, paintTop, surface, type Paintable } from '../../prize-fireworks/renderer/paint.ts';
 import {
   BAND_CY,
@@ -448,7 +449,12 @@ function mountZones(context: GameContext, input: RevealInput<'zones'>, emit: (ev
   if (fonts && !FACES.every((face) => fonts.check(face))) {
     Promise.all(FACES.map((face) => fonts.load(face))).then(
       () => {
-        if (!signal.aborted) rebuildText();
+        if (signal.aborted) return;
+        rebuildText();
+        // Repaint EVERY keyed surface with the new faces -- the zone headings and the band included, which
+        // rebuildText only resets the keys for (gh#319). Then redraw the held result, never during a hold.
+        update(now);
+        if (completed) redrawHeld();
       },
       () => {},
     );
@@ -462,6 +468,30 @@ function mountZones(context: GameContext, input: RevealInput<'zones'>, emit: (ev
     if (completed) return;
     completed = true;
     emit({ type: 'complete' });
+  };
+
+  // The held result's font redraw never submits a frame during a render hold (gh#272): if held, it waits and
+  // draws once when the hold lifts, only while the scene is still attached and not aborted; if the host
+  // released the picture meanwhile, it draws nothing (gh#319).
+  let fontHoldOff: (() => void) | null = null;
+  const redrawHeld = (): void => {
+    if (signal.aborted || disposed) return;
+    if (!isRenderHeld()) {
+      renderer.render(scene, camera);
+      return;
+    }
+    if (fontHoldOff) return;
+    const onAbort = (): void => {
+      fontHoldOff?.();
+      fontHoldOff = null;
+    };
+    fontHoldOff = onRenderHold((held) => {
+      if (held) return;
+      onAbort();
+      signal.removeEventListener('abort', onAbort);
+      if (!signal.aborted && !disposed) renderer.render(scene, camera);
+    });
+    signal.addEventListener('abort', onAbort);
   };
 
   return {
@@ -491,12 +521,19 @@ function mountZones(context: GameContext, input: RevealInput<'zones'>, emit: (ev
         }
         update(now);
       } else if (command.type === 'finish') {
+        // A hold game's picture must always BE the result state: draw the plan's end before completing, so a
+        // finish before the first tick never keeps the opening frame over the committed result (gh#319).
+        now = plan.total;
+        update(now);
+        renderer.render(scene, camera);
         complete();
       }
     },
     dispose(): void {
       if (disposed) return;
       disposed = true;
+      fontHoldOff?.();
+      fontHoldOff = null;
       scene.clear();
     },
   };

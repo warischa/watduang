@@ -5,6 +5,7 @@
 // context.own; and that a name reaches the screen only as painted text (ADR-0026: names are attacker-owned).
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { WebGLRenderList } from 'three/src/renderers/webgl/WebGLRenderLists.js';
 import { reveal } from './index.ts';
 
 function fakeCtx() {
@@ -69,7 +70,7 @@ function mountFor(input) {
   };
   const context = { root: { ownerDocument: doc }, renderer, signal: abort.signal, own: (r) => (owned.add(r), r) };
   const events = [];
-  const full = { ...input, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false };
+  const full = { claim: false, ...input, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false };
   const handle = reveal.mount(context, full, (e) => {
     events.push(e);
     if (e.type === 'complete') abort.abort();
@@ -165,29 +166,52 @@ test('a short heat after a full one draws nothing in its empty lanes, and marble
   near(0, [0x72 / 255, 0x24 / 255, 0x4d / 255], 'a stopped lane-1 marble is not the board dim #72244d');
 });
 
+/** The sequence three 0.170.0 actually draws `scene` in: its own render list and default comparators over a
+ *  walk that matches WebGLRenderer's projectObject. A Group's renderOrder is carried down to its descendants
+ *  as groupOrder, which painterSortStable and reversePainterSortStable both test before a mesh's own
+ *  renderOrder. Only the walk is local: projectObject lives inside a WebGLRenderer, which cannot exist
+ *  without a GL context. z is 0: both comparators settle groupOrder and renderOrder before z, and the
+ *  assertions only compare meshes whose renderOrder differs. */
+function drawSequence(scene) {
+  const list = new WebGLRenderList();
+  const walk = (object, groupOrder) => {
+    if (object.visible === false) return;
+    const order = object.isGroup ? object.renderOrder : groupOrder;
+    if (object.isMesh || object.isLine || object.isPoints) {
+      const material = object.material;
+      if (Array.isArray(material)) {
+        for (const one of material) if (one && one.visible) list.push(object, object.geometry, one, order, 0, null);
+      } else if (material.visible) {
+        list.push(object, object.geometry, material, order, 0, null);
+      }
+    }
+    for (const child of object.children) walk(child, order);
+  };
+  walk(scene, 0);
+  list.sort();
+  return [...list.opaque, ...list.transmissive, ...list.transparent];
+}
+
 test('three draws the scene in renderOrder: no opaque mesh sorts above a transparent one, so no layer hides the race', () => {
-  // three draws its opaque list before its transparent list and sorts renderOrder only within each list. An
-  // opaque mesh whose order is above a transparent one is therefore drawn under it whatever its order says:
-  // the race (marbles, glows, streaks) once went opaque under the transparent full-frame background, which
-  // overpainted every marble. Rebuild three's draw sequence from the materials and require it to be the
-  // renderOrder sequence, whichever list each mesh lands in.
+  // three draws its opaque list before its transparent list and orders each by the keys in painterSortStable
+  // and reversePainterSortStable, where a Group's renderOrder is carried down as groupOrder and tested before
+  // a mesh's own renderOrder. An opaque mesh whose order sits above a transparent one, or a layer moved under
+  // a Group whose order outranks it, is therefore drawn under a layer it should sit above: the race (marbles,
+  // glows, streaks) once went opaque under the transparent full-frame background, which overpainted every
+  // marble. Rebuild the sequence three draws and require it to be the renderOrder sequence.
   const ps = people(20);
   const m = mountFor({ key: 'k', eventName: 'E', people: ps, outcome: { kind: 'round', game: 'marbles', round: 1, code: 'C', survivors: ['p1', 'p5'] } });
-  const meshes = [];
-  m.renders[0].scene.traverse((o) => o.isMesh && meshes.push(o));
-  const byOrder = (a, b) => a.renderOrder - b.renderOrder;
-  const listed = (wantTransparent) => meshes.filter((o) => (o.material.transparent === true) === wantTransparent).sort(byOrder);
-  const drawn = [...listed(false), ...listed(true)];
-  const describe = (o) => `${o.isInstancedMesh ? 'instanced' : 'mesh'}@${o.renderOrder}(${o.material.transparent ? 'transparent' : 'opaque'})`;
+  const drawn = drawSequence(m.renders[0].scene);
+  const describe = (item) => `${item.object.isInstancedMesh ? 'instanced' : 'mesh'}@group${item.groupOrder}/order${item.renderOrder}(${item.material.transparent ? 'transparent' : 'opaque'})`;
   for (let i = 1; i < drawn.length; i++) {
     assert.ok(drawn[i].renderOrder >= drawn[i - 1].renderOrder, `${describe(drawn[i])} is drawn after ${describe(drawn[i - 1])}, which its order puts above it`);
   }
   // The race meshes must sit above the background in the draw sequence, not merely in their order numbers.
-  const race = meshes.filter((o) => o.isInstancedMesh);
+  const race = drawn.filter((item) => item.object.isInstancedMesh);
   assert.equal(race.length, 3, 'marbles, glows and streaks: one instanced mesh each');
-  const lowest = meshes.reduce((a, b) => (b.renderOrder < a.renderOrder ? b : a));
-  for (const mesh of race) assert.ok(drawn.indexOf(mesh) > drawn.indexOf(lowest), `${describe(mesh)} is drawn before the background`);
-  assert.ok(meshes.length >= 8, `only ${meshes.length} meshes checked: background, pulse, three race meshes, plates, band, figure`);
+  const lowest = drawn.reduce((a, b) => (b.renderOrder < a.renderOrder ? b : a));
+  for (const item of race) assert.ok(drawn.indexOf(item) > drawn.indexOf(lowest), `${describe(item)} is drawn before the background`);
+  assert.ok(drawn.length >= 8, `only ${drawn.length} meshes drawn: background, pulse, three race meshes, plates, band, figure`);
 });
 
 test('finish completes once; nothing draws after the reveal ended; a resize refits', () => {

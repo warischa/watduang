@@ -76,14 +76,16 @@ import {
 } from '../../prize-event/event.ts';
 import { FINAL_SIZE } from '../../prize-draw/schedule.ts';
 import { OLD_TAB_OPEN, REFUSED_BROWSER, type EventStore, type Loss, type PutResult, type Snapshot } from '../../prize-event/store.ts';
-import { screenView, type ScreenView } from '../../prize-event/view.ts';
-import { announce, fitFrame, renderScreen } from '../_prize-reveal/reveal.ts';
+import { isQrEvent, screenView, type ScreenView } from '../../prize-event/view.ts';
+import { announce, fitFrame, prizeLine, renderScreen } from '../_prize-reveal/reveal.ts';
 import { laneX, renderLanes } from './lanes.ts';
-import { NAMES_Y, PLATE_Y, objectX, renderObjects } from './final-picks.ts';
+import { NAMES_Y, PLATE_Y, ROW_GAP, ROW_THRESHOLD, freeRowTop, objectX, renderObjects } from './final-picks.ts';
 import { idleZones, renderZonesIdle } from './zones-idle.ts';
-import { isPickFinal } from '../../prize-event/game-contract.ts';
+import { idleMarbles, renderMarblesIdle } from './marbles-idle.ts';
+import { isPickFinal, type PickFinal } from '../../prize-event/game-contract.ts';
 import { fitAll, writeName } from '../_prize-reveal/names-dom.ts';
 import { startReveal, type HostOptions, type RevealHost } from '../_prize-reveal/game-host.ts';
+import { settleFor } from '../_prize-reveal/game-registry.ts';
 import type { CommittedOutcome, GameId } from '../_prize-reveal/game-contract.ts';
 import { joinLink, type Lobby } from '../../prize-event/qr-event.ts';
 
@@ -222,10 +224,17 @@ export function mountStage(deps: StageDeps): StageHandle {
   // The 3D layer: the host fills it over the frame while a committed step presents, and empties it on exit.
   const layer3d = doc.createElement('div');
   layer3d.className = 'pd-3d';
-  // The ladder final's lane picks: real pixels like the MC bar, empty on every other screen.
+  // The held-picture overlay (gh#319): a sibling AFTER the 3D layer, at the scaled frame's own geometry and
+  // transform. While a hold game's picture is up, the veil and code card lift into it out of the scaled
+  // frame (whose transform is a stacking context that would trap them under the canvas), and the viewport's
+  // data-held mark turns the frame's own paint off; empty and unmarked otherwise.
+  const over = doc.createElement('div');
+  over.className = 'pd-over';
+  // The ladder final's lane picks: real pixels like the MC bar, empty on every other screen. Both picks and mc
+  // are children of the viewport, OUTSIDE .pd-scaled, so their z-index sits above the 3D layer directly.
   const picks = doc.createElement('div');
   picks.className = 'pd-picks';
-  viewport.append(scaled, layer3d, picks, mc);
+  viewport.append(scaled, layer3d, over, picks, mc);
 
   const notice = doc.createElement('div');
   notice.className = 'pd-notice';
@@ -327,6 +336,8 @@ export function mountStage(deps: StageDeps): StageHandle {
     const host = active;
     active = null;
     host?.dispose();
+    // The picture (if one was held) is gone: the frame paints again from here, no render needed for it.
+    syncHeld();
   };
 
   /** The `seen` the mounted control was rendered at; null while no control is mounted. */
@@ -439,6 +450,36 @@ export function mountStage(deps: StageDeps): StageHandle {
     renderZonesIdle(frame, { eventName: view.eventName, round: view.round, rounds: view.rounds, dots: view.dots, zones }, doc);
   };
 
+  /** A marbles round before its draw (gh#316, PD-316-02 a): the round's first heat at the gate, from the live
+   *  field alone (marbles-idle.ts). The band counts the whole field, not the heat. The MC's press commits the draw. */
+  const paintMarblesIdle = (s: EventState, view: ScreenView & { kind: 'round' }): void => {
+    const field = people(s);
+    const names = idleMarbles(s.eventKey, view.round, field).map((p) => p.name);
+    renderMarblesIdle(frame, { eventName: view.eventName, round: view.round, rounds: view.rounds, dots: view.dots, names, count: field.length }, doc);
+  };
+
+  /** Position the free-name row for the current scale (PD-317-03 a, PD-317-11 b, PD-318-04 b): below the
+   *  board's scale threshold it leaves the scaled frame for real pixels in the plate-to-band gap; at and above
+   *  it keeps NAMES_Y in frame px. No layout (scale 0, as under node) keeps the frame-px row. The band yields
+   *  to it below the threshold. Recomputed on every render AND every refit, both sides of the threshold, so a
+   *  resize never leaves the row at the old width's offset while the plates move with the frame (gh#319). */
+  const placeNameRow = (row: HTMLElement, objects: PickFinal | null): void => {
+    if (!objects) {
+      viewport.removeAttribute('data-row-real');
+      return;
+    }
+    const s = Math.min(viewport.clientWidth / 1920, viewport.clientHeight / 1080);
+    if (s > 0 && s < ROW_THRESHOLD[objects]) {
+      row.style.setProperty('--names-y', `${freeRowTop(objects, s)}px`);
+      row.setAttribute('data-real', '');
+      viewport.setAttribute('data-row-real', '');
+    } else {
+      row.style.setProperty('--names-y', `${NAMES_Y[objects]}px`);
+      row.removeAttribute('data-real');
+      viewport.removeAttribute('data-row-real');
+    }
+  };
+
   /**
    * The ladder final's lane picks (design/Gh305GamePick.dc.html i2-lanes B): one control over each lane's
    * plate, then a row of the finalists not yet on a lane (names through the name sink). A tap on an empty
@@ -451,6 +492,7 @@ export function mountStage(deps: StageDeps): StageHandle {
   const paintPicks = (s: EventState): void => {
     if (!placing(s)) {
       picks.replaceChildren();
+      viewport.removeAttribute('data-row-real');
       return;
     }
     const game = s.setup.games.final;
@@ -496,7 +538,7 @@ export function mountStage(deps: StageDeps): StageHandle {
     });
     const row = doc.createElement('div');
     row.className = 'pd-names';
-    if (objects) row.style.setProperty('--names-y', `${NAMES_Y[objects]}px`);
+    placeNameRow(row, objects);
     for (const person of finalists) {
       if (lanes.includes(person.id)) continue;
       const b = doc.createElement('button');
@@ -547,10 +589,72 @@ export function mountStage(deps: StageDeps): StageHandle {
     fitAll(frame);
   };
 
+  /** Below the row threshold the low band yields to the real-pixel free-name row (PD-317-03 a): its top is the
+   *  row's bottom + the touch gap, and the stage box grows to band top + 210 x s (the boards' row geometry). The
+   *  row's height is its laid-out height (it wraps), so this needs layout and runs in a browser only, on a refit.
+   *  The band and the box stay in the scaled frame: their frame-px values are the real-px ones divided by s. */
+  const fitRowBand = (): void => {
+    if (!viewport.hasAttribute('data-row-real')) return;
+    const row = picks.querySelector<HTMLElement>('.pd-names');
+    if (!row) return;
+    const s = Math.min(viewport.clientWidth / 1920, viewport.clientHeight / 1080);
+    if (!(s > 0)) return;
+    const rowTop = parseFloat(row.style.getPropertyValue('--names-y'));
+    const rowH = row.offsetHeight;
+    // Needs the row's laid-out height (it wraps); without layout (node) there is nothing to measure.
+    if (!Number.isFinite(rowTop) || !Number.isFinite(rowH)) return;
+    const bandTop = rowTop + rowH + ROW_GAP;
+    frame.style.setProperty('--pd-band-top', `${bandTop / s}px`);
+    frame.style.setProperty('--pd-box-h', `${(bandTop + 210 * s) / s}px`);
+  };
+
+  /** A hold game's picture is actually up: settled, and the host's layer still in the 3D box. The host
+   *  releases a held picture on dispose, reduced motion, narrowing, a lost context or a throw and stays
+   *  settled, telling this screen through onRelease; the state alone cannot say whether the canvas is still
+   *  there, so the mark reads the layer too (gh#319). */
+  const heldUp = (): boolean => active !== null && active.state === 'settled' && layer3d.children.length > 0;
+
+  /** Mark the viewport and lift the settled screen's overlay-bound nodes into `.pd-over` while a held picture
+   *  is up (gh#319). The mark turns the scaled frame's paint off (reveal.css): the committed 2D frame behind
+   *  the canvas shows through its transparent regions, so a held screen is the picture plus the overlay only.
+   *  The scaled frame's transform is a stacking context, so a z-index inside it cannot paint above the sibling
+   *  3D layer; the overlay carries the same transform at a z-index above the canvas, so the veil and the code
+   *  card keep their frame coordinates, sizes and copy and stay readable over the held picture. The veil
+   *  travels first, below the card: the approved look is a centred card over the veiled field. The claim line
+   *  is NOT lifted: the hold finals' renderers paint their own claim into the picture (prize-envelopes and
+   *  prize-flipcards renderer copy.ts CLAIM), so a DOM copy over it would print the line twice; the frame's
+   *  copy hides with the frame and comes back on release, leaving the picture's claim the one copy. The
+   *  settled screens draw no interactive control inside the frame -- the code card's close is the MC button,
+   *  outside it -- so the veil, the card and (once the card is closed) the persistent final code are the whole
+   *  lift. The overlay is cleared first: every render rebuilds
+   *  the frame, so a stale lifted node never doubles. With no held picture nothing moves and the mark clears,
+   *  so a release draws the frame back in the same render. */
+  const syncHeld = (): void => {
+    over.replaceChildren();
+    if (!heldUp()) {
+      viewport.removeAttribute('data-held');
+      return;
+    }
+    viewport.setAttribute('data-held', '');
+    for (const sel of ['.pd-veil', '.pd-codebox']) {
+      const node = frame.querySelector<HTMLElement>(sel);
+      if (node) over.appendChild(node);
+    }
+    // The persistent final code (PD-309-11) lifts too once its card is closed: the frame's paint is off and
+    // no renderer paints this small code, so it would vanish with the frame. Never over the open card, which
+    // already shows the code large and whose veil covers the bar (gh#319).
+    if (!over.querySelector('.pd-codebox')) {
+      const kept = frame.querySelector<HTMLElement>('.pd-fcode');
+      if (kept) over.appendChild(kept);
+    }
+  };
+
   /**
    * Present a committed step through its 3D game. The MC bar and the lane picks empty first, so nothing
    * steps the event on while it plays. The host draws the 2D view once, on its first exit, and render()
    * brings the controls back armed; the 2D wave runs only when no 3D game ran (a fallback before mount).
+   * A hold game (gh#319) settles with its picture still up over that 2D frame: its handle is retained so
+   * every later screen change disposes it (stopReveal), and its prize beats write one live line each.
    */
   const present = (s: EventState, game: GameId, outcome: Presented): void => {
     stopReveal();
@@ -561,18 +665,46 @@ export function mountStage(deps: StageDeps): StageHandle {
     let ran = false;
     let exited = false;
     const step = outcome.kind === 'final' ? 'final' : `${outcome.kind}${outcome.round}:${outcome.code}`;
-    const host = begin({
+    const finalists = people(s);
+    // Assigned before begin so a synchronous exit's render2D reads null, never an uninitialized handle.
+    let host: RevealHost | null = null;
+    host = begin({
       container: layer3d,
       game,
-      input: { key: `${s.eventKey}:${step}`, eventName: s.setup.eventName, outcome, people: people(s) },
+      // The claim line is QR mode's: the same truth the 2D result's claim reads (view.ts screenView), so a
+      // held picture in admin mode never tells winners to open a phone page that does not exist (gh#319).
+      input: { key: `${s.eventKey}:${step}`, eventName: s.setup.eventName, outcome, people: finalists, claim: isQrEvent(s) },
       render2D: () => {
         if (seq !== revealSeq || exited) return;
         exited = true;
-        active = null;
+        // A hold game's settled picture stays up over the 2D frame: retain its handle so every screen change
+        // disposes it. Any other exit (a handback settle, a fallback) hands the screen back with no handle.
+        active = host && host.state === 'settled' && settleFor(game) === 'hold' ? host : null;
         render(!ran);
+      },
+      onEvent: (event) => {
+        // One live line per turned card / opened envelope (PD-318-10 a, PD-317-10 a): the result's prize-line
+        // words, then the finalist through the name sink. The beat's index is the drawn rank (the renderer's plan).
+        if (seq !== revealSeq || event.type !== 'beat' || event.beat !== 'prize' || outcome.kind !== 'final') return;
+        const rank = event.index;
+        const person = finalists.find((p) => p.id === outcome.order[rank]);
+        if (!person) return;
+        const prize = rank < outcome.prizes.length ? outcome.prizes[rank]! : null;
+        const run = doc.createElement('span');
+        writeName(run, person.name);
+        live.replaceChildren(doc.createTextNode(`${prizeLine(rank + 1, prize)} · `), run);
       },
       onState: (now) => {
         if (seq === revealSeq && now === 'running') ran = true;
+      },
+      onRelease: () => {
+        // The host released the held picture (a throw on the settling draw, a lost context, reduced motion,
+        // narrowing, a resize, dispose) and detached the canvas. A dispose this screen asked for has already
+        // moved revealSeq on and cleared the mark (stopReveal), so only a release of the CURRENT picture, with
+        // the mark still up, draws the frame back here -- one render, no timer wait, and no re-announce: the
+        // result was announced when it settled, so this repaint skips the live region (gh#319).
+        if (seq !== revealSeq) return;
+        if (viewport.hasAttribute('data-held') && !heldUp()) render(false, false);
       },
     });
     if (seq === revealSeq && !exited) active = host;
@@ -594,7 +726,11 @@ export function mountStage(deps: StageDeps): StageHandle {
   const showCommitted = (before: Position, next: EventState): void => {
     const shown = revealed(before, next);
     if (shown && shown.game !== null) present(next, shown.game, shown as Presented);
-    else render(before.at !== 'revealed');
+    else {
+      // A step forward (or a commit with no game) replaces the screen: a held picture goes before it paints.
+      stopReveal();
+      render(before.at !== 'revealed');
+    }
   };
 
   /** The lobby to show, if any: never over a screen that can hold no event (refused, revoked, reloading). */
@@ -678,8 +814,13 @@ export function mountStage(deps: StageDeps): StageHandle {
     drawQr(canvas, qrCard, joinLink(deps.joinOrigin ?? doc.defaultView?.location.origin ?? '', lobby.eventId, lobby.pin));
   };
 
-  const render = (wave: boolean): void => {
+  /** Draw the screen. `announceIt` is false only for the repaint a held picture's release triggers: the
+   *  result was already announced when it settled, so that one repaint must not re-announce it (gh#319).
+   *  Every other repaint announces, as always. */
+  const render = (wave: boolean, announceIt = true): void => {
     painted = true;
+    // Every render rebuilds the frame: drop any stale lifted node first (the lobby and cold paths return early).
+    over.replaceChildren();
     const lobby = lobbyNow();
     if (lobby) {
       renderLobby(lobby);
@@ -708,12 +849,13 @@ export function mountStage(deps: StageDeps): StageHandle {
     syncLanes(state);
     if (placing(state)) paintLaneFrame(state);
     else if (view.kind === 'round' && view.game === 'zones') paintZonesIdle(state, view);
+    else if (view.kind === 'round' && view.game === 'marbles') paintMarblesIdle(state, view);
     else renderScreen(frame, view, doc);
     paintControls(state);
     markField();
     // The result's names were fitted before the mark reached its phone layout, at the projector's floors.
     if (view.kind === 'result') fitFrameNames();
-    announce(live, view, doc);
+    if (announceIt) announce(live, view, doc);
     const field = frame.querySelector<HTMLElement>('.pd-field');
     if (field && view.kind === 'reveal') {
       if (deps.reducedMotion) field.classList.add('pd-fade');
@@ -738,6 +880,12 @@ export function mountStage(deps: StageDeps): StageHandle {
       }
     }
     if (view.kind === 'reveal') deps.whenBoldLoaded?.(fitFrameNames);
+    // The placement screen's band yield is measured here too, not only on a refit: a render that sets the
+    // real-pixel row must position the band in the same pass, never wait for a resize that may not come.
+    fitRowBand();
+    // Over a held picture the frame's paint goes off and the veil and code card lift above the canvas
+    // (gh#319); arming follows, so the close control they uncover is armed like any other reveal (ADR-0057).
+    syncHeld();
     show(viewport);
   };
 
@@ -853,6 +1001,14 @@ export function mountStage(deps: StageDeps): StageHandle {
       fitFrame(scaled, viewport);
       // The lane controls sit over the plates of the scaled frame: they take the same scale and offset.
       fitFrame(picks, viewport);
+      // The held-picture overlay carries the frame's own scale and offset, so a lifted node keeps its place.
+      fitFrame(over, viewport);
+      // The free-name row's top depends on the scale: recompute it on every refit, both sides of the
+      // threshold, so a resize never leaves it at the old width's offset while the plates move (gh#319).
+      const row = picks.querySelector<HTMLElement>('.pd-names');
+      if (row && state) placeNameRow(row, isPickFinal(state.setup.games.final) ? state.setup.games.final : null);
+      // The real-pixel row's band yield depends on the scale and the row's laid-out height (gh#319).
+      fitRowBand();
       // Names are fitted at their layout's size, so crossing the phone break refits them (gh#314 item 5).
       const now = win.innerWidth < 640;
       if (narrow !== null && now !== narrow) fitFrameNames();
@@ -860,6 +1016,13 @@ export function mountStage(deps: StageDeps): StageHandle {
     };
     win.addEventListener('resize', refit);
     deps.nextFrame?.(refit);
+    // Leaving the page (the exit control, a refresh, a back-forward cache freeze) disposes the held picture
+    // so its WebGL context never outlives the page; a persisted restore repaints the 2D result, never a held
+    // picture (gh#319). The host's release triggers call onRelease themselves, so no media watch is needed.
+    win.addEventListener('pagehide', () => stopReveal());
+    win.addEventListener('pageshow', (ev) => {
+      if ((ev as PageTransitionEvent).persisted) render(false);
+    });
   }
 
   /** The store stopped for good (store.ts onSuperseded): nothing on this screen may reach it again. The

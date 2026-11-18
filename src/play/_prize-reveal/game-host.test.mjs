@@ -1,7 +1,8 @@
 // The one renderer state machine of the prize-draw reveal (gh#305), driven over fakes: every transition,
 // every fallback trigger, held time, and the exit contract -- whichever way a reveal ends, it aborts, stops
 // the loop, drops every listener, disposes every owned resource and the renderer, and draws the committed
-// 2D view exactly once.
+// 2D view exactly once. A game the registry picks to hold its picture (gh#319) settles with the scene
+// still up instead; the cases at the end of this file own that edge.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 // The two callers first: the arm gate they import reads `document` as it loads, before host-harness.mjs
@@ -10,7 +11,7 @@ import { mountDemo } from './demo.ts';
 import { makeDoc } from '../../prize-event/fake-dom.mjs';
 import { fakeOrigin, mount as mountStage, press, storedEvent } from '../prize-draw/stage-harness.mjs';
 import { OUTCOME, baseOptions, launch, makeModule, makePage, makeRegistry, settle, widthMatches } from './host-harness.mjs';
-import { GAMES, isAvailable } from './game-registry.ts';
+import { GAMES, isAvailable, settleFor } from './game-registry.ts';
 import { startReveal } from './game-host.ts';
 
 const RM_QUERY = '(prefers-reduced-motion: reduce)';
@@ -1063,4 +1064,312 @@ for (const media of ['immediate', 'next-frame']) {
       }
     });
   }
+}
+
+// ---- the held picture (gh#319: PD-315-02 a, PD-317-06 a, PD-318-01 a) ------------------------------------
+// A game whose registry entry says `hold` keeps its last 3D frame on screen when the reveal settles: the
+// loop stops, the committed 2D frame is drawn behind it, and the scene lives until dispose() or a trigger
+// that would have fallen back mid-run. Both sets are read from the registry, never hand-listed, so a game
+// added there is covered here and one whose pick changes reds its own case.
+
+const HOLD_IDS = GAME_IDS.filter((g) => settleFor(g) === 'hold');
+const HANDBACK_IDS = GAME_IDS.filter((g) => settleFor(g) === 'handback');
+
+/** A reveal of `game` on a fresh page, through the real registry's availability and settle mode. */
+async function revealOf(game, { pageOpts, modOpts, render2D, onState } = {}) {
+  const page = makePage(pageOpts);
+  const mod = makeModule(modOpts);
+  const reg = registryOf(mod);
+  const box = {};
+  const { options, calls } = baseOptions(page, { registry: reg.registry, game });
+  if (render2D) options.render2D = (o) => { calls.render2D.push(o); render2D(box.host); };
+  if (onState) options.onState = (s, r) => { calls.states.push(r ? `${s}:${r}` : s); onState(s, box.host); };
+  box.host = launch(page, options);
+  await settle();
+  return { page, mod, reg, calls, host: box.host };
+}
+
+/** Settled with the picture still up: nothing runs and nothing is released, the 2D frame is drawn exactly
+ *  once behind it, and every trigger that would have fallen back mid-run is still heard. */
+function assertHeldPicture({ page, mod, calls, host }) {
+  assert.equal(host.state, 'settled');
+  assert.equal(host.reason, null);
+  assert.equal(calls.render2D.length, 1, 'the 2D frame was not drawn exactly once behind the held picture');
+  assert.equal(calls.render2D[0], OUTCOME, 'the 2D frame drew something other than the committed outcome');
+  assert.equal(page.frames.size, 0, 'a frame is still queued behind a held picture');
+  assert.equal(page.container.children.length, 1, 'the 3D layer is not on screen');
+  const cv = page.rendererCalls[0].canvas;
+  assert.equal(cv.parentNode, page.container.children[0], 'the canvas is not attached to the layer');
+  assert.equal(cv.getAttribute('aria-hidden'), 'true', 'the held canvas is not hidden from the accessibility tree');
+  assert.equal(page.renderers[0].disposed, 0, 'the renderer was disposed while the picture is held');
+  assert.equal(page.gls[0].released, 0, 'the WebGL context was released while the picture is held');
+  assert.equal(mod.disposed, 0, 'the module handle was disposed while the picture is held');
+  for (const res of mod.resources) assert.equal(res.disposed, 0, 'an owned resource was disposed while the picture is held');
+  assert.equal(mod.context.signal.aborted, false, 'the module signal was aborted while the picture is held');
+  assert.equal(page.resizeObservers[0].observed.length, 1, 'the resize observer was disconnected while the picture is held');
+  assert.equal(cv.count('webglcontextlost'), 1, 'the held picture no longer hears a context loss');
+  assert.equal(page.mql.count('change'), 1, 'the held picture no longer hears reduced motion');
+  for (const list of page.widthMqls.values()) assert.equal(list.count('change'), 1, `the held picture no longer hears ${list.media}`);
+}
+
+for (const game of HOLD_IDS) {
+  test(`${game}: complete holds the picture -- the loop stops, one 2D frame behind it, done settles`, async () => {
+    assert.deepEqual([...HOLD_IDS, ...HANDBACK_IDS].sort(), [...GAME_IDS].sort(), 'a game is in neither settle set');
+    const run = await revealOf(game);
+    run.page.flush(16);
+    const before = ticksOf(run.mod);
+    run.mod.emit({ type: 'complete' });
+    assertHeldPicture(run);
+    assert.equal(await run.host.done, 'settled');
+    run.page.flush(32);
+    run.page.flush(48);
+    assert.equal(ticksOf(run.mod), before, 'the held picture kept ticking');
+    assert.equal(run.page.frames.size, 0, 'the held picture requested another frame');
+    assert.deepEqual(run.calls.states, ['loading', 'running', 'settled']);
+  });
+
+  test(`${game}: finish holds the picture too`, async () => {
+    const run = await revealOf(game);
+    run.host.command('finish');
+    assertHeldPicture(run);
+    assert.deepEqual(run.mod.commands.at(-1), { type: 'finish' });
+    assert.equal(await run.host.done, 'settled');
+  });
+
+  test(`${game}: dispose after a held settle releases everything once; a second dispose is a no-op`, async () => {
+    const run = await revealOf(game);
+    run.page.flush(16);
+    run.mod.emit({ type: 'complete' });
+    assertHeldPicture(run);
+    run.host.dispose();
+    assertCleanExit(run, 'disposed');
+    assert.equal(run.mod.disposed, 1);
+    assert.equal(await run.host.done, 'settled');
+    run.host.dispose();
+    assertCleanExit(run, 'disposed');
+    assert.equal(run.mod.disposed, 1, 'the handle was disposed twice');
+    assert.deepEqual(run.calls.states, ['loading', 'running', 'settled', 'disposed']);
+    assert.equal(run.calls.render2D.length, 1, 'the 2D frame was drawn again on dispose');
+  });
+
+  test(`${game}: a dispose asked inside the held settle's 2D frame drops the picture: settled then disposed`, async () => {
+    let root = null;
+    const seen = { attached: null };
+    const run = await revealOf(game, {
+      modOpts: { onMount: (context) => { root = context.root; } },
+      render2D: (host) => { seen.attached = root.parentNode !== null; host.dispose(); },
+    });
+    run.mod.emit({ type: 'complete' });
+    assert.equal(seen.attached, true, 'the picture was already gone when the 2D frame was drawn');
+    assertCleanExit(run, 'disposed');
+    assert.deepEqual(run.calls.states.slice(-2), ['settled', 'disposed']);
+    assert.equal(run.calls.render2D.length, 1);
+    assert.equal(await run.host.done, 'settled');
+  });
+
+  test(`${game}: reduced motion turning on while the picture is held drops it; one 2D frame, no restart`, async () => {
+    const run = await revealOf(game);
+    run.page.flush(16);
+    run.mod.emit({ type: 'complete' });
+    assertHeldPicture(run);
+    run.page.setReducedMotion(true);
+    assertCleanExit(run, 'settled');
+    assert.equal(run.mod.disposed, 1);
+    run.page.setReducedMotion(false);
+    run.page.flush(32);
+    await settle();
+    assert.equal(run.calls.render2D.length, 1, 'the 2D frame was drawn again');
+    assert.equal(run.mod.mounts.length, 1);
+    assert.equal(run.page.frames.size, 0);
+    assert.equal(run.host.state, 'settled');
+  });
+
+  for (const width of NARROW_WIDTHS) {
+    test(`${game}: narrowing to ${width}px while the picture is held drops it; widening never restarts it`, async () => {
+      const run = await revealOf(game);
+      run.page.flush(16);
+      run.mod.emit({ type: 'complete' });
+      assertHeldPicture(run);
+      run.page.setWidth(width);
+      assertCleanExit(run, 'settled');
+      run.page.setWidth(1920);
+      run.page.flush(32);
+      await settle();
+      assert.equal(run.calls.render2D.length, 1, 'the 2D frame was drawn again');
+      assert.equal(run.mod.mounts.length, 1);
+      assert.equal(run.page.frames.size, 0);
+      assert.equal(run.host.state, 'settled');
+    });
+  }
+
+  test(`${game}: a context lost while the picture is held drops it, default prevented`, async () => {
+    const run = await revealOf(game);
+    run.page.flush(16);
+    run.mod.emit({ type: 'complete' });
+    assertHeldPicture(run);
+    let prevented = 0;
+    run.page.rendererCalls[0].canvas.dispatch('webglcontextlost', { preventDefault: () => prevented++ });
+    assert.equal(prevented, 1);
+    assertCleanExit(run, 'settled');
+    assert.equal(run.mod.disposed, 1);
+  });
+
+  test(`${game}: a held picture never restarts the loop on a render hold or a visibility change`, async () => {
+    const run = await revealOf(game);
+    run.page.flush(16);
+    const before = ticksOf(run.mod);
+    run.mod.emit({ type: 'complete' });
+    assertHeldPicture(run);
+    run.page.setHeld(true);
+    assert.equal(run.host.state, 'settled', 'a render hold moved a settled reveal');
+    assert.equal(run.page.frames.size, 0);
+    run.page.setHeld(false);
+    assert.equal(run.page.frames.size, 0, 'the hold release restarted the loop');
+    run.page.setHidden(true);
+    run.page.setHidden(false);
+    run.page.flush(32);
+    run.page.flush(48);
+    assert.equal(run.page.frames.size, 0);
+    assert.equal(ticksOf(run.mod), before, 'the held picture ticked again');
+    assertHeldPicture(run);
+  });
+
+  test(`${game}: completing under a render hold settles with the picture up, and the release does not run it`, async () => {
+    const run = await revealOf(game, { pageOpts: { held: true } });
+    assert.equal(run.host.state, 'held');
+    run.mod.emit({ type: 'complete' });
+    assertHeldPicture(run);
+    run.page.setHeld(false);
+    run.page.flush(16);
+    assert.equal(run.page.frames.size, 0, 'the hold release restarted a settled reveal');
+    assert.equal(run.host.state, 'settled');
+    assert.equal(ticksOf(run.mod), 0);
+  });
+
+  test(`${game}: reduced motion at entry stays 2D-only -- no canvas, no mount (control)`, async () => {
+    const run = await revealOf(game, { pageOpts: { reducedMotion: true } });
+    assertCleanExit(run, 'fallback', 'reduced-motion-entry');
+    assert.deepEqual(run.page.contextRequests, []);
+    assert.equal(run.mod.mounts.length, 0);
+  });
+}
+
+for (const game of HANDBACK_IDS) {
+  test(`${game}: complete still hands the scene back -- everything released, one 2D frame (control)`, async () => {
+    const run = await revealOf(game);
+    run.page.flush(16);
+    run.mod.emit({ type: 'complete' });
+    assertCleanExit(run, 'settled');
+    assert.equal(run.mod.disposed, 1);
+    assert.equal(await run.host.done, 'settled');
+  });
+}
+
+for (const game of GAME_IDS) {
+  test(`${game}: the host canvas is aria-hidden on every mount`, async () => {
+    const run = await revealAt(game, 1920);
+    assert.equal(run.page.rendererCalls[0].canvas.getAttribute('aria-hidden'), 'true', 'the host canvas is not hidden from the accessibility tree');
+    run.host.dispose();
+    assertCleanExit(run, 'disposed');
+  });
+}
+
+// ---- the held picture's lifecycle edges (gh#319 cross-lineage review) ----
+// The host tells its caller when a held picture is released (onRelease), on EVERY release path, after the
+// canvas is detached; a resize while held re-renders at the new size; and a settle with no picture attached
+// (finish during loading) hands back instead of holding.
+
+for (const game of HOLD_IDS) {
+  test(`${game}: a throw while the final draws releases the held picture and calls onRelease with the canvas gone`, async () => {
+    const page = makePage();
+    // The flipcards mechanism: the module emits complete (the host settles and holds) and THEN throws on the
+    // same tick's draw. The throw must release the picture and tell the caller, or the frame stays hidden.
+    const mod = makeModule({ onAdvance: (c) => { if (c.type === 'tick') { mod.emit({ type: 'complete' }); throw new Error('final draw'); } } });
+    const reg = registryOf(mod);
+    const releases = [];
+    const { options, calls } = baseOptions(page, { registry: reg.registry, game, onRelease: () => releases.push(page.container.children.length) });
+    const host = launch(page, options);
+    await settle();
+    page.flush(16);
+    assert.equal(host.state, 'settled', 'the throw moved the settled reveal');
+    assert.deepEqual(releases, [0], 'onRelease did not fire once, after the canvas was detached');
+    assert.equal(calls.render2D.length, 1, 'the release drew the 2D frame a second time');
+    assert.equal(page.container.children.length, 0, 'the released canvas is still attached');
+  });
+
+  test(`${game}: every release path calls onRelease once -- dispose, reduced motion, narrowing, context loss`, async () => {
+    for (const trigger of ['dispose', 'reduced-motion', 'narrow', 'context-lost']) {
+      const page = makePage();
+      const mod = makeModule();
+      const reg = registryOf(mod);
+      const releases = [];
+      const { options } = baseOptions(page, { registry: reg.registry, game, onRelease: () => releases.push(page.container.children.length) });
+      const host = launch(page, options);
+      await settle();
+      page.flush(16);
+      mod.emit({ type: 'complete' });
+      assert.equal(page.container.children.length, 1, `${trigger}: precondition, the picture is up`);
+      if (trigger === 'dispose') host.dispose();
+      else if (trigger === 'reduced-motion') page.setReducedMotion(true);
+      else if (trigger === 'narrow') page.setWidth(320);
+      else page.rendererCalls[0].canvas.dispatch('webglcontextlost', { preventDefault() {} });
+      assert.deepEqual(releases, [0], `${trigger}: onRelease did not fire once with the canvas detached`);
+    }
+  });
+
+  test(`${game}: finish before the picture exists hands back -- no hold, the context released, one 2D frame`, async () => {
+    const page = makePage();
+    const mod = makeModule();
+    const reg = makeRegistry(mod, { defer: true });
+    const { options, calls } = baseOptions(page, { registry: reg.registry, game });
+    const host = launch(page, options);
+    assert.equal(host.state, 'loading');
+    host.command('finish');
+    assert.equal(host.state, 'settled');
+    assert.equal(page.container.children.length, 0, 'a picture was held that never mounted');
+    for (const gl of page.gls) assert.equal(gl.released, page.loseExtension ? 1 : 0, 'the context of a handback settle was not released');
+    assert.equal(calls.render2D.length, 1);
+    reg.resolve();
+    await settle();
+    assert.equal(mod.mounts.length, 0, 'the module mounted after the reveal handed back');
+  });
+
+  test(`${game}: a resize while held releases to the 2D result -- no module call after settle`, async () => {
+    const page = makePage();
+    const mod = makeModule();
+    const reg = registryOf(mod);
+    const releases = [];
+    const { options, calls } = baseOptions(page, { registry: reg.registry, game, onRelease: () => releases.push(page.container.children.length) });
+    const host = launch(page, options);
+    await settle();
+    page.flush(16);
+    mod.emit({ type: 'complete' });
+    const commands = mod.commands.length;
+    page.container.clientWidth = 1024;
+    page.container.clientHeight = 768;
+    page.resizeObservers[0].cb();
+    assert.equal(host.state, 'settled', 'the resize moved the settled reveal');
+    assert.equal(page.container.children.length, 0, 'the held picture was not released by the resize');
+    assert.deepEqual(releases, [0], 'onRelease did not fire once with the canvas detached');
+    assert.equal(mod.commands.length, commands, 'a resize called the module after settle');
+    assert.equal(calls.render2D.length, 1, 'the release drew the 2D frame a second time');
+    assert.equal(page.gls[0].released, page.loseExtension ? 1 : 0, 'the released context was not freed');
+  });
+
+  test(`${game}: dispose inside render2D and again inside onRelease notifies disposed once`, async () => {
+    const page = makePage();
+    const mod = makeModule();
+    const reg = registryOf(mod);
+    const box = {};
+    const { options, calls } = baseOptions(page, { registry: reg.registry, game });
+    options.render2D = (o) => { calls.render2D.push(o); box.host.dispose(); };
+    options.onRelease = () => { box.host.dispose(); };
+    box.host = launch(page, options);
+    await settle();
+    page.flush(16);
+    mod.emit({ type: 'complete' });
+    assert.equal(box.host.state, 'disposed');
+    assert.equal(calls.states.filter((s) => s === 'disposed').length, 1, 'onState(disposed) fired more than once');
+    assert.equal(calls.render2D.length, 1, 'the 2D frame was drawn more than once');
+  });
 }

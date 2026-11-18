@@ -5,7 +5,9 @@
 // registered through context.own, and that a name reaches a canvas only as fillText's plain text.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { WebGLRenderList } from 'three/src/renderers/webgl/WebGLRenderLists.js';
 import { reveal } from './index.ts';
+import { planFor } from './plan.ts';
 
 function fakeCtx() {
   let font = '10px x';
@@ -78,6 +80,20 @@ function mountFor(input, viewport = { cssWidth: 1920, cssHeight: 1080, dpr: 1 })
   return { handle, events, owned, renders, doc, abort };
 }
 
+/** The hold host's seam (gh#319): complete settles but does NOT abort -- the picture stays up, the signal
+ *  lives, and a later resize still reaches the module. The handback seam above aborts on complete. */
+function mountHeldFor(input, viewport = { cssWidth: 1920, cssHeight: 1080, dpr: 1 }) {
+  const doc = fakeDoc();
+  const owned = new Set();
+  const renders = [];
+  const abort = new AbortController();
+  const renderer = { render(scene, camera) { renders.push({ scene, camera }); } };
+  const context = { root: { ownerDocument: doc }, renderer, signal: abort.signal, own: (r) => (owned.add(r), r) };
+  const events = [];
+  const handle = reveal.mount(context, { ...input, viewport, reducedMotion: false }, (e) => events.push(e));
+  return { handle, events, owned, renders, doc, abort };
+}
+
 function run(m, total) {
   for (let t = 0; t <= total + 100; t += 50) m.handle.advance({ type: 'tick', elapsedMs: t, deltaMs: 50 });
 }
@@ -114,7 +130,7 @@ function roundFor(n, keep) {
   const k = [7, 11, 13].find((m) => gcd(m, n) === 1);
   const survivors = ps.filter((_, i) => (i * k) % n < keep).map((p) => p.id);
   assert.equal(survivors.length, keep, 'fixture: the survivor set is not the size asked for');
-  return { key: 'e:round1:C', eventName: 'งาน', people: ps, outcome: { kind: 'round', game: 'zones', round: 1, code: 'C', survivors } };
+  return { key: 'e:round1:C', eventName: 'งาน', people: ps, outcome: { kind: 'round', game: 'zones', round: 1, code: 'C', survivors }, claim: false };
 }
 
 for (const [n, keep] of [
@@ -156,6 +172,58 @@ test('names reach the canvas as plain text only, never as markup, and the module
   assert.ok(m.doc.created.every((t) => t === 'canvas'));
 });
 
+/** The sequence three 0.170.0 actually draws `scene` in: its own render list and default comparators over a
+ *  walk that matches WebGLRenderer's projectObject. A Group's renderOrder is carried down to its descendants
+ *  as groupOrder, which painterSortStable and reversePainterSortStable both test before a mesh's own
+ *  renderOrder. Only the walk is local: projectObject lives inside a WebGLRenderer, which cannot exist
+ *  without a GL context. z is 0: both comparators settle groupOrder and renderOrder before z, and the
+ *  assertions only compare meshes whose renderOrder differs. */
+function drawSequence(scene) {
+  const list = new WebGLRenderList();
+  const walk = (object, groupOrder) => {
+    if (object.visible === false) return;
+    const order = object.isGroup ? object.renderOrder : groupOrder;
+    if (object.isMesh || object.isLine || object.isPoints) {
+      const material = object.material;
+      if (Array.isArray(material)) {
+        for (const one of material) if (one && one.visible) list.push(object, object.geometry, one, order, 0, null);
+      } else if (material.visible) {
+        list.push(object, object.geometry, material, order, 0, null);
+      }
+    }
+    for (const child of object.children) walk(child, order);
+  };
+  walk(scene, 0);
+  list.sort();
+  return [...list.opaque, ...list.transmissive, ...list.transparent];
+}
+
+test('three draws the scene in renderOrder: no opaque mesh sorts above a transparent one, so no layer hides a name', () => {
+  // three draws its opaque list before its transparent list and orders each by the keys in painterSortStable
+  // and reversePainterSortStable, where a Group's renderOrder is carried down as groupOrder and tested before
+  // a mesh's own renderOrder. An opaque mesh whose order sits above a transparent one, or any mesh moved
+  // under a Group whose order outranks the layer it belongs in, is therefore drawn under a layer it should
+  // sit above: the chips under the zone panels would overpaint every name, and mount tests, the WebGL lane
+  // and review all pass while the screen shows a panel on top of the field. Rebuild the sequence three draws
+  // and require it to be the renderOrder sequence.
+  const m = mountFor(roundFor(20, 5));
+  const drawn = drawSequence(m.renders[0].scene);
+  const describe = (item) => `${item.object.name || item.object.type}@group${item.groupOrder}/order${item.renderOrder}(${item.material.transparent ? 'transparent' : 'opaque'})`;
+  for (let i = 1; i < drawn.length; i++) {
+    assert.ok(drawn[i].renderOrder >= drawn[i - 1].renderOrder, `${describe(drawn[i])} is drawn after ${describe(drawn[i - 1])}, which its order puts above it`);
+  }
+  // The chips must sit above the ground and the zone panels in the draw sequence, not merely in their order numbers.
+  const at = (object) => drawn.findIndex((item) => item.object === object);
+  const chips = m.renders[0].scene.getObjectByName('chips');
+  const ground = m.renders[0].scene.getObjectByName('ground');
+  assert.ok(chips && ground, 'the scene is missing the chips or the ground mesh');
+  assert.ok(at(chips) > at(ground), `${describe(drawn[at(chips)])} is drawn before the ground`);
+  for (const item of drawn.filter((it) => it.object.name.startsWith('zone-'))) {
+    assert.ok(at(chips) > drawn.indexOf(item), `${describe(drawn[at(chips)])} is drawn before ${describe(item)}, so the panel overpaints every name`);
+  }
+  assert.ok(drawn.length >= 8, `only ${drawn.length} meshes drawn: ground, four panels, chips, top, heads, band, centre`);
+});
+
 test('finish completes once; nothing draws after the reveal ended; a resize repaints at the new scale', () => {
   const m = mountFor(roundFor(37, 20));
   m.handle.advance({ type: 'tick', elapsedMs: 0, deltaMs: 0 });
@@ -180,4 +248,104 @@ test('an outcome the plan refuses fails the mount, before anything is drawn', ()
   assert.throws(() => reveal.mount(context, { ...input, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false }, () => {}), /survivor/);
   assert.equal(renders.length, 0);
   assert.equal(doc.created.length, 0);
+});
+
+// ---- the held picture's lifecycle edges (gh#319 cross-lineage review) ----
+
+test('finish before the first tick draws the committed result at the plan end, not the opening frame', () => {
+  const input = roundFor(37, 20);
+  const m = mountHeldFor(input);
+  const chips = m.renders[0].scene.getObjectByName('chips');
+  const before = m.renders.length;
+  m.handle.advance({ type: 'finish' });
+  assert.ok(m.renders.length > before, 'finish held the opening picture without drawing the result frame');
+  assert.equal(chips.material.uniforms.uTime.value, planFor(input).total, 'the held result is not at the plan end');
+  assert.equal(m.events.filter((e) => e.type === 'complete').length, 1, 'finish did not complete exactly once');
+});
+
+test('finish before the fonts load redraws the held result once the faces arrive', async () => {
+  const input = roundFor(37, 20);
+  const doc = fakeDoc();
+  let resolveFonts;
+  const ready = new Promise((r) => { resolveFonts = r; });
+  doc.fonts = { check: () => false, load: () => ready };
+  const renders = [];
+  const abort = new AbortController();
+  const owned = new Set();
+  const renderer = { render: (scene, camera) => renders.push({ scene, camera }) };
+  const context = { root: { ownerDocument: doc }, renderer, signal: abort.signal, own: (r) => (owned.add(r), r) };
+  const events = [];
+  const handle = reveal.mount(context, { ...input, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false }, (e) => events.push(e));
+  handle.advance({ type: 'finish' });
+  const atFinish = renders.length;
+  const chips = renders[0].scene.getObjectByName('chips');
+  resolveFonts();
+  await new Promise((r) => setTimeout(r, 0));
+  assert.ok(renders.length > atFinish, 'the font rebuild submitted no frame: the held picture keeps fallback glyphs');
+  assert.equal(chips.material.uniforms.uTime.value, planFor(input).total, 'the redrawn held result left the plan end');
+});
+
+/** A mount whose board faces never check true and whose load resolves on demand, over the hold seam. */
+function mountFontsFor(input) {
+  const doc = fakeDoc();
+  let resolveFonts;
+  const ready = new Promise((r) => { resolveFonts = r; });
+  doc.fonts = { check: () => false, load: () => ready };
+  const renders = [];
+  const abort = new AbortController();
+  const owned = new Set();
+  const renderer = { render: (scene, camera) => renders.push({ scene, camera }) };
+  const context = { root: { ownerDocument: doc }, renderer, signal: abort.signal, own: (r) => (owned.add(r), r) };
+  const handle = reveal.mount(context, { ...input, viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 }, reducedMotion: false }, () => {});
+  return { handle, renders, abort, resolveFonts };
+}
+const flush = () => new Promise((r) => setTimeout(r, 0));
+
+test('a font redraw during a render hold submits no frame and draws once when the hold lifts', async () => {
+  globalThis.document ??= { documentElement: { setAttribute() {}, getAttribute() { return null; } } };
+  const hold = await import('../../_render-hold.ts');
+  // Held: the rebuild repaints but submits no frame; the lift draws exactly once.
+  const m = mountFontsFor(roundFor(37, 20));
+  m.handle.advance({ type: 'finish' });
+  const release = hold.acquireRenderHold();
+  try {
+    const atFinish = m.renders.length;
+    m.resolveFonts();
+    await flush();
+    assert.equal(m.renders.length, atFinish, 'a font redraw submitted a frame during the render hold');
+    release();
+    assert.equal(m.renders.length, atFinish + 1, 'the font redraw did not draw once when the hold lifted');
+  } finally {
+    release();
+  }
+  // Released before the lift: the redraw draws nothing.
+  const m2 = mountFontsFor(roundFor(37, 20));
+  m2.handle.advance({ type: 'finish' });
+  const release2 = hold.acquireRenderHold();
+  try {
+    const atFinish = m2.renders.length;
+    m2.resolveFonts();
+    await flush();
+    m2.abort.abort(); // the host released the picture while the hold was up
+    release2();
+    assert.equal(m2.renders.length, atFinish, 'a font redraw drew after the picture was released');
+  } finally {
+    release2();
+  }
+});
+
+test('the font redraw rebuilds the zone heading\'s text', async () => {
+  const m = mountFontsFor(roundFor(37, 20));
+  m.handle.advance({ type: 'finish' });
+  const head = m.renders[0].scene.getObjectByName('head-0');
+  const headCtx = head.material.uniforms.uMap.value.image.getContext();
+  let headPaints = 0;
+  const realFill = headCtx.fillText.bind(headCtx);
+  headCtx.fillText = (...a) => {
+    headPaints++;
+    return realFill(...a);
+  };
+  m.resolveFonts();
+  await flush();
+  assert.ok(headPaints > 0, 'the font redraw left the zone heading on fallback glyphs');
 });

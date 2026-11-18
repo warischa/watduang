@@ -31,6 +31,7 @@ import {
 } from 'three';
 import { ELIMINATION_ROUNDS } from '../../../prize-draw/schedule.ts';
 import type { GameCommand, GameContext, GameEvent, RevealHandle, RevealInput, RevealModule, Viewport } from '../../_prize-reveal/game-contract.ts';
+import { isRenderHeld, onRenderHold } from '../../_render-hold.ts';
 import {
   BODY_PANEL,
   CLAIM_W,
@@ -270,7 +271,9 @@ function mountEnvelopes(context: GameContext, input: RevealInput<'envelopes'>, e
   const hud = new Panel(own, quadGeo, scene, LAYER.chrome, 'hud');
   const band = new Panel(own, quadGeo, scene, LAYER.chrome, 'band');
   const figure = new Panel(own, quadGeo, scene, LAYER.chrome, 'figure');
-  const claim = new Panel(own, quadGeo, scene, LAYER.chrome, 'claim');
+  // The claim line is QR mode's (input.claim): admin mode and the demo have no phones, so its surface is
+  // never built and never painted there. The band and figure keep their own fade either way (gh#319).
+  const claim = input.claim ? new Panel(own, quadGeo, scene, LAYER.chrome, 'claim') : null;
   const dots: Dot[] = Array.from({ length: ELIMINATION_ROUNDS + 1 }, (_, i) => (i < ELIMINATION_ROUNDS ? 'done' : 'on'));
   let hudKey = '';
   let bandKey = '';
@@ -307,11 +310,13 @@ function mountEnvelopes(context: GameContext, input: RevealInput<'envelopes'>, e
     paintFigure(f, { kind: 'count', value: plan.prizeCount }, COPY.unit);
     figure.show(f);
     figure.frame(FRAME_W / 2 - FIGURE_W / 2, BAND_TOP + BAND.h / 2 - FIGURE_H / 2, FIGURE_W, FIGURE_H);
-    const ch = claimHeight(doc);
-    const c = surface(doc, CLAIM_W, ch, scale);
-    paintClaim(c);
-    claim.show(c);
-    claim.frame(HUD.side, FRAME_H - CLAIM_BOTTOM - ch, CLAIM_W, ch);
+    if (claim) {
+      const ch = claimHeight(doc);
+      const c = surface(doc, CLAIM_W, ch, scale);
+      paintClaim(c);
+      claim.show(c);
+      claim.frame(HUD.side, FRAME_H - CLAIM_BOTTOM - ch, CLAIM_W, ch);
+    }
     hudKey = '';
     bandKey = '';
   };
@@ -337,7 +342,7 @@ function mountEnvelopes(context: GameContext, input: RevealInput<'envelopes'>, e
       paintBandPanel(sides.status, sides.note);
     }
     const c = claimOpacity(plan, t);
-    claim.opacity = c;
+    if (claim) claim.opacity = c;
     band.opacity = 1 - c;
     figure.opacity = 1 - c;
   };
@@ -351,19 +356,57 @@ function mountEnvelopes(context: GameContext, input: RevealInput<'envelopes'>, e
   if (fonts && !FACES.every((f) => fonts.check(f))) {
     Promise.all(FACES.map((f) => fonts.load(f))).then(
       () => {
-        if (!signal.aborted) buildText();
+        if (signal.aborted) return;
+        buildText();
+        // Repaint EVERY keyed surface with the new faces -- the hud and band included, which buildText only
+        // resets the keys for (gh#319). Then redraw the held result, never during a render hold.
+        update(now);
+        if (completed) redrawHeld();
       },
       () => {},
     );
   }
 
   let last = -1;
+  // The picture's own clock, clamped to the plan: a held resize or a finish redraws the result at this time.
+  let now = 0;
   let completed = false;
   let disposed = false;
   const complete = (): void => {
     if (completed) return;
     completed = true;
     emit({ type: 'complete' });
+  };
+  // Draw the committed result frame. A hold game's picture must always BE the result state (gh#319): finish
+  // draws it before completing, and a resize while held redraws it at the new size, never the opening frame.
+  const drawResult = (): void => {
+    now = plan.total;
+    update(now);
+    renderer.render(scene, camera);
+  };
+
+  // The held result's font redraw never submits a frame during a render hold (gh#272): if held, it waits and
+  // draws once when the hold lifts, only while the scene is still attached and not aborted; if the host
+  // released the picture meanwhile, it draws nothing (gh#319).
+  let fontHoldOff: (() => void) | null = null;
+  const redrawHeld = (): void => {
+    if (signal.aborted || disposed) return;
+    if (!isRenderHeld()) {
+      renderer.render(scene, camera);
+      return;
+    }
+    if (fontHoldOff) return;
+    const onAbort = (): void => {
+      fontHoldOff?.();
+      fontHoldOff = null;
+    };
+    fontHoldOff = onRenderHold((held) => {
+      if (held) return;
+      onAbort();
+      signal.removeEventListener('abort', onAbort);
+      if (!signal.aborted && !disposed) renderer.render(scene, camera);
+    });
+    signal.addEventListener('abort', onAbort);
   };
 
   return {
@@ -378,7 +421,8 @@ function mountEnvelopes(context: GameContext, input: RevealInput<'envelopes'>, e
           if (signal.aborted) return;
         }
         last = t;
-        update(Math.min(t, plan.total));
+        now = Math.min(t, plan.total);
+        update(now);
         renderer.render(scene, camera);
       } else if (command.type === 'resize') {
         viewport = command.viewport;
@@ -389,12 +433,15 @@ function mountEnvelopes(context: GameContext, input: RevealInput<'envelopes'>, e
           buildText();
         }
       } else if (command.type === 'finish') {
+        drawResult();
         complete();
       }
     },
     dispose(): void {
       if (disposed) return;
       disposed = true;
+      fontHoldOff?.();
+      fontHoldOff = null;
       camera.clear();
       scene.clear();
     },

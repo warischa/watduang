@@ -1,6 +1,7 @@
 // The visual interface every prize-draw 3D game implements (gh#305), shared by the fireworks, cards and
 // ladder modules and driven only by game-host.ts. Frozen: a game module plugs into these types and never
-// changes them.
+// changes them. One additive amendment, authorized under gh#319 (2026-11-18): RevealInput gained `claim`,
+// the QR-mode fact the hold finals' claim line reads; every existing field is unchanged.
 //
 // A module receives committed facts only. It gets no store, no outcome RNG and no event transition, so it
 // cannot choose a winner or advance the event; its events steer presentation and validated announcements.
@@ -30,7 +31,9 @@ export type Viewport = { cssWidth: number; cssHeight: number; dpr: number };
 /**
  * One reveal's input. `key` identifies the committed step (event key, step and code) and seeds cosmetic
  * randomness. `people` are the step's participants by id, in roster order: the round's live field, or the
- * five finalists. `eventName` is the MC's typed event name for the projector chrome.
+ * five finalists. `eventName` is the MC's typed event name for the projector chrome. `claim` is the event's
+ * mode: true in QR mode, where winners claim on their phones and the claim line is drawn; false in admin
+ * mode and on the demo page, which have no phones. Only the hold finals' renderers read it (gh#319).
  */
 export type RevealInput<G extends GameId> = DeepReadonly<{
   key: string;
@@ -39,6 +42,7 @@ export type RevealInput<G extends GameId> = DeepReadonly<{
   people: Person[];
   viewport: Viewport;
   reducedMotion: boolean;
+  claim: boolean;
 }>;
 
 export type GameCommand =

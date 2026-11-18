@@ -1,0 +1,25 @@
+::notice::prize-envelopes    frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 1]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [744-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-envelopes-1440x900-first-game-screen.png
+::notice::prize-flipcards    frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 1]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [744-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-flipcards-1440x900-first-game-screen.png
+::notice::prize-ladder       frame div#app.pr-app cap    none  screen div.pr-viewport  [first-game-screen press 1]  display block  tracks 0 (none)  units 2 {div.pd-frame [0-1440] | div.pr-bar [744-1416]} in 1 x-range(s)  span 1 of 1440px frame  side-by-side no  docs/verification/evidence/203/prize-ladder-1440x900-first-game-screen.png
+NARROWED by ROUTES_ONLY=prize-envelopes,prize-flipcards,prize-ladder — 3 of 22 play route(s). A narrowed run is iteration only, never the deploy verdict.
+::error::/game/prize-envelopes/play/ at 320x568 no longer fits VERTICALLY: 109px to scroll and 0px clipped away on a play screen (press 1). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.
+::error::/game/prize-flipcards/play/ at 320x568 no longer fits VERTICALLY: 109px to scroll and 0px clipped away on a play screen (press 1). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.
+::error::/game/prize-ladder/play/ at 320x568 no longer fits VERTICALLY: 109px to scroll and 0px clipped away on a play screen (press 1). This row is pinned as fitting in FITS_ROWS from a recorded run, and the pin only ever moves toward MORE rows. Find what grew, then re-record with the reason — never to make a run pass.
+::notice::prize-envelopes    320x568   scrolls YES   109px  clipped     0px  sideways     0px  width-fill    90%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow   109px  scrolls YES   109px  clipped     0px  sideways     0px  width-fill    90%  ink 15  class round
+::notice::prize-envelopes    390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 15  class round
+::notice::prize-envelopes    1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 15  class round
+::notice::prize-flipcards    320x568   scrolls YES   109px  clipped     0px  sideways     0px  width-fill    90%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow   109px  scrolls YES   109px  clipped     0px  sideways     0px  width-fill    90%  ink 15  class round
+::notice::prize-flipcards    390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 15  class round
+::notice::prize-flipcards    1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 15  class round
+::notice::prize-ladder       320x568   scrolls YES   109px  clipped     0px  sideways     0px  width-fill    90%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow   109px  scrolls YES   109px  clipped     0px  sideways     0px  width-fill    90%  ink 15  class round
+::notice::prize-ladder       390x844   scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill  91.8%  ink 15  class round
+::notice::prize-ladder       1440x900  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  (worst of 1 screen(s): press 1, 15 ink) [pinned fits]
+::notice::  screen [press 1]  overflow     0px  scrolls no      0px  clipped     0px  sideways     0px  width-fill   100%  ink 15  class round

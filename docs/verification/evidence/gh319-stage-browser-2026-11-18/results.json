@@ -1,0 +1,1215 @@
+{
+ "attempt": 4,
+ "date": "2026-11-18",
+ "checks": [
+  {
+   "check": "a",
+   "desc": "held zones round, code card open then closed, then context loss",
+   "width": 1440,
+   "height": 900,
+   "innerWidthRead": 1440,
+   "held": true,
+   "heldMs": 9044,
+   "screen": "reveal",
+   "canvas": true,
+   "webgl2": true,
+   "renderer": [
+    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+   ],
+   "open": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [
+     "pd-veil",
+     "pd-codebox"
+    ],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "codebox": {
+    "sel": ".pd-over .pd-codebox",
+    "x": 720,
+    "y": 404,
+    "rect": {
+     "l": 158,
+     "t": 246,
+     "w": 1125,
+     "h": 317
+    },
+    "hit": true,
+    "top": "div.pd-digits",
+    "topIsCanvas": false
+   },
+   "close": {
+    "sel": ".pd-mc button",
+    "x": 1356,
+    "y": 28,
+    "rect": {
+     "l": 1296,
+     "t": 2,
+     "w": 120,
+     "h": 52
+    },
+    "hit": true,
+    "top": "button.pd-go",
+    "topIsCanvas": false
+   },
+   "neg": {
+    "off": {
+     "opacity": "1",
+     "pe": "auto"
+    },
+    "on": {
+     "opacity": "0",
+     "pe": "none"
+    }
+   },
+   "closed": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "mcAfter": {
+    "sel": ".pd-mc button",
+    "x": 1340,
+    "y": 28,
+    "rect": {
+     "l": 1264,
+     "t": 2,
+     "w": 152,
+     "h": 52
+    },
+    "hit": true,
+    "top": "button.pd-go",
+    "topIsCanvas": false
+   },
+   "lostState": {
+    "canvas": false,
+    "screen": "reveal",
+    "btn": "รอบต่อไป"
+   },
+   "lostPaint": {
+    "mark": false,
+    "opacity": "1",
+    "pe": "auto",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "pass": true
+  },
+  {
+   "check": "b",
+   "game": "envelopes",
+   "desc": "held final QR mode, code card open then closed; fcode lifted after the close",
+   "width": 1440,
+   "height": 900,
+   "innerWidthRead": 1440,
+   "held": true,
+   "heldMs": 37482,
+   "screen": "result",
+   "canvas": true,
+   "webgl2": true,
+   "renderer": [
+    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+   ],
+   "open": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [
+     "pd-veil",
+     "pd-codebox"
+    ],
+    "claimCount": 1,
+    "frameCodebox": false,
+    "frameClaim": true,
+    "frameFcode": true,
+    "overFcode": false
+   },
+   "codebox": {
+    "sel": ".pd-over .pd-codebox",
+    "x": 720,
+    "y": 477,
+    "rect": {
+     "l": 158,
+     "t": 246,
+     "w": 1125,
+     "h": 463
+    },
+    "hit": true,
+    "top": "div.pd-digits",
+    "topIsCanvas": false
+   },
+   "close": {
+    "sel": ".pd-mc button",
+    "x": 1356,
+    "y": 28,
+    "rect": {
+     "l": 1296,
+     "t": 2,
+     "w": 120,
+     "h": 52
+    },
+    "hit": true,
+    "top": "button.pd-go",
+    "topIsCanvas": false
+   },
+   "claimOpen": {
+    "x": 720,
+    "y": 823,
+    "top": "div",
+    "topIsCanvas": false,
+    "domClaimOver": false
+   },
+   "closed": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [
+     "pd-fcode"
+    ],
+    "claimCount": 1,
+    "frameCodebox": false,
+    "frameClaim": true,
+    "frameFcode": false,
+    "overFcode": true
+   },
+   "fcode": {
+    "text": "รหัสรอบชิง0503 225",
+    "opacity": "1",
+    "vis": "visible",
+    "rect": {
+     "l": 1075,
+     "t": 73,
+     "w": 365,
+     "h": 72
+    }
+   },
+   "fcodeHit": {
+    "sel": ".pd-over .pd-fcode",
+    "x": 1258,
+    "y": 109,
+    "rect": {
+     "l": 1075,
+     "t": 73,
+     "w": 365,
+     "h": 72
+    },
+    "hit": true,
+    "top": "span.pd-ed",
+    "topIsCanvas": false
+   },
+   "claim": {
+    "x": 720,
+    "y": 823,
+    "top": "div",
+    "topIsCanvas": false,
+    "domClaimOver": false
+   },
+   "mcAfter": {
+    "absent": true
+   },
+   "eControl": null,
+   "rmState": null,
+   "rmPaint": null,
+   "pass": true
+  },
+  {
+   "check": "b",
+   "game": "flipcards",
+   "desc": "held final QR mode, code card open then closed; fcode lifted after the close",
+   "width": 1440,
+   "height": 900,
+   "innerWidthRead": 1440,
+   "held": true,
+   "heldMs": 37560,
+   "screen": "result",
+   "canvas": true,
+   "webgl2": true,
+   "renderer": [
+    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+   ],
+   "open": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [
+     "pd-veil",
+     "pd-codebox"
+    ],
+    "claimCount": 1,
+    "frameCodebox": false,
+    "frameClaim": true,
+    "frameFcode": true,
+    "overFcode": false
+   },
+   "codebox": {
+    "sel": ".pd-over .pd-codebox",
+    "x": 720,
+    "y": 477,
+    "rect": {
+     "l": 158,
+     "t": 246,
+     "w": 1125,
+     "h": 463
+    },
+    "hit": true,
+    "top": "div.pd-digits",
+    "topIsCanvas": false
+   },
+   "close": {
+    "sel": ".pd-mc button",
+    "x": 1356,
+    "y": 28,
+    "rect": {
+     "l": 1296,
+     "t": 2,
+     "w": 120,
+     "h": 52
+    },
+    "hit": true,
+    "top": "button.pd-go",
+    "topIsCanvas": false
+   },
+   "claimOpen": {
+    "x": 720,
+    "y": 823,
+    "top": "div",
+    "topIsCanvas": false,
+    "domClaimOver": false
+   },
+   "closed": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [
+     "pd-fcode"
+    ],
+    "claimCount": 1,
+    "frameCodebox": false,
+    "frameClaim": true,
+    "frameFcode": false,
+    "overFcode": true
+   },
+   "fcode": {
+    "text": "รหัสรอบชิง0358 322",
+    "opacity": "1",
+    "vis": "visible",
+    "rect": {
+     "l": 1079,
+     "t": 73,
+     "w": 361,
+     "h": 72
+    }
+   },
+   "fcodeHit": {
+    "sel": ".pd-over .pd-fcode",
+    "x": 1260,
+    "y": 109,
+    "rect": {
+     "l": 1079,
+     "t": 73,
+     "w": 361,
+     "h": 72
+    },
+    "hit": true,
+    "top": "span.pd-ed",
+    "topIsCanvas": false
+   },
+   "claim": {
+    "x": 720,
+    "y": 823,
+    "top": "div",
+    "topIsCanvas": false,
+    "domClaimOver": false
+   },
+   "mcAfter": {
+    "absent": true
+   },
+   "eControl": {
+    "removed": true,
+    "claimCount": 0
+   },
+   "rmState": {
+    "canvas": false,
+    "screen": "result",
+    "btn": null
+   },
+   "rmPaint": {
+    "mark": false,
+    "opacity": "1",
+    "pe": "auto",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 1,
+    "frameCodebox": false,
+    "frameClaim": true,
+    "frameFcode": true,
+    "overFcode": false
+   },
+   "pass": true
+  },
+  {
+   "check": "c",
+   "game": "envelopes",
+   "width": 640,
+   "height": 900,
+   "innerWidthRead": 640,
+   "innerWidth": 640,
+   "real": true,
+   "namesY": "272px",
+   "row": {
+    "l": 0,
+    "t": 570,
+    "r": 640,
+    "b": 622,
+    "w": 640,
+    "h": 52
+   },
+   "band": {
+    "l": 18.666667938232422,
+    "t": 630,
+    "r": 621.3333549499512,
+    "b": 693.3333740234375,
+    "w": 602.6666870117188,
+    "h": 63.3333740234375
+   },
+   "lanes": [
+    {
+     "l": 40,
+     "t": 518,
+     "r": 146.65625,
+     "b": 562,
+     "w": 106.65625,
+     "h": 44
+    },
+    {
+     "l": 153.328125,
+     "t": 518,
+     "r": 259.984375,
+     "b": 562,
+     "w": 106.65625,
+     "h": 44
+    },
+    {
+     "l": 266.65625,
+     "t": 518,
+     "r": 373.3125,
+     "b": 562,
+     "w": 106.65625,
+     "h": 44
+    },
+    {
+     "l": 380,
+     "t": 518,
+     "r": 486.65625,
+     "b": 562,
+     "w": 106.65625,
+     "h": 44
+    },
+    {
+     "l": 493.328125,
+     "t": 518,
+     "r": 599.984375,
+     "b": 562,
+     "w": 106.65625,
+     "h": 44
+    }
+   ],
+   "rowOverlapsLane": [],
+   "rowBottomLeBandTop": true,
+   "rowRightWithinViewport": true,
+   "bandBottomWithinScroll": true,
+   "viewport": {
+    "clientW": 640,
+    "clientH": 844,
+    "scrollH": 844
+   },
+   "pass": true
+  },
+  {
+   "check": "c",
+   "game": "envelopes",
+   "width": 720,
+   "height": 900,
+   "innerWidthRead": 720,
+   "innerWidth": 720,
+   "real": true,
+   "namesY": "299.5px",
+   "row": {
+    "l": 0,
+    "t": 575,
+    "r": 720,
+    "b": 627,
+    "w": 720,
+    "h": 52
+   },
+   "band": {
+    "l": 21,
+    "t": 634.99609375,
+    "r": 699,
+    "b": 706.24609375,
+    "w": 678,
+    "h": 71.25
+   },
+   "lanes": [
+    {
+     "l": 45,
+     "t": 523,
+     "r": 165,
+     "b": 567,
+     "w": 120,
+     "h": 44
+    },
+    {
+     "l": 172.5,
+     "t": 523,
+     "r": 292.5,
+     "b": 567,
+     "w": 120,
+     "h": 44
+    },
+    {
+     "l": 300,
+     "t": 523,
+     "r": 420,
+     "b": 567,
+     "w": 120,
+     "h": 44
+    },
+    {
+     "l": 427.5,
+     "t": 523,
+     "r": 547.5,
+     "b": 567,
+     "w": 120,
+     "h": 44
+    },
+    {
+     "l": 555,
+     "t": 523,
+     "r": 675,
+     "b": 567,
+     "w": 120,
+     "h": 44
+    }
+   ],
+   "rowOverlapsLane": [],
+   "rowBottomLeBandTop": true,
+   "rowRightWithinViewport": true,
+   "bandBottomWithinScroll": true,
+   "viewport": {
+    "clientW": 720,
+    "clientH": 844,
+    "scrollH": 844
+   },
+   "pass": true
+  },
+  {
+   "check": "c",
+   "game": "envelopes",
+   "width": 845,
+   "height": 900,
+   "innerWidthRead": 845,
+   "innerWidth": 845,
+   "real": true,
+   "namesY": "342.46875px",
+   "row": {
+    "l": 0,
+    "t": 582.8125,
+    "r": 845,
+    "b": 634.8125,
+    "w": 845,
+    "h": 52
+   },
+   "band": {
+    "l": 24.645832061767578,
+    "t": 642.8121337890625,
+    "r": 820.3541450500488,
+    "b": 726.431884765625,
+    "w": 795.7083129882812,
+    "h": 83.6197509765625
+   },
+   "lanes": [
+    {
+     "l": 52.8125,
+     "t": 530.8125,
+     "r": 193.640625,
+     "b": 574.8125,
+     "w": 140.828125,
+     "h": 44
+    },
+    {
+     "l": 202.4375,
+     "t": 530.8125,
+     "r": 343.265625,
+     "b": 574.8125,
+     "w": 140.828125,
+     "h": 44
+    },
+    {
+     "l": 352.078125,
+     "t": 530.8125,
+     "r": 492.90625,
+     "b": 574.8125,
+     "w": 140.828125,
+     "h": 44
+    },
+    {
+     "l": 501.71875,
+     "t": 530.8125,
+     "r": 642.546875,
+     "b": 574.8125,
+     "w": 140.828125,
+     "h": 44
+    },
+    {
+     "l": 651.34375,
+     "t": 530.8125,
+     "r": 792.171875,
+     "b": 574.8125,
+     "w": 140.828125,
+     "h": 44
+    }
+   ],
+   "rowOverlapsLane": [],
+   "rowBottomLeBandTop": true,
+   "rowRightWithinViewport": true,
+   "bandBottomWithinScroll": true,
+   "viewport": {
+    "clientW": 845,
+    "clientH": 844,
+    "scrollH": 844
+   },
+   "pass": true
+  },
+  {
+   "check": "c",
+   "game": "flipcards",
+   "width": 640,
+   "height": 900,
+   "innerWidthRead": 640,
+   "innerWidth": 640,
+   "real": true,
+   "namesY": "292px",
+   "row": {
+    "l": 0,
+    "t": 590,
+    "r": 640,
+    "b": 642,
+    "w": 640,
+    "h": 52
+   },
+   "band": {
+    "l": 18.666667938232422,
+    "t": 650,
+    "r": 621.3333549499512,
+    "b": 713.3333740234375,
+    "w": 602.6666870117188,
+    "h": 63.3333740234375
+   },
+   "lanes": [
+    {
+     "l": 40,
+     "t": 538,
+     "r": 146.65625,
+     "b": 582,
+     "w": 106.65625,
+     "h": 44
+    },
+    {
+     "l": 153.328125,
+     "t": 538,
+     "r": 259.984375,
+     "b": 582,
+     "w": 106.65625,
+     "h": 44
+    },
+    {
+     "l": 266.65625,
+     "t": 538,
+     "r": 373.3125,
+     "b": 582,
+     "w": 106.65625,
+     "h": 44
+    },
+    {
+     "l": 380,
+     "t": 538,
+     "r": 486.65625,
+     "b": 582,
+     "w": 106.65625,
+     "h": 44
+    },
+    {
+     "l": 493.328125,
+     "t": 538,
+     "r": 599.984375,
+     "b": 582,
+     "w": 106.65625,
+     "h": 44
+    }
+   ],
+   "rowOverlapsLane": [],
+   "rowBottomLeBandTop": true,
+   "rowRightWithinViewport": true,
+   "bandBottomWithinScroll": true,
+   "viewport": {
+    "clientW": 640,
+    "clientH": 844,
+    "scrollH": 844
+   },
+   "pass": true
+  },
+  {
+   "check": "c",
+   "game": "flipcards",
+   "width": 720,
+   "height": 900,
+   "innerWidthRead": 720,
+   "innerWidth": 720,
+   "real": true,
+   "namesY": "322px",
+   "row": {
+    "l": 0,
+    "t": 597.5,
+    "r": 720,
+    "b": 649.5,
+    "w": 720,
+    "h": 52
+   },
+   "band": {
+    "l": 21,
+    "t": 657.49609375,
+    "r": 699,
+    "b": 728.74609375,
+    "w": 678,
+    "h": 71.25
+   },
+   "lanes": [
+    {
+     "l": 45,
+     "t": 545.5,
+     "r": 165,
+     "b": 589.5,
+     "w": 120,
+     "h": 44
+    },
+    {
+     "l": 172.5,
+     "t": 545.5,
+     "r": 292.5,
+     "b": 589.5,
+     "w": 120,
+     "h": 44
+    },
+    {
+     "l": 300,
+     "t": 545.5,
+     "r": 420,
+     "b": 589.5,
+     "w": 120,
+     "h": 44
+    },
+    {
+     "l": 427.5,
+     "t": 545.5,
+     "r": 547.5,
+     "b": 589.5,
+     "w": 120,
+     "h": 44
+    },
+    {
+     "l": 555,
+     "t": 545.5,
+     "r": 675,
+     "b": 589.5,
+     "w": 120,
+     "h": 44
+    }
+   ],
+   "rowOverlapsLane": [],
+   "rowBottomLeBandTop": true,
+   "rowRightWithinViewport": true,
+   "bandBottomWithinScroll": true,
+   "viewport": {
+    "clientW": 720,
+    "clientH": 844,
+    "scrollH": 844
+   },
+   "pass": true
+  },
+  {
+   "check": "c",
+   "game": "flipcards",
+   "width": 845,
+   "height": 900,
+   "innerWidthRead": 845,
+   "innerWidth": 845,
+   "real": true,
+   "namesY": "368.875px",
+   "row": {
+    "l": 0,
+    "t": 609.21875,
+    "r": 845,
+    "b": 661.21875,
+    "w": 845,
+    "h": 52
+   },
+   "band": {
+    "l": 24.645832061767578,
+    "t": 669.2183837890625,
+    "r": 820.3541450500488,
+    "b": 752.838134765625,
+    "w": 795.7083129882812,
+    "h": 83.6197509765625
+   },
+   "lanes": [
+    {
+     "l": 52.8125,
+     "t": 557.21875,
+     "r": 193.640625,
+     "b": 601.21875,
+     "w": 140.828125,
+     "h": 44
+    },
+    {
+     "l": 202.4375,
+     "t": 557.21875,
+     "r": 343.265625,
+     "b": 601.21875,
+     "w": 140.828125,
+     "h": 44
+    },
+    {
+     "l": 352.078125,
+     "t": 557.21875,
+     "r": 492.90625,
+     "b": 601.21875,
+     "w": 140.828125,
+     "h": 44
+    },
+    {
+     "l": 501.71875,
+     "t": 557.21875,
+     "r": 642.546875,
+     "b": 601.21875,
+     "w": 140.828125,
+     "h": 44
+    },
+    {
+     "l": 651.34375,
+     "t": 557.21875,
+     "r": 792.171875,
+     "b": 601.21875,
+     "w": 140.828125,
+     "h": 44
+    }
+   ],
+   "rowOverlapsLane": [],
+   "rowBottomLeBandTop": true,
+   "rowRightWithinViewport": true,
+   "bandBottomWithinScroll": true,
+   "viewport": {
+    "clientW": 845,
+    "clientH": 844,
+    "scrollH": 844
+   },
+   "pass": true
+  },
+  {
+   "check": "d",
+   "game": "zones",
+   "desc": "demo page held (no claim line), then narrowed to release",
+   "width": 1440,
+   "height": 900,
+   "innerWidthRead": 1440,
+   "held": true,
+   "heldMs": 9035,
+   "screen": "reveal",
+   "canvas": true,
+   "barText": "ดูอีกครั้ง",
+   "webgl2": true,
+   "renderer": [
+    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+   ],
+   "paint": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "bar": {
+    "sel": ".pr-go",
+    "x": 1344,
+    "y": 28,
+    "rect": {
+     "l": 1271,
+     "t": 2,
+     "w": 145,
+     "h": 52
+    },
+    "hit": true,
+    "top": "button.pr-go",
+    "topIsCanvas": false
+   },
+   "narrowState": {
+    "canvas": false,
+    "screen": "reveal",
+    "btn": "ดูอีกครั้ง"
+   },
+   "narrowPaint": {
+    "mark": false,
+    "opacity": "1",
+    "pe": "auto",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "pass": true
+  },
+  {
+   "check": "d",
+   "game": "envelopes",
+   "desc": "demo page held (no claim line), then narrowed to release",
+   "width": 1440,
+   "height": 900,
+   "innerWidthRead": 1440,
+   "held": true,
+   "heldMs": 37557,
+   "screen": "result",
+   "canvas": true,
+   "barText": "ดูอีกครั้ง",
+   "webgl2": true,
+   "renderer": [
+    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+   ],
+   "paint": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "bar": {
+    "sel": ".pr-go",
+    "x": 1344,
+    "y": 28,
+    "rect": {
+     "l": 1271,
+     "t": 2,
+     "w": 145,
+     "h": 52
+    },
+    "hit": true,
+    "top": "button.pr-go",
+    "topIsCanvas": false
+   },
+   "narrowState": {
+    "canvas": false,
+    "screen": "result",
+    "btn": "ดูอีกครั้ง"
+   },
+   "narrowPaint": {
+    "mark": false,
+    "opacity": "1",
+    "pe": "auto",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "pass": true
+  },
+  {
+   "check": "d",
+   "game": "flipcards",
+   "desc": "demo page held (no claim line), then narrowed to release",
+   "width": 1440,
+   "height": 900,
+   "innerWidthRead": 1440,
+   "held": true,
+   "heldMs": 37538,
+   "screen": "result",
+   "canvas": true,
+   "barText": "ดูอีกครั้ง",
+   "webgl2": true,
+   "renderer": [
+    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+   ],
+   "paint": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "bar": {
+    "sel": ".pr-go",
+    "x": 1344,
+    "y": 28,
+    "rect": {
+     "l": 1271,
+     "t": 2,
+     "w": 145,
+     "h": 52
+    },
+    "hit": true,
+    "top": "button.pr-go",
+    "topIsCanvas": false
+   },
+   "narrowState": {
+    "canvas": false,
+    "screen": "result",
+    "btn": "ดูอีกครั้ง"
+   },
+   "narrowPaint": {
+    "mark": false,
+    "opacity": "1",
+    "pe": "auto",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "pass": true
+  },
+  {
+   "check": "f",
+   "game": "envelopes",
+   "desc": "held ADMIN-mode final: no claim line anywhere on screen",
+   "width": 1440,
+   "height": 900,
+   "innerWidthRead": 1440,
+   "held": true,
+   "heldMs": 37458,
+   "screen": "result",
+   "canvas": true,
+   "webgl2": true,
+   "renderer": [
+    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+   ],
+   "paint": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "claim": {
+    "absent": true
+   },
+   "mc": {
+    "absent": true
+   },
+   "pass": true
+  },
+  {
+   "check": "f",
+   "game": "flipcards",
+   "desc": "held ADMIN-mode final: no claim line anywhere on screen",
+   "width": 1440,
+   "height": 900,
+   "innerWidthRead": 1440,
+   "held": true,
+   "heldMs": 37531,
+   "screen": "result",
+   "canvas": true,
+   "webgl2": true,
+   "renderer": [
+    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+   ],
+   "paint": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "claim": {
+    "absent": true
+   },
+   "mc": {
+    "absent": true
+   },
+   "pass": true
+  },
+  {
+   "check": "g",
+   "desc": "held zones round resized to 1024x768: released to the 2D reveal, no stretched canvas",
+   "width": 1024,
+   "height": 768,
+   "innerWidthRead": 1440,
+   "innerWidthAfter": 1024,
+   "held": true,
+   "heldMs": 9016,
+   "pre": {
+    "mark": true,
+    "opacity": "0",
+    "pe": "none",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "preState": {
+    "canvas": true,
+    "screen": "reveal",
+    "btn": "รอบต่อไป"
+   },
+   "postState": {
+    "canvas": false,
+    "screen": "reveal",
+    "btn": "รอบต่อไป"
+   },
+   "post": {
+    "mark": false,
+    "opacity": "1",
+    "pe": "auto",
+    "vis": "visible",
+    "overOrder": [],
+    "claimCount": 0,
+    "frameCodebox": false,
+    "frameClaim": false,
+    "frameFcode": false,
+    "overFcode": false
+   },
+   "chips": 52,
+   "pass": true
+  },
+  {
+   "check": "h",
+   "desc": "a11y tree while held: winner names exposed in the frame, canvas aria-hidden",
+   "width": 1440,
+   "height": 900,
+   "innerWidthRead": 1440,
+   "held": true,
+   "heldMs": 37528,
+   "dom": {
+    "scOpacity": "0",
+    "scAria": null,
+    "frAria": null,
+    "canvasAria": "true",
+    "names": [
+     "P34",
+     "P39"
+    ]
+   },
+   "canvasBackend": 141,
+   "heldRead": {
+    "total": 67,
+    "matches": [
+     {
+      "name": "P34",
+      "role": "StaticText",
+      "inFrame": false
+     },
+     {
+      "name": "P39",
+      "role": "StaticText",
+      "inFrame": false
+     },
+     {
+      "name": "P34",
+      "role": "InlineTextBox",
+      "inFrame": null
+     },
+     {
+      "name": "P39",
+      "role": "InlineTextBox",
+      "inFrame": null
+     },
+     {
+      "name": "P34",
+      "role": "StaticText",
+      "inFrame": true
+     },
+     {
+      "name": "P39",
+      "role": "StaticText",
+      "inFrame": true
+     },
+     {
+      "name": "P34",
+      "role": "InlineTextBox",
+      "inFrame": null
+     },
+     {
+      "name": "P39",
+      "role": "InlineTextBox",
+      "inFrame": null
+     }
+    ],
+    "canvasNodes": []
+   },
+   "mustRed": {
+    "hiddenMatches": 4,
+    "hiddenInFrame": 0,
+    "restoredInFrame": 2
+   },
+   "pass": true
+  }
+ ],
+ "n": 1,
+ "browser": "Chrome/157.0.8103.79"
+}

@@ -147,8 +147,10 @@ async function withFloors(floors, fn) {
 }
 
 test('PD-305-05: under 640px the final result is a phone layout (Gh305AuditFrames frame 2): unscaled, one column, i5-phone B sizes', () => {
-  const phone = media(PLAY_CSS, '(max-width: 639px)');
-  const R = (sel) => rule(phone, `.pd-viewport[data-result]${sel ? ` ${sel}` : ''}`);
+  // The result's phone layout is shared with the demo page (gh#319): it lives in reveal.css, keyed on either
+  // viewport (.pd-viewport projector, .pr-viewport demo), not in the projector's play.css.
+  const phone = media(REVEAL_CSS, '(max-width: 639px)');
+  const R = (sel) => rule(phone, `:is(.pd-viewport, .pr-viewport)[data-result]${sel ? ` ${sel}` : ''}`);
   assert.match(R(''), /overflow-y:\s*auto/, 'the page scrolls past the fold');
   assert.match(R('.pd-scaled'), /transform:\s*none/);
   assert.match(R('.pd-frame'), /position:\s*static/);

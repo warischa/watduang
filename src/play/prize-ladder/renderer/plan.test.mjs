@@ -23,6 +23,7 @@ function inputFor(perm, slotRanks, nPrizes, picks = ['p2', 'p0', 'p4', 'p1', 'p3
     people: PEOPLE,
     viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 },
     reducedMotion: false,
+    claim: false,
     outcome: {
       kind: 'final',
       game: 'ladder',

@@ -1,5 +1,5 @@
-// The own page of each prize-draw 3D game (gh#305, gh#306, gh#307): a fixed, clearly labelled DEMO of the
-// game, run in memory. Nothing is stored, no event is read or replaced, and a refresh replays the same demo.
+// The own page of each prize-draw 3D game (gh#305, gh#306, gh#307, gh#319): a fixed, clearly labelled DEMO
+// of the game, run in memory. Nothing is stored, no event is read or replaced, and a refresh replays the same demo.
 //
 // The outcome is a real one. The fixtures walk the event domain itself (src/prize-event/event.ts: createEvent,
 // prepareCards, drawNext) over 200 synthetic names with a fixed seed, so every outcome the host receives is
@@ -9,8 +9,14 @@
 //
 // The reveal runs through the one shared host (game-host.ts startReveal), so fallback, the render hold and
 // disposal are the projector's own. The host draws the committed 2D view on its first exit (reveal.ts), the
-// same frame the projector falls back to. While a reveal plays the bar holds only the demo label, so nothing
+// same frame the projector falls back to. A hold game (game-registry.ts settleFor) settles with its picture
+// still up over that frame: the demo retains its handle and disposes it on the replay, a prize-count change
+// and leaving, as the stage does. While a reveal plays the bar holds only the demo label, so nothing
 // restarts it mid-play; its exit brings the controls back.
+//
+// Before the press each phase-2 game idles on its own picture (gh#319): the zones and marbles rounds draw
+// their idle frames (zones-idle.ts, marbles-idle.ts), a pick final draws its objects with the demo's five
+// picks placed (final-picks.ts). Phase-1 games keep the shared standby.
 //
 // Every reveal of a control goes through show(), which arms the region it shows (ADR-0017). The controls are
 // rebuilt on each change and re-armed with them. No anchor element anywhere here (ADR-0014, ADR-0055): the
@@ -30,18 +36,23 @@ import {
   type Person,
   type Rng,
 } from '../../prize-event/event.ts';
-import { isPickFinal, type CutGame, type FinalGame, type GameChoices } from '../../prize-event/game-contract.ts';
+import { isPickFinal, type CutGame, type FinalGame, type GameChoices, type PickFinal } from '../../prize-event/game-contract.ts';
 import { ELIMINATION_ROUNDS, proposeSchedule } from '../../prize-draw/schedule.ts';
-import { screenView } from '../../prize-event/view.ts';
+import { renderObjects } from '../prize-draw/final-picks.ts';
+import { idleZones, renderZonesIdle } from '../prize-draw/zones-idle.ts';
+import { idleMarbles, renderMarblesIdle } from '../prize-draw/marbles-idle.ts';
+import { screenView, type ScreenView } from '../../prize-event/view.ts';
 import type { CommittedOutcome, GameId } from './game-contract.ts';
 import { startReveal, type HostOptions, type RevealHost } from './game-host.ts';
-import { fitAll } from './names-dom.ts';
-import { announce, fitFrame, renderScreen } from './reveal.ts';
+import { settleFor } from './game-registry.ts';
+import { fitAll, writeName } from './names-dom.ts';
+import { announce, fitFrame, prizeLine, renderScreen } from './reveal.ts';
 
 export type DemoMode = 'round' | 'final';
 
-/** The screens that draw a name field (the projector route's own set, src/play/prize-draw/stage.ts). */
-const FIELD_SCREENS = new Set(['round', 'reveal', 'final']);
+/** The screens that draw a name field (the projector route's own set, stage.ts markField). The zones idle
+ *  joins them: its field is .pd-zfield, which the phone rules stack one panel per row (demo.css). */
+const FIELD_SCREENS = new Set(['round', 'reveal', 'final', 'zones']);
 
 /** Which steps each game plays (game-registry.ts eligibility), in the order its page offers them. */
 export const DEMO_MODES: Record<GameId, readonly DemoMode[]> = {
@@ -61,12 +72,16 @@ export const DEMO_HEADS = 200;
 export const DEMO_SEED = 2570;
 export const DEMO_PRIZES = 3;
 
+/** The boards' sample prize names, verbatim and in order (PRIZES in
+ *  docs/verification/evidence/gh302-boards-2026-11-11/make-boards.mjs): the fixture's prizes, so the result
+ *  names a prize instead of repeating its label (gh#319 PD-317-05 a, owner accepted for the phase-1 demos too). */
+export const DEMO_PRIZE_NAMES = ['ทีวี 55 นิ้ว', 'จักรยานไฟฟ้า', 'หม้อทอดไร้น้ำมัน', 'ลำโพงไร้สาย', 'หูฟังไร้สาย'];
+
 /** No board draws this page, so every label here but the reveal button is owner-approved copy (2026-11-13). The
  *  reveal button reuses the projector MC button's label (src/play/prize-draw/stage.ts), the same action. */
 export const COPY = {
   badge: 'ตัวอย่าง ไม่ใช่งานจริง',
   eventName: 'งานเลี้ยงปีใหม่ (ตัวอย่าง)',
-  prize: (n: number): string => `รางวัลที่ ${n}`,
   mode: {
     round: 'รอบคัดออก',
     final: 'รอบชิง',
@@ -122,7 +137,7 @@ export function demoRun(game: GameId, mode: DemoMode, prizeCount = DEMO_PRIZES):
     mode === 'round'
       ? { rounds: [game as Exclude<CutGame, null>, null, null, null], final: null }
       : { rounds: [null, null, null, null], final: game as Exclude<FinalGame, null> };
-  const prizes = Array.from({ length: clampPrizes(prizeCount) }, (_, i) => COPY.prize(i + 1));
+  const prizes = DEMO_PRIZE_NAMES.slice(0, clampPrizes(prizeCount));
   let s = createEvent(
     { eventName: COPY.eventName, names: demoNames(), schedule: proposeSchedule(DEMO_HEADS), prizes, games },
     rng,
@@ -197,7 +212,12 @@ export function mountDemo(deps: DemoDeps): DemoHandle {
   const frame = doc.createElement('div');
   frame.className = 'pd-frame';
   scaled.appendChild(frame);
-  stagebox.appendChild(scaled);
+  // The held-picture overlay (gh#319): inside the frame box, at the frame's own geometry and transform, so a
+  // node lifted into it keeps its place but paints above the 3D layer (the scaled frame's transform is a
+  // stacking context that would trap it under the canvas). Empty unless a hold game's picture is up.
+  const over = doc.createElement('div');
+  over.className = 'pd-over';
+  stagebox.append(scaled, over);
   // The host fills this layer over the frame while a step presents, and empties it on exit.
   const layer3d = doc.createElement('div');
   layer3d.className = 'pr-3d';
@@ -238,16 +258,107 @@ export function mountDemo(deps: DemoDeps): DemoHandle {
     return g;
   };
 
-  const paint2D = (state: EventState): void => {
+  /** The state's people in roster order: the round's live field, or the five finalists (the stage's own helper). */
+  const people = (s: EventState): Person[] => {
+    const byId = new Map(s.setup.people.map((p) => [p.id, p]));
+    return liveIds(s).map((id) => byId.get(id)!);
+  };
+
+  /** A zones round before its draw (PD-315-01 a): the zones the room stands in, from the event key, the round
+   *  and the live field alone (zones-idle.ts), the picture the projector idles on. */
+  const paintZonesIdle = (s: EventState, view: ScreenView & { kind: 'round' }): void => {
+    const zones = idleZones(s.eventKey, view.round, people(s)).map((zone) => zone.map((p) => p.name));
+    renderZonesIdle(frame, { eventName: view.eventName, round: view.round, rounds: view.rounds, dots: view.dots, zones }, doc);
+  };
+
+  /** A marbles round before its draw (PD-316-02 a): the round's first heat at the gate (marbles-idle.ts). The
+   *  band counts the whole field, not the heat. */
+  const paintMarblesIdle = (s: EventState, view: ScreenView & { kind: 'round' }): void => {
+    const field = people(s);
+    const names = idleMarbles(s.eventKey, view.round, field).map((p) => p.name);
+    renderMarblesIdle(frame, { eventName: view.eventName, round: view.round, rounds: view.rounds, dots: view.dots, names, count: field.length }, doc);
+  };
+
+  /** A pick final before its draw (PD-317-04 a, PD-318-03 a): the board's idle with the demo's five picks
+   *  placed in roster order -- the demo places nothing by hand, so every plate is filled and none is next.
+   *  The band counts the prizes the stepper selects, never the five finalists. */
+  const paintObjectsIdle = (s: EventState, view: ScreenView & { kind: 'final' }, pick: PickFinal): void => {
+    const names = people(s).map((p) => p.name);
+    renderObjects(
+      frame,
+      {
+        game: pick,
+        eventName: view.eventName,
+        dots: view.dots,
+        prizeCount: prizes,
+        names,
+        plates: names.map((_, i) => i),
+        next: null,
+        objectLabel: (n) => String(n),
+      },
+      doc,
+    );
+  };
+
+  /** A hold game's picture is actually up: settled, and the host's layer still in the 3D box. The host
+   *  releases a held picture on dispose, reduced motion, narrowing, a lost context or a throw and stays
+   *  settled, telling this page through onRelease; the state alone cannot say whether the canvas is still
+   *  there, so the mark reads the layer too (gh#319). */
+  const heldUp = (): boolean => active !== null && active.state === 'settled' && layer3d.children.length > 0;
+
+  /** Mark the viewport and lift the overlay-bound nodes (veil, code card) out of the scaled frame while a
+   *  held picture is up (gh#319): the mark turns the frame's paint off (reveal.css), because the 2D frame
+   *  behind the canvas shows through its transparent regions. The overlay carries the frame's own transform
+   *  above the canvas, so the lifted nodes keep their place and stay readable. The claim line stays in the
+   *  frame: the hold finals' renderers paint their own claim into the picture, so a DOM copy over it would
+   *  double the line (the stage's own rule). Cleared first on every pass: a stale lifted node never doubles,
+   *  and a release paints the frame back in the same pass. */
+  const syncHeld = (): void => {
+    over.replaceChildren();
+    if (!heldUp()) {
+      viewport.removeAttribute('data-held');
+      return;
+    }
+    viewport.setAttribute('data-held', '');
+    for (const sel of ['.pd-veil', '.pd-codebox']) {
+      const node = frame.querySelector<HTMLElement>(sel);
+      if (node) over.appendChild(node);
+    }
+    // The persistent final code lifts too once its card is closed (the stage's own rule, gh#319). The demo
+    // event is never QR mode, so there is no code to lift here; the branch keeps the two screens' lift one rule.
+    if (!over.querySelector('.pd-codebox')) {
+      const kept = frame.querySelector<HTMLElement>('.pd-fcode');
+      if (kept) over.appendChild(kept);
+    }
+  };
+
+  /** The state the frame last drew: a release with no screen change repaints it, lifting nothing. */
+  let paintedState: EventState | null = null;
+
+  /** Draw the screen. `announceIt` is false only for the repaint a held picture's release triggers: the
+   *  result was already announced when it settled, so that one repaint must not re-announce it (gh#319).
+   *  Every other repaint announces, as always. */
+  const paint2D = (state: EventState, announceIt = true): void => {
+    paintedState = state;
     const view = screenView(state);
-    renderScreen(frame, view, doc);
-    announce(live, view, doc);
-    // A screen with a name field takes the phone field layout under 640px (demo.css); the result keeps the scaled frame.
+    // Each phase-2 game idles on its own picture; phase-1 games keep the shared standby (gh#319).
+    if (view.kind === 'round' && view.game === 'zones') paintZonesIdle(state, view);
+    else if (view.kind === 'round' && view.game === 'marbles') paintMarblesIdle(state, view);
+    else if (view.kind === 'final' && isPickFinal(game)) paintObjectsIdle(state, view, game);
+    else renderScreen(frame, view, doc);
+    if (announceIt) announce(live, view, doc);
+    // A screen with a name field takes the phone field layout under 640px; the result takes the phone result
+    // layout (demo.css and the shared reveal.css rules), exactly as the projector's markField marks them.
     const screen = frame.getAttribute('data-screen');
     if (screen !== null && FIELD_SCREENS.has(screen)) viewport.setAttribute('data-field', '');
     else viewport.removeAttribute('data-field');
+    if (screen === 'result') viewport.setAttribute('data-result', '');
+    else viewport.removeAttribute('data-result');
     deps.whenBoldLoaded?.(() => fitAll(frame));
     fitFrame(scaled, stagebox);
+    // The overlay carries the frame's own scale and offset, so a lifted node keeps its place (gh#319).
+    fitFrame(over, stagebox);
+    syncHeld();
   };
 
   /** Where the bar stands, decided by measuring, never by a screen width: in the play band's right end
@@ -265,6 +376,7 @@ export function mountDemo(deps: DemoDeps): DemoHandle {
       if (oneRowLeft < exitRight || box.bottom > bandBottom) viewport.setAttribute('data-bar', 'below');
     }
     fitFrame(scaled, stagebox);
+    fitFrame(over, stagebox);
   };
 
   const paintControls = (): void => {
@@ -294,6 +406,8 @@ export function mountDemo(deps: DemoDeps): DemoHandle {
     const host = active;
     active = null;
     host?.dispose();
+    // The picture (if one was held) is gone: the frame paints again from here, no repaint needed for it.
+    syncHeld();
   };
 
   /** Back to the start of a demo: a mode or a prize count picked, or the replay. */
@@ -308,27 +422,69 @@ export function mountDemo(deps: DemoDeps): DemoHandle {
   };
 
   /** Play one committed step. The bar keeps only the label while it plays; the host's first exit draws the
-   *  step's 2D view and brings the controls back, armed. */
+   *  step's 2D view and brings the controls back, armed. A hold game settles with its picture still up over
+   *  that view: its handle is retained so the replay, a prize-count change and leaving dispose it (stopReveal),
+   *  and its prize beats write one live line each (gh#319, the stage's own pattern). */
   const present = (step: DemoStep): void => {
     stopReveal();
     const mine = ++seq;
     next = run.steps.indexOf(step) + 1;
     bar.replaceChildren(badge());
     let exited = false;
-    const host = begin({
+    // Assigned before begin so a synchronous exit's render2D reads null, never an uninitialized handle.
+    let host: RevealHost | null = null;
+    host = begin({
       container: layer3d,
       game,
-      input: { key: step.key, eventName: step.after.setup.eventName, outcome: step.outcome, people: step.people },
+      // The demo has no phones: its picture never paints the claim line (gh#319).
+      input: { key: step.key, eventName: step.after.setup.eventName, outcome: step.outcome, people: step.people, claim: false },
       render2D: () => {
         if (mine !== seq || exited) return;
         exited = true;
-        active = null;
+        // A hold game's settled picture stays up over the 2D frame: retain its handle so every later screen
+        // change disposes it. Any other exit (a handback settle, a fallback) hands the screen back with none.
+        active = host && host.state === 'settled' && settleFor(game) === 'hold' ? host : null;
         paint2D(step.after);
         paintControls();
+      },
+      onEvent: (event) => {
+        // One live line per opened envelope / turned card (PD-317-10 a, PD-318-10 a): the result's prize-line
+        // words, then the finalist through the name sink. The beat's index is the drawn rank.
+        if (mine !== seq || event.type !== 'beat' || event.beat !== 'prize') return;
+        const outcome = step.outcome;
+        if (outcome.kind !== 'final') return;
+        const rank = event.index;
+        const person = step.people.find((p) => p.id === outcome.order[rank]);
+        if (!person) return;
+        const prize = rank < outcome.prizes.length ? outcome.prizes[rank]! : null;
+        const nameRun = doc.createElement('span');
+        writeName(nameRun, person.name);
+        live.replaceChildren(doc.createTextNode(`${prizeLine(rank + 1, prize)} · `), nameRun);
+      },
+      onRelease: () => {
+        // The host released the held picture and detached the canvas. A dispose this page asked for has
+        // already moved seq on and cleared the mark (stopReveal), so only a release of the CURRENT picture,
+        // with the mark still up, repaints the frame here -- one pass, no timer wait, and no re-announce: the
+        // result was announced when it settled, so this repaint skips the live region (gh#319).
+        if (mine !== seq) return;
+        if (viewport.hasAttribute('data-held') && !heldUp() && paintedState) paint2D(paintedState, false);
       },
     });
     if (mine === seq && !exited) active = host;
   };
+
+  // Leaving the page (the exit control, a refresh, a back-forward cache freeze) disposes the reveal so its
+  // WebGL context never outlives the page. A persisted restore restarts the demo cleanly from its idle screen
+  // with the bar and its controls -- the state a fresh load gives -- whatever phase it was hidden in: a reveal
+  // still LOADING when the page froze had its result callback suppressed by the dispose, so repainting the old
+  // board would leave the bar empty for good (gh#319). The host's release triggers call onRelease themselves.
+  const win = doc.defaultView;
+  if (win) {
+    win.addEventListener('pagehide', () => stopReveal());
+    win.addEventListener('pageshow', (ev) => {
+      if ((ev as PageTransitionEvent).persisted) restart(mode, prizes);
+    });
+  }
 
   paint2D(run.start);
   paintControls();

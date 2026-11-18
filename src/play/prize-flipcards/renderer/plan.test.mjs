@@ -66,6 +66,7 @@ function inputOf(drawn) {
     people: liveIds(drawn).map((id) => byId.get(id)),
     viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 },
     reducedMotion: false,
+    claim: true,
   };
 }
 
@@ -121,6 +122,7 @@ function fixed(n = 3, picks = ['p2', 'p0', 'p4', 'p1', 'p3'], order = ['p3', 'p1
     people: IDS.map((id, i) => ({ id, name: `ชื่อ ${i}` })),
     viewport: { cssWidth: 1920, cssHeight: 1080, dpr: 1 },
     reducedMotion: false,
+    claim: true,
   };
 }
 

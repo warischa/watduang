@@ -63,6 +63,19 @@ export const PLATE_Y: Record<PickFinal, number> = { envelopes: 660, flipcards: 7
 /** Where the free finalists' name controls sit, in frame px: under the plates, above the low band. The idle
  *  frames draw every finalist placed, so no board places this row; it keeps clear of the objects it names. */
 export const NAMES_Y: Record<PickFinal, number> = { envelopes: 760, flipcards: 800 };
+/** The touch-spacing minimum the row keeps clear of the plate controls (the boards' row geometry, PD-317-03 a). */
+export const ROW_GAP = 8;
+/** The smallest frame scale at which the frame-px row (NAMES_Y) itself clears the 44px plate control by ROW_GAP:
+ *  (44 + ROW_GAP) / (NAMES_Y - PLATE_Y) -- 0.52 envelopes, 0.65 flipcards (design/Gh317Envelopes.dc.html and
+ *  design/Gh318Cards.dc.html, VALUES row "row geometry"). Below it the row leaves the scaled frame for real pixels. */
+export const ROW_THRESHOLD: Record<PickFinal, number> = {
+  envelopes: (44 + ROW_GAP) / (NAMES_Y.envelopes - PLATE_Y.envelopes),
+  flipcards: (44 + ROW_GAP) / (NAMES_Y.flipcards - PLATE_Y.flipcards),
+};
+/** The free-name row's top below the threshold, in REAL px (the boards' env-row-640/720/845 and card-row frames):
+ *  the plate control's bottom (PLATE_Y x s + max(44, 64 x s)) plus the touch gap. Above the threshold the row keeps
+ *  NAMES_Y in frame px; this is the below-threshold placement only (PD-317-03 a, PD-317-11 b, PD-318-04 b). */
+export const freeRowTop = (game: PickFinal, s: number): number => PLATE_Y[game] * s + Math.max(44, 64 * s) + ROW_GAP;
 /** A plate's name fit (the boards' NAME FIT row: 40px, floor 24px). */
 const PLATE_FIT = { size: 40, floor: 24 } as const;
 const SVG_NS = 'http://www.w3.org/2000/svg';

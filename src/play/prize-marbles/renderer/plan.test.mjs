@@ -260,6 +260,32 @@ test('the lower band: heat counter and the rolling count through the race, the r
   }
 });
 
+test('the heat counter counts only the heats that run: a heat with no survivor never loads', () => {
+  // 200 heads, ten heats; survivors sit only in the first two, so eight heats never run. The counter must
+  // promise the round's running heats, never the field's whole chunking.
+  const ps = people(200);
+  const survivors = ps.slice(0, 40).filter((_, i) => i % 2 === 0).map((x) => x.id);
+  const p = plan.planFor(roundInput(ps, survivors));
+  const running = p.heats.filter((h) => h.runs).length;
+  assert.equal(running, 2, 'the fixture is meant to skip trailing heats');
+  assert.ok(running < p.heats.length, `the fixture runs every heat (${running} of ${p.heats.length})`);
+  const counter = (t) => {
+    const [heat, heats] = plan.bandAt(p, t).left.match(/\d+/g).map(Number);
+    return { heat, heats };
+  };
+  for (let t = 0; t <= p.total; t += 25) {
+    if (t >= p.resultAt) {
+      assert.equal(plan.bandAt(p, t).left, plan.COPY.passedRound(p.round), `the race is over at ${t}ms but the counter still shows`);
+      continue;
+    }
+    const { heat, heats } = counter(t);
+    assert.equal(heats, running, `the counter promises ${heats} heats at ${t}ms, ${running} run`);
+    assert.equal(heat, plan.heatAt(p, t) + 1, `the counter names the wrong heat at ${t}ms`);
+  }
+  const freeze = counter(p.freezeAt);
+  assert.deepEqual(freeze, { heat: running, heats: running }, 'the last running heat does not read k of k');
+});
+
 test('beatsIn is half open: each beat is reported once across consecutive ticks', () => {
   const ps = people(45);
   const p = plan.planFor(roundInput(ps, ps.filter((_, i) => i % 3 === 0).map((x) => x.id)));
