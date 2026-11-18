@@ -144,6 +144,183 @@ export function aggregate(verdicts) {
   return 'PASS';
 }
 
+// ---- the colour leg (gh#319, REFUTE round 1) -------------------------------------------------------
+// PD-316-01: the marble race materials drew before a transparent full-frame background, so 0 marble
+// pixels painted while the plates, band and figure kept the canvas NON-blank -- the blank classifier
+// above passed it, the mount tests passed it, review passed it. A reveal whose moving materials paint
+// nothing is the failure this leg reds: for every adapter the lane reads back, the game's own bright
+// colour must actually paint mid-reveal.
+//
+// REFUTE r1 (mechanism): counting colour alone is not counting the REVEAL. 400 stationary pink chrome
+// pixels at reveal age 0 with zero marbles would pass a static count; real builds red only because the
+// scene happens to hold fewer static in-band pixels than the bound. So the count is DIFFERENTIAL: two
+// readbacks of the same surface taken mid-reveal >= DIFF_GAP_MS apart, both after the reveal started
+// moving, counting only in-band lit pixels whose colour CHANGED between them. Stationary chrome/HUD is
+// byte-identical across the two reads and contributes nothing; only the reveal's moving geometry counts.
+// A row opts out (motion:false) ONLY when its bright family genuinely never moves -- then the plain lit
+// count is judged, and the row says why.
+//
+// ONE SOURCE (REFUTE r1): litHueBin (the lit/saturation filter and hue binning) and changedHistogram (the
+// differential) are exported pure functions, stringified into COLOUR_DIFF so the page runs the SAME text
+// the unit tests pin on raw RGBA -- no second copy to drift. classifyColour owns the band, the bound and
+// the verdict, pinned by scripts/webgl-pixels-probe.test.mjs without a browser, exactly as classify is.
+//
+// CEILING (REFUTE r2, stated, not fixed): the differential counts framebuffer change from ANY source, so
+// what it proves is "the game's bright family moves somewhere in the frame mid-reveal", NEVER "the race
+// layer drew". Three counter-examples were RAN and each PASSED this leg: a blinking in-band HUD element
+// with zero race geometry; a static pattern across a canvas resize; a one-level RGB shift across the
+// quantisation boundary. Layer attribution -- telling a race draw from chrome or a resize -- is the
+// follow-up.
+//
+// The histogram is HUE_BINS bins of BIN_DEG degrees. A bin is in the row's band when the circular distance
+// from its centre to the row's hue is <= band/2. Rows are seeded bin-aligned (hue a multiple of BIN_DEG,
+// band a multiple of twice it) so the band edges fall on bin edges and membership is exact.
+
+export const HUE_BINS = 36;
+const BIN_DEG = 360 / HUE_BINS;
+/** The two colour reads must be at least this far apart for motion to be told from a stationary frame. */
+export const DIFF_GAP_MS = 200;
+/** A read-pair qualifies as MOVING when at least this many pixels changed between its two reads --
+ *  substantial motion, not a static idle or a weak lull. A fireworks round holds a static gold lantern
+ *  field between bursts; a weak fade changes ~200 px while a real burst changes ~11000. Every healthy
+ *  route's measured changedTotal minimum is far above this, so it only skips idle/lull pairs; it is a
+ *  SAMPLING floor, not the verdict bound (minPixels). The strongest in-band pair over the window is kept. */
+export const MOTION_FLOOR = 1000;
+
+/** The lit/chromatic hue bin of one raw RGBA pixel, or -1 when it carries no usable hue: value < 0.65
+ *  (dark, max channel < 166) or saturation < 0.20 (near-grey/white -- the filter that keeps RGB(200,199,200)
+ *  out of a pink band). THE single source the page readback runs and the tests pin on raw RGBA. */
+export function litHueBin(r, g, b) {
+  const mx = r > g ? (r > b ? r : b) : (g > b ? g : b);
+  if (mx < 166) return -1; // value < 0.65: not lit
+  const mn = r < g ? (r < b ? r : b) : (g < b ? g : b);
+  const c = mx - mn;
+  if (c * 5 < mx) return -1; // saturation < 0.20: near-grey, no usable hue
+  let hu;
+  if (mx === r) hu = 60 * (((g - b) / c) % 6);
+  else if (mx === g) hu = 60 * ((b - r) / c + 2);
+  else hu = 60 * ((r - g) / c + 4);
+  if (hu < 0) hu += 360;
+  return Math.min(HUE_BINS - 1, Math.floor(hu / BIN_DEG));
+}
+
+/** Is a hue bin within band/2 degrees of hue (circular)? Bin centre = i*BIN_DEG + BIN_DEG/2. */
+export function inBand(bin, hue, band) {
+  if (!Number.isInteger(bin) || bin < 0 || bin >= HUE_BINS) return false;
+  const centre = bin * BIN_DEG + BIN_DEG / 2;
+  let d = Math.abs(centre - hue) % 360;
+  if (d > 180) d = 360 - d;
+  return d <= band / 2;
+}
+
+/** Sum the counts of the bins in the row's band. Exported: the page's differential sampler scores pairs
+ *  with the SAME band membership the classifier judges by -- one source, stringified into COLOUR_DIFF. */
+export function inBandCount(hueHist, hue, band) {
+  let n = 0;
+  for (let i = 0; i < HUE_BINS; i += 1) if (inBand(i, hue, band)) n += hueHist[i];
+  return n;
+}
+
+/** The differential colour sample (REFUTE r1): two RGBA buffers of the same surface, mid-reveal >=
+ *  DIFF_GAP_MS apart. A position counts toward changedHist only if its quantised colour CHANGED between
+ *  the two reads -- stationary chrome is identical and contributes nothing, so only moving geometry is
+ *  counted. A changed position contributes to its lit bin in A AND to its lit bin in B, each once (one
+ *  contribution when the two bins agree): attributing it to A alone, REFUTE r2, read a lit-GOLD -> lit-PINK
+ *  change as gold motion only, so six such pairs into the pink band counted zero. histA/histB are the plain
+ *  lit histograms, for a row whose bright family genuinely never moves. Calls litHueBin. */
+export function changedHistogram(bufA, bufB) {
+  const changedHist = new Array(HUE_BINS).fill(0);
+  const histA = new Array(HUE_BINS).fill(0);
+  const histB = new Array(HUE_BINS).fill(0);
+  let changedTotal = 0, litA = 0, litB = 0;
+  const n = Math.min(bufA.length, bufB.length);
+  for (let i = 0; i < n; i += 4) {
+    const binA = litHueBin(bufA[i], bufA[i + 1], bufA[i + 2]);
+    const binB = litHueBin(bufB[i], bufB[i + 1], bufB[i + 2]);
+    if (binA >= 0) { histA[binA] += 1; litA += 1; }
+    if (binB >= 0) { histB[binB] += 1; litB += 1; }
+    const keyA = (bufA[i] >> 4) * 4096 + (bufA[i + 1] >> 4) * 256 + (bufA[i + 2] >> 4) * 16 + (bufA[i + 3] >> 4);
+    const keyB = (bufB[i] >> 4) * 4096 + (bufB[i + 1] >> 4) * 256 + (bufB[i + 2] >> 4) * 16 + (bufB[i + 3] >> 4);
+    if (keyA !== keyB) {
+      changedTotal += 1;
+      if (binA >= 0) changedHist[binA] += 1;
+      if (binB >= 0 && binB !== binA) changedHist[binB] += 1;
+    }
+  }
+  return { changedHist, histA, histB, changedTotal, litA, litB };
+}
+
+const validHist = (h) => Array.isArray(h) && h.length === HUE_BINS && h.every((n) => Number.isInteger(n) && n >= 0);
+
+/** (route, its colour row, the differential colour sample) -> a verdict.
+ *  row { hue, band, minPixels, motion }: motion defaults true; motion:false opts out ONLY for a bright
+ *  family that genuinely never moves (the plain lit count is judged then). sample { changedHist, histA,
+ *  histB, gapMs, ageA, ageB } from COLOUR_DIFF. A missing row FAILS by name; a live adapter with NO sample
+ *  FAILS by name ("no colour sample"), and so does one whose sampler reported an error object, carrying
+ *  that object's message ("no colour sample: <cause>"); an out-of-domain row or a malformed sample is
+ *  UNMEASURED -- a void reading, never a bound judged on nonsense. A motion row whose two reads were < DIFF_GAP_MS apart is
+ *  UNMEASURED: motion cannot be told from a stationary frame. `count` is the in-band pixels judged. */
+export function classifyColour({ route, row, sample }) {
+  if (!row) return { verdict: 'FAIL', reason: `${route} has no colour row in COLOUR_ROWS -- its bright family was never measured and admitted, so a reveal that paints nothing could pass (gh#319)` };
+  const { hue, band, minPixels } = row;
+  if (!Number.isFinite(hue) || hue < 0 || hue >= 360 || !Number.isFinite(band) || band <= 0 || band > 360 || !Number.isInteger(minPixels) || minPixels < 1) {
+    return { verdict: 'UNMEASURED', reason: `${route}: its colour row is out of domain (hue ${hue}, band ${band}, minPixels ${minPixels}) -- nothing can be judged against it` };
+  }
+  if (!sample || typeof sample !== 'object') {
+    return { verdict: 'FAIL', reason: `${route}: no colour sample -- the readback returned no differential histogram, so its bright family was never measured (gh#319)` };
+  }
+  // A sampler that answers with its own error object is reporting a CAUSE (colour motion ended before the
+  // cap, a 0x0 drawing buffer). That is the missing-sample FAIL carrying the sampler's message, never a
+  // void: reading the error object as a malformed histogram UNMEASURED the row and dropped the cause.
+  if (sample.error != null) {
+    return { verdict: 'FAIL', reason: `${route}: no colour sample: ${sample.error} -- the sampler reported why it could not measure, so its bright family was never counted (gh#319)` };
+  }
+  const { changedHist, histA, histB, gapMs } = sample;
+  if (!validHist(changedHist) || !validHist(histA) || !validHist(histB)) {
+    return { verdict: 'UNMEASURED', reason: `${route}: the colour sample is malformed (want ${HUE_BINS} finite non-negative counts in each of changedHist, histA, histB) -- nothing usable was measured` };
+  }
+  const motion = row.motion !== false;
+  if (motion && !(Number.isFinite(gapMs) && gapMs >= DIFF_GAP_MS)) {
+    return { verdict: 'UNMEASURED', reason: `${route}: the two colour reads were ${gapMs}ms apart, need >= ${DIFF_GAP_MS}ms -- motion cannot be told from a stationary frame` };
+  }
+  const count = motion ? inBandCount(changedHist, hue, band) : Math.max(inBandCount(histA, hue, band), inBandCount(histB, hue, band));
+  const bandDesc = `${hue} deg +/- ${band / 2} deg`;
+  const what = motion ? 'moving lit pixel(s)' : 'lit pixel(s)';
+  if (count >= minPixels) return { verdict: 'PASS', count, reason: `${route}: ${count} ${what} in its hue band (${bandDesc}), >= ${minPixels} -- the bright family painted mid-reveal` };
+  return { verdict: 'FAIL', count, reason: `${route}: only ${count} ${what} in its hue band (${bandDesc}), needs ${minPixels} -- the reveal's moving bright family painted nothing (PD-316-01 shape)` };
+}
+
+/** route -> { hue, band, minPixels, motion? }: the bright/lit family each adapter must paint mid-reveal,
+ *  counted DIFFERENTIALLY (only pixels that moved between two reads >= DIFF_GAP_MS apart). SEEDED BY
+ *  MEASUREMENT on the software lane (scripts/webgl-pixels-lane.sh), n >= 3 healthy runs, minPixels about a
+ *  third of the MIN differential count over those runs -- the admit-from-measurement path the extension
+ *  lists in src/play/_render-suspension.json took: added empty, every adapter FAILED by name on the first
+ *  run naming its sample, admitted from that record, never a guess. An adapter with no row FAILS by name.
+ *  motion:false opts out ONLY for a family that genuinely never moves (the row comments say which and why).
+ *  The seeding runs' per-route numbers are in docs/verification/evidence/gh319-webgl-colour-2026-11-18/README.md. */
+export const COLOUR_ROWS = {
+  // Re-seeded (REFUTE r1) from 3 healthy software-lane runs under the DIFFERENTIAL count: each run keeps
+  // the strongest in-band moving pair over a window, minPixels about a third of the MIN of those peaks.
+  // Every row is a motion row (no opt-out): each bright family genuinely moves, and COLOUR_DIFF skips the
+  // static idle/lull pairs until it does -- ladder/envelopes/flipcards hold a 1500ms idle, fireworks has
+  // lulls between bursts. hue/band bin-aligned. Ages, gaps, retries and per-run peaks: the evidence README.
+  'croc-bite': { hue: 150, band: 60, minPixels: 2700 },        // green crocodile body, peak min 8300
+  'one-bomb': { hue: 40, band: 60, minPixels: 430 },          // orange-gold bomb segments, peak min 1307
+  'pinocchio-luck': { hue: 40, band: 60, minPixels: 1200 },   // orange-gold face, peak min 3655
+  'prize-cards': { hue: 40, band: 60, minPixels: 4500 },      // gold deal, peak min 13570
+  'prize-draw': { hue: 40, band: 60, minPixels: 1000 },       // gold fireworks burst, peak min 3268
+  'prize-envelopes': { hue: 40, band: 60, minPixels: 1400 },  // gold lifting envelopes, peak min 4491
+  'prize-fireworks': { hue: 40, band: 60, minPixels: 1500 },  // gold burst, peak min 4792
+  'prize-flipcards': { hue: 40, band: 60, minPixels: 1000 },  // gold flipping cards, peak min 3123
+  'prize-ladder': { hue: 40, band: 60, minPixels: 2300 },     // gold travelling light, peak min 7154
+  // The RACE family, not the gold chrome: under the differential the static gold chrome contributes 0
+  // (it never moves), the pink marbles ~2215. The opaque-race mutant paints 0 moving pink. peak min 2215.
+  'prize-marbles': { hue: 330, band: 60, minPixels: 700 },
+  // The GOLD sweep is what moves (the shader paints the scan in COLOR.gold); the cool zone fills are
+  // static, so the round-0 cool band was wrong for a motion count. peak min 30655.
+  'prize-zones': { hue: 40, band: 60, minPixels: 10000 },
+};
+
 // ---- the render hold (gh#272) -------------------------------------------------------------------
 
 const norm = (name) => String(name).toLowerCase();
@@ -456,6 +633,87 @@ const READBACK = (stubDraw) => `
   out.nonBlank = out.best.distinctColours >= 8 && out.best.coverage > 0.02;
   return out;`;
 
+// ---- the differential colour sample (gh#319 REFUTE round 1) ---------------------------------------
+// Read-pairs of the same surface, each pair's two reads >= DIFF_GAP_MS apart and mid-reveal. Motion is
+// OBSERVED, not assumed from a clock: a fixed age lands in a static phase for several routes (ladder /
+// envelopes / flipcards hold a 1500ms idle before the first light; fireworks has lulls between bursts).
+// And a single pair is not enough -- a weak fade can change >1000 px total while only a few hundred are
+// the bright family, reading a healthy reveal as painting little. So the sampler collects windowPairs
+// pairs with substantial motion (changedTotal >= motionFloor), skips static idle/lull pairs, and keeps
+// the one whose IN-BAND changed count is highest: the bright family at its strongest moving moment.
+// Stationary chrome/HUD (identical across a pair) contributes nothing to any pair. A driven reveal ages
+// from its press stamp (window.__revealPressAt, set by clickWhenArmed); a screen route has no press and is
+// already in live post-handover play (ages null). Each read is inside an animation frame (the drawing
+// buffer is cleared once presented, as READBACK documents). litHueBin / changedHistogram / inBand /
+// inBandCount are stringified from the exported pure functions: the page runs the same text the tests pin.
+export const COLOUR_DIFF = ({ hue = null, band = 60, motionFloor = MOTION_FLOOR, windowPairs = 6, gapMs = DIFF_GAP_MS, capMs = 20000, retryMs = 250, waitForMotion = true } = {}) => `/* colour-diff */
+  const HUE_BINS = ${HUE_BINS}; const BIN_DEG = ${BIN_DEG};
+  const litHueBin = ${litHueBin.toString()};
+  const changedHistogram = ${changedHistogram.toString()};
+  const inBand = ${inBand.toString()};
+  const inBandCount = ${inBandCount.toString()};
+  const resolveGLContext = ${resolveGLContext.toString()};
+  const HUE = ${hue == null ? 'null' : hue}; const BAND = ${band};
+  const deadline = performance.now() + ${capMs};
+  const canvases = [...document.querySelectorAll('canvas')];
+  let c = null, gl = null;
+  while (performance.now() < deadline && !gl) {
+    for (const el of canvases.length ? canvases : [...document.querySelectorAll('canvas')]) {
+      const ctx = resolveGLContext(el); if (ctx) { c = el; gl = ctx; break; }
+    }
+    if (!gl) await new Promise((r) => setTimeout(r, 100));
+  }
+  if (!gl) return { error: 'no live WebGL context for the colour sample' };
+  const pressAt = window.__revealPressAt;
+  const readFrame = () => new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      const prev = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
+      let buf = null;
+      if (w > 0 && h > 0) { buf = new Uint8Array(w * h * 4); gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, buf); }
+      gl.bindFramebuffer(gl.FRAMEBUFFER, prev);
+      resolve({ buf, w, h, t: performance.now() });
+    });
+  });
+  const spacedPair = async () => {
+    const A = await readFrame();
+    let B = await readFrame();
+    while (B.t - A.t < ${gapMs} && B.t <= deadline) B = await readFrame();
+    return { A, B };
+  };
+  // Collect up to windowPairs pairs with SUBSTANTIAL motion (changedTotal >= motionFloor) and keep the one
+  // whose IN-BAND changed count is highest -- the bright family at its strongest moving moment, not a lull
+  // or a weak fade (a fireworks round can change >1000 px total while only ~700 are gold; a single pair
+  // would read that as painting little). A static idle/intro (changedTotal < motionFloor) is skipped, so
+  // both reads of every scored pair are mid-motion. With no row (HUE null) score by changedTotal. Capped,
+  // never a hang. waitForMotion false (a BLANK canvas: stub-control leg or real blank readback) takes the
+  // first pair only -- nothing moves there, so the classifier FAILs it without a cap-long wait per route.
+  let best = null, bestScore = -1, movingPairs = 0, motionRetries = 0;
+  for (;;) {
+    const pair = await spacedPair();
+    const d = (pair.A.buf && pair.B.buf) ? changedHistogram(pair.A.buf, pair.B.buf) : null;
+    if (!d) return { error: 'a colour read got a 0x0 drawing buffer', w: pair.A.w, h: pair.A.h };
+    if (!${waitForMotion ? 'true' : 'false'}) { best = { pair, d }; break; }
+    if (d.changedTotal >= ${motionFloor}) {
+      movingPairs += 1;
+      const score = HUE == null ? d.changedTotal : inBandCount(d.changedHist, HUE, BAND);
+      if (score > bestScore) { bestScore = score; best = { pair, d }; }
+      if (movingPairs >= ${windowPairs}) break;
+    } else {
+      motionRetries += 1;
+      await new Promise((r) => setTimeout(r, ${retryMs}));
+    }
+    if (performance.now() > deadline) break;
+  }
+  if (!best) return { error: 'no moving colour sample within the cap', motionRetries };
+  const pair = best.pair, d = best.d;
+  return {
+    ...d, w: pair.A.w, h: pair.A.h, tA: Math.round(pair.A.t), tB: Math.round(pair.B.t),
+    gapMs: Math.round(pair.B.t - pair.A.t), motionRetries, movingPairs,
+    ageA: pressAt != null ? Math.round(pair.A.t - pressAt) : null, ageB: pressAt != null ? Math.round(pair.B.t - pressAt) : null,
+  }`;
+
 // ---- a real hold, acquired by the probe (gh#305 REFUTE round 2) ----------------------------------
 
 /** The most any one wait of the exercise may take: for the live layer and the first draws, and for the
@@ -569,7 +827,7 @@ export const clickWhenArmed = (selector, capMs = 8000) => `
   const deadline = performance.now() + ${capMs};
   for (;;) {
     const b = document.querySelector(${JSON.stringify(selector)});
-    if (b && !b.disabled) { b.click(); return null; }
+    if (b && !b.disabled) { window.__revealPressAt = performance.now(); b.click(); return null; }
     if (performance.now() > deadline) return ${JSON.stringify(`no armed ${selector} within ${capMs}ms`)};
     await new Promise((r) => setTimeout(r, 100));
   }`;
@@ -655,7 +913,7 @@ export async function measureRoute(params) {
     route, url, declaration, evaluate, tap, armDelayMs, stubDraw = false,
     settle = awaitPlayerScreenSettled, spanCapMs = SPAN_CAP_MS, wait = (ms) => new Promise((r) => setTimeout(r, ms)), now = Date.now,
     screenless = false, driver = null, reload = async () => {}, contextCapMs = CONTEXT_CAP_MS, exerciseCapMs = EXERCISE_CAP_MS,
-    fresh = null, attempt = 1,
+    fresh = null, attempt = 1, colourRows = COLOUR_ROWS,
   } = params;
   // gh#264 -- the shared player screen's open can hold this route's own screen invisible while it
   // waits on a roster migration; reading or pressing in that gap measures a page still booting. Waits
@@ -733,11 +991,35 @@ export async function measureRoute(params) {
   const measured = read.error
     ? { contextLive: null, nonBlank: null, readError: read.error }
     : read.value ?? { contextLive: false, nonBlank: null, error: 'no value returned' };
-  // 5. The FINAL snapshot, taken after the readback: a draw while held, a policy violation or a hold
-  // that came back during the measurement is judged on it, and outranks what the pixels said.
+  // The colour sample (gh#319 REFUTE r1): a live adapter's bright family must paint mid-reveal, counted
+  // DIFFERENTIALLY so stationary chrome cannot mask a reveal that paints nothing. Taken BEFORE the final
+  // snapshot so a draw or policy violation during it is judged too. A route declared none, or a readback
+  // with no live context, is never colour-sampled (the blank/void verdict already covers it).
+  const isAdapter = declaration?.suspends === 'adapter';
+  let colourSample = null;
+  if (isAdapter && measured.contextLive === true) {
+    // A blank canvas (stub-control leg, or a real blank readback) never moves: skip the motion wait so the
+    // stub leg does not burn the cap per route. A non-blank reveal samples the strongest moving pair in
+    // its row's band (no row yet -> score by total motion, so a seeding run still records a sample).
+    const row = colourRows[route] ?? null;
+    const diff = await evaluate(COLOUR_DIFF({ hue: row ? row.hue : null, band: row ? row.band : 60, waitForMotion: measured.nonBlank !== false }));
+    colourSample = diff.error ? null : (diff.value ?? null);
+  }
+  // 5. The FINAL snapshot, taken after the readback and the colour sample: a draw while held, a policy
+  // violation or a hold that came back during the measurement is judged on it, and outranks the pixels.
   const final = await record();
   const finalJudged = judgeHold({ route, declaration, rec: final, screenless, driven });
-  return { route, url, hold: holdSummary(final), ...measured, ...(finalJudged ?? classify(measured)) };
+  const base = finalJudged ?? classify(measured);
+  // A live adapter is ALWAYS colour-judged: a row with no sample FAILS by name ("no colour sample"), and
+  // an adapter with neither a row nor a sample FAILS too. A hold/policy failure outranks the pixels.
+  let colour = null;
+  if (!finalJudged && isAdapter && measured.contextLive === true) {
+    colour = classifyColour({ route, row: colourRows[route] ?? null, sample: colourSample });
+  }
+  const verdict = colour ? aggregate([base.verdict, colour.verdict]) : base.verdict;
+  const reason = base.verdict === verdict ? base.reason : colour.reason;
+  const colourRow = colour ? { colour: { verdict: colour.verdict, count: colour.count ?? null, row: colourRows[route] ?? null, reason: colour.reason, sample: colourSample } } : {};
+  return { route, url, hold: holdSummary(final), ...measured, ...colourRow, verdict, reason };
 }
 
 // ---- the run ------------------------------------------------------------------------------------
@@ -829,9 +1111,12 @@ async function main() {
   for (const r of rows) {
     const ext = r.hold ? Object.keys(r.hold.extensionRequests ?? {}).length : 0;
     const held = r.hold ? ` [held: ${r.hold.heldDraws} draw call(s); WebGL contexts: ${r.hold.webglContexts}; extensions requested: ${ext}; hold ${r.hold.transitions.join('>')}]` : '';
-    console.log(`webgl-pixels: ${r.route} ${r.verdict} -- ${r.reason}${held}${r.retriedAfter ? ` (retried once on a new reveal after: ${r.retriedAfter})` : ''}`);
+    const cs = r.colour?.sample;
+    const colour = r.colour ? ` [colour: ${r.colour.count} ${r.colour.row?.motion === false ? 'static' : 'moving'} px in band ${r.colour.row ? `${r.colour.row.hue} deg +/- ${r.colour.row.band / 2} deg` : '(no row)'}, needs ${r.colour.row?.minPixels ?? '?'}${cs ? `, gap ${cs.gapMs}ms age ${cs.ageA}/${cs.ageB}ms` : ''}]` : '';
+    console.log(`webgl-pixels: ${r.route} ${r.verdict} -- ${r.reason}${held}${colour}${r.retriedAfter ? ` (retried once on a new reveal after: ${r.retriedAfter})` : ''}`);
   }
-  console.log(`webgl-pixels: ${rows.length} play route(s) (${games.filter((g) => screenlessPaths.has(g.playRoute)).length} screenless, hold not exercised there) checked for WebGL contexts and draws while held, ${rows.filter((r) => declarations[r.route]?.suspends === 'adapter').length} adapter surface(s) read, verdict ${verdict} (exit ${exitCodeFor(verdict)})`);
+  const adapters = rows.filter((r) => declarations[r.route]?.suspends === 'adapter').length;
+  console.log(`webgl-pixels: ${rows.length} play route(s) (${games.filter((g) => screenlessPaths.has(g.playRoute)).length} screenless, hold not exercised there) checked for WebGL contexts and draws while held, ${adapters} adapter surface(s) read and colour-judged (gh#319), verdict ${verdict} (exit ${exitCodeFor(verdict)})`);
   await fetch(`http://127.0.0.1:${PORT}/json/close/${target.id}`);
   ws.close();
   process.exit(exitCodeFor(verdict));

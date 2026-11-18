@@ -9,7 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import { classify, exitCodeFor, aggregate, resolveGLContext, judgeHold, RECORDER, measureRoute, REVEAL_DRIVERS, HOLD_EXERCISE, judgeHoldExercise, viewportFor, PHONE_VIEWPORT, WIDE_VIEWPORT, runRoute } from './webgl-pixels-probe.mjs';
+import { classify, exitCodeFor, aggregate, resolveGLContext, judgeHold, RECORDER, measureRoute, REVEAL_DRIVERS, HOLD_EXERCISE, judgeHoldExercise, viewportFor, PHONE_VIEWPORT, WIDE_VIEWPORT, runRoute, classifyColour, COLOUR_ROWS, HUE_BINS, litHueBin, changedHistogram, inBand, inBandCount, DIFF_GAP_MS, COLOUR_DIFF } from './webgl-pixels-probe.mjs';
 import * as hold from '../src/play/_render-hold.ts';
 import { loadDeclarations, renderPlayRoutes } from './render-suspension-check.mjs';
 import { screenlessPlayPaths } from './play-screen-fit-probe.mjs';
@@ -361,17 +361,25 @@ test('gh#272 REFUTE r2 F1: held, free, held again with no final free is UNMEASUR
 
 // measureRoute over a scripted page: the order, and the snapshot it judges.
 const EXERCISE_MARK = '/* hold-exercise */';
+const COLOUR_MARK = '/* colour-diff */';
 const cleanExercise = (instance = null) => ({
   diagnostics: true, instance, phase: 'done', layerDuring: instance !== null, layerAfter: instance !== null,
   during: { held: true, holders: 1, registrations: [{ instance }] }, after: { held: false, holders: 0, registrations: [{ instance }] },
   drawsBefore: 6, heldDraws: 0, drawsAfter: 6,
 });
-function scriptedRoute({ rec, onReadback = () => {}, hold = 'free', exercise = null }) {
+/** A 36-bin hue histogram (10 deg a bin) with counts at the named bins. */
+const hist = (bins) => { const h = new Array(HUE_BINS).fill(0); for (const [i, n] of Object.entries(bins)) h[Number(i)] = n; return h; };
+// The default scripted adapter 'r' carries a gold row and a differential sample that passes it, so the
+// hold/policy/order tests below still measure a clean colour PASS. The colour tests override both.
+const R_ROW = { hue: 40, band: 60, minPixels: 100 };
+const passSample = () => ({ changedHist: hist({ 4: 200 }), histA: hist({ 4: 200 }), histB: hist({ 4: 200 }), changedTotal: 200, litA: 200, litB: 200, gapMs: 250, ageA: 1200, ageB: 1450, w: 64, h: 64, tA: 1200, tB: 1450 });
+function scriptedRoute({ rec, onReadback = () => {}, hold = 'free', exercise = null, readback = { contextLive: true, nonBlank: true }, colourSample = passSample() }) {
   const calls = [];
   const evaluate = async (body) => {
     if (body.includes('window.__holdRec; return r ?')) { calls.push('record'); return { value: JSON.parse(JSON.stringify(rec)) }; }
     if (body.includes("getAttribute('data-render-hold')")) return { value: hold };
-    if (body.includes('const canvases =')) { calls.push('readback'); onReadback(rec); return { value: { contextLive: true, nonBlank: true } }; }
+    if (body.includes(COLOUR_MARK)) { calls.push('colour'); return { value: colourSample }; }
+    if (body.includes('const canvases =')) { calls.push('readback'); onReadback(rec); return { value: readback }; }
     if (body.includes(EXERCISE_MARK)) { calls.push('exercise'); return { value: exercise ?? cleanExercise() }; }
     throw new Error(`unscripted read: ${body.slice(0, 80)}`);
   };
@@ -380,7 +388,7 @@ function scriptedRoute({ rec, onReadback = () => {}, hold = 'free', exercise = n
 }
 const measure = (page, extra = {}) => measureRoute({
   route: 'r', url: 'u', declaration: ADAPTER, evaluate: page.evaluate, tap: async () => {}, armDelayMs: 400,
-  settle: async () => null, wait: page.wait, now: page.now, spanCapMs: 1000, ...extra,
+  settle: async () => null, wait: page.wait, now: page.now, spanCapMs: 1000, colourRows: { r: R_ROW }, ...extra,
 });
 const settledRec = () => ({ installed: true, seenHeld: true, heldEnded: true, transitions: ['held', 'free'], draws: 0, heldDraws: 0, webglContexts: 1, contextArgs: ['webgl'], extensionRequests: {}, probeExtensionRequests: {}, webgpuRequests: 0, workers: 0 });
 
@@ -392,7 +400,7 @@ test('gh#272 REFUTE r2 F2: a held draw during the readback is in the FINAL snaps
     onReadback: (rec) => { rec.transitions.push('held'); rec.heldDraws += 1; rec.draws += 1; rec.transitions.push('free'); },
   });
   const row = await measure(page);
-  assert.deepEqual(page.calls, ['record', 'exercise', 'readback', 'record'], 'the snapshot was not re-read after the readback');
+  assert.deepEqual(page.calls, ['record', 'exercise', 'readback', 'colour', 'record'], 'the snapshot was not re-read after the readback and colour sample');
   assert.equal(row.verdict, 'FAIL');
   assert.equal(row.hold.heldDraws, 1, 'the row reports the snapshot from before the readback');
   const unlisted = scriptedRoute({ rec: settledRec(), onReadback: (rec) => { rec.extensionRequests.oes_texture_float = 1; } });
@@ -422,7 +430,7 @@ test('gh#305: a screenless route owes no held span, and everything else is still
   assert.equal(judgeHold({ route: 'r', declaration: ADAPTER, rec: cleanRec(), screenless: true, driven: true, spanError: 'span' }).verdict, 'UNMEASURED');
 });
 
-function screenlessPage({ contextAfter = 0, onPress = () => {}, exercise = null } = {}) {
+function screenlessPage({ contextAfter = 0, onPress = () => {}, exercise = null, colourSample = passSample() } = {}) {
   const calls = [];
   const rec = cleanRec({ webglContexts: 0 });
   let polls = 0;
@@ -433,6 +441,7 @@ function screenlessPage({ contextAfter = 0, onPress = () => {}, exercise = null 
       return { value: JSON.parse(JSON.stringify(rec)) };
     }
     if (body.includes("getAttribute('data-render-hold')")) { calls.push('hold'); return { value: null }; }
+    if (body.includes(COLOUR_MARK)) { calls.push('colour'); return { value: colourSample }; }
     if (body.includes('const canvases =')) { calls.push('readback'); return { value: { contextLive: true, nonBlank: true } }; }
     if (body.includes(EXERCISE_MARK)) { calls.push('exercise'); return { value: exercise ?? cleanExercise('prize-reveal:1') }; }
     throw new Error(`unscripted read: ${body.slice(0, 80)}`);
@@ -442,7 +451,7 @@ function screenlessPage({ contextAfter = 0, onPress = () => {}, exercise = null 
 }
 const measureScreenless = (page, extra = {}) => measureRoute({
   route: 'r', url: 'u', declaration: ADAPTER, evaluate: page.evaluate, tap: async () => { throw new Error('a screenless row tapped a handover'); },
-  armDelayMs: 400, settle: async () => null, wait: page.wait, now: page.now, contextCapMs: 1000, screenless: true, ...extra,
+  armDelayMs: 400, settle: async () => null, wait: page.wait, now: page.now, contextCapMs: 1000, screenless: true, colourRows: { r: R_ROW }, ...extra,
 });
 
 test('gh#305: a screenless adapter is driven to a live context before its readback, or is UNMEASURED by name', async () => {
@@ -651,7 +660,7 @@ test('gh#305 REFUTE r2: measureRoute exercises the hold on every adapter before 
   const ok = scriptedRoute({ rec: settledRec() });
   const row = await measure(ok);
   assert.equal(row.verdict, 'PASS', `POSITIVE CONTROL: ${row.reason}`);
-  assert.deepEqual(ok.calls, ['record', 'exercise', 'readback', 'record']);
+  assert.deepEqual(ok.calls, ['record', 'exercise', 'readback', 'colour', 'record']);
   const noop = scriptedRoute({ rec: settledRec(), exercise: { ...cleanExercise(), heldDraws: 4 } });
   const bad = await measure(noop);
   assert.equal(bad.verdict, 'FAIL', 'MUST-RED: an adapter that draws under a real hold reached its readback');
@@ -851,4 +860,255 @@ test('gh#305: REVEAL_DRIVERS names exactly the manifest\'s company-party reveal 
   const prize = (await prizeGames()).map((g) => g.id).sort();
   assert.ok(prize.length > 0, 'the manifest names no company-party play route: this test would pass vacuously');
   assert.deepEqual(Object.keys(REVEAL_DRIVERS).sort(), prize, 'a prize reveal route without a driver is never revealed, and a driver for any other route is stale');
+});
+
+// ---- gh#319: the colour leg -- the reveal's MOVING bright family must paint mid-reveal --------------
+// PD-316-01 shipped green past the mount tests, this lane and review: the race materials drew before a
+// transparent full-frame background, so 0 marble pixels painted while the plates, band and figure kept
+// the canvas NON-blank. REFUTE r1: a static colour count is not the reveal -- 400 stationary pink chrome
+// pixels with zero marbles would pass it. So the count is DIFFERENTIAL (changedHistogram): two reads
+// >= DIFF_GAP_MS apart mid-reveal, only pixels whose colour CHANGED. litHueBin is the one binning source
+// the page runs and these tests pin on raw RGBA. classifyColour owns the band, the bound and the verdict.
+
+const PINK_ROW = { hue: 340, band: 60, minPixels: 100 };
+const MARBLES_ROW = { hue: 330, band: 60, minPixels: 400 };
+/** A differential sample whose changed pixels sit at the named bins (histA/histB mirror it). */
+const motionSample = (changedBins, extra = {}) => ({ changedHist: hist(changedBins), histA: hist(changedBins), histB: hist(changedBins), changedTotal: 0, litA: 0, litB: 0, gapMs: 250, ageA: 1200, ageB: 1450, w: 64, h: 64, ...extra });
+/** Full-saturation, full-value RGB for a hue (HSV -> RGB, s=v=1), to test binning on raw pixels. */
+const rgbForHue = (h) => { const x = Math.round(255 * (1 - Math.abs((h / 60) % 2 - 1))); return h < 60 ? [255, x, 0] : h < 120 ? [x, 255, 0] : h < 180 ? [0, 255, x] : h < 240 ? [0, x, 255] : h < 300 ? [x, 0, 255] : [255, 0, x]; };
+const solidBuf = (n, px) => { const b = new Uint8Array(n * 4); for (let i = 0; i < n; i += 1) { b[i * 4] = px[0]; b[i * 4 + 1] = px[1]; b[i * 4 + 2] = px[2]; b[i * 4 + 3] = px[3] ?? 255; } return b; };
+const PUNCH = [255, 61, 127, 255]; // COLOR.punch, hue ~340, bin 33
+const NIGHT = [20, 20, 43, 255];   // night ground, dark -> not lit
+
+// -- finding 3: the binning/filter the page runs, pinned on raw RGBA (one source) --
+test('gh#319 r1: COLOUR_DIFF runs the SAME litHueBin, changedHistogram and band text the tests pin (one source)', () => {
+  const page = COLOUR_DIFF();
+  assert.ok(page.includes(litHueBin.toString()), 'the page carries a copy of the binning, not the exported function text');
+  assert.ok(page.includes(changedHistogram.toString()), 'the page carries a copy of the differential, not the exported function text');
+  assert.ok(page.includes(inBand.toString()), 'the page carries a copy of band membership, not the exported function text');
+  assert.ok(page.includes(inBandCount.toString()), 'the page carries a copy of the band sum, not the exported function text');
+});
+
+test('gh#319 r1 MUST-RED: litHueBin rejects near-grey, low-saturation, dark and white -- the filter is load-bearing', () => {
+  assert.equal(litHueBin(200, 199, 200), -1, 'near-grey RGB(200,199,200) was binned -- removing the saturation filter lets it pass a pink band');
+  assert.equal(litHueBin(200, 190, 195), -1, 'low-saturation (s=0.05) was binned');
+  assert.equal(litHueBin(255, 255, 255), -1, 'white carries no hue');
+  assert.equal(litHueBin(100, 20, 40), -1, 'dark (value < 0.65) was binned');
+  assert.equal(litHueBin(165, 0, 0), -1, 'value just under 0.65 was binned');
+  assert.equal(litHueBin(166, 0, 0), 0, 'value at 0.65, full saturation red is lit (bin 0)');
+  assert.equal(litHueBin(...PUNCH), 33, 'COLOR.punch #ff3d7f is the pink bin 33');
+});
+
+test('gh#319 r1: hue-wrap binning on raw RGBA -- ~350 and ~10 both land in a wrapping band, ~290 does not', () => {
+  // rgbForHue(10) is hue 9.88 (bin 0), rgbForHue(350) is 349.9 (bin 34), rgbForHue(290) is 289.9 (bin 28).
+  // 330 +/- 30 is [300,360] and EXCLUDES ~10 deg; the wrap is tested with a band that genuinely spans 0.
+  assert.equal(litHueBin(...rgbForHue(350)), 34);
+  assert.equal(litHueBin(...rgbForHue(10)), 0);
+  assert.equal(litHueBin(...rgbForHue(290)), 28);
+  const wrap = { hue: 0, band: 60, minPixels: 10 }; // [330,360] U [0,30]
+  assert.equal(classifyColour({ route: 'r', row: wrap, sample: motionSample({ 34: 10, 0: 10 }) }).verdict, 'PASS', '~350 and ~10 both in the wrapping band');
+  assert.equal(classifyColour({ route: 'r', row: wrap, sample: motionSample({ 28: 10 }) }).verdict, 'FAIL', '~290 outside the wrapping band');
+  // The literal 330 +/- 30 arithmetic: ~350 (bin 34) in, ~10 (bin 0) out, ~290 (bin 28) out.
+  assert.equal(inBand(34, 330, 60), true);
+  assert.equal(inBand(0, 330, 60), false);
+  assert.equal(inBand(28, 330, 60), false);
+});
+
+// -- finding 1: the differential counts only MOVING pixels; stationary chrome contributes nothing --
+test('gh#319 r1 MUST-RED: 400 STATIONARY in-band pink pixels, zero motion, FAIL the marbles row', () => {
+  const A = solidBuf(400, PUNCH);
+  const B = solidBuf(400, PUNCH); // identical: chrome/HUD that never moves
+  const diff = changedHistogram(A, B);
+  assert.equal(diff.changedTotal, 0, 'a stationary pixel was counted as changed');
+  assert.deepEqual(diff.changedHist, hist({}), 'stationary pink contributed to the differential');
+  assert.equal(diff.histA[33], 400, 'the plain lit histogram still sees the pink (it is the differential that must not)');
+  const r = classifyColour({ route: 'prize-marbles', row: MARBLES_ROW, sample: { ...diff, gapMs: 250, ageA: 1200, ageB: 1450 } });
+  assert.equal(r.verdict, 'FAIL', `400 stationary pink pixels passed the marbles row: ${r.reason}`);
+  assert.equal(r.count, 0);
+});
+
+test('gh#319 r1: MOVING pink pixels count -- the same family shifted between the two reads PASSES', () => {
+  const A = new Uint8Array([...solidBuf(400, PUNCH), ...solidBuf(400, NIGHT)]);
+  const B = new Uint8Array([...solidBuf(400, NIGHT), ...solidBuf(400, PUNCH)]); // the race rolled on
+  const diff = changedHistogram(A, B);
+  assert.ok(diff.changedTotal >= 800, 'moving pixels were not counted as changed');
+  assert.ok(diff.changedHist[33] >= 400, 'the moving pink family did not land in its bin');
+  const r = classifyColour({ route: 'prize-marbles', row: MARBLES_ROW, sample: { ...diff, gapMs: 250, ageA: 1200, ageB: 1450 } });
+  assert.equal(r.verdict, 'PASS', `moving pink did not pass: ${r.reason}`);
+});
+
+// REFUTE round 2 (RAN): attribution. A changed position was booked only to A's lit bin, so six pairs
+// each changing 1200 px from lit GOLD (A) to lit PINK (B) read as gold motion only and the marbles row
+// (330 +/- 30) counted 0 -- pink race geometry arrived, and the row said the reveal painted nothing.
+test('gh#319 r2 MUST-RED: a changed position counts its lit A bin AND its lit B bin when they differ (gold->pink)', () => {
+  const A = solidBuf(1200, rgbForHue(40)); // gold, bin 4
+  const B = solidBuf(1200, PUNCH);         // pink, bin 33
+  const d = changedHistogram(A, B);
+  assert.equal(d.changedTotal, 1200);
+  assert.equal(d.changedHist[4], 1200, 'the A-side lit bin (gold) was dropped');
+  assert.equal(d.changedHist[33], 1200, 'the B-side lit bin (pink) was dropped');
+  const r = classifyColour({ route: 'prize-marbles', row: MARBLES_ROW, sample: { ...d, gapMs: DIFF_GAP_MS } });
+  assert.equal(r.verdict, 'PASS', `gold->pink motion counted ${r.count} in the pink band: ${r.reason}`);
+  assert.equal(r.count, 1200);
+  // Stationary pink is still nothing: identical reads, nothing booked.
+  const still = changedHistogram(solidBuf(1200, PUNCH), solidBuf(1200, PUNCH));
+  assert.equal(still.changedTotal, 0);
+  assert.deepEqual(still.changedHist, hist({}), 'a stationary pink pixel was booked');
+  // Dark -> pink counts pink ONCE: the A side has no lit bin to add.
+  const dark = changedHistogram(solidBuf(1200, NIGHT), solidBuf(1200, PUNCH));
+  assert.equal(dark.changedHist[33], 1200, 'dark->pink lost the pink side');
+  assert.equal(dark.changedHist[4], 0, 'dark->pink invented a gold side');
+});
+
+test('gh#319 r1 MUST-RED: near-grey pixels that CHANGE still do not count (saturation filter on the differential)', () => {
+  const A = solidBuf(400, [200, 199, 200, 255]);
+  const B = solidBuf(400, [210, 199, 210, 255]); // changed, but still near-grey (s < 0.20)
+  const diff = changedHistogram(A, B);
+  assert.ok(diff.changedTotal >= 400, 'the near-grey pixels did change');
+  assert.deepEqual(diff.changedHist, hist({}), 'near-grey changed pixels were binned -- the saturation filter is missing');
+  assert.equal(classifyColour({ route: 'prize-marbles', row: MARBLES_ROW, sample: { ...diff, gapMs: 250 } }).verdict, 'FAIL');
+});
+
+// -- the classifier: band, bound, motion, opt-out, and every rejection branch --
+test('gh#319: moving lit pixels inside the band, at or above minPixels, PASS', () => {
+  const r = classifyColour({ route: 'prize-marbles', row: PINK_ROW, sample: motionSample({ 33: 200 }) });
+  assert.equal(r.verdict, 'PASS');
+  assert.equal(r.count, 200);
+});
+
+test('gh#319 MUST-RED: moving lit pixels outside the band FAIL', () => {
+  const r = classifyColour({ route: 'prize-marbles', row: PINK_ROW, sample: motionSample({ 12: 5000, 4: 3000 }) });
+  assert.equal(r.verdict, 'FAIL');
+  assert.equal(r.count, 0);
+  assert.match(r.reason, /prize-marbles/);
+});
+
+test('gh#319 MUST-RED: inside the band but below minPixels FAILS', () => {
+  const r = classifyColour({ route: 'prize-marbles', row: PINK_ROW, sample: motionSample({ 33: 99 }) });
+  assert.equal(r.verdict, 'FAIL');
+  assert.equal(r.count, 99);
+});
+
+test('gh#319 MUST-RED: an adapter route with no colour row FAILS by name', () => {
+  const r = classifyColour({ route: 'prize-newgame', row: null, sample: motionSample({ 33: 9999 }) });
+  assert.equal(r.verdict, 'FAIL');
+  assert.match(r.reason, /prize-newgame has no colour row/);
+});
+
+test('gh#319 r1 MUST-RED (finding 2): a colour row with NO sample FAILS by name; neither row nor sample FAILS too', () => {
+  for (const sample of [null, undefined]) {
+    const r = classifyColour({ route: 'prize-marbles', row: MARBLES_ROW, sample });
+    assert.equal(r.verdict, 'FAIL', `a row with no sample (${sample}) was not a FAIL`);
+    assert.match(r.reason, /no colour sample/);
+  }
+  const neither = classifyColour({ route: 'prize-newgame', row: null, sample: null });
+  assert.equal(neither.verdict, 'FAIL', 'an adapter with neither a row nor a sample passed');
+});
+
+// REFUTE round 2: a sampler error OBJECT is how the page reports WHY it could not sample (colour motion
+// ended before the cap, a 0x0 buffer). Reading it as a malformed sample UNMEASURED the row and dropped
+// the cause, bypassing the missing-sample FAIL the leg exists to produce.
+test('gh#319 r2 MUST-RED: a sampler error object FAILS by name with its message, never UNMEASURED', () => {
+  const r = classifyColour({ route: 'prize-marbles', row: MARBLES_ROW, sample: { error: 'no moving colour sample within the cap', motionRetries: 9 } });
+  assert.equal(r.verdict, 'FAIL', `a sampler error became ${r.verdict}: ${r.reason}`);
+  assert.match(r.reason, /no colour sample: no moving colour sample within the cap/, 'the sampler\'s cause was dropped');
+  // An adapter with no row still fails for its MISSING ROW -- that cause outranks the sampler's message.
+  assert.match(classifyColour({ route: 'prize-newgame', row: null, sample: { error: 'x' } }).reason, /has no colour row/);
+});
+
+test('gh#319 r1 MUST-RED: a motion row whose two reads were < DIFF_GAP_MS apart is UNMEASURED', () => {
+  const r = classifyColour({ route: 'r', row: PINK_ROW, sample: motionSample({ 33: 9999 }, { gapMs: DIFF_GAP_MS - 1 }) });
+  assert.equal(r.verdict, 'UNMEASURED');
+  assert.match(r.reason, /apart/);
+  assert.equal(classifyColour({ route: 'r', row: PINK_ROW, sample: motionSample({ 33: 9999 }, { gapMs: DIFF_GAP_MS }) }).verdict, 'PASS', 'exactly at the gap is measured');
+});
+
+test('gh#319 r1: a motion:false row opts out and judges the plain lit count (family that never moves)', () => {
+  const staticRow = { hue: 330, band: 60, minPixels: 100, motion: false };
+  // Zero motion, but a static pink family present in histA -> the opt-out row passes on the lit count.
+  const sample = { changedHist: hist({}), histA: hist({ 33: 500 }), histB: hist({ 33: 500 }), gapMs: 250 };
+  assert.equal(classifyColour({ route: 'r', row: staticRow, sample }).verdict, 'PASS');
+  // The same sample under a MOTION row fails: nothing moved.
+  assert.equal(classifyColour({ route: 'r', row: { ...staticRow, motion: true }, sample }).verdict, 'FAIL');
+  // An opt-out row with no static family still fails.
+  assert.equal(classifyColour({ route: 'r', row: staticRow, sample: { changedHist: hist({}), histA: hist({}), histB: hist({}), gapMs: 250 } }).verdict, 'FAIL');
+});
+
+test('gh#319 MUST-RED: an out-of-domain row is UNMEASURED -- no bound is judged on nonsense', () => {
+  for (const row of [
+    { hue: NaN, band: 60, minPixels: 100 }, { hue: 360, band: 60, minPixels: 100 }, { hue: -1, band: 60, minPixels: 100 },
+    { hue: 340, band: 0, minPixels: 100 }, { hue: 340, band: 400, minPixels: 100 },
+    { hue: 340, band: 60, minPixels: 0 }, { hue: 340, band: 60, minPixels: 1.5 },
+  ]) {
+    assert.equal(classifyColour({ route: 'r', row, sample: motionSample({ 33: 200 }) }).verdict, 'UNMEASURED', `row ${JSON.stringify(row)} was judged instead of voided`);
+  }
+});
+
+test('gh#319 MUST-RED: a malformed sample is UNMEASURED; an all-zero sample is a valid FAIL', () => {
+  const badHist = [new Array(HUE_BINS).fill(0).slice(0, 10), hist({ 33: -1 }), hist({ 33: 1.5 }), hist({ 33: NaN }), null];
+  for (const h of badHist) {
+    const sample = { changedHist: h, histA: hist({}), histB: hist({}), gapMs: 250 };
+    assert.equal(classifyColour({ route: 'r', row: PINK_ROW, sample }).verdict, 'UNMEASURED', `malformed changedHist ${JSON.stringify(h)} was judged`);
+  }
+  // An all-zero differential IS a valid sample: a reveal whose family painted nothing -> FAIL, not void.
+  assert.equal(classifyColour({ route: 'r', row: PINK_ROW, sample: motionSample({}) }).verdict, 'FAIL');
+});
+
+// -- measureRoute integration: the differential sample is taken and judged for every live adapter --
+test('gh#319 r1 MUST-RED: measureRoute reds a non-blank adapter whose MOVING bright family painted nothing (PD-316-01)', async () => {
+  // Gold/green chrome moves a little, the pink race family does not move at all -- the shipped bug shape.
+  const page = scriptedRoute({ rec: settledRec(), colourSample: motionSample({ 4: 4000, 12: 2000 }) });
+  const row = await measure(page, { colourRows: { r: PINK_ROW } });
+  assert.equal(row.verdict, 'FAIL', `a non-blank canvas with no moving bright family passed: ${row.reason}`);
+  assert.match(row.reason, /hue band/);
+  assert.equal(row.colour.count, 0);
+  assert.ok(page.calls.includes('colour'), 'the differential sample was never taken');
+  // POSITIVE CONTROL: the same adapter WITH its moving bright family passes.
+  const ok = scriptedRoute({ rec: settledRec(), colourSample: motionSample({ 33: 500 }) });
+  assert.equal((await measure(ok, { colourRows: { r: PINK_ROW } })).verdict, 'PASS');
+});
+
+test('gh#319 r1 MUST-RED: measureRoute reds an adapter with no colour row by name', async () => {
+  const page = scriptedRoute({ rec: settledRec(), colourSample: motionSample({ 33: 500 }) });
+  const row = await measure(page, { colourRows: {} });
+  assert.equal(row.verdict, 'FAIL');
+  assert.match(row.reason, /r has no colour row/);
+});
+
+test('gh#319 r1 MUST-RED (finding 2): a non-blank adapter whose colour sample never answered FAILS, not PASS', async () => {
+  const page = scriptedRoute({ rec: settledRec(), colourSample: null });
+  const row = await measure(page, { colourRows: { r: PINK_ROW } });
+  assert.equal(row.verdict, 'FAIL', `a live adapter with no colour sample passed: ${row.reason}`);
+  assert.match(row.reason, /no colour sample/);
+  assert.ok(page.calls.includes('colour'), 'the colour sample was not attempted');
+});
+
+test('gh#319 r2 MUST-RED: measureRoute FAILS a live adapter whose colour sampler reported an error, with the cause', async () => {
+  const page = scriptedRoute({ rec: settledRec(), colourSample: { error: 'no moving colour sample within the cap', motionRetries: 9 } });
+  const row = await measure(page, { colourRows: { r: PINK_ROW } });
+  assert.equal(row.verdict, 'FAIL', `a sampler error became ${row.verdict}: ${row.reason}`);
+  assert.match(row.reason, /no colour sample: no moving colour sample within the cap/);
+  assert.equal(row.colour.verdict, 'FAIL');
+});
+
+test('gh#319 r1: a route declared none is never colour-sampled or colour-judged', async () => {
+  const none = scriptedRoute({ rec: { ...settledRec(), webglContexts: 0 }, colourSample: motionSample({}) });
+  const row = await measure(none, { declaration: NONE, colourRows: { r: PINK_ROW } });
+  assert.equal(row.verdict, 'PASS');
+  assert.equal(row.colour, undefined);
+  assert.ok(!none.calls.includes('colour'), 'a none route was colour-sampled');
+});
+
+test('gh#319: every adapter route the lane reads back has a measured colour row, and no row is stale', async () => {
+  const declarations = loadDeclarations();
+  const routes = await renderPlayRoutes();
+  const adapters = routes.filter((g) => declarations[g.id]?.suspends === 'adapter').map((g) => g.id);
+  assert.ok(adapters.length > 0, 'no adapter route in the manifest: this test would pass vacuously');
+  assert.deepEqual(adapters.filter((id) => !COLOUR_ROWS[id]).sort(), [], 'an adapter with no colour row reds the lane by name -- seed it from a measured run, never a guess');
+  const adapterSet = new Set(adapters);
+  assert.deepEqual(Object.keys(COLOUR_ROWS).filter((id) => !adapterSet.has(id)).sort(), [], 'a colour row for a route that is not an adapter is stale');
+  // Every row is in-domain: an empty differential against it is a valid FAIL, never an UNMEASURED config error.
+  for (const [id, row] of Object.entries(COLOUR_ROWS)) {
+    assert.equal(classifyColour({ route: id, row, sample: motionSample({}) }).verdict, 'FAIL', `${id}'s colour row is out of domain`);
+  }
 });
