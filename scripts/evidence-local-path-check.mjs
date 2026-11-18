@@ -666,7 +666,9 @@ function selftest() {
     assert.equal(textViews(utf16le('abcd', true))[1], 'abcd', 'the UTF-16LE view strips the LE BOM');
     assert.equal(textViews(utf16be('abcd'))[2], 'abcd', 'the UTF-16BE view decodes BOM-less BE');
     assert.equal(textViews(utf16be('abcd', true))[2], 'abcd', 'the UTF-16BE view strips the BE BOM');
-    for (const f of redFixtures.filter((x) => x.name.endsWith('.bin'))) {
+    // A raw-byte-name fixture carries relBytes and no `name` (it exists only where the filesystem accepts the
+    // name, so a macOS run never reaches it); it is not a .bin fixture, so the type check excludes it.
+    for (const f of redFixtures.filter((x) => typeof x.name === 'string' && x.name.endsWith('.bin'))) {
       assert.equal(textViews(f.buf).length, 3, `${f.name}: a binary still yields three views, never a skip`);
       assert.ok(findHits(textViews(f.buf)[0]).length > 0, `${f.name}: the raw bytes carry a shaped token in the UTF-8 view`);
     }
