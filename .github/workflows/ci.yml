@@ -243,6 +243,19 @@ jobs:
           GITHUB_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: node scripts/added-lineno-citation-check.mjs --selftest && node scripts/added-lineno-citation-check.mjs
 
+      # The prize-words history files (revisions.json, ids-snapshot.json) are append-only: every key
+      # either holds at the published base must still exist with the same value, so a commit cannot
+      # rewrite history in the same edit that changes the word bank. The base comes from the citation
+      # gate's own resolver (imported, not copied), fed by the same env block as the step above, and
+      # fails closed the same way. A file absent at the base pins 0 keys. The script's header carries
+      # the rejected alternatives and the residuals (a tamper already at the base is invisible).
+      # --selftest first, same reason as the gates around it.
+      - name: Prize-word history is append-only against the published base
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/prize-words-history-check.mjs --selftest && node scripts/prize-words-history-check.mjs
+
       # The repo is PUBLIC: a probe that prints a home-directory or temp path writes that path into
       # the evidence file committed with the measurement. Owner ruling 2026-11-16 scrubbed the
       # current files and added this gate; git history is not rewritten. Git owns the file list (no

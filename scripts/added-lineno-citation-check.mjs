@@ -1016,4 +1016,18 @@ async function main() {
   );
 }
 
-await main();
+// Shared, not copied: prize-words-history-check.mjs takes its base from this same resolver.
+export { resolveRange };
+
+// Entry point only. Importing this module (to share resolveRange) must not fire a full gate as a
+// side effect. Same guard the sibling gates carry.
+const isEntryPoint = () => {
+  if (!process.argv[1]) return false;
+  const canonical = (p) => fs.realpathSync(p);
+  try {
+    return canonical(process.argv[1]) === canonical(fileURLToPath(import.meta.url));
+  } catch {
+    return true;
+  }
+};
+if (isEntryPoint()) await main();

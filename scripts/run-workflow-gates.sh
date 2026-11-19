@@ -71,7 +71,11 @@
 # widens the scan, never narrows it. No origin/main, or HEAD already on it, leaves the variable unset
 # and the gate's HEAD~1 default runs, which is never narrower than the HEAD -> working tree it would
 # otherwise get. A CITATION_DIFF_RANGE the caller already set is used as given. A `citation range:`
-# line before the first step prints which case applied and why.
+# line before the first step prints which case applied and why. The prize-words history gate reads
+# its base through the citation gate's own resolver, so this one export sets the base for both. For
+# that gate an older base pins FEWER keys, so the "only widens" reasoning above inverts: a stale
+# origin/main checks less history, and when the variable stays unset its HEAD~1 default sits one
+# commit behind the published tip, so a key first published in that tip commit is pinned in CI only.
 #
 # THE PROBE SCOPE (2026-11-12, owner pick). CI skips the probe-gated steps on a branch push whose
 # every changed path is inert (scripts/probe-scope.mjs, gh#270), but this script ran them anyway, so
