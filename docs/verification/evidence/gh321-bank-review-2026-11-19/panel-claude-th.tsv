@@ -1,0 +1,66 @@
+th-general-015	syllables	3	2	ทะ-เล (2)
+th-general-029	syllables	2	1	วัน (1); live already matches 1 syllable
+th-general-036	syllables	1	2	วัน-นี้ (2)
+th-general-101	syllables	2	1	ฟัน (1); live already matches 1 syllable
+th-general-144	syllables	1	2	ของ-ขวัญ (2)
+th-general-185	syllables	3	2	กา-ตูน (2); ร์ silent
+th-office-056	syllables	4	3	ผู้-จัด-กาน (3)
+th-office-062	syllables	4	3	โต๊ะ-ทำ-งาน (3)
+th-food-007	syllables	1	2	ผัด-ไท (2)
+th-food-043	syllables	2	1	ชา (1); live already matches 1 syllable
+th-animal-026	syllables	2	1	มด (1); dead already matches 1 syllable
+th-animal-048	syllables	3	2	ปลา-หมึก (2)
+th-animal-082	syllables	4	3	ปลา-หมึก-ยัก (3)
+th-animal-085	syllables	3	4	ปลา-ฉะ-หลาม-วาน (4)
+th-animal-087	syllables	1	2	ปลา-เก๋า (2)
+th-general-094	liveDead	dead	live	ตา: long vowel อา, open syllable = คำเป็น (live)
+th-office-080	pool	office	general	ตั๋ว: travel/transport noun, not office-specific (borderline)
+th-office-081	pool	office	general	กระเป๋า: generic bag noun, not office-specific (borderline)
+th-office-082	pool	office	general	ตั๋วเครื่องบิน: travel noun, office only via business trips (borderline)
+th-general-122	safety	ช้า	-	ช้า "slow" beside a name = ordinary tease (same class as lazy/stupid)
+th-general-127	safety	ง่าย	-	ง่าย "easy": beside a name reads as sexually easy (ผู้หญิงง่าย sense)
+th-general-082	safety	ดำ	-	ดำ "dark/black" beside a name = skin-colour tease
+th-general-132	safety	ต่ำ	-	ต่ำ "low" beside a name reads as low/base-class
+th-general-161	safety	ถังขยะ	-	ถังขยะ "trash bin" beside a name = insult
+th-office-050	safety	ไวไฟ	-	ไวไฟ homograph: "flammable"; of a person = easily aroused / hot-tempered
+th-food-034	safety	ลำไย	-	ลำไย slang "annoying" (pun on รำคาญ) beside a name
+th-food-011	safety	ไข่ดาว	-	ไข่ดาว slang for small/flat breasts; body-shaming beside a name
+th-animal-001	safety	หมา	-	หมา "dog" beside a name = common Thai insult
+th-animal-006	safety	หมู	-	หมู "pig" beside a name = fat tease
+th-animal-014	safety	ลิง	-	ลิง "monkey" beside a name = insult (ugly/naughty)
+th-animal-060	safety	กอริลลา	-	กอริลลา beside a name = big/hairy/ugly insult
+th-animal-067	safety	แมลงสาบ	-	แมลงสาบ "cockroach" beside a name = insult
+th-animal-046	safety	นกกระจอก	-	นกกระจอก: กระจอก = lame/pathetic; "small fry" insult
+th-general-119	safety	ใหญ่	-	borderline: ใหญ่ "big" beside a name can read as fat
+th-general-130	safety	เก่า	-	borderline: เก่า "old" beside a name = age tease
+th-general-199	safety	จิ๋ว	-	borderline: จิ๋ว "tiny" beside a name = size tease
+th-general-111	safety	นอน	-	borderline: นอน "sleep" beside a name = lazy/sleeps-at-work tease
+th-general-093	safety	ยาย	-	borderline: ยาย "grandma" beside a colleague = age tease
+th-food-032	safety	เงาะ	-	borderline: เงาะ also insult for frizzy hair (เงาะป่า ethnic slur)
+th-food-038	safety	ฝรั่ง	-	borderline: ฝรั่ง also "Westerner"; ethnic label beside a name
+th-food-050	safety	ซาลาเปา	-	borderline: ซาลาเปา slang for chubby cheeks / breasts
+th-food-090	safety	ส้มโอ	-	borderline: ส้มโอ slang for large breasts
+th-animal-011	safety	ช้าง	-	borderline: ช้าง = fat tease; also Chang beer brand name (alcohol)
+th-animal-035	safety	เต่า	-	borderline: เต่า "turtle" = slowpoke tease
+th-animal-004	safety	นก	-	borderline: นก modern slang = got stood up / dumped
+th-animal-009	safety	แพะ	-	borderline: แพะ = scapegoat (แพะรับบาป), loaded in an elimination game
+th-animal-024	safety	ผีเสื้อ	-	borderline: ผีเสื้อ = flirt / ผีเสื้อราตรี night-worker sense
+th-animal-031	safety	หนอน	-	borderline: หนอน in an office = mole/traitor (หนอนบ่อนไส้)
+th-animal-032	safety	ปลาวาฬ	-	borderline: ปลาวาฬ "whale" = fat tease
+th-animal-071	safety	พะยูน	-	borderline: พะยูน "dugong" = fat tease
+th-animal-081	safety	ฮิปโปโปเตมัส	-	borderline: ฮิปโปโปเตมัส = fat tease
+th-animal-047	safety	ปลาทอง	-	borderline: ปลาทอง = goldfish memory (forgetful) tease
+th-animal-055	safety	ไดโนเสาร์	-	borderline: ไดโนเสาร์ = old-fashioned/outdated person
+th-animal-065	safety	คางคก	-	borderline: คางคก "toad" = ugly tease
+th-animal-078	safety	เห็บ	-	borderline: เห็บ "tick" = parasite/leech tease
+th-animal-044	safety	จิ้งจอก	-	borderline: จิ้งจอก = sly; จิ้งจอกสาว seductress
+th-animal-043	safety	หมาป่า	-	borderline: หมาป่า contains หมา; wolf = predator/womanizer
+th-animal-061	safety	ชิมแปนซี	-	borderline: ชิมแปนซี ape = same class as ลิง
+th-general-176	safety	ว่าว	-	ว่าว standalone slang for male masturbation (from ชักว่าว)
+th-general-155	safety	หม้อ	-	borderline: หม้อ slang = lecher/womaniser (หน้าหม้อ, ตีหม้อ)
+th-office-025	safety	กาว	-	borderline: กาว slang = delusional / talking nonsense (from ดมกาว)
+th-animal-013	safety	หมี	-	borderline: หมี online sound-alike euphemism for vulgar word for vulva
+th-food-081	safety	สลัด	-	borderline: สลัด minced form of swear word สัด (ไอ้สลัด)
+th-general-101	safety	ฟัน	-	borderline: ฟัน verb slang = sexual conquest (ฟันสาว)
+th-general-095	safety	ปู่	-	borderline: ปู่ "grandpa" beside a colleague = age tease (pairs with ยาย)
+# coverage: rows read 481 of 481

@@ -1,0 +1,141 @@
+en-general-002	safety	tiny	-	borderline: body-size teasing (short)
+en-general-007	safety	angry	-	borderline: negative temperament label beside a name
+en-general-010	safety	lazy	-	clear: unflattering trait; the brief's own example
+en-general-011	safety	noisy	-	borderline: unflattering trait
+en-general-013	syllables	1	2	sleep-y = 2
+en-general-013	safety	sleepy	-	borderline: implies dozing at work
+en-general-016	ambiguous	1	-	syllables: tired = 1 (tird) or 2 (ti-erd); classic disputed count
+en-general-016	safety	tired	-	borderline: implies flagging at work; same class as sleepy
+en-general-017	safety	ugly	-	clear: insult on appearance
+en-general-019	safety	easy	-	clear: of a person, slang for sexually promiscuous
+en-general-020	safety	heavy	-	clear: reads as body weight (fat)
+en-general-021	safety	nervous	-	borderline: embarrassing mood label
+en-general-022	syllables	3	2	cheer-ful = 2
+en-general-024	safety	dizzy	-	borderline: slang scatterbrained (dizzy blonde)
+en-general-025	safety	grumpy	-	clear: negative temperament label
+en-general-027	safety	silly	-	borderline: nearest word to the brief's example stupid
+en-general-028	pool	general	food	borderline: tasty is a food descriptor; sits beside yummy/delicious
+en-general-028	safety	tasty	-	borderline: of a person, slang for sexually attractive
+en-general-029	syllables	1	2	health-y = 2
+en-general-031	syllables	3	2	fa-mous = 2
+en-general-032	wordType	noun	adjective	jealous: adjective only; no noun sense
+en-general-032	safety	jealous	-	clear: negative trait
+en-general-036	safety	messy	-	borderline: unflattering (untidy person)
+en-general-039	safety	gloomy	-	borderline: negative mood label
+en-general-040	safety	fluffy	-	borderline: euphemism for overweight
+en-general-041	safety	huge	-	clear: reads as body size (fat)
+en-general-042	safety	sad	-	borderline: embarrassing mood label
+en-general-043	safety	big	-	borderline: reads as body size
+en-general-045	safety	bossy	-	clear: negative trait
+en-general-046	safety	fussy	-	borderline: negative trait
+en-general-047	safety	sloppy	-	clear: negative trait (careless/untidy)
+en-general-050	ambiguous	adjective	-	wordType: frightened is also the past tense of frighten (verb)
+en-general-050	safety	frightened	-	borderline: embarrassing (coward)
+en-general-052	ambiguous	4	-	syllables: or-di-nar-y = 4 (US) vs ord-n-ry = 3 (UK)
+en-general-052	safety	ordinary	-	borderline: dismissive (unremarkable person)
+en-general-053	safety	thirsty	-	clear: slang for desperate for attention/sex
+en-general-054	safety	lonely	-	borderline: embarrassing personal state
+en-general-055	safety	afraid	-	borderline: embarrassing (coward); same class as frightened
+en-general-065	syllables	2	1	choose = 1 (one vowel sound /u:/)
+en-general-091	syllables	3	2	re-ceive = 2
+en-general-092	ambiguous	verb	-	wordType: select is also an adjective (a select few, select group)
+en-general-103	ambiguous	2	-	syllables: ad-mire = 2 or 3 (ad-mi-er); same -ire class as tired
+en-general-121	safety	bedroom	-	borderline: sexual innuendo beside a colleague's name
+en-office-022	ambiguous	3	-	syllables: cab-i-net = 3 vs common cab-net = 2
+en-office-039	ambiguous	3	-	syllables: sal-a-ry = 3 vs common sal-ry = 2
+en-office-039	safety	salary	-	borderline: pay is sensitive beside a colleague's name
+en-office-042	ambiguous	3	-	syllables: con-fer-ence = 3 vs common con-frence = 2
+en-office-059	pool	office	general	toolbox is a workshop/garage item, not office
+en-office-063	pool	office	general	door is generic, no office sense
+en-office-068	pool	office	general	borderline: strict is a generic trait adjective
+en-office-069	pool	office	general	borderline: neat is a generic trait adjective
+en-office-070	pool	office	general	borderline: tough is a generic trait adjective
+en-office-071	pool	office	general	borderline: brisk is a generic trait adjective
+en-office-072	wordType	adjective	verb	approve: verb (approval is the noun; no adjective sense)
+en-office-084	safety	resign	-	borderline: implies the person is quitting
+en-office-085	ambiguous	2	-	syllables: re-tire = 2 or 3 (re-ti-er); same -ire class as tired
+en-office-085	safety	retire	-	borderline: age implication
+en-office-093	ambiguous	3	-	syllables: punc-tu-al = 3 vs common punk-chwal = 2
+en-office-095	ambiguous	adjective	-	wordType: organized is also the everyday past tense of organize (verb)
+en-office-099	safety	available	-	borderline: dating slang for single
+en-office-100	ambiguous	4	-	syllables: tem-po-rar-y = 4 (US) vs tem-pra-ry = 3 (UK)
+en-office-100	safety	temporary	-	borderline: job-security implication (a temp)
+en-office-101	ambiguous	3	-	syllables: an-nu-al = 3 vs common an-yual = 2
+en-office-103	safety	optional	-	borderline: implies the person is dispensable
+en-office-107	ambiguous	adjective	-	wordType: creative is also a noun in office use (the creatives, ad industry)
+en-office-110	ambiguous	adjective	-	wordType: official is a very common noun (a government/match official) as well as adjective
+en-office-111	safety	overdue	-	borderline: late work; also pregnancy sense
+en-office-112	safety	obsolete	-	clear: calls the person outdated
+en-office-114	pool	office	general	difficult is generic, no office sense
+en-office-114	safety	difficult	-	clear: a difficult person = hard to work with
+en-office-115	pool	office	general	possible is generic, no office sense
+en-food-001	safety	apple	-	borderline: shares the Apple brand name; fruit sense dominant, likely keep
+en-food-005	safety	banana	-	borderline: sexual innuendo; also an ethnic slur sense
+en-food-009	wordType	verb	noun	potato: noun only
+en-food-018	ambiguous	3	-	syllables: broc-co-li = 3 vs common broc-li = 2
+en-food-019	safety	lemon	-	borderline: slang for a dud
+en-food-020	safety	melon	-	borderline: slang for breasts (mainly plural)
+en-food-021	safety	cherry	-	borderline: virginity slang
+en-food-023	safety	coconut	-	borderline: ethnic slur sense
+en-food-033	wordType	verb	noun	salad: noun only
+en-food-039	safety	muffin	-	borderline: muffin top body-shaming
+en-food-040	spelling	donut	doughnut	borderline: headword spelling is doughnut; donut is a US informal variant
+en-food-042	safety	pudding	-	borderline: UK insult for a fat or dim person
+en-food-044	safety	sauce	-	borderline: slang for alcohol (on the sauce)
+en-food-045	safety	sausage	-	clear: sexual slang
+en-food-052	syllables	1	2	dump-ling = 2
+en-food-054	safety	meatball	-	borderline: insult for a dimwit
+en-food-058	safety	taco	-	borderline: vulgar sexual slang
+en-food-062	syllables	4	3	car-a-mel = 3; common variant car-mel = 2; no reading gives 4
+en-food-063	wordType	verb	noun	almond: noun only
+en-food-068	ambiguous	noun	-	wordType: ginger is also an adjective for hair/fur colour (ginger cat), esp. UK
+en-food-068	safety	ginger	-	borderline: taunt for red-haired people
+en-food-073	safety	creamy	-	borderline: sexual innuendo
+en-food-074	safety	juicy	-	borderline: sexual slang
+en-food-075	safety	salty	-	borderline: slang for bitter/resentful
+en-food-076	safety	spicy	-	borderline: slang for sexy
+en-food-077	safety	yummy	-	borderline: of a person, slang for attractive
+en-food-078	safety	greasy	-	clear: unflattering (greasy hair, sleazy)
+en-food-081	safety	cheesy	-	borderline: of a person, slang for corny/tacky
+en-food-083	safety	edible	-	borderline: cannabis edibles slang
+en-food-084	safety	ripe	-	borderline: of a person, smelly
+en-food-085	safety	bland	-	clear: of a person, boring
+en-food-090	syllables	3	2	gob-ble = 2
+en-food-091	ambiguous	2	-	syllables: de-vour = 2 or 3 (de-vou-er); same schwa class as owl
+en-food-093	wordType	adjective	verb	knead: verb (to work dough); no adjective sense
+en-animal-002	safety	hippo	-	borderline: fat joke beside a name
+en-animal-005	safety	elephant	-	borderline: size joke beside a name; same class as hippo/walrus
+en-animal-006	safety	tiger	-	borderline: Tiger beer brand (alcohol)
+en-animal-009	ambiguous	1	-	syllables: owl = 1 or 2 (ow-el) in many accents; same -l/-r schwa class as tired
+en-animal-014	safety	camel	-	borderline: Camel cigarette brand; camel-toe slang
+en-animal-026	safety	toad	-	borderline: insult (repulsive person)
+en-animal-032	syllables	3	2	fire-fly = 2 under the bank's own -ire policy (tired=1, retire=2, admire=2); 3 only if fire is read fi-er
+en-animal-036	syllables	4	3	oc-to-pus = 3
+en-animal-040	safety	walrus	-	borderline: fat joke beside a name
+en-animal-041	safety	gorilla	-	borderline: used as a racial slur / brute
+en-animal-042	safety	chimpanzee	-	borderline: used as a racial slur
+en-animal-043	safety	baboon	-	clear: insult (boor) and racial slur usage
+en-animal-050	syllables	1	2	pi-geon = 2
+en-animal-051	safety	vulture	-	borderline: insult (predatory person)
+en-animal-054	safety	donkey	-	borderline: insult (fool); ass euphemism
+en-animal-058	safety	mule	-	borderline: stubborn; drug-mule slang
+en-animal-060	safety	furry	-	borderline: furry-fandom slang with sexual connotation; body hair
+en-animal-062	safety	slimy	-	clear: of a person, sleazy and untrustworthy
+en-animal-064	safety	hairy	-	clear: body-hair embarrassment
+en-animal-065	ambiguous	adjective	-	wordType: spotted is also the everyday past tense of spot (verb: I spotted it)
+en-animal-067	pool	animal	general	borderline: speedy is a generic trait, no animal sense
+en-animal-068	pool	animal	general	borderline: clumsy is a generic person trait, no animal sense
+en-animal-068	safety	clumsy	-	clear: unflattering trait
+en-animal-069	pool	animal	general	borderline: timid is a generic person trait
+en-animal-069	safety	timid	-	borderline: unflattering trait
+en-animal-070	pool	animal	general	borderline: sneaky is a generic person trait
+en-animal-070	safety	sneaky	-	clear: unflattering trait (underhand)
+en-animal-073	safety	cuddly	-	borderline: body euphemism; intimate
+en-animal-074	pool	animal	general	borderline: playful is a generic trait
+en-animal-075	pool	animal	general	borderline: sly is a generic person trait
+en-animal-075	safety	sly	-	clear: unflattering trait (cunning, deceitful)
+en-animal-076	safety	shaggy	-	borderline: unkempt; UK shag sexual root
+en-animal-081	safety	nuzzle	-	borderline: intimate physical contact beside a colleague's name
+en-animal-082	safety	snuggle	-	borderline: intimate physical contact beside a colleague's name
+en-animal-083	safety	lurk	-	borderline: creepy connotation beside a name
+# coverage: rows read 442 of 442

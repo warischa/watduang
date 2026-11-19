@@ -1,0 +1,81 @@
+th-general-005	ambiguous	-	-	confirmed: RID ปฺระ-หฺวัด-ติ-สาด / ปฺระ-หฺวัด-สาด
+th-general-015	syllables	3	2	confirmed: ทะ-เล
+th-general-029	syllables	2	1	confirmed: วัน
+th-general-036	syllables	1	2	confirmed: วัน-นี้
+th-general-039	safety	-	-	confirmed: RID น. betting position in ถั่ว, โป or ไฮโล
+th-general-080	safety	-	-	confirmed: สุทธิพันธ์, cannabis slang เขียว
+th-general-081	safety	-	-	inferred: RID ว. white, can label a colleague's complexion
+th-general-082	safety	-	-	inferred: RID ว. black, can label a colleague's complexion
+th-general-091	syllables	1	-	confirmed: RID คฺรู (teacher) / คะ-รู (astrological watch)
+th-general-091	liveDead	live	-	confirmed: RID alternate คะ-รู has two syllables
+th-general-091	ambiguous	1	-	confirmed: RID ครู ๑ คฺรู / ครู ๒ คะ-รู
+th-general-093	safety	-	-	inferred: RID น. grandmother, can read as age teasing
+th-general-094	liveDead	dead	live	confirmed: ตา, long open อา
+th-general-094	safety	-	-	confirmed: RID น. familiar address for an older man, sometimes disrespectful
+th-general-095	safety	-	-	inferred: RID น. grandfather, can read as age teasing
+th-general-101	syllables	2	1	confirmed: ฟัน, identical reading as noun and verb
+th-general-101	safety	-	-	inferred: colloquial ฟัน as a sexual-conquest verb
+th-general-104	safety	-	-	confirmed: RID ขา ๒ น. participant in gambling such as cards
+th-general-112	safety	-	-	confirmed: RID ก. win a bet, also acquire dishonestly
+th-general-119	safety	-	-	inferred: RID ว. large, can read as body-size teasing
+th-general-120	safety	-	-	inferred: RID ว. small or unimportant, can belittle a colleague
+th-general-122	safety	-	-	confirmed: RID ว. slow or late, also bad or base
+th-general-130	safety	-	-	inferred: RID ว. old, can read as age or relevance teasing
+th-general-132	safety	-	-	inferred: RID ว. low or inferior, directly belittling beside a name
+th-general-144	syllables	1	2	confirmed: ของ-ขฺวัน
+th-general-155	safety	-	-	inferred: colloquial ก. flirt, as in หน้าหม้อ
+th-general-161	safety	-	-	inferred: ถัง-ขะ-หฺยะ, equates the colleague with trash
+th-general-176	safety	-	-	inferred: evokes common sexual slang ชักว่าว
+th-general-185	syllables	3	2	confirmed: กา-ตูน
+th-general-199	safety	-	-	inferred: RID ว. tiny, can read as body-size teasing
+th-office-025	safety	-	-	confirmed: Dek-D usage, slang กาว for absurd or delusional
+th-office-050	safety	-	-	confirmed: Wi-Fi Alliance brand guide, Wi-Fi is a mark
+th-office-056	syllables	4	3	confirmed: ผู้-จัด-กาน
+th-office-062	syllables	4	3	confirmed: โต๊ะ-ทำ-งาน
+th-office-080	pool	office	general	inferred: RID น. generic admission or travel ticket
+th-office-081	pool	office	general	inferred: RID น. general-purpose bag or purse
+th-office-082	pool	office	general	inferred: ตั๋ว-เคฺรื่อง-บิน, passenger travel ticket
+th-food-002	safety	-	-	confirmed: สุทธิพันธ์, cannabis slang ขนม
+th-food-007	syllables	1	2	confirmed: ผัด-ไทย
+th-food-016	safety	-	-	inferred: RID โจ๊ก ๒ (ปาก) ว. comic, can read as calling someone a joke
+th-food-022	safety	-	-	confirmed: Thai gacha usage เกลือ for a bad draw
+th-food-032	safety	-	-	confirmed: RID เงาะ ๑ น. ethnic term and appearance-based label
+th-food-034	safety	-	-	confirmed: BSRU slang ลำไย means annoying
+th-food-037	safety	-	-	inferred: Thai rendering of Apple, the technology brand
+th-food-038	safety	-	-	inferred: RID ฝรั่ง ๑ น. white Westerner, can label ethnicity
+th-food-043	syllables	2	1	confirmed: ชา
+th-food-059	safety	-	-	confirmed: โจ๊ก So Cool interview, slang ชาบู means revere
+th-food-064	safety	-	-	confirmed: TU translation thesis, cannabis slang เนื้อ
+th-food-070	safety	-	-	confirmed: RID ถั่ว ๒ น. gambling game โปกำ
+th-food-099	safety	-	-	confirmed: BSRU slang ขิง means boast
+th-food-100	safety	-	-	confirmed: RID ข่า ๑ น. ethnonym, CMU thesis documents derogatory use
+th-animal-001	safety	-	-	inferred: familiar insult comparing a person to a dog
+th-animal-002	safety	-	-	confirmed: RID (สแลง) sex worker, also woman lured for abuse
+th-animal-004	safety	-	-	confirmed: colloquial slang นก means to miss out or be rejected
+th-animal-005	safety	-	-	inferred: มนุษย์เป็ด can imply no real proficiency
+th-animal-006	safety	-	-	confirmed: RID (ปาก) easy mark, also a body-size insult
+th-animal-008	safety	-	-	inferred: colloquial ม้า in เสพม้า denotes stimulants
+th-animal-009	safety	-	-	inferred: colloquial short form of แพะรับบาป, scapegoat
+th-animal-011	safety	-	-	confirmed: ThaiBev beer brand ช้าง
+th-animal-012	safety	-	-	inferred: colloquial เสือ can label a womanizer or outlaw
+th-animal-013	safety	-	-	inferred: หุ่นหมี can invite body-size teasing
+th-animal-014	safety	-	-	inferred: ซนเหมือนลิง likens someone to a misbehaving monkey
+th-animal-022	safety	-	-	confirmed: Silpakorn Arts study, ไอ้ห่าน softens a profanity
+th-animal-023	safety	-	-	inferred: comparison to a parrot suggests mindless repetition
+th-animal-026	syllables	2	1	confirmed: มด
+th-animal-031	safety	-	-	inferred: shorthand for หนอนบ่อนไส้, suggests an insider betraying a group
+th-animal-035	safety	-	-	inferred: familiar comparison ช้าเหมือนเต่า
+th-animal-043	safety	-	-	inferred: likens the colleague to a predator
+th-animal-044	safety	-	-	inferred: สุนัขจิ้งจอก comparison implies cunning or deceit
+th-animal-046	safety	-	-	inferred: RID กระจอก ๓ (ปาก) inferior, salient pun beside a name
+th-animal-048	syllables	3	2	confirmed: ปฺลา-หฺมึก
+th-animal-055	safety	-	-	inferred: colloquial ไดโนเสาร์ labels someone outdated
+th-animal-056	spelling	ชีตาห์	เสือชีต้า	inferred: Royal Gazette and DNP Thai name for Acinonyx jubatus
+th-animal-065	safety	-	-	inferred: RID คางคกขึ้นวอ evokes an insult about status
+th-animal-067	safety	-	-	inferred: likens the colleague to a household pest
+th-animal-078	safety	-	-	inferred: likens the colleague to a parasite
+th-animal-081	safety	-	-	inferred: hippo comparison invites body-size teasing
+th-animal-082	syllables	4	3	confirmed: ปฺลา-หฺมึก-ยัก
+th-animal-085	syllables	3	4	confirmed: ปฺลา-ฉะ-หฺลาม-วาน
+th-animal-087	syllables	1	2	confirmed: ปฺลา-เก๋า
+# coverage: rows read 481 of 481

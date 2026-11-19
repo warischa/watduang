@@ -1,0 +1,148 @@
+lang	id	column	stored	gpt (codex)	claude
+th	th-general-005	ambiguous	-	- — confirmed: RID ปฺระ-หฺวัด-ติ-สาด / ปฺระ-หฺวัด-สาด	
+th	th-general-039	safety	-	confirmed: RID น. betting position in ถั่ว, โป or ไฮโล	
+th	th-general-080	safety	-	confirmed: สุทธิพันธ์, cannabis slang เขียว	
+th	th-general-081	safety	-	inferred: RID ว. white, can label a colleague's complexion	
+th	th-general-091	syllables	1	- — confirmed: RID คฺรู (teacher) / คะ-รู (astrological watch)	
+th	th-general-091	liveDead	live	- — confirmed: RID alternate คะ-รู has two syllables	
+th	th-general-091	ambiguous	1	- — confirmed: RID ครู ๑ คฺรู / ครู ๒ คะ-รู	
+th	th-general-094	safety	-	confirmed: RID น. familiar address for an older man, sometimes disrespectful	
+th	th-general-104	safety	-	confirmed: RID ขา ๒ น. participant in gambling such as cards	
+th	th-general-112	safety	-	confirmed: RID ก. win a bet, also acquire dishonestly	
+th	th-general-120	safety	-	inferred: RID ว. small or unimportant, can belittle a colleague	
+th	th-food-002	safety	-	confirmed: สุทธิพันธ์, cannabis slang ขนม	
+th	th-food-016	safety	-	inferred: RID โจ๊ก ๒ (ปาก) ว. comic, can read as calling someone a joke	
+th	th-food-022	safety	-	confirmed: Thai gacha usage เกลือ for a bad draw	
+th	th-food-037	safety	-	inferred: Thai rendering of Apple, the technology brand	
+th	th-food-059	safety	-	confirmed: โจ๊ก So Cool interview, slang ชาบู means revere	
+th	th-food-064	safety	-	confirmed: TU translation thesis, cannabis slang เนื้อ	
+th	th-food-070	safety	-	confirmed: RID ถั่ว ๒ น. gambling game โปกำ	
+th	th-food-099	safety	-	confirmed: BSRU slang ขิง means boast	
+th	th-food-100	safety	-	confirmed: RID ข่า ๑ น. ethnonym, CMU thesis documents derogatory use	
+th	th-animal-002	safety	-	confirmed: RID (สแลง) sex worker, also woman lured for abuse	
+th	th-animal-005	safety	-	inferred: มนุษย์เป็ด can imply no real proficiency	
+th	th-animal-008	safety	-	inferred: colloquial ม้า in เสพม้า denotes stimulants	
+th	th-animal-012	safety	-	inferred: colloquial เสือ can label a womanizer or outlaw	
+th	th-animal-022	safety	-	confirmed: Silpakorn Arts study, ไอ้ห่าน softens a profanity	
+th	th-animal-023	safety	-	inferred: comparison to a parrot suggests mindless repetition	
+th	th-animal-056	spelling	ชีตาห์	เสือชีต้า — inferred: Royal Gazette and DNP Thai name for Acinonyx jubatus	
+th	th-general-127	safety	ง่าย		ง่าย "easy": beside a name reads as sexually easy (ผู้หญิงง่าย sense)
+th	th-food-011	safety	ไข่ดาว		ไข่ดาว slang for small/flat breasts; body-shaming beside a name
+th	th-animal-060	safety	กอริลลา		กอริลลา beside a name = big/hairy/ugly insult
+th	th-general-111	safety	นอน		borderline: นอน "sleep" beside a name = lazy/sleeps-at-work tease
+th	th-food-050	safety	ซาลาเปา		borderline: ซาลาเปา slang for chubby cheeks / breasts
+th	th-food-090	safety	ส้มโอ		borderline: ส้มโอ slang for large breasts
+th	th-animal-024	safety	ผีเสื้อ		borderline: ผีเสื้อ = flirt / ผีเสื้อราตรี night-worker sense
+th	th-animal-032	safety	ปลาวาฬ		borderline: ปลาวาฬ "whale" = fat tease
+th	th-animal-071	safety	พะยูน		borderline: พะยูน "dugong" = fat tease
+th	th-animal-047	safety	ปลาทอง		borderline: ปลาทอง = goldfish memory (forgetful) tease
+th	th-animal-061	safety	ชิมแปนซี		borderline: ชิมแปนซี ape = same class as ลิง
+th	th-food-081	safety	สลัด		borderline: สลัด minced form of swear word สัด (ไอ้สลัด)
+en	en-general-004	safety	eat	[confirmed] American Heritage vulgar oral-sex verb sense	
+en	en-general-009	safety	funny	[confirmed] Cambridge: informal dishonest or strange sense	
+en	en-general-012	safety	proud	[confirmed] Cambridge disparaging sense of thinking oneself superior	
+en	en-general-015	safety	tall	[inferred] Cambridge above-average height, public body-size label	
+en	en-general-018	ambiguous	adjective	- — [confirmed] Cambridge adjective and sports-match noun	
+en	en-general-019	ambiguous	adjective	- — [confirmed] American Heritage adjective and adverb (take it easy)	
+en	en-general-020	ambiguous	adjective	- — [confirmed] Cambridge adjective and noun (a hired heavy)	
+en	en-general-037	safety	cute	[inferred] Cambridge attractive or childlike, appearance-based or infantilizing label	
+en	en-general-043	ambiguous	adjective	- — [confirmed] American Heritage adjective and adverb (win big)	
+en	en-general-049	safety	beautiful	[inferred] Cambridge very attractive, public appearance judgment	
+en	en-general-056	safety	sing	[confirmed] American Heritage: slang for informing on someone	
+en	en-general-066	ambiguous	verb	- — [confirmed] Cambridge verb and noun (an act of carrying)	
+en	en-general-069	ambiguous	verb	- — [confirmed] Cambridge verb and noun (a seam or connection)	
+en	en-general-083	ambiguous	verb	- — [confirmed] Cambridge verb and adjective/adverb (collect call)	
+en	en-general-086	ambiguous	verb	- — [confirmed] Wiktionary verb and social-media subscription noun	
+en	en-general-095	safety	tell	[confirmed] Cambridge: gambling term for a poker giveaway	
+en	en-general-095	ambiguous	verb	- — [confirmed] Cambridge verb and noun (a revealing sign)	
+en	en-general-106	ambiguous	noun	- — [confirmed] Cambridge noun and chiefly UK verb (ladder tights)	
+en	en-general-108	safety	river	[confirmed] American Heritage gambling term for the final community card in poker	
+en	en-general-108	ambiguous	noun	- — [confirmed] American Heritage waterway noun and poker verb	
+en	en-general-113	safety	sunshine	[confirmed] Cambridge: informal address used when annoyed	
+en	en-general-115	ambiguous	noun	- — [confirmed] Cambridge noun and verb (ride a bicycle)	
+en	en-general-118	ambiguous	noun	- — [confirmed] Cambridge noun and greeting, also a verb form (evening out)	
+en	en-general-142	ambiguous	noun	- — [confirmed] Cambridge noun and adjective (lightning speed)	
+en	en-general-143	ambiguous	noun	- — [confirmed] Cambridge noun and verb (sunset a policy)	
+en	en-office-003	ambiguous	2	- — [confirmed] CMUdict STAY·pler (2) or STAY·puhl·er (3)	
+en	en-office-012	ambiguous	noun	- — [confirmed] Cambridge noun and scheduling verb	
+en	en-office-013	ambiguous	noun	- — [confirmed] Cambridge noun and present participle of meet	
+en	en-office-029	ambiguous	noun	- — [confirmed] Wiktionary board noun and workplace verb	
+en	en-office-068	safety	strict	[inferred] Cambridge severely limits freedom, punitive-colleague label	
+en	en-office-069	safety	neat	[confirmed] Cambridge: undiluted liquor sense	
+en	en-office-070	safety	tough	[confirmed] Cambridge: violent-person noun and adjective sense	
+en	en-office-070	ambiguous	adjective	- — [confirmed] Cambridge adjective and noun (a violent person)	
+en	en-office-081	safety	cancel	[confirmed] Cambridge: informal public rejection of a person	
+en	en-office-109	ambiguous	adjective	- — [confirmed] Cambridge adjective and finance noun (market technicals)	
+en	en-food-006	safety	cheese	[confirmed] American Heritage: slang for an important person	
+en	en-food-007	safety	noodle	[confirmed] Cambridge: informal head or brain	
+en	en-food-007	ambiguous	noun	- — [confirmed] Cambridge noun and verb (improvise on an instrument)	
+en	en-food-009	safety	potato	[confirmed] Wiktionary offensive disability sense and disparaging body-shape sense	
+en	en-food-014	safety	cabbage	[confirmed] Cambridge: offensive disability-related epithet	
+en	en-food-017	safety	pumpkin	[inferred] Wiktionary pet name for someone small and cute, can infantilize a colleague	
+en	en-food-019	ambiguous	noun	- — [confirmed] Cambridge noun and adjective (pale yellow)	
+en	en-food-021	ambiguous	noun	- — [confirmed] Cambridge noun and adjective (bright red)	
+en	en-food-027	safety	watermelon	[confirmed] Smithsonian NMAAHC: anti-Black stereotype	
+en	en-food-028	safety	kiwi	[confirmed] American Heritage: informal label for a New Zealander	
+en	en-food-036	safety	cookie	[confirmed] Cambridge: slang for a person	
+en	en-food-037	safety	biscuit	[confirmed] Cambridge: US slang for a hockey puck	
+en	en-food-038	ambiguous	noun	- — [confirmed] American Heritage food noun and verb (collapse flat)	
+en	en-food-040	safety	donut	[inferred] Wiktionary doughnut is a colloquial fool insult, same spoken US spelling variant	
+en	en-food-041	safety	cupcake	[confirmed] Wiktionary slang for a weak man or attractive young woman	
+en	en-food-044	ambiguous	noun	- — [confirmed] American Heritage condiment noun and seasoning verb	
+en	en-food-047	safety	tuna	[confirmed] University of Cincinnati slang study: sexual anatomy slang	
+en	en-food-062	ambiguous	4	- — [confirmed] Cambridge US CAR·muhl (2), UK CAR·uh·muhl (3)	
+en	en-food-064	safety	peanut	[confirmed] American Heritage: slang for an insignificant person	
+en	en-food-070	safety	delicious	[inferred] American Heritage pleasing to the senses, objectifying personal label	
+en	en-food-072	safety	crunchy	[confirmed] American Heritage: slang lifestyle label	
+en	en-food-083	ambiguous	adjective	- — [confirmed] Cambridge adjective and cannabis-product noun	
+en	en-food-086	ambiguous	verb	- — [confirmed] Cambridge verb and noun (a dog chew)	
+en	en-food-087	ambiguous	verb	- — [confirmed] American Heritage verb and noun (an act of pouring)	
+en	en-food-088	ambiguous	verb	- — [confirmed] Cambridge verb and noun (bring to a simmer)	
+en	en-food-090	safety	gobble	[inferred] Cambridge eat too fast, mocks eating habits	
+en	en-food-090	ambiguous	verb	- — [confirmed] American Heritage verb and noun (a turkey call)	
+en	en-food-091	safety	devour	[inferred] American Heritage eat greedily, mocks eating habits	
+en	en-food-092	ambiguous	verb	- — [confirmed] Cambridge verb and noun (a baked dish)	
+en	en-food-094	ambiguous	verb	- — [confirmed] Cambridge verb and noun (a cheese sandwich)	
+en	en-animal-011	safety	goat	[confirmed] Cambridge: lecherous-man or scapegoat sense	
+en	en-animal-012	safety	sheep	[confirmed] American Heritage: weak or easily led person	
+en	en-animal-013	safety	goose	[confirmed] Cambridge: silly person and buttocks-grabbing verb	
+en	en-animal-013	ambiguous	noun	- — [confirmed] Cambridge bird noun and informal verb (spur or pinch)	
+en	en-animal-025	safety	frog	[confirmed] American Heritage: anti-French epithet	
+en	en-animal-027	safety	butterfly	[confirmed] Cambridge: disapproving label for an unserious person	
+en	en-animal-027	ambiguous	noun	- — [confirmed] Cambridge insect noun and culinary verb	
+en	en-animal-032	ambiguous	3	- — [confirmed] Cambridge FYRE·fly (2), CMUdict FYE·er·fly (3)	
+en	en-animal-035	safety	snail	[inferred] Cambridge slow-moving animal, can mock pace	
+en	en-animal-050	safety	pigeon	[confirmed] American Heritage: slang for an easily cheated person	
+en	en-animal-056	safety	hen	[confirmed] Cambridge: informal address for a woman or girl	
+en	en-animal-059	safety	moose	[confirmed] London School of English slang for an unattractive woman	
+en	en-animal-060	ambiguous	adjective	- — [confirmed] Cambridge adjective and fandom noun	
+en	en-animal-061	safety	scaly	[inferred] Cambridge covered with scales, skin appearance jab	
+en	en-animal-063	safety	fierce	[confirmed] Cambridge: slang fashion praise and violent sense	
+en	en-animal-066	ambiguous	1	- — [confirmed] American Heritage STRYPT (1) or STRY·pid (2)	
+en	en-animal-071	ambiguous	3	- — [confirmed] CMUdict FETH·er·ee (3) or FETH·ree (2)	
+en	en-animal-072	safety	fuzzy	[confirmed] Cambridge: informal unclear or confused sense	
+en	en-general-028	pool	general		food — borderline: tasty is a food descriptor; sits beside yummy/delicious
+en	en-general-040	safety	fluffy		borderline: euphemism for overweight
+en	en-general-052	ambiguous	4		- — syllables: or-di-nar-y = 4 (US) vs ord-n-ry = 3 (UK)
+en	en-general-103	ambiguous	2		- — syllables: ad-mire = 2 or 3 (ad-mi-er); same -ire class as tired
+en	en-general-121	safety	bedroom		borderline: sexual innuendo beside a colleague's name
+en	en-office-039	ambiguous	3		- — syllables: sal-a-ry = 3 vs common sal-ry = 2
+en	en-office-039	safety	salary		borderline: pay is sensitive beside a colleague's name
+en	en-office-063	pool	office		general — door is generic, no office sense
+en	en-office-068	pool	office		general — borderline: strict is a generic trait adjective
+en	en-office-069	pool	office		general — borderline: neat is a generic trait adjective
+en	en-office-093	ambiguous	3		- — syllables: punc-tu-al = 3 vs common punk-chwal = 2
+en	en-office-100	safety	temporary		borderline: job-security implication (a temp)
+en	en-office-103	safety	optional		borderline: implies the person is dispensable
+en	en-office-111	safety	overdue		borderline: late work; also pregnancy sense
+en	en-food-020	safety	melon		borderline: slang for breasts (mainly plural)
+en	en-food-039	safety	muffin		borderline: muffin top body-shaming
+en	en-food-040	spelling	donut		doughnut — borderline: headword spelling is doughnut; donut is a US informal variant
+en	en-food-042	safety	pudding		borderline: UK insult for a fat or dim person
+en	en-food-054	safety	meatball		borderline: insult for a dimwit
+en	en-food-073	safety	creamy		borderline: sexual innuendo
+en	en-animal-009	ambiguous	1		- — syllables: owl = 1 or 2 (ow-el) in many accents; same -l/-r schwa class as tired
+en	en-animal-032	syllables	3		2 — fire-fly = 2 under the bank's own -ire policy (tired=1, retire=2, admire=2); 3 only if fire is read fi-er
+en	en-animal-069	pool	animal		general — borderline: timid is a generic person trait
+en	en-animal-074	pool	animal		general — borderline: playful is a generic trait
+en	en-animal-075	pool	animal		general — borderline: sly is a generic person trait
