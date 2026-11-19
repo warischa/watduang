@@ -18,7 +18,7 @@ Before export, 32 cells were set to a wrong value (16 per language: syllable cou
 | Thai | 16 | 16 | 16 | 16 | 0 |
 | English | 16 | 16 | 16 | 16 | 0 |
 
-Every planted cell was flagged by both reviewers; 31 of 32 GPT proposals and 32 of 32 Claude proposals restored the exact original value. n = 1 run per reviewer per language — one run, not a distribution.
+Every planted cell was flagged by both reviewers; 31 of 32 GPT proposals and 32 of 32 Claude proposals restored the exact original value. n = 1 run per reviewer per language — one run, not a distribution. The catch rate covers only the planted class (off-by-one syllable counts, flipped คำเป็น/คำตาย, rotated word types). It says nothing about subtler errors: both reviewers passed ครู, a word with two accepted readings, which a later code review caught. The owner's sample should lean on two-reading words.
 
 ## Outcome
 
