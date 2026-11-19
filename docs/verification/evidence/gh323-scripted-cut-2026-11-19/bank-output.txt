@@ -1,0 +1,31 @@
+bank-th.ts: sha256 0ad4e977fccdadab
+bank-en.ts: sha256 415c8842b609e9d2
+th as stored: words 481, reviewed 0, retired 34
+en as stored: words 442, reviewed 0, retired 80
+bank-reading setups playable on the bank as stored: 0 of 16
+
+Game 2 (review ignored): lang pool | playable words | candidate pairs | excluded pairs
+  th general | 187 | 16144 | 1247
+  th office | 80 | 2999 | 161
+  th food | 109 | 5655 | 231
+  th animal | 71 | 2268 | 217
+  en general | 119 | 6413 | 608
+  en office | 109 | 5359 | 527
+  en food | 76 | 2677 | 173
+  en animal | 58 | 1451 | 202
+
+Game 4 (review ignored): link rule as ruled; CHAIN_LENGTH 5; pair search per L up to 15, budget 5000000 nodes
+  lang pool | words | chain-eligible | links | largest L with two disjoint chains | plays at CHAIN_LENGTH | seeded search nodes (median / max over 200 seeds)
+  th general | 199 | 123 | 514 | 15+ | yes | 11 / 20
+  th office | 82 | 54 | 107 | 11 | yes | 13 / 26
+  th food | 112 | 74 | 170 | 10 | yes | 20 / 59
+  th animal | 88 | 49 | 105 | 5 | yes | 131 / 1465
+  en general | 148 | 119 | 482 | 15+ | yes | 11 / 16
+  en office | 117 | 109 | 549 | 15+ | yes | 12 / 22
+  en food | 94 | 76 | 122 | 8 | yes | 30 / 157
+  en animal | 83 | 58 | 109 | 9 | yes | 18 / 109
+
+Thai words that qualify by ending in a letter that also writes a vowel: th-general-013 ends ว; th-general-022 ends ย; th-general-042 ends ว; th-general-053 ends อ
+th: 481 words, 34 retired; of the 447 unretired, 147 end in no link character and 300 are chain-eligible
+en: 442 words, 80 retired; of the 362 unretired, 0 end in no link character and 362 are chain-eligible
+checks failed: 0

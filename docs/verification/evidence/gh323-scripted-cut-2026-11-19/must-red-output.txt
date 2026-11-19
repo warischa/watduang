@@ -1,0 +1,68 @@
+gh#323 must-red record (REFUTE round 1 state), 2026-11-19. Each mutant applied alone to a sandbox copy of src/, then restored by sha256.
+Unit suite: node --test 'src/prize-round/*.test.mjs' (43 tests, all pass unmutated). Per mutant: failing-test count, then each failing test name (cut at 70 chars). M = engine 2b mutants, R = the REFUTE round 1 fixes.
+
+M1 skip tap: phone uses script 0: fail=3 :: every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M2 game 2 leak: fail=4 :: every tile is from its own side: the drawn word hits all of its group  | every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M3 game 3 leak: fail=5 :: every card: 9 distinct letters, THRESHOLD..MAX_OWN_MARKS marks under i | every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | a phone with the wrong code reads nothing; a step past the end is null | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M4 game 4 leak: fail=3 :: every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M5 phone group boundary <=: fail=4 :: every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | a phone with the wrong code reads nothing; a step past the end is null | two builds on different bank revisions disagree, and the stale phone r
+M6 Damm check dropped: fail=5 :: no single edit of any code kind, and no other kind as is, is accepted  | typos, adjacent swaps, the wrong round, junk and unknown modes are ref | a phone with the wrong code reads nothing; a verdict needs the tap | typos, adjacent swaps, the wrong round, junk, unknown digits are refus | a phone with the wrong code reads nothing; a step past the end is null
+M7 length check <: fail=3 :: no single edit of any code kind, and no other kind as is, is accepted  | typos, adjacent swaps, the wrong round, junk and unknown modes are ref | typos, adjacent swaps, the wrong round, junk, unknown digits are refus
+M8 half-cut guard removed: fail=1 :: the host refuses any round that is not a half-cut, and a setup it cann
+M9 Thai link: any last char: fail=4 :: Thai link rule: only a consonant last character passes a link on, to t | every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M10 chain search no backtracking: fail=7 :: the seeded chain search finds a pair exactly when a brute-force search | no single edit of any code kind, and no other kind as is, is accepted  | the fixture banks play every scripted setup except game 4 on the thin  | every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | pending and retired words are never in a script or a holding | the golden vectors of the bank-reading games see a reordered pool
+M11 chains may share words: fail=4 :: the seeded chain search finds a pair exactly when a brute-force search | every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M12 game 3 shared reaches threshold: fail=5 :: every card: 9 distinct letters, THRESHOLD..MAX_OWN_MARKS marks under i | every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | a phone with the wrong code reads nothing; a step past the end is null | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M13 MIN_TILES_PER_SIDE 1: fail=2 :: a pair needs 1 tiles on each side: one-letter differences are excluded | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M14 game 2 review filter dropped: fail=4 :: every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | pending and retired words are never in a script or a holding | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M15 game 4 review filter dropped: fail=4 :: pending and retired words take no part in a chain | every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | pending and retired words are never in a script or a holding
+M16 game 3 off pool 0 accepted: fail=1 :: typos, adjacent swaps, the wrong round, junk, unknown digits are refus
+M17 format digit ignored: fail=2 :: typos, adjacent swaps, the wrong round, junk and unknown modes are ref | typos, adjacent swaps, the wrong round, junk, unknown digits are refus
+M18 game 2 pool order ignored: fail=1 :: the golden vectors of the bank-reading games see a reordered pool
+M19 score one step ahead: fail=2 :: every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s
+M20 phone step item off by one: fail=3 :: every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M21 game 3 obsolete letters: fail=2 :: alphabets and constants: 42 Thai consonants (no obsolete letters), 26  | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M22 game 4 pool order ignored: fail=1 :: the golden vectors of the bank-reading games see a reordered pool
+M23 code length constant 13: fail=16 :: no single edit of any code kind, and no other kind as is, is accepted  | a word code is 14 digits, 2 or more from every phase-1 length, and the | typos, adjacent swaps, the wrong round, junk and unknown modes are ref | every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both c | a phone with the wrong code reads nothing; a verdict needs the tap | golden vectors: (event key, round, seed, identity) -> code, decoded mo | the golden vectors see a reordered pool (a stale or reordered bundle c | a script code is a 14-digit word-family code in engine 2b's kind block | typos, adjacent swaps, the wrong round, junk, unknown digits are refus | every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | a phone with the wrong code reads nothing; a step past the end is null | golden vectors: (event key, round, seed, identity) -> code, both scrip | the golden vectors of the bank-reading games see a reordered pool | two builds on different bank revisions disagree, and the stale phone r
+M24 English link reads last letter: fail=7 :: English link rule: last letter to first letter | a pool plays game 4 only with two word-disjoint chains of 5 | the fixture banks play every scripted setup except game 4 on the thin  | every half-cut configuration from proposeSchedule for N in 9..300: exa | N = 200, 100 and 40: every half-cut step, every feasible setup, both s | pending and retired words are never in a script or a holding | golden vectors: (event key, round, seed, identity) -> code, both scrip
+M25 game 4 feasibility without pair search: fail=1 :: a pool plays game 4 only with two word-disjoint chains of 5
+M26 game 3 any pool: fail=1 :: game 3 reads no bank and plays only under the general pool digit
+R1 13-digit family (format digit dropped everywhere): fail=7 :: no single edit of any code kind, and no other kind as is, is accepted  | a word code is 14 digits, 2 or more from every phase-1 length, and the | typos, adjacent swaps, the wrong round, junk and unknown modes are ref | golden vectors: (event key, round, seed, identity) -> code, decoded mo | a script code is a 14-digit word-family code in engine 2b's kind block | typos, adjacent swaps, the wrong round, junk, unknown digits are refus | golden vectors: (event key, round, seed, identity) -> code, both scrip
+R2 cut 000 accepted: fail=2 :: typos, adjacent swaps, the wrong round, junk and unknown modes are ref | typos, adjacent swaps, the wrong round, junk, unknown digits are refus
+R3a engine 2b revision check removed: fail=1 :: two builds on different bank revisions disagree, and the stale phone r
+R3b engine 2a revision check removed: fail=1 :: two builds on different bank revisions disagree, and the stale phone r
+R4 game 2 reveal from text: fail=1 :: scoring reads the stored letters cell, never the text: a cell that dis
+
+Proof script, node docs/verification/evidence/gh323-scripted-cut-2026-11-19/proof.mjs sweep (exit 0 unmutated). Counters of sweep A, then B. Recorded on the pre-REFUTE code; the composition and phone paths these mutate are unchanged since:
+M1 skip tap: phone assumes script 0: exit 1
+   A bad {"cut":0,"phone":1421944,"step":6971898,"suspense":0,"cross":0,"script":0,"gap":0}
+   B bad {"cut":0,"phone":267380,"step":1306820,"suspense":0,"cross":0,"script":0,"gap":0}
+   checks failed: 2
+M2 game 2 leak: group-1 tile from all of word B: exit 1
+   A bad {"cut":8870,"phone":0,"step":0,"suspense":31877,"cross":31877,"script":0,"gap":0}
+   B bad {"cut":1108,"phone":0,"step":0,"suspense":6175,"cross":6175,"script":0,"gap":0}
+   checks failed: 2
+M3 game 3 leak: own letters from both sides: exit 1
+   A bad {"cut":8428,"phone":0,"step":0,"suspense":77505,"cross":93195,"script":0,"gap":0}
+   B bad {"cut":1022,"phone":0,"step":0,"suspense":14450,"cross":17391,"script":0,"gap":0}
+   checks failed: 2
+M4 game 4 leak: a word of the other chain in the hash range: exit 1
+   A bad {"cut":22072,"phone":0,"step":0,"suspense":52443,"cross":52443,"script":0,"gap":0}
+   B bad {"cut":2756,"phone":0,"step":0,"suspense":9863,"cross":9863,"script":0,"gap":0}
+   checks failed: 2
+
+REFUTE round 1, proof-script reds (each exit 0 unmutated):
+  empty setups, gh323 proof.mjs sweep: exit 1: 'FAIL setups 0; kinds with none: 2|th 2|en 3|th 3|en 4|th 4|en', and A and B 'dealt no round of some game'
+  empty setups, gh322 proof.mjs sweep: exit 1: 'FAIL kinds with no setup:' (all 22 kinds), 'FAIL A dealt nothing', 'FAIL B dealt nothing'
+  R1 13-digit family, proof.mjs codes 400: exit 1: deal edited -> word 114 / 98824, deal edited -> script 112 / 98824 (also word edited -> phase1 450 / 106434, script edited -> phase1 425 / 106696)
+  Old 11/13-digit design (the code before this round), codes at 2000 per kind: deal edited -> word 1889 / 493690, deal edited -> script 8 / 493690; every other row 0.
+
+Bank mode: CHAIN_LENGTH 6 -> proof.mjs bank exit 1, 'FAIL game 4 th animal cannot play at CHAIN_LENGTH' (the only failing pool); exit 0 at 5.
+Scoped tsc --noEmit --strict (hand-picked flags) over the new .ts modules and round.ts: exit 0; with a planted type error: exit 2 (TS2322).
+
+REFUTE round 2, 2026-11-19 (same sandbox method; unit suite 45 tests, all pass unmutated):
+  Pathological pool test on the pre-fix chain search: red, 'feasibility took 44457 ms' (bounded now: 100000 nodes, 28 ms, infeasible).
+  C1 chain search unbounded (budget Infinity): fail=1 :: a pathological pool where every chain needs one shared word is judged 
+  C2 budget check removed from the walk: fail=1 :: a capped search reports exhaustion and returns no pair, never a partia
+  C3 exhausted search reported as not exhausted: fail=1 :: a capped search reports exhaustion and returns no pair, never a partia
+  N = 40 filter (const all = halfCutConfigs().filter(n === 40)): gh322 proof.mjs sweep exit 1 and gh323 proof.mjs sweep exit 1, each 'FAIL configurations 2, advertised 396', shapes, A/B rounds and B configurations (5 checks failed).

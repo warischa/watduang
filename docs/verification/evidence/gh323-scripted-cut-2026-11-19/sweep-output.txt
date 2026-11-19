@@ -1,0 +1,19 @@
+half-cut configurations for N in 9..300: 396; distinct live>keep shapes: 5
+feasible fixture setups (game, lang, pool): 16 = 2th-general 2th-office 2th-food 2th-animal 2en-general 2en-office 2en-food 2en-animal 3th-general 3en-general 4th-general 4th-office 4th-food 4en-general 4en-office 4en-food
+A. every config x every setup x 3 event keys: rounds 19008, identities 839040, cut checks 76032, step checks 22028440, phone checks 839040, bad {"cut":0,"phone":0,"step":0,"suspense":0,"cross":0,"script":0,"gap":0} (84189 ms)
+   rounds by game: {"2":9504,"3":2376,"4":7128}; by live>keep: {"20>10":7248,"40>20":48,"10>5":5376,"100>50":6288,"200>100":48}
+   game 3 marks: lowest survivor 4, highest eliminated 3
+   game 4 20>10: chain words with no holder 2878 of 27180; chains with at least one 2527 of 5436
+   game 4 40>20: chain words with no holder 0 of 180; chains with at least one 0 of 36
+   game 4 10>5: chain words with no holder 6630 of 20160; chains with at least one 3870 of 4032
+   game 4 100>50: chain words with no holder 1 of 23580; chains with at least one 1 of 4716
+   game 4 200>100: chain words with no holder 0 of 180; chains with at least one 0 of 36
+B. N = 40, 100, 200 (40:r1 40:r2 100:r1 100:r3 100:r4 200:r1 200:r2) x every setup x 20 event keys: rounds 2240, identities 156800, cut checks 8960, step checks 4119620, phone checks 156800, bad {"cut":0,"phone":0,"step":0,"suspense":0,"cross":0,"script":0,"gap":0} (15028 ms)
+   rounds by game: {"2":1120,"3":280,"4":840}; by live>keep: {"40>20":320,"20>10":640,"100>50":640,"10>5":320,"200>100":320}
+   game 3 marks: lowest survivor 4, highest eliminated 3
+   game 4 40>20: chain words with no holder 16 of 1200; chains with at least one 16 of 240
+   game 4 20>10: chain words with no holder 242 of 2400; chains with at least one 218 of 480
+   game 4 100>50: chain words with no holder 0 of 2400; chains with at least one 0 of 480
+   game 4 10>5: chain words with no holder 382 of 1200; chains with at least one 232 of 240
+   game 4 200>100: chain words with no holder 0 of 1200; chains with at least one 0 of 240
+checks failed: 0

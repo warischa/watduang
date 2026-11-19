@@ -1,0 +1,6 @@
+half-cut configurations for N in 9..300: 396; distinct live>keep shapes: 5
+feasible fixture setups (game, lang, pool, family): 57
+A. every config x every setup x 3 event keys: rounds 67716, identities 2989080, cut checks 270864, phone checks 2989080, bad {"cut":0,"phone":0,"suspense":0,"unplayable":0,"hand":0} (51754 ms)
+   rounds by live>keep: {"20>10":25821,"40>20":171,"10>5":19152,"100>50":22401,"200>100":171}
+B. N = 40, 100, 200 (40:r1 40:r2 100:r1 100:r3 100:r4 200:r1 200:r2) x every setup x 20 event keys: rounds 7980, identities 558600, cut checks 31920, phone checks 558600, bad {"cut":0,"phone":0,"suspense":0,"unplayable":0,"hand":0} (10834 ms)
+checks failed: 0

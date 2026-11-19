@@ -1,0 +1,98 @@
+th review as stored: reviewed 0, pending 481, retired 34
+en review as stored: reviewed 0, pending 442, retired 80
+rows with a feasible pair on the bank as stored: 0 of 88
+bank-th.ts: sha256 0ad4e977fccdadab
+bank-en.ts: sha256 415c8842b609e9d2
+th words per pool: general 199, office 82, food 112, animal 88
+en words per pool: general 148, office 117, food 94, animal 83
+lang pool game family | playable values feasible excluded | first feasible pairs
+th general g1 firstChar | 187 31 300 165 | firstChar=ก | firstChar=ข ; firstChar=ก | firstChar=ค ; firstChar=ก | firstChar=จ
+th office g1 firstChar | 80 28 78 300 | firstChar=ก | firstChar=ค ; firstChar=ก | firstChar=ต ; firstChar=ก | firstChar=บ
+th food g1 firstChar | 109 24 120 156 | firstChar=ก | firstChar=ข ; firstChar=ก | firstChar=ค ; firstChar=ก | firstChar=ช
+th animal g1 firstChar | 71 23 21 232 | firstChar=ก | firstChar=น ; firstChar=ก | firstChar=ป ; firstChar=ก | firstChar=ม
+th general g1 firstConsonant | 187 27 253 98 | firstConsonant=ก | firstConsonant=ข ; firstConsonant=ก | firstConsonant=ค ; firstConsonant=ก | firstConsonant=จ
+th office g1 firstConsonant | 80 26 66 259 | firstConsonant=ก | firstConsonant=ค ; firstConsonant=ก | firstConsonant=ต ; firstConsonant=ก | firstConsonant=ท
+th food g1 firstConsonant | 109 24 91 185 | firstConsonant=ก | firstConsonant=ข ; firstConsonant=ก | firstConsonant=ค ; firstConsonant=ก | firstConsonant=ช
+th animal g1 firstConsonant | 71 19 21 150 | firstConsonant=ก | firstConsonant=น ; firstConsonant=ก | firstConsonant=ป ; firstConsonant=ก | firstConsonant=ม
+th general g1 lastChar | 153 23 78 175 | lastChar=ก | lastChar=ง ; lastChar=ก | lastChar=ด ; lastChar=ก | lastChar=น
+th office g1 lastChar | 62 22 28 203 | lastChar=ก | lastChar=ด ; lastChar=ก | lastChar=น ; lastChar=ก | lastChar=บ
+th food g1 lastChar | 88 19 66 105 | lastChar=ก | lastChar=ง ; lastChar=ก | lastChar=ด ; lastChar=ก | lastChar=ต
+th animal g1 lastChar | 59 19 28 143 | lastChar=ก | lastChar=ง ; lastChar=ก | lastChar=น ; lastChar=ก | lastChar=บ
+th general g1 letters | 187 55 1060 425 | letters=ก | letters=ข ; letters=ก | letters=ค ; letters=ก | letters=ง
+th office g1 letters | 80 52 882 444 | letters=ก | letters=ข ; letters=ก | letters=ค ; letters=ก | letters=ง
+th food g1 letters | 109 48 830 298 | letters=ก | letters=ข ; letters=ก | letters=ค ; letters=ก | letters=ง
+th animal g1 letters | 71 50 511 714 | letters=ก | letters=ข ; letters=ก | letters=ค ; letters=ก | letters=ง
+th general g1 toneMarks | 187 4 5 1 | toneMarks=่ | toneMarks=้ ; toneMarks=่ | toneMarks=๊ ; toneMarks=่ | toneMarks=๋
+th office g1 toneMarks | 80 4 5 1 | toneMarks=่ | toneMarks=้ ; toneMarks=่ | toneMarks=๊ ; toneMarks=้ | toneMarks=๊
+th food g1 toneMarks | 109 4 5 1 | toneMarks=่ | toneMarks=้ ; toneMarks=่ | toneMarks=๊ ; toneMarks=้ | toneMarks=๊
+th animal g1 toneMarks | 71 4 1 5 | toneMarks=่ | toneMarks=้
+th general g1 karan | 187 2 1 0 | karan=false | karan=true
+th office g1 karan | 80 2 1 0 | karan=false | karan=true
+th food g1 karan | 109 2 1 0 | karan=false | karan=true
+th animal g1 karan | 71 2 1 0 | karan=false | karan=true
+th general g1 length | 187 12 36 30 | length=2 | length=3 ; length=2 | length=4 ; length=2 | length=5
+th office g1 length | 80 14 15 76 | length=4 | length=5 ; length=4 | length=6 ; length=4 | length=7
+th food g1 length | 109 14 28 63 | length=3 | length=4 ; length=3 | length=5 ; length=3 | length=6
+th animal g1 length | 71 11 21 34 | length=2 | length=3 ; length=2 | length=4 ; length=2 | length=5
+th general g1 consonantClass | 187 3 3 0 | consonantClass=high | consonantClass=low ; consonantClass=high | consonantClass=mid ; consonantClass=low | consonantClass=mid
+th office g1 consonantClass | 80 3 3 0 | consonantClass=high | consonantClass=low ; consonantClass=high | consonantClass=mid ; consonantClass=low | consonantClass=mid
+th food g1 consonantClass | 109 3 3 0 | consonantClass=high | consonantClass=low ; consonantClass=high | consonantClass=mid ; consonantClass=low | consonantClass=mid
+th animal g1 consonantClass | 71 3 3 0 | consonantClass=high | consonantClass=low ; consonantClass=high | consonantClass=mid ; consonantClass=low | consonantClass=mid
+th general g1 vowels | 187 24 188 88 | vowels=-อ | vowels=-ะ ; vowels=-อ | vowels=-ั ; vowels=-อ | vowels=-ัว
+th office g1 vowels | 80 22 138 93 | vowels=-อ | vowels=-ะ ; vowels=-อ | vowels=-ั ; vowels=-อ | vowels=-ัว
+th food g1 vowels | 109 25 128 172 | vowels=-อ | vowels=-ะ ; vowels=-อ | vowels=-ั ; vowels=-อ | vowels=-า
+th animal g1 vowels | 71 22 51 180 | vowels=-อ | vowels=-ะ ; vowels=-อ | vowels=-า ; vowels=-อ | vowels=-ิ
+th general g1 syllables | 185 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+th office g1 syllables | 80 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+th food g1 syllables | 109 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+th animal g1 syllables | 71 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+th general g1 liveDead | 92 2 1 0 | liveDead=dead | liveDead=live
+th office g1 liveDead | 17 2 1 0 | liveDead=dead | liveDead=live
+th food g1 liveDead | 20 2 1 0 | liveDead=dead | liveDead=live
+th animal g1 liveDead | 21 2 1 0 | liveDead=dead | liveDead=live
+en general g1 firstChar | 119 22 120 111 | firstChar=a | firstChar=b ; firstChar=a | firstChar=c ; firstChar=a | firstChar=d
+en office g1 firstChar | 109 19 78 93 | firstChar=a | firstChar=b ; firstChar=a | firstChar=c ; firstChar=a | firstChar=d
+en food g1 firstChar | 76 17 36 100 | firstChar=b | firstChar=c ; firstChar=b | firstChar=d ; firstChar=b | firstChar=g
+en animal g1 firstChar | 58 17 55 81 | firstChar=d | firstChar=f ; firstChar=d | firstChar=g ; firstChar=d | firstChar=h
+en general g1 lastChar | 119 16 45 75 | lastChar=d | lastChar=e ; lastChar=d | lastChar=g ; lastChar=d | lastChar=l
+en office g1 lastChar | 109 18 21 132 | lastChar=d | lastChar=e ; lastChar=d | lastChar=k ; lastChar=d | lastChar=l
+en food g1 lastChar | 76 16 45 75 | lastChar=a | lastChar=d ; lastChar=a | lastChar=e ; lastChar=a | lastChar=i
+en animal g1 lastChar | 58 15 45 60 | lastChar=a | lastChar=d ; lastChar=a | lastChar=e ; lastChar=a | lastChar=g
+en general g1 letters | 119 24 240 36 | letters=a | letters=b ; letters=a | letters=c ; letters=a | letters=d
+en office g1 letters | 109 25 235 65 | letters=a | letters=b ; letters=a | letters=c ; letters=a | letters=d
+en food g1 letters | 76 23 211 42 | letters=a | letters=b ; letters=a | letters=c ; letters=a | letters=d
+en animal g1 letters | 58 24 186 90 | letters=a | letters=c ; letters=a | letters=d ; letters=a | letters=e
+en general g1 length | 119 8 28 0 | length=3 | length=4 ; length=3 | length=5 ; length=3 | length=6
+en office g1 length | 109 7 21 0 | length=4 | length=5 ; length=4 | length=6 ; length=4 | length=7
+en food g1 length | 76 7 15 6 | length=4 | length=5 ; length=4 | length=6 ; length=4 | length=7
+en animal g1 length | 58 7 21 0 | length=3 | length=4 ; length=3 | length=5 ; length=3 | length=6
+en general g1 doubleLetter | 119 2 1 0 | doubleLetter=false | doubleLetter=true
+en office g1 doubleLetter | 109 2 1 0 | doubleLetter=false | doubleLetter=true
+en food g1 doubleLetter | 76 2 1 0 | doubleLetter=false | doubleLetter=true
+en animal g1 doubleLetter | 58 2 1 0 | doubleLetter=false | doubleLetter=true
+en general g1 syllables | 119 4 3 3 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=2 | syllables=3
+en office g1 syllables | 105 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+en food g1 syllables | 74 4 3 3 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=2 | syllables=3
+en animal g1 syllables | 58 4 3 3 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=2 | syllables=3
+en general g1 wordType | 119 3 3 0 | wordType=adjective | wordType=noun ; wordType=adjective | wordType=verb ; wordType=noun | wordType=verb
+en office g1 wordType | 109 3 3 0 | wordType=adjective | wordType=noun ; wordType=adjective | wordType=verb ; wordType=noun | wordType=verb
+en food g1 wordType | 76 3 3 0 | wordType=adjective | wordType=noun ; wordType=adjective | wordType=verb ; wordType=noun | wordType=verb
+en animal g1 wordType | 58 3 3 0 | wordType=adjective | wordType=noun ; wordType=adjective | wordType=verb ; wordType=noun | wordType=verb
+th general g5 consonantClass | 187 3 3 0 | consonantClass=high | consonantClass=mid ; consonantClass=high | consonantClass=low ; consonantClass=mid | consonantClass=low
+th office g5 consonantClass | 80 3 3 0 | consonantClass=high | consonantClass=mid ; consonantClass=high | consonantClass=low ; consonantClass=mid | consonantClass=low
+th food g5 consonantClass | 109 3 3 0 | consonantClass=high | consonantClass=mid ; consonantClass=high | consonantClass=low ; consonantClass=mid | consonantClass=low
+th animal g5 consonantClass | 71 3 3 0 | consonantClass=high | consonantClass=mid ; consonantClass=high | consonantClass=low ; consonantClass=mid | consonantClass=low
+en general g5 wordType | 119 3 3 0 | wordType=noun | wordType=verb ; wordType=noun | wordType=adjective ; wordType=verb | wordType=adjective
+en office g5 wordType | 109 3 3 0 | wordType=noun | wordType=verb ; wordType=noun | wordType=adjective ; wordType=verb | wordType=adjective
+en food g5 wordType | 76 3 3 0 | wordType=noun | wordType=verb ; wordType=noun | wordType=adjective ; wordType=verb | wordType=adjective
+en animal g5 wordType | 58 3 3 0 | wordType=noun | wordType=verb ; wordType=noun | wordType=adjective ; wordType=verb | wordType=adjective
+th general g7 syllables | 185 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+th office g7 syllables | 80 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+th food g7 syllables | 109 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+th animal g7 syllables | 71 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+en general g7 syllables | 119 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+en office g7 syllables | 105 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+en food g7 syllables | 74 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+en animal g7 syllables | 58 4 6 0 | syllables=1 | syllables=2 ; syllables=1 | syllables=3 ; syllables=1 | syllables=4
+rows with at least one feasible pair: 88 of 88
+checks failed: 0

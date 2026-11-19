@@ -1,0 +1,29 @@
+valid codes sampled per kind: {"cut":2000,"deal":2000,"word":2000,"script":2000,"final":2000}
+source -> decoder | accepted / tried
+  cut as is -> word | 0 / 2000
+  cut edited -> word | 0 / 374924
+  cut as is -> script | 0 / 2000
+  cut edited -> script | 0 / 374924
+  cut edited -> phase1 | 0 / 374924
+  deal as is -> word | 0 / 2000
+  deal edited -> word | 0 / 493690
+  deal as is -> script | 0 / 2000
+  deal edited -> script | 0 / 493690
+  deal edited -> phase1 | 0 / 493690
+  word edited -> word | 0 / 570408
+  word as is -> script | 0 / 2000
+  word edited -> script | 0 / 570408
+  word as is -> phase1 | 0 / 2000
+  word edited -> phase1 | 0 / 570408
+  script as is -> word | 0 / 2000
+  script edited -> word | 0 / 571830
+  script edited -> script | 0 / 571830
+  script as is -> phase1 | 0 / 2000
+  script edited -> phase1 | 0 / 571830
+  final as is -> word | 0 / 8000
+  final edited -> word | 0 / 1179296
+  final as is -> script | 0 / 8000
+  final edited -> script | 0 / 1179296
+  final edited -> phase1 | 0 / 1179296
+edits and foreign codes tried against word/script decoders: 6408296; accepted: 0 (10288 ms)
+checks failed: 0
