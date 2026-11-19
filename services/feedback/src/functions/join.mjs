@@ -99,16 +99,22 @@ app.http('draw', {
   authLevel: 'anonymous',
   handler: async (request, context) => {
     const path = request.params.path ?? '';
-    const cap = BODY_CAP[routeDraw(request.method, path)?.op] ?? 0;
+    // The pick routes (gh#311) exist only while this app setting is exactly 1, read per request, never
+    // at load. Off, a pick path is unrouted: 404 before any body is read, whatever the method or the
+    // body. Every other path keeps its cap, an unrouted one 0.
+    const picks = process.env.DRAW_PICKS === '1';
+    const deps = { store, now: () => new Date(), log: (...parts) => context.log(...parts), picks };
+    const route = routeDraw(request.method, path, { picks });
+    if (!route && !picks && routeDraw(request.method, path, { picks: true })) {
+      return handleDraw({ method: request.method, path, admin: null, bodyText: '' }, deps);
+    }
+    const cap = BODY_CAP[route?.op] ?? 0;
     if (declaredTooLarge(request.headers.get('content-length'), cap)) return tooLarge();
     const body = request.body ? await readCapped(request.body, cap) : { ok: true, text: '' };
     if (!body.ok) return tooLarge();
     // Exactly these fields cross into join.mjs. Of the headers, only Content-Length (for the cap,
     // above) and the admin token are read; no other (the client IP included) reaches join logic,
     // storage or a log.
-    return handleDraw(
-      { method: request.method, path, admin: request.headers.get(ADMIN_HEADER), bodyText: body.text },
-      { store, now: () => new Date(), log: (...parts) => context.log(...parts) },
-    );
+    return handleDraw({ method: request.method, path, admin: request.headers.get(ADMIN_HEADER), bodyText: body.text }, deps);
   },
 });

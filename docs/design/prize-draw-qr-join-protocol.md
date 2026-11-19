@@ -15,6 +15,12 @@ JSON both ways; every response `no-store`, `nosniff`, `application/json`. Routin
 | `POST events/{eventId}/start` | admin | `{ids}` | 200 `{roster: [{id, name}]}`, frozen and idempotent · 409 `empty` |
 | `GET events/{eventId}/status/{id}` | phone | none | 200 `{state: 'open'}` · `{state: 'started', member}` · `{state: 'gone'}` |
 | `POST events/{eventId}/purge` | admin | none | 200 `{purged: true}` (works after expiry too; a retry after the purge is 200 too) |
+| `POST events/{eventId}/rounds` | admin, `DRAW_PICKS` | `{round, options}` | 201 `{round, options, state: 'open'}` · 200 same with its state on a retry of the same round and count · 409 `not-started` / `settling` (the start can still be put back) / `round` (round n-1 not closed, or round n exists with another count) |
+| `POST events/{eventId}/rounds/{round}/picks/{id}` | phone, `DRAW_PICKS` | `{pin, option}` | 200 `{round, option}` (landed before this member's freeze; the entry unless another send of the member landed after it, in storage order; not final) · 403 `pin` / `member` · 404 `gone` · 409 `no-round` / `closed` (rejected, absent from the snapshot) · 503 `unavailable` (unknown). Only the result route, once frozen or closed, is final |
+| `POST events/{eventId}/rounds/{round}/close` | admin, `DRAW_PICKS` | none | 200 `{round, options, picks: [{id, option, picked}]}` in roster order, `picked: false` for a random fill; every repeat answers the same bytes · 404 `no-round` |
+| `GET events/{eventId}/picks/{id}` · `GET events/{eventId}/rounds/{round}/picks/{id}` | phone, `DRAW_PICKS` | none | 200 `{state: 'gone'}` · `{state: 'open'}` · `{state: 'started', member: false}` · `{state: 'started', member: true, round}` (the latest, or the one named; `round: 0` before the first) and, from round 1, `options`, `picking` (`open` / `closing` / `closed`) and `mine` (`{option, picked}` or null; while `closing`, only once frozen) · 404 `no-round` for a named round not opened |
+
+The pick routes exist only while `DRAW_PICKS` is `1`; caps, state, the close freeze and the 503 semantics: [picks](prize-draw-qr-join-picks.md).
 
 Also, from `handleDraw` and the function module: 404 `no-route`, 405 `method`, 400 `bad-request` (unparsable body, bad device token, bad `ids`), 401 `admin` on an admin route with a wrong or missing token, 413 `too-large` (per-operation body caps), and 503 `unavailable` for any storage failure.
 
@@ -34,11 +40,13 @@ Start freezes exactly the ids the admin reviewed. A name that joins between the 
 
 ## Storage
 
-Same account and identity as feedback (`FEEDBACK_ACCOUNT_URL`, no new app setting), new container `prize-draw-join` (`DRAW_CONTAINER` overrides). Layout per event, all under `<eventId>/`:
+Same account and identity as feedback (`FEEDBACK_ACCOUNT_URL`), new container `prize-draw-join` (`DRAW_CONTAINER` overrides). The pick routes need `DRAW_PICKS=1` (unset by default). Layout per event, all under `<eventId>/`:
 
 - `event.json`, the event record: `state` (`open`, `started` or `closed`), PIN, admin-token hash, created, `removed` (ids the admin removed whose blob may still exist), and after the start the frozen `roster` and its time;
 - one empty blob per name at `names/<key>`, whose metadata holds `id`, base64url `name`, `joined` and the token hash, so one listing returns the whole review list;
 - one empty blob per held slot at `slots/0001` ... `slots/0300`, whose metadata holds the join `id`, its `owner` (SHA-256 of the device token's hash and the name key), the name `key`, `at` (the time of its last claim or touch) and `w` (a random mark of the write that put it there). These are the name cap.
+
+With picks on, `rounds/<n>` and `picks/<n>/<id>` sit under the same prefix: [picks](prize-draw-qr-join-picks.md#state).
 
 Nothing is stored outside an event's prefix, and a join with a wrong PIN stores nothing. Table storage was rejected: it would need a new role, and the identity holds Blob roles only.
 

@@ -35,6 +35,18 @@
 //   conditional on its creating ETag), by a purge, or by the next claimer once it is RECLAIM_AFTER_MS
 //   past its last claim or touch with no name holding its id. A slot found already absent may be
 //   created (create-only); a delete whose answer was lost is settled by reading the slot back.
+// - Picks (gh#311, off unless the DRAW_PICKS app setting is 1). A round is its own blob, opened by the
+//   admin once the start can no longer be put back, in order, and closed once: `open` -> `closing`
+//   (the fence) -> `closed`, each a write conditional on the ETag read. A pick is one blob per member
+//   per round, never the record nor a slot. Every write to it is conditional on the version read, and
+//   none is made to a frozen one. Close fences, then freezes each roster member's blob the same way
+//   (its pick, or a uniform random fill where there is none), then commits the snapshot of the frozen
+//   values on the fence's ETag; a closed round is never rewritten. A member's entry is the last of its
+//   writes to reach storage before its freeze (storage order), else the fill. 200: this write landed
+//   before the freeze, and is the entry unless another send of the member landed after it. 409:
+//   rejected, and absent from the snapshot. 503: unknown. Only the result route, once the member is
+//   frozen or the round closed, is final; its `open` answer is provisional. Every write to a round that finds the
+//   event gone afterwards deletes the round's blobs, whatever their ETag: gone is final.
 //
 // A create refused with 409 or 412 may be this request's own write, landed on an attempt whose answer
 // was lost and retried by the SDK. Each written blob carries who owns it, and a refused write reads
@@ -56,7 +68,29 @@ export const LIVE_AFTER_START_MS = 24 * HOUR_MS;
 export const LIVE_UNSTARTED_MS = 72 * HOUR_MS;
 export const PIN_DIGITS = 6;
 /** Body caps in bytes, per operation. A start carries up to MAX_NAMES ids of 22 characters. */
-export const BODY_CAP = { create: 256, join: 1024, status: 0, names: 0, remove: 256, start: 16384, purge: 256 };
+export const BODY_CAP = {
+  create: 256,
+  join: 1024,
+  status: 0,
+  names: 0,
+  remove: 256,
+  start: 16384,
+  purge: 256,
+  open: 256,
+  pick: 256,
+  close: 256,
+  result: 0,
+};
+/**
+ * Rounds per event. Sized by purge, whose sweep deletes one blob at a time: 600 join blobs plus each
+ * round's blob and 300 picks, at about 10 ms a delete, is 600 + 10 x 301 = 3610 deletes, about 36 s,
+ * inside the 45 s the SWA proxy waits. Purge is resumable if it runs out anyway.
+ */
+export const MAX_ROUNDS = 10;
+/** Choices in one round; a pick is an index below the round's count, never free text. */
+export const MAX_OPTIONS = 16;
+/** Member blobs a close freezes at once: 300 members take 19 waves of a HEAD and a write each. */
+const FREEZE_AT_ONCE = 16;
 /** The blob container the Function App writes join data to; the deploy creates it (ADR-0076). */
 export const DRAW_CONTAINER = 'prize-draw-join';
 /** Conditional writes to one blob retry this many times before the request answers 503. */
@@ -71,6 +105,7 @@ export const RECLAIM_AFTER_MS = 15 * 60 * 1000;
 const COLLECT_AT_MOST = 16;
 
 const ID = /^[A-Za-z0-9_-]{22}$/;
+const ROUND = /^([1-9]|10)$/;
 const DEVICE_TOKEN = /^[A-Za-z0-9_-]{16,64}$/;
 
 // A name is checked against a set this file owns, never against a set of bad characters: Unicode
@@ -169,30 +204,42 @@ export function normalizePin(raw) {
 }
 
 /**
+ * Every route: method, path pattern, operation, and whether it exists only with picks switched on.
+ * A switched-off route is absent, not refused: it answers 404 for every method.
+ */
+export const DRAW_ROUTES = Object.freeze([
+  ['POST', ['events'], 'create', false],
+  ['POST', ['events', ':eventId', 'join'], 'join', false],
+  ['GET', ['events', ':eventId', 'status', ':id'], 'status', false],
+  ['GET', ['events', ':eventId', 'names'], 'names', false],
+  ['POST', ['events', ':eventId', 'names', ':id', 'remove'], 'remove', false],
+  ['POST', ['events', ':eventId', 'start'], 'start', false],
+  ['POST', ['events', ':eventId', 'purge'], 'purge', false],
+  ['POST', ['events', ':eventId', 'rounds'], 'open', true],
+  ['POST', ['events', ':eventId', 'rounds', ':round', 'picks', ':id'], 'pick', true],
+  ['POST', ['events', ':eventId', 'rounds', ':round', 'close'], 'close', true],
+  ['GET', ['events', ':eventId', 'picks', ':id'], 'result', true],
+  ['GET', ['events', ':eventId', 'rounds', ':round', 'picks', ':id'], 'result', true],
+]);
+
+/**
  * Map a request to an operation. Only GET and POST are used.
  * @param {string} method
  * @param {string} path the part after `/api/draw/`
+ * @param {{ picks?: boolean }} [switches] the pick routes exist only when `picks` is true
  * @returns {{ op: string, params: Record<string, string> } | null} op 'method' means the path exists but not for this method
  */
-export function routeDraw(method, path) {
+export function routeDraw(method, path, { picks = false } = {}) {
   const parts = String(path ?? '').split('/').filter((p) => p !== '');
-  const table = [
-    ['POST', ['events'], 'create'],
-    ['POST', ['events', ':eventId', 'join'], 'join'],
-    ['GET', ['events', ':eventId', 'status', ':id'], 'status'],
-    ['GET', ['events', ':eventId', 'names'], 'names'],
-    ['POST', ['events', ':eventId', 'names', ':id', 'remove'], 'remove'],
-    ['POST', ['events', ':eventId', 'start'], 'start'],
-    ['POST', ['events', ':eventId', 'purge'], 'purge'],
-  ];
   let wrongMethod = false;
-  for (const [verb, pattern, op] of table) {
+  for (const [verb, pattern, op, gated] of DRAW_ROUTES) {
+    if (gated && picks !== true) continue;
     if (pattern.length !== parts.length) continue;
     const params = {};
     const hit = pattern.every((seg, i) => {
       if (!seg.startsWith(':')) return seg === parts[i];
       params[seg.slice(1)] = parts[i];
-      return ID.test(parts[i]);
+      return (seg === ':round' ? ROUND : ID).test(parts[i]);
     });
     if (!hit) continue;
     if (verb === String(method).toUpperCase()) return { op, params };
@@ -232,6 +279,10 @@ export const paths = {
   name: (eventId, key) => `${eventId}/names/${key}`,
   slotsPrefix: (eventId) => `${eventId}/slots/`,
   slot: (eventId, n) => `${eventId}/slots/${String(n).padStart(4, '0')}`,
+  roundsPrefix: (eventId) => `${eventId}/rounds/`,
+  round: (eventId, n) => `${eventId}/rounds/${String(n).padStart(4, '0')}`,
+  picksPrefix: (eventId, n) => `${eventId}/picks/${String(n).padStart(4, '0')}/`,
+  pick: (eventId, n, id) => `${eventId}/picks/${String(n).padStart(4, '0')}/${id}`,
   event: (eventId) => `${eventId}/`,
 };
 
@@ -271,14 +322,14 @@ const contended = () => Object.assign(new Error('conditional write lost every at
  * - del(path, ifMatch?) -> boolean. True when the blob is gone (deleted by this call, or already
  *   absent: the retry of a delete that landed). False only when its ETag moved, which some services
  *   also answer for a blob that is gone; a caller that must know reads it back. Without ifMatch it
- *   deletes whatever is there; only purge does that.
+ *   deletes whatever is there; only purge does that, and a round's writers once the event is gone.
  * - list(prefix) -> [{ path, metadata }]. No ETag: a listing spells it differently from a header.
  * @param {{ method: string, path: string, admin: string | null, bodyText: string }} request
- * @param {{ store: object, now: () => Date, log: (...parts: unknown[]) => void, limits?: { names?: number } }} deps
+ * @param {{ store: object, now: () => Date, log: (...parts: unknown[]) => void, limits?: { names?: number }, picks?: boolean }} deps
  * @returns {Promise<{ status: number, headers: Record<string, string>, body: string }>}
  */
 export async function handleDraw(request, deps) {
-  const route = routeDraw(request.method, request.path);
+  const route = routeDraw(request.method, request.path, { picks: deps.picks === true });
   if (!route) return reply(404, { error: 'no-route' });
   if (route.op === 'method') return reply(405, { error: 'method' });
   const body = parseBody(request.bodyText);
@@ -547,6 +598,118 @@ async function sweep(store, eventId) {
   for (const { path } of await store.list(paths.event(eventId))) if (path !== keep) await store.del(path);
 }
 
+const isMember = (event, id) => event.state === 'started' && event.roster.some((m) => m.id === id);
+
+/**
+ * A start that commits after the never-started expiry puts the record back (see `putBack`). It can do
+ * so only from a request still running, so at most RECLAIM_AFTER_MS after its stamp, and only if that
+ * reaches past the expiry. Rounds open only once the start is past that reach, so a pick is never
+ * taken against a roster that can still be put back.
+ */
+function settled(event, at) {
+  const reach = Date.parse(event.started) + RECLAIM_AFTER_MS;
+  return reach <= Math.max(Date.parse(event.created) + LIVE_UNSTARTED_MS, at.getTime());
+}
+
+/** What a close answers: built only from the stored round, so every close of one round answers the same bytes. */
+const snapshotOf = (round) => ({
+  round: round.round,
+  options: round.options,
+  picks: round.picks.map(({ id, option, picked }) => ({ id, option, picked })),
+});
+
+const isFrozen = (metadata) => metadata?.frozen === '1';
+const OPTION = /^[0-9]{1,2}$/;
+/** A frozen member blob as a snapshot entry. */
+const frozenEntry = (metadata) => ({ option: Number(metadata.option), picked: metadata.picked === '1', w: metadata.w });
+
+/**
+ * A phone's write of its member's pick blob: create it, or replace the version just read, never a
+ * frozen one. True when this write landed, so before the member's freeze: it is the member's entry
+ * unless another send of the member lands after it (storage order decides, not answer order). False
+ * when the blob is frozen first: this write is not the entry (an SDK retry of it may have landed, but
+ * a later send replaced it). A refused write reads the blob back: this write's own mark means it
+ * landed (an SDK retry, possibly frozen since with this value); another mark is a concurrent send of
+ * the same member, and the write is tried again on the new version.
+ */
+async function writeOpenPick(store, path, metadata) {
+  for (let attempt = 0; attempt < WRITE_ATTEMPTS; attempt++) {
+    const held = await store.head(path);
+    if (isFrozen(held?.metadata)) return false;
+    let etag = null;
+    let failure = null;
+    try {
+      etag = await store.put(path, { metadata, ifMatch: held?.etag });
+    } catch (error) {
+      failure = error;
+    }
+    if (etag) return true;
+    const after = failure ? await store.head(path).catch(() => null) : await store.head(path);
+    if (after?.metadata.w === metadata.w) return true;
+    if (failure) throw failure;
+    if (isFrozen(after?.metadata)) return false;
+  }
+  throw contended();
+}
+
+/**
+ * A close's freeze of one member's blob: the pick it holds, or, with none (or one the round does not
+ * allow), a uniform random fill, written frozen on the version just read (create-only when absent).
+ * A frozen blob, this freeze's own landed write or a racing close's, is taken as it stands, so every
+ * close of a round builds the same snapshot. A refused write is a phone's write in between: read again.
+ */
+async function freezePick(store, path, id, options) {
+  for (let attempt = 0; attempt < WRITE_ATTEMPTS; attempt++) {
+    const held = await store.head(path);
+    if (isFrozen(held?.metadata)) return frozenEntry(held.metadata);
+    const m = held?.metadata;
+    const valid = m?.id === id && OPTION.test(m.option ?? '') && Number(m.option) < options && typeof m.w === 'string';
+    const metadata = valid
+      ? { id, option: m.option, w: m.w, picked: '1', frozen: '1' }
+      : { id, option: String(randomInt(0, options)), w: newId(), picked: '0', frozen: '1' };
+    let etag = null;
+    let failure = null;
+    try {
+      etag = await store.put(path, { metadata, ifMatch: held?.etag });
+    } catch (error) {
+      failure = error;
+    }
+    if (etag) return frozenEntry(metadata);
+    const after = failure ? await store.head(path).catch(() => null) : await store.head(path);
+    if (isFrozen(after?.metadata)) return frozenEntry(after.metadata);
+    if (failure) throw failure;
+  }
+  throw contended();
+}
+
+/** Run `fn` over `items`, at most `limit` at a time, every item to its end; the first failure is thrown after. */
+async function eachLimited(items, limit, fn) {
+  const out = new Array(items.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const k = next++;
+      out[k] = await fn(items[k]);
+    }
+  });
+  const failed = (await Promise.allSettled(workers)).find((r) => r.status === 'rejected');
+  if (failed) throw failed.reason;
+  return out;
+}
+
+/** Delete every blob of one round, whatever its ETag. Only once the event is gone, which is final. */
+async function clearRound(store, eventId, n) {
+  for (const { path } of await store.list(paths.picksPrefix(eventId, n))) await store.del(path);
+  await store.del(paths.round(eventId, n));
+}
+
+/** After a write to a round: true (and the round deleted) when the event is gone by now. */
+async function goneAfter(store, eventId, n, now) {
+  if (isLive((await store.read(paths.record(eventId)))?.doc, now())) return false;
+  await clearRound(store, eventId, n);
+  return true;
+}
+
 // No abuse budget on create or on a PIN (owner ruling 2026-11-11, ADR-0076): with no client identity,
 // a counter is a lock a stranger can hold shut. The cost bound is a billing alert; admin review is
 // the guard on who joins.
@@ -810,5 +973,143 @@ const OPS = {
       return reply(200, { purged: true });
     }
     throw contended();
+  },
+
+  // ---- Picks (gh#311): routed only with the switch on; see the Picks invariant at the top ----
+
+  async open(input, deps) {
+    const { store, now } = deps;
+    const { reply: refused, event } = await adminEvent(input, deps);
+    if (refused) return refused;
+    const { round: n, options } = input.body;
+    if (!Number.isInteger(n) || n < 1 || n > MAX_ROUNDS || !Number.isInteger(options) || options < 2 || options > MAX_OPTIONS) {
+      return reply(400, { error: 'bad-request' });
+    }
+    if (event.state !== 'started') return reply(409, { error: 'not-started' });
+    if (!settled(event, now())) return reply(409, { error: 'settling' });
+    const path = paths.round(input.eventId, n);
+    let held = await store.read(path);
+    if (!held) {
+      // Rounds open in order: round n only once round n-1 is closed, and a closed round never reopens,
+      // so round n-1 cannot change back under this create.
+      if (n > 1 && (await store.read(paths.round(input.eventId, n - 1)))?.doc.state !== 'closed') return reply(409, { error: 'round' });
+      const doc = { round: n, options, state: 'open', opened: now().toISOString(), w: newId() };
+      let created = Boolean(await store.put(path, { json: doc }));
+      if (!created) {
+        // Refused: another open of this round, or this write landed and its answer was lost.
+        held = await store.read(path);
+        created = held?.doc.w === doc.w;
+      }
+      // A purge may have swept the event since the record was read: the record, read last, decides.
+      if (created && (await goneAfter(store, input.eventId, n, now))) return reply(404, { error: 'gone' });
+      if (created) return reply(201, { round: n, options, state: 'open' });
+      if (!held) throw contended();
+    }
+    // The round exists: the same open, retried, answers it; any other count is refused.
+    if (held.doc.options !== options) return reply(409, { error: 'round' });
+    return reply(200, { round: n, options, state: held.doc.state });
+  },
+
+  async pick(input, { store, now }) {
+    const { eventId, id, body } = input;
+    const n = Number(input.round);
+    const option = body.option;
+    if (!Number.isInteger(option) || option < 0 || option >= MAX_OPTIONS) return reply(400, { error: 'bad-request' });
+    const event = (await store.read(paths.record(eventId)))?.doc;
+    if (!isLive(event, now())) return reply(404, { error: 'gone' });
+    // A wrong PIN, a non-member, or a round not open writes nothing.
+    const pin = normalizePin(body.pin);
+    if (pin === '' || !sameSecret(pin, event.pin)) return reply(403, { error: 'pin' });
+    if (!isMember(event, id)) return reply(403, { error: 'member' });
+    const round = (await store.read(paths.round(eventId, n)))?.doc;
+    if (!round) return reply(409, { error: 'no-round' });
+    // Fenced or closed: rejected, and absent from the snapshot. Whether an earlier send counts is the result route's answer.
+    if (round.state !== 'open') return reply(409, { error: 'closed' });
+    if (option >= round.options) return reply(400, { error: 'bad-request' });
+    // 200: landed before this member's freeze, so the entry unless another send of this member lands
+    // after it. Not final: only the result route, once the member is frozen, is.
+    if (!(await writeOpenPick(store, paths.pick(eventId, n, id), { id, option: String(option), w: newId() }))) {
+      return reply(409, { error: 'closed' });
+    }
+    if (await goneAfter(store, eventId, n, now)) return reply(404, { error: 'gone' });
+    return reply(200, { round: n, option });
+  },
+
+  async close(input, deps) {
+    const { store, now } = deps;
+    const n = Number(input.round);
+    const path = paths.round(input.eventId, n);
+    let wrote = false;
+    let answer;
+    try {
+      answer = await attempts();
+    } catch (error) {
+      // Best effort: a close that wrote and then failed still takes its blobs back from a gone event.
+      if (wrote) await goneAfter(store, input.eventId, n, now).catch(() => {});
+      throw error;
+    }
+    // After the last write: an event gone by now (a purge swept it meanwhile) keeps nothing of this round.
+    if (wrote && (await goneAfter(store, input.eventId, n, now))) return reply(404, { error: 'gone' });
+    return answer;
+
+    async function attempts() {
+      for (let attempt = 0; attempt < WRITE_ATTEMPTS; attempt++) {
+        const { reply: refused, event } = await adminEvent(input, deps);
+        if (refused) return refused;
+        const read = await store.read(path);
+        if (!read) return reply(404, { error: 'no-round' });
+        // Closed is final: every later close, a host refresh, a retry, answers the stored snapshot.
+        if (read.doc.state === 'closed') return reply(200, snapshotOf(read.doc));
+        let etag = read.etag;
+        if (read.doc.state === 'open') {
+          // The fence first: from here a pick that reads the round writes nothing. A close that finds one
+          // already (a close stalled or racing) carries it on.
+          wrote = true;
+          etag = await store.put(path, { json: { ...read.doc, state: 'closing' }, ifMatch: etag });
+          if (!etag) continue;
+        }
+        wrote = true;
+        const frozen = await eachLimited(event.roster, FREEZE_AT_ONCE, ({ id }) => freezePick(store, paths.pick(input.eventId, n, id), id, read.doc.options));
+        const picks = event.roster.map(({ id }, k) => ({ id, ...frozen[k] }));
+        const closed = { ...read.doc, state: 'closed', picks };
+        if (await store.put(path, { json: closed, ifMatch: etag })) return reply(200, snapshotOf(closed));
+        // Refused: another close committed first (from the same frozen blobs), or this commit landed and
+        // its answer was lost. The next read answers what is stored.
+      }
+      throw contended();
+    }
+  },
+
+  async result({ eventId, id, round: asked }, { store, now }) {
+    const event = (await store.read(paths.record(eventId)))?.doc;
+    if (!isLive(event, now())) return reply(200, { state: 'gone' });
+    if (event.state === 'open') return reply(200, { state: 'open' });
+    if (!isMember(event, id)) return reply(200, { state: 'started', member: false });
+    let n = Number(asked ?? 0);
+    if (!asked) {
+      // No round named: the latest one.
+      const prefix = paths.roundsPrefix(eventId);
+      for (const { path } of await store.list(prefix)) {
+        const k = Number(path.slice(prefix.length));
+        if (Number.isInteger(k) && k >= 1 && k <= MAX_ROUNDS && path === paths.round(eventId, k)) n = Math.max(n, k);
+      }
+      if (n === 0) return reply(200, { state: 'started', member: true, round: 0 });
+    }
+    const round = (await store.read(paths.round(eventId, n)))?.doc;
+    if (!round) return reply(404, { error: 'no-round' });
+    const base = { state: 'started', member: true, round: n, options: round.options };
+    if (round.state === 'closed') {
+      const { option, picked } = round.picks.find((p) => p.id === id);
+      return reply(200, { ...base, picking: 'closed', mine: { option, picked } });
+    }
+    // A blob only ever holds a landed write. Frozen, it is this member's snapshot entry; before that, the
+    // pick as it stands while the round is open, and nothing while it is closing.
+    const held = await store.head(paths.pick(eventId, n, id));
+    if (isFrozen(held?.metadata)) {
+      const { option, picked } = frozenEntry(held.metadata);
+      return reply(200, { ...base, picking: 'closing', mine: { option, picked } });
+    }
+    const mine = round.state === 'open' && held?.metadata.id === id ? { option: Number(held.metadata.option), picked: true } : null;
+    return reply(200, { ...base, picking: round.state, mine });
   },
 };
