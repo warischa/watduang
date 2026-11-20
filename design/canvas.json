@@ -59,6 +59,10 @@
     {
       "id": "page-15",
       "name": "gh#317 gh#318 · prize draw phase-2 finals · ซองของขวัญ / เปิดไพ่ชิงรางวัล (approved 2026-11-16)"
+    },
+    {
+      "id": "page-16",
+      "name": "gh#325 · prize draw phase-3 letter and word games · kit + seven proposal boards (AWAITING OWNER 2026-11-20)"
     }
   ],
   "artboards": [
@@ -610,6 +614,69 @@
       "y": 0,
       "w": 1520,
       "h": 21879
+    },
+    {
+      "file": "Gh326PickRule.dc.html",
+      "title": "gh#326 เลือกคำ ลุ้นกติกา pilot + gh#325 kit · AWAITING OWNER: D1 glyph floor, D2 vowel-form label, D3 code grouping",
+      "page": "page-16",
+      "x": 0,
+      "y": 0,
+      "w": 1990,
+      "h": 25283
+    },
+    {
+      "file": "Gh327LetterHand.dc.html",
+      "title": "gh#327 ตัวอักษรในมือ · AWAITING OWNER: G327-D4 mark tile, D5 script labels, D6 hidden word, D7 phone pace, D8 pick grid (D1/D3 kit values)",
+      "page": "page-16",
+      "x": 2080,
+      "y": 0,
+      "w": 1990,
+      "h": 30493
+    },
+    {
+      "file": "Gh328LetterBingo.dc.html",
+      "title": "gh#328 บิงโกอักษร on the gh#325 kit · AWAITING OWNER: G328-D4 draw visual, G328-D5 admin field, G328-D6 mini-event pick",
+      "page": "page-16",
+      "x": 4160,
+      "y": 0,
+      "w": 1990,
+      "h": 27181
+    },
+    {
+      "file": "Gh329WordChain.dc.html",
+      "title": "gh#329 คำต่อคำ · AWAITING OWNER: G329-D4 unheld chain word, G329-D5 link letter, G329-D6 rule tap (D1/D3 kit)",
+      "page": "page-16",
+      "x": 6240,
+      "y": 0,
+      "w": 1990,
+      "h": 26189
+    },
+    {
+      "file": "Gh330ThreeGroups.dc.html",
+      "title": "gh#330 สามกลุ่มอักษร · AWAITING OWNER: G330-D4 group mark, D5 third class, D6 drawn word, D7 phone pick cards (D1, D3 shared, see Gh326PickRule)",
+      "page": "page-16",
+      "x": 8320,
+      "y": 0,
+      "w": 1990,
+      "h": 29074
+    },
+    {
+      "file": "Gh331NameLetter.dc.html",
+      "title": "gh#331 ชื่อใครมีตัวนี้ · AWAITING OWNER: G331-D4 letter card, G331-D5 match on a name, G331-D6 redraw; D1 per Gh326PickRule",
+      "page": "page-16",
+      "x": 10400,
+      "y": 0,
+      "w": 1990,
+      "h": 18860
+    },
+    {
+      "file": "Gh332SyllableCount.dc.html",
+      "title": "gh#332 นับพยางค์ · AWAITING OWNER: D4 number face, D5 count reveal, D6 live tally",
+      "page": "page-16",
+      "x": 12480,
+      "y": 0,
+      "w": 1990,
+      "h": 24303
     }
   ],
   "annotations": [
