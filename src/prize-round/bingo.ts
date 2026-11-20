@@ -11,6 +11,12 @@
 // So every holder of the drawn script's group ends above every other holder: "fewest marks are out" is an exact
 // cut with no tie to break, which replaces the hash tiebreak sketched for this game in gh#311. Polarity is
 // mechanically free ("most marks survive" or "most marks are out"); gh#311 states only the first.
+//
+// Barred letter sets. A set of letters that spells a word the company-party category must never show (its owner is
+// that category's Avoid line in CONTEXT.md) loses one hash-picked member per round before the split: the split runs
+// over the rest of the alphabet, so no card, script or card row can hold a full set. The alphabet stays whole; REST
+// shrinks by the exclusion count, and detail.excluded names the letters left out so any later generator can draw
+// from the same universe.
 
 import type { Lang } from '../prize-words/schema.ts';
 import { hashToScale } from '../prize-draw/round-code.ts';
@@ -20,6 +26,9 @@ import { hashOrder, idPart, pickDistinct, type ComposeCtx, type Composed, type C
 const THAI_ALPHABET = [...'กขคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ'];
 const ENGLISH_ALPHABET = [...'abcdefghijklmnopqrstuvwxyz'];
 export const BINGO_ALPHABET: Readonly<Record<Lang, readonly string[]>> = { th: THAI_ALPHABET, en: ENGLISH_ALPHABET };
+
+/** Per language, the letter sets no round may deal in full. Thai letters are written as escapes on purpose. */
+export const BINGO_BARRED: Readonly<Record<Lang, readonly (readonly string[])[]>> = { th: [['\u0e2b', '\u0e27', '\u0e22']], en: [] };
 
 export const CARD_SIZE = 9;
 export const DRAWS = 12;
@@ -35,7 +44,12 @@ export const BINGO: Composer = {
   },
   compose(ctx: ComposeCtx): Composed {
     const base = [ctx.eventKey, ctx.round, ctx.seed, ctx.setup.lang];
-    const order = hashOrder('bingo-split', base, BINGO_ALPHABET[ctx.setup.lang]);
+    const excluded: string[] = [];
+    BINGO_BARRED[ctx.setup.lang].forEach((set, i) => {
+      if (!set.some((x) => excluded.includes(x))) excluded.push(set[hashToScale('bingo-never', [...base, i], set.length)]!);
+    });
+    const universe = BINGO_ALPHABET[ctx.setup.lang].filter((x) => !excluded.includes(x));
+    const order = hashOrder('bingo-split', base, universe);
     const own = DRAWS - SHARED;
     const shared = order.slice(0, SHARED);
     const sides = [order.slice(SHARED, SHARED + own), order.slice(SHARED + own, SHARED + 2 * own)] as const;
@@ -43,7 +57,7 @@ export const BINGO: Composer = {
     const scripts = [hashOrder('bingo-draw', [...base, 0], [...shared, ...sides[0]]), hashOrder('bingo-draw', [...base, 1], [...shared, ...sides[1]])] as const;
     return {
       scripts,
-      detail: { shared, sides, rest },
+      detail: { shared, sides, rest, excluded },
       holding: (identity, group) => {
         const p = [...base, idPart(identity)];
         const m = THRESHOLD + hashToScale('bingo-marks', p, MAX_OWN_MARKS - THRESHOLD + 1);
