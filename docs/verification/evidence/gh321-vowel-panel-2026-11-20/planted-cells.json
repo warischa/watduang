@@ -1,0 +1,125 @@
+{
+ "salt": "vp-q7k2x9",
+ "plants": [
+  {
+   "id": "th-animal-087",
+   "class": "wrong-form",
+   "true": "-า|เ-า",
+   "planted": "เ-|เ-า"
+  },
+  {
+   "id": "th-general-037",
+   "class": "wrong-form",
+   "true": "เ-|-า",
+   "planted": "เ-|เ-า"
+  },
+  {
+   "id": "th-food-050",
+   "class": "wrong-form",
+   "true": "-า|เ-า",
+   "planted": "เ-|เ-า"
+  },
+  {
+   "id": "th-office-055",
+   "class": "wrong-form",
+   "true": "เ-|-า",
+   "planted": "เ-า|-า"
+  },
+  {
+   "id": "th-food-108",
+   "class": "wrong-form",
+   "true": "-ัว|-อ",
+   "planted": "-ัว|-ั"
+  },
+  {
+   "id": "th-food-088",
+   "class": "omission",
+   "true": "-ัว|-อ",
+   "planted": "-ัว"
+  },
+  {
+   "id": "th-general-056",
+   "class": "omission",
+   "true": "-ะ|เ-า|-า",
+   "planted": "-ะ|เ-า"
+  },
+  {
+   "id": "th-general-150",
+   "class": "omission",
+   "true": "-อ",
+   "planted": ""
+  },
+  {
+   "id": "th-office-032",
+   "class": "omission",
+   "true": "-ี|-อ",
+   "planted": "-ี"
+  },
+  {
+   "id": "th-general-085",
+   "class": "omission",
+   "true": "-อ",
+   "planted": ""
+  },
+  {
+   "id": "th-general-031",
+   "class": "decomposition",
+   "true": "เ-ีย",
+   "planted": "เ-|-ี"
+  },
+  {
+   "id": "th-office-031",
+   "class": "decomposition",
+   "true": "เ-า",
+   "planted": "เ-|-า"
+  },
+  {
+   "id": "th-food-031",
+   "class": "decomposition",
+   "true": "-ุ|เ-ีย",
+   "planted": "-ุ|เ-|-ี"
+  },
+  {
+   "id": "th-food-089",
+   "class": "decomposition",
+   "true": "-า|เ-ีย",
+   "planted": "-า|เ-|-ี"
+  },
+  {
+   "id": "th-animal-064",
+   "class": "decomposition",
+   "true": "ไ-|เ-ือ",
+   "planted": "ไ-|เ-|-ื"
+  },
+  {
+   "id": "th-office-023",
+   "class": "extra",
+   "true": "-า|เ-็",
+   "planted": "-า|เ-็|เ-"
+  },
+  {
+   "id": "th-food-106",
+   "class": "extra",
+   "true": "-ัว|-อ",
+   "planted": "-ัว|-ั|-อ"
+  },
+  {
+   "id": "th-food-054",
+   "class": "extra",
+   "true": "-ั|-ะ|เ-า",
+   "planted": "-ั|-ะ|เ-า|-า"
+  },
+  {
+   "id": "th-general-061",
+   "class": "extra",
+   "true": "เ-ือ|-ิ",
+   "planted": "เ-ือ|เ-|-ิ"
+  },
+  {
+   "id": "th-general-072",
+   "class": "extra",
+   "true": "เ-ือ",
+   "planted": "เ-ือ|เ-"
+  }
+ ]
+}

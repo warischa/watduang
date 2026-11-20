@@ -1,0 +1,20 @@
+th-animal-064	vowels	ไ-|เ-|-ื	ไ-|เ-ือ	เดือน writes the compound เ-ือ
+th-animal-087	vowels	เ-|เ-า	-า|เ-า	ปลา writes -า and the lone เ is part of เ-า
+th-food-031	vowels	-ุ|เ-|-ี	-ุ|เ-ีย	เรียน writes the compound เ-ีย
+th-food-050	vowels	เ-|เ-า	-า|เ-า	ซาลา writes -า and the lone เ is part of เ-า
+th-food-054	vowels	-ั|-ะ|เ-า|-า	-ั|-ะ|เ-า	the lone า is part of เ-า in เพรา
+th-food-088	vowels	-ัว	-ัว|-อ	ลอย writes -อ
+th-food-089	vowels	-า|เ-|-ี	-า|เ-ีย	เกรียบ writes the compound เ-ีย
+th-food-106	vowels	-ัว|-ั|-อ	-ัว|-อ	the lone ั is part of -ัว
+th-food-108	vowels	-ัว|-ั	-ัว|-อ	the lone ั is part of -ัว and ซอง writes -อ
+th-general-031	vowels	เ-|-ี	เ-ีย	เที่ยง writes the compound เ-ีย
+th-general-037	vowels	เ-|เ-า	เ-|-า	read เว-ลา so the lone เ is เ- and ลา writes -า
+th-general-056	vowels	-ะ|เ-า	-ะ|เ-า|-า	ตาง in สตางค์ writes -า
+th-general-061	vowels	เ-ือ|เ-|-ิ	เ-ือ|-ิ	the lone เ is part of เ-ือ
+th-general-072	vowels	เ-ือ|เ-	เ-ือ	the lone เ is part of เ-ือ
+th-general-085	vowels		-อ	พ่อ writes -อ
+th-general-150	vowels		-อ	ช้อน writes -อ
+th-office-023	vowels	-า|เ-็|เ-	-า|เ-็	the lone เ is part of เ-็
+th-office-031	vowels	เ-|-า	เ-า	เมา writes the compound เ-า
+th-office-032	vowels	-ี	-ี|-อ	บอร์ด writes -อ
+th-office-055	vowels	เ-า|-า	เ-|-า	read เล-ขา so the lone เ is เ- and ขา writes -า
