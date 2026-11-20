@@ -149,7 +149,7 @@ artboards 2080px apart (boards are 1990px wide).
 | `Gh332SyllableCount` | `board-syllables.mjs` | #332 game 7 | D4 number face · D5 count reveal · D6 live tally | 16 | 36 / 5 / 0 |
 
 Findings the builders raised, for the owner or the build tickets:
-- **gh#328 engine:** `bingo.ts` can deal one card holding ห, ว and ย, so a row can spell หวย (a barred word);
+- **gh#328 engine:** `bingo.ts` can deal one card holding ห, ว and ย, so a row can spell the barred lottery word (U+0E2B U+0E27 U+0E22);
   the board fixture refuses it, the engine does not.
 - **Kit:** the 2b labels ชุด ก / ชุด ข use letters the games draw (gh#327 D5 offers คำที่ 1 / คำที่ 2); a lone mark
   drawn on a hyphen reads close to "=" (pilot D2, gh#327 D4); `banned-scan.mjs` misses ball, cage, drum, dauber,
