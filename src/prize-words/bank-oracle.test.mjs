@@ -152,14 +152,53 @@ function checkBank(lang, bank) {
   return { findings, compared };
 }
 
-/** Vowel forms are judged; the oracle checks only that each is known, listed once, written in the word,
- *  and that every vowel sign written in the word belongs to some listed form. */
+// Where a vowel form may sit. Layer one comes from the form's own string: its characters appear in the
+// word contiguous and in order, the hyphen standing for one or more consonants (a cluster fills the slot),
+// with tone marks and U+0E47 allowed between the span's elements (after a leading vowel, after the slot,
+// between the following characters) but never between two consonants of the slot. It is a necessary
+// condition only, never exclusivity: an exclusive reading rejected correct words.
+const CONSONANT = `[${[...CLASS_OF.keys()].join('')}]`;
+const INSIDE_SPAN = '[\u0E47-\u0E4B]*';
+const literal = (c) => c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const spanOf = (form) => [...form].map((c) => (c === '-' ? `${CONSONANT}+` : literal(c))).join(INSIDE_SPAN);
+
+// Layer two: hand context rules, only for forms whose span alone still passes a wrong cell. `before` is a
+// lookbehind at the start of the consonant slot, `after` a lookahead past the form's last character.
+// Open SARA UE: a slot directly after SARA E, or after SARA E and one consonant (the second letter of a
+// cluster), belongs to SARA UEA, which SARA E opens, so the open form cannot sit there.
+const NOT_UNDER_SARA_E = `(?<!\u0E40${CONSONANT}?)`;
+// The bare O: only a slot directly after SARA E is refused. One consonant later is also the shape of a
+// correct two-syllable word (bacon, melon), so a cluster under SARA E listed this way still passes.
+const NOT_RIGHT_AFTER_SARA_E = '(?<!\u0E40)';
+// The form's last letter carries nothing: the word ends, or a consonant or a leading vowel follows.
+// A vowel sign or mark on it would make that letter the onset of the next syllable instead.
+const BARE_END = `(?=$|${CONSONANT}|[\u0E40-\u0E44])`;
+const VOWEL_CONTEXT = {
+  // WO WAEN standing for the vowel needs a final consonant; at the end or before a vowel it is a consonant.
+  '-ว': { after: `(?=${CONSONANT})` },
+  '-ือ': { before: NOT_UNDER_SARA_E },
+  '-อ': { before: NOT_RIGHT_AFTER_SARA_E, after: BARE_END },
+  '-รร': { after: BARE_END },
+  // Its YO YAK is the syllable's final, so it carries no vowel sign or mark.
+  'เ-ย': { after: BARE_END },
+};
+const placement = (form) => {
+  const rule = VOWEL_CONTEXT[form] ?? {};
+  return new RegExp(`${rule.before ?? ''}${spanOf(form)}${rule.after ?? ''}`, 'u');
+};
+
+/** Vowel forms are judged; the oracle checks only that each is known, listed once, placed in the word by
+ *  the two layers above (one occurrence must satisfy both), and that every vowel sign written in the word
+ *  belongs to some listed form. Known limit: an omitted form, or a form split into smaller listed forms
+ *  (open SARA UE listed as the bare sign), still passes. Review owns correctness; this is a tripwire. */
 function checkVowels(w, add) {
   const v = Array.isArray(w.vowels) ? w.vowels : [];
   const signsOf = (form) => [...form].filter((c) => c !== '-');
   const known = v.every((f) => VOWEL_FORMS.includes(f)) && new Set(v).size === v.length;
-  const written = v.every((f) => signsOf(f).every((c) => w.text.includes(c)));
-  const covered = new Set(v.flatMap(signsOf));
+  // Only a known form is placed: an unknown one is already a finding, and its string is not a pattern.
+  const written = known && v.every((f) => placement(f).test(w.text));
+  // A non-string entry is already a finding (not known); it contributes no signs.
+  const covered = new Set(v.filter((f) => typeof f === 'string').flatMap(signsOf));
   const uncovered = [...w.text].filter((c) => THAI_VOWEL_SIGNS.has(c) && !covered.has(c));
   if (!Array.isArray(w.vowels) || !known || !written || uncovered.length > 0) add(w.id, 'vowels', w.vowels, { uncovered });
 }
@@ -227,6 +266,21 @@ test('golden: the karan mark, stacked marks and SARA AM', () => {
   assert.equal(deriveThai('ฤดู').firstConsonant, 'ด', 'U+0E24 is not in the consonant table');
 });
 
+test('vowel forms: one consonant slot each, and every form with no vowel sign has a context rule', () => {
+  for (const f of VOWEL_FORMS) assert.equal([...f].filter((c) => c === '-').length, 1, `${f} needs exactly one slot`);
+  // A form with no vowel sign is spelled with consonant letters only, so its span alone matches consonants.
+  const signless = VOWEL_FORMS.filter((f) => ![...f].some((c) => THAI_VOWEL_SIGNS.has(c)));
+  assert.ok(signless.length > 0, 'no signless form found, so the rule check below would pass vacuously');
+  for (const f of signless) assert.ok(Object.hasOwn(VOWEL_CONTEXT, f), `${f} has no context rule`);
+  for (const [f, rule] of Object.entries(VOWEL_CONTEXT)) {
+    assert.ok(VOWEL_FORMS.includes(f), `context rule for unknown form ${f}`);
+    // An empty rule would satisfy the presence check while constraining nothing.
+    const keysOk = Object.keys(rule).every((k) => k === 'before' || k === 'after');
+    const constraints = ['before', 'after'].filter((k) => typeof rule[k] === 'string' && rule[k].length > 0);
+    assert.ok(keysOk && constraints.length > 0, `context rule for ${f} carries no before or after constraint`);
+  }
+});
+
 test('golden: English double letter and letter set', () => {
   assert.equal(deriveEnglish('coffee').doubleLetter, true);
   assert.deepEqual(deriveEnglish('coffee').letters, ['c', 'e', 'f', 'o']);
@@ -262,12 +316,26 @@ const exactlyOne = [
   ['th', 'จันทร์', { karan: false }, 'karan'],
   ['th', 'ที่', { length: 1 }, 'length'],
   ['th', 'หมา', { consonantClass: 'low' }, 'consonantClass'],
-  ['th', 'น้ำ', consistent('th', 'น้\u0E4D\u0E32', { vowels: ['-\u0E32'] }), 'codepoints'],
   ['th', 'น้ำ', consistent('th', 'น้ำ\u200B'), 'codepoints'],
   ['th', 'จันทร์', (w) => ({ eligible: THAI_FAMILIES.filter((f) => w.eligible.includes(f) || f === 'lastChar') }), 'eligible'],
   ['th', 'หมา', consistent('th', 'หวย', { vowels: [] }), 'workplaceSafe'],
   ['th', 'ตลาด', { liveDead: 'dead' }, 'liveDead'],
   ['th', 'หมา', { vowels: ['-\u0E39'] }, 'vowels'],
+  // Vowel forms in the wrong place: each form's letters are written in the word, but not where the form sits.
+  ['th', 'ดาว', (w) => ({ vowels: [...w.vowels, '-ว'] }), 'vowels'],
+  ['th', 'แมว', (w) => ({ vowels: [...w.vowels, '-ว'] }), 'vowels'],
+  ['th', 'เย็น', (w) => ({ vowels: [...w.vowels, 'เ-ย'] }), 'vowels'],
+  ['th', 'เรือ', (w) => ({ vowels: [...w.vowels, '-รร'] }), 'vowels'],
+  ['th', 'เสือ', { vowels: ['เ-', '-ือ'] }, 'vowels'],
+  ['th', 'เครื่องปรับอากาศ', { vowels: ['เ-', '-ือ', '-ั', '-า'] }, 'vowels'],
+  ['th', 'เบอร์เกอร์', { vowels: ['เ-', '-อ'] }, 'vowels'],
+  ['th', 'โคอาลา', { vowels: ['โ-', '-อ', '-า'] }, 'vowels'],
+  ['th', 'หมา', consistent('th', 'ทรราช', { vowels: ['-รร', '-า'] }), 'vowels'],
+  // An unknown form that is a regex metacharacter is named, never thrown.
+  ['th', 'หมา', { vowels: ['-า', '['] }, 'vowels'],
+  ['th', 'หมา', { vowels: ['-า', null] }, 'vowels'],
+  // The YO YAK of the SARA E plus YO YAK form is a final; here it is the onset of SARA IA.
+  ['th', 'เหยี่ยว', (w) => ({ vowels: [...w.vowels, 'เ-ย'] }), 'vowels'],
   ['en', 'apple', { firstChar: 'b' }, 'firstChar'],
   ['en', 'apple', { lastChar: 'l' }, 'lastChar'],
   ['en', 'apple', { letters: ['a', 'e', 'l', 'q'] }, 'letters'],
@@ -287,6 +355,60 @@ for (const [lang, text, patch, attr] of exactlyOne) {
     assert.deepEqual(keys(r), [`${id}:${attr}`], r.findings.map(show).join('\n'));
   });
 }
+
+test('must-red codepoints: a decomposed SARA AM is named, and its vowel cannot be placed either', () => {
+  // U+0E4D sits between the consonant and SARA AA, so no vowel cell fits the text and the vowel check names
+  // the word too; the codepoint finding comes first.
+  const id = idOf(BANK_TH, 'น้ำ');
+  const r = checkBank('th', plant(BANK_TH, 'น้ำ', consistent('th', 'น้\u0E4D\u0E32', { vowels: ['-\u0E32'] })));
+  assert.deepEqual(keys(r), [`${id}:codepoints`, `${id}:vowels`], r.findings.map(show).join('\n'));
+});
+
+// Correct vowel cells on words the bank does not hold, planted with every spelling cell consistent, so
+// only the vowel check can object. The cluster word with SARA UEA and a later open SARA UE guards a
+// leading-vowel rule that looks too far back; the word with SARA E, three consonants and O ANG guards
+// the same rule across a syllable break.
+const acceptVowels = [
+  ['มือ', ['-ือ']],
+  ['มื้อ', ['-ือ']],
+  ['หมวก', ['-ว']],
+  ['ม้วน', ['-ว']],
+  ['เนย', ['เ-ย']],
+  ['เลย', ['เ-ย']],
+  ['เลยเถิด', ['เ-ย', 'เ-ิ']],
+  ['กรรไกร', ['-รร', 'ไ-']],
+  ['เครื่องมือ', ['เ-ือ', '-ือ']],
+  ['เขตร้อน', ['เ-', '-อ']],
+  ['เบคอน', ['เ-', '-อ']],
+  ['เมลอน', ['เ-', '-อ']],
+];
+
+for (const [text, vowels] of acceptVowels) {
+  test(`accept th vowels: ${JSON.stringify(vowels)} on ${JSON.stringify(text)} passes`, () => {
+    const r = checkBank('th', plant(BANK_TH, 'หมา', consistent('th', text, { vowels })));
+    assert.deepEqual(r.findings.map(show), []);
+  });
+}
+
+// Accepted limits, pinned so that a change closing or widening them shows up here instead of silently.
+// The oracle is a substring tripwire, not a syllabifier; review owns which syllable a form belongs to.
+test('accepted limit: an extra form matched across a syllable boundary still passes', () => {
+  // The bank word for a seal: its WO WAEN is followed by the consonant that opens the next syllable.
+  const seal = checkBank('th', plant(BANK_TH, 'แมวน้ำ', { vowels: ['แ-', '-ำ', '-ว'] }));
+  assert.deepEqual(seal.findings.map(show), []);
+  // The exponent word: the SARA E plus YO YAK form matches its first four letters. The slot holds the first
+  // syllable's onset and final, and the form's YO YAK is the onset of the second syllable.
+  const exponent = checkBank('th', plant(BANK_TH, 'หมา', consistent('th', 'เลขยกกำลัง', { vowels: ['เ-', '-ำ', '-ั', 'เ-ย'] })));
+  assert.deepEqual(exponent.findings.map(show), []);
+});
+
+test('known false reject: an open SARA UE one consonant after an open SARA E syllable', () => {
+  // The open-SARA-UE lookbehind reads the two syllables as one cluster under SARA E. It is the same rule
+  // that rejects the tiger word split as SARA E plus open SARA UE; a bank word of this shape reopens it.
+  const id = idOf(BANK_TH, 'หมา');
+  const r = checkBank('th', plant(BANK_TH, 'หมา', consistent('th', 'เทมือ', { vowels: ['เ-', '-ือ'] })));
+  assert.deepEqual(keys(r), [`${id}:vowels`], r.findings.map(show).join('\n'));
+});
 
 test('must-red id: reordering a pool renames positions, so the append-only order is checked', () => {
   const copy = structuredClone(BANK_TH);

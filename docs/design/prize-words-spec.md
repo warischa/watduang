@@ -86,9 +86,24 @@ consonant block minus ฤ and ฦ.
 | `workplaceSafe` | Literal `true`: no brands, alcohol, profanity or gambling words. A word that fails is not in the bank |
 
 The oracle checks judged cells for shape and cross-rules only: a known value; `liveDead` non-null only
-when `syllables` is 1; each vowel form known, listed once and written in the word, and every written
+when `syllables` is 1; each vowel form known, listed once and placed in the word, and every written
 vowel sign covered by some listed form; no word from the gambling and alcohol avoid list
 ([CONTEXT.md](../../CONTEXT.md) _Avoid_). Brands and profanity are not enumerable and stay with review.
+
+A vowel form is placed when its characters appear in the word contiguous and in order, the hyphen
+standing for one or more consonants (a cluster fills the slot). Tone marks and U+0E47 may sit between the
+span's elements (after a leading vowel, after the slot, between the following characters), never between
+two consonants of the slot. This is necessary, not exclusive. A form spelled with no vowel sign, open -ือ
+and เ-ย also carry a context rule: -ว must be followed by a consonant; -ือ cannot start its slot right
+after เ or after เ and one consonant; -อ cannot start its slot right after เ; -อ, -รร and เ-ย must end
+bare (the word ends, or a consonant or a leading vowel follows).
+
+The oracle is a substring tripwire, not a syllabifier; review owns correctness and which syllable a form
+belongs to. Known passes: omitted forms; a form split into smaller listed forms; a cluster under เ listed
+as เ- plus -อ; an extra form matched across a syllable boundary, such as แมวน้ำ with -ว added (น opens
+น้ำ) or เลขยกกำลัง with เ-ย (the match is เลขย: the slot is ลข, and the form's ย is the onset of ยก).
+Known false reject: เทมือ as เ- plus -ือ, read as one cluster under เ; a bank word of that shape means the
+-ือ rule needs revisiting.
 
 **Review** (owner ruling 2026-11-19): judged cells are reviewed by a cross-lineage model panel with
 dictionary citations; the owner reviews the disagreement list plus a sample. `review` is `pending`

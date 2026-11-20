@@ -40,6 +40,7 @@ export const VOWEL_FORMS = [
   'โ-', 'โ-ะ', 'ใ-', 'ไ-', 'เ-า', 'เ-าะ',
   'เ-อ', 'เ-ิ', 'เ-อะ',
   'เ-ีย', 'เ-ียะ', 'เ-ือ', 'เ-ือะ',
+  '-ือ', '-ว', 'เ-ย', '-รร',
 ] as const;
 export type VowelForm = (typeof VOWEL_FORMS)[number];
 
