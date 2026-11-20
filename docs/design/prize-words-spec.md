@@ -160,6 +160,11 @@ next word must start with that consonant as its `firstConsonant` (leading vowels
 chains link the last letter to the first letter. No attribute is added for it: eligibility is
 membership of the stored `lastChar` in the consonant table, evaluated in `src/prize-round/`.
 
+On the mini-event page (owner rulings 2026-11-20, gh#329 comment 7034647341): the screen grows the
+longest chain the picked words allow and everyone who picked a word in it passes; a tie between longest
+chains is broken by a seeded random pick from the round's seed; a chain that would leave fewer players
+than the winner count, or pass everyone, voids the round, which is replayed with a new pool.
+
 ## Open, for the owner
 
 - **The review sample size** for judged cells.
