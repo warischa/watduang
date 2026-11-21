@@ -5,8 +5,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { POOLS, THAI_FAMILIES, ENGLISH_FAMILIES } from '../prize-words/schema.ts';
 import { hostDealCuts, parseCode, dammCheck, CUT_CODE_LENGTH, DEAL_CODE_LENGTH, FINAL_CODE_LENGTH } from '../prize-draw/round-code.ts';
-import { BANK_REVISION } from '../prize-words/schema.ts';
 import {
+  DEAL_REVISION,
   KINDS,
   POOL_ORDER,
   SCRIPT_KIND_BASE,
@@ -31,7 +31,7 @@ test('a word code is 14 digits, 2 or more from every phase-1 length, and the pha
   const code = wordCode(2, '12345', 512, kindIndexOf({ game: 1, lang: 'th', family: 'letters' }), 'food');
   assert.equal(code.length, 14);
   for (let r = 1; r <= 5; r++) assert.equal(parseCode(code, r), null, `phase-1 parseCode must refuse a word code in round ${r}`);
-  assert.deepEqual(parseWordCode(code, 2), { seed: '12345', cut: 512, revision: BANK_REVISION % 10, kindIndex: 3, kind: KINDS[3], pool: 'food' });
+  assert.deepEqual(parseWordCode(code, 2), { seed: '12345', cut: 512, revision: DEAL_REVISION % 10, kindIndex: 3, kind: KINDS[3], pool: 'food' });
 });
 
 test('the decoder refuses every phase-1 code: a cut code, a NON-half-cut deal code, a half-cut deal code', () => {
@@ -190,7 +190,7 @@ const GOLDEN = [
 ];
 
 function vector(v, b) {
-  // Revision pinned to 1 on both sides, so a later BANK_REVISION bump does not move the vectors.
+  // Revision pinned to 1 on both sides, so a later DEAL_REVISION bump does not move the vectors.
   const code = wordCode(v.round, v.seed, v.cut, kindIndexOf(v.setup), v.setup.pool, 1);
   const parsed = parseWordCode(code, v.round);
   const rows = IDS.map((id) => phoneWordRound(v.eventKey, id, v.round, code, { ...b, revision: 1 }));

@@ -78,7 +78,7 @@ _Avoid_: เกมกลุ่ม (a search query, not a หมวด name), ส
 
 **เกมงานเลี้ยงบริษัท (company party games)**:
 A หมวด of เกม that an organiser runs for a room on one projected screen — an **event**. People who come here type "จับรางวัล", "จับฉลากรางวัลปีใหม่" or "เกมงานเลี้ยงบริษัท". Not the ปาร์ตี้ หมวด: the 2–10 range and phone-passing are true of ปาร์ตี้ only (ADR-0075, amending ADR-0040). Its terms are the six below. Copy avoids the words that read as gambling (the AdSense risk), and card visuals avoid casino styling (felt table, chips, money).
-_Avoid_: ปาร์ตี้บริษัท (reads as the ปาร์ตี้ หมวด), เกมกลุ่ม, and หวย · ลอตเตอรี่ · เสี่ยงโชค · ไพ่ป๊อก · แทง · เดิมพัน · ไฮโล
+_Avoid_: ปาร์ตี้บริษัท (reads as the ปาร์ตี้ หมวด), เกมกลุ่ม, and หวย · ลอตเตอรี่ · เสี่ยงโชค · ไพ่ป๊อก · แทง · เดิมพัน · ไฮโล · on game-3 letter cards, never a full set of U+0E2B U+0E27 U+0E22, U+0E04 U+0E27 U+0E22, b e t or s e x (owner rulings 2026-11-20, 2026-11-21)
 
 Player-facing Thai wording for the terms below is not fixed — the canvas tickets set it. Until then code, issues and comments use the English term.
 

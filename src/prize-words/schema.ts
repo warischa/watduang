@@ -11,8 +11,9 @@ export type Pool = (typeof POOLS)[number];
 export type Lang = 'th' | 'en';
 
 /**
- * The bank revision engines carry in their codes. A literal number, never derived: any bank edit that
- * changes what can be dealt bumps it by one and appends that revision's hash to revisions.json.
+ * The bank's own revision. A literal number, never derived: any bank edit that changes what can be dealt
+ * bumps it by one and appends that revision's hash to revisions.json. Codes do not carry it: they carry the
+ * deal revision (DEAL_REVISION in src/prize-round/round.ts), which every change to the registered content hash also moves.
  */
 export const BANK_REVISION = 1;
 

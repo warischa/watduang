@@ -21,14 +21,16 @@
 // reason. Only `reviewed`, unretired words are ever dealt.
 //
 // Word-family code, digits only, shared by this engine and engine 2b (scripted.ts):
-//   seed (5) + cut (3) + bank revision (1) + kind (2) + pool (1) + format (1) + Damm check (1) = 14 digits,
+//   seed (5) + cut (3) + deal revision (1) + kind (2) + pool (1) + format (1) + Damm check (1) = 14 digits,
 // the check taken over the round number followed by the code exactly as round-code.ts does. Kind 00-49 indexes the
 // frozen KINDS table below; 50-99 is engine 2b's block. One cut, not two: at a half-cut the low and high cuts are
 // equal. Why 14: every phase-1 length (final 7, cut 9, deal 12) is at least 2 away, so no single inserted or
 // deleted digit turns a phase-1 code into a word-family code or back, and the Damm check rejects every single
 // substitution and adjacent swap inside the family. 13 would sit one insertion from a deal code; 11 one deletion.
-// The bank revision digit is BANK_REVISION mod 10 of the host's build: a phone on another revision refuses with
-// `stale-bank` instead of dealing from a bank the host does not hold.
+// The revision digit is DEAL_REVISION mod 10 of the host's build: a phone on another deal revision refuses with
+// `stale-bank` instead of rebuilding a deal the host did not make. The deal revision moves whenever what a phone
+// derives from a code moves, bank content included (deal-revisions.json, pinned by deal-fingerprint.test.mjs),
+// so bank and composition changes share the ten digits of one format; past ten, CODE_FORMAT moves (codeFormatProblem).
 //
 // The drawn candidate (rule 0 or 1) and the polarity reach the phone by a rule tap, as the card round's rule does.
 
@@ -43,7 +45,7 @@ import {
   ROUNDS,
   SEED_DIGITS,
 } from '../prize-draw/round-code.ts';
-import { BANK_REVISION, type Bank, type EnglishWord, type Lang, type Pool, type ThaiWord } from '../prize-words/schema.ts';
+import { type Bank, type EnglishWord, type Lang, type Pool, type ThaiWord } from '../prize-words/schema.ts';
 import {
   compareValues,
   conditionId,
@@ -60,9 +62,9 @@ import {
 
 export type WordGame = 1 | 5 | 7;
 export type Kind = { readonly game: WordGame; readonly lang: Lang; readonly family: Family };
-/** A build's banks. `revision` defaults to BANK_REVISION; a test sets it to stand for another build. */
+/** A build's banks. `revision` defaults to DEAL_REVISION; a test sets it to stand for a build on another deal revision. */
 export type Banks = { readonly th: Bank<ThaiWord>; readonly en: Bank<EnglishWord>; readonly revision?: number };
-/** Why a phone refuses a code: mistyped or minted for no round it can play, or minted on another bank revision. */
+/** Why a phone refuses a code: mistyped or minted for no round it can play, or minted on another deal revision. */
 export type CodeRefusal = 'bad-code' | 'stale-bank';
 export type Refused = { readonly refused: CodeRefusal };
 export type WordSetup = { readonly game: WordGame; readonly lang: Lang; readonly pool: Pool; readonly family: Family };
@@ -112,6 +114,27 @@ export const KIND_DIGITS = 2;
 /** First kind number of engine 2b's block; engine 2a's KINDS stay below it. */
 export const SCRIPT_KIND_BASE = 50;
 export const CODE_FORMAT = 0;
+/**
+ * The deal revision codes carry. A literal number, never derived: any change to what a phone rebuilds from a code
+ * (a composer, a fixed table, bank content) appends entry DEAL_REVISION + 1 to deal-revisions.json and sets it
+ * here. A reverted change appends too, never decrements: a revision number, once published, names one deal.
+ */
+export const DEAL_REVISION = 2;
+
+/**
+ * Null when `codeFormat` is the format digit deal revision `dealRevision` must be minted under; the reason otherwise.
+ * One digit carries the revision mod 10, so revisions 1-10 are format 0, 11-20 format 1, and so on; a phone refuses
+ * any other format digit as mistyped, so a repeated revision digit never reaches its `stale-bank` check.
+ */
+export function codeFormatProblem(dealRevision: number, codeFormat: number): string | null {
+  if (!Number.isInteger(dealRevision) || dealRevision < 1) return `deal revision must be a whole number from 1, got ${dealRevision}`;
+  const want = Math.floor((dealRevision - 1) / 10);
+  if (want > 9) return `deal revision ${dealRevision} needs format ${want}, past the one format digit: the code layout itself must change`;
+  if (codeFormat !== want) {
+    return `deal revision ${dealRevision} must be minted under CODE_FORMAT ${want}, not ${codeFormat}: its digit ${dealRevision % 10} would repeat an earlier revision's. Set CODE_FORMAT in round.ts to ${want}`;
+  }
+  return null;
+}
 export const WORD_CODE_LENGTH = SEED_DIGITS + CUT_DIGITS + 1 + KIND_DIGITS + 1 + 1 + 1;
 /** Words in a game-1 hand, and so the least a quadrant may hold. */
 export const HAND_SIZE = 3;
@@ -221,9 +244,9 @@ export function kindIndexOf(setup: Pick<WordSetup, 'game' | 'lang' | 'family'>):
   return KINDS.findIndex((k) => k.game === setup.game && k.lang === setup.lang && k.family === setup.family);
 }
 
-/** This build's bank revision digit. */
+/** This build's deal revision digit. */
 export function revisionDigit(banks: Banks): number {
-  return (banks.revision ?? BANK_REVISION) % 10;
+  return (banks.revision ?? DEAL_REVISION) % 10;
 }
 
 export type ParsedFamilyCode = { seed: string; cut: number; revision: number; kind: number; pool: Pool };
@@ -261,7 +284,7 @@ export function parseFamilyCode(raw: string, round: number): ParsedFamilyCode | 
 }
 
 /** The word-round code for a seed and cut. Exported so the golden vectors can pin a fixed seed. */
-export function wordCode(round: number, seed: string, cut: number, kindIndex: number, pool: Pool, revision: number = BANK_REVISION % 10): string {
+export function wordCode(round: number, seed: string, cut: number, kindIndex: number, pool: Pool, revision: number = DEAL_REVISION % 10): string {
   if (!KINDS[kindIndex] || kindIndex >= SCRIPT_KIND_BASE) throw new RangeError('unknown kind');
   return familyCode(round, seed, cut, revision, kindIndex, pool);
 }
@@ -389,7 +412,7 @@ export type PhoneWordRound = { setup: WordSetup; candidates: Candidates; holding
 
 /**
  * Phone side: this identity's holding and the two candidates, from the code alone. Refused `bad-code` when the code
- * does not parse or names a setup this bank cannot play, `stale-bank` when it was minted on another bank revision.
+ * does not parse or names a setup this bank cannot play, `stale-bank` when it was minted on another deal revision.
  */
 export function phoneWordRound(eventKey: string, identity: string, round: number, code: string, banks: Banks): PhoneWordRound | Refused {
   const parsed = parseWordCode(code, round);

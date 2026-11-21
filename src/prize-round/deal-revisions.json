@@ -1,0 +1,14 @@
+{
+  "1": {
+    "revision": 1,
+    "hash": "378cfa917fd9640f315f558a931a0ea3519ed571484ef6efce4fefcdd83a68e9",
+    "date": "2026-11-21",
+    "note": "First entry: the deal of every word and scripted kind as composed on main after the barred-set guard of gh#328 (5683245), on bank revision 1."
+  },
+  "2": {
+    "revision": 2,
+    "hash": "b57fa9869da9e4d6c419cc12cb238dc5e6d0fd57f295bae37a709de9538e1872",
+    "date": "2026-11-21",
+    "note": "Game 3 barred letter sets widened: one more Thai set and two English sets (owner ruling 2026-11-21; follows the gh#328 barred-set guard). Game-3 deals move in both languages; bank revision unchanged at 1."
+  }
+}

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Gate: the prize-words history files are append-only against the published base.
 //
-// WHY. src/prize-words/revisions.json (bank revision -> content hash) and
-// src/prize-words/ids-snapshot.json (word id -> word) exist so a word bank edit cannot silently
-// rewrite what an earlier revision meant. But the only thing guarding each file was the file itself:
+// WHY. src/prize-words/revisions.json (bank revision -> content hash),
+// src/prize-words/ids-snapshot.json (word id -> word) and src/prize-round/deal-revisions.json (deal
+// revision -> fingerprint of what a phone derives from a code) exist so a bank or composition edit
+// cannot silently rewrite what an earlier revision meant. But the only thing guarding each file was the file itself:
 // a commit that edits the bank can rewrite the matching history entry in the same edit, and every
 // self-consistency test stays green. A cross-lineage review found exactly that gap. This gate pins
 // the history to something the commit under review cannot touch: the published git base.
@@ -42,7 +43,7 @@
 //   node scripts/prize-words-history-check.mjs <rev>        -> explicit base, same as the citation gate
 //   node scripts/prize-words-history-check.mjs --selftest   -> must-red calibration in a temp repo
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -53,7 +54,7 @@ import { resolveRange } from './added-lineno-citation-check.mjs';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
-const PINNED_FILES = ['src/prize-words/revisions.json', 'src/prize-words/ids-snapshot.json'];
+const PINNED_FILES = ['src/prize-words/revisions.json', 'src/prize-words/ids-snapshot.json', 'src/prize-round/deal-revisions.json'];
 
 function git(cwd, ...args) {
   return execFileSync('git', args, {
@@ -151,6 +152,9 @@ function selftest() {
     git(root, 'config', 'user.name', 'selftest');
     const REV = 'src/prize-words/revisions.json';
     const IDS = 'src/prize-words/ids-snapshot.json';
+    const DEAL = 'src/prize-round/deal-revisions.json';
+    // The selftest drives its own file list, so it must name every pinned file or a dropped pin stays green.
+    assert.deepEqual([...PINNED_FILES].sort(), [REV, IDS, DEAL].sort(), 'the selftest must cover exactly PINNED_FILES');
     const write = (rel, text) => {
       fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
       fs.writeFileSync(path.join(root, rel), text);
@@ -162,16 +166,18 @@ function selftest() {
       return git(root, 'rev-parse', 'HEAD').trim();
     };
     // Explicit env objects only: the CI step env and an exported CITATION_DIFF_RANGE must never leak in.
-    const run = (env, argv = []) => checkHistory({ cwd: root, argv, env, files: [REV, IDS] });
+    const run = (env, argv = []) => checkHistory({ cwd: root, argv, env, files: [REV, IDS, DEAL] });
     const at = (sha) => ({ CITATION_DIFF_RANGE: sha });
     const baseRev = { 1: 'hash-one' };
     const baseIds = { 'w-001': 'alpha', 'w-002': 'beta' };
+    const baseDeal = { 1: { revision: 1, hash: 'deal-one', date: '2026-01-01', note: 'first' }, 2: { revision: 2, hash: 'deal-two', date: '2026-01-02', note: 'second' } };
 
     // (5) absent at base: the base commit holds neither file.
     write('README', 'x\n');
     const empty = commit('empty base');
     writeJson(REV, baseRev);
     writeJson(IDS, baseIds);
+    writeJson(DEAL, baseDeal);
     let out = run(at(empty));
     let rep = report(out);
     assert.equal(rep.ok, true, 'case 5: a file absent at base must pass');
@@ -189,6 +195,7 @@ function selftest() {
     assert.equal(out.source, 'github.event.before', 'case 3: the base must come from the shared resolver');
     assert.equal(out.files[0].pinned + out.files[1].pinned, 3, 'case 3: every base key must be pinned');
     assert.equal(out.files[0].added + out.files[1].added, 2, 'case 3: both appended keys must be counted');
+    assert.equal(out.files[2].pinned, 2, 'case 3: every deal-revisions base key must be pinned');
     console.log('PASS case 3  append                    -> green, 3 key(s) pinned, 2 appended');
 
     // (1) rewriting an existing revisions.json entry.
@@ -206,6 +213,38 @@ function selftest() {
     assert.ok(rep.lines.some((l) => l.includes(`${IDS}: key "w-002" dropped since base`)), 'case 2: the dropped key must be named');
     console.log('PASS case 2  ids-snapshot key dropped  -> red');
     writeJson(IDS, baseIds);
+
+    // (6) deal-revisions.json: one field rewritten inside a published entry, then an entry dropped. Checked twice:
+    // through report(), and through the real CLI process, whose exit code is what CI reads. The CLI runs from a copy
+    // of this script inside the temp repo, so its repo root is that repo; a minimal env keeps CI's range out.
+    const here = fileURLToPath(import.meta.url);
+    for (const f of [here, path.join(path.dirname(here), 'added-lineno-citation-check.mjs')]) {
+      write(path.join('scripts', path.basename(f)), fs.readFileSync(f, 'utf8'));
+    }
+    const cli = () =>
+      spawnSync(process.execPath, [path.join(root, 'scripts', path.basename(here)), base], {
+        cwd: root,
+        encoding: 'utf8',
+        env: { PATH: process.env.PATH ?? '', HOME: process.env.HOME ?? '' },
+      });
+    let proc = cli();
+    assert.equal(proc.status, 0, `case 6: the CLI must exit 0 on an untouched tree (stderr: ${proc.stderr})`);
+    writeJson(DEAL, { ...baseDeal, 1: { ...baseDeal[1], hash: 'deal-REWRITTEN' } });
+    rep = report(run(at(base)));
+    assert.equal(rep.ok, false, 'case 6: a rewritten deal-revisions entry must fail');
+    assert.ok(rep.lines.some((l) => l.includes(`${DEAL}: key "1" rewritten since base`)), 'case 6: the rewritten deal entry must be named');
+    proc = cli();
+    assert.notEqual(proc.status, 0, 'case 6: the CLI must exit non-zero on a rewritten deal entry');
+    assert.ok(proc.stderr.includes(`${DEAL}: key "1" rewritten since base`), 'case 6: the CLI must name the rewritten deal entry');
+    writeJson(DEAL, { 1: baseDeal[1], 3: { revision: 3, hash: 'deal-three', date: '2026-01-03', note: 'third' } });
+    rep = report(run(at(base)));
+    assert.equal(rep.ok, false, 'case 6: a dropped deal-revisions entry must fail, even with a new one appended');
+    assert.ok(rep.lines.some((l) => l.includes(`${DEAL}: key "2" dropped since base`)), 'case 6: the dropped deal entry must be named');
+    proc = cli();
+    assert.notEqual(proc.status, 0, 'case 6: the CLI must exit non-zero on a dropped deal entry');
+    assert.ok(proc.stderr.includes(`${DEAL}: key "2" dropped since base`), 'case 6: the CLI must name the dropped deal entry');
+    console.log('PASS case 6  deal entry rewritten / dropped -> red, in report() and in the CLI exit code');
+    writeJson(DEAL, baseDeal);
 
     // (4) unresolvable base fails closed: an explicit nonexistent rev, and the CI path with an
     // all-zeros before and no main to fall back on.

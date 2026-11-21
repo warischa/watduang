@@ -30,18 +30,31 @@ banks), `bank-oracle.test.mjs` (the oracle). Where this file and a code comment 
 
 ## Bank revision
 
-`BANK_REVISION` in `schema.ts` is a literal number that engines carry in their codes. `revisions.json`
+`BANK_REVISION` in `schema.ts` is a literal number: the bank's own bookkeeping. `revisions.json`
 maps each revision to a sha256 of the dealable content: per language and pool, in order, every word
 with every stored field except `note`. Any bank edit that changes what can be dealt (an attribute,
 `eligible`, `review`, `retired`, an append) reds the oracle until `BANK_REVISION` is bumped by one and
 the new hash is appended. Existing entries are never edited. Fields are hashed as engines read them,
 so a value inherited through a prototype counts.
 
-**Ceiling: `BANK_REVISION` ≤ 10** (`src/prize-round/revision-ceiling.test.mjs`). A code carries the
-revision mod 10, so revision 11 would pass for 1. Past 10, bump `CODE_FORMAT` (`parseFamilyCode`
-refuses any other format digit) and raise the ceiling by 10. Two costs: every `review`, `eligible` or
-`retired` flip is a revision, so the ceiling can be reached soon; and after a format bump an older
-page refuses the new codes as mistyped, not as a stale bank.
+**Codes carry the deal revision, not this one** (ADR-0080, amended 2026-11-21). A word-family code
+carries `DEAL_REVISION` mod 10 (`src/prize-round/round.ts`), registered in
+`src/prize-round/deal-revisions.json`. That registry pins a fingerprint of everything a phone derives
+from a code, and the fingerprint takes in the content digest `revisions.json` holds for `BANK_REVISION`.
+So it moves on a change to bank CONTENT (the registered digest), not on the number: a dealable bank edit
+reds the oracle until a new digest is registered, and that new digest then reds
+`src/prize-round/deal-fingerprint.test.mjs` until a deal revision is appended. A
+composition change appends one too, and so does an edit to the engine's test fixture banks
+(`src/prize-round/fixtures.mjs`, `scripted-fixtures.mjs`): they feed the fingerprint, so a fixture edit
+costs a deal revision though no player sees it. A reverted change appends a new entry; the number never
+decrements.
+
+**Ceiling: revisions 1–10 are format 0, 11–20 format 1, and so on**
+(`src/prize-round/revision-ceiling.test.mjs`, `codeFormatProblem`). A code carries the deal revision
+mod 10, so revision 11 under format 0 would pass for 1; `parseFamilyCode` refuses any other format digit.
+Two costs: bank flips (`review`, `eligible`, `retired`) and composition changes share the ten deal
+revisions of one format, so a bump comes soon; and after a format bump an older page refuses the new
+codes as mistyped, not as `stale-bank`.
 
 ## Allowed codepoints (oracle-checked)
 
@@ -147,8 +160,9 @@ targets come from the engine ticket's feasibility count.
 ## Adding a word
 
 Append to the end of its pool with the next id, type every cell by hand, set `review: 'pending'`, add
-its id and text to `ids-snapshot.json` in the same commit, bump `BANK_REVISION` with its new hash, and
-run `node --test 'src/prize-words/*.test.mjs'`. A wrong spelling cell fails with the word id, the
+its id and text to `ids-snapshot.json` in the same commit, bump `BANK_REVISION` with its new hash, append
+the deal revision `src/prize-round/deal-fingerprint.test.mjs` asks for, and
+run `node --test 'src/prize-words/*.test.mjs' 'src/prize-round/*.test.mjs'`. A wrong spelling cell fails with the word id, the
 attribute, the stored value and the derived value. Note that Node 22 does not collect the directory
 form `node --test src/prize-words/`; it reports the directory as a missing module.
 

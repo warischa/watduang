@@ -198,8 +198,8 @@ const GOLDEN = [
   },
   {
     eventKey: '100200', round: 4, seed: '00042', cut: 700, setup: { game: 3, lang: 'en', pool: 'general' }, code: '00042700153008',
-    scripts: [['e', 'r', 'a', 't', 'k', 'f', 'p', 'g', 'n', 'y', 'x', 'j'], ['v', 'h', 'p', 'e', 'm', 'z', 'i', 'k', 't', 'g', 'x', 'l']],
-    held: [['g', 'd', 'b', 'y', 'o', 'j', 'c', 'n', 'q'], ['m', 'd', 'o', 'l', 'u', 'k', 'i', 'q', 't'], ['c', 'd', 'x', 'n', 'b', 'j', 'f', 'q', 'u'], ['r', 'w', 'j', 'a', 'd', 'e', 'c', 'x', 'y']],
+    scripts: [['e', 'q', 'a', 'r', 'j', 'h', 'o', 'f', 'm', 'y', 'x', 'i'], ['w', 'd', 'o', 'e', 'p', 'z', 'l', 'j', 'r', 'f', 'x', 'b']],
+    held: [['f', 'g', 'n', 'y', 'u', 'i', 'c', 'm', 'v'], ['p', 'g', 'c', 'b', 'k', 'j', 'l', 'v', 'r'], ['v', 'u', 'x', 'm', 'n', 'i', 'h', 'g', 'k'], ['q', 'g', 'i', 'a', 'n', 'e', 'k', 'x', 'y']],
   },
   {
     eventKey: '777001', round: 2, seed: '16180', cut: 450, setup: { game: 4, lang: 'th', pool: 'food' }, code: '16180450154200',
@@ -214,7 +214,7 @@ const GOLDEN = [
 ];
 
 function vector(v, banksIn) {
-  // Revision pinned to 1 on both sides, so a later BANK_REVISION bump does not move the vectors.
+  // Revision pinned to 1 on both sides, so a later DEAL_REVISION bump does not move the vectors.
   const b = { ...banksIn, revision: 1 };
   const code = scriptCode(v.round, v.seed, v.cut, v.setup, 1);
   const scripts = [0, 1].map((rule) => phoneScriptTrace(v.eventKey, IDS[0], v.round, code, { rule, polarity: 'survive' }, b).slice(1).map((s) => s.item));
@@ -238,9 +238,9 @@ test('the golden vectors of the bank-reading games see a reordered pool', () => 
   }
 });
 
-// ---- bank revision ----------------------------------------------------------------------------------------------
+// ---- deal revision ----------------------------------------------------------------------------------------------
 
-/** A later build: one reviewed word appended to the English general pool, and the revision bumped. */
+/** A later build: one reviewed word appended to the English general pool, and the deal revision bumped. */
 function laterBuild() {
   const b = scriptFixtureBanks();
   const w = b.en.general[0];
@@ -249,7 +249,7 @@ function laterBuild() {
   return { ...b, revision: 2 };
 }
 
-test('two builds on different bank revisions disagree, and the stale phone refuses with stale-bank instead of dealing', () => {
+test('two builds on different deal revisions disagree, and the stale phone refuses with stale-bank instead of dealing', () => {
   const host = laterBuild();
   const stale = { ...scriptFixtureBanks(), revision: 1 };
   const staleIgnoringRevision = { ...stale, revision: 2 };

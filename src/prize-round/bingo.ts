@@ -13,10 +13,12 @@
 // mechanically free ("most marks survive" or "most marks are out"); gh#311 states only the first.
 //
 // Barred letter sets. A set of letters that spells a word the company-party category must never show (its owner is
-// that category's Avoid line in CONTEXT.md) loses one hash-picked member per round before the split: the split runs
-// over the rest of the alphabet, so no card, script or card row can hold a full set. The alphabet stays whole; REST
-// shrinks by the exclusion count, and detail.excluded names the letters left out so any later generator can draw
-// from the same universe.
+// that category's Avoid line in CONTEXT.md) has at least one member out of each round's universe before the split:
+// the split runs over the rest of the alphabet, so no card, script or card row can hold a full set. Sets are walked
+// in list order; a set that already lost a member to an earlier, overlapping set is skipped, otherwise one hash-picked
+// member goes. So the invariant is "every barred set has a member excluded", not one letter per set. The alphabet
+// stays whole; REST shrinks by the exclusion count, and detail.excluded names the letters left out so any later
+// generator can draw from the same universe.
 
 import type { Lang } from '../prize-words/schema.ts';
 import { hashToScale } from '../prize-draw/round-code.ts';
@@ -28,7 +30,16 @@ const ENGLISH_ALPHABET = [...'abcdefghijklmnopqrstuvwxyz'];
 export const BINGO_ALPHABET: Readonly<Record<Lang, readonly string[]>> = { th: THAI_ALPHABET, en: ENGLISH_ALPHABET };
 
 /** Per language, the letter sets no round may deal in full. Thai letters are written as escapes on purpose. */
-export const BINGO_BARRED: Readonly<Record<Lang, readonly (readonly string[])[]>> = { th: [['\u0e2b', '\u0e27', '\u0e22']], en: [] };
+export const BINGO_BARRED: Readonly<Record<Lang, readonly (readonly string[])[]>> = {
+  th: [
+    ['\u0e2b', '\u0e27', '\u0e22'],
+    ['\u0e04', '\u0e27', '\u0e22'],
+  ],
+  en: [
+    ['b', 'e', 't'],
+    ['s', 'e', 'x'],
+  ],
+};
 
 export const CARD_SIZE = 9;
 export const DRAWS = 12;
