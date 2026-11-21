@@ -18,6 +18,17 @@
 // The sample: SEED_COUNT spread seeds plus the edges of every code field (seeds 00000 and 99999, the lowest and
 // highest cut, the first and last round). RESIDUAL, accepted: a change that touches only a small fraction of
 // rounds, none of them sampled, stays green here. Review owns that case, not this test.
+//
+// The relation test at the end checks what the hash cannot see cheaply: every derived entry point (the scripted
+// verdict, each step for every identity and tap, the live revision digit) against the trace and the pinned-digit
+// deal. RESIDUALS, accepted, all owned by review:
+//   * It runs on every RELATION_STRIDE-th sampled code only, so a point mutant on a code outside the stride stays
+//     green: the same class as an unsampled seed above.
+//   * Out-of-range steps are the caller's to avoid; -1 and two past the end stand in for the whole range.
+//   * The list of phone entry points is enumerated by hand, and nothing guards it: a new entry point is unhashed
+//     until it is added here.
+//   * Reordering the keys of an object a scripted round returns moves the hash. That fails safe: undo the
+//     reorder, never re-record a published entry.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -39,7 +50,7 @@ import {
   revisionDigit,
   wordCode,
 } from './round.ts';
-import { SCRIPT_KINDS, hostScriptRound, parseScriptCode, phoneScriptDeal, phoneScriptStep, phoneScriptTrace } from './scripted.ts';
+import { SCRIPT_KINDS, hostScriptRound, parseScriptCode, phoneScriptDeal, phoneScriptStep, phoneScriptTrace, phoneScriptVerdict } from './scripted.ts';
 import { fixtureBanks } from './fixtures.mjs';
 import { prng, roster, scriptFixtureBanks, TAPS } from './scripted-fixtures.mjs';
 
@@ -214,4 +225,52 @@ test('the wire digit is DEAL_REVISION mod 10 at every minting site and at the re
   }
   assert.ok(!('refused' in phoneWordRound('424242', ids[0], 1, w.code, banks)));
   assert.ok(!('refused' in phoneScriptDeal('424242', ids[0], 2, s.code, banks)));
+});
+
+const RELATION_STRIDE = 11;
+test('derived entry points return what the hashed trace holds, and the live digit deals what the pinned digit deals', () => {
+  const live = DEAL_REVISION % 10;
+  const picked = SAMPLES.filter((_, s) => s % RELATION_STRIDE === 0);
+  const sets = [
+    { name: 'fixture-2a', live: fixtureBanks(), pinned: { ...fixtureBanks(), revision: PINNED_DIGIT } },
+    { name: 'fixture-2b', live: scriptFixtureBanks(), pinned: { ...scriptFixtureBanks(), revision: PINNED_DIGIT } },
+    { name: 'real bank', live: { th: BANK_TH, en: BANK_EN }, pinned: { th: BANK_TH, en: BANK_EN, revision: PINNED_DIGIT } },
+  ];
+  const played = new Map([...wordKinds(), ...scriptKinds()].map((k) => [k.label, 0]));
+  const MOVED = 'If this relation is changed on purpose, what a phone shows has moved: append a deal revision, never just edit the assertion.';
+  for (const set of sets) {
+    for (const kind of [...wordKinds(), ...scriptKinds()]) for (const pool of POOL_ORDER) for (const { seed, round, key, cut } of picked) {
+      const code = familyCode(round, seed, cut, live, kind.number, pool);
+      const pinnedCode = familyCode(round, seed, cut, PINNED_DIGIT, kind.number, pool);
+      for (const id of IDENTITIES) {
+        const where = `${set.name} ${kind.label} ${code} ${id}`;
+        if (kind.engine === 'word') {
+          const r = phoneWordRound(key, id, round, code, set.live);
+          assert.deepEqual(r, phoneWordRound(key, id, round, pinnedCode, set.pinned), `${where}: word round on the live digit against the pinned digit`);
+          for (const tap of TAPS) assert.deepEqual(phoneWordVerdict(key, id, round, code, tap, set.live), phoneWordVerdict(key, id, round, pinnedCode, tap, set.pinned), `${where}: word verdict on the live digit against the pinned digit`);
+          if (!('refused' in r)) played.set(kind.label, played.get(kind.label) + 1);
+          continue;
+        }
+        const d = phoneScriptDeal(key, id, round, code, set.live);
+        assert.deepEqual(d, phoneScriptDeal(key, id, round, pinnedCode, set.pinned), `${where}: script deal on the live digit against the pinned digit`);
+        if (!('refused' in d)) played.set(kind.label, played.get(kind.label) + 1);
+        TAPS.forEach((tap, ti) => {
+          const t = phoneScriptTrace(key, id, round, code, tap, set.live);
+          assert.deepEqual(t, phoneScriptTrace(key, id, round, pinnedCode, tap, set.pinned), `${where} tap ${ti}: trace on the live digit against the pinned digit`);
+          const v = phoneScriptVerdict(key, id, round, code, tap, set.live);
+          if ('refused' in t) {
+            assert.equal(v, t.refused, `${where} tap ${ti}: the verdict refuses as the trace does`);
+            assert.deepEqual(phoneScriptStep(key, id, round, code, tap, 0, set.live), t, `${where} tap ${ti}: the step refuses as the trace does`);
+            return;
+          }
+          assert.ok(v === 'in' || v === 'out', `${where} tap ${ti}: a playable verdict is in or out`);
+          assert.equal(v, t.at(-1).verdict, `${where} tap ${ti}: the verdict is the last trace step's. ${MOVED}`);
+          for (let k = -1; k <= t.length + 1; k++) {
+            assert.deepEqual(phoneScriptStep(key, id, round, code, tap, k, set.live), t[k] ?? null, `${where} tap ${ti}: step ${k} of ${t.length - 1}. ${MOVED}`);
+          }
+        });
+      }
+    }
+  }
+  for (const [label, n] of played) assert.ok(n > 0, `${label}: never played in the relation sample, so its relation was checked on refusals alone`);
 });

@@ -34,6 +34,10 @@
 //   * When the resolved base equals HEAD (a tag push, or a force-push onto main via the merge-base
 //     fallback), the comparison is the tree against its own commit. That is printed on the verdict
 //     line, never failed: it proves only that the working tree did not rewrite HEAD.
+//   * The trigger for that hole on main: a force-push to main that rewrites a pinned file while the
+//     old tip is unavailable to the clone (github.event.before then does not resolve, and the fallback
+//     lands on the new tip). main has no branch protection, so nothing upstream of this gate refuses
+//     the force-push; the rewrite then becomes the new base, as in the first residual.
 //   * Locally the base can sit BEHIND the published tip, and an older base pins fewer keys. Run bare,
 //     or through run-workflow-gates.sh with HEAD already on origin/main, the resolver's default is
 //     HEAD~1, so a key first published in the tip commit is pinned in CI but not here; a stale
@@ -216,19 +220,25 @@ function selftest() {
 
     // (6) deal-revisions.json: one field rewritten inside a published entry, then an entry dropped. Checked twice:
     // through report(), and through the real CLI process, whose exit code is what CI reads. The CLI runs from a copy
-    // of this script inside the temp repo, so its repo root is that repo; a minimal env keeps CI's range out.
+    // of this script inside the temp repo, so its repo root is that repo; a minimal env keeps the caller's range out.
+    // One spawn takes no argv and CI's own env shape instead, so the base comes from github.event.before as in CI
+    // and an exit that only misbehaves under GITHUB_ACTIONS is caught.
     const here = fileURLToPath(import.meta.url);
     for (const f of [here, path.join(path.dirname(here), 'added-lineno-citation-check.mjs')]) {
       write(path.join('scripts', path.basename(f)), fs.readFileSync(f, 'utf8'));
     }
-    const cli = () =>
-      spawnSync(process.execPath, [path.join(root, 'scripts', path.basename(here)), base], {
+    const cli = (argv = [base], env = {}) =>
+      spawnSync(process.execPath, [path.join(root, 'scripts', path.basename(here)), ...argv], {
         cwd: root,
         encoding: 'utf8',
-        env: { PATH: process.env.PATH ?? '', HOME: process.env.HOME ?? '' },
+        env: { PATH: process.env.PATH ?? '', HOME: process.env.HOME ?? '', ...env },
       });
+    const ciEnv = { GITHUB_ACTIONS: 'true', GITHUB_EVENT_BEFORE: base, GITHUB_PR_BASE_SHA: '' };
     let proc = cli();
     assert.equal(proc.status, 0, `case 6: the CLI must exit 0 on an untouched tree (stderr: ${proc.stderr})`);
+    proc = cli([], ciEnv);
+    assert.equal(proc.status, 0, `case 6: the CLI under CI's env must exit 0 on an untouched tree (stderr: ${proc.stderr})`);
+    assert.ok(proc.stdout.includes('(github.event.before)'), 'case 6: under CI env the base must come from github.event.before');
     writeJson(DEAL, { ...baseDeal, 1: { ...baseDeal[1], hash: 'deal-REWRITTEN' } });
     rep = report(run(at(base)));
     assert.equal(rep.ok, false, 'case 6: a rewritten deal-revisions entry must fail');
@@ -236,6 +246,9 @@ function selftest() {
     proc = cli();
     assert.notEqual(proc.status, 0, 'case 6: the CLI must exit non-zero on a rewritten deal entry');
     assert.ok(proc.stderr.includes(`${DEAL}: key "1" rewritten since base`), 'case 6: the CLI must name the rewritten deal entry');
+    proc = cli([], ciEnv);
+    assert.notEqual(proc.status, 0, 'case 6: the CLI under CI env must exit non-zero on a rewritten deal entry');
+    assert.ok(proc.stderr.includes(`${DEAL}: key "1" rewritten since base`), 'case 6: the CLI under CI env must name the rewritten deal entry');
     writeJson(DEAL, { 1: baseDeal[1], 3: { revision: 3, hash: 'deal-three', date: '2026-01-03', note: 'third' } });
     rep = report(run(at(base)));
     assert.equal(rep.ok, false, 'case 6: a dropped deal-revisions entry must fail, even with a new one appended');
